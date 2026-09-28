@@ -337,6 +337,22 @@ build duration and bridge overhead separately. Record inputs, hardware and
 toolchain versions. Set performance targets after baselines; do not invent
 speedup claims.
 
+Performance priorities follow the primary use: embedded engines in Expo apps on
+iOS and Android. In order, optimise:
+
+1. Cold start, from application launch to a runtime ready for its first call.
+2. Per-call latency across the JavaScript, native and managed boundary,
+   including serialization.
+3. Binary size of the compiled library and runtime.
+4. Peak memory and collection pauses, which cause visible stutter.
+5. Steady-state throughput, which matters for heavy work such as AI search.
+
+Optimisation effort goes first to bridge design, startup work and code size,
+then to code-generator throughput. The throughput goal on native targets is a
+measured factor of NativeAOT, not parity. On the web, where NativeAOT has no
+official target, Cilica aims to compare favourably with the .NET options that
+do run in browsers. These are aims, not claims, until baselines exist.
+
 ## 16. Milestones and exit gates
 
 | Milestone | Deliverable | Evidence |
