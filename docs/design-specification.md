@@ -384,6 +384,9 @@ do run in browsers. These are aims, not claims, until baselines exist.
 | 11 | Documented public release | A second developer reproduces a clean build; general exception filters pass differential tests; stage 3 readiness review passes |
 | 12 | Multithreaded profile (native first) | Concurrency stress and ThreadSanitizer runs; differential results for race-free programs |
 
+Milestone plans and slice status live in [docs/milestones](milestones/), starting
+with [milestone 1](milestones/01-assembly-explorer.md).
+
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,
 not authorization to publish unfinished private material automatically.

@@ -26,7 +26,8 @@ compatibility boundaries, memory management, the embedding API, validation and
 milestone exit criteria.
 
 The first milestone is an assembly explorer: inspect metadata, dependencies and
-IL without executing input assemblies, and produce stable diagnostics.
+IL without executing input assemblies, and produce stable diagnostics. Its plan
+and progress are in [docs/milestones](docs/milestones/01-assembly-explorer.md).
 
 The eventual flagship demonstration is the Alchemy C# turn engine running
 offline inside Expo on iOS, Android and web, with equivalent results for the
