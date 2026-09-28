@@ -231,7 +231,11 @@ dictionaries are later optimisations.
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential
-operations use explicit compiler intrinsics.
+operations use explicit compiler intrinsics. Shared library source is ported
+from a pinned dotnet/runtime release, with runtime-coupled types written for
+Cilica ([ADR 0003](decisions/0003-class-library-strategy.md)). `Unsafe`
+operations and interior references are permitted only in trusted Cilica
+library assemblies.
 
 An initial audit determines members needed by the kernel and Alchemy. Inspection
 of the existing game showed dictionaries, sets, delegates, type-based dispatch,

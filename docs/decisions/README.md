@@ -8,3 +8,4 @@ capability. It becomes accepted once its validation experiment has run.
 | --- | --- | --- |
 | [0001](0001-execution-and-threading-model.md) | Execution, async and threading model | Proposed |
 | [0002](0002-gc-root-tracking.md) | Garbage-collection root tracking | Proposed |
+| [0003](0003-class-library-strategy.md) | Class library strategy | Proposed |
