@@ -204,13 +204,18 @@ weak references and concurrent collection are separately staged features.
 
 ## 9. Exceptions
 
-First support try/catch/finally, throw and rethrow. C++ exceptions may provide
-unwinding, but managed identity, handler selection and finally execution remain
-Cilica responsibilities. Root registrations must unwind correctly.
+First support try/catch/finally, throw and rethrow. Exceptions propagate
+explicitly through a pending-exception slot in the execution context, with the
+same mechanism on native and WebAssembly targets and no C++ exceptions
+([ADR 0004](decisions/0004-exception-handling.md)). Managed identity, handler
+selection and finally execution are Cilica responsibilities. Root registrations
+must unwind correctly.
 
-Exception filters are a separate milestone: search and unwind ordering is
-observable and cannot be replaced with an ordinary C++ catch block. Reject
-filters until implemented. Catch managed exceptions at every exported boundary;
+Exception filters are staged. Filters that only test the exception's type are
+supported with basic exceptions, because their evaluation order is
+unobservable; Alchemy uses them. General filters need full two-pass search and
+unwind ordering and are required for the first public release. Until then they
+produce diagnostics. Catch managed exceptions at every exported boundary;
 return structured errors rather than unwinding into Swift/Kotlin/JavaScript.
 
 ## 10. Generics and reachability
@@ -370,13 +375,13 @@ do run in browsers. These are aims, not claims, until baselines exist.
 | 2 | Primitive executable compiler | Differential control-flow and arithmetic tests |
 | 3 | Objects, arrays, strings, dispatch | Correct identity, casts and mutation |
 | 4 | Precise collection and handles | Cycles reclaimed; live values survive stress |
-| 5 | Structs, boxing, generics, delegates, exceptions | Semantic edge-case regressions |
+| 5 | Structs, boxing, generics, delegates, exceptions, type-test filters | Semantic edge-case regressions |
 | 6 | Required library subset and real turn kernel | Equivalent deterministic traces |
 | 7 | C ABI and phone libraries | Repeated-call/lifecycle tests on iOS and Android devices |
 | 8 | Expo bindings and offline Alchemy slice | Start, play, terminate, restore without network |
 | 9 | Browser WASM parity | Equivalent native/browser command traces |
 | 10 | Single-threaded async profile | Differential async ordering and exception tests; exported tasks settle as host promises on native and web |
-| 11 | Documented public release | A second developer reproduces a clean build; stage 3 readiness review passes |
+| 11 | Documented public release | A second developer reproduces a clean build; general exception filters pass differential tests; stage 3 readiness review passes |
 | 12 | Multithreaded profile (native first) | Concurrency stress and ThreadSanitizer runs; differential results for race-free programs |
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
