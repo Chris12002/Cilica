@@ -65,6 +65,13 @@ is deterministic, which suits games and simulations.
    - `Monitor.Wait`/`Pulse`, thread creation, `ThreadPool`, `Task.Run` and
      `Parallel` produce build diagnostics stating that they require the
      multithreaded profile.
+   - **Completed tasks are part of stage 1.** `Task`, `Task<T>`,
+     `Task.FromResult`, `Task.CompletedTask`, `CancellationToken` and
+     `CancellationTokenSource` are available without an event loop. Reading
+     the result of a completed task is ordinary. Awaiting a task that is not
+     complete, and scheduling continuations, require stage 2 and produce
+     diagnostics when reachable. Offline game bots need this subset: they
+     return `Task.FromResult` values.
 
 ### Stage 2: single-threaded async
 

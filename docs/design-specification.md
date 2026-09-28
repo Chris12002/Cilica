@@ -308,6 +308,11 @@ separate from the runtime heap and from retained object handles.
 
 ## 14. Alchemy validation
 
+The validation scope is everything an offline game needs: Alchemy's
+.NET Standard 2.1 assemblies, covering the turn kernel, rules engine, content
+model, player-view projection and bots. The game server stays a separately
+hosted .NET service and does not set Cilica requirements.
+
 Use the existing engine boundary:
 
 ```text
