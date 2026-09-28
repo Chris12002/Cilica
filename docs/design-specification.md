@@ -1,6 +1,6 @@
 # Cilica design specification
 
-Status: proposed design, version 0.1. Recorded 2026-09-28.
+Status: proposed design, version 0.2. Recorded 2026-09-28.
 
 Cilica is a working name, pending a naming check. This specification describes
 planned work, not implemented capabilities or compatibility guarantees.
@@ -79,11 +79,20 @@ to supported operations; an ordinary method can fail on an unsupported API.
 | Metadata | Type identity, `typeof`, `GetType`, required enum operations |
 | Memory | Precise collection including cyclic object graphs |
 | Embedding | Explicit exports, structured values, errors, retained objects |
+| Execution | Single-threaded instances; `Task`-based async on an event loop |
 
 This profile is a milestone goal, not an initial prototype promise. General
-reflection, dynamic assembly loading, Reflection.Emit, general threading,
-unsafe code and unrestricted native calls are outside it. Unsupported reachable
-behaviour fails compilation; no silent fallback or semantic approximation.
+reflection, dynamic assembly loading, Reflection.Emit, unsafe code and
+unrestricted native calls are outside it. Unsupported reachable behaviour fails
+compilation; no silent fallback or semantic approximation.
+
+Execution profiles are staged and chosen at build time
+([ADR 0001](decisions/0001-execution-and-threading-model.md)): single-threaded,
+then single-threaded async for the first public release, then multithreaded.
+Multithreading is outside the initial profile, but the IR, object header, type
+initialization and generated calling convention are designed so that adding it
+does not require a rewrite. Code that starts threads fails compilation with a
+diagnostic naming the multithreaded profile.
 
 Floating-point and decimal operations require separate documented semantics and
 conformance before support is claimed. Cross-platform bitwise game determinism
@@ -150,12 +159,16 @@ WebAssembly. Expand portability claims only after conformance passes per target.
 
 ## 7. Objects, types and initialization
 
-Managed objects contain a runtime header and fields. Type descriptors record
-base types, interfaces, dispatch tables, size, reference-field maps, array
-element metadata, generic identity and required reflection data.
+Managed objects contain a runtime header and fields. The header reserves a
+synchronization word for identity hash codes and lock state. Type descriptors
+record base types, interfaces, dispatch tables, size, reference-field maps,
+array element metadata, generic identity and required reflection data.
 
 Static fields belong to runtime instances, not uncontrolled process globals.
-Model static constructor ordering, failure caching and `beforefieldinit`.
+Thread-static fields are reached through the thread's execution context.
+Model static constructor ordering, failure caching and `beforefieldinit`;
+initialization state records the initializing thread for the later
+multithreaded profile.
 Strings contain UTF-16 code units; arrays retain element type and bounds.
 Structs with references have generated tracing descriptions.
 
@@ -166,12 +179,19 @@ preserve the distinction between modifying boxed storage and copying its value.
 
 The baseline is precise, non-moving mark-and-sweep with one managed execution
 thread per runtime instance. The compiler identifies actual references; the
-collector does not guess from arbitrary memory.
+collector does not guess from arbitrary memory. Before the multithreaded
+profile, parallelism uses independent runtime instances
+([ADR 0001](decisions/0001-execution-and-threading-model.md)). Each thread
+context owns its shadow stack, and the IR marks poll points, native transitions
+and heap reference stores so stop-the-world collection and write barriers can
+be added later.
 
 Generated methods register reference-bearing locals and temporaries in a shadow
-stack. Trace statics, retained host handles and pending exceptions too. Collect
-at controlled allocation points; values needed across allocating calls must
-already be rooted. Reference-bearing structs require recursive field tracing.
+stack, first for every reference and later only for references live across
+safepoints ([ADR 0002](decisions/0002-gc-root-tracking.md)). Trace statics,
+retained host handles and pending exceptions too. Collect at controlled
+allocation points; values needed across allocating calls must already be
+rooted. Reference-bearing structs require recursive field tracing.
 
 Interior managed references retain their owner. Non-moving collection preserves
 addresses but does not eliminate owner tracking or stack-lifetime checks.
@@ -246,7 +266,9 @@ Retained objects use opaque handles with generation counters. Stale handles
 must be rejected, not converted to dangling pointers.
 
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
-initially reject reentrant managed calls. Runtime destruction settles pending
+initially reject reentrant managed calls. In the async profile, the worker
+drains the instance's continuation queue, and timers ask the host to schedule
+wake-ups rather than blocking the worker. Runtime destruction settles pending
 work and releases owned resources; it does not promise safe dynamic library
 unloading by the operating system.
 
@@ -268,10 +290,12 @@ await match.dispose();
 await runtime.dispose();
 ```
 
-JavaScript promises initially represent native work scheduling, not support for
-C# Task/async. Define exact encodings: never silently round 64-bit integers into
-JavaScript numbers. Specify strings, enums, nullable fields and schema versions.
-Start with inspectable JSON; add binary encoding only after measuring overhead.
+JavaScript promises initially represent native work scheduling. In the async
+profile, an exported method returning `Task` or `Task<T>` returns a promise that
+settles when the task completes. Define exact encodings: never silently round
+64-bit integers into JavaScript numbers. Specify strings, enums, nullable fields
+and schema versions. Start with inspectable JSON; add binary encoding only after
+measuring overhead.
 
 On web, a worker owns the WASM runtime behind the same contract. Rendering,
 animation and camera movement stay outside managed execution. Bundle all runtime
@@ -326,7 +350,9 @@ speedup claims.
 | 7 | C ABI and phone libraries | Repeated-call/lifecycle tests on iOS and Android devices |
 | 8 | Expo bindings and offline Alchemy slice | Start, play, terminate, restore without network |
 | 9 | Browser WASM parity | Equivalent native/browser command traces |
-| 10 | Documented public release | A second developer reproduces a clean build |
+| 10 | Single-threaded async profile | Differential async ordering and exception tests; exported tasks settle as host promises on native and web |
+| 11 | Documented public release | A second developer reproduces a clean build; stage 3 readiness review passes |
+| 12 | Multithreaded profile (native first) | Concurrency stress and ThreadSanitizer runs; differential results for race-free programs |
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,
@@ -347,8 +373,9 @@ from a wrapper demonstration.
 
 Separate compiler, runtime, compatibility library, embedding SDK, Expo package,
 tests and examples as implementation arrives; no empty scaffolding is required.
-Maintain this specification, architecture decisions, a compatibility manifest,
-ABI documentation, conformance cases, benchmarks and contribution guidance.
+Maintain this specification, [architecture decisions](decisions/README.md),
+a compatibility manifest, ABI documentation, conformance cases, benchmarks and
+contribution guidance.
 
 Review each slice for semantics, rooting, ownership and diagnostics before a
 coherent commit. Prefer targeted local validation. Hosted CI remains disabled
@@ -365,7 +392,8 @@ The main risks are library coverage, precise roots, exception semantics and
 generic reachability. The milestone order tackles them before the Expo demo.
 Before implementation, pin SDK/reference assemblies, C++ toolchains, exact ABI
 layouts, collection root representation and the first supported library members
-in architecture decisions backed by small experiments.
+in architecture decisions backed by small experiments. The execution model and
+root representation are proposed in ADRs 0001 and 0002, pending experiments.
 
 The intended initial release claim is deliberately specific:
 
