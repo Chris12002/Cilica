@@ -1,0 +1,16 @@
+.DS_Store
+**/bin/
+**/obj/
+artifacts/
+build/
+out/
+node_modules/
+.expo/
+.vs/
+TestResults/
+coverage/
+*.user
+*.suo
+.env
+.env.*
+!.env.example

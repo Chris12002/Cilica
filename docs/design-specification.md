@@ -1,0 +1,376 @@
+# Cilica design specification
+
+Status: proposed design, version 0.1. Recorded 2026-09-28.
+
+Cilica is a working name, pending a naming check. This specification describes
+planned work, not implemented capabilities or compatibility guarantees.
+
+## 1. Purpose and success criteria
+
+Build an independent IL-to-C++ compiler and managed runtime, with Expo as its
+first application integration. The portfolio value comes from implementing
+language semantics, memory management, interoperability and cross-platform
+execution, supported by reproducible evidence of correctness.
+
+Cilica compiles supported .NET assemblies into readable C++, then builds native
+libraries or WebAssembly modules. Applications embed those outputs through a
+stable API. Its four independently useful deliverables are:
+
+- An IL-to-C++ compiler.
+- A runtime providing objects, collection, exceptions and type information.
+- An embedding SDK for other languages.
+- An Expo package with generated TypeScript bindings.
+
+The flagship demonstration is Alchemy's existing C# turn engine running offline
+on iOS, Android and web, producing equivalent results from identical starting
+state and command transcripts. Alchemy is an external validation target; its
+code and assets are not incorporated by this specification. Independent public
+examples must remain usable without access to it.
+
+## 2. Architecture and ownership
+
+```mermaid
+flowchart TD
+    CS["C# source"] --> ROS["Existing C# compiler"]
+    ROS --> IL[".NET assemblies and portable PDBs"]
+    IL --> READ["Metadata reader and IL verifier"]
+    READ --> IR["Typed intermediate representation"]
+    IR --> ANALYSE["Reachability, generics and optimisation"]
+    ANALYSE --> CPP["C++ code generator"]
+    CPP --> NATIVE["Clang: native library"]
+    CPP --> WASM["Emscripten: WebAssembly"]
+    RT["Cilica runtime and supported class library"] --> NATIVE
+    RT --> WASM
+    NATIVE --> ABI["C embedding API"]
+    ABI --> EXPO["Expo native module"]
+    WASM --> WEB["JavaScript web adapter"]
+    EXPO --> APP["Shared TypeScript API"]
+    WEB --> APP
+```
+
+Roslyn supplies C# parsing and IL generation. Clang supplies machine-code
+generation. Cilica owns semantic translation, its runtime and the supported
+library surface. NativeAOT may serve as a benchmark comparator; it must not
+silently compile code advertised as Cilica output.
+
+Web uses Cilica's generated C++ and runtime compiled to WebAssembly. It does not
+switch to Microsoft's .NET WebAssembly runtime, so native and web test the same
+implementation.
+
+## 3. Compatibility contract
+
+Cilica is a closed-world ahead-of-time compiler: dependencies and entry points
+are known at build time. Its semantic reference is
+[ECMA-335](https://ecma-international.org/publications-and-standards/standards/ecma-335/),
+with documented choices where the standard permits variation.
+
+Compatibility is expressed as IL operations, runtime behaviours and library
+members, not an unqualified C# version claim. New syntax can work if it lowers
+to supported operations; an ordinary method can fail on an unsupported API.
+
+| Area | Initial production-quality profile |
+| --- | --- |
+| Values | Integers, booleans, characters, enums, structs, nullable values |
+| Objects | Classes, inheritance, interfaces, dispatch, casts |
+| Collections | Arrays, lists, dictionaries, sets, required interfaces |
+| Generics | Reachable closed generic types and methods |
+| Functions | Static/instance methods, delegates, closures |
+| Control flow | Branches, loops, switches, supported exception regions |
+| Metadata | Type identity, `typeof`, `GetType`, required enum operations |
+| Memory | Precise collection including cyclic object graphs |
+| Embedding | Explicit exports, structured values, errors, retained objects |
+
+This profile is a milestone goal, not an initial prototype promise. General
+reflection, dynamic assembly loading, Reflection.Emit, general threading,
+unsafe code and unrestricted native calls are outside it. Unsupported reachable
+behaviour fails compilation; no silent fallback or semantic approximation.
+
+Floating-point and decimal operations require separate documented semantics and
+conformance before support is claimed. Cross-platform bitwise game determinism
+is an application guarantee to test, not an automatic property of the compiler.
+
+## 4. Frontend and diagnostics
+
+The compiler is written in C#. Input assemblies are data: never execute them or
+their initializers inside the compiler. Use System.Reflection.Metadata and
+PEReader to read metadata and method bodies
+([API documentation](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.metadata.metadatareader)).
+
+The frontend resolves a pinned dependency graph; decodes signatures, attributes,
+generic parameters and exception regions; constructs basic blocks; validates
+branch targets and stack consistency; resolves referenced members; and reads
+source locations from portable PDBs where available.
+
+Verification covers the supported execution profile. Cilica is not initially
+a complete CLI verifier or a sandbox for hostile programs. Native compiler
+execution and dependency restoration are explicit build steps, not consequences
+of merely inspecting an assembly.
+
+Diagnostics include the unsupported feature, source/IL location and reachability
+path. Illustrative output:
+
+```text
+CIL2041: Runtime assembly loading is unsupported.
+Export: MatchService.Create
+  -> ContentLoader.Load
+  -> Assembly.Load(byte[])
+Game.Content.dll, ContentLoader.cs:84, IL offset 0x0032
+```
+
+Diagnostic identifiers and command names in this document are proposed APIs.
+
+## 5. Intermediate representation
+
+Convert IL's implicit evaluation stack into typed values and explicit control
+flow. Distinguish managed references, native pointers, boxed values, value
+types, checked/unchecked arithmetic, direct/virtual/interface calls, potentially
+throwing instructions, GC safepoints and managed references to storage.
+
+Begin with typed basic blocks and temporaries. Introduce SSA after baseline
+semantics are established. Optimisations preserve exception order and observable
+side effects. Planned passes include constant folding, unreachable-block removal,
+devirtualisation and proven bounds-check elimination. Every pass is individually
+disableable for diagnosis and differential testing.
+
+## 6. C++ generation
+
+Generated methods have stable names and mappings to original methods and IL
+offsets. Use explicit managed layouts and dispatch tables rather than relying
+on C++ inheritance or RTTI matching CLI semantics.
+
+- Unchecked integer arithmetic wraps with defined behaviour.
+- Checked arithmetic raises the proper managed exception.
+- Division, shifts and conversions explicitly handle edge cases.
+- Null references and bounds failures produce managed exceptions.
+- Struct copies preserve embedded managed references.
+
+Valid managed programs must not acquire C++ undefined behaviour during lowering.
+Pin a C++20 toolchain. Develop on macOS first, then Android/iOS ARM64 and browser
+WebAssembly. Expand portability claims only after conformance passes per target.
+
+## 7. Objects, types and initialization
+
+Managed objects contain a runtime header and fields. Type descriptors record
+base types, interfaces, dispatch tables, size, reference-field maps, array
+element metadata, generic identity and required reflection data.
+
+Static fields belong to runtime instances, not uncontrolled process globals.
+Model static constructor ordering, failure caching and `beforefieldinit`.
+Strings contain UTF-16 code units; arrays retain element type and bounds.
+Structs with references have generated tracing descriptions.
+
+Boxing allocates a value copy inside an object. Unboxing and interface dispatch
+preserve the distinction between modifying boxed storage and copying its value.
+
+## 8. Garbage collection
+
+The baseline is precise, non-moving mark-and-sweep with one managed execution
+thread per runtime instance. The compiler identifies actual references; the
+collector does not guess from arbitrary memory.
+
+Generated methods register reference-bearing locals and temporaries in a shadow
+stack. Trace statics, retained host handles and pending exceptions too. Collect
+at controlled allocation points; values needed across allocating calls must
+already be rooted. Reference-bearing structs require recursive field tracing.
+
+Interior managed references retain their owner. Non-moving collection preserves
+addresses but does not eliminate owner tracking or stack-lifetime checks.
+
+Required diagnostic modes: collect before every eligible allocation, verify the
+heap after collection, report roots/retention paths, count allocations by type,
+and reject stale host handles. Later generational collection, write barriers
+and root-liveness improvements must pass the same stress suite. Finalizers,
+weak references and concurrent collection are separately staged features.
+
+## 9. Exceptions
+
+First support try/catch/finally, throw and rethrow. C++ exceptions may provide
+unwinding, but managed identity, handler selection and finally execution remain
+Cilica responsibilities. Root registrations must unwind correctly.
+
+Exception filters are a separate milestone: search and unwind ordering is
+observable and cannot be replaced with an ordinary C++ catch block. Reject
+filters until implemented. Catch managed exceptions at every exported boundary;
+return structured errors rather than unwinding into Swift/Kotlin/JavaScript.
+
+## 10. Generics and reachability
+
+Initially specialise each reachable closed generic type and method. Distinct
+implementations for List<int> and List<Card> trade code size for inspectability.
+
+Roots are exports and explicit preservation declarations. Expand through calls,
+constructors, static initialization, virtual/interface dispatch, delegate
+targets, generic instantiations and preserved metadata until reaching a fixed
+point. New types can make new virtual implementations reachable.
+
+Pathological generic expansion yields a diagnostic with an instantiation chain,
+not a compiler hang or omitted code. Generic sharing and runtime generic
+dictionaries are later optimisations.
+
+## 11. Class library and assembly identity
+
+The class library is a major subsystem. Managed compatibility-library code
+compiles through Cilica; allocation, runtime type inspection and essential
+operations use explicit compiler intrinsics.
+
+An initial audit determines members needed by the kernel and Alchemy. Inspection
+of the existing game showed dictionaries, sets, delegates, type-based dispatch,
+enum validation and custom equality. This is not a complete dependency audit.
+
+Recognised framework types map to canonical runtime types. Resolve supported
+facades and type forwarders deliberately. User types retain assembly-qualified
+identity; never match solely by a short type name.
+
+Pin a tested reference-assembly profile. .NET Standard 2.1 is important because
+the existing kernel and game engine target it, but that label does not promise
+every API. Each supported member needs behavioural tests or a documented
+dependency on tested primitives. Record source provenance for reused library
+code; do not assume an existing entire CoreLib can be transplanted unchanged.
+
+## 12. Native embedding API
+
+Expose a versioned C ABI; keep C++ implementation details private. Conceptual
+operations (not yet implemented):
+
+```text
+runtime_create(config)
+runtime_invoke(runtime, export_id, request)
+runtime_release_handle(runtime, object_handle)
+runtime_destroy(runtime)
+buffer_release(buffer)
+```
+
+Specify widths, calling conventions, buffer lifetime/ownership, structured
+errors, handle validity, thread entry, version negotiation and capabilities.
+Retained objects use opaque handles with generation counters. Stale handles
+must be rejected, not converted to dangling pointers.
+
+Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
+initially reject reentrant managed calls. Runtime destruction settles pending
+work and releases owned resources; it does not promise safe dynamic library
+unloading by the operating system.
+
+## 13. Expo and web integration
+
+Swift and Kotlin Expo modules invoke the C ABI using small native adapters.
+[Expo Modules](https://docs.expo.dev/modules/overview/) supplies host integration;
+Cilica supplies managed execution. Native integration requires a custom Expo
+build rather than adding arbitrary native code to stock Expo Go.
+
+Exports generate stable identifiers, dispatch metadata, TypeScript types,
+serialization and validation. Proposed application API:
+
+```typescript
+const runtime = await createRuntime();
+const match = await runtime.matches.create(settings);
+const update = await match.submit(command);
+await match.dispose();
+await runtime.dispose();
+```
+
+JavaScript promises initially represent native work scheduling, not support for
+C# Task/async. Define exact encodings: never silently round 64-bit integers into
+JavaScript numbers. Specify strings, enums, nullable fields and schema versions.
+Start with inspectable JSON; add binary encoding only after measuring overhead.
+
+On web, a worker owns the WASM runtime behind the same contract. Rendering,
+animation and camera movement stay outside managed execution. Bundle all runtime
+and content assets needed for offline startup; persistent application state is
+separate from the runtime heap and from retained object handles.
+
+## 14. Alchemy validation
+
+Use the existing engine boundary:
+
+```text
+Step(state, command, rules, catalogue) -> new state, events, rejection
+```
+
+Execute fixed transcripts and compare canonical state/events with .NET. Progress
+from a synthetic kernel example to real TurnEngine.Core handlers, a selected
+Alchemy rules scenario, hotseat/player-view projection, then phone termination
+and restore. Host setup/content/serialization adapters are allowed. Altering
+rules to hide runtime defects is not; record compatibility accommodations.
+
+Game save formats remain application-owned. Object handles and heap snapshots
+are not durable game persistence contracts.
+
+## 15. Correctness and measurements
+
+Differential tests run the same program on .NET and Cilica and compare results,
+mutations, exception ordering/types, dispatch, generics and specified identity.
+Do not compare unspecified details such as raw addresses or assume universally
+guaranteed dictionary enumeration order.
+
+Generate small valid programs and shrink failures to minimal reproducers.
+Exercise optimisation levels and allocation stress against the same corpus.
+Use native sanitizers as additional evidence, not a replacement for semantic
+tests. Every fixed compiler bug gains an independent reduced regression case.
+
+Benchmark appropriate .NET configurations and NativeAOT where supported. Report
+cold start, steady-state execution, peak memory, collection pauses, binary size,
+build duration and bridge overhead separately. Record inputs, hardware and
+toolchain versions. Set performance targets after baselines; do not invent
+speedup claims.
+
+## 16. Milestones and exit gates
+
+| Milestone | Deliverable | Evidence |
+| --- | --- | --- |
+| 1 | Assembly explorer | Stable metadata/dependency/IL output; malformed-input diagnostics |
+| 2 | Primitive executable compiler | Differential control-flow and arithmetic tests |
+| 3 | Objects, arrays, strings, dispatch | Correct identity, casts and mutation |
+| 4 | Precise collection and handles | Cycles reclaimed; live values survive stress |
+| 5 | Structs, boxing, generics, delegates, exceptions | Semantic edge-case regressions |
+| 6 | Required library subset and real turn kernel | Equivalent deterministic traces |
+| 7 | C ABI and phone libraries | Repeated-call/lifecycle tests on iOS and Android devices |
+| 8 | Expo bindings and offline Alchemy slice | Start, play, terminate, restore without network |
+| 9 | Browser WASM parity | Equivalent native/browser command traces |
+| 10 | Documented public release | A second developer reproduces a clean build |
+
+These are capability gates, not calendar estimates. Each leaves a demonstrable
+result even if later stages take longer. Public release is a future milestone,
+not authorization to publish unfinished private material automatically.
+
+## 17. Portfolio presentation
+
+Provide a reproducible path showing C# -> IL -> typed IR -> C++ -> native/WASM,
+with .NET comparison and heap/performance reports. A proposed `explain` command
+traces a method through compilation. `why-included` explains binary reachability.
+
+Technical write-ups should show precise C++ roots, reference-bearing structs,
+exception search/unwind ordering, generic specialisation and defined arithmetic.
+Correctness evidence and inspectable outputs distinguish compiler engineering
+from a wrapper demonstration.
+
+## 18. Repository, resources and review
+
+Separate compiler, runtime, compatibility library, embedding SDK, Expo package,
+tests and examples as implementation arrives; no empty scaffolding is required.
+Maintain this specification, architecture decisions, a compatibility manifest,
+ABI documentation, conformance cases, benchmarks and contribution guidance.
+
+Review each slice for semantics, rooting, ownership and diagnostics before a
+coherent commit. Prefer targeted local validation. Hosted CI remains disabled
+unless explicitly authorised; quote aggregate runner minutes for all matrix
+jobs/retries before enabling hosted work. No extra agents without user direction.
+
+Use independently written code and appropriately licensed dependencies.
+[IL2C](https://github.com/kekyo/IL2C) is relevant experimental prior art, not an
+assumed compatibility foundation. The project is independent of Unity.
+
+## 19. Design review and unresolved decisions
+
+The main risks are library coverage, precise roots, exception semantics and
+generic reachability. The milestone order tackles them before the Expo demo.
+Before implementation, pin SDK/reference assemblies, C++ toolchains, exact ABI
+layouts, collection root representation and the first supported library members
+in architecture decisions backed by small experiments.
+
+The intended initial release claim is deliberately specific:
+
+> Cilica independently compiles a documented subset of .NET IL into C++, and
+> runs an existing C# turn engine consistently inside native mobile and browser
+> applications.
+
+This claim is aspirational until the corresponding exit gates have passed.
