@@ -17,8 +17,9 @@ Compiler tests should exercise behaviour, not reproduce the implementation.
 Reduce compiler failures to small independent examples. Game integration tests
 complement the conformance suite; they do not replace it.
 
-There are no runnable build/test targets yet. The first implementation must
-document its pinned prerequisites and exact local build and test commands.
+Pinned prerequisites and the exact local build and test commands are in the
+[README](README.md#development). New slices that add prerequisites or commands
+must document them there.
 
 ## Scope and provenance
 

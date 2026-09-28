@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Cilica.Fixtures.Basic\Cilica.Fixtures.Basic.csproj" />
+  </ItemGroup>
+</Project>

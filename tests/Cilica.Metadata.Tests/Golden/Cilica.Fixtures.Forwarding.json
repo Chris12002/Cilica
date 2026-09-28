@@ -1,0 +1,62 @@
+{
+  "format": "cilica.inspect",
+  "formatVersion": 1,
+  "input": "Cilica.Fixtures.Forwarding.dll",
+  "assembly": {
+    "name": "Cilica.Fixtures.Forwarding",
+    "version": "0.1.0.0",
+    "culture": "neutral",
+    "publicKeyToken": null
+  },
+  "module": "Cilica.Fixtures.Forwarding.dll",
+  "targetFramework": ".NETStandard,Version=v2.1",
+  "imageFlags": [
+    "il-only"
+  ],
+  "entryPoint": null,
+  "attributes": [
+    "[[netstandard]System.Diagnostics.DebuggableAttribute(undecoded blob 0100070100000000)]",
+    "[[netstandard]System.Reflection.AssemblyCompanyAttribute(\"Cilica.Fixtures.Forwarding\")]",
+    "[[netstandard]System.Reflection.AssemblyFileVersionAttribute(\"0.1.0.0\")]",
+    "[[netstandard]System.Reflection.AssemblyInformationalVersionAttribute(\"0.1.0\")]",
+    "[[netstandard]System.Reflection.AssemblyProductAttribute(\"Cilica.Fixtures.Forwarding\")]",
+    "[[netstandard]System.Reflection.AssemblyTitleAttribute(\"Cilica.Fixtures.Forwarding\")]",
+    "[[netstandard]System.Runtime.CompilerServices.CompilationRelaxationsAttribute(8)]",
+    "[[netstandard]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute(WrapNonExceptionThrows = true)]",
+    "[[netstandard]System.Runtime.Versioning.TargetFrameworkAttribute(\".NETStandard,Version=v2.1\", FrameworkDisplayName = \".NET Standard 2.1\")]",
+    "[module: [netstandard]System.Security.UnverifiableCodeAttribute]"
+  ],
+  "references": [
+    {
+      "name": "Cilica.Fixtures.Basic",
+      "version": "0.1.0.0",
+      "culture": "neutral",
+      "publicKeyToken": null
+    },
+    {
+      "name": "netstandard",
+      "version": "2.1.0.0",
+      "culture": "neutral",
+      "publicKeyToken": "cc7b13ffcd2ddd51"
+    }
+  ],
+  "exportedTypes": [
+    {
+      "name": "Cilica.Fixtures.Basic.Outer",
+      "target": "Cilica.Fixtures.Basic",
+      "forwarder": true
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Outer/Inner",
+      "target": "Cilica.Fixtures.Basic",
+      "forwarder": true
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Point",
+      "target": "Cilica.Fixtures.Basic",
+      "forwarder": true
+    }
+  ],
+  "types": [],
+  "diagnostics": []
+}

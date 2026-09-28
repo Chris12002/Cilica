@@ -36,10 +36,29 @@ repository; independent compiler examples must remain usable without them.
 
 ## Development
 
+Prerequisite: the .NET SDK pinned in [global.json](global.json) (10.0.400, with
+patch roll-forward). Build and test locally:
+
+```bash
+dotnet build Cilica.slnx
+```
+
+```bash
+dotnet test Cilica.slnx
+```
+
+Inspect an assembly's metadata without loading or running it:
+
+```bash
+dotnet run --project src/Cilica.Cli -- inspect path/to/Assembly.dll --format text
+```
+
+Golden-file tests compare output with reviewed files in
+`tests/Cilica.Metadata.Tests/Golden`. After an intended output change, rerun the
+tests with `CILICA_UPDATE_GOLDEN=1` and review the diff before committing.
+
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before starting an implementation slice.
 - See [AGENTS.md](AGENTS.md) for repository-specific agent instructions.
-- No build or test commands exist yet. Add reproducible local commands when
-  the first implementation lands.
 - Hosted CI is intentionally unconfigured. Adding a workflow or enabling paid
   hosted work requires explicit maintainer authorization and a runner budget.
 

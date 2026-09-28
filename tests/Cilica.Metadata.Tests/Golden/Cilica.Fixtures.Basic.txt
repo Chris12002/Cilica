@@ -1,0 +1,363 @@
+input: Cilica.Fixtures.Basic.dll
+assembly: Cilica.Fixtures.Basic, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null
+module: Cilica.Fixtures.Basic.dll
+target framework: .NETStandard,Version=v2.1
+image: il-only
+entry point: none
+attributes:
+  [[netstandard]System.CLSCompliantAttribute(false)]
+  [[netstandard]System.Diagnostics.DebuggableAttribute(undecoded blob 0100070100000000)]
+  [[netstandard]System.Reflection.AssemblyCompanyAttribute("Cilica.Fixtures.Basic")]
+  [[netstandard]System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
+  [[netstandard]System.Reflection.AssemblyInformationalVersionAttribute("0.1.0")]
+  [[netstandard]System.Reflection.AssemblyProductAttribute("Cilica.Fixtures.Basic")]
+  [[netstandard]System.Reflection.AssemblyTitleAttribute("Cilica.Fixtures.Basic")]
+  [[netstandard]System.Runtime.CompilerServices.CompilationRelaxationsAttribute(8)]
+  [[netstandard]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute(WrapNonExceptionThrows = true)]
+  [[netstandard]System.Runtime.Versioning.TargetFrameworkAttribute(".NETStandard,Version=v2.1", FrameworkDisplayName = ".NET Standard 2.1")]
+  [module: [netstandard]System.Security.UnverifiableCodeAttribute]
+references:
+  netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51
+exported types: none
+types: 26
+
+public beforefieldinit class Cilica.Fixtures.Basic.Annotated
+  base: [netstandard]System.Object
+  attributes:
+    [Cilica.Fixtures.Basic.NoteAttribute("sample", Colour = Cilica.Fixtures.Basic.Colour(2), Related = typeof(Cilica.Fixtures.Basic.Square), Values = [1, 2])]
+    [Cilica.Fixtures.Basic.NoteAttribute("second")]
+  methods:
+    public specialname rtspecialname void .ctor()
+    public void Run()
+      [Cilica.Fixtures.Basic.NoteAttribute("method")]
+
+public sealed beforefieldinit class Cilica.Fixtures.Basic.Card
+  base: [netstandard]System.Object
+  interfaces:
+    [netstandard]System.IEquatable`1<Cilica.Fixtures.Basic.Card>
+  fields:
+    private initonly string <Id>k__BackingField
+      [[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    private initonly int32 <Cost>k__BackingField
+      [[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  methods:
+    private specialname rtspecialname void .ctor(Cilica.Fixtures.Basic.Card original)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname rtspecialname void .ctor(string Id, int32 Cost)
+    public Cilica.Fixtures.Basic.Card <Clone>$()
+      [System.Runtime.CompilerServices.NullableContextAttribute(1)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public void Deconstruct([out] string& Id, [out] int32& Cost)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public virtual final newslot bool Equals(Cilica.Fixtures.Basic.Card other)
+      [System.Runtime.CompilerServices.NullableContextAttribute(2)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public virtual bool Equals(object obj)
+      [System.Runtime.CompilerServices.NullableContextAttribute(2)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public virtual int32 GetHashCode()
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    private bool PrintMembers([netstandard]System.Text.StringBuilder builder)
+      [System.Runtime.CompilerServices.NullableContextAttribute(1)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public virtual string ToString()
+      [System.Runtime.CompilerServices.NullableContextAttribute(1)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname int32 get_Cost()
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    private specialname [netstandard]System.Type get_EqualityContract()
+      [System.Runtime.CompilerServices.NullableContextAttribute(1)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname string get_Id()
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public static specialname bool op_Equality(Cilica.Fixtures.Basic.Card left, Cilica.Fixtures.Basic.Card right)
+      [System.Runtime.CompilerServices.NullableContextAttribute(2)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public static specialname bool op_Inequality(Cilica.Fixtures.Basic.Card left, Cilica.Fixtures.Basic.Card right)
+      [System.Runtime.CompilerServices.NullableContextAttribute(2)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname void modreq(System.Runtime.CompilerServices.IsExternalInit) set_Cost(int32 value)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname void modreq(System.Runtime.CompilerServices.IsExternalInit) set_Id(string value)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  properties:
+    int32 Cost { get get_Cost; set set_Cost }
+    [netstandard]System.Type EqualityContract { get get_EqualityContract }
+      [System.Runtime.CompilerServices.NullableAttribute(1)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    string Id { get get_Id; set set_Id }
+
+public sealed enum Cilica.Fixtures.Basic.Colour
+  base: [netstandard]System.Enum
+  fields:
+    public specialname rtspecialname uint8 value__
+    public static literal Cilica.Fixtures.Basic.Colour Red = 1
+    public static literal Cilica.Fixtures.Basic.Colour Green = 2
+    public static literal Cilica.Fixtures.Basic.Colour Blue = 4
+
+public beforefieldinit class Cilica.Fixtures.Basic.ExplicitImplementation
+  base: [netstandard]System.Object
+  interfaces:
+    [netstandard]System.IDisposable
+  methods:
+    public specialname rtspecialname void .ctor()
+    private virtual final newslot void System.IDisposable.Dispose()
+  overrides:
+    Cilica.Fixtures.Basic.ExplicitImplementation::System.IDisposable.Dispose() overrides [netstandard]System.IDisposable::Dispose()
+
+public beforefieldinit interface Cilica.Fixtures.Basic.ICovariant`1
+  generic parameters:
+    out T
+  methods:
+    public abstract virtual newslot !T Get() [no body]
+
+public beforefieldinit interface Cilica.Fixtures.Basic.IDefaultMethod
+  methods:
+    public virtual newslot int32 Value()
+
+public beforefieldinit interface Cilica.Fixtures.Basic.IShape
+  methods:
+    public abstract virtual newslot string Describe() [no body]
+    public abstract virtual newslot specialname int32 get_Area() [no body]
+  properties:
+    int32 Area { get get_Area }
+
+public class Cilica.Fixtures.Basic.Locking
+  base: [netstandard]System.Object
+  fields:
+    public int32 modreq([netstandard]System.Runtime.CompilerServices.IsVolatile) Counter
+  methods:
+    private static specialname rtspecialname void .cctor()
+    public specialname rtspecialname void .ctor()
+    public noinlining void Slow()
+    public synchronized void Synchronised()
+
+public abstract sealed beforefieldinit class Cilica.Fixtures.Basic.Maths
+  base: [netstandard]System.Object
+  methods:
+    public static int32 Add(int32 a, [opt] int32 b = 2)
+    public static int32& First(int32[] values)
+    public static int32[0...,0...] Grid(int32 width, int32 height)
+    public static void Read([in] Cilica.Fixtures.Basic.Point& point, [out] int32& x)
+    public static int32 Sum(int32[] values)
+    public static void Swap<T>(!!T& left, !!T& right)
+
+public abstract sealed beforefieldinit class Cilica.Fixtures.Basic.Native
+  base: [netstandard]System.Object
+  fields:
+    public static method unmanaged cdecl int32 *(int32) Callback
+    public static method void *(string) ManagedCallback
+  methods:
+    public static pinvokeimpl preservesig int32 GetProcessId() import "libc" getpid [no body]
+    public static int32* Offset(int32* pointer, int32 count)
+
+public sealed beforefieldinit class Cilica.Fixtures.Basic.NoteAttribute
+  base: [netstandard]System.Attribute
+  attributes:
+    [[netstandard]System.AttributeUsageAttribute(undecoded blob 010044000000010054020d416c6c6f774d756c7469706c6501)]
+  fields:
+    private initonly string <Text>k__BackingField
+      [[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    private Cilica.Fixtures.Basic.Colour <Colour>k__BackingField
+      [[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    private [netstandard]System.Type <Related>k__BackingField
+      [[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    private int32[] <Values>k__BackingField
+      [[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  methods:
+    public specialname rtspecialname void .ctor(string text)
+    public specialname Cilica.Fixtures.Basic.Colour get_Colour()
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname [netstandard]System.Type get_Related()
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname string get_Text()
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname int32[] get_Values()
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname void set_Colour(Cilica.Fixtures.Basic.Colour value)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname void set_Related([netstandard]System.Type value)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname void set_Values(int32[] value)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  properties:
+    Cilica.Fixtures.Basic.Colour Colour { get get_Colour; set set_Colour }
+    [netstandard]System.Type Related { get get_Related; set set_Related }
+    string Text { get get_Text }
+    int32[] Values { get get_Values; set set_Values }
+
+public beforefieldinit class Cilica.Fixtures.Basic.Outer
+  base: [netstandard]System.Object
+  fields:
+    protected internal int32 Value
+  methods:
+    public specialname rtspecialname void .ctor()
+    private protected void Hidden()
+
+public beforefieldinit class Cilica.Fixtures.Basic.Outer/Inner
+  base: [netstandard]System.Object
+  methods:
+    public specialname rtspecialname void .ctor()
+
+private beforefieldinit class Cilica.Fixtures.Basic.Outer/Inner/Deep
+  base: [netstandard]System.Object
+  methods:
+    public specialname rtspecialname void .ctor()
+
+public sealed beforefieldinit struct Cilica.Fixtures.Basic.Overlay
+  base: [netstandard]System.ValueType
+  layout: explicit, size 8
+  fields:
+    public int64 Whole at offset 0
+    public int32 Low at offset 0
+    public int32 High at offset 4
+
+public sealed enum Cilica.Fixtures.Basic.Permissions
+  base: [netstandard]System.Enum
+  attributes:
+    [[netstandard]System.FlagsAttribute]
+  fields:
+    public specialname rtspecialname int32 value__
+    public static literal Cilica.Fixtures.Basic.Permissions None = 0
+    public static literal Cilica.Fixtures.Basic.Permissions Read = 1
+    public static literal Cilica.Fixtures.Basic.Permissions Write = 2
+
+public sealed beforefieldinit struct Cilica.Fixtures.Basic.Point
+  base: [netstandard]System.ValueType
+  layout: sequential
+  fields:
+    public int32 X
+    public int32 Y
+  methods:
+    public specialname rtspecialname void .ctor(int32 x, int32 y)
+    public specialname int32 get_LengthSquared()
+      [[netstandard]System.Runtime.CompilerServices.IsReadOnlyAttribute]
+  properties:
+    int32 LengthSquared { get get_LengthSquared }
+
+public beforefieldinit class Cilica.Fixtures.Basic.Repository`2
+  base: [netstandard]System.Object
+  generic parameters:
+    TKey : [netstandard]System.IComparable`1<!TKey>
+    TValue : class, new()
+  attributes:
+    [[netstandard]System.Reflection.DefaultMemberAttribute("Item")]
+  fields:
+    private initonly [netstandard]System.Collections.Generic.Dictionary`2<!TKey, !TValue> _items
+    private [netstandard]System.EventHandler`1<!TKey> Added
+      [[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  methods:
+    public specialname rtspecialname void .ctor()
+    public !!TOut Convert<TOut>(!TKey key, [netstandard]System.Func`2<!TValue, !!TOut> convert)
+    public bool TryGet(!TKey key, [out] !TValue& value)
+    public specialname void add_Added([netstandard]System.EventHandler`1<!TKey> value)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname !TValue get_Item(!TKey key)
+    public specialname void remove_Added([netstandard]System.EventHandler`1<!TKey> value)
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public specialname void set_Item(!TKey key, !TValue value)
+  properties:
+    !TValue Item[!TKey] { get get_Item; set set_Item }
+  events:
+    [netstandard]System.EventHandler`1<!TKey> Added { add add_Added; remove remove_Added }
+
+public beforefieldinit class Cilica.Fixtures.Basic.Repository`2/Entry
+  base: [netstandard]System.Object
+  generic parameters:
+    TKey : [netstandard]System.IComparable`1<!TKey>
+    TValue : class, new()
+  fields:
+    public !TKey Key
+  methods:
+    public specialname rtspecialname void .ctor()
+
+public abstract beforefieldinit class Cilica.Fixtures.Basic.Shape
+  base: [netstandard]System.Object
+  interfaces:
+    Cilica.Fixtures.Basic.IShape
+  fields:
+    private initonly string <Name>k__BackingField
+      [[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  methods:
+    protected specialname rtspecialname void .ctor(string name)
+    public virtual newslot string Describe()
+    public abstract virtual newslot specialname int32 get_Area() [no body]
+    public specialname string get_Name()
+      [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  properties:
+    int32 Area { get get_Area }
+    string Name { get get_Name }
+
+public sealed beforefieldinit class Cilica.Fixtures.Basic.Square
+  base: Cilica.Fixtures.Basic.Shape
+  fields:
+    public static literal int32 Sides = 4
+    public static literal string Label = "square\n\"quoted\""
+    public static literal int64 Large = -9000000000
+    public static literal float64 Half = 0.5
+    public static literal float32 Third = 0.33333334f
+    public static literal char Letter = 'q'
+    public static initonly Cilica.Fixtures.Basic.Square Unit
+    private initonly int32 _side
+  methods:
+    private static specialname rtspecialname void .cctor()
+    public specialname rtspecialname void .ctor(int32 side)
+    public virtual string Describe()
+    public virtual specialname int32 get_Area()
+  properties:
+    int32 Area { get get_Area }
+
+public sealed delegate Cilica.Fixtures.Basic.Transformer`2
+  base: [netstandard]System.MulticastDelegate
+  generic parameters:
+    in T
+    out TResult
+  methods:
+    public specialname rtspecialname runtime void .ctor(object object, native int method) [no body]
+    public virtual newslot runtime [netstandard]System.IAsyncResult BeginInvoke(!T input, [netstandard]System.AsyncCallback callback, object object) [no body]
+    public virtual newslot runtime !TResult EndInvoke([netstandard]System.IAsyncResult result) [no body]
+    public virtual newslot runtime !TResult Invoke(!T input) [no body]
+
+internal sealed beforefieldinit class Microsoft.CodeAnalysis.EmbeddedAttribute
+  base: [netstandard]System.Attribute
+  attributes:
+    [Microsoft.CodeAnalysis.EmbeddedAttribute]
+    [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  methods:
+    public specialname rtspecialname void .ctor()
+
+internal abstract sealed beforefieldinit class System.Runtime.CompilerServices.IsExternalInit
+  base: [netstandard]System.Object
+
+internal sealed beforefieldinit class System.Runtime.CompilerServices.NullableAttribute
+  base: [netstandard]System.Attribute
+  attributes:
+    [Microsoft.CodeAnalysis.EmbeddedAttribute]
+    [[netstandard]System.AttributeUsageAttribute(undecoded blob 0100846b0000020054020d416c6c6f774d756c7469706c6500540209496e6865726974656400)]
+    [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  fields:
+    public initonly uint8[] NullableFlags
+  methods:
+    public specialname rtspecialname void .ctor(uint8)
+    public specialname rtspecialname void .ctor(uint8[])
+
+internal sealed beforefieldinit class System.Runtime.CompilerServices.NullableContextAttribute
+  base: [netstandard]System.Attribute
+  attributes:
+    [Microsoft.CodeAnalysis.EmbeddedAttribute]
+    [[netstandard]System.AttributeUsageAttribute(undecoded blob 01004c140000020054020d416c6c6f774d756c7469706c6500540209496e6865726974656400)]
+    [[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+  fields:
+    public initonly uint8 Flag
+  methods:
+    public specialname rtspecialname void .ctor(uint8)
+
+diagnostics: none

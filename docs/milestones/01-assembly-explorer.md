@@ -1,6 +1,6 @@
 # Milestone 1: Assembly explorer and dependency audit
 
-Status: in progress. Plan recorded 2026-09-28.
+Status: in progress (slice 1a complete). Plan recorded 2026-09-28.
 
 The explorer reads .NET assemblies strictly as data and never loads or runs
 them. It produces deterministic output and actionable diagnostics. It also
@@ -15,7 +15,7 @@ output, plus diagnostics for malformed input.
 
 | Slice | Deliverable | Status |
 | --- | --- | --- |
-| 1a | Foundation and metadata inspection | In progress |
+| 1a | Foundation and metadata inspection | Complete |
 | 1b | IL decoding and validation | Planned |
 | 1c | Dependency resolution and reachability audit | Planned |
 | 1d | ADR 0003 validation against a trial library build | Planned |
@@ -31,7 +31,7 @@ Each slice is reviewed and committed separately.
   references, types, members, signatures, custom attributes, generic
   parameters and type forwarders, as text or JSON.
 - Output is deterministic: entries sorted by name, no absolute paths, fixed
-  line endings.
+  line endings. Fields keep declaration order, because it determines layout.
 - Malformed input produces stable diagnostics instead of crashes. Diagnostic
   identifier ranges:
   - `CIL1xxx`: input and metadata problems.
@@ -39,6 +39,35 @@ Each slice is reviewed and committed separately.
   - `CIL3xxx`: resolution failures.
 - A banned-API analyzer fails the build if compiler code calls APIs that load
   or execute assemblies, such as `Assembly.Load*` or `Activator`.
+
+Outcome:
+
+- `cilica inspect` reports identity, target framework, image flags, entry
+  point, attributes, references, exported types (including nested forwarders)
+  and every type's kind, visibility, flags, layout, base type, interfaces,
+  generic parameters, fields (with literal values and explicit offsets),
+  methods (with parameter names, defaults, calling conventions, method
+  implementation flags and platform-invoke targets), properties, events and
+  explicit overrides. Text and JSON (`cilica.inspect` format version 1) are
+  supported.
+- Malformed input produces `CIL1001` to `CIL1008` diagnostics with a
+  placeholder in place of the damaged entity. A seeded corruption test runs 500
+  randomly damaged images without an exception.
+- The banned-API analyzer rejects assembly loading and invocation APIs in
+  compiler projects. A test checks the built binaries for references to them.
+- Golden files are identical in Debug and Release builds.
+- Smoke test: `Alchemy.Engine.dll` (922 types) inspects with no diagnostics in
+  about one second, including process startup.
+
+Known limitations, planned for later slices:
+
+- Attribute arguments whose type is an enum from another assembly (for example
+  `AttributeUsage`) are shown as raw blobs until slice 1c resolves references.
+- Method bodies are not reported yet; they arrive in slice 1b.
+- Parameter attributes, such as `ParamArray`, are not reported yet.
+- The module version identifier (MVID) is omitted. It changes whenever the
+  compiled content changes, which would churn golden files without adding
+  information.
 
 ### 1b: IL decoding and validation
 

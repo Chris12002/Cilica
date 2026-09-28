@@ -1,0 +1,27 @@
+input: Cilica.Fixtures.Forwarding.dll
+assembly: Cilica.Fixtures.Forwarding, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null
+module: Cilica.Fixtures.Forwarding.dll
+target framework: .NETStandard,Version=v2.1
+image: il-only
+entry point: none
+attributes:
+  [[netstandard]System.Diagnostics.DebuggableAttribute(undecoded blob 0100070100000000)]
+  [[netstandard]System.Reflection.AssemblyCompanyAttribute("Cilica.Fixtures.Forwarding")]
+  [[netstandard]System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
+  [[netstandard]System.Reflection.AssemblyInformationalVersionAttribute("0.1.0")]
+  [[netstandard]System.Reflection.AssemblyProductAttribute("Cilica.Fixtures.Forwarding")]
+  [[netstandard]System.Reflection.AssemblyTitleAttribute("Cilica.Fixtures.Forwarding")]
+  [[netstandard]System.Runtime.CompilerServices.CompilationRelaxationsAttribute(8)]
+  [[netstandard]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute(WrapNonExceptionThrows = true)]
+  [[netstandard]System.Runtime.Versioning.TargetFrameworkAttribute(".NETStandard,Version=v2.1", FrameworkDisplayName = ".NET Standard 2.1")]
+  [module: [netstandard]System.Security.UnverifiableCodeAttribute]
+references:
+  Cilica.Fixtures.Basic, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null
+  netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51
+exported types:
+  Cilica.Fixtures.Basic.Outer -> forwarded to Cilica.Fixtures.Basic
+  Cilica.Fixtures.Basic.Outer/Inner -> forwarded to Cilica.Fixtures.Basic
+  Cilica.Fixtures.Basic.Point -> forwarded to Cilica.Fixtures.Basic
+types: 0
+
+diagnostics: none

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Cilica.Metadata.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Cilica.Metadata\Cilica.Metadata.csproj" />
+    <ProjectReference Include="..\..\src\Cilica.Cli\Cilica.Cli.csproj" />
+    <!-- Fixtures are inspected as files; they are copied to the output directory but never loaded. -->
+    <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Basic\Cilica.Fixtures.Basic.csproj" />
+    <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Forwarding\Cilica.Fixtures.Forwarding.csproj" />
+  </ItemGroup>
+</Project>

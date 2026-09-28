@@ -1,0 +1,2102 @@
+{
+  "format": "cilica.inspect",
+  "formatVersion": 1,
+  "input": "Cilica.Fixtures.Basic.dll",
+  "assembly": {
+    "name": "Cilica.Fixtures.Basic",
+    "version": "0.1.0.0",
+    "culture": "neutral",
+    "publicKeyToken": null
+  },
+  "module": "Cilica.Fixtures.Basic.dll",
+  "targetFramework": ".NETStandard,Version=v2.1",
+  "imageFlags": [
+    "il-only"
+  ],
+  "entryPoint": null,
+  "attributes": [
+    "[[netstandard]System.CLSCompliantAttribute(false)]",
+    "[[netstandard]System.Diagnostics.DebuggableAttribute(undecoded blob 0100070100000000)]",
+    "[[netstandard]System.Reflection.AssemblyCompanyAttribute(\"Cilica.Fixtures.Basic\")]",
+    "[[netstandard]System.Reflection.AssemblyFileVersionAttribute(\"0.1.0.0\")]",
+    "[[netstandard]System.Reflection.AssemblyInformationalVersionAttribute(\"0.1.0\")]",
+    "[[netstandard]System.Reflection.AssemblyProductAttribute(\"Cilica.Fixtures.Basic\")]",
+    "[[netstandard]System.Reflection.AssemblyTitleAttribute(\"Cilica.Fixtures.Basic\")]",
+    "[[netstandard]System.Runtime.CompilerServices.CompilationRelaxationsAttribute(8)]",
+    "[[netstandard]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute(WrapNonExceptionThrows = true)]",
+    "[[netstandard]System.Runtime.Versioning.TargetFrameworkAttribute(\".NETStandard,Version=v2.1\", FrameworkDisplayName = \".NET Standard 2.1\")]",
+    "[module: [netstandard]System.Security.UnverifiableCodeAttribute]"
+  ],
+  "references": [
+    {
+      "name": "netstandard",
+      "version": "2.1.0.0",
+      "culture": "neutral",
+      "publicKeyToken": "cc7b13ffcd2ddd51"
+    }
+  ],
+  "exportedTypes": [],
+  "types": [
+    {
+      "name": "Cilica.Fixtures.Basic.Annotated",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [
+        "[Cilica.Fixtures.Basic.NoteAttribute(\"sample\", Colour = Cilica.Fixtures.Basic.Colour(2), Related = typeof(Cilica.Fixtures.Basic.Square), Values = [1, 2])]",
+        "[Cilica.Fixtures.Basic.NoteAttribute(\"second\")]"
+      ],
+      "fields": [],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Run",
+          "signature": "void Run()",
+          "visibility": "public",
+          "flags": [],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[Cilica.Fixtures.Basic.NoteAttribute(\"method\")]"
+          ]
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Card",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [
+        "[netstandard]System.IEquatable`1<Cilica.Fixtures.Basic.Card>"
+      ],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "<Id>k__BackingField",
+          "type": "string",
+          "visibility": "private",
+          "flags": [
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": [
+            "[[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "<Cost>k__BackingField",
+          "type": "int32",
+          "visibility": "private",
+          "flags": [
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": [
+            "[[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(Cilica.Fixtures.Basic.Card original)",
+          "visibility": "private",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(string Id, int32 Cost)",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "<Clone>$",
+          "signature": "Cilica.Fixtures.Basic.Card <Clone>$()",
+          "visibility": "public",
+          "flags": [],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableContextAttribute(1)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "Deconstruct",
+          "signature": "void Deconstruct([out] string& Id, [out] int32& Cost)",
+          "visibility": "public",
+          "flags": [],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "Equals",
+          "signature": "bool Equals(Cilica.Fixtures.Basic.Card other)",
+          "visibility": "public",
+          "flags": [
+            "virtual",
+            "final",
+            "newslot"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableContextAttribute(2)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "Equals",
+          "signature": "bool Equals(object obj)",
+          "visibility": "public",
+          "flags": [
+            "virtual"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableContextAttribute(2)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "GetHashCode",
+          "signature": "int32 GetHashCode()",
+          "visibility": "public",
+          "flags": [
+            "virtual"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "PrintMembers",
+          "signature": "bool PrintMembers([netstandard]System.Text.StringBuilder builder)",
+          "visibility": "private",
+          "flags": [],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableContextAttribute(1)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "ToString",
+          "signature": "string ToString()",
+          "visibility": "public",
+          "flags": [
+            "virtual"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableContextAttribute(1)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "get_Cost",
+          "signature": "int32 get_Cost()",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "get_EqualityContract",
+          "signature": "[netstandard]System.Type get_EqualityContract()",
+          "visibility": "private",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableContextAttribute(1)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "get_Id",
+          "signature": "string get_Id()",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "op_Equality",
+          "signature": "bool op_Equality(Cilica.Fixtures.Basic.Card left, Cilica.Fixtures.Basic.Card right)",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableContextAttribute(2)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "op_Inequality",
+          "signature": "bool op_Inequality(Cilica.Fixtures.Basic.Card left, Cilica.Fixtures.Basic.Card right)",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableContextAttribute(2)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "set_Cost",
+          "signature": "void modreq(System.Runtime.CompilerServices.IsExternalInit) set_Cost(int32 value)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "set_Id",
+          "signature": "void modreq(System.Runtime.CompilerServices.IsExternalInit) set_Id(string value)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        }
+      ],
+      "properties": [
+        {
+          "name": "Cost",
+          "signature": "int32 Cost",
+          "accessors": [
+            "get get_Cost",
+            "set set_Cost"
+          ],
+          "attributes": []
+        },
+        {
+          "name": "EqualityContract",
+          "signature": "[netstandard]System.Type EqualityContract",
+          "accessors": [
+            "get get_EqualityContract"
+          ],
+          "attributes": [
+            "[System.Runtime.CompilerServices.NullableAttribute(1)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "Id",
+          "signature": "string Id",
+          "accessors": [
+            "get get_Id",
+            "set set_Id"
+          ],
+          "attributes": []
+        }
+      ],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Colour",
+      "kind": "enum",
+      "visibility": "public",
+      "flags": [
+        "sealed"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Enum",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "value__",
+          "type": "uint8",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Red",
+          "type": "Cilica.Fixtures.Basic.Colour",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "1",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Green",
+          "type": "Cilica.Fixtures.Basic.Colour",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "2",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Blue",
+          "type": "Cilica.Fixtures.Basic.Colour",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "4",
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.ExplicitImplementation",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [
+        "[netstandard]System.IDisposable"
+      ],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "System.IDisposable.Dispose",
+          "signature": "void System.IDisposable.Dispose()",
+          "visibility": "private",
+          "flags": [
+            "virtual",
+            "final",
+            "newslot"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": [
+        "Cilica.Fixtures.Basic.ExplicitImplementation::System.IDisposable.Dispose() overrides [netstandard]System.IDisposable::Dispose()"
+      ]
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.ICovariant`1",
+      "kind": "interface",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": null,
+      "interfaces": [],
+      "genericParameters": [
+        {
+          "name": "T",
+          "variance": "out",
+          "constraints": []
+        }
+      ],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": "Get",
+          "signature": "!T Get()",
+          "visibility": "public",
+          "flags": [
+            "abstract",
+            "virtual",
+            "newslot"
+          ],
+          "import": null,
+          "hasBody": false,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.IDefaultMethod",
+      "kind": "interface",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": null,
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": "Value",
+          "signature": "int32 Value()",
+          "visibility": "public",
+          "flags": [
+            "virtual",
+            "newslot"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.IShape",
+      "kind": "interface",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": null,
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": "Describe",
+          "signature": "string Describe()",
+          "visibility": "public",
+          "flags": [
+            "abstract",
+            "virtual",
+            "newslot"
+          ],
+          "import": null,
+          "hasBody": false,
+          "attributes": []
+        },
+        {
+          "name": "get_Area",
+          "signature": "int32 get_Area()",
+          "visibility": "public",
+          "flags": [
+            "abstract",
+            "virtual",
+            "newslot",
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": false,
+          "attributes": []
+        }
+      ],
+      "properties": [
+        {
+          "name": "Area",
+          "signature": "int32 Area",
+          "accessors": [
+            "get get_Area"
+          ],
+          "attributes": []
+        }
+      ],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Locking",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "Counter",
+          "type": "int32 modreq([netstandard]System.Runtime.CompilerServices.IsVolatile)",
+          "visibility": "public",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [
+        {
+          "name": ".cctor",
+          "signature": "void .cctor()",
+          "visibility": "private",
+          "flags": [
+            "static",
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Slow",
+          "signature": "void Slow()",
+          "visibility": "public",
+          "flags": [
+            "noinlining"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Synchronised",
+          "signature": "void Synchronised()",
+          "visibility": "public",
+          "flags": [
+            "synchronized"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Maths",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "abstract",
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": "Add",
+          "signature": "int32 Add(int32 a, [opt] int32 b = 2)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "First",
+          "signature": "int32& First(int32[] values)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Grid",
+          "signature": "int32[0...,0...] Grid(int32 width, int32 height)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Read",
+          "signature": "void Read([in] Cilica.Fixtures.Basic.Point& point, [out] int32& x)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Sum",
+          "signature": "int32 Sum(int32[] values)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Swap",
+          "signature": "void Swap<T>(!!T& left, !!T& right)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Native",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "abstract",
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "Callback",
+          "type": "method unmanaged cdecl int32 *(int32)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "ManagedCallback",
+          "type": "method void *(string)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [
+        {
+          "name": "GetProcessId",
+          "signature": "int32 GetProcessId()",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "pinvokeimpl",
+            "preservesig"
+          ],
+          "import": "\"libc\" getpid",
+          "hasBody": false,
+          "attributes": []
+        },
+        {
+          "name": "Offset",
+          "signature": "int32* Offset(int32* pointer, int32 count)",
+          "visibility": "public",
+          "flags": [
+            "static"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.NoteAttribute",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Attribute",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [
+        "[[netstandard]System.AttributeUsageAttribute(undecoded blob 010044000000010054020d416c6c6f774d756c7469706c6501)]"
+      ],
+      "fields": [
+        {
+          "name": "<Text>k__BackingField",
+          "type": "string",
+          "visibility": "private",
+          "flags": [
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": [
+            "[[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "<Colour>k__BackingField",
+          "type": "Cilica.Fixtures.Basic.Colour",
+          "visibility": "private",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": [
+            "[[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "<Related>k__BackingField",
+          "type": "[netstandard]System.Type",
+          "visibility": "private",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": [
+            "[[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "<Values>k__BackingField",
+          "type": "int32[]",
+          "visibility": "private",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": [
+            "[[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(string text)",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "get_Colour",
+          "signature": "Cilica.Fixtures.Basic.Colour get_Colour()",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "get_Related",
+          "signature": "[netstandard]System.Type get_Related()",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "get_Text",
+          "signature": "string get_Text()",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "get_Values",
+          "signature": "int32[] get_Values()",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "set_Colour",
+          "signature": "void set_Colour(Cilica.Fixtures.Basic.Colour value)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "set_Related",
+          "signature": "void set_Related([netstandard]System.Type value)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "set_Values",
+          "signature": "void set_Values(int32[] value)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        }
+      ],
+      "properties": [
+        {
+          "name": "Colour",
+          "signature": "Cilica.Fixtures.Basic.Colour Colour",
+          "accessors": [
+            "get get_Colour",
+            "set set_Colour"
+          ],
+          "attributes": []
+        },
+        {
+          "name": "Related",
+          "signature": "[netstandard]System.Type Related",
+          "accessors": [
+            "get get_Related",
+            "set set_Related"
+          ],
+          "attributes": []
+        },
+        {
+          "name": "Text",
+          "signature": "string Text",
+          "accessors": [
+            "get get_Text"
+          ],
+          "attributes": []
+        },
+        {
+          "name": "Values",
+          "signature": "int32[] Values",
+          "accessors": [
+            "get get_Values",
+            "set set_Values"
+          ],
+          "attributes": []
+        }
+      ],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Outer",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "Value",
+          "type": "int32",
+          "visibility": "protected internal",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Hidden",
+          "signature": "void Hidden()",
+          "visibility": "private protected",
+          "flags": [],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Outer/Inner",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Outer/Inner/Deep",
+      "kind": "class",
+      "visibility": "private",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Overlay",
+      "kind": "struct",
+      "visibility": "public",
+      "flags": [
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": "explicit, size 8",
+      "baseType": "[netstandard]System.ValueType",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "Whole",
+          "type": "int64",
+          "visibility": "public",
+          "flags": [],
+          "value": null,
+          "offset": 0,
+          "attributes": []
+        },
+        {
+          "name": "Low",
+          "type": "int32",
+          "visibility": "public",
+          "flags": [],
+          "value": null,
+          "offset": 0,
+          "attributes": []
+        },
+        {
+          "name": "High",
+          "type": "int32",
+          "visibility": "public",
+          "flags": [],
+          "value": null,
+          "offset": 4,
+          "attributes": []
+        }
+      ],
+      "methods": [],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Permissions",
+      "kind": "enum",
+      "visibility": "public",
+      "flags": [
+        "sealed"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Enum",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [
+        "[[netstandard]System.FlagsAttribute]"
+      ],
+      "fields": [
+        {
+          "name": "value__",
+          "type": "int32",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "None",
+          "type": "Cilica.Fixtures.Basic.Permissions",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "0",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Read",
+          "type": "Cilica.Fixtures.Basic.Permissions",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "1",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Write",
+          "type": "Cilica.Fixtures.Basic.Permissions",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "2",
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Point",
+      "kind": "struct",
+      "visibility": "public",
+      "flags": [
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": "sequential",
+      "baseType": "[netstandard]System.ValueType",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "X",
+          "type": "int32",
+          "visibility": "public",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Y",
+          "type": "int32",
+          "visibility": "public",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(int32 x, int32 y)",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "get_LengthSquared",
+          "signature": "int32 get_LengthSquared()",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.IsReadOnlyAttribute]"
+          ]
+        }
+      ],
+      "properties": [
+        {
+          "name": "LengthSquared",
+          "signature": "int32 LengthSquared",
+          "accessors": [
+            "get get_LengthSquared"
+          ],
+          "attributes": []
+        }
+      ],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Repository`2",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [
+        {
+          "name": "TKey",
+          "variance": null,
+          "constraints": [
+            "[netstandard]System.IComparable`1<!TKey>"
+          ]
+        },
+        {
+          "name": "TValue",
+          "variance": null,
+          "constraints": [
+            "class",
+            "new()"
+          ]
+        }
+      ],
+      "attributes": [
+        "[[netstandard]System.Reflection.DefaultMemberAttribute(\"Item\")]"
+      ],
+      "fields": [
+        {
+          "name": "_items",
+          "type": "[netstandard]System.Collections.Generic.Dictionary`2<!TKey, !TValue>",
+          "visibility": "private",
+          "flags": [
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Added",
+          "type": "[netstandard]System.EventHandler`1<!TKey>",
+          "visibility": "private",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": [
+            "[[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Convert",
+          "signature": "!!TOut Convert<TOut>(!TKey key, [netstandard]System.Func`2<!TValue, !!TOut> convert)",
+          "visibility": "public",
+          "flags": [],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "TryGet",
+          "signature": "bool TryGet(!TKey key, [out] !TValue& value)",
+          "visibility": "public",
+          "flags": [],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "add_Added",
+          "signature": "void add_Added([netstandard]System.EventHandler`1<!TKey> value)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "get_Item",
+          "signature": "!TValue get_Item(!TKey key)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "remove_Added",
+          "signature": "void remove_Added([netstandard]System.EventHandler`1<!TKey> value)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        },
+        {
+          "name": "set_Item",
+          "signature": "void set_Item(!TKey key, !TValue value)",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [
+        {
+          "name": "Item",
+          "signature": "!TValue Item[!TKey]",
+          "accessors": [
+            "get get_Item",
+            "set set_Item"
+          ],
+          "attributes": []
+        }
+      ],
+      "events": [
+        {
+          "name": "Added",
+          "type": "[netstandard]System.EventHandler`1<!TKey>",
+          "accessors": [
+            "add add_Added",
+            "remove remove_Added"
+          ],
+          "attributes": []
+        }
+      ],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Repository`2/Entry",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [
+        {
+          "name": "TKey",
+          "variance": null,
+          "constraints": [
+            "[netstandard]System.IComparable`1<!TKey>"
+          ]
+        },
+        {
+          "name": "TValue",
+          "variance": null,
+          "constraints": [
+            "class",
+            "new()"
+          ]
+        }
+      ],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "Key",
+          "type": "!TKey",
+          "visibility": "public",
+          "flags": [],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Shape",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "abstract",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [
+        "Cilica.Fixtures.Basic.IShape"
+      ],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "<Name>k__BackingField",
+          "type": "string",
+          "visibility": "private",
+          "flags": [
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": [
+            "[[netstandard]System.Diagnostics.DebuggerBrowsableAttribute(undecoded blob 0100000000000000)]",
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(string name)",
+          "visibility": "protected",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Describe",
+          "signature": "string Describe()",
+          "visibility": "public",
+          "flags": [
+            "virtual",
+            "newslot"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "get_Area",
+          "signature": "int32 get_Area()",
+          "visibility": "public",
+          "flags": [
+            "abstract",
+            "virtual",
+            "newslot",
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": false,
+          "attributes": []
+        },
+        {
+          "name": "get_Name",
+          "signature": "string get_Name()",
+          "visibility": "public",
+          "flags": [
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": [
+            "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+          ]
+        }
+      ],
+      "properties": [
+        {
+          "name": "Area",
+          "signature": "int32 Area",
+          "accessors": [
+            "get get_Area"
+          ],
+          "attributes": []
+        },
+        {
+          "name": "Name",
+          "signature": "string Name",
+          "accessors": [
+            "get get_Name"
+          ],
+          "attributes": []
+        }
+      ],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Square",
+      "kind": "class",
+      "visibility": "public",
+      "flags": [
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "Cilica.Fixtures.Basic.Shape",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [
+        {
+          "name": "Sides",
+          "type": "int32",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "4",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Label",
+          "type": "string",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "\"square\\n\\\"quoted\\\"\"",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Large",
+          "type": "int64",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "-9000000000",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Half",
+          "type": "float64",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "0.5",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Third",
+          "type": "float32",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "0.33333334f",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Letter",
+          "type": "char",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "literal"
+          ],
+          "value": "'q'",
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "Unit",
+          "type": "Cilica.Fixtures.Basic.Square",
+          "visibility": "public",
+          "flags": [
+            "static",
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        },
+        {
+          "name": "_side",
+          "type": "int32",
+          "visibility": "private",
+          "flags": [
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [
+        {
+          "name": ".cctor",
+          "signature": "void .cctor()",
+          "visibility": "private",
+          "flags": [
+            "static",
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(int32 side)",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "Describe",
+          "signature": "string Describe()",
+          "visibility": "public",
+          "flags": [
+            "virtual"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": "get_Area",
+          "signature": "int32 get_Area()",
+          "visibility": "public",
+          "flags": [
+            "virtual",
+            "specialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [
+        {
+          "name": "Area",
+          "signature": "int32 Area",
+          "accessors": [
+            "get get_Area"
+          ],
+          "attributes": []
+        }
+      ],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Cilica.Fixtures.Basic.Transformer`2",
+      "kind": "delegate",
+      "visibility": "public",
+      "flags": [
+        "sealed"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.MulticastDelegate",
+      "interfaces": [],
+      "genericParameters": [
+        {
+          "name": "T",
+          "variance": "in",
+          "constraints": []
+        },
+        {
+          "name": "TResult",
+          "variance": "out",
+          "constraints": []
+        }
+      ],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(object object, native int method)",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname",
+            "runtime"
+          ],
+          "import": null,
+          "hasBody": false,
+          "attributes": []
+        },
+        {
+          "name": "BeginInvoke",
+          "signature": "[netstandard]System.IAsyncResult BeginInvoke(!T input, [netstandard]System.AsyncCallback callback, object object)",
+          "visibility": "public",
+          "flags": [
+            "virtual",
+            "newslot",
+            "runtime"
+          ],
+          "import": null,
+          "hasBody": false,
+          "attributes": []
+        },
+        {
+          "name": "EndInvoke",
+          "signature": "!TResult EndInvoke([netstandard]System.IAsyncResult result)",
+          "visibility": "public",
+          "flags": [
+            "virtual",
+            "newslot",
+            "runtime"
+          ],
+          "import": null,
+          "hasBody": false,
+          "attributes": []
+        },
+        {
+          "name": "Invoke",
+          "signature": "!TResult Invoke(!T input)",
+          "visibility": "public",
+          "flags": [
+            "virtual",
+            "newslot",
+            "runtime"
+          ],
+          "import": null,
+          "hasBody": false,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "Microsoft.CodeAnalysis.EmbeddedAttribute",
+      "kind": "class",
+      "visibility": "internal",
+      "flags": [
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Attribute",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [
+        "[Microsoft.CodeAnalysis.EmbeddedAttribute]",
+        "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+      ],
+      "fields": [],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor()",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "System.Runtime.CompilerServices.IsExternalInit",
+      "kind": "class",
+      "visibility": "internal",
+      "flags": [
+        "abstract",
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Object",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "System.Runtime.CompilerServices.NullableAttribute",
+      "kind": "class",
+      "visibility": "internal",
+      "flags": [
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Attribute",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [
+        "[Microsoft.CodeAnalysis.EmbeddedAttribute]",
+        "[[netstandard]System.AttributeUsageAttribute(undecoded blob 0100846b0000020054020d416c6c6f774d756c7469706c6500540209496e6865726974656400)]",
+        "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+      ],
+      "fields": [
+        {
+          "name": "NullableFlags",
+          "type": "uint8[]",
+          "visibility": "public",
+          "flags": [
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(uint8)",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        },
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(uint8[])",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    },
+    {
+      "name": "System.Runtime.CompilerServices.NullableContextAttribute",
+      "kind": "class",
+      "visibility": "internal",
+      "flags": [
+        "sealed",
+        "beforefieldinit"
+      ],
+      "layout": null,
+      "baseType": "[netstandard]System.Attribute",
+      "interfaces": [],
+      "genericParameters": [],
+      "attributes": [
+        "[Microsoft.CodeAnalysis.EmbeddedAttribute]",
+        "[[netstandard]System.AttributeUsageAttribute(undecoded blob 01004c140000020054020d416c6c6f774d756c7469706c6500540209496e6865726974656400)]",
+        "[[netstandard]System.Runtime.CompilerServices.CompilerGeneratedAttribute]"
+      ],
+      "fields": [
+        {
+          "name": "Flag",
+          "type": "uint8",
+          "visibility": "public",
+          "flags": [
+            "initonly"
+          ],
+          "value": null,
+          "offset": null,
+          "attributes": []
+        }
+      ],
+      "methods": [
+        {
+          "name": ".ctor",
+          "signature": "void .ctor(uint8)",
+          "visibility": "public",
+          "flags": [
+            "specialname",
+            "rtspecialname"
+          ],
+          "import": null,
+          "hasBody": true,
+          "attributes": []
+        }
+      ],
+      "properties": [],
+      "events": [],
+      "overrides": []
+    }
+  ],
+  "diagnostics": []
+}

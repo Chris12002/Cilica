@@ -1,0 +1,15 @@
+M:System.Reflection.Assembly.Load(System.Byte[]);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.Reflection.Assembly.Load(System.Byte[],System.Byte[]);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.Reflection.Assembly.Load(System.String);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.Reflection.Assembly.Load(System.Reflection.AssemblyName);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.Reflection.Assembly.LoadFile(System.String);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.Reflection.Assembly.LoadFrom(System.String);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.Reflection.Assembly.LoadFrom(System.String,System.Byte[],System.Configuration.Assemblies.AssemblyHashAlgorithm);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.Reflection.Assembly.UnsafeLoadFrom(System.String);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.AppDomain.Load(System.Byte[]);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.AppDomain.Load(System.String);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.AppDomain.Load(System.Reflection.AssemblyName);Input assemblies are data: read them with System.Reflection.Metadata.
+M:System.AppDomain.ExecuteAssembly(System.String);Input assemblies must never be executed.
+M:System.Reflection.MethodBase.Invoke(System.Object,System.Object[]);Input assemblies must never be executed.
+T:System.Runtime.Loader.AssemblyLoadContext;Input assemblies are data: read them with System.Reflection.Metadata.
+T:System.Activator;Input assemblies must never be executed.

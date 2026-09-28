@@ -1,0 +1,10 @@
+<Project>
+  <!-- Imported after the SDK defaults so fixture assemblies, and the golden files
+       describing them, are identical in every build configuration. -->
+  <PropertyGroup>
+    <Optimize>false</Optimize>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+  </PropertyGroup>
+</Project>
