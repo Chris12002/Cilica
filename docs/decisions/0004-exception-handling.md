@@ -81,7 +81,11 @@ point, not the IR or the managed semantics.
 **Stage A: type-test filters.** A filter qualifies when its IL does only the
 following: loads the exception object, tests its type (`isinst`), combines the
 results with comparisons, constants and branches inside the filter, and
-returns. It calls nothing, reads no other state and cannot throw. Such a filter
+returns. The explorer conservatively classifies filters with control-flow
+cycles as general: a nonterminating filter prevents unwinding, so moving it
+after inner `finally` blocks would change observable behaviour. An acyclic
+filter may branch backward; branch direction alone does not establish a cycle.
+It calls nothing, reads no other state and cannot throw. Such a filter
 has no side effects and depends only on the exception's runtime type, which
 nothing can change. Evaluating it after inner `finally` blocks is therefore
 unobservable. It is lowered as a catch that tests the condition and continues
@@ -89,7 +93,8 @@ propagation with the same exception when the test fails. Stage A lands with
 basic exception support, because Alchemy's filters need it.
 
 **Stage B: general filters with full two-pass semantics.** Required for the
-first public release:
+first public release, or before milestone 6 if the dependency audit finds
+general filters in the ported library closure required by Alchemy:
 
 - Frames record their active protected region in a cheap per-frame state
   value, updated when entering and leaving `try` blocks.

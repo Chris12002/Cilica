@@ -93,7 +93,8 @@ Outcome:
 - Stack checking is by depth only. Type-level verification belongs to IR
   construction in milestone 2.
 - Filters are classified as `type-test` when they only test the exception
-  object's type and use locals nothing else reads, otherwise `general`.
+  object's type, use locals confined to the filter and its handler, and have
+  no control-flow cycles; otherwise `general`.
 - Evidence:
   - No diagnostics across about 67,000 methods of real compiler output,
     including System.Private.CoreLib, System.Private.Xml, System.Text.Json and
@@ -110,6 +111,15 @@ Outcome:
   - A token with its high bit set raised `InvalidCastException`.
   - System.Reflection.Metadata raised `OverflowException` for a huge stream
     count; it is now treated as malformed metadata.
+  - Review follow-up: cyclic filters were incorrectly classified as
+    `type-test`; classification now checks for cycles, while accepting
+    acyclic backward branches.
+  - Branches and exception-region boundaries could split instruction prefix
+    sequences; they now use the first prefix as the instruction boundary.
+  - `rethrow` outside a catch handler was accepted; validation now checks its
+    innermost handler/filter context, including nested exception regions.
+  - Corrupt entry-point tokens could escape metadata inspection as
+    `ArgumentException`; invalid tags and method rows now produce `CIL1006`.
 
 ### 1c: Dependency resolution and reachability audit
 
@@ -136,6 +146,9 @@ operations, interior references and generic instantiations the closure needs.
   independent of Alchemy.
 - Malformed-input fixtures derived from valid assemblies by targeted
   corruption.
+- Structural rules have paired accepted/rejected examples and interaction
+  cases (for example, prefix sequences at exception boundaries and nested
+  handlers). Corruption tests cover robustness, not proof of IL validity.
 - Determinism tests: repeated runs, and runs from different paths, produce
   byte-identical output.
 - Local commands only; no hosted CI.

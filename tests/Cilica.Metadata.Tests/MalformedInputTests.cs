@@ -15,6 +15,48 @@ namespace Cilica.Metadata.Tests;
 /// <summary>Malformed input must produce stable diagnostics, never exceptions.</summary>
 public sealed class MalformedInputTests
 {
+    [Theory]
+    [InlineData(unchecked((int)0xFFFFFFFF))]
+    [InlineData(unchecked((int)0x86000001))]
+    [InlineData(0x02000001)]
+    [InlineData(0x06000000)]
+    [InlineData(0x06FFFFFF)]
+    public void Invalid_managed_entry_point_reports_CIL1006(int token)
+    {
+        byte[] image = Fixture.Bytes(Fixture.Basic);
+        SetEntryPoint(image, token);
+
+        AssemblyReport report = AssemblyInspector.Inspect(image, "corrupt.dll");
+
+        Diagnostic diagnostic = Assert.Single(report.Diagnostics);
+        Assert.Equal(DiagnosticIds.MalformedEntity, diagnostic.Id);
+        Assert.Equal("entry point", diagnostic.Location);
+        Assert.Equal("<malformed entry point>", report.EntryPoint);
+        Assert.NotEmpty(report.Types);
+        Assert.True(report.HasErrors);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(0x06000001)]
+    public void Absent_or_existing_managed_entry_point_is_inspectable(int token)
+    {
+        byte[] image = Fixture.Bytes(Fixture.Basic);
+        SetEntryPoint(image, token);
+
+        AssemblyReport report = AssemblyInspector.Inspect(image, "fixture.dll");
+
+        Assert.Empty(report.Diagnostics);
+        if (token == 0) Assert.Null(report.EntryPoint);
+        else Assert.NotNull(report.EntryPoint);
+    }
+
+    private static void SetEntryPoint(byte[] image, int token)
+    {
+        using var pe = new PEReader(ImmutableArray.Create(image));
+        BinaryPrimitives.WriteInt32LittleEndian(image.AsSpan(pe.PEHeaders.CorHeaderStartOffset + 20), token);
+    }
+
     [Fact]
     public void Missing_file_reports_CIL1001_without_absolute_path()
     {

@@ -90,9 +90,12 @@ internal sealed class ControlFlowAnalyzer
         return new Result(blocks, filterKinds);
     }
 
-    private bool IsBoundary(int offset) => offset == _codeSize || _indexOfOffset.ContainsKey(offset);
+    private bool IsBoundary(int offset) => offset == _codeSize || IsInstruction(offset);
 
-    private bool IsInstruction(int offset) => _indexOfOffset.ContainsKey(offset);
+    // Prefixes and their following opcode form one instruction for control transfers
+    // and exception boundaries. Keep all offsets in the index for sequential stack analysis.
+    private bool IsInstruction(int offset) => _indexOfOffset.TryGetValue(offset, out int index)
+        && (index == 0 || _instructions[index - 1].Code.Flow != FlowKind.Prefix);
 
     private void ValidateVariables()
     {
@@ -254,6 +257,10 @@ internal sealed class ControlFlowAnalyzer
             {
                 _report(DiagnosticIds.InvalidControlTransfer, "endfilter outside a filter.", instruction.Offset);
             }
+            if (instruction.Code.Name == "rethrow" && !IsCatchContext(source))
+            {
+                _report(DiagnosticIds.InvalidControlTransfer, "rethrow outside a catch handler.", instruction.Offset);
+            }
 
             foreach (int target in instruction.Targets.Where(IsInstruction))
             {
@@ -280,6 +287,19 @@ internal sealed class ControlFlowAnalyzer
 
     private bool IsFinallyOrFault(int region) =>
         _regions.First(r => r.Index == region).Kind is ExceptionRegionKind.Finally or ExceptionRegionKind.Fault;
+
+    private bool IsCatchContext(Scope[] scopes)
+    {
+        // A nested try is still in its enclosing catch, but a nested filter/finally/fault
+        // is a different exception context. A filter's handler is also a catch handler.
+        Scope[] handlers = [.. scopes.Where(s => s.Part != Part.Try)];
+        if (handlers.Length == 0)
+        {
+            return false;
+        }
+        Scope innermost = handlers.MinBy(s => s.End - s.Start);
+        return innermost.Part == Part.Handler && !IsFinallyOrFault(innermost.Region);
+    }
 
     private static bool FallsThrough(FlowKind flow) =>
         flow is FlowKind.Next or FlowKind.ConditionalBranch or FlowKind.Switch or FlowKind.Prefix;
@@ -522,7 +542,7 @@ internal sealed class ControlFlowAnalyzer
     /// <summary>
     /// A filter is <c>type-test</c> when it only tests the exception object's type:
     /// it calls nothing, reads no argument, field or shared local, cannot throw and branches
-    /// only within itself. Its evaluation order relative to inner finally blocks is then
+    /// only within itself without cycles. Its evaluation order relative to inner finally blocks is then
     /// unobservable (ADR 0004 stage A).
     /// </summary>
     private string ClassifyFilter(Region region)
@@ -564,7 +584,7 @@ internal sealed class ControlFlowAnalyzer
                 _ when name.StartsWith("ldc.i4", StringComparison.Ordinal) => true,
                 _ when instruction.AccessesArgument == false => filterLocals.Contains(instruction.VariableIndex),
                 _ when instruction.Code.Flow is FlowKind.Branch or FlowKind.ConditionalBranch =>
-                    instruction.Targets.All(t => t >= region.FilterStart && t < region.HandlerStart),
+                    instruction.Targets.All(t => IsInstruction(t) && t >= region.FilterStart && t < region.HandlerStart),
                 _ => false,
             };
             if (!allowed)
@@ -572,6 +592,48 @@ internal sealed class ControlFlowAnalyzer
                 return "general";
             }
         }
-        return "type-test";
+        // A nonterminating filter prevents the unwind pass (and its finally side effects).
+        // An opcode whitelist alone cannot justify moving it after unwinding.
+        return FilterHasCycle(first, end) ? "general" : "type-test";
+    }
+
+    private bool FilterHasCycle(int first, int end)
+    {
+        IEnumerable<int> Successors(int index)
+        {
+            foreach (int target in _instructions[index].Targets)
+            {
+                yield return _indexOfOffset[target];
+            }
+            if (FallsThrough(_instructions[index].Code.Flow) && index + 1 < end)
+            {
+                yield return index + 1;
+            }
+        }
+
+        // Topological removal is iterative, so large filters cannot exhaust the host stack.
+        var incoming = new int[end - first];
+        for (int index = first; index < end; index++)
+        {
+            foreach (int successor in Successors(index))
+            {
+                incoming[successor - first]++;
+            }
+        }
+        var ready = new Queue<int>();
+        for (int index = first; index < end; index++)
+        {
+            if (incoming[index - first] == 0) ready.Enqueue(index);
+        }
+        int removed = 0;
+        while (ready.TryDequeue(out int index))
+        {
+            removed++;
+            foreach (int successor in Successors(index))
+            {
+                if (--incoming[successor - first] == 0) ready.Enqueue(successor);
+            }
+        }
+        return removed != end - first;
     }
 }

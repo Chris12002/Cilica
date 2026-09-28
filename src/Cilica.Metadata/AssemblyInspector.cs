@@ -200,7 +200,17 @@ public static class AssemblyInspector
             {
                 return null;
             }
-            return Guard(() => _names.MethodName(MetadataTokens.EntityHandle(token)), "entry point", "<malformed entry point>");
+            return Guard(() =>
+            {
+                int row = token & 0x00FFFFFF;
+                // A managed entry point in our single-module profile must be a MethodDef.
+                // Check before constructing a handle: invalid token tags can throw ArgumentException.
+                if ((token >>> 24) != 0x06 || row == 0 || row > _reader.GetTableRowCount(TableIndex.MethodDef))
+                {
+                    throw new BadImageFormatException($"Entry point 0x{token:x8} is not a valid method definition token.");
+                }
+                return _names.MethodName(MetadataTokens.MethodDefinitionHandle(row));
+            }, "entry point", "<malformed entry point>");
         }
 
         private ImmutableArray<AssemblyIdentityReport> References()
