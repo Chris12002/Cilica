@@ -16,7 +16,7 @@ output, plus diagnostics for malformed input.
 | Slice | Deliverable | Status |
 | --- | --- | --- |
 | 1a | Foundation and metadata inspection | Complete |
-| 1b | IL decoding and validation | Planned |
+| 1b | IL decoding and validation | In progress |
 | 1c | Dependency resolution and reachability audit | Planned |
 | 1d | ADR 0003 validation against a trial library build | Planned |
 
