@@ -53,9 +53,18 @@ Inspect an assembly's metadata without loading or running it:
 dotnet run --project src/Cilica.Cli -- inspect path/to/Assembly.dll --format text
 ```
 
+Decode and validate method bodies (instructions, basic blocks, exception
+regions and stack depths), optionally for one method:
+
+```bash
+dotnet run --project src/Cilica.Cli -- il path/to/Assembly.dll --method Type::Name
+```
+
 Golden-file tests compare output with reviewed files in
 `tests/Cilica.Metadata.Tests/Golden`. After an intended output change, rerun the
 tests with `CILICA_UPDATE_GOLDEN=1` and review the diff before committing.
+Corruption tests run 500 iterations by default; set `CILICA_FUZZ_ITERATIONS`
+for a longer local run.
 
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before starting an implementation slice.
 - See [AGENTS.md](AGENTS.md) for repository-specific agent instructions.

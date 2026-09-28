@@ -10,6 +10,7 @@ internal static class Fixture
 {
     public const string Basic = "Cilica.Fixtures.Basic";
     public const string Forwarding = "Cilica.Fixtures.Forwarding";
+    public const string ControlFlow = "Cilica.Fixtures.ControlFlow";
 
     /// <summary>Fixture assemblies are copied next to the tests as data files; they are never loaded.</summary>
     public static string PathOf(string name) => Path.Combine(AppContext.BaseDirectory, name + ".dll");
@@ -55,4 +56,11 @@ internal static class Golden
         Assert.Fail($"Output differs from golden file '{fileName}' at line {line + 1}.\nExpected: {expectedLine}\nActual:   {actualLine}\n" +
             "If the change is intended, rerun with CILICA_UPDATE_GOLDEN=1 and review the diff.");
     }
+}
+
+/// <summary>Corruption tests run 500 iterations by default; set <c>CILICA_FUZZ_ITERATIONS</c> for longer runs.</summary>
+internal static class Fuzz
+{
+    public static int Iterations { get; } =
+        int.TryParse(Environment.GetEnvironmentVariable("CILICA_FUZZ_ITERATIONS"), out int iterations) && iterations > 0 ? iterations : 500;
 }

@@ -1,0 +1,312 @@
+{
+  "format": "cilica.il",
+  "formatVersion": 1,
+  "input": "Cilica.Fixtures.ControlFlow.dll",
+  "methods": [
+    {
+      "name": "Cilica.Fixtures.ControlFlow.Flow::TypeTestFilter([netstandard]System.Action)",
+      "codeSize": 61,
+      "maxStack": 2,
+      "localsInitialized": true,
+      "locals": [
+        "bool",
+        "[netstandard]System.Exception",
+        "bool"
+      ],
+      "exceptionRegions": [
+        {
+          "kind": "filter",
+          "tryStart": 1,
+          "tryEnd": 13,
+          "handlerStart": 53,
+          "handlerEnd": 59,
+          "filterStart": 13,
+          "catchType": null,
+          "filterKind": "type-test"
+        }
+      ],
+      "blocks": [
+        {
+          "index": 0,
+          "start": 0,
+          "end": 1,
+          "stackOnEntry": 0,
+          "successors": [
+            1
+          ]
+        },
+        {
+          "index": 1,
+          "start": 1,
+          "end": 13,
+          "stackOnEntry": 0,
+          "successors": [
+            10
+          ]
+        },
+        {
+          "index": 2,
+          "start": 13,
+          "end": 21,
+          "stackOnEntry": 1,
+          "successors": [
+            3,
+            4
+          ]
+        },
+        {
+          "index": 3,
+          "start": 21,
+          "end": 25,
+          "stackOnEntry": 1,
+          "successors": [
+            8
+          ]
+        },
+        {
+          "index": 4,
+          "start": 25,
+          "end": 34,
+          "stackOnEntry": 1,
+          "successors": [
+            5,
+            6
+          ]
+        },
+        {
+          "index": 5,
+          "start": 34,
+          "end": 45,
+          "stackOnEntry": 0,
+          "successors": [
+            7
+          ]
+        },
+        {
+          "index": 6,
+          "start": 45,
+          "end": 46,
+          "stackOnEntry": 0,
+          "successors": [
+            7
+          ]
+        },
+        {
+          "index": 7,
+          "start": 46,
+          "end": 51,
+          "stackOnEntry": 1,
+          "successors": [
+            8
+          ]
+        },
+        {
+          "index": 8,
+          "start": 51,
+          "end": 53,
+          "stackOnEntry": 1,
+          "successors": []
+        },
+        {
+          "index": 9,
+          "start": 53,
+          "end": 59,
+          "stackOnEntry": 1,
+          "successors": [
+            10
+          ]
+        },
+        {
+          "index": 10,
+          "start": 59,
+          "end": 61,
+          "stackOnEntry": 0,
+          "successors": []
+        }
+      ],
+      "instructions": [
+        {
+          "offset": 0,
+          "opcode": "nop",
+          "operand": null
+        },
+        {
+          "offset": 1,
+          "opcode": "nop",
+          "operand": null
+        },
+        {
+          "offset": 2,
+          "opcode": "ldarg.0",
+          "operand": null
+        },
+        {
+          "offset": 3,
+          "opcode": "callvirt",
+          "operand": "[netstandard]System.Action::Invoke()"
+        },
+        {
+          "offset": 8,
+          "opcode": "nop",
+          "operand": null
+        },
+        {
+          "offset": 9,
+          "opcode": "ldc.i4.1",
+          "operand": null
+        },
+        {
+          "offset": 10,
+          "opcode": "stloc.0",
+          "operand": null
+        },
+        {
+          "offset": 11,
+          "opcode": "leave.s",
+          "operand": "IL_003b"
+        },
+        {
+          "offset": 13,
+          "opcode": "isinst",
+          "operand": "[netstandard]System.Exception"
+        },
+        {
+          "offset": 18,
+          "opcode": "dup",
+          "operand": null
+        },
+        {
+          "offset": 19,
+          "opcode": "brtrue.s",
+          "operand": "IL_0019"
+        },
+        {
+          "offset": 21,
+          "opcode": "pop",
+          "operand": null
+        },
+        {
+          "offset": 22,
+          "opcode": "ldc.i4.0",
+          "operand": null
+        },
+        {
+          "offset": 23,
+          "opcode": "br.s",
+          "operand": "IL_0033"
+        },
+        {
+          "offset": 25,
+          "opcode": "stloc.1",
+          "operand": null
+        },
+        {
+          "offset": 26,
+          "opcode": "ldloc.1",
+          "operand": null
+        },
+        {
+          "offset": 27,
+          "opcode": "isinst",
+          "operand": "[netstandard]System.InvalidOperationException"
+        },
+        {
+          "offset": 32,
+          "opcode": "brtrue.s",
+          "operand": "IL_002d"
+        },
+        {
+          "offset": 34,
+          "opcode": "ldloc.1",
+          "operand": null
+        },
+        {
+          "offset": 35,
+          "opcode": "isinst",
+          "operand": "[netstandard]System.OverflowException"
+        },
+        {
+          "offset": 40,
+          "opcode": "ldnull",
+          "operand": null
+        },
+        {
+          "offset": 41,
+          "opcode": "cgt.un",
+          "operand": null
+        },
+        {
+          "offset": 43,
+          "opcode": "br.s",
+          "operand": "IL_002e"
+        },
+        {
+          "offset": 45,
+          "opcode": "ldc.i4.1",
+          "operand": null
+        },
+        {
+          "offset": 46,
+          "opcode": "stloc.2",
+          "operand": null
+        },
+        {
+          "offset": 47,
+          "opcode": "ldloc.2",
+          "operand": null
+        },
+        {
+          "offset": 48,
+          "opcode": "ldc.i4.0",
+          "operand": null
+        },
+        {
+          "offset": 49,
+          "opcode": "cgt.un",
+          "operand": null
+        },
+        {
+          "offset": 51,
+          "opcode": "endfilter",
+          "operand": null
+        },
+        {
+          "offset": 53,
+          "opcode": "pop",
+          "operand": null
+        },
+        {
+          "offset": 54,
+          "opcode": "nop",
+          "operand": null
+        },
+        {
+          "offset": 55,
+          "opcode": "ldc.i4.0",
+          "operand": null
+        },
+        {
+          "offset": 56,
+          "opcode": "stloc.0",
+          "operand": null
+        },
+        {
+          "offset": 57,
+          "opcode": "leave.s",
+          "operand": "IL_003b"
+        },
+        {
+          "offset": 59,
+          "opcode": "ldloc.0",
+          "operand": null
+        },
+        {
+          "offset": 60,
+          "opcode": "ret",
+          "operand": null
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}

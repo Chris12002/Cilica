@@ -83,7 +83,12 @@ internal sealed class NameFormatter : ISignatureTypeProvider<string, GenericCont
     /// <summary>Formats a method handle as <c>Type::Name(parameter types)</c>.</summary>
     public string MethodName(EntityHandle handle) => MethodName(handle, GenericContext.Empty);
 
-    private string MethodName(EntityHandle handle, GenericContext context)
+    /// <summary>
+    /// Formats a method handle used inside a method body. <paramref name="callerContext"/>
+    /// names the caller's generic parameters, which appear in instantiations; a member
+    /// reference's own signature refers to its parent's parameters and uses index notation.
+    /// </summary>
+    public string MethodName(EntityHandle handle, GenericContext callerContext)
     {
         using var guard = Enter();
         switch (handle.Kind)
@@ -96,28 +101,69 @@ internal sealed class NameFormatter : ISignatureTypeProvider<string, GenericCont
                     GenericParameterNames(_reader.GetTypeDefinition(declaring).GetGenericParameters()),
                     GenericParameterNames(method.GetGenericParameters()));
                 MethodSignature<string> signature = method.DecodeSignature(this, methodContext);
-                return TypeDefinitionName(declaring) + "::" + _reader.GetString(method.Name) + ParameterTypes(signature);
+                string generics = methodContext.MethodParameters.IsEmpty ? "" : "<" + string.Join(", ", methodContext.MethodParameters) + ">";
+                return TypeDefinitionName(declaring) + "::" + _reader.GetString(method.Name) + generics + ParameterTypes(signature);
             }
             case HandleKind.MemberReference:
             {
                 MemberReference member = _reader.GetMemberReference((MemberReferenceHandle)handle);
-                string parent = MemberParentName(member.Parent);
+                string parent = MemberParentName(member.Parent, callerContext);
                 string name = _reader.GetString(member.Name);
                 if (member.GetKind() != MemberReferenceKind.Method)
                 {
                     throw new BadImageFormatException("Expected a method reference but found a field reference.");
                 }
-                return parent + "::" + name + ParameterTypes(member.DecodeMethodSignature(this, context));
+                return parent + "::" + name + ParameterTypes(member.DecodeMethodSignature(this, GenericContext.Empty));
             }
             case HandleKind.MethodSpecification:
             {
                 MethodSpecification specification = _reader.GetMethodSpecification((MethodSpecificationHandle)handle);
-                ImmutableArray<string> arguments = specification.DecodeSignature(this, context);
-                return MethodName(specification.Method, context) + "<" + string.Join(", ", arguments) + ">";
+                ImmutableArray<string> arguments = specification.DecodeSignature(this, callerContext);
+                return MethodName(specification.Method, callerContext) + "<" + string.Join(", ", arguments) + ">";
             }
             default:
                 throw new BadImageFormatException($"Expected a method handle but found {handle.Kind}.");
         }
+    }
+
+    /// <summary>Formats a field handle as <c>FieldType Type::Name</c>.</summary>
+    public string FieldName(EntityHandle handle, GenericContext callerContext)
+    {
+        using var guard = Enter();
+        switch (handle.Kind)
+        {
+            case HandleKind.FieldDefinition:
+            {
+                FieldDefinition field = _reader.GetFieldDefinition((FieldDefinitionHandle)handle);
+                TypeDefinitionHandle declaring = field.GetDeclaringType();
+                var context = new GenericContext(GenericParameterNames(_reader.GetTypeDefinition(declaring).GetGenericParameters()), []);
+                return field.DecodeSignature(this, context) + " " + TypeDefinitionName(declaring) + "::" + _reader.GetString(field.Name);
+            }
+            case HandleKind.MemberReference:
+            {
+                MemberReference member = _reader.GetMemberReference((MemberReferenceHandle)handle);
+                if (member.GetKind() != MemberReferenceKind.Field)
+                {
+                    throw new BadImageFormatException("Expected a field reference but found a method reference.");
+                }
+                return member.DecodeFieldSignature(this, GenericContext.Empty) + " "
+                    + MemberParentName(member.Parent, callerContext) + "::" + _reader.GetString(member.Name);
+            }
+            default:
+                throw new BadImageFormatException($"Expected a field handle but found {handle.Kind}.");
+        }
+    }
+
+    /// <summary>Formats a stand-alone call-site signature used by <c>calli</c>.</summary>
+    public string CallSiteSignature(StandaloneSignatureHandle handle, GenericContext callerContext)
+    {
+        StandaloneSignature signature = _reader.GetStandaloneSignature(handle);
+        if (signature.GetKind() != StandaloneSignatureKind.Method)
+        {
+            throw new BadImageFormatException("Expected a method signature for calli.");
+        }
+        MethodSignature<string> decoded = signature.DecodeMethodSignature(this, callerContext);
+        return CallingConvention(decoded.Header) + decoded.ReturnType + ParameterTypes(decoded);
     }
 
     /// <summary>The declaring type of an attribute constructor.</summary>
@@ -134,10 +180,12 @@ internal sealed class NameFormatter : ISignatureTypeProvider<string, GenericCont
         }
     }
 
-    private string MemberParentName(EntityHandle parent) => parent.Kind switch
+    private string MemberParentName(EntityHandle parent) => MemberParentName(parent, GenericContext.Empty);
+
+    private string MemberParentName(EntityHandle parent, GenericContext context) => parent.Kind switch
     {
         HandleKind.TypeDefinition or HandleKind.TypeReference or HandleKind.TypeSpecification =>
-            TypeName(parent, GenericContext.Empty),
+            TypeName(parent, context),
         HandleKind.ModuleReference =>
             "[.module " + _reader.GetString(_reader.GetModuleReference((ModuleReferenceHandle)parent).Name) + "]",
         HandleKind.MethodDefinition => MethodName(parent),

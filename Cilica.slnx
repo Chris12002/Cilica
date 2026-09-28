@@ -8,6 +8,7 @@
   </Folder>
   <Folder Name="/tests/Fixtures/">
     <Project Path="tests/Fixtures/Cilica.Fixtures.Basic/Cilica.Fixtures.Basic.csproj" />
+    <Project Path="tests/Fixtures/Cilica.Fixtures.ControlFlow/Cilica.Fixtures.ControlFlow.csproj" />
     <Project Path="tests/Fixtures/Cilica.Fixtures.Forwarding/Cilica.Fixtures.Forwarding.csproj" />
   </Folder>
 </Solution>

@@ -84,6 +84,23 @@ public sealed class MalformedInputTests
     }
 
     [Fact]
+    public void Huge_stream_count_reports_CIL1004()
+    {
+        // Regression, reduced from a corruption test: System.Reflection.Metadata raised
+        // OverflowException when the metadata root declared 56,325 streams.
+        byte[] image = Fixture.Bytes(Fixture.Basic);
+        int root = MetadataStartOffset(image);
+        int versionLength = BinaryPrimitives.ReadInt32LittleEndian(image.AsSpan(root + 12));
+        int streamCount = root + 16 + versionLength + 2;
+        Assert.Equal(5, BinaryPrimitives.ReadUInt16LittleEndian(image.AsSpan(streamCount)));
+        image[streamCount + 1] = 0xdc;
+
+        AssemblyReport report = AssemblyInspector.Inspect(image, "corrupt.dll");
+
+        Assert.Equal(DiagnosticIds.MalformedMetadata, Assert.Single(report.Diagnostics).Id);
+    }
+
+    [Fact]
     public void Corrupt_method_signature_reports_CIL1006_and_keeps_other_results()
     {
         byte[] image = Fixture.Bytes(Fixture.Basic);
@@ -122,7 +139,7 @@ public sealed class MalformedInputTests
         }
 
         var random = new Random(20260928);
-        for (int iteration = 0; iteration < 500; iteration++)
+        for (int iteration = 0; iteration < Fuzz.Iterations; iteration++)
         {
             byte[] image = (byte[])original.Clone();
             int corruptions = random.Next(1, 8);

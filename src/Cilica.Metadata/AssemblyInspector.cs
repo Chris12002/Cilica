@@ -21,27 +21,10 @@ public static class AssemblyInspector
     public static AssemblyReport Inspect(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
-        string inputName = Path.GetFileName(path);
-        byte[] image;
-        try
-        {
-            image = File.ReadAllBytes(path);
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-        {
-            // Operating-system messages contain absolute paths, which would make output machine-dependent.
-            string reason = exception switch
-            {
-                FileNotFoundException => "the file does not exist",
-                DirectoryNotFoundException => "the directory does not exist",
-                UnauthorizedAccessException => "access is denied, or the path is a directory",
-                ArgumentException or NotSupportedException => "the path is invalid",
-                _ => "an I/O error occurred",
-            };
-            return AssemblyReport.Failed(inputName, new Diagnostic(
-                DiagnosticIds.InputUnreadable, DiagnosticSeverity.Error, $"Cannot read '{inputName}': {reason}."));
-        }
-        return Inspect(image, inputName);
+        byte[]? image = AssemblyImage.ReadFile(path, out Diagnostic? failure);
+        return image is null
+            ? AssemblyReport.Failed(Path.GetFileName(path), failure!)
+            : Inspect(image, Path.GetFileName(path));
     }
 
     /// <param name="inputName">Name used in the report and diagnostics; never an absolute path.</param>
@@ -50,39 +33,10 @@ public static class AssemblyInspector
         ArgumentNullException.ThrowIfNull(image);
         ArgumentNullException.ThrowIfNull(inputName);
 
-        using var peReader = new PEReader(ImmutableArray.Create(image));
-        PEHeaders headers;
-        try
-        {
-            headers = peReader.PEHeaders;
-        }
-        catch (BadImageFormatException exception)
-        {
-            return AssemblyReport.Failed(inputName, new Diagnostic(
-                DiagnosticIds.NotPortableExecutable, DiagnosticSeverity.Error,
-                $"'{inputName}' is not a valid portable executable file: {exception.Message}"));
-        }
-
-        if (headers.CorHeader is null)
-        {
-            return AssemblyReport.Failed(inputName, new Diagnostic(
-                DiagnosticIds.NoCliMetadata, DiagnosticSeverity.Error,
-                $"'{inputName}' contains no CLI metadata; it is a native image, not a .NET assembly."));
-        }
-
-        MetadataReader reader;
-        try
-        {
-            reader = peReader.GetMetadataReader();
-        }
-        catch (Exception exception) when (exception is BadImageFormatException or InvalidOperationException)
-        {
-            return AssemblyReport.Failed(inputName, new Diagnostic(
-                DiagnosticIds.MalformedMetadata, DiagnosticSeverity.Error,
-                $"'{inputName}' has malformed CLI metadata: {exception.Message}"));
-        }
-
-        return new Inspection(inputName, headers.CorHeader, reader).Run();
+        using AssemblyImage? opened = AssemblyImage.Open(image, inputName, out Diagnostic? failure);
+        return opened is null
+            ? AssemblyReport.Failed(inputName, failure!)
+            : new Inspection(inputName, opened.CorHeader, opened.Reader).Run();
     }
 
     private sealed class Inspection
@@ -672,7 +626,7 @@ public static class AssemblyInspector
             {
                 return read();
             }
-            catch (BadImageFormatException exception)
+            catch (Exception exception) when (MalformedInput.IsMalformed(exception))
             {
                 _diagnostics.Add(new Diagnostic(
                     DiagnosticIds.MalformedEntity, DiagnosticSeverity.Error,

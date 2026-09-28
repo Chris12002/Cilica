@@ -1,0 +1,546 @@
+input: Cilica.Fixtures.ControlFlow.dll
+methods: 16
+
+method Cilica.Fixtures.ControlFlow.Flow::CallPointer(method int32 *(int32))
+  code size 10, max stack 2, locals initialized
+  locals:
+    [0] method int32 *(int32)
+  B0 [IL_0000, IL_000a) stack 0
+    IL_0000: ldarg.0
+    IL_0001: stloc.0
+    IL_0002: ldc.i4.3
+    IL_0003: ldloc.0
+    IL_0004: calli int32(int32)
+    IL_0009: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::CallingFilter([netstandard]System.Action)
+  code size 47, max stack 2, locals initialized
+  locals:
+    [0] bool
+    [1] [netstandard]System.Exception
+    [2] bool
+  exception regions:
+    try [IL_0001, IL_000d) filter at IL_000d (general), handler [IL_0027, IL_002d)
+  B0 [IL_0000, IL_0001) stack 0 -> B1
+    IL_0000: nop
+  B1 [IL_0001, IL_000d) stack 0 -> B7
+    IL_0001: nop
+    IL_0002: ldarg.0
+    IL_0003: callvirt [netstandard]System.Action::Invoke()
+    IL_0008: nop
+    IL_0009: ldc.i4.1
+    IL_000a: stloc.0
+    IL_000b: leave.s IL_002d
+  B2 [IL_000d, IL_0015) stack 1 -> B3, B4
+    IL_000d: isinst [netstandard]System.Exception
+    IL_0012: dup
+    IL_0013: brtrue.s IL_0019
+  B3 [IL_0015, IL_0019) stack 1 -> B5
+    IL_0015: pop
+    IL_0016: ldc.i4.0
+    IL_0017: br.s IL_0025
+  B4 [IL_0019, IL_0025) stack 1 -> B5
+    IL_0019: stloc.1
+    IL_001a: ldloc.1
+    IL_001b: call Cilica.Fixtures.ControlFlow.Flow::Record([netstandard]System.Exception)
+    IL_0020: stloc.2
+    IL_0021: ldloc.2
+    IL_0022: ldc.i4.0
+    IL_0023: cgt.un
+  B5 [IL_0025, IL_0027) stack 1
+    IL_0025: endfilter
+  B6 [IL_0027, IL_002d) stack 1 -> B7
+    IL_0027: pop
+    IL_0028: nop
+    IL_0029: ldc.i4.0
+    IL_002a: stloc.0
+    IL_002b: leave.s IL_002d
+  B7 [IL_002d, IL_002f) stack 0
+    IL_002d: ldloc.0
+    IL_002e: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Checked(int32, int32)
+  code size 6, max stack 8
+  B0 [IL_0000, IL_0006) stack 0
+    IL_0000: ldarg.0
+    IL_0001: conv.i8
+    IL_0002: ldarg.1
+    IL_0003: conv.i8
+    IL_0004: mul.ovf
+    IL_0005: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Foreach([netstandard]System.Collections.Generic.List`1<int32>)
+  code size 59, max stack 2, locals initialized
+  locals:
+    [0] int32
+    [1] [netstandard]System.Collections.Generic.List`1/Enumerator<int32>
+    [2] int32
+    [3] int32
+  exception regions:
+    try [IL_000b, IL_0026) finally, handler [IL_0026, IL_0035)
+  B0 [IL_0000, IL_000b) stack 0 -> B1
+    IL_0000: nop
+    IL_0001: ldc.i4.0
+    IL_0002: stloc.0
+    IL_0003: nop
+    IL_0004: ldarg.0
+    IL_0005: callvirt [netstandard]System.Collections.Generic.List`1<int32>::GetEnumerator()
+    IL_000a: stloc.1
+  B1 [IL_000b, IL_000d) stack 0 -> B3
+    IL_000b: br.s IL_001b
+  B2 [IL_000d, IL_001b) stack 0 -> B3
+    IL_000d: ldloca.s 1
+    IL_000f: call [netstandard]System.Collections.Generic.List`1/Enumerator<int32>::get_Current()
+    IL_0014: stloc.2
+    IL_0015: nop
+    IL_0016: ldloc.0
+    IL_0017: ldloc.2
+    IL_0018: add
+    IL_0019: stloc.0
+    IL_001a: nop
+  B3 [IL_001b, IL_0024) stack 0 -> B2, B4
+    IL_001b: ldloca.s 1
+    IL_001d: call [netstandard]System.Collections.Generic.List`1/Enumerator<int32>::MoveNext()
+    IL_0022: brtrue.s IL_000d
+  B4 [IL_0024, IL_0026) stack 0 -> B6
+    IL_0024: leave.s IL_0035
+  B5 [IL_0026, IL_0035) stack 0
+    IL_0026: ldloca.s 1
+    IL_0028: constrained. [netstandard]System.Collections.Generic.List`1/Enumerator<int32>
+    IL_002e: callvirt [netstandard]System.IDisposable::Dispose()
+    IL_0033: nop
+    IL_0034: endfinally
+  B6 [IL_0035, IL_0039) stack 0 -> B7
+    IL_0035: ldloc.0
+    IL_0036: stloc.3
+    IL_0037: br.s IL_0039
+  B7 [IL_0039, IL_003b) stack 0
+    IL_0039: ldloc.3
+    IL_003a: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Largest<T>(!!T[])
+  code size 71, max stack 2, locals initialized
+  locals:
+    [0] !!T
+    [1] !!T[]
+    [2] int32
+    [3] !!T
+    [4] bool
+    [5] !!T
+  B0 [IL_0000, IL_0010) stack 0 -> B4
+    IL_0000: nop
+    IL_0001: ldarg.0
+    IL_0002: ldc.i4.0
+    IL_0003: ldelem !!T
+    IL_0008: stloc.0
+    IL_0009: nop
+    IL_000a: ldarg.0
+    IL_000b: stloc.1
+    IL_000c: ldc.i4.0
+    IL_000d: stloc.2
+    IL_000e: br.s IL_0039
+  B1 [IL_0010, IL_0030) stack 0 -> B2, B3
+    IL_0010: ldloc.1
+    IL_0011: ldloc.2
+    IL_0012: ldelem !!T
+    IL_0017: stloc.3
+    IL_0018: nop
+    IL_0019: ldloca.s 3
+    IL_001b: ldloc.0
+    IL_001c: constrained. !!T
+    IL_0022: callvirt [netstandard]System.IComparable`1<!!T>::CompareTo(!0)
+    IL_0027: ldc.i4.0
+    IL_0028: cgt
+    IL_002a: stloc.s 4
+    IL_002c: ldloc.s 4
+    IL_002e: brfalse.s IL_0034
+  B2 [IL_0030, IL_0034) stack 0 -> B3
+    IL_0030: nop
+    IL_0031: ldloc.3
+    IL_0032: stloc.0
+    IL_0033: nop
+  B3 [IL_0034, IL_0039) stack 0 -> B4
+    IL_0034: nop
+    IL_0035: ldloc.2
+    IL_0036: ldc.i4.1
+    IL_0037: add
+    IL_0038: stloc.2
+  B4 [IL_0039, IL_003f) stack 0 -> B1, B5
+    IL_0039: ldloc.2
+    IL_003a: ldloc.1
+    IL_003b: ldlen
+    IL_003c: conv.i4
+    IL_003d: blt.s IL_0010
+  B5 [IL_003f, IL_0044) stack 0 -> B6
+    IL_003f: ldloc.0
+    IL_0040: stloc.s 5
+    IL_0042: br.s IL_0044
+  B6 [IL_0044, IL_0047) stack 0
+    IL_0044: ldloc.s 5
+    IL_0046: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Locked(object, int32&)
+  code size 36, max stack 3, locals initialized
+  locals:
+    [0] object
+    [1] bool
+  exception regions:
+    try [IL_0005, IL_0018) finally, handler [IL_0018, IL_0023)
+  B0 [IL_0000, IL_0005) stack 0 -> B1
+    IL_0000: nop
+    IL_0001: ldarg.0
+    IL_0002: stloc.0
+    IL_0003: ldc.i4.0
+    IL_0004: stloc.1
+  B1 [IL_0005, IL_0018) stack 0 -> B5
+    IL_0005: ldloc.0
+    IL_0006: ldloca.s 1
+    IL_0008: call [netstandard]System.Threading.Monitor::Enter(object, bool&)
+    IL_000d: nop
+    IL_000e: nop
+    IL_000f: ldarg.1
+    IL_0010: ldarg.1
+    IL_0011: ldind.i4
+    IL_0012: ldc.i4.1
+    IL_0013: add
+    IL_0014: stind.i4
+    IL_0015: nop
+    IL_0016: leave.s IL_0023
+  B2 [IL_0018, IL_001b) stack 0 -> B3, B4
+    IL_0018: ldloc.1
+    IL_0019: brfalse.s IL_0022
+  B3 [IL_001b, IL_0022) stack 0 -> B4
+    IL_001b: ldloc.0
+    IL_001c: call [netstandard]System.Threading.Monitor::Exit(object)
+    IL_0021: nop
+  B4 [IL_0022, IL_0023) stack 0
+    IL_0022: endfinally
+  B5 [IL_0023, IL_0024) stack 0
+    IL_0023: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Loop(int32)
+  code size 31, max stack 2, locals initialized
+  locals:
+    [0] int32
+    [1] int32
+    [2] bool
+    [3] int32
+  B0 [IL_0000, IL_0007) stack 0 -> B2
+    IL_0000: nop
+    IL_0001: ldc.i4.0
+    IL_0002: stloc.0
+    IL_0003: ldc.i4.0
+    IL_0004: stloc.1
+    IL_0005: br.s IL_0011
+  B1 [IL_0007, IL_0011) stack 0 -> B2
+    IL_0007: nop
+    IL_0008: ldloc.0
+    IL_0009: ldloc.1
+    IL_000a: add
+    IL_000b: stloc.0
+    IL_000c: nop
+    IL_000d: ldloc.1
+    IL_000e: ldc.i4.1
+    IL_000f: add
+    IL_0010: stloc.1
+  B2 [IL_0011, IL_0019) stack 0 -> B1, B3
+    IL_0011: ldloc.1
+    IL_0012: ldarg.0
+    IL_0013: clt
+    IL_0015: stloc.2
+    IL_0016: ldloc.2
+    IL_0017: brtrue.s IL_0007
+  B3 [IL_0019, IL_001d) stack 0 -> B4
+    IL_0019: ldloc.0
+    IL_001a: stloc.3
+    IL_001b: br.s IL_001d
+  B4 [IL_001d, IL_001f) stack 0
+    IL_001d: ldloc.3
+    IL_001e: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Record([netstandard]System.Exception)
+  code size 27, max stack 2, locals initialized
+  locals:
+    [0] bool
+  B0 [IL_0000, IL_0019) stack 0 -> B1
+    IL_0000: nop
+    IL_0001: ldsfld int32 Cilica.Fixtures.ControlFlow.Flow::_filterCalls
+    IL_0006: ldc.i4.1
+    IL_0007: add
+    IL_0008: stsfld int32 Cilica.Fixtures.ControlFlow.Flow::_filterCalls
+    IL_000d: ldarg.0
+    IL_000e: isinst [netstandard]System.InvalidOperationException
+    IL_0013: ldnull
+    IL_0014: cgt.un
+    IL_0016: stloc.0
+    IL_0017: br.s IL_0019
+  B1 [IL_0019, IL_001b) stack 0
+    IL_0019: ldloc.0
+    IL_001a: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Rethrow([netstandard]System.Action)
+  code size 17, max stack 1, locals initialized
+  exception regions:
+    try [IL_0001, IL_000c) catch [netstandard]System.Exception, handler [IL_000c, IL_0010)
+  B0 [IL_0000, IL_0001) stack 0 -> B1
+    IL_0000: nop
+  B1 [IL_0001, IL_000c) stack 0 -> B3
+    IL_0001: nop
+    IL_0002: ldarg.0
+    IL_0003: callvirt [netstandard]System.Action::Invoke()
+    IL_0008: nop
+    IL_0009: nop
+    IL_000a: leave.s IL_0010
+  B2 [IL_000c, IL_0010) stack 1
+    IL_000c: pop
+    IL_000d: nop
+    IL_000e: rethrow
+  B3 [IL_0010, IL_0011) stack 0
+    IL_0010: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::StackAllocation()
+  code size 17, max stack 2, locals initialized
+  locals:
+    [0] int32*
+    [1] int32
+  B0 [IL_0000, IL_000f) stack 0 -> B1
+    IL_0000: nop
+    IL_0001: ldc.i4.s 16
+    IL_0003: conv.u
+    IL_0004: localloc
+    IL_0006: stloc.0
+    IL_0007: ldloc.0
+    IL_0008: ldc.i4.1
+    IL_0009: stind.i4
+    IL_000a: ldloc.0
+    IL_000b: ldind.i4
+    IL_000c: stloc.1
+    IL_000d: br.s IL_000f
+  B1 [IL_000f, IL_0011) stack 0
+    IL_000f: ldloc.1
+    IL_0010: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::StateFilter([netstandard]System.Action)
+  code size 49, max stack 2, locals initialized
+  locals:
+    [0] bool
+    [1] bool
+  exception regions:
+    try [IL_0001, IL_000d) filter at IL_000d (general), handler [IL_0029, IL_002f)
+  B0 [IL_0000, IL_0001) stack 0 -> B1
+    IL_0000: nop
+  B1 [IL_0001, IL_000d) stack 0 -> B7
+    IL_0001: nop
+    IL_0002: ldarg.0
+    IL_0003: callvirt [netstandard]System.Action::Invoke()
+    IL_0008: nop
+    IL_0009: ldc.i4.1
+    IL_000a: stloc.0
+    IL_000b: leave.s IL_002f
+  B2 [IL_000d, IL_0015) stack 1 -> B3, B4
+    IL_000d: isinst [netstandard]System.Exception
+    IL_0012: dup
+    IL_0013: brtrue.s IL_0019
+  B3 [IL_0015, IL_0019) stack 1 -> B5
+    IL_0015: pop
+    IL_0016: ldc.i4.0
+    IL_0017: br.s IL_0027
+  B4 [IL_0019, IL_0027) stack 1 -> B5
+    IL_0019: pop
+    IL_001a: ldsfld int32 Cilica.Fixtures.ControlFlow.Flow::_filterCalls
+    IL_001f: ldc.i4.0
+    IL_0020: cgt
+    IL_0022: stloc.1
+    IL_0023: ldloc.1
+    IL_0024: ldc.i4.0
+    IL_0025: cgt.un
+  B5 [IL_0027, IL_0029) stack 1
+    IL_0027: endfilter
+  B6 [IL_0029, IL_002f) stack 1 -> B7
+    IL_0029: pop
+    IL_002a: nop
+    IL_002b: ldc.i4.0
+    IL_002c: stloc.0
+    IL_002d: leave.s IL_002f
+  B7 [IL_002f, IL_0031) stack 0
+    IL_002f: ldloc.0
+    IL_0030: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Switch(int32)
+  code size 71, max stack 1, locals initialized
+  locals:
+    [0] int32
+    [1] int32
+    [2] string
+  B0 [IL_0000, IL_001b) stack 0 -> B1, B2, B3, B4, B5
+    IL_0000: nop
+    IL_0001: ldarg.0
+    IL_0002: stloc.1
+    IL_0003: ldloc.1
+    IL_0004: stloc.0
+    IL_0005: ldloc.0
+    IL_0006: switch (IL_001d, IL_0025, IL_002d, IL_0035)
+  B1 [IL_001b, IL_001d) stack 0 -> B6
+    IL_001b: br.s IL_003d
+  B2 [IL_001d, IL_0025) stack 0 -> B7
+    IL_001d: ldstr "zero"
+    IL_0022: stloc.2
+    IL_0023: br.s IL_0045
+  B3 [IL_0025, IL_002d) stack 0 -> B7
+    IL_0025: ldstr "one"
+    IL_002a: stloc.2
+    IL_002b: br.s IL_0045
+  B4 [IL_002d, IL_0035) stack 0 -> B7
+    IL_002d: ldstr "two"
+    IL_0032: stloc.2
+    IL_0033: br.s IL_0045
+  B5 [IL_0035, IL_003d) stack 0 -> B7
+    IL_0035: ldstr "three"
+    IL_003a: stloc.2
+    IL_003b: br.s IL_0045
+  B6 [IL_003d, IL_0045) stack 0 -> B7
+    IL_003d: ldstr "many"
+    IL_0042: stloc.2
+    IL_0043: br.s IL_0045
+  B7 [IL_0045, IL_0047) stack 0
+    IL_0045: ldloc.2
+    IL_0046: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::TryCatchFinally(int32[])
+  code size 33, max stack 2, locals initialized
+  locals:
+    [0] int32
+    [1] int32
+  exception regions:
+    try [IL_0003, IL_000b) catch [netstandard]System.IndexOutOfRangeException, handler [IL_000b, IL_0012)
+    try [IL_0003, IL_0014) finally, handler [IL_0014, IL_001b)
+  B0 [IL_0000, IL_0003) stack 0 -> B1
+    IL_0000: nop
+    IL_0001: ldc.i4.0
+    IL_0002: stloc.0
+  B1 [IL_0003, IL_000b) stack 0 -> B3
+    IL_0003: nop
+    IL_0004: ldarg.0
+    IL_0005: ldc.i4.0
+    IL_0006: ldelem.i4
+    IL_0007: stloc.0
+    IL_0008: nop
+    IL_0009: leave.s IL_0012
+  B2 [IL_000b, IL_0012) stack 1 -> B3
+    IL_000b: pop
+    IL_000c: nop
+    IL_000d: ldc.i4.m1
+    IL_000e: stloc.0
+    IL_000f: nop
+    IL_0010: leave.s IL_0012
+  B3 [IL_0012, IL_0014) stack 0 -> B5
+    IL_0012: leave.s IL_001b
+  B4 [IL_0014, IL_001b) stack 0
+    IL_0014: nop
+    IL_0015: ldloc.0
+    IL_0016: ldc.i4.1
+    IL_0017: add
+    IL_0018: stloc.0
+    IL_0019: nop
+    IL_001a: endfinally
+  B5 [IL_001b, IL_001f) stack 0 -> B6
+    IL_001b: ldloc.0
+    IL_001c: stloc.1
+    IL_001d: br.s IL_001f
+  B6 [IL_001f, IL_0021) stack 0
+    IL_001f: ldloc.1
+    IL_0020: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::TypeTestFilter([netstandard]System.Action)
+  code size 61, max stack 2, locals initialized
+  locals:
+    [0] bool
+    [1] [netstandard]System.Exception
+    [2] bool
+  exception regions:
+    try [IL_0001, IL_000d) filter at IL_000d (type-test), handler [IL_0035, IL_003b)
+  B0 [IL_0000, IL_0001) stack 0 -> B1
+    IL_0000: nop
+  B1 [IL_0001, IL_000d) stack 0 -> B10
+    IL_0001: nop
+    IL_0002: ldarg.0
+    IL_0003: callvirt [netstandard]System.Action::Invoke()
+    IL_0008: nop
+    IL_0009: ldc.i4.1
+    IL_000a: stloc.0
+    IL_000b: leave.s IL_003b
+  B2 [IL_000d, IL_0015) stack 1 -> B3, B4
+    IL_000d: isinst [netstandard]System.Exception
+    IL_0012: dup
+    IL_0013: brtrue.s IL_0019
+  B3 [IL_0015, IL_0019) stack 1 -> B8
+    IL_0015: pop
+    IL_0016: ldc.i4.0
+    IL_0017: br.s IL_0033
+  B4 [IL_0019, IL_0022) stack 1 -> B5, B6
+    IL_0019: stloc.1
+    IL_001a: ldloc.1
+    IL_001b: isinst [netstandard]System.InvalidOperationException
+    IL_0020: brtrue.s IL_002d
+  B5 [IL_0022, IL_002d) stack 0 -> B7
+    IL_0022: ldloc.1
+    IL_0023: isinst [netstandard]System.OverflowException
+    IL_0028: ldnull
+    IL_0029: cgt.un
+    IL_002b: br.s IL_002e
+  B6 [IL_002d, IL_002e) stack 0 -> B7
+    IL_002d: ldc.i4.1
+  B7 [IL_002e, IL_0033) stack 1 -> B8
+    IL_002e: stloc.2
+    IL_002f: ldloc.2
+    IL_0030: ldc.i4.0
+    IL_0031: cgt.un
+  B8 [IL_0033, IL_0035) stack 1
+    IL_0033: endfilter
+  B9 [IL_0035, IL_003b) stack 1 -> B10
+    IL_0035: pop
+    IL_0036: nop
+    IL_0037: ldc.i4.0
+    IL_0038: stloc.0
+    IL_0039: leave.s IL_003b
+  B10 [IL_003b, IL_003d) stack 0
+    IL_003b: ldloc.0
+    IL_003c: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::TypeToken()
+  code size 11, max stack 8
+  B0 [IL_0000, IL_000b) stack 0
+    IL_0000: ldtoken [netstandard]System.Collections.Generic.List`1<string>
+    IL_0005: call [netstandard]System.Type::GetTypeFromHandle([netstandard]System.RuntimeTypeHandle)
+    IL_000a: ret
+
+method Cilica.Fixtures.ControlFlow.Flow::Using([netstandard]System.IDisposable)
+  code size 21, max stack 1, locals initialized
+  locals:
+    [0] [netstandard]System.IDisposable
+    [1] int32
+  exception regions:
+    try [IL_0003, IL_0008) finally, handler [IL_0008, IL_0013)
+  B0 [IL_0000, IL_0003) stack 0 -> B1
+    IL_0000: nop
+    IL_0001: ldarg.0
+    IL_0002: stloc.0
+  B1 [IL_0003, IL_0008) stack 0 -> B5
+    IL_0003: nop
+    IL_0004: ldc.i4.1
+    IL_0005: stloc.1
+    IL_0006: leave.s IL_0013
+  B2 [IL_0008, IL_000b) stack 0 -> B3, B4
+    IL_0008: ldloc.0
+    IL_0009: brfalse.s IL_0012
+  B3 [IL_000b, IL_0012) stack 0 -> B4
+    IL_000b: ldloc.0
+    IL_000c: callvirt [netstandard]System.IDisposable::Dispose()
+    IL_0011: nop
+  B4 [IL_0012, IL_0013) stack 0
+    IL_0012: endfinally
+  B5 [IL_0013, IL_0015) stack 0
+    IL_0013: ldloc.1
+    IL_0014: ret
+
+diagnostics: none

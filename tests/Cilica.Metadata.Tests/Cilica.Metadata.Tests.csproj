@@ -19,5 +19,6 @@
     <!-- Fixtures are inspected as files; they are copied to the output directory but never loaded. -->
     <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Basic\Cilica.Fixtures.Basic.csproj" />
     <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Forwarding\Cilica.Fixtures.Forwarding.csproj" />
+    <ProjectReference Include="..\Fixtures\Cilica.Fixtures.ControlFlow\Cilica.Fixtures.ControlFlow.csproj" />
   </ItemGroup>
 </Project>

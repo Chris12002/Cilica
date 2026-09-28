@@ -28,6 +28,20 @@ public static class DiagnosticIds
     public const string MalformedEntity = "CIL1006";
     public const string NoAssemblyManifest = "CIL1007";
     public const string ReferenceAssembly = "CIL1008";
+    public const string MalformedMethodBody = "CIL1010";
+    public const string InvalidControlTransfer = "CIL1011";
+    public const string InvalidExceptionRegion = "CIL1012";
+    public const string InconsistentStack = "CIL1013";
+    public const string InvalidOperand = "CIL1014";
+}
+
+internal static class MalformedInput
+{
+    /// <summary>
+    /// Exceptions System.Reflection.Metadata raises for damaged input. It mostly throws
+    /// BadImageFormatException, but corrupted sizes and counts can surface as arithmetic overflow.
+    /// </summary>
+    public static bool IsMalformed(Exception exception) => exception is BadImageFormatException or OverflowException;
 }
 
 public static class DiagnosticSeverityExtensions

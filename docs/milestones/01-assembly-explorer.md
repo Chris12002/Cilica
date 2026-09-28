@@ -1,6 +1,6 @@
 # Milestone 1: Assembly explorer and dependency audit
 
-Status: in progress (slice 1a complete). Plan recorded 2026-09-28.
+Status: in progress (slices 1a and 1b complete). Plan recorded 2026-09-28.
 
 The explorer reads .NET assemblies strictly as data and never loads or runs
 them. It produces deterministic output and actionable diagnostics. It also
@@ -16,7 +16,7 @@ output, plus diagnostics for malformed input.
 | Slice | Deliverable | Status |
 | --- | --- | --- |
 | 1a | Foundation and metadata inspection | Complete |
-| 1b | IL decoding and validation | In progress |
+| 1b | IL decoding and validation | Complete |
 | 1c | Dependency resolution and reachability audit | Planned |
 | 1d | ADR 0003 validation against a trial library build | Planned |
 
@@ -63,7 +63,6 @@ Known limitations, planned for later slices:
 
 - Attribute arguments whose type is an enum from another assembly (for example
   `AttributeUsage`) are shown as raw blobs until slice 1c resolves references.
-- Method bodies are not reported yet; they arrive in slice 1b.
 - Parameter attributes, such as `ParamArray`, are not reported yet.
 - The module version identifier (MVID) is omitted. It changes whenever the
   compiled content changes, which would churn golden files without adding
@@ -77,6 +76,40 @@ Known limitations, planned for later slices:
   profile.
 - Classifies exception filters as type-test (stage A in
   [ADR 0004](../decisions/0004-exception-handling.md)) or general.
+
+Outcome:
+
+- `cilica il` decodes every ECMA-335 instruction and reports locals, exception
+  regions, basic blocks with successors and entry stack depths, and operands
+  formatted with the caller's generic parameter names. Text and JSON
+  (`cilica.il` format version 1) are supported.
+- Validation covers the structural rules the compiler depends on: branch
+  targets on instruction boundaries; exception regions that are well formed
+  and properly nested; control entering protected blocks only at their start
+  and leaving only through `leave`, `endfinally` or `endfilter`; no `ret`
+  inside a region; argument, local and token operands; and evaluation-stack
+  depth (underflow, joins, declared maximum, empty on entry to a protected
+  block). Failures produce `CIL1010` to `CIL1014`.
+- Stack checking is by depth only. Type-level verification belongs to IR
+  construction in milestone 2.
+- Filters are classified as `type-test` when they only test the exception
+  object's type and use locals nothing else reads, otherwise `general`.
+- Evidence:
+  - No diagnostics across about 67,000 methods of real compiler output,
+    including System.Private.CoreLib, System.Private.Xml, System.Text.Json and
+    Alchemy.Engine. System.Private.CoreLib (39,317 methods) takes about 1.2
+    seconds.
+  - Alchemy's three filters are all `type-test`, so ADR 0004 stage A covers
+    them. System.Private.CoreLib contains 20 general and 3 type-test filters;
+    slice 1c's audit determines whether any general filter is reachable.
+  - Synthetic IL tests cover each rule. Corruption tests passed 50,000
+    iterations each for metadata and method bodies.
+- Defects found and fixed, each with a reduced regression:
+  - The code size included the body header and exception table, so a region
+    ending at the last IL byte was rejected (found in System.Private.CoreLib).
+  - A token with its high bit set raised `InvalidCastException`.
+  - System.Reflection.Metadata raised `OverflowException` for a huge stream
+    count; it is now treated as malformed metadata.
 
 ### 1c: Dependency resolution and reachability audit
 
