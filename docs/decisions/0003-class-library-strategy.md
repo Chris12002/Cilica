@@ -54,12 +54,10 @@ of CoreCLR, Mono and NativeAOT are not imported.
   at import.
 - Differential tests run against the same .NET release, so Cilica's reference
   behaviour and its library source match.
-- Alchemy targets .NET Standard 2.1 with a Unity-compatible C# language
-  version but does not run on Unity, so its authoritative behaviour is that of
-  the .NET runtime executing it. Its baseline transcripts are regenerated on
-  the pinned release. Before that baseline is adopted, transcripts from the
-  runtime Alchemy currently uses are compared with the pinned release, and any
-  difference is recorded.
+- Alchemy's engine assemblies target .NET Standard 2.1 with C# 9, a
+  Unity-compatible language version, but do not run on Unity. They already
+  run and are tested on .NET 10, so their authoritative behaviour is the
+  pinned release's and baseline transcripts are generated on it.
 - Upgrading is a deliberate change: re-import, reapply local modifications,
   rerun conformance and record the new tag.
 
