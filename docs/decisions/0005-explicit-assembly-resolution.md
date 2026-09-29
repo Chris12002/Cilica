@@ -44,8 +44,9 @@ bodies; silently choosing either would undermine the general-filter audit.
   and then the implementation's nested definitions. Cycles and paths deeper
   than 256 steps are diagnosed without recursive host calls. Duplicate type
   definitions/exports are errors rather than first-match choices.
-- TypeSpecs, member/signature binding, nil/module-reference scopes,
-  multi-module exports and framework retargeting are outside this block.
+- TypeSpecs and member/signature binding are added by
+  [ADR 0006](0006-structural-member-binding.md). Nil/module-reference scopes,
+  multi-module exports and framework retargeting remain outside this block.
   Unsupported resolution requests are explicit failures, not guessed bindings.
 - One disposable, single-threaded resolver owns all image readers and caches.
   Public results contain immutable identity, hash, reference-marker and handle

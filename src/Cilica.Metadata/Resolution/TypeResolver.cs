@@ -42,8 +42,8 @@ public sealed partial class AssemblyResolver
     }
 
     /// <summary>
-    /// Resolves a TypeDef or TypeRef handle scoped to an owned image. Generic/array TypeSpecs
-    /// require signature resolution in a later block; they are diagnosed, never guessed.
+    /// Resolves a TypeDef or TypeRef handle scoped to an owned image. Use
+    /// ResolveSignatureType for constructed signatures such as generic/array TypeSpecs.
     /// </summary>
     public ResolutionResult<ResolvedType> ResolveType(ResolvedAssembly assembly, EntityHandle handle)
     {

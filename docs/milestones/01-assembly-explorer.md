@@ -17,7 +17,7 @@ output, plus diagnostics for malformed input.
 | --- | --- | --- |
 | 1a | Foundation and metadata inspection | Complete |
 | 1b | IL decoding and validation | Complete |
-| 1c | Dependency resolution and reachability audit | In progress: resolver foundation complete |
+| 1c | Dependency resolution and reachability audit | In progress: assembly/type and bounded member binding implemented |
 | 1d | ADR 0003 validation against a trial library build | Planned |
 
 Each slice is reviewed and committed separately.
@@ -145,13 +145,25 @@ Resolver foundation implemented in `Cilica.Metadata.Resolution`
 - Independent fixtures cover positive/negative binding and forwarding cases,
   including compiled C# forwarders and seeded malformed-metadata input.
 
-Next implementation block: signature/member resolution, followed by root and
-edge expansion with inclusion explanations. Generic TypeSpecs, overloads,
-inherited members and interface implementations need explicit binding before
-reachability can follow calls reliably. The audit command and Alchemy run are
-still outstanding.
+Structural declaration binding implemented
+([ADR 0006](../decisions/0006-structural-member-binding.md)):
 
-Continue 1c in reviewable commits: signature/member binding; root/edge expansion
+- Bounded TypeSpec, method and field signatures retain structural identity.
+  MemberRefs match before generic instantiation; MethodSpecs preserve caller
+  variables. Generic base lookup resolves inherited declarations.
+- Interface declarations and explicit implementation operands resolve
+  separately. Dispatch selection has not been implemented.
+- Synthetic cases and authored C#/.NET probes cover overloads, inherited
+  generics, explicit interfaces, assembly scope and malformed signatures.
+- Unsupported signature/owner forms fail explicitly; successful binding does
+  not establish generic constraint validity or executable compatibility.
+
+Next implementation block: root and edge expansion with inclusion explanations,
+including caller generic environments and conservative virtual/interface
+dispatch. Track unresolved and reference-only edges as incomplete analysis.
+The audit command and Alchemy run are still outstanding.
+
+Continue the remaining 1c work in reviewable commits: root/edge expansion
 and inclusion explanations; feature reporting and `cilica audit`; local Alchemy
 evidence. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
 defines the cases and how to report an incomplete closure. Reference-only audit

@@ -41,6 +41,9 @@ public static class DiagnosticIds
     public const string TypeConflict = "CIL3006";
     public const string TypeResolutionCycle = "CIL3007";
     public const string ResolutionUnsupported = "CIL3008";
+    public const string InvalidSignature = "CIL3009";
+    public const string MemberNotFound = "CIL3010";
+    public const string MemberConflict = "CIL3011";
 }
 
 internal static class MalformedInput

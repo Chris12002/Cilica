@@ -50,6 +50,14 @@ public sealed record ResolvedType
 
     public ResolvedAssembly Assembly { get; }
     public TypeDefinitionHandle Handle { get; }
+
+    // Identical snapshots can be opened through different paths. Reader ownership
+    // stays session-specific, but semantic type identity must not depend on that path.
+    public bool Equals(ResolvedType? other) => other is not null && Handle == other.Handle
+        && Assembly.Identity.Equals(other.Assembly.Identity)
+        && string.Equals(Assembly.ContentHash, other.Assembly.ContentHash, StringComparison.Ordinal);
+
+    public override int GetHashCode() => HashCode.Combine(Assembly.Identity, Assembly.ContentHash, Handle);
 }
 
 internal sealed class TypeIndex

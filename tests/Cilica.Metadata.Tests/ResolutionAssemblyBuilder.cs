@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
@@ -11,6 +13,7 @@ namespace Cilica.Metadata.Tests;
 internal sealed class ResolutionAssemblyBuilder
 {
     private readonly MetadataBuilder _metadata = new();
+    private readonly List<(EntityHandle Owner, int Count)> _parameters = [];
     internal const TypeAttributes Forwarder = (TypeAttributes)0x00200000;
 
     internal ResolutionAssemblyBuilder(AssemblyIdentity identity, byte[]? publicKey = null, AssemblyFlags flags = 0)
@@ -32,14 +35,44 @@ internal sealed class ResolutionAssemblyBuilder
                 : identity.PublicKeyToken is null ? default : _metadata.GetOrAddBlob(Convert.FromHexString(identity.PublicKeyToken)),
             fullKey is null ? 0 : AssemblyFlags.PublicKey, default);
 
-    internal TypeDefinitionHandle Type(string ns, string name, TypeDefinitionHandle parent = default)
+    internal TypeDefinitionHandle Type(string ns, string name, TypeDefinitionHandle parent = default,
+        EntityHandle baseType = default, int arity = 0)
     {
         TypeDefinitionHandle handle = _metadata.AddTypeDefinition(parent.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic,
-            _metadata.GetOrAddString(ns), _metadata.GetOrAddString(name), default,
-            MetadataTokens.FieldDefinitionHandle(1), MetadataTokens.MethodDefinitionHandle(1));
+            _metadata.GetOrAddString(ns), _metadata.GetOrAddString(name), baseType,
+            MetadataTokens.FieldDefinitionHandle(_metadata.GetRowCount(TableIndex.Field) + 1),
+            MetadataTokens.MethodDefinitionHandle(_metadata.GetRowCount(TableIndex.MethodDef) + 1));
         if (!parent.IsNil) _metadata.AddNestedType(handle, parent);
+        Parameters(handle, arity);
         return handle;
     }
+
+    // Add each type before its contiguous member rows, as required by TypeDef lists.
+    internal MethodDefinitionHandle Method(string name, byte[] signature, int arity = 0,
+        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.Static)
+    {
+        var handle = _metadata.AddMethodDefinition(attributes, MethodImplAttributes.Runtime,
+            _metadata.GetOrAddString(name), _metadata.GetOrAddBlob(signature), -1, MetadataTokens.ParameterHandle(1));
+        Parameters(handle, arity);
+        return handle;
+    }
+
+    private void Parameters(EntityHandle owner, int count)
+    {
+        if (count > 0) _parameters.Add((owner, count));
+    }
+
+    internal FieldDefinitionHandle Field(string name, params byte[] signature) =>
+        _metadata.AddFieldDefinition(FieldAttributes.Public, _metadata.GetOrAddString(name), _metadata.GetOrAddBlob(signature));
+
+    internal TypeSpecificationHandle Specification(params byte[] signature) =>
+        _metadata.AddTypeSpecification(_metadata.GetOrAddBlob(signature));
+
+    internal MemberReferenceHandle Member(EntityHandle parent, string name, params byte[] signature) =>
+        _metadata.AddMemberReference(parent, _metadata.GetOrAddString(name), _metadata.GetOrAddBlob(signature));
+
+    internal MethodSpecificationHandle Instantiate(EntityHandle method, params byte[] signature) =>
+        _metadata.AddMethodSpecification(method, _metadata.GetOrAddBlob(signature));
 
     internal ExportedTypeHandle Forward(string ns, string name, AssemblyReferenceHandle target) =>
         _metadata.AddExportedType(TypeAttributes.Public | Forwarder,
@@ -63,6 +96,12 @@ internal sealed class ResolutionAssemblyBuilder
 
     internal byte[] Build()
     {
+        foreach (var group in _parameters.OrderBy(p => MetadataTokens.GetRowNumber(p.Owner) * 2
+            + (p.Owner.Kind == HandleKind.MethodDefinition ? 1 : 0)))
+            for (int i = 0; i < group.Count; i++)
+                _metadata.AddGenericParameter(group.Owner, GenericParameterAttributes.None,
+                    _metadata.GetOrAddString("T" + i.ToString(System.Globalization.CultureInfo.InvariantCulture)), i);
+        _parameters.Clear();
         var pe = new ManagedPEBuilder(PEHeaderBuilder.CreateLibraryHeader(), new MetadataRootBuilder(_metadata),
             new BlobBuilder(), deterministicIdProvider: _ =>
                 new BlobContentId(new Guid("2b0b3f0a-bdea-4d77-9650-c5988d4ac20c"), 1));
