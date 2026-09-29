@@ -114,9 +114,11 @@ The implemented resolver foundation uses explicit directories and strict
 manifest identity, with forwarding and conflict diagnostics
 ([ADR 0005](decisions/0005-explicit-assembly-resolution.md)). A bounded structural
 signature and declaration binder handles generic and inherited members
-([ADR 0006](decisions/0006-structural-member-binding.md)). Framework mapping,
-dispatch expansion and reachability remain subsequent work; these foundations
-do not establish executable compatibility.
+([ADR 0006](decisions/0006-structural-member-binding.md)). Ordinary dependency
+graphs retain generic instances, inclusion reasons and explicit analysis gaps
+([ADR 0007](decisions/0007-dependency-graph-foundation.md)). Framework mapping,
+dispatch expansion and feature auditing remain subsequent work; these foundations
+do not establish executable compatibility or clear the general-filter gate.
 
 Verification covers the supported execution profile. Cilica is not initially
 a complete CLI verifier or a sandbox for hostile programs. Native compiler

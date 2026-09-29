@@ -12,3 +12,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0004](0004-exception-handling.md) | Exception handling | Proposed |
 | [0005](0005-explicit-assembly-resolution.md) | Explicit assembly resolution | Accepted for resolver foundation |
 | [0006](0006-structural-member-binding.md) | Structural signatures and declaration binding | Accepted for bounded binding profile |
+| [0007](0007-dependency-graph-foundation.md) | Bounded dependency graphs with inclusion reasons | Accepted for ordinary dependency expansion |

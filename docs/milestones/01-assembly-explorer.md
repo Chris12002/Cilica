@@ -17,7 +17,7 @@ output, plus diagnostics for malformed input.
 | --- | --- | --- |
 | 1a | Foundation and metadata inspection | Complete |
 | 1b | IL decoding and validation | Complete |
-| 1c | Dependency resolution and reachability audit | In progress: assembly/type and bounded member binding implemented |
+| 1c | Dependency resolution and reachability audit | In progress: binding and ordinary dependency graphs implemented |
 | 1d | ADR 0003 validation against a trial library build | Planned |
 
 Each slice is reviewed and committed separately.
@@ -158,13 +158,25 @@ Structural declaration binding implemented
 - Unsupported signature/owner forms fail explicitly; successful binding does
   not establish generic constraint validity or executable compatibility.
 
-Next implementation block: root and edge expansion with inclusion explanations,
-including caller generic environments and conservative virtual/interface
-dispatch. Track unresolved and reference-only edges as incomplete analysis.
-The audit command and Alchemy run are still outstanding.
+Ordinary dependency graphs implemented
+([ADR 0007](../decisions/0007-dependency-graph-foundation.md)):
 
-Continue the remaining 1c work in reviewable commits: root/edge expansion
-and inclusion explanations; feature reporting and `cilica audit`; local Alchemy
+- Explicit member/type and public-surface roots feed deterministic breadth-first
+  expansion. Nodes retain generic instances and reasons back to roots.
+- Direct calls, constructors, field/type operands, method addresses, signatures,
+  locals, catch types, bases, interfaces and constraints contribute dependencies.
+  Type/module initializers are conservatively included.
+- Missing dependencies/bodies, reference-only implementations, open generics,
+  unsupported dispatch and graph limits remain explicit issues. Tests include
+  exact reachable sets, disconnected methods, cycles and malformed input.
+
+Next implementation block: conservative virtual/interface dispatch, including
+explicit implementations and targets discovered after a call site. Iterate to
+a fixed point; preserve incomplete-analysis issues for unsupported cases. Feature
+reporting, the audit command and the Alchemy run are still outstanding.
+
+Continue the remaining 1c work in reviewable commits: dispatch expansion;
+feature reporting and `cilica audit`; local Alchemy
 evidence. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
 defines the cases and how to report an incomplete closure. Reference-only audit
 results cannot clear the general-filter gate; slice 1d checks the trial ported

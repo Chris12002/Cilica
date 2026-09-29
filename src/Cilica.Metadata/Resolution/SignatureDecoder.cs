@@ -55,6 +55,17 @@ internal sealed class SignatureDecoder(AssemblyResolver resolver, ResolvedAssemb
         return new(arguments);
     }
 
+    internal SignatureList<TypeSignature> Locals(BlobHandle handle)
+    {
+        BlobReader blob = Metadata.GetBlobReader(handle);
+        if (blob.ReadByte() != 0x07) throw Invalid("Expected a LOCAL_SIG signature.");
+        int count = Count(ref blob);
+        var locals = new List<TypeSignature>();
+        for (int i = 0; i < count; i++) locals.Add(ReadType(ref blob, 0, allowByRef: true, allowPinned: true));
+        End(blob);
+        return new(locals);
+    }
+
     private MethodSignature ReadMethod(ref BlobReader blob, int depth)
     {
         Guard(depth);
@@ -76,7 +87,7 @@ internal sealed class SignatureDecoder(AssemblyResolver resolver, ResolvedAssemb
         return new(header, arity, returns, new(parameters));
     }
 
-    private TypeSignature ReadType(ref BlobReader blob, int depth, bool allowVoid = false, bool allowByRef = false)
+    private TypeSignature ReadType(ref BlobReader blob, int depth, bool allowVoid = false, bool allowByRef = false, bool allowPinned = false)
     {
         Guard(depth);
         byte code = blob.ReadByte();
@@ -93,6 +104,8 @@ internal sealed class SignatureDecoder(AssemblyResolver resolver, ResolvedAssemb
                 return new TypeSignature.Pointer(ReadType(ref blob, depth + 1, allowVoid: true));
             case 0x10 when allowByRef:
                 return new TypeSignature.ByReference(ReadType(ref blob, depth + 1));
+            case 0x45 when allowPinned:
+                return new TypeSignature.Pinned(ReadType(ref blob, depth + 1, allowByRef: true));
             case 0x11:
             case 0x12:
                 return new TypeSignature.Named(Definition(TypeToken(ref blob)), code == 0x11 ? SignatureTypeKind.ValueType : SignatureTypeKind.Class);
@@ -137,7 +150,7 @@ internal sealed class SignatureDecoder(AssemblyResolver resolver, ResolvedAssemb
                 // only once the profile supports them, never erase a modifier to bind.
                 var modifier = new TypeSignature.Named(Definition(TypeToken(ref blob)), SignatureTypeKind.Unknown);
                 return new TypeSignature.Modified(modifier, code == 0x1f,
-                    ReadType(ref blob, depth + 1, allowVoid, allowByRef));
+                    ReadType(ref blob, depth + 1, allowVoid, allowByRef, allowPinned));
             }
             default: throw Invalid($"Invalid or unsupported type signature element 0x{code:x2}.");
         }

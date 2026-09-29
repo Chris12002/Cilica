@@ -1,0 +1,38 @@
+using System.Collections.Immutable;
+using Cilica.Metadata.Resolution;
+
+namespace Cilica.Metadata.Analysis;
+
+public abstract record ReachableEntity
+{
+    public sealed record Type(ConstructedType Definition) : ReachableEntity;
+    public sealed record Method(ResolvedMethod Definition) : ReachableEntity;
+    public sealed record Field(ResolvedField Definition) : ReachableEntity;
+}
+
+/// <param name="FirstReason">Index of the first incoming edge, or null for an explicit root.</param>
+public sealed record ReachabilityNode(int Id, ReachableEntity Entity, int? FirstReason);
+
+public enum DependencyKind
+{
+    SelectedTypeMember, DeclaringType, Signature, BaseType, Interface, FieldLayout,
+    TypeInitializer, ModuleInitializer, Call, Constructor, FieldAccess, TypeOperand,
+    MethodAddress, MetadataToken, Local, CatchType, GenericConstraint,
+}
+
+public sealed record ReachabilityEdge(int From, int To, DependencyKind Kind, int? ILOffset);
+public sealed record ReachabilityIssue(int? Node, int? ILOffset, Diagnostic Diagnostic);
+
+/// <summary>
+/// A conservative metadata dependency graph, not an executable compatibility claim.
+/// Issues preserve gaps; virtual/interface dispatch is currently reported as incomplete.
+/// Node IDs and first reasons are deterministic for the same images and root set.
+/// </summary>
+public sealed record ReachabilityReport(ImmutableArray<ReachabilityNode> Nodes,
+    ImmutableArray<int> Roots, ImmutableArray<ReachabilityEdge> Edges, ImmutableArray<ReachabilityIssue> Issues)
+{
+    public bool HasUnresolvedDependencies => !Issues.IsEmpty;
+}
+
+public sealed record ReachabilityLimits(int MaximumNodes = 10000, int MaximumEdges = 50000,
+    int MaximumMethodInstances = 128, int MaximumBodyBytes = 1048576, int MaximumTotalBodyBytes = 16777216);

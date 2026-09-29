@@ -40,6 +40,7 @@ public abstract record TypeSignature
         SignatureList<int> LowerBounds) : TypeSignature;
     public sealed record Pointer(TypeSignature Element) : TypeSignature;
     public sealed record ByReference(TypeSignature Element) : TypeSignature;
+    public sealed record Pinned(TypeSignature Element) : TypeSignature;
     public sealed record Modified(Named Modifier, bool Required, TypeSignature Element) : TypeSignature;
     public sealed record FunctionPointer(MethodSignature Signature) : TypeSignature;
 }

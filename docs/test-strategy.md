@@ -28,7 +28,7 @@ even if all its malformed-input tests pass.
 | Rule interactions | Prefixes at branch/exception boundaries, nested handlers, stack joins and filter control flow. | Started in the 1b corrective slice; not exhaustive. |
 | Report and CLI contracts | Reviewed text/JSON snapshots, deterministic ordering, schema version, exit codes and useful locations. Snapshots establish presentation, not semantic correctness. | Present for `inspect` and `il`; extend for `audit`. |
 | Malformed-input robustness | Targeted corruptions plus small, seeded mutation runs. A run without crashes does not establish that all invalid inputs are rejected. | Present; larger runs remain opt-in. |
-| Resolution and reachability | Small assembly graphs with known resolutions, included/excluded members and inclusion reasons. | Assembly/type and bounded declaration binding present in 1c; dispatch and reachability are next. |
+| Resolution and reachability | Small assembly graphs with known resolutions, included/excluded members and inclusion reasons. | Binding and ordinary dependency graphs present in 1c; dispatch expansion is next. |
 | Real-library inspection | Checks for false rejection and practical scale on pinned compiler output. Acceptance alone does not prove complete verification or executable support. | Present, including CoreLib; wider/private runs are task-specific. |
 | Executable conformance | Compare controlled programs on .NET and Cilica, including state and exception traces. | Planned from milestone 2 as semantics arrive. |
 | Runtime and embedding | Allocation stress, native sanitizers, boundary ownership, lifecycle and native/browser parity. | Planned with the relevant milestones. |
@@ -76,6 +76,14 @@ executes its own fixtures. These are binding probes, not differential evidence
 for a Cilica execution backend. Interface declaration/body checks do not yet
 establish dispatch closure. Accepted/rejected nesting boundaries and seeded blob
 corruption cover the bounded parser's diagnostic behaviour.
+
+Ordinary graph tests now assert exact method sets and disconnected exclusions,
+initialization/address/type dependencies, caller generic-context swaps, cycles,
+limits and every node's explanation back to a root. Root permutations and copied
+images retain the same graph. Reference-only and missing bodies/dependencies,
+open generics and unsupported dispatch leave explicit issues. Seeded body
+corruption exercises the integrated diagnostic boundary. These checks do not yet
+establish conservative virtual/interface dispatch or the filter audit gate.
 
 | Area | Required cases |
 | --- | --- |

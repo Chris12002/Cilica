@@ -8,6 +8,14 @@ namespace Cilica.Metadata.Resolution;
 
 public sealed partial class AssemblyResolver
 {
+    private sealed record BindingContext(ConstructedType Type, SignatureList<TypeSignature> Methods);
+
+    private static TypeSignature InContext(TypeSignature signature, BindingContext? context) => context is null
+        ? signature : Substitute(signature, context.Type.Arguments, context.Methods);
+
+    private static ConstructedType InContext(ConstructedType type, BindingContext? context) =>
+        context is not null && type.Definition == context.Type.Definition ? context.Type : type;
+
     /// <summary>Decodes a structural type; free variables remain in the caller's context.</summary>
     public ResolutionResult<TypeSignature> ResolveSignatureType(ResolvedAssembly assembly, EntityHandle handle) =>
         Bind(assembly, handle, () => new SignatureDecoder(this, assembly).Type(handle));
@@ -39,7 +47,7 @@ public sealed partial class AssemblyResolver
         }
     }
 
-    private ResolvedMethod Method(ResolvedAssembly assembly, EntityHandle handle)
+    private ResolvedMethod Method(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null)
     {
         MetadataReader reader = assembly.Image.Reader;
         var decoder = new SignatureDecoder(this, assembly);
@@ -48,8 +56,8 @@ public sealed partial class AssemblyResolver
             MethodSpecification specification = reader.GetMethodSpecification((MethodSpecificationHandle)handle);
             if (specification.Method.Kind is not (HandleKind.MethodDefinition or HandleKind.MemberReference) || specification.Method.IsNil)
                 throw new BadImageFormatException("MethodSpec must refer to a MethodDef or MemberRef.");
-            ResolvedMethod definition = Method(assembly, specification.Method);
-            SignatureList<TypeSignature> arguments = decoder.MethodArguments(specification.Signature);
+            ResolvedMethod definition = Method(assembly, specification.Method, context);
+            SignatureList<TypeSignature> arguments = new(decoder.MethodArguments(specification.Signature).Select(a => InContext(a, context)));
             if (arguments.Count == 0 || arguments.Count != definition.Signature.GenericArity)
                 throw new BadImageFormatException("MethodSpec argument count does not match its declaration.");
             // Decode again before simultaneous substitution. Substituting into an already
@@ -62,7 +70,7 @@ public sealed partial class AssemblyResolver
         {
             var token = (MethodDefinitionHandle)handle;
             MethodDefinition method = reader.GetMethodDefinition(token);
-            ConstructedType owner = OpenType(new ResolvedType(assembly, method.GetDeclaringType()));
+            ConstructedType owner = InContext(OpenType(new ResolvedType(assembly, method.GetDeclaringType())), context);
             MethodSignature signature = MethodDefinitionSignature(assembly, token);
             var arguments = Variables(signature.GenericArity, true);
             return new(owner, token, arguments, Substitute(signature, owner.Arguments, arguments));
@@ -73,7 +81,7 @@ public sealed partial class AssemblyResolver
         if (member.GetKind() != MemberReferenceKind.Method) throw new BadImageFormatException("Expected a method MemberRef.");
         string name = reader.GetString(member.Name);
         MethodSignature wanted = decoder.Method(member.Signature);
-        ConstructedType actual = Owner(assembly, member.Parent);
+        ConstructedType actual = Owner(assembly, member.Parent, context);
         string requestedOwner = Describe(actual.Definition);
         ConstructedType lookup = OpenType(actual.Definition);
         var methodArguments = Variables(wanted.GenericArity, true);
@@ -107,7 +115,7 @@ public sealed partial class AssemblyResolver
         }
     }
 
-    private ResolvedField Field(ResolvedAssembly assembly, EntityHandle handle)
+    private ResolvedField Field(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null)
     {
         MetadataReader reader = assembly.Image.Reader;
         var decoder = new SignatureDecoder(this, assembly);
@@ -115,7 +123,7 @@ public sealed partial class AssemblyResolver
         {
             var token = (FieldDefinitionHandle)handle;
             FieldDefinition field = reader.GetFieldDefinition(token);
-            ConstructedType owner = OpenType(new ResolvedType(assembly, field.GetDeclaringType()));
+            ConstructedType owner = InContext(OpenType(new ResolvedType(assembly, field.GetDeclaringType())), context);
             return new(owner, token, Substitute(decoder.Field(field.Signature), owner.Arguments, SignatureList<TypeSignature>.Empty));
         }
         if (handle.Kind != HandleKind.MemberReference)
@@ -124,7 +132,7 @@ public sealed partial class AssemblyResolver
         if (member.GetKind() != MemberReferenceKind.Field) throw new BadImageFormatException("Expected a field MemberRef.");
         string name = reader.GetString(member.Name);
         TypeSignature wanted = decoder.Field(member.Signature);
-        ConstructedType actual = Owner(assembly, member.Parent);
+        ConstructedType actual = Owner(assembly, member.Parent, context);
         string requestedOwner = Describe(actual.Definition);
         ConstructedType lookup = OpenType(actual.Definition);
         var empty = SignatureList<TypeSignature>.Empty;
@@ -167,11 +175,13 @@ public sealed partial class AssemblyResolver
         return signature;
     }
 
-    private ConstructedType Owner(ResolvedAssembly assembly, EntityHandle handle)
+    private ConstructedType Owner(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null)
     {
         if (handle.IsNil || handle.Kind is not (HandleKind.TypeDefinition or HandleKind.TypeReference or HandleKind.TypeSpecification))
             throw new UnsupportedBindingException("Member parent must be a TypeDef, TypeRef or named generic TypeSpec; global and vararg members are unsupported.");
-        return Owner(new SignatureDecoder(this, assembly).Type(handle));
+        TypeSignature signature = new SignatureDecoder(this, assembly).Type(handle);
+        return handle.Kind == HandleKind.TypeSpecification
+            ? Owner(InContext(signature, context)) : InContext(Owner(signature), context);
     }
 
     private static ConstructedType Owner(TypeSignature signature) => signature switch
@@ -230,6 +240,7 @@ public sealed partial class AssemblyResolver
             TypeSignature.Array array => array with { Element = Recur(array.Element) },
             TypeSignature.Pointer pointer => pointer with { Element = Recur(pointer.Element) },
             TypeSignature.ByReference reference => reference with { Element = Recur(reference.Element) },
+            TypeSignature.Pinned pinned => pinned with { Element = Recur(pinned.Element) },
             TypeSignature.Modified modified => modified with { Element = Recur(modified.Element) },
             TypeSignature.FunctionPointer pointer => pointer with { Signature = pointer.Signature with
                 { ReturnType = Recur(pointer.Signature.ReturnType), Parameters = new(pointer.Signature.Parameters.Select(Recur)) } },
@@ -258,6 +269,7 @@ public sealed partial class AssemblyResolver
                 case TypeSignature.Array array: Add(array.Element); break;
                 case TypeSignature.Pointer pointer: Add(pointer.Element); break;
                 case TypeSignature.ByReference reference: Add(reference.Element); break;
+                case TypeSignature.Pinned pinned: Add(pinned.Element); break;
                 case TypeSignature.Modified modified: Add(modified.Element); break;
                 case TypeSignature.FunctionPointer pointer:
                     Add(pointer.Signature.ReturnType);

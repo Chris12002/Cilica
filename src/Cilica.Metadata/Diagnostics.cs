@@ -44,6 +44,8 @@ public static class DiagnosticIds
     public const string InvalidSignature = "CIL3009";
     public const string MemberNotFound = "CIL3010";
     public const string MemberConflict = "CIL3011";
+    public const string ReachabilityIncomplete = "CIL3012";
+    public const string ReachabilityLimit = "CIL3013";
 }
 
 internal static class MalformedInput

@@ -62,13 +62,14 @@ follows [ECMA-335, II.9.8](https://www.ecma-international.org/wp-content/uploads
 Varargs, global/module members, array intrinsic members, generic function
 pointers and CLASS/VALUETYPE/modifier tokens that themselves reference TypeSpecs
 produce explicit `CIL3008` failures. Pinned local signatures are outside these
-APIs. The profile does not normalize primitive encodings against named framework
+public signature APIs; the graph walker now decodes pinned locals under
+[ADR 0007](0007-dependency-graph-foundation.md). The profile does not normalize primitive encodings against named framework
 types or implement runtime type equivalence. Framework mapping remains ADR 0003
 work; modifier matching is strict and does not erase optional modifiers.
 
 Free variables in TypeSpecs and MethodSpec arguments remain in the caller's
-context. The future graph walker must supply/validate its enclosing generic
-environment when expanding these results. Access checks, generic constraints,
+context. The graph walker now supplies its enclosing generic environment when
+expanding these results, and flags remaining open variables. Access checks, generic constraints,
 full class/value-type validation and managed stack typing are not established by
 successful declaration binding. Reference-assembly methods remain declarations,
 not evidence of implementation bodies.
