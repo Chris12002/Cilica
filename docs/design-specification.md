@@ -119,8 +119,11 @@ graphs retain generic instances, inclusion reasons and explicit analysis gaps
 ([ADR 0007](decisions/0007-dependency-graph-foundation.md)). Bounded conservative
 dispatch revisits included named receiver types to a fixed point and retains
 unsupported cases as issues ([ADR 0008](decisions/0008-conservative-dispatch-expansion.md)).
-Framework mapping and feature auditing remain subsequent work; these foundations
-do not establish executable compatibility or clear the general-filter gate.
+The `cilica audit` command reports feature observations, image hashes, inclusion
+reasons and incomplete-analysis status ([ADR 0009](decisions/0009-audit-evidence-contract.md)).
+Framework mapping and ported-library closure evidence remain subsequent work;
+these foundations do not establish executable compatibility or clear the
+general-filter gate.
 
 Verification covers the supported execution profile. Cilica is not initially
 a complete CLI verifier or a sandbox for hostile programs. Native compiler

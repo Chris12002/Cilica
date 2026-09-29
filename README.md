@@ -3,8 +3,10 @@
 An independent, open-source .NET IL-to-C++ compiler and managed runtime, designed
 for embedding C# libraries in native and browser applications.
 
-**Status: design stage.** No compiler, runtime or Expo integration is implemented
-yet. Platform and language support described here are planned capabilities,
+**Status: metadata frontend implemented; compiler backend and runtime planned.**
+The assembly explorer inspects IL and audits bounded dependencies without running
+input assemblies. IL-to-C++ generation, runtime and Expo integration are not
+implemented. Platform and language support described here are planned capabilities,
 not compatibility guarantees. Cilica is a working name, pending a naming check.
 
 ## Intended pipeline
@@ -68,6 +70,20 @@ regions and stack depths), optionally for one method:
 ```bash
 dotnet run --project src/Cilica.Cli -- il path/to/Assembly.dll --method Type::Name
 ```
+
+Audit selected roots with explicit dependency directories:
+
+```bash
+dotnet run --project src/Cilica.Cli -- audit path/to/Assembly.dll \
+  --reference path/to/dependencies --root-type Example.Entry --format json
+```
+
+Use `--public-surface` instead of explicit roots to select visible declarations,
+or repeat `--root 0x06000001` for exact metadata tokens. The report records feature
+observations and why each node was included through its first incoming edge.
+An incomplete audit exits with code 1 and preserves its evidence. Even a bounded
+graph without issues does not establish runtime compatibility or clear the
+ported-library exception-filter gate; see [ADR 0009](docs/decisions/0009-audit-evidence-contract.md).
 
 Golden-file tests compare output with reviewed files in
 `tests/Cilica.Metadata.Tests/Golden`. After an intended output change, rerun the

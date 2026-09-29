@@ -1,0 +1,91 @@
+{
+  "format": "cilica.audit",
+  "formatVersion": 1,
+  "profile": "explicit-metadata-closure-v1",
+  "scope": "Conservative IL scan; receivers are included constructed named types, not all possible external inputs. Feature names are review signals, not exhaustive semantic detection or support claims. An audit does not clear ADR 0004: the trial ported-library implementation closure is still required.",
+  "input": "audit.dll",
+  "selection": [
+    "token:0x06000001",
+    "token:0x06000002"
+  ],
+  "status": "bounded-graph-analyzed",
+  "generalFilterStatus": "observed",
+  "limits": {
+    "maximumNodes": 10000,
+    "maximumEdges": 50000,
+    "maximumMethodInstances": 128,
+    "maximumBodyBytes": 1048576,
+    "maximumTotalBodyBytes": 16777216,
+    "maximumDispatchPairs": 100000
+  },
+  "assemblies": [
+    {
+      "id": 0,
+      "identity": "Audit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "contentHash": "9526da3e31c05f69c57d266426b26a3d14ae8255bde86652edeeddea7a01c252",
+      "isReferenceAssembly": false,
+      "isInput": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": 0,
+      "assembly": 0,
+      "kind": "method",
+      "token": "0x06000001",
+      "name": "Example.Entry::A",
+      "instantiation": "A0:0x02000002\u003C\u003E\u003C\u003E header=0;arity=0;Void()",
+      "firstReason": null,
+      "isExternalMember": false
+    },
+    {
+      "id": 1,
+      "assembly": 0,
+      "kind": "method",
+      "token": "0x06000002",
+      "name": "Example.Entry::B",
+      "instantiation": "A0:0x02000002\u003C\u003E\u003C\u003E header=0;arity=0;Void()",
+      "firstReason": null,
+      "isExternalMember": false
+    },
+    {
+      "id": 2,
+      "assembly": 0,
+      "kind": "type",
+      "token": "0x02000002",
+      "name": "Example.Entry",
+      "instantiation": "A0:0x02000002\u003C\u003E",
+      "firstReason": 0,
+      "isExternalMember": false
+    }
+  ],
+  "roots": [
+    0,
+    1
+  ],
+  "edges": [
+    {
+      "from": 0,
+      "to": 2,
+      "kind": "DeclaringType",
+      "ilOffset": null,
+      "receiverType": null
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "kind": "DeclaringType",
+      "ilOffset": null,
+      "receiverType": null
+    }
+  ],
+  "features": [
+    {
+      "node": 0,
+      "ilOffset": 2,
+      "feature": "filter-general",
+      "evidence": "Exception filter region 0."
+    }
+  ],
+  "issues": []
+}

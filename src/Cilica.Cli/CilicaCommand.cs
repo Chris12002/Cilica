@@ -10,7 +10,7 @@ using Cilica.Metadata.Output;
 namespace Cilica.Cli;
 
 /// <summary>Parses command-line arguments and runs <c>cilica</c> commands.</summary>
-public static class CilicaCommand
+public static partial class CilicaCommand
 {
     public const int Success = 0;
     public const int ErrorsReported = 1;
@@ -21,6 +21,9 @@ public static class CilicaCommand
         "Usage:\n" +
         "  cilica inspect <assembly> [--format text|json] [--output <file>]\n" +
         "  cilica il <assembly> [--method <name>] [--format text|json] [--output <file>]\n" +
+        "  cilica audit <assembly> [--reference <directory>]...\n" +
+        "    (--public-surface | --root <hex-token>... | --root-type <metadata-name>...)\n" +
+        "    [--format text|json] [--output <file>]\n" +
         "  cilica --help\n" +
         "  cilica --version\n" +
         "\n" +
@@ -29,6 +32,9 @@ public static class CilicaCommand
         "  il        Decode and validate method bodies: instructions, basic blocks,\n" +
         "            exception regions and stack depths. --method selects methods by\n" +
         "            name, Type::Name or Type::Name(parameter types).\n" +
+        "  audit     Trace explicit roots, dependencies, feature evidence and analysis gaps.\n" +
+        "            --root and --root-type may be combined; nested types use '/'.\n" +
+        "            Reference directories are explicit; no runtime probing occurs.\n" +
         "\n" +
         "Exit codes: 0 success, 1 errors reported, 2 usage error, 3 internal error.\n";
 
@@ -52,6 +58,8 @@ public static class CilicaCommand
             case "--version":
                 stdout.Write(Version() + "\n");
                 return Success;
+            case "audit":
+                return RunAudit(args, stdout, stderr);
             case "inspect":
             case "il":
                 return RunReportCommand(args, stdout, stderr);

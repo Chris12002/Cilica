@@ -1,0 +1,21 @@
+cilica.audit v1: "audit.dll"
+profile: explicit-metadata-closure-v1
+scope: Conservative IL scan; receivers are included constructed named types, not all possible external inputs. Feature names are review signals, not exhaustive semantic detection or support claims. An audit does not clear ADR 0004: the trial ported-library implementation closure is still required.
+status: bounded-graph-analyzed
+general filters: observed
+selection: "token:0x06000001", "token:0x06000002"
+limits: {
+  "maximumNodes": 10000,
+  "maximumEdges": 50000,
+  "maximumMethodInstances": 128,
+  "maximumBodyBytes": 1048576,
+  "maximumTotalBodyBytes": 16777216,
+  "maximumDispatchPairs": 100000
+}
+assembly A0 "Audit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" sha256=9526da3e31c05f69c57d266426b26a3d14ae8255bde86652edeeddea7a01c252 implementation-image input
+node 0 A0 method 0x06000001 "Example.Entry::A" "A0:0x02000002<><> header=0;arity=0;Void()" root
+node 1 A0 method 0x06000002 "Example.Entry::B" "A0:0x02000002<><> header=0;arity=0;Void()" root
+node 2 A0 type 0x02000002 "Example.Entry" "A0:0x02000002<>" via edge 0
+edge 0: 0 -> 2 DeclaringType
+edge 1: 1 -> 2 DeclaringType
+feature filter-general node=0 IL_0002 "Exception filter region 0."

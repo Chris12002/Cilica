@@ -24,6 +24,7 @@ public enum DependencyKind
 /// <param name="ReceiverType">Type-node ID supporting a conservative dispatch edge; null for ordinary edges.</param>
 public sealed record ReachabilityEdge(int From, int To, DependencyKind Kind, int? ILOffset, int? ReceiverType = null);
 public sealed record ReachabilityIssue(int? Node, int? ILOffset, Diagnostic Diagnostic);
+public sealed record FeatureObservation(int Node, int? ILOffset, string Feature, string Evidence);
 
 /// <summary>
 /// A conservative metadata dependency graph, not an executable compatibility claim.
@@ -34,6 +35,7 @@ public sealed record ReachabilityReport(ImmutableArray<ReachabilityNode> Nodes,
     ImmutableArray<int> Roots, ImmutableArray<ReachabilityEdge> Edges, ImmutableArray<ReachabilityIssue> Issues)
 {
     public bool HasUnresolvedDependencies => !Issues.IsEmpty;
+    public ImmutableArray<FeatureObservation> Features { get; init; } = [];
 }
 
 public sealed record ReachabilityLimits(int MaximumNodes = 10000, int MaximumEdges = 50000,

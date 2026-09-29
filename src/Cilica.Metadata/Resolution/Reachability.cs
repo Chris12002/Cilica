@@ -99,7 +99,11 @@ public sealed partial class AssemblyResolver
                 if (_hasSyntheticReceivers) Issue(site.Caller, site.Offset, DiagnosticIds.ReachabilityIncomplete,
                     "Array/string receiver synthesis is outside the named-type dispatch profile; the receiver set may be incomplete.");
             }
-            return new([.. _nodes], [.. _roots.Distinct()], [.. _edges], [.. _issues]);
+            return new([.. _nodes], [.. _roots.Distinct()], [.. _edges], [.. _issues])
+            {
+                Features = [.. _features.OrderBy(f => f.Node).ThenBy(f => f.ILOffset)
+                    .ThenBy(f => f.Feature, StringComparer.Ordinal).ThenBy(f => f.Evidence, StringComparer.Ordinal)],
+            };
         }
 
         private static IEnumerable<EntityHandle> PublicRoots(ResolvedAssembly assembly)
@@ -196,6 +200,7 @@ public sealed partial class AssemblyResolver
             ResolvedAssembly assembly = type.Definition.Assembly;
             MetadataReader reader = assembly.Image.Reader;
             TypeDefinition definition = reader.GetTypeDefinition(type.Definition.Handle);
+            ObserveType(id, reader.GetString(definition.Namespace), reader.GetString(definition.Name));
             var context = new BindingContext(type, SignatureList<TypeSignature>.Empty);
             foreach (TypeSignature argument in type.Arguments) Signature(id, argument, DependencyKind.Signature);
             if (!definition.BaseType.IsNil) TypeOperand(id, assembly, definition.BaseType, context, DependencyKind.BaseType);
@@ -231,6 +236,9 @@ public sealed partial class AssemblyResolver
             ResolvedAssembly assembly = method.DeclaringType.Definition.Assembly;
             MetadataReader reader = assembly.Image.Reader;
             MethodDefinition definition = reader.GetMethodDefinition(method.Handle);
+            if ((definition.Attributes & MethodAttributes.Virtual) != 0 && method.Signature.GenericArity > 0)
+                Observe(id, null, "generic-virtual", "Generic virtual method declaration.");
+            ObserveDynamicMethod(id, method);
             var context = new BindingContext(method.DeclaringType, method.MethodArguments);
             if (_roots.Contains(id) && method.Signature.Parameters.Any(IsStringParameter)) _hasSyntheticReceivers = true;
             Add(new ReachableEntity.Type(method.DeclaringType), id, DependencyKind.DeclaringType, null);
@@ -288,7 +296,10 @@ public sealed partial class AssemblyResolver
                         ? new CallShape(target.Signature.Parameters.Count + (instruction.Code.Name != "newobj" && (target.Signature.Header & 0x20) != 0 ? 1 : 0),
                             instruction.Code.Name == "newobj" || !IsVoid(target.Signature.ReturnType) ? 1 : 0) : null,
                     (code, message, offset) => Issue(id, offset, code, message));
-                analyzer.Analyze(body.ExceptionRegions);
+                var flow = analyzer.Analyze(body.ExceptionRegions);
+                foreach (var filter in flow.FilterKinds)
+                    Observe(id, body.ExceptionRegions[filter.Key].FilterOffset, "filter-" + filter.Value,
+                        "Exception filter region " + filter.Key.ToString(System.Globalization.CultureInfo.InvariantCulture) + ".");
             }
         }
 
@@ -303,6 +314,7 @@ public sealed partial class AssemblyResolver
         private void Instruction(int id, ResolvedAssembly assembly, Instruction instruction, BindingContext context, Dictionary<int, ResolvedMethod> calls)
         {
             int offset = instruction.Offset;
+            ObserveInstruction(id, instruction);
             if (instruction.Code.Name is "ldstr" or "newarr") _hasSyntheticReceivers = true;
             if (instruction.Code.Name is "calli" or "jmp" or "constrained.")
                 Issue(id, offset, DiagnosticIds.ReachabilityIncomplete, $"'{instruction.Code.Name}' requires additional indirect/constrained dispatch analysis.");
@@ -363,6 +375,10 @@ public sealed partial class AssemblyResolver
         private void Signature(int id, TypeSignature signature, DependencyKind kind, int? offset = null)
         {
             if (_stopped) return;
+            if (signature is TypeSignature.Pointer or TypeSignature.FunctionPointer or TypeSignature.Pinned)
+                Observe(id, offset, "unsafe", "Pointer, function-pointer or pinned signature.");
+            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Single or PrimitiveTypeCode.Double })
+                Observe(id, offset, "floating-point", "Floating-point signature.");
             switch (signature)
             {
                 case TypeSignature.Named named: Add(new ReachableEntity.Type(OpenType(named.Definition)), id, kind, offset); break;

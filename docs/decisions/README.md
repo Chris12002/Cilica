@@ -14,3 +14,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0006](0006-structural-member-binding.md) | Structural signatures and declaration binding | Accepted for bounded binding profile |
 | [0007](0007-dependency-graph-foundation.md) | Bounded dependency graphs with inclusion reasons | Accepted for ordinary dependency expansion |
 | [0008](0008-conservative-dispatch-expansion.md) | Conservative dispatch over included named types | Accepted for bounded dispatch profile |
+| [0009](0009-audit-evidence-contract.md) | Bounded audit evidence and explicit uncertainty | Accepted for metadata audit profile |

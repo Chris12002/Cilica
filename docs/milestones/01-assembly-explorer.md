@@ -182,17 +182,24 @@ Bounded conservative dispatch implemented
 - Tests include a receiver discovered inside another dispatched body, generic
   substitutions, negative slot/interface cases and authored C#/.NET evidence.
 
-Next implementation block: feature reporting and `cilica audit`, with explicit
-root/profile/receiver-universe evidence and incomplete-analysis status. The local
-Alchemy run follows the command and independent audit fixtures. Unsupported
-dispatch remains a gap, not evidence of absent filters.
+Feature reporting and `cilica audit` implemented
+([ADR 0009](../decisions/0009-audit-evidence-contract.md)):
 
-Continue the remaining 1c work in reviewable commits: feature reporting and
-`cilica audit`; local Alchemy
-evidence. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
-defines the cases and how to report an incomplete closure. Reference-only audit
-results cannot clear the general-filter gate; slice 1d checks the trial ported
-library's implementation closure.
+- Explicit token/type or public-surface selection, repeatable reference directories,
+  deterministic text/JSON reports and existing CLI exit-code conventions.
+- Located feature observations, external member inventory, scoped graph identities,
+  first-reason chains, dispatch receiver evidence and catalogue content hashes.
+- Missing bodies, reference stubs, dynamic reflection and exhausted budgets remain
+  incomplete. General filters can be observed without claiming closure completeness.
+- Independent fixtures cover reachable/unreachable filters, every feature category,
+  CLI contracts, report determinism, partial results and seeded malformed input.
+
+Next implementation block: local Alchemy evidence using explicitly recorded roots
+and reference/implementation catalogues. Unsupported dispatch remains a gap, not
+evidence of absent filters. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
+defines incomplete-closure reporting. Reference-only results cannot clear the
+general-filter gate; slice 1d checks the trial ported library's implementation
+closure.
 
 ### 1d: ADR 0003 validation
 
