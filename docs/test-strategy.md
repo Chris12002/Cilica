@@ -102,6 +102,7 @@ or the filter audit gate.
 | Member resolution | Overloads, generic arity/substitution, inherited members and explicit interface implementations. A missing member names the requesting member and dependency. |
 | Roots and ordinary edges | Explicit entry types and public-surface roots; calls, constructors, field/type dependencies, static initialization and delegate targets. Include a disconnected method as a negative control. |
 | Dispatch expansion | Overrides and interface implementations, including an implementation discovered after its call site. Iterate until no further reachable members are found. Do not test only traversal orders that happen to discover types first. |
+| Runtime type mapping | Select the library explicitly; test all primitive names, forwarding, namesake exclusion, conflicting hashes, invalid shapes and reader ownership. Assert exact primitive constrained targets and string discovery from literals and signatures. Keep arrays, reference-only bodies and budget exhaustion visibly incomplete. |
 | Generic expansion | Shared and distinct instantiations, recursive calls, and unbounded expansion. A bounded diagnostic includes the instantiation chain instead of hanging or silently truncating results. |
 | Inclusion explanations | Every non-root included member has a valid reason back to a root. Exercise multiple possible paths and cycles; output follows a documented deterministic choice. Mark conservative dispatch edges as such. |
 | Feature reporting | Known reachable and unreachable examples of filter kinds, unsafe operations, threading, async, floating-point/decimal, reflection and generic virtual methods. Feature presence is an audit observation, not a support claim. |
@@ -119,6 +120,12 @@ implementation behaviour. An audit using only reference packs cannot establish
 that the implementation contains no general filters. Record the root set,
 assembly identities and content hashes, reference/implementation roles,
 binding policy and analysis limitations with audit evidence.
+
+Compiled primitive probes currently validate reference behavior, constraint and
+declaration identities; their bounded real-library closure stops before dispatch.
+Reduced graphs establish target expansion independently. Do not convert a budget
+limit into a successful completeness assertion. Next, exercise fair scheduling of
+ordinary and dispatch work with small budgets and unrelated expansion pressure.
 
 The local Alchemy run comes after the independent graphs pass. Keep its reports
 under ignored `artifacts/` and commit only non-private conclusions. Inspection

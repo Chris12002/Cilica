@@ -64,10 +64,12 @@ newslot hiding require later profiles. Unsupported cases do not clear the audit
 gate merely because some other receiver produced a target.
 
 Arrays and strings can produce runtime receiver types without an ordinary named
-type node. When reached array signatures, `newarr`, `ldstr` or string input
-parameters expose that limitation, dispatch sites retain an incompleteness
-issue, except where ADR 0010 establishes a sealed named constraint.
-Primitive/runtime type mapping and a complete receiver analysis remain separate work. This deliberately errs toward extra issues.
+type node. [ADR 0011](0011-explicit-runtime-type-mapping.md) maps reached string
+signatures and literals through an explicitly selected library. Without that
+mapping, strings retain the synthetic-receiver gap. Array signatures and `newarr`
+still expose the limitation. Relevant dispatch sites retain an incompleteness
+issue, except where ADR 0010 establishes a sealed named constraint. A complete
+receiver analysis remains separate work. This deliberately errs toward extra issues.
 
 Existing graph/body/signature bounds still apply. The default additional bound
 is 100,000 receiver/call-site pairs, configurable through `ReachabilityLimits`.

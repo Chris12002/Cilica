@@ -21,7 +21,7 @@ public static partial class CilicaCommand
         "Usage:\n" +
         "  cilica inspect <assembly> [--format text|json] [--output <file>]\n" +
         "  cilica il <assembly> [--method <name>] [--format text|json] [--output <file>]\n" +
-        "  cilica audit <assembly> [--reference <directory>]...\n" +
+        "  cilica audit <assembly> [--reference <directory>]... [--runtime-library <assembly>]\n" +
         "    (--public-surface | --root <hex-token>... | --root-type <metadata-name>...)\n" +
         "    [--format text|json] [--output <file>]\n" +
         "  cilica --help\n" +
@@ -35,6 +35,7 @@ public static partial class CilicaCommand
         "  audit     Trace explicit roots, dependencies, feature evidence and analysis gaps.\n" +
         "            --root and --root-type may be combined; nested types use '/'.\n" +
         "            Reference directories are explicit; no runtime probing occurs.\n" +
+        "            --runtime-library selects primitive/string receiver mappings.\n" +
         "\n" +
         "Exit codes: 0 success, 1 errors reported, 2 usage error, 3 internal error.\n";
 

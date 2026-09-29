@@ -65,6 +65,7 @@ public sealed partial class AssemblyResolver
                 Signature(id, signature, DependencyKind.ConstrainedType, prefix.Instruction.Offset);
                 ConstructedType? named = signature switch
                 {
+                    TypeSignature.Primitive p => PrimitiveReceiver(id, p.Code, DependencyKind.ConstrainedType, prefix.Instruction.Offset, required: true),
                     TypeSignature.Named n => OpenType(n.Definition),
                     TypeSignature.Generic g => new(g.Definition.Definition, g.Arguments),
                     _ => null,

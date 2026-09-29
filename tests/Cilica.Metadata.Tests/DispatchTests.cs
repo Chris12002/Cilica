@@ -149,7 +149,9 @@ public sealed class DispatchTests
         var receiver = builder.Specification(0x15, 0x12, 12, 1, 8);
         var root = builder.Method("Root", [0, 0, 1], emit: il => { Call(il, call); Mention(il, receiver); il.OpCode(ILOpCode.Ret); });
         var report = Analyze(builder, root);
-        Assert.Empty(report.Issues);
+        // The string method argument now records its implicit receiver gap unless
+        // a runtime library is selected; declaration/instance binding still succeeds.
+        Assert.Contains("Array/string receiver synthesis", Assert.Single(report.Issues).Diagnostic.Message, StringComparison.Ordinal);
         var target = Assert.Single(report.Nodes.Select(n => n.Entity).OfType<ReachableEntity.Method>(), m => m.Definition.Handle == body).Definition;
         Assert.Equal(new TypeSignature.Primitive(PrimitiveTypeCode.Int32), Assert.Single(target.DeclaringType.Arguments));
         Assert.Equal(new TypeSignature.Primitive(PrimitiveTypeCode.String), Assert.Single(target.MethodArguments));

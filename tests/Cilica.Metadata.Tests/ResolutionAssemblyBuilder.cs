@@ -84,6 +84,8 @@ internal sealed class ResolutionAssemblyBuilder
     internal void MethodImplementation(TypeDefinitionHandle owner, EntityHandle body, EntityHandle declaration) =>
         _metadata.AddMethodImplementation(owner, body, declaration);
 
+    internal UserStringHandle String(string value) => _metadata.GetOrAddUserString(value);
+
     internal TypeSpecificationHandle Specification(params byte[] signature) =>
         _metadata.AddTypeSpecification(_metadata.GetOrAddBlob(signature));
 

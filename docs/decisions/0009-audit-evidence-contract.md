@@ -49,7 +49,8 @@ The detached report records input name, sorted requested selectors, profile,
 limits, all session image identities/content hashes/reference markers, graph
 nodes with scoped tokens and structural instantiations, roots, edges, features
 and located issues. The command's session consists of the explicit catalogue
-plus input; the catalogue includes forwarding images even without graph nodes.
+plus input and any explicitly selected runtime-library image; the catalogue includes
+forwarding images even without graph nodes.
 Identical image snapshots are deduplicated. `isReferenceAssembly: false` means
 no reference marker was found, not proof of a valid executable implementation.
 
@@ -66,6 +67,10 @@ escaped. No absolute paths or timestamps are included.
 The JSON contract is `cilica.audit`, format version 1; readers should ignore
 unknown additive fields. ADR 0010 advances the analysis profile to
 `explicit-metadata-closure-v2` for closed named constrained instance calls.
+[ADR 0011](0011-explicit-runtime-type-mapping.md) advances it to
+`explicit-metadata-closure-v3` for selected-library primitive/string mapping.
+Additive `runtimeLibrary` and `runtimeMappings` fields identify the selected image
+and the actual mapped definitions through assembly indices and scoped tokens.
 Successful analysis means `bounded-graph-analyzed`; any issue means `incomplete`. General-filter status is:
 
 - `observed`: at least one general-filter observation, possibly alongside issues.

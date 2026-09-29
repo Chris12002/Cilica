@@ -234,9 +234,30 @@ that phase starvation visible when assessing the default budgets; fewer repeated
 diagnostics is not proof of additional reachable bodies. The filter gate remains
 `unresolved`.
 
-Next implementation block: explicit primitive/runtime type mapping and array/string
-receiver accounting, with independent fixtures, before raising graph limits. Keep the
-public-surface baseline, and record any narrower export-root contract explicitly.
+Explicit primitive runtime mapping and string receiver accounting are implemented
+([ADR 0011](../decisions/0011-explicit-runtime-type-mapping.md)):
+
+- Select one library image through `--runtime-library`, with strict catalogue
+  identity checks and ordinary type forwarding. Never discover the host runtime.
+- Resolve primitive constraints and string literals/signatures to named receiver
+  definitions. Reports retain the selected image, actual mapping tokens and hashes.
+- Preserve array, reference-body and mapping failures as issues. No execution
+  layout, boxing transformation or framework retargeting is inferred.
+- Independent fixtures cover mapped targets, string sources, conflicts, forwarding,
+  ownership and report contracts. A compiled .NET probe validates constraint and
+  declaration evidence while preserving its real-library budget limit.
+
+The v3 local implementation-image audit selected 2,294 roots, recorded six runtime
+mappings, 10,000 nodes / 44,288 edges, three type-test filters and 4,755 issues.
+It still reaches the node limit before any conservative dispatch target expansion;
+`generalFilterStatus` remains `unresolved`. The five application images changed
+since the v2 baseline, so these counts are not a controlled before/after comparison.
+The private run manifest records the exact input and compiler hashes.
+
+Next implementation block: schedule ordinary dependency discovery and dispatch
+fairly within existing budgets, with reduced regression graphs. Then define array
+receiver/interface handling. Keep the public-surface baseline, and record any
+narrower export-root contract explicitly.
 Slice 1c remains incomplete while required dispatch/receiver dependencies are
 unresolved. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
 defines incomplete-closure reporting. Slice 1d must still audit the trial ported

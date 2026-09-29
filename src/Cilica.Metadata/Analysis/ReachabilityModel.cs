@@ -18,7 +18,7 @@ public enum DependencyKind
     SelectedTypeMember, DeclaringType, Signature, BaseType, Interface, FieldLayout,
     TypeInitializer, ModuleInitializer, Call, Constructor, FieldAccess, TypeOperand,
     MethodAddress, MetadataToken, Local, CatchType, GenericConstraint,
-    DispatchDeclaration, ConservativeDispatch, ConstrainedType,
+    DispatchDeclaration, ConservativeDispatch, ConstrainedType, RuntimeType,
 }
 
 /// <param name="ReceiverType">Type-node ID supporting a conservative dispatch edge; null for ordinary edges.</param>
@@ -26,6 +26,7 @@ public enum DependencyKind
 public sealed record ReachabilityEdge(int From, int To, DependencyKind Kind, int? ILOffset,
     int? ReceiverType = null, int? ConstraintType = null);
 public sealed record ReachabilityIssue(int? Node, int? ILOffset, Diagnostic Diagnostic);
+public sealed record RuntimeTypeMapping(System.Reflection.Metadata.PrimitiveTypeCode Primitive, ResolvedType Definition);
 public sealed record FeatureObservation(int Node, int? ILOffset, string Feature, string Evidence);
 
 /// <summary>
@@ -36,6 +37,7 @@ public sealed record FeatureObservation(int Node, int? ILOffset, string Feature,
 public sealed record ReachabilityReport(ImmutableArray<ReachabilityNode> Nodes,
     ImmutableArray<int> Roots, ImmutableArray<ReachabilityEdge> Edges, ImmutableArray<ReachabilityIssue> Issues)
 {
+    public ImmutableArray<RuntimeTypeMapping> RuntimeMappings { get; init; } = [];
     public bool HasUnresolvedDependencies => !Issues.IsEmpty;
     public ImmutableArray<FeatureObservation> Features { get; init; } = [];
 }

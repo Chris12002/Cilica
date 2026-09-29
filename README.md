@@ -78,6 +78,12 @@ dotnet run --project src/Cilica.Cli -- audit path/to/Assembly.dll \
   --reference path/to/dependencies --root-type Example.Entry --format json
 ```
 
+Optionally add `--runtime-library path/to/CoreLibrary.dll` to map primitive
+receivers and implicit strings through a selected library. Supply its dependencies
+through `--reference`; no installed runtime is discovered automatically. Reports
+record the selected image and mappings used. Array receivers remain unsupported;
+see [ADR 0011](docs/decisions/0011-explicit-runtime-type-mapping.md).
+
 Use `--public-surface` instead of explicit roots to select visible declarations,
 or repeat `--root 0x06000001` for exact metadata tokens. The report records feature
 observations and why each node was included through its first incoming edge.

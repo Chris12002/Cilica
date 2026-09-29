@@ -16,7 +16,7 @@ public sealed partial class AssemblyResolver
     /// metadata spelling (namespace.Type/Nested`arity). No implicit entry-point selection.
     /// </summary>
     public AuditReport Audit(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots,
-        IEnumerable<string> rootTypes, bool publicSurface = false, ReachabilityLimits? limits = null)
+        IEnumerable<string> rootTypes, bool publicSurface = false, ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null)
     {
         CheckOwner(assembly);
         ArgumentNullException.ThrowIfNull(roots);
@@ -52,7 +52,7 @@ public sealed partial class AssemblyResolver
                     DiagnosticSeverity.Error, "Root type must match exactly one input TypeDef: " + type)));
             }
         }
-        ReachabilityReport graph = publicSurface ? AnalyzePublicSurface(assembly, limits) : AnalyzeReachability(assembly, selected, limits);
+        ReachabilityReport graph = publicSurface ? AnalyzePublicSurface(assembly, limits, runtimeLibrary) : AnalyzeReachability(assembly, selected, limits, runtimeLibrary);
         issues.AddRange(graph.Issues);
         // Include the complete explicit catalogue, including facades that have no graph
         // nodes. This records the binding environment without retaining filesystem paths.
@@ -106,7 +106,11 @@ public sealed partial class AssemblyResolver
         return new(assembly.InputName, [.. selection], limits,
             [.. images.Select((a, id) => new AuditAssembly(id, a.Identity.DisplayName, a.ContentHash, a.IsReferenceAssembly,
                 a.Identity.Equals(assembly.Identity) && a.ContentHash == assembly.ContentHash))],
-            [.. nodes], graph.Roots, graph.Edges, graph.Features, [.. issues]);
+            [.. nodes], graph.Roots, graph.Edges, graph.Features, [.. issues])
+        {
+            RuntimeLibrary = runtimeLibrary is null ? null : ImageId(runtimeLibrary),
+            RuntimeMappings = [.. graph.RuntimeMappings.Select(m => new AuditRuntimeType(m.Primitive.ToString(), ImageId(m.Definition.Assembly), Token(m.Definition.Handle)))],
+        };
     }
 
     private static string Token(EntityHandle handle) => "0x" + MetadataTokens.GetToken(handle).ToString("x8", CultureInfo.InvariantCulture);

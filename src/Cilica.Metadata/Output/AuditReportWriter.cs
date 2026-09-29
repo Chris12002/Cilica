@@ -29,6 +29,8 @@ public static class AuditReportWriter
         report.GeneralFilterStatus,
         report.Limits,
         report.Assemblies,
+        report.RuntimeLibrary,
+        report.RuntimeMappings,
         report.Nodes,
         report.Roots,
         report.Edges,
@@ -49,7 +51,11 @@ public static class AuditReportWriter
         foreach (AuditAssembly assembly in report.Assemblies)
             text.Append("assembly A").Append(N(assembly.Id)).Append(' ').Append(Q(assembly.Identity))
                 .Append(" sha256=").Append(assembly.ContentHash).Append(assembly.IsReferenceAssembly ? " reference" : " implementation-image")
-                .Append(assembly.IsInput ? " input" : " catalogue").Append('\n');
+                .Append(assembly.IsInput ? " input" : assembly.Id == report.RuntimeLibrary ? " selected-runtime-library" : " catalogue").Append('\n');
+        text.Append("runtime library: ").Append(report.RuntimeLibrary is int library ? "A" + N(library) : "not selected").Append('\n');
+        foreach (AuditRuntimeType mapping in report.RuntimeMappings)
+            text.Append("runtime type ").Append(mapping.Primitive).Append(" -> A").Append(N(mapping.Assembly))
+                .Append(' ').Append(mapping.Token).Append('\n');
         foreach (AuditNode node in report.Nodes)
         {
             text.Append("node ").Append(N(node.Id)).Append(" A").Append(N(node.Assembly)).Append(' ').Append(node.Kind)

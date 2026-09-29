@@ -16,7 +16,7 @@ public static partial class CilicaCommand
 {
     private static int RunAudit(IReadOnlyList<string> args, TextWriter stdout, TextWriter stderr)
     {
-        string? input = null, output = null;
+        string? input = null, output = null, runtimeLibraryPath = null;
         string format = "text";
         bool publicSurface = false;
         var references = new List<string>();
@@ -29,13 +29,17 @@ public static partial class CilicaCommand
             {
                 case "--help" or "-h": stdout.Write(Usage); return Success;
                 case "--public-surface": publicSurface = true; break;
-                case "--reference" or "--root" or "--root-type" or "--format" or "--output":
+                case "--reference" or "--root" or "--root-type" or "--format" or "--output" or "--runtime-library":
                     if (++index >= args.Count || args[index].StartsWith("--", StringComparison.Ordinal))
                         return Fail(stderr, $"option '{argument}' needs a value.");
                     string value = args[index];
                     switch (argument)
                     {
                         case "--reference": references.Add(value); break;
+                        case "--runtime-library":
+                            if (runtimeLibraryPath is not null) return Fail(stderr, "--runtime-library may be supplied only once.");
+                            runtimeLibraryPath = value;
+                            break;
                         case "--root-type": types.Add(value); break;
                         case "--root":
                             string hex = value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? value[2..] : value;
@@ -71,13 +75,25 @@ public static partial class CilicaCommand
             {
                 using (resolver)
                 {
-                    var opened = resolver.OpenInput(input);
-                    report = opened.Value is ResolvedAssembly assembly
-                        ? resolver.Audit(assembly, roots, types, publicSurface) : Failure(opened.Diagnostics);
+                    report = Inspect(resolver);
                 }
             }
             return (format == "json" ? AuditReportWriter.Json(report) : AuditReportWriter.Text(report), report.HasErrors);
         }, options, stdout, stderr);
+
+        AuditReport Inspect(AssemblyResolver resolver)
+        {
+            var opened = resolver.OpenInput(input);
+            if (opened.Value is not ResolvedAssembly assembly) return Failure(opened.Diagnostics);
+            ResolvedAssembly? runtimeLibrary = null;
+            if (runtimeLibraryPath is not null)
+            {
+                var selected = resolver.OpenInput(runtimeLibraryPath);
+                if (selected.Value is null) return Failure(selected.Diagnostics);
+                runtimeLibrary = selected.Value;
+            }
+            return resolver.Audit(assembly, roots, types, publicSurface, runtimeLibrary: runtimeLibrary);
+        }
 
         AuditReport Failure(IEnumerable<Diagnostic> diagnostics) => new(Path.GetFileName(input),
             publicSurface ? ["public-surface"] : [.. roots.Distinct().OrderBy(MetadataTokens.GetToken)

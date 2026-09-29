@@ -2,6 +2,8 @@
 
 Status: accepted for closed named constraints in slice 1c. Recorded 2026-09-29.
 This extends ADR 0008's metadata analysis, not runtime execution support.
+[ADR 0011](0011-explicit-runtime-type-mapping.md) subsequently adds explicitly
+selected primitive mappings; primitive gaps below describe the original v2 profile.
 
 ## Context
 

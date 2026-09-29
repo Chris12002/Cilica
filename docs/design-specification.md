@@ -123,7 +123,9 @@ Closed named constrained instance calls retain their constraint and receiver
 evidence ([ADR 0010](decisions/0010-constrained-instance-dispatch.md)).
 The `cilica audit` command reports feature observations, image hashes, inclusion
 reasons and incomplete-analysis status ([ADR 0009](decisions/0009-audit-evidence-contract.md)).
-Framework mapping and ported-library closure evidence remain subsequent work;
+Explicit library selection maps primitive constraints and implicit string receivers
+to named definitions ([ADR 0011](decisions/0011-explicit-runtime-type-mapping.md)).
+Broader framework retargeting, array receivers and ported-library closure evidence remain subsequent work;
 these foundations do not establish executable compatibility or clear the
 general-filter gate.
 

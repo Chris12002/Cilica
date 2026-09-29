@@ -16,24 +16,27 @@ public sealed partial class AssemblyResolver
     /// methods and fields. Roots are sorted and deduplicated before breadth-first expansion.
     /// </summary>
     public ReachabilityReport AnalyzeReachability(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots,
-        ReachabilityLimits? limits = null)
+        ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null)
     {
         CheckOwner(assembly);
         ArgumentNullException.ThrowIfNull(roots);
-        return new ReachabilityWalker(this, limits ?? new()).Run(assembly, roots, publicSurface: false);
+        if (runtimeLibrary is not null) CheckOwner(runtimeLibrary);
+        return new ReachabilityWalker(this, limits ?? new(), runtimeLibrary).Run(assembly, roots, publicSurface: false);
     }
 
     /// <summary>Selects externally visible types and public/protected members as roots.</summary>
-    public ReachabilityReport AnalyzePublicSurface(ResolvedAssembly assembly, ReachabilityLimits? limits = null)
+    public ReachabilityReport AnalyzePublicSurface(ResolvedAssembly assembly, ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null)
     {
         CheckOwner(assembly);
-        return new ReachabilityWalker(this, limits ?? new()).Run(assembly, [], publicSurface: true);
+        if (runtimeLibrary is not null) CheckOwner(runtimeLibrary);
+        return new ReachabilityWalker(this, limits ?? new(), runtimeLibrary).Run(assembly, [], publicSurface: true);
     }
 
     private sealed partial class ReachabilityWalker
     {
         private readonly AssemblyResolver _resolver;
         private readonly ReachabilityLimits _limits;
+        private readonly ResolvedAssembly? _runtimeLibrary;
         private readonly List<ReachabilityNode> _nodes = [];
         private readonly List<int> _roots = [];
         private readonly List<ReachabilityEdge> _edges = [];
@@ -50,17 +53,24 @@ public sealed partial class AssemblyResolver
         private bool _stopped;
         private long _bodyBytes;
 
-        internal ReachabilityWalker(AssemblyResolver resolver, ReachabilityLimits limits)
+        internal ReachabilityWalker(AssemblyResolver resolver, ReachabilityLimits limits, ResolvedAssembly? runtimeLibrary)
         {
             if (limits.MaximumNodes <= 0 || limits.MaximumEdges <= 0 || limits.MaximumMethodInstances <= 0
                 || limits.MaximumBodyBytes <= 0 || limits.MaximumTotalBodyBytes <= 0 || limits.MaximumDispatchPairs <= 0)
                 throw new ArgumentOutOfRangeException(nameof(limits), "Reachability limits must be positive.");
             _resolver = resolver;
             _limits = limits;
+            _runtimeLibrary = runtimeLibrary;
         }
 
         internal ReachabilityReport Run(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots, bool publicSurface)
         {
+            if (_runtimeLibrary is not null)
+            {
+                var profile = _resolver.ValidateRuntimeLibrary(_runtimeLibrary);
+                _runtimeLibraryUnavailable = !profile.Success;
+                foreach (Diagnostic diagnostic in profile.Diagnostics) Issue(null, null, diagnostic.Id, diagnostic.Message);
+            }
             var selected = new List<EntityHandle>();
             Guard(null, null, () => selected.AddRange(publicSurface ? PublicRoots(assembly) : roots));
             if (selected.Count == 0) Issue(null, null, DiagnosticIds.ReachabilityIncomplete, "No reachability roots were selected.");
@@ -103,6 +113,8 @@ public sealed partial class AssemblyResolver
             }
             return new([.. _nodes], [.. _roots.Distinct()], [.. _edges], [.. _issues])
             {
+                RuntimeMappings = [.. _runtimeTypes.Where(p => p.Value.Success).OrderBy(p => p.Key)
+                    .Select(p => new RuntimeTypeMapping(p.Key, p.Value.Value!))],
                 Features = [.. _features.OrderBy(f => f.Node).ThenBy(f => f.ILOffset)
                     .ThenBy(f => f.Feature, StringComparer.Ordinal).ThenBy(f => f.Evidence, StringComparer.Ordinal)],
             };
@@ -243,7 +255,6 @@ public sealed partial class AssemblyResolver
                 Observe(id, null, "generic-virtual", "Generic virtual method declaration.");
             ObserveDynamicMethod(id, method);
             var context = new BindingContext(method.DeclaringType, method.MethodArguments);
-            if (_roots.Contains(id) && method.Signature.Parameters.Any(IsStringParameter)) _hasSyntheticReceivers = true;
             Add(new ReachableEntity.Type(method.DeclaringType), id, DependencyKind.DeclaringType, null);
             Signature(id, method.Signature.ReturnType, DependencyKind.Signature);
             foreach (TypeSignature parameter in method.Signature.Parameters) Signature(id, parameter, DependencyKind.Signature);
@@ -321,7 +332,7 @@ public sealed partial class AssemblyResolver
         {
             int offset = instruction.Offset;
             ObserveInstruction(id, instruction);
-            if (instruction.Code.Name is "ldstr" or "newarr") _hasSyntheticReceivers = true;
+            if (instruction.Code.Name == "newarr") _hasSyntheticReceivers = true;
             // Decode the prefix with its following operation. A failed prefix must
             // never silently turn the operation into an unconstrained dispatch.
             if (instruction.Code.Name == "constrained.") return;
@@ -331,6 +342,7 @@ public sealed partial class AssemblyResolver
             {
                 if ((uint)instruction.Token >> 24 != 0x70) throw new BadImageFormatException("Invalid user-string token.");
                 assembly.Image.Reader.GetUserString(MetadataTokens.UserStringHandle(instruction.Token & 0x00ffffff));
+                StringReceiver(id, offset);
                 return;
             }
             if (instruction.Code.Operand == OperandKind.SignatureToken)
@@ -395,6 +407,11 @@ public sealed partial class AssemblyResolver
                 Observe(id, offset, "floating-point", "Floating-point signature.");
             switch (signature)
             {
+                case TypeSignature.Primitive { Code: PrimitiveTypeCode.String }: StringReceiver(id, offset); break;
+                case TypeSignature.Primitive primitive when kind == DependencyKind.TypeOperand
+                    && primitive.Code is not (PrimitiveTypeCode.Void or PrimitiveTypeCode.TypedReference):
+                    PrimitiveReceiver(id, primitive.Code, DependencyKind.RuntimeType, offset, required: false);
+                    break;
                 case TypeSignature.Named named: Add(new ReachableEntity.Type(OpenType(named.Definition)), id, kind, offset); break;
                 case TypeSignature.Generic generic:
                     Add(new ReachableEntity.Type(new(generic.Definition.Definition, generic.Arguments)), id, kind, offset);
@@ -421,14 +438,6 @@ public sealed partial class AssemblyResolver
         {
             TypeSignature.Modified modified => IsVoid(modified.Element),
             TypeSignature.Primitive primitive => primitive.Code == PrimitiveTypeCode.Void,
-            _ => false,
-        };
-
-        private static bool IsStringParameter(TypeSignature type) => type switch
-        {
-            TypeSignature.Modified modified => IsStringParameter(modified.Element),
-            TypeSignature.ByReference reference => IsStringParameter(reference.Element),
-            TypeSignature.Primitive primitive => primitive.Code == PrimitiveTypeCode.String,
             _ => false,
         };
 
