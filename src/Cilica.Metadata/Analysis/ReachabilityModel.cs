@@ -18,11 +18,13 @@ public enum DependencyKind
     SelectedTypeMember, DeclaringType, Signature, BaseType, Interface, FieldLayout,
     TypeInitializer, ModuleInitializer, Call, Constructor, FieldAccess, TypeOperand,
     MethodAddress, MetadataToken, Local, CatchType, GenericConstraint,
-    DispatchDeclaration, ConservativeDispatch,
+    DispatchDeclaration, ConservativeDispatch, ConstrainedType,
 }
 
 /// <param name="ReceiverType">Type-node ID supporting a conservative dispatch edge; null for ordinary edges.</param>
-public sealed record ReachabilityEdge(int From, int To, DependencyKind Kind, int? ILOffset, int? ReceiverType = null);
+/// <param name="ConstraintType">Closed named type-node ID from constrained.; null for unconstrained edges.</param>
+public sealed record ReachabilityEdge(int From, int To, DependencyKind Kind, int? ILOffset,
+    int? ReceiverType = null, int? ConstraintType = null);
 public sealed record ReachabilityIssue(int? Node, int? ILOffset, Diagnostic Diagnostic);
 public sealed record FeatureObservation(int Node, int? ILOffset, string Feature, string Evidence);
 

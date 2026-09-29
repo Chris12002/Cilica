@@ -213,8 +213,29 @@ now preserves these byref forms; reduced and authored C# tests cover binding and
 aliasing. All six observed signature errors disappear on the targeted rerun.
 Owner/lifetime/layout verification is still future work.
 
-Next implementation block: constrained-call handling and array/string receiver
-accounting, with independent fixtures, before raising graph limits. Keep the
+Closed named constrained instance-call expansion is now implemented
+([ADR 0010](../decisions/0010-constrained-instance-dispatch.md)):
+
+- Bind prefixes in the caller's generic context and restrict candidate receivers
+  to the selected constraint. Retain constraint and receiver IDs on audit edges.
+- Sealed constraints check exactly one receiver; reference constraints retain
+  included subclasses, including types discovered by later dispatch expansion.
+- Invalid or unresolved prefixes never fall back to ordinary dispatch. Static
+  interface, primitive, array and open-generic constraints retain explicit gaps.
+- Reduced fixtures and an authored C#/.NET probe cover value mutation, reference
+  overrides, generic and explicit implementations, unsupported forms and bounds.
+
+The v2 local implementation-image rerun retains 10,000 nodes / 42,458 edges
+and three type-test filters. It records 87 dispatch declarations with resolved
+named constraints and 4,738 issues, but **no constrained target expansion**:
+ordinary discovery still reaches the node limit before the dispatch phase.
+This is better constraint evidence, not a more complete filter closure. Keep
+that phase starvation visible when assessing the default budgets; fewer repeated
+diagnostics is not proof of additional reachable bodies. The filter gate remains
+`unresolved`.
+
+Next implementation block: explicit primitive/runtime type mapping and array/string
+receiver accounting, with independent fixtures, before raising graph limits. Keep the
 public-surface baseline, and record any narrower export-root contract explicitly.
 Slice 1c remains incomplete while required dispatch/receiver dependencies are
 unresolved. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)

@@ -56,7 +56,8 @@ or runtime-generated code cannot introduce other receivers. Public-surface and
 open generic roots retain their existing limitations. The future audit must
 state its roots, receiver universe, profile and unresolved dynamic edges.
 
-Constrained calls, indirect calls and `jmp` remain incomplete. Variant interface
+Closed named instance constrained calls now follow [ADR 0010](0010-constrained-instance-dispatch.md).
+Other constrained forms, indirect calls and `jmp` remain incomplete. Variant interface
 conversions, default interface dispatch without a class implementation, explicit
 class MethodImpl slot remapping, differing/covariant return signatures and private
 newslot hiding require later profiles. Unsupported cases do not clear the audit
@@ -65,8 +66,8 @@ gate merely because some other receiver produced a target.
 Arrays and strings can produce runtime receiver types without an ordinary named
 type node. When reached array signatures, `newarr`, `ldstr` or string input
 parameters expose that limitation, dispatch sites retain an incompleteness
-issue. Primitive/runtime type mapping and a complete receiver analysis remain
-separate work. This deliberately errs toward extra issues.
+issue, except where ADR 0010 establishes a sealed named constraint.
+Primitive/runtime type mapping and a complete receiver analysis remain separate work. This deliberately errs toward extra issues.
 
 Existing graph/body/signature bounds still apply. The default additional bound
 is 100,000 receiver/call-site pairs, configurable through `ReachabilityLimits`.

@@ -58,12 +58,15 @@ and content hash define externality. This includes framework and application
 libraries without pretending a namespace establishes framework provenance.
 `firstReason` indexes an incoming edge. Following its `from` node repeatedly
 reaches a selected root. Dispatch edges also identify the included receiver type.
+ADR 0010 adds nullable `constraintType` evidence to declaration/dispatch edges.
 Text presents the same chain as node/edge references, avoiding quadratic output
 from repeating long paths for every observation. Names/control characters are
 escaped. No absolute paths or timestamps are included.
 
-The JSON contract is `cilica.audit`, format version 1. Successful analysis means
-`bounded-graph-analyzed`; any issue means `incomplete`. General-filter status is:
+The JSON contract is `cilica.audit`, format version 1; readers should ignore
+unknown additive fields. ADR 0010 advances the analysis profile to
+`explicit-metadata-closure-v2` for closed named constrained instance calls.
+Successful analysis means `bounded-graph-analyzed`; any issue means `incomplete`. General-filter status is:
 
 - `observed`: at least one general-filter observation, possibly alongside issues.
 - `unresolved`: no general filter observed, but analysis has issues.

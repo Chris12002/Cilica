@@ -65,6 +65,7 @@ public static class AuditReportWriter
             text.Append("edge ").Append(N(i)).Append(": ").Append(N(edge.From)).Append(" -> ").Append(N(edge.To))
                 .Append(' ').Append(edge.Kind).Append(Offset(edge.ILOffset));
             if (edge.ReceiverType is int receiver) text.Append(" receiver=").Append(N(receiver));
+            if (edge.ConstraintType is int constraint) text.Append(" constraint=").Append(N(constraint));
             text.Append('\n');
         }
         foreach (FeatureObservation feature in report.Features)

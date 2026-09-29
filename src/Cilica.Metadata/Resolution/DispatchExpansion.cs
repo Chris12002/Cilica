@@ -11,11 +11,14 @@ public sealed partial class AssemblyResolver
 {
     private sealed partial class ReachabilityWalker
     {
-        private sealed class DispatchSite(int caller, int offset, ResolvedMethod declaration)
+        private sealed class DispatchSite(int caller, int offset, ResolvedMethod declaration,
+            ConstructedType? constraint = null, int? constraintId = null)
         {
             internal int Caller { get; } = caller;
             internal int Offset { get; } = offset;
             internal ResolvedMethod Declaration { get; } = declaration;
+            internal ConstructedType? Constraint { get; } = constraint;
+            internal int? ConstraintId { get; } = constraintId;
             internal bool HasTarget { get; set; }
         }
 
@@ -45,9 +48,15 @@ public sealed partial class AssemblyResolver
             for (int siteIndex = 0; siteIndex < _dispatchSites.Count && !_stopped; siteIndex++)
             {
                 DispatchSite site = _dispatchSites[siteIndex];
-                foreach (ReachabilityNode node in receivers)
+                // A sealed constraint has exactly one named receiver. Avoid scanning
+                // the whole graph for every such site outside the pair/work budgets.
+                IEnumerable<ReachabilityNode> candidates = site.Constraint is { } exact
+                    && (TypeDefinition(exact).Attributes & TypeAttributes.Sealed) != 0
+                    ? [_nodes[site.ConstraintId!.Value]] : receivers;
+                foreach (ReachabilityNode node in candidates)
                 {
                     if (_stopped) break;
+                    var receiver = ((ReachableEntity.Type)node.Entity).Definition;
                     var key = (siteIndex, node.Id);
                     if (_dispatchPairs.Contains(key)) continue;
                     if (_dispatchPairs.Count >= _limits.MaximumDispatchPairs)
@@ -56,7 +65,6 @@ public sealed partial class AssemblyResolver
                         break;
                     }
                     _dispatchPairs.Add(key);
-                    var receiver = ((ReachableEntity.Type)node.Entity).Definition;
                     Guard(site.Caller, site.Offset, () => Dispatch(site, receiver));
                 }
             }
@@ -67,13 +75,23 @@ public sealed partial class AssemblyResolver
             TypeAttributes attributes = TypeDefinition(receiver).Attributes;
             if ((attributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != 0) return;
             var hierarchy = Hierarchy(receiver);
+            if (site.Constraint is { } constraint)
+            {
+                bool isInterfaceConstraint = (TypeDefinition(constraint).Attributes & TypeAttributes.Interface) != 0;
+                if (isInterfaceConstraint ? !Implements(hierarchy, constraint) : !hierarchy.Contains(constraint)) return;
+            }
             foreach (ConstructedType type in hierarchy) RejectClassMethodImpl(type);
             bool isInterface = (TypeDefinition(site.Declaration.DeclaringType).Attributes & TypeAttributes.Interface) != 0;
             if (isInterface)
             {
                 if (Implements(hierarchy, site.Declaration.DeclaringType)) InterfaceTargets(site, hierarchy);
             }
-            else if (hierarchy.Contains(site.Declaration.DeclaringType)) ClassTargets(site, hierarchy, site.Declaration);
+            else if (hierarchy.Contains(site.Declaration.DeclaringType))
+            {
+                if ((MethodDefinition(site.Declaration).Attributes & MethodAttributes.Virtual) != 0)
+                    ClassTargets(site, hierarchy, site.Declaration);
+                else IncludeTarget(site, site.Declaration, receiver);
+            }
         }
 
         private List<ConstructedType> Hierarchy(ConstructedType receiver)
@@ -244,7 +262,8 @@ public sealed partial class AssemblyResolver
         {
             if ((MethodDefinition(target).Attributes & MethodAttributes.Abstract) != 0) return;
             int receiverId = _ids[new ReachableEntity.Type(receiver)];
-            if (Add(new ReachableEntity.Method(target), site.Caller, DependencyKind.ConservativeDispatch, site.Offset, receiverId) is not null)
+            if (Add(new ReachableEntity.Method(target), site.Caller, DependencyKind.ConservativeDispatch,
+                site.Offset, receiverId, site.ConstraintId) is not null)
                 site.HasTarget = true;
         }
     }

@@ -96,7 +96,9 @@ public sealed partial class AssemblyResolver
             {
                 if (!site.HasTarget) Issue(site.Caller, site.Offset, DiagnosticIds.ReachabilityIncomplete,
                     "No supported concrete receiver target was established for this dispatch site.");
-                if (_hasSyntheticReceivers) Issue(site.Caller, site.Offset, DiagnosticIds.ReachabilityIncomplete,
+                if (_hasSyntheticReceivers && (site.Constraint is null
+                    || (TypeDefinition(site.Constraint).Attributes & TypeAttributes.Sealed) == 0))
+                    Issue(site.Caller, site.Offset, DiagnosticIds.ReachabilityIncomplete,
                     "Array/string receiver synthesis is outside the named-type dispatch profile; the receiver set may be incomplete.");
             }
             return new([.. _nodes], [.. _roots.Distinct()], [.. _edges], [.. _issues])
@@ -137,7 +139,8 @@ public sealed partial class AssemblyResolver
             }
         }
 
-        private int? Add(ReachableEntity entity, int? from, DependencyKind kind, int? offset, int? receiverType = null)
+        private int? Add(ReachableEntity entity, int? from, DependencyKind kind, int? offset,
+            int? receiverType = null, int? constraintType = null)
         {
             if (_stopped) return null;
             bool exists = _ids.TryGetValue(entity, out int id);
@@ -162,7 +165,7 @@ public sealed partial class AssemblyResolver
             }
             if (from is int parent)
             {
-                var edge = new ReachabilityEdge(parent, id, kind, offset, receiverType);
+                var edge = new ReachabilityEdge(parent, id, kind, offset, receiverType, constraintType);
                 if (!_edgeSet.Contains(edge))
                 {
                     if (_edges.Count >= _limits.MaximumEdges)
@@ -276,10 +279,12 @@ public sealed partial class AssemblyResolver
             List<Instruction> instructions = ILDecoder.Decode(il, out string? error);
             if (error is not null) Issue(id, null, DiagnosticIds.MalformedMethodBody, error);
             var calls = new Dictionary<int, ResolvedMethod>();
+            var constraints = ConstrainedPrefixes(id, instructions);
             foreach (Instruction instruction in instructions)
             {
                 if (_stopped) break;
-                Guard(id, instruction.Offset, () => Instruction(id, assembly, instruction, context, calls));
+                Guard(id, instruction.Offset, () => Instruction(id, assembly, instruction, context, calls,
+                    constraints.GetValueOrDefault(instruction.Offset)));
             }
             // Reuse the existing structural validator; conservative dependency discovery
             // scans all decoded instructions, including blocks it labels unreachable.
@@ -311,13 +316,17 @@ public sealed partial class AssemblyResolver
                     Guard(id, null, () => Add(new ReachableEntity.Method(_resolver.Method(assembly, method)), id, DependencyKind.ModuleInitializer, null));
         }
 
-        private void Instruction(int id, ResolvedAssembly assembly, Instruction instruction, BindingContext context, Dictionary<int, ResolvedMethod> calls)
+        private void Instruction(int id, ResolvedAssembly assembly, Instruction instruction, BindingContext context,
+            Dictionary<int, ResolvedMethod> calls, ConstrainedPrefix? constraint)
         {
             int offset = instruction.Offset;
             ObserveInstruction(id, instruction);
             if (instruction.Code.Name is "ldstr" or "newarr") _hasSyntheticReceivers = true;
-            if (instruction.Code.Name is "calli" or "jmp" or "constrained.")
-                Issue(id, offset, DiagnosticIds.ReachabilityIncomplete, $"'{instruction.Code.Name}' requires additional indirect/constrained dispatch analysis.");
+            // Decode the prefix with its following operation. A failed prefix must
+            // never silently turn the operation into an unconstrained dispatch.
+            if (instruction.Code.Name == "constrained.") return;
+            if (instruction.Code.Name is "calli" or "jmp")
+                Issue(id, offset, DiagnosticIds.ReachabilityIncomplete, $"'{instruction.Code.Name}' requires additional indirect dispatch analysis.");
             if (instruction.Code.Operand == OperandKind.StringToken)
             {
                 if ((uint)instruction.Token >> 24 != 0x70) throw new BadImageFormatException("Invalid user-string token.");
@@ -342,6 +351,11 @@ public sealed partial class AssemblyResolver
             {
                 ResolvedMethod target = _resolver.Method(assembly, token, context);
                 calls[offset] = target;
+                if (constraint is not null)
+                {
+                    ConstrainedCall(id, assembly, instruction, context, target, constraint);
+                    return;
+                }
                 DependencyKind kind = instruction.Code.Name switch
                 {
                     "newobj" => DependencyKind.Constructor,
