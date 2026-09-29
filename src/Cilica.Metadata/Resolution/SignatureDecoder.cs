@@ -39,7 +39,10 @@ internal sealed class SignatureDecoder(AssemblyResolver resolver, ResolvedAssemb
     {
         BlobReader blob = Metadata.GetBlobReader(handle);
         if (blob.ReadByte() != 0x06) throw Invalid("Expected a FIELD signature.");
-        TypeSignature type = ReadType(ref blob, 0);
+        // Modern .NET permits managed-reference instance fields on byref-like
+        // types (ECMA-335 addendum, Ref Fields). Preserve the signature here;
+        // owner/storage/lifetime validation belongs to typed verification.
+        TypeSignature type = ReadType(ref blob, 0, allowByRef: true);
         End(blob);
         return type;
     }

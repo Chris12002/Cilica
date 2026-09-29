@@ -194,12 +194,32 @@ Feature reporting and `cilica audit` implemented
 - Independent fixtures cover reachable/unreachable filters, every feature category,
   CLI contracts, report determinism, partial results and seeded malformed input.
 
-Next implementation block: local Alchemy evidence using explicitly recorded roots
-and reference/implementation catalogues. Unsupported dispatch remains a gap, not
-evidence of absent filters. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
-defines incomplete-closure reporting. Reference-only results cannot clear the
-general-filter gate; slice 1d checks the trial ported library's implementation
-closure.
+Initial local Alchemy evidence (2026-09-29; private reports stay in `artifacts/`):
+
+| Explicit catalogue, public-surface roots | Nodes / edges | Filter observations | Outcome |
+| --- | --- | --- | --- |
+| Application dependencies + .NET Standard 2.1 reference pack | 9,562 / 50,000 | 3 type-test; no general observed | Incomplete: edge limit, reference bodies and dispatch gaps |
+| Application dependencies + .NET 10.0.11 implementation images, after ref-field fix | 10,000 / 42,458 | 3 type-test; no general observed | Incomplete: node limit, native/runtime bodies and dispatch gaps |
+
+Both runs selected 2,268 public-surface roots. Neither establishes that a general
+filter is absent; `generalFilterStatus` is `unresolved`. A Microsoft runtime
+catalogue is diagnostic input, not the proposed Cilica ported library. Repeated
+no-target issues include dispatch sites left unprocessed when the global budget
+stops expansion; they are not counts of distinct runtime defects.
+
+The implementation run exposed a decoder defect: modern managed-reference fields
+in Span/ReadOnlySpan were rejected as invalid signatures. The bounded field parser
+now preserves these byref forms; reduced and authored C# tests cover binding and
+aliasing. All six observed signature errors disappear on the targeted rerun.
+Owner/lifetime/layout verification is still future work.
+
+Next implementation block: constrained-call handling and array/string receiver
+accounting, with independent fixtures, before raising graph limits. Keep the
+public-surface baseline, and record any narrower export-root contract explicitly.
+Slice 1c remains incomplete while required dispatch/receiver dependencies are
+unresolved. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
+defines incomplete-closure reporting. Slice 1d must still audit the trial ported
+library's implementation closure before the general-filter gate can be settled.
 
 ### 1d: ADR 0003 validation
 

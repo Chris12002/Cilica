@@ -53,6 +53,12 @@ follows [ECMA-335, II.9.8](https://www.ecma-international.org/wp-content/uploads
   alone cannot enforce the host stack bound. Trailing bytes, invalid counts,
   invalid generic indices, arity mismatches and contradictory method instance
   flags are diagnosed. This does not replace later type-level verification.
+- Preserve modern .NET managed-reference field signatures (`BYREF Type`), as
+  specified by the [ECMA-335 addendum, Ref Fields](https://github.com/dotnet/runtime/blob/main/docs/design/specs/Ecma-335-Augments.md#ref-fields).
+  This applies to FieldDef and MemberRef matching before generic substitution.
+  Nested byrefs, pointers/arrays of byrefs, ref-void and pinned fields remain
+  rejected. Recognizing the signature does not validate the owner's byref-like
+  status, instance storage, lifetime or layout; these need typed verification.
 - Preserve existing resolution diagnostics for missing dependencies. New
   `CIL3009`, `CIL3010` and `CIL3011` identify invalid/over-limit signatures,
   missing members and ambiguous members. Diagnostics locate the requesting
@@ -82,7 +88,10 @@ substitution, inherited methods and fields, ambiguity, base cycles, distinct
 assembly scopes, signature distinctions, malformed blobs and nesting limits.
 Small authored C# cases execute on .NET and provide compiler-produced tokens for
 overload, inherited generic and explicit-interface declaration/body checks.
-Seeded signature corruption tests exercise diagnostic containment.
+Seeded signature corruption tests exercise diagnostic containment. A reduced
+ref-field regression and an authored C# generic ref struct check both open and
+closed signatures, with .NET aliasing evidence. This fixes the valid Span and
+ReadOnlySpan reference fields exposed by the local implementation-image audit.
 
 String-based comparison and substitute-first lookup were rejected because they
 can select the wrong declaration. Reusing reflection loading was rejected
