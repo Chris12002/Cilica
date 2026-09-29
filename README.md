@@ -47,6 +47,15 @@ dotnet build Cilica.slnx
 dotnet test Cilica.slnx
 ```
 
+If a restricted environment blocks MSBuild worker pipes or VSTest's local
+socket, build without worker/compiler servers and use the existing xUnit
+executable directly:
+
+```bash
+dotnet build Cilica.slnx -m:1 -p:UseSharedCompilation=false -nodeReuse:false
+dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll -noColor -parallel none
+```
+
 Inspect an assembly's metadata without loading or running it:
 
 ```bash
@@ -67,6 +76,8 @@ Corruption tests run 500 iterations by default; set `CILICA_FUZZ_ITERATIONS`
 for a longer local run.
 
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before starting an implementation slice.
+- See the [test strategy](docs/test-strategy.md) for evidence requirements and
+  planned coverage as the compiler and runtime grow.
 - See [AGENTS.md](AGENTS.md) for repository-specific agent instructions.
 - Hosted CI is intentionally unconfigured. Adding a workflow or enabling paid
   hosted work requires explicit maintainer authorization and a runner budget.

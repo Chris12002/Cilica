@@ -133,6 +133,19 @@ Outcome:
   generic virtual methods); and `why-included` reachability chains.
 - Run locally against Alchemy's offline assemblies.
 
+Next implementation block: the resolver foundation. Define explicit directory
+inputs, assembly-qualified identity and conflict diagnostics, then implement
+facade/type-forwarder traversal with cycle detection. Validate it with small
+independent assemblies before adding reachability. No implementation of this
+block is claimed yet.
+
+Continue 1c in reviewable commits: resolver and fixtures; root/edge expansion
+and inclusion explanations; feature reporting and `cilica audit`; local Alchemy
+evidence. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
+defines the cases and how to report an incomplete closure. Reference-only audit
+results cannot clear the general-filter gate; slice 1d checks the trial ported
+library's implementation closure.
+
 ### 1d: ADR 0003 validation
 
 A trial Roslyn build of ported dotnet/runtime shared sources, audited against
@@ -140,6 +153,9 @@ Alchemy's reachable closure. It reports internal calls, intrinsics, `Unsafe`
 operations, interior references and generic instantiations the closure needs.
 
 ## Testing
+
+The repository-wide [test strategy](../test-strategy.md) defines the evidence
+required at each layer and the local execution/resource policy.
 
 - xUnit v3 tests, with golden files maintained by a small in-repository helper.
 - C# fixture assemblies compiled during the test build. Fixtures are

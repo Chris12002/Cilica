@@ -17,20 +17,10 @@ Compiler tests should exercise behaviour, not reproduce the implementation.
 Reduce compiler failures to small independent examples. Game integration tests
 complement the conformance suite; they do not replace it.
 
-For validation rules, pair a rejected example with a nearby accepted example
-and assert the diagnostic identifier and affected location. Cover interactions
-between rules, especially exception nesting, prefixes and control flow. Random
-corruption tests establish robustness; their absence of crashes does not prove
-that invalid IL is rejected. Golden files establish the report contract, not
-semantic correctness.
-
-As executable semantics arrive, use .NET as an independent reference for
-controlled conformance fixtures, including exception/filter/finally ordering.
-Run those fixtures in a separate bounded test process; the compiler continues
-to treat input assemblies solely as data. For reachability, use small dependency
-graphs with known included and excluded members and expected inclusion chains,
-including missing references, forwarding cycles and virtual/interface dispatch.
-Keep these checks local and focused; larger corruption runs are opt-in.
+Follow the [test strategy](docs/test-strategy.md) for paired accepted/rejected
+cases, rule interactions, independent expected results, slice 1c's dependency
+graphs and later differential execution against .NET. It distinguishes current
+coverage from planned checks and defines the local validation/resource policy.
 
 Pinned prerequisites and the exact local build and test commands are in the
 [README](README.md#development). New slices that add prerequisites or commands
