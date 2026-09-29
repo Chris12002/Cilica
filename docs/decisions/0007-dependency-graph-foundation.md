@@ -1,7 +1,8 @@
 # ADR 0007: Bounded dependency graphs with inclusion reasons
 
 Status: accepted for ordinary dependency expansion in slice 1c. Recorded 2026-09-29.
-Virtual/interface dispatch expansion and the audit command remain outstanding.
+Bounded virtual/interface expansion is added by
+[ADR 0008](0008-conservative-dispatch-expansion.md); the audit command remains outstanding.
 
 ## Context
 
@@ -59,11 +60,10 @@ Signature decoding/substitution retains ADR 0006's bounds. Exceeding a limit
 produces an issue with the path to the stopped expansion; it never silently
 truncates a supposedly complete graph.
 
-Virtual/interface `callvirt`, `ldvirtftn`, constrained operations, indirect calls
-and `jmp` are recorded as incomplete analysis. The declaration is retained where
-it can be resolved. Selecting overrides, explicit interface implementations,
-generic/default interface dispatch and implementations discovered after a call
-site belongs to the next fixed-point expansion block.
+Virtual/interface `callvirt` and `ldvirtftn` now participate in ADR 0008's bounded
+fixed-point expansion. Constrained operations, indirect calls, `jmp` and
+unsupported dispatch relationships remain incomplete analysis. The declaration
+is retained where it can be resolved.
 
 This is an ordinary metadata dependency graph. It does not yet classify dynamic
 reflection/assembly-loading patterns, generated runtime helpers or feature use,

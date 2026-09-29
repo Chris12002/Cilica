@@ -116,8 +116,10 @@ manifest identity, with forwarding and conflict diagnostics
 signature and declaration binder handles generic and inherited members
 ([ADR 0006](decisions/0006-structural-member-binding.md)). Ordinary dependency
 graphs retain generic instances, inclusion reasons and explicit analysis gaps
-([ADR 0007](decisions/0007-dependency-graph-foundation.md)). Framework mapping,
-dispatch expansion and feature auditing remain subsequent work; these foundations
+([ADR 0007](decisions/0007-dependency-graph-foundation.md)). Bounded conservative
+dispatch revisits included named receiver types to a fixed point and retains
+unsupported cases as issues ([ADR 0008](decisions/0008-conservative-dispatch-expansion.md)).
+Framework mapping and feature auditing remain subsequent work; these foundations
 do not establish executable compatibility or clear the general-filter gate.
 
 Verification covers the supported execution profile. Cilica is not initially

@@ -17,7 +17,7 @@ output, plus diagnostics for malformed input.
 | --- | --- | --- |
 | 1a | Foundation and metadata inspection | Complete |
 | 1b | IL decoding and validation | Complete |
-| 1c | Dependency resolution and reachability audit | In progress: binding and ordinary dependency graphs implemented |
+| 1c | Dependency resolution and reachability audit | In progress: binding, dependency graphs and bounded dispatch implemented |
 | 1d | ADR 0003 validation against a trial library build | Planned |
 
 Each slice is reviewed and committed separately.
@@ -152,7 +152,7 @@ Structural declaration binding implemented
   MemberRefs match before generic instantiation; MethodSpecs preserve caller
   variables. Generic base lookup resolves inherited declarations.
 - Interface declarations and explicit implementation operands resolve
-  separately. Dispatch selection has not been implemented.
+  separately. ADR 0008 adds bounded conservative dispatch expansion.
 - Synthetic cases and authored C#/.NET probes cover overloads, inherited
   generics, explicit interfaces, assembly scope and malformed signatures.
 - Unsupported signature/owner forms fail explicitly; successful binding does
@@ -170,13 +170,25 @@ Ordinary dependency graphs implemented
   unsupported dispatch and graph limits remain explicit issues. Tests include
   exact reachable sets, disconnected methods, cycles and malformed input.
 
-Next implementation block: conservative virtual/interface dispatch, including
-explicit implementations and targets discovered after a call site. Iterate to
-a fixed point; preserve incomplete-analysis issues for unsupported cases. Feature
-reporting, the audit command and the Alchemy run are still outstanding.
+Bounded conservative dispatch implemented
+([ADR 0008](../decisions/0008-conservative-dispatch-expansion.md)):
 
-Continue the remaining 1c work in reviewable commits: dispatch expansion;
-feature reporting and `cilica audit`; local Alchemy
+- Revisit call-site/receiver pairs until ordinary and dispatch expansion reach
+  a fixed point. Include ordinary/generic overrides and explicit/inherited
+  interface bodies, preserving receiver evidence on dispatch edges.
+- Respect newslot boundaries, exclude unrelated receivers and retain explicit
+  issues for unsupported dispatch and receiver forms. Declaration-only abstract
+  methods remain distinct from methods whose bodies are required.
+- Tests include a receiver discovered inside another dispatched body, generic
+  substitutions, negative slot/interface cases and authored C#/.NET evidence.
+
+Next implementation block: feature reporting and `cilica audit`, with explicit
+root/profile/receiver-universe evidence and incomplete-analysis status. The local
+Alchemy run follows the command and independent audit fixtures. Unsupported
+dispatch remains a gap, not evidence of absent filters.
+
+Continue the remaining 1c work in reviewable commits: feature reporting and
+`cilica audit`; local Alchemy
 evidence. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
 defines the cases and how to report an incomplete closure. Reference-only audit
 results cannot clear the general-filter gate; slice 1d checks the trial ported

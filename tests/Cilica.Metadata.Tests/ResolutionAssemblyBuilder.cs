@@ -14,7 +14,7 @@ internal sealed class ResolutionAssemblyBuilder
 {
     private readonly MetadataBuilder _metadata = new();
     private readonly MethodBodyStreamEncoder _bodies = new(new BlobBuilder());
-    private readonly List<(EntityHandle Owner, int Count)> _parameters = [];
+    private readonly List<(EntityHandle Owner, int Count, GenericParameterAttributes Attributes)> _parameters = [];
     internal const TypeAttributes Forwarder = (TypeAttributes)0x00200000;
 
     internal ResolutionAssemblyBuilder(AssemblyIdentity identity, byte[]? publicKey = null, AssemblyFlags flags = 0)
@@ -37,14 +37,15 @@ internal sealed class ResolutionAssemblyBuilder
             fullKey is null ? 0 : AssemblyFlags.PublicKey, default);
 
     internal TypeDefinitionHandle Type(string ns, string name, TypeDefinitionHandle parent = default,
-        EntityHandle baseType = default, int arity = 0, TypeAttributes? attributes = null)
+        EntityHandle baseType = default, int arity = 0, TypeAttributes? attributes = null,
+        GenericParameterAttributes genericAttributes = GenericParameterAttributes.None)
     {
         TypeDefinitionHandle handle = _metadata.AddTypeDefinition(attributes ?? (parent.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic),
             _metadata.GetOrAddString(ns), _metadata.GetOrAddString(name), baseType,
             MetadataTokens.FieldDefinitionHandle(_metadata.GetRowCount(TableIndex.Field) + 1),
             MetadataTokens.MethodDefinitionHandle(_metadata.GetRowCount(TableIndex.MethodDef) + 1));
         if (!parent.IsNil) _metadata.AddNestedType(handle, parent);
-        Parameters(handle, arity);
+        Parameters(handle, arity, genericAttributes);
         return handle;
     }
 
@@ -67,9 +68,9 @@ internal sealed class ResolutionAssemblyBuilder
         return handle;
     }
 
-    private void Parameters(EntityHandle owner, int count)
+    private void Parameters(EntityHandle owner, int count, GenericParameterAttributes attributes = GenericParameterAttributes.None)
     {
-        if (count > 0) _parameters.Add((owner, count));
+        if (count > 0) _parameters.Add((owner, count, attributes));
     }
 
     internal FieldDefinitionHandle Field(string name, params byte[] signature) =>
@@ -79,6 +80,9 @@ internal sealed class ResolutionAssemblyBuilder
         _metadata.AddFieldDefinition(attributes, _metadata.GetOrAddString(name), _metadata.GetOrAddBlob(signature));
 
     internal void Implements(TypeDefinitionHandle owner, EntityHandle @interface) => _metadata.AddInterfaceImplementation(owner, @interface);
+
+    internal void MethodImplementation(TypeDefinitionHandle owner, EntityHandle body, EntityHandle declaration) =>
+        _metadata.AddMethodImplementation(owner, body, declaration);
 
     internal TypeSpecificationHandle Specification(params byte[] signature) =>
         _metadata.AddTypeSpecification(_metadata.GetOrAddBlob(signature));
@@ -114,7 +118,7 @@ internal sealed class ResolutionAssemblyBuilder
         foreach (var group in _parameters.OrderBy(p => MetadataTokens.GetRowNumber(p.Owner) * 2
             + (p.Owner.Kind == HandleKind.MethodDefinition ? 1 : 0)))
             for (int i = 0; i < group.Count; i++)
-                _metadata.AddGenericParameter(group.Owner, GenericParameterAttributes.None,
+                _metadata.AddGenericParameter(group.Owner, group.Attributes,
                     _metadata.GetOrAddString("T" + i.ToString(System.Globalization.CultureInfo.InvariantCulture)), i);
         _parameters.Clear();
         var pe = new ManagedPEBuilder(PEHeaderBuilder.CreateLibraryHeader(), new MetadataRootBuilder(_metadata),

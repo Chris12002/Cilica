@@ -38,9 +38,10 @@ follows [ECMA-335, II.9.8](https://www.ecma-international.org/wp-content/uploads
   already substituted owner would accidentally capture caller variables.
   MethodSpecs therefore instantiate the original declaration signature.
 - Resolve interface declarations and the individual declaration/body operands
-  in MethodImpl records. Selecting implementations, validating override maps,
-  variance, default interface methods and virtual dispatch belong to the next
-  reachability block. An interface declaration alone is not an execution target.
+  in MethodImpl records. [ADR 0008](0008-conservative-dispatch-expansion.md) now
+  adds bounded conservative implementation expansion. Variance, default interface
+  methods and full override-map validation remain outside that profile. An
+  interface declaration alone is not an execution target.
 - Parse blobs with bounded recursion: 64 depth levels, 4096 decoded nodes, and
   count checks before collection construction; array rank is limited to 1–32.
   Check expanded type signatures

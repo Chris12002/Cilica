@@ -231,7 +231,7 @@ public sealed class ReachabilityTests
     }
 
     [Fact]
-    public void Virtual_calls_are_not_reported_as_a_complete_implementation_closure()
+    public void Ordinary_virtual_calls_expand_known_concrete_receivers()
     {
         var builder = Builder();
         builder.Type("", "C");
@@ -241,7 +241,8 @@ public sealed class ReachabilityTests
         using var resolver = files.Open();
         var report = resolver.AnalyzeReachability(Open(builder, files, resolver), [root]);
         Assert.Contains(target, Methods(report));
-        Assert.Contains(report.Issues, i => i.Diagnostic.Id == DiagnosticIds.ReachabilityIncomplete && i.ILOffset == 1);
+        Assert.Empty(report.Issues);
+        Assert.Contains(report.Edges, e => e.Kind == DependencyKind.ConservativeDispatch && e.ILOffset == 1);
     }
 
     [Fact]

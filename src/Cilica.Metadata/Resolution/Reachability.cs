@@ -30,7 +30,7 @@ public sealed partial class AssemblyResolver
         return new ReachabilityWalker(this, limits ?? new()).Run(assembly, [], publicSurface: true);
     }
 
-    private sealed class ReachabilityWalker
+    private sealed partial class ReachabilityWalker
     {
         private readonly AssemblyResolver _resolver;
         private readonly ReachabilityLimits _limits;
@@ -45,13 +45,15 @@ public sealed partial class AssemblyResolver
         private readonly HashSet<int> _selectedTypes = [];
         private readonly Dictionary<(ResolvedType, MethodDefinitionHandle), int> _instances = [];
         private readonly HashSet<(ResolvedType, MethodDefinitionHandle)> _limitedMethods = [];
+        private readonly HashSet<int> _bodyRequired = [];
+        private readonly HashSet<int> _processed = [];
         private bool _stopped;
         private long _bodyBytes;
 
         internal ReachabilityWalker(AssemblyResolver resolver, ReachabilityLimits limits)
         {
             if (limits.MaximumNodes <= 0 || limits.MaximumEdges <= 0 || limits.MaximumMethodInstances <= 0
-                || limits.MaximumBodyBytes <= 0 || limits.MaximumTotalBodyBytes <= 0)
+                || limits.MaximumBodyBytes <= 0 || limits.MaximumTotalBodyBytes <= 0 || limits.MaximumDispatchPairs <= 0)
                 throw new ArgumentOutOfRangeException(nameof(limits), "Reachability limits must be positive.");
             _resolver = resolver;
             _limits = limits;
@@ -81,8 +83,22 @@ public sealed partial class AssemblyResolver
                     if (!publicSurface && entity is ReachableEntity.Type) _selectedTypes.Add(id.Value);
                 }, $"root 0x{MetadataTokens.GetToken(root):x8} in {assembly.Identity.DisplayName}");
             }
-            while (!_stopped && _pending.TryDequeue(out int id))
-                Guard(id, null, () => Expand(id));
+            do
+            {
+                while (!_stopped && _pending.TryDequeue(out int id))
+                {
+                    _processed.Add(id);
+                    Guard(id, null, () => Expand(id));
+                }
+                if (!_stopped) ExpandDispatch();
+            } while (!_stopped && _pending.Count > 0);
+            foreach (DispatchSite site in _dispatchSites)
+            {
+                if (!site.HasTarget) Issue(site.Caller, site.Offset, DiagnosticIds.ReachabilityIncomplete,
+                    "No supported concrete receiver target was established for this dispatch site.");
+                if (_hasSyntheticReceivers) Issue(site.Caller, site.Offset, DiagnosticIds.ReachabilityIncomplete,
+                    "Array/string receiver synthesis is outside the named-type dispatch profile; the receiver set may be incomplete.");
+            }
             return new([.. _nodes], [.. _roots.Distinct()], [.. _edges], [.. _issues]);
         }
 
@@ -117,7 +133,7 @@ public sealed partial class AssemblyResolver
             }
         }
 
-        private int? Add(ReachableEntity entity, int? from, DependencyKind kind, int? offset)
+        private int? Add(ReachableEntity entity, int? from, DependencyKind kind, int? offset, int? receiverType = null)
         {
             if (_stopped) return null;
             bool exists = _ids.TryGetValue(entity, out int id);
@@ -142,7 +158,7 @@ public sealed partial class AssemblyResolver
             }
             if (from is int parent)
             {
-                var edge = new ReachabilityEdge(parent, id, kind, offset);
+                var edge = new ReachabilityEdge(parent, id, kind, offset, receiverType);
                 if (!_edgeSet.Contains(edge))
                 {
                     if (_edges.Count >= _limits.MaximumEdges)
@@ -156,6 +172,9 @@ public sealed partial class AssemblyResolver
                     _edges.Add(edge);
                 }
             }
+            if (entity is ReachableEntity.Method required && kind != DependencyKind.DispatchDeclaration && _bodyRequired.Add(id)
+                && exists && _processed.Contains(id) && (MethodDefinition(required.Definition).Attributes & MethodAttributes.Abstract) != 0)
+                _pending.Enqueue(id);
             return id;
         }
 
@@ -213,12 +232,14 @@ public sealed partial class AssemblyResolver
             MetadataReader reader = assembly.Image.Reader;
             MethodDefinition definition = reader.GetMethodDefinition(method.Handle);
             var context = new BindingContext(method.DeclaringType, method.MethodArguments);
+            if (_roots.Contains(id) && method.Signature.Parameters.Any(IsStringParameter)) _hasSyntheticReceivers = true;
             Add(new ReachableEntity.Type(method.DeclaringType), id, DependencyKind.DeclaringType, null);
             Signature(id, method.Signature.ReturnType, DependencyKind.Signature);
             foreach (TypeSignature parameter in method.Signature.Parameters) Signature(id, parameter, DependencyKind.Signature);
             foreach (TypeSignature argument in method.MethodArguments) Signature(id, argument, DependencyKind.Signature);
             Constraints(id, assembly, definition.GetGenericParameters(), context);
             ModuleInitializer(id, assembly);
+            if ((definition.Attributes & MethodAttributes.Abstract) != 0 && !_bodyRequired.Contains(id)) return;
             if (assembly.IsReferenceAssembly || definition.RelativeVirtualAddress == 0
                 || (definition.ImplAttributes & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.InternalCall | MethodImplAttributes.Unmanaged)) != MethodImplAttributes.IL
                 || (definition.Attributes & MethodAttributes.PinvokeImpl) != 0)
@@ -282,6 +303,7 @@ public sealed partial class AssemblyResolver
         private void Instruction(int id, ResolvedAssembly assembly, Instruction instruction, BindingContext context, Dictionary<int, ResolvedMethod> calls)
         {
             int offset = instruction.Offset;
+            if (instruction.Code.Name is "ldstr" or "newarr") _hasSyntheticReceivers = true;
             if (instruction.Code.Name is "calli" or "jmp" or "constrained.")
                 Issue(id, offset, DiagnosticIds.ReachabilityIncomplete, $"'{instruction.Code.Name}' requires additional indirect/constrained dispatch analysis.");
             if (instruction.Code.Operand == OperandKind.StringToken)
@@ -315,10 +337,10 @@ public sealed partial class AssemblyResolver
                     "ldtoken" => DependencyKind.MetadataToken,
                     _ => DependencyKind.Call,
                 };
-                Add(new ReachableEntity.Method(target), id, kind, offset);
                 MethodDefinition definition = target.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(target.Handle);
-                if (instruction.Code.Name == "ldvirtftn" || instruction.Code.Name == "callvirt" && (definition.Attributes & MethodAttributes.Virtual) != 0)
-                    Issue(id, offset, DiagnosticIds.ReachabilityIncomplete, "Virtual/interface call declaration is included, but implementation dispatch has not been expanded.");
+                bool dispatch = instruction.Code.Name == "ldvirtftn" || instruction.Code.Name == "callvirt" && (definition.Attributes & MethodAttributes.Virtual) != 0;
+                Add(new ReachableEntity.Method(target), id, dispatch ? DependencyKind.DispatchDeclaration : kind, offset);
+                if (dispatch) _dispatchSites.Add(new(id, offset, target));
             }
             else if (instruction.Code.Operand == OperandKind.FieldToken || instruction.Code.Operand == OperandKind.AnyToken && isField)
                 Add(new ReachableEntity.Field(_resolver.Field(assembly, token, context)), id,
@@ -349,8 +371,8 @@ public sealed partial class AssemblyResolver
                     foreach (var argument in generic.Arguments) Signature(id, argument, kind, offset);
                     break;
                 case TypeSignature.Variable: Issue(id, offset, DiagnosticIds.ReachabilityIncomplete, "Open generic variables require a concrete caller environment; this graph is incomplete."); break;
-                case TypeSignature.Vector vector: Signature(id, vector.Element, kind, offset); break;
-                case TypeSignature.Array array: Signature(id, array.Element, kind, offset); break;
+                case TypeSignature.Vector vector: _hasSyntheticReceivers = true; Signature(id, vector.Element, kind, offset); break;
+                case TypeSignature.Array array: _hasSyntheticReceivers = true; Signature(id, array.Element, kind, offset); break;
                 case TypeSignature.Pointer pointer: Signature(id, pointer.Element, kind, offset); break;
                 case TypeSignature.ByReference reference: Signature(id, reference.Element, kind, offset); break;
                 case TypeSignature.Pinned pinned: Signature(id, pinned.Element, kind, offset); break;
@@ -369,6 +391,14 @@ public sealed partial class AssemblyResolver
         {
             TypeSignature.Modified modified => IsVoid(modified.Element),
             TypeSignature.Primitive primitive => primitive.Code == PrimitiveTypeCode.Void,
+            _ => false,
+        };
+
+        private static bool IsStringParameter(TypeSignature type) => type switch
+        {
+            TypeSignature.Modified modified => IsStringParameter(modified.Element),
+            TypeSignature.ByReference reference => IsStringParameter(reference.Element),
+            TypeSignature.Primitive primitive => primitive.Code == PrimitiveTypeCode.String,
             _ => false,
         };
 

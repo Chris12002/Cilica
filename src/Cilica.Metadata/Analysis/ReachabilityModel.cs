@@ -18,14 +18,16 @@ public enum DependencyKind
     SelectedTypeMember, DeclaringType, Signature, BaseType, Interface, FieldLayout,
     TypeInitializer, ModuleInitializer, Call, Constructor, FieldAccess, TypeOperand,
     MethodAddress, MetadataToken, Local, CatchType, GenericConstraint,
+    DispatchDeclaration, ConservativeDispatch,
 }
 
-public sealed record ReachabilityEdge(int From, int To, DependencyKind Kind, int? ILOffset);
+/// <param name="ReceiverType">Type-node ID supporting a conservative dispatch edge; null for ordinary edges.</param>
+public sealed record ReachabilityEdge(int From, int To, DependencyKind Kind, int? ILOffset, int? ReceiverType = null);
 public sealed record ReachabilityIssue(int? Node, int? ILOffset, Diagnostic Diagnostic);
 
 /// <summary>
 /// A conservative metadata dependency graph, not an executable compatibility claim.
-/// Issues preserve gaps; virtual/interface dispatch is currently reported as incomplete.
+/// Issues preserve unsupported dispatch and other analysis gaps.
 /// Node IDs and first reasons are deterministic for the same images and root set.
 /// </summary>
 public sealed record ReachabilityReport(ImmutableArray<ReachabilityNode> Nodes,
@@ -35,4 +37,5 @@ public sealed record ReachabilityReport(ImmutableArray<ReachabilityNode> Nodes,
 }
 
 public sealed record ReachabilityLimits(int MaximumNodes = 10000, int MaximumEdges = 50000,
-    int MaximumMethodInstances = 128, int MaximumBodyBytes = 1048576, int MaximumTotalBodyBytes = 16777216);
+    int MaximumMethodInstances = 128, int MaximumBodyBytes = 1048576, int MaximumTotalBodyBytes = 16777216,
+    int MaximumDispatchPairs = 100000);
