@@ -17,7 +17,7 @@ output, plus diagnostics for malformed input.
 | --- | --- | --- |
 | 1a | Foundation and metadata inspection | Complete |
 | 1b | IL decoding and validation | Complete |
-| 1c | Dependency resolution and reachability audit | Planned |
+| 1c | Dependency resolution and reachability audit | In progress: resolver foundation complete |
 | 1d | ADR 0003 validation against a trial library build | Planned |
 
 Each slice is reviewed and committed separately.
@@ -133,13 +133,25 @@ Outcome:
   generic virtual methods); and `why-included` reachability chains.
 - Run locally against Alchemy's offline assemblies.
 
-Next implementation block: the resolver foundation. Define explicit directory
-inputs, assembly-qualified identity and conflict diagnostics, then implement
-facade/type-forwarder traversal with cycle detection. Validate it with small
-independent assemblies before adding reachability. No implementation of this
-block is claimed yet.
+Resolver foundation implemented in `Cilica.Metadata.Resolution`
+([ADR 0005](../decisions/0005-explicit-assembly-resolution.md)):
 
-Continue 1c in reviewable commits: resolver and fixtures; root/edge expansion
+- A disposable session snapshots explicit reference directories. Binding uses
+  manifest identity and rejects conflicting content; no implicit probing,
+  version substitution or framework mapping occurs.
+- Type definitions/references, facades and nested/chained forwarding resolve
+  with cycle/limit diagnostics. Reference markers and content hashes are
+  retained for later audit evidence.
+- Independent fixtures cover positive/negative binding and forwarding cases,
+  including compiled C# forwarders and seeded malformed-metadata input.
+
+Next implementation block: signature/member resolution, followed by root and
+edge expansion with inclusion explanations. Generic TypeSpecs, overloads,
+inherited members and interface implementations need explicit binding before
+reachability can follow calls reliably. The audit command and Alchemy run are
+still outstanding.
+
+Continue 1c in reviewable commits: signature/member binding; root/edge expansion
 and inclusion explanations; feature reporting and `cilica audit`; local Alchemy
 evidence. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
 defines the cases and how to report an incomplete closure. Reference-only audit

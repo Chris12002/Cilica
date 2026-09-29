@@ -33,6 +33,14 @@ public static class DiagnosticIds
     public const string InvalidExceptionRegion = "CIL1012";
     public const string InconsistentStack = "CIL1013";
     public const string InvalidOperand = "CIL1014";
+    public const string ReferenceDirectoryInvalid = "CIL3001";
+    public const string ReferenceImageInvalid = "CIL3002";
+    public const string AssemblyNotFound = "CIL3003";
+    public const string AssemblyConflict = "CIL3004";
+    public const string TypeNotFound = "CIL3005";
+    public const string TypeConflict = "CIL3006";
+    public const string TypeResolutionCycle = "CIL3007";
+    public const string ResolutionUnsupported = "CIL3008";
 }
 
 internal static class MalformedInput

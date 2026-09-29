@@ -28,7 +28,7 @@ even if all its malformed-input tests pass.
 | Rule interactions | Prefixes at branch/exception boundaries, nested handlers, stack joins and filter control flow. | Started in the 1b corrective slice; not exhaustive. |
 | Report and CLI contracts | Reviewed text/JSON snapshots, deterministic ordering, schema version, exit codes and useful locations. Snapshots establish presentation, not semantic correctness. | Present for `inspect` and `il`; extend for `audit`. |
 | Malformed-input robustness | Targeted corruptions plus small, seeded mutation runs. A run without crashes does not establish that all invalid inputs are rejected. | Present; larger runs remain opt-in. |
-| Resolution and reachability | Small assembly graphs with known resolutions, included/excluded members and inclusion reasons. | Next: slice 1c. |
+| Resolution and reachability | Small assembly graphs with known resolutions, included/excluded members and inclusion reasons. | Assembly/type resolution present in 1c; member binding and reachability are next. |
 | Real-library inspection | Checks for false rejection and practical scale on pinned compiler output. Acceptance alone does not prove complete verification or executable support. | Present, including CoreLib; wider/private runs are task-specific. |
 | Executable conformance | Compare controlled programs on .NET and Cilica, including state and exception traces. | Planned from milestone 2 as semantics arrive. |
 | Runtime and embedding | Allocation stress, native sanitizers, boundary ownership, lifecycle and native/browser parity. | Planned with the relevant milestones. |

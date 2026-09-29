@@ -110,6 +110,12 @@ generic parameters and exception regions; constructs basic blocks; validates
 branch targets and stack consistency; resolves referenced members; and reads
 source locations from portable PDBs where available.
 
+The implemented resolver foundation uses explicit directories and strict
+manifest identity, with forwarding and conflict diagnostics
+([ADR 0005](decisions/0005-explicit-assembly-resolution.md)). Framework mapping,
+member binding and reachability remain subsequent work; this foundation does
+not establish executable compatibility.
+
 Verification covers the supported execution profile. Cilica is not initially
 a complete CLI verifier or a sandbox for hostile programs. Native compiler
 execution and dependency restoration are explicit build steps, not consequences

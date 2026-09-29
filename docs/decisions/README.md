@@ -10,3 +10,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0002](0002-gc-root-tracking.md) | Garbage-collection root tracking | Proposed |
 | [0003](0003-class-library-strategy.md) | Class library strategy | Proposed |
 | [0004](0004-exception-handling.md) | Exception handling | Proposed |
+| [0005](0005-explicit-assembly-resolution.md) | Explicit assembly resolution | Accepted for resolver foundation |
