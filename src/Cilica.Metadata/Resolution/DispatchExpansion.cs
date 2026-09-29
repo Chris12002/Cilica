@@ -20,10 +20,11 @@ public sealed partial class AssemblyResolver
             internal ConstructedType? Constraint { get; } = constraint;
             internal int? ConstraintId { get; } = constraintId;
             internal bool HasTarget { get; set; }
+            internal int NextReceiver { get; set; }
+            internal int? ExactReceiver { get; set; }
         }
 
         private readonly List<DispatchSite> _dispatchSites = [];
-        private readonly HashSet<(int Site, int Receiver)> _dispatchPairs = [];
         private bool _hasSyntheticReceivers;
         private int _dispatchWork;
 
@@ -39,36 +40,6 @@ public sealed partial class AssemblyResolver
 
         private static MethodDefinition MethodDefinition(ResolvedMethod method) =>
             method.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(method.Handle);
-
-        private void ExpandDispatch()
-        {
-            // Snapshots prevent bodies discovered here from changing this pass's order.
-            // Their types and call sites participate after the ordinary queue drains again.
-            var receivers = _nodes.Where(n => n.Entity is ReachableEntity.Type).ToArray();
-            for (int siteIndex = 0; siteIndex < _dispatchSites.Count && !_stopped; siteIndex++)
-            {
-                DispatchSite site = _dispatchSites[siteIndex];
-                // A sealed constraint has exactly one named receiver. Avoid scanning
-                // the whole graph for every such site outside the pair/work budgets.
-                IEnumerable<ReachabilityNode> candidates = site.Constraint is { } exact
-                    && (TypeDefinition(exact).Attributes & TypeAttributes.Sealed) != 0
-                    ? [_nodes[site.ConstraintId!.Value]] : receivers;
-                foreach (ReachabilityNode node in candidates)
-                {
-                    if (_stopped) break;
-                    var receiver = ((ReachableEntity.Type)node.Entity).Definition;
-                    var key = (siteIndex, node.Id);
-                    if (_dispatchPairs.Contains(key)) continue;
-                    if (_dispatchPairs.Count >= _limits.MaximumDispatchPairs)
-                    {
-                        Stop(site.Caller, site.Offset, "Dispatch receiver/call-site pair limit reached.");
-                        break;
-                    }
-                    _dispatchPairs.Add(key);
-                    Guard(site.Caller, site.Offset, () => Dispatch(site, receiver));
-                }
-            }
-        }
 
         private void Dispatch(DispatchSite site, ConstructedType receiver)
         {

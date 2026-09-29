@@ -90,7 +90,7 @@ public sealed partial class AssemblyResolver
                 Issue(id, instruction.Offset, DiagnosticIds.InvalidOperand, "Constrained callvirt requires an instance method.");
                 return;
             }
-            _dispatchSites.Add(new(id, instruction.Offset, target, constraint, constraintId));
+            RegisterDispatch(new(id, instruction.Offset, target, constraint, constraintId));
         }
 
         private static bool ContainsVariable(TypeSignature type) => type switch

@@ -240,7 +240,7 @@ public sealed class RuntimeTypeMappingTests
     }
 
     [Fact]
-    public void Authored_primitive_constraint_maps_to_the_dotnet_type_and_records_the_declaration()
+    public void Authored_primitive_constraint_reaches_the_dotnet_implementation_before_the_limit()
     {
         Assert.Equal(-1, PrimitiveReceiverProbe.Run());
         using var files = new ResolverFiles(); string runtime = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
@@ -259,9 +259,14 @@ public sealed class RuntimeTypeMappingTests
         var method = Assert.IsType<ReachableEntity.Method>(report.Nodes[declaration.To].Entity).Definition;
         Assert.Equal(typeof(IComparable<int>).GetMethod(nameof(int.CompareTo))!.MetadataToken, MetadataTokens.GetToken(method.Handle));
         Assert.Equal(library.ContentHash, method.DeclaringType.Definition.Assembly.ContentHash);
-        // The real library closure currently reaches the graph limit before
-        // dispatch. Independent reduced libraries above establish target expansion;
-        // this compiled probe checks the primitive constraint and declaration only.
+        int expectedBody = typeof(int).GetMethod(nameof(int.CompareTo), [typeof(int)])!.MetadataToken;
+        Assert.Contains(report.Edges, e => e.Kind == DependencyKind.ConservativeDispatch
+            && e.ConstraintType == declaration.ConstraintType
+            && report.Nodes[e.To].Entity is ReachableEntity.Method target
+            && MetadataTokens.GetToken(target.Definition.Handle) == expectedBody
+            && target.Definition.DeclaringType.Definition.Assembly.ContentHash == library.ContentHash);
+        // Scheduling now reaches the concrete primitive target, while the broader
+        // real-library closure remains explicitly bounded and incomplete.
         Assert.Contains(report.Issues, i => i.Diagnostic.Id == DiagnosticIds.ReachabilityLimit);
     }
 

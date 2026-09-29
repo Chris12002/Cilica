@@ -17,3 +17,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0009](0009-audit-evidence-contract.md) | Bounded audit evidence and explicit uncertainty | Accepted for metadata audit profile |
 | [0010](0010-constrained-instance-dispatch.md) | Constrained instance-call dependency expansion | Accepted for closed named constraints |
 | [0011](0011-explicit-runtime-type-mapping.md) | Explicit primitive runtime type mapping | Accepted for selected-library metadata mapping |
+| [0012](0012-interleaved-reachability-scheduling.md) | Interleave ordinary discovery and dispatch | Accepted for bounded scheduling |

@@ -13,7 +13,8 @@ public sealed partial class AssemblyResolver
 {
     /// <summary>
     /// Follows explicit MethodDef/FieldDef roots. A TypeDef root selects all its declared
-    /// methods and fields. Roots are sorted and deduplicated before breadth-first expansion.
+    /// methods and fields. Roots are sorted and deduplicated; ordinary FIFO expansion
+    /// alternates with dispatch pairs within the configured limits.
     /// </summary>
     public ReachabilityReport AnalyzeReachability(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots,
         ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null)
@@ -93,15 +94,15 @@ public sealed partial class AssemblyResolver
                     if (!publicSurface && entity is ReachableEntity.Type) _selectedTypes.Add(id.Value);
                 }, $"root 0x{MetadataTokens.GetToken(root):x8} in {assembly.Identity.DisplayName}");
             }
-            do
+            while (!_stopped && (_pending.Count > 0 || _readyDispatch.Count > 0))
             {
-                while (!_stopped && _pending.TryDequeue(out int id))
+                if (_pending.TryDequeue(out int id))
                 {
                     _processed.Add(id);
                     Guard(id, null, () => Expand(id));
                 }
-                if (!_stopped) ExpandDispatch();
-            } while (!_stopped && _pending.Count > 0);
+                if (!_stopped) ExpandDispatchPair();
+            }
             foreach (DispatchSite site in _dispatchSites)
             {
                 if (!site.HasTarget) Issue(site.Caller, site.Offset, DiagnosticIds.ReachabilityIncomplete,
@@ -191,6 +192,9 @@ public sealed partial class AssemblyResolver
                     _edges.Add(edge);
                 }
             }
+            // Register only after the incoming edge succeeds: rolled-back nodes
+            // must never become receiver evidence.
+            if (!exists && entity is ReachableEntity.Type) RegisterReceiver(id);
             if (entity is ReachableEntity.Method required && kind != DependencyKind.DispatchDeclaration && _bodyRequired.Add(id)
                 && exists && _processed.Contains(id) && (MethodDefinition(required.Definition).Attributes & MethodAttributes.Abstract) != 0)
                 _pending.Enqueue(id);
@@ -378,7 +382,7 @@ public sealed partial class AssemblyResolver
                 MethodDefinition definition = target.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(target.Handle);
                 bool dispatch = instruction.Code.Name == "ldvirtftn" || instruction.Code.Name == "callvirt" && (definition.Attributes & MethodAttributes.Virtual) != 0;
                 Add(new ReachableEntity.Method(target), id, dispatch ? DependencyKind.DispatchDeclaration : kind, offset);
-                if (dispatch) _dispatchSites.Add(new(id, offset, target));
+                if (dispatch) RegisterDispatch(new(id, offset, target));
             }
             else if (instruction.Code.Operand == OperandKind.FieldToken || instruction.Code.Operand == OperandKind.AnyToken && isField)
                 Add(new ReachableEntity.Field(_resolver.Field(assembly, token, context)), id,

@@ -36,7 +36,9 @@ general-filter gate.
   The graph is method-level and conservative, not a path-sensitive execution
   analysis. Reuse the existing IL structural validator; malformed bodies leave
   diagnostics alongside any dependencies that could still be recovered.
-- Sort/deduplicate root tokens and expand breadth-first. Traverse metadata rows,
+- Sort/deduplicate root tokens and expand ordinary nodes in FIFO order.
+  [ADR 0012](0012-interleaved-reachability-scheduling.md) interleaves dispatch pairs
+  with this ordinary queue. Traverse metadata rows,
   signature children and IL offsets in their defined order. Every edge records
   its reason and optional IL offset. Every non-root node retains its first
   incoming edge, forming a deterministic explanation back to an explicit root.

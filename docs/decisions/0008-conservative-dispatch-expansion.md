@@ -19,10 +19,10 @@ explicit interface implementations.
   as a direct call or explicit root, promote it to a body requirement and retain
   the missing-body diagnostic.
 - Use included, constructed, nonabstract named types as candidate receivers.
-  Drain ordinary dependencies, evaluate unseen call-site/receiver pairs, then
-  repeat whenever new targets add work. Types discovered by dispatched bodies
-  participate in subsequent passes. Pair processing follows stable site and
-  type-node order and stops at a fixed point or explicit limit.
+  [ADR 0012](0012-interleaved-reachability-scheduling.md) replaces the original
+  drain-then-dispatch schedule with alternating ordinary nodes and receiver/site
+  pairs. Types discovered by dispatched bodies wake existing sites, and new sites
+  consider existing receivers. Processing stops at a fixed point or explicit limit.
 - For ordinary class slots, retain the operand body and compatible reuse-slot
   overrides below its declaring type. A matching `newslot` declaration starts
   a separate slot; it and subsequent overrides of that new slot do not replace

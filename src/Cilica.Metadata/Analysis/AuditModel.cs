@@ -26,7 +26,7 @@ public sealed record AuditReport(string Input, ImmutableArray<string> Selection,
         }
     }
 
-    public const string Profile = "explicit-metadata-closure-v3";
+    public const string Profile = "explicit-metadata-closure-v4";
     public const string Scope = "Conservative IL scan; receivers are included constructed named types, not all possible external inputs. " +
         "Feature names are review signals, not exhaustive semantic detection or support claims. " +
         "An audit does not clear ADR 0004: the trial ported-library implementation closure is still required.";

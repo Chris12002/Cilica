@@ -254,10 +254,27 @@ It still reaches the node limit before any conservative dispatch target expansio
 since the v2 baseline, so these counts are not a controlled before/after comparison.
 The private run manifest records the exact input and compiler hashes.
 
-Next implementation block: schedule ordinary dependency discovery and dispatch
-fairly within existing budgets, with reduced regression graphs. Then define array
-receiver/interface handling. Keep the public-surface baseline, and record any
-narrower export-root contract explicitly.
+Interleaved scheduling is implemented
+([ADR 0012](../decisions/0012-interleaved-reachability-scheduling.md)):
+
+- Alternate one ordinary node and one receiver/site pair, rotating sites fairly.
+  Per-site cursors consider each receiver once; new types wake waiting sites.
+- Retain all existing limits and diagnostics. No pair cross product is queued.
+  A single node/pair can still exhaust a limit during its own expansion.
+- Reduced regressions verify body scanning under competing work, site fairness,
+  deterministic partial reports and inclusion chains. The compiled primitive probe
+  now reaches the expected Int32 implementation. All 308 local tests pass.
+
+The v4 local audit uses the same image hashes and 2,294 roots as v3. It records
+196 conservative dispatch edges to 24 distinct target methods, 10,000 nodes /
+44,349 edges and 4,695 issues. Seven primitive mappings and three type-test filters
+are observed. The node cap still leaves the general-filter gate `unresolved`.
+A dispatch edge records target inclusion, not proof that its body finished scanning.
+Private reports retain the exact evidence and compiler provenance.
+
+Next implementation block: define array receiver/interface handling, including
+which runtime-provided bodies require an explicit library contract. Keep the
+public-surface baseline, and record any narrower export-root contract explicitly.
 Slice 1c remains incomplete while required dispatch/receiver dependencies are
 unresolved. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
 defines incomplete-closure reporting. Slice 1d must still audit the trial ported

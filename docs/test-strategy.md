@@ -121,11 +121,12 @@ that the implementation contains no general filters. Record the root set,
 assembly identities and content hashes, reference/implementation roles,
 binding policy and analysis limitations with audit evidence.
 
-Compiled primitive probes currently validate reference behavior, constraint and
-declaration identities; their bounded real-library closure stops before dispatch.
-Reduced graphs establish target expansion independently. Do not convert a budget
-limit into a successful completeness assertion. Next, exercise fair scheduling of
-ordinary and dispatch work with small budgets and unrelated expansion pressure.
+The compiled primitive probe validates reference behavior, constraint/declaration
+identities and the concrete Int32 implementation reached before its broader closure
+limit. Reduced graphs independently exercise both directions of scheduling pressure
+and fairness between sites. They verify body observations, valid inclusion chains
+and deterministic partial reports with small budgets. Do not convert a successful
+target or a budget limit into a successful completeness assertion.
 
 The local Alchemy run comes after the independent graphs pass. Keep its reports
 under ignored `artifacts/` and commit only non-private conclusions. Inspection
