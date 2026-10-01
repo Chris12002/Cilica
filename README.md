@@ -3,11 +3,12 @@
 An independent, open-source .NET IL-to-C++ compiler and managed runtime, designed
 for embedding C# libraries in native and browser applications.
 
-**Status: metadata frontend implemented; compiler backend and runtime planned.**
+**Status: metadata frontend and initial Int32 IR translation implemented; native backend and runtime planned.**
 The assembly explorer inspects IL and audits bounded dependencies without running
 input assemblies. IL-to-C++ generation, runtime and Expo integration are not
 implemented. Platform and language support described here are planned capabilities,
-not compatibility guarantees. Cilica is a working name, pending a naming check.
+not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
+records the current translation profile. Cilica is a working name, pending a naming check.
 
 ## Intended pipeline
 

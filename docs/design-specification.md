@@ -159,6 +159,12 @@ flow. Distinguish managed references, native pointers, boxed values, value
 types, checked/unchecked arithmetic, direct/virtual/interface calls, potentially
 throwing instructions, GC safepoints and managed references to storage.
 
+The initial straight-line Int32 translation profile is implemented in
+`Cilica.Compiler` ([ADR 0014](decisions/0014-straight-line-int32-ir.md)), with
+ordered typed temporaries and explicit wrapping arithmetic. The
+[compatibility manifest](compatibility.md) distinguishes translation from native
+execution. Broader typed control flow and native generation remain planned.
+
 Begin with typed basic blocks and temporaries. Introduce SSA after baseline
 semantics are established. Optimisations preserve exception order and observable
 side effects. Planned passes include constant folding, unreachable-block removal,

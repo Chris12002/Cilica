@@ -53,7 +53,7 @@ internal static class ILDecoder
     /// opcode, a truncated operand or a trailing prefix; instructions decoded before the
     /// error are still returned.
     /// </summary>
-    public static List<Instruction> Decode(BlobReader il, out string? error)
+    public static List<Instruction> Decode(BlobReader il, out string? error, int maximumInstructions = int.MaxValue)
     {
         var instructions = new List<Instruction>();
         error = null;
@@ -61,6 +61,11 @@ internal static class ILDecoder
         {
             while (il.RemainingBytes > 0)
             {
+                if (instructions.Count >= maximumInstructions)
+                {
+                    error = "Instruction decoding exceeds the configured instruction limit.";
+                    return instructions;
+                }
                 int offset = il.Offset;
                 byte first = il.ReadByte();
                 OpCode? code;

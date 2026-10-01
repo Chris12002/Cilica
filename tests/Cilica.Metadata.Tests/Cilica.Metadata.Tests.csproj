@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Cilica.Metadata\Cilica.Metadata.csproj" />
+    <ProjectReference Include="..\..\src\Cilica.Compiler\Cilica.Compiler.csproj" />
     <ProjectReference Include="..\..\src\Cilica.Cli\Cilica.Cli.csproj" />
     <!-- Fixtures are inspected as files; they are copied to the output directory but never loaded. -->
     <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Basic\Cilica.Fixtures.Basic.csproj" />

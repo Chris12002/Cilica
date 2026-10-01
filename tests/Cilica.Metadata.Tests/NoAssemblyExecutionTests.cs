@@ -25,6 +25,7 @@ public sealed class NoAssemblyExecutionTests
 
     [Theory]
     [InlineData("Cilica.Metadata.dll")]
+    [InlineData("Cilica.Compiler.dll")]
     [InlineData("cilica.dll")]
     public void Compiler_assemblies_do_not_reference_loading_or_invocation_APIs(string assembly)
     {

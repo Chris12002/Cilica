@@ -33,6 +33,9 @@ public static class DiagnosticIds
     public const string InvalidExceptionRegion = "CIL1012";
     public const string InconsistentStack = "CIL1013";
     public const string InvalidOperand = "CIL1014";
+    public const string ExecutionUnsupported = "CIL2001";
+    public const string ExecutionSignatureUnsupported = "CIL2002";
+    public const string TranslationLimit = "CIL2003";
     public const string ReferenceDirectoryInvalid = "CIL3001";
     public const string ReferenceImageInvalid = "CIL3002";
     public const string AssemblyNotFound = "CIL3003";

@@ -137,6 +137,18 @@ against the trial library build. General filters in the required ported closure
 make ADR 0004 stage B a prerequisite for milestone 6; incomplete analysis leaves
 the question open rather than clearing the gate.
 
+## Initial Int32 IR translation
+
+Slice 2a independently tests ordered typed values and source provenance, constant
+and argument encodings, stack/return failures, unsupported instructions/signatures,
+initializer and reference/native obligations, method-input bounds and session
+ownership. Its fixture-only IR evaluator compares an authored arithmetic method
+with .NET at normal and wraparound boundaries. This is translation evidence;
+slice 2b must compare compiled native output directly with .NET. Keep the evaluator
+out of production compiler code and never execute arbitrary inspected input.
+The banned-API analyzer and binary scan cover `Cilica.Compiler` as well as metadata
+and CLI packages. See [ADR 0014](decisions/0014-straight-line-int32-ir.md).
+
 ## Executable semantics and the managed runtime
 
 As each operation becomes executable, compare a controlled fixture on .NET and

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Cilica.Cli/Cilica.Cli.csproj" />
+    <Project Path="src/Cilica.Compiler/Cilica.Compiler.csproj" />
     <Project Path="src/Cilica.Metadata/Cilica.Metadata.csproj" />
   </Folder>
   <Folder Name="/tests/">

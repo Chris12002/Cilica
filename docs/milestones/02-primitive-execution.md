@@ -1,18 +1,18 @@
 # Milestone 2: First primitive executable
 
-Status: planned. Slice outline recorded 2026-10-01.
+Status: in progress; slice 2a translation implemented. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
-method into C++, compile locally and compare its result with .NET. The backend
-and runtime are currently unimplemented. Milestone 1's unresolved library and
+method into C++, compile locally and compare its result with .NET. The typed IR foundation is implemented; native code generation
+and runtime execution are currently unimplemented. Milestone 1's unresolved library and
 array-helper findings remain tracked gates for later capabilities.
 
 ## Proposed slices
 
 | Slice | Outcome | Status |
 | --- | --- | --- |
-| 2a | Minimal execution contract and typed IR for straight-line Int32 methods | Next |
-| 2b | C++ generation and bounded native compile/run harness for those methods | Planned |
+| 2a | Minimal execution contract and typed IR for straight-line Int32 methods | Complete for bounded translation profile |
+| 2b | C++ generation and bounded native compile/run harness for those methods | Next |
 | 2c | Locals, branches, loops and verified control-flow joins | Planned |
 | 2d | Direct static calls and a bounded method closure | Planned |
 | 2e | Additional integer operations and required exceptional results, with .NET differential cases | Planned |
@@ -39,6 +39,17 @@ Reduced independent fixtures establish accepted operations, mismatched types,
 unsupported signatures, malformed operands and arithmetic boundaries. Authored
 reference behavior runs separately from compiler analysis. No compiler input is
 loaded or executed while parsing or translating it.
+
+Slice 2a outcome ([ADR 0014](../decisions/0014-straight-line-int32-ir.md)):
+
+- `Cilica.Compiler` translates a bounded MethodDef input to one typed block with
+  ordered temporaries, source identity/locations and explicit wrapping operations.
+- The metadata reader snapshots inputs with byte/instruction/initializer bounds.
+  Unsupported signatures, operations and runtime obligations produce no partial IR.
+- Independent fixtures validate ordering, constants, argument encodings, failure
+  locations and ownership. Authored .NET arithmetic agrees with a test-only IR
+  evaluator, including wraparound. Native evidence remains the next slice.
+- See the [compatibility manifest](../compatibility.md) for exact stage boundaries.
 
 ## Slice 2b and evidence
 

@@ -19,3 +19,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0011](0011-explicit-runtime-type-mapping.md) | Explicit primitive runtime type mapping | Accepted for selected-library metadata mapping |
 | [0012](0012-interleaved-reachability-scheduling.md) | Interleave ordinary discovery and dispatch | Accepted for bounded scheduling |
 | [0013](0013-structural-array-receivers.md) | Structural array receivers with selected-library inheritance | Accepted for bounded array analysis |
+| [0014](0014-straight-line-int32-ir.md) | Typed IR for straight-line Int32 methods | Accepted for translation profile |
