@@ -55,3 +55,8 @@ public sealed record ObjectModelResult(ObjectModel? Model, ImmutableArray<Diagno
 {
     public bool Success => Model is not null;
 }
+
+public sealed record ObjectCatalogResult(ObjectTypeCatalog? Catalog, ImmutableArray<Diagnostic> Diagnostics)
+{
+    public bool Success => Catalog is not null;
+}

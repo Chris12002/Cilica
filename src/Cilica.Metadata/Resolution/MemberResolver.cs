@@ -25,11 +25,15 @@ public sealed partial class AssemblyResolver
         Bind(assembly, handle, () => Method(assembly, handle));
 
     /// <summary>Resolves only on the referenced owner; inherited-owner obligations remain explicit.</summary>
-    public ResolutionResult<ResolvedMethod> ResolveDeclaredMethod(ResolvedAssembly assembly, EntityHandle handle) =>
-        Bind(assembly, handle, () => Method(assembly, handle, declaredOnly: true));
+    public ResolutionResult<ResolvedMethod> ResolveDeclaredMethod(ResolvedAssembly assembly, EntityHandle handle, MemberResolutionBudget? budget = null) =>
+        Bind(assembly, handle, () => Method(assembly, handle, declaredOnly: true, budget: budget));
 
     public ResolutionResult<ResolvedField> ResolveField(ResolvedAssembly assembly, EntityHandle handle) =>
         Bind(assembly, handle, () => Field(assembly, handle));
+
+    /// <summary>Field binding on the exact referenced owner, without inherited-owner fallback.</summary>
+    public ResolutionResult<ResolvedField> ResolveDeclaredField(ResolvedAssembly assembly, EntityHandle handle, MemberResolutionBudget? budget = null) =>
+        Bind(assembly, handle, () => Field(assembly, handle, declaredOnly: true, budget: budget));
 
     private ResolutionResult<T> Bind<T>(ResolvedAssembly assembly, EntityHandle handle, Func<T> bind) where T : class
     {
@@ -51,8 +55,9 @@ public sealed partial class AssemblyResolver
         }
     }
 
-    private ResolvedMethod Method(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null, bool declaredOnly = false)
+    private ResolvedMethod Method(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null, bool declaredOnly = false, MemberResolutionBudget? budget = null)
     {
+        InspectMember(budget);
         MetadataReader reader = assembly.Image.Reader;
         var decoder = new SignatureDecoder(this, assembly);
         if (handle.Kind == HandleKind.MethodSpecification)
@@ -60,7 +65,7 @@ public sealed partial class AssemblyResolver
             MethodSpecification specification = reader.GetMethodSpecification((MethodSpecificationHandle)handle);
             if (specification.Method.Kind is not (HandleKind.MethodDefinition or HandleKind.MemberReference) || specification.Method.IsNil)
                 throw new BadImageFormatException("MethodSpec must refer to a MethodDef or MemberRef.");
-            ResolvedMethod definition = Method(assembly, specification.Method, context, declaredOnly);
+            ResolvedMethod definition = Method(assembly, specification.Method, context, declaredOnly, budget);
             SignatureList<TypeSignature> arguments = new(decoder.MethodArguments(specification.Signature).Select(a => InContext(a, context)));
             if (arguments.Count == 0 || arguments.Count != definition.Signature.GenericArity)
                 throw new BadImageFormatException("MethodSpec argument count does not match its declaration.");
@@ -86,6 +91,7 @@ public sealed partial class AssemblyResolver
         string name = reader.GetString(member.Name);
         MethodSignature wanted = decoder.Method(member.Signature);
         ConstructedType actual = Owner(assembly, member.Parent, context);
+        if (budget is not null) InspectOwner(actual.Definition, budget);
         string requestedOwner = Describe(actual.Definition);
         ConstructedType lookup = OpenType(actual.Definition);
         var methodArguments = Variables(wanted.GenericArity, true);
@@ -100,6 +106,7 @@ public sealed partial class AssemblyResolver
             var matches = new List<MethodDefinitionHandle>();
             foreach (MethodDefinitionHandle candidate in target.GetTypeDefinition(lookup.Definition.Handle).GetMethods())
             {
+                InspectMember(budget);
                 MethodDefinition definition = target.GetMethodDefinition(candidate);
                 if (!target.StringComparer.Equals(definition.Name, name)) continue;
                 MethodSignature signature = MethodDefinitionSignature(lookup.Definition.Assembly, candidate);
@@ -121,8 +128,9 @@ public sealed partial class AssemblyResolver
         }
     }
 
-    private ResolvedField Field(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null)
+    private ResolvedField Field(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null, bool declaredOnly = false, MemberResolutionBudget? budget = null)
     {
+        InspectMember(budget);
         MetadataReader reader = assembly.Image.Reader;
         var decoder = new SignatureDecoder(this, assembly);
         if (handle.Kind == HandleKind.FieldDefinition)
@@ -139,6 +147,7 @@ public sealed partial class AssemblyResolver
         string name = reader.GetString(member.Name);
         TypeSignature wanted = decoder.Field(member.Signature);
         ConstructedType actual = Owner(assembly, member.Parent, context);
+        if (budget is not null) InspectOwner(actual.Definition, budget);
         string requestedOwner = Describe(actual.Definition);
         ConstructedType lookup = OpenType(actual.Definition);
         var empty = SignatureList<TypeSignature>.Empty;
@@ -151,6 +160,7 @@ public sealed partial class AssemblyResolver
             var matches = new List<FieldDefinitionHandle>();
             foreach (FieldDefinitionHandle candidate in target.GetTypeDefinition(lookup.Definition.Handle).GetFields())
             {
+                InspectMember(budget);
                 FieldDefinition field = target.GetFieldDefinition(candidate);
                 if (!target.StringComparer.Equals(field.Name, name)) continue;
                 TypeSignature signature = new SignatureDecoder(this, lookup.Definition.Assembly).Field(field.Signature);
@@ -164,9 +174,30 @@ public sealed partial class AssemblyResolver
             }
             if (!BaseTypes(lookup, actual, out var nextLookup, out var nextActual))
                 throw Failure(DiagnosticIds.MemberNotFound, $"No declaration matches field '{name}' on {requestedOwner} and its structural signature.");
+            if (declaredOnly)
+                throw new UnsupportedBindingException("Inherited field owners require access/initialization analysis; reference the declaring type explicitly.");
             lookup = nextLookup;
             actual = nextActual;
         }
+    }
+
+    private static void InspectOwner(ResolvedType type, MemberResolutionBudget budget)
+    {
+        var visited = new HashSet<TypeDefinitionHandle>();
+        for (var current = type.Handle; !current.IsNil;)
+        {
+            InspectMember(budget);
+            if (!visited.Add(current)) throw Failure(DiagnosticIds.InvalidSignature, "Declaring-type chain is cyclic.");
+            if (visited.Count > TypeReadLimits.MaximumSupportedOwnerDepth)
+                throw Failure(DiagnosticIds.TranslationLimit, "Member owner exceeds the 64-level formatting limit.");
+            current = type.Assembly.Image.Reader.GetTypeDefinition(current).GetDeclaringType();
+        }
+    }
+
+    private static void InspectMember(MemberResolutionBudget? budget)
+    {
+        if (budget is not null && !budget.TryConsume(1))
+            throw Failure(DiagnosticIds.TranslationLimit, "Member binding exceeds the caller's metadata work budget.");
     }
 
     private MethodSignature MethodDefinitionSignature(ResolvedAssembly assembly, MethodDefinitionHandle handle)

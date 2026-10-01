@@ -271,8 +271,8 @@ The bounded logical layout foundation is implemented
 closure preserves content-scoped TypeDef/FieldDef identities and distinguishes
 Int32 fields from class references. Reference maps use logical field slots,
 not native byte offsets. This describes automatic-layout nongeneric classes
-derived directly from an explicitly selected object base; it does not yet lower
-reference IL, allocate objects, publish method roots or execute object programs.
+derived directly from an explicitly selected object base. Layout descriptors alone
+do not provide byte offsets, allocation, method roots or object execution.
 
 The subsequent typed value-flow contract is implemented
 ([ADR 0023](decisions/0023-typed-reference-value-flow.md)). Shared IR values carry
@@ -285,6 +285,18 @@ arithmetic fail validation. This checks caller-constructed IR, not CIL method
 access, constructor/field semantics or reference execution. Native emission
 continues to accept only the existing Int32 profile. Root assignment and
 safepoints must be implemented and verified before any native reference lowering.
+
+The bounded straight-line object-operation translator is now implemented
+([ADR 0024](decisions/0024-straight-line-object-operations.md)). Its explicit entry
+and selected runtime library produce an `ObjectIrProgram` with exact method/field
+bindings, allocation, field operations and void calls. Constructors initialize
+their direct receiver through the selected trivial Object constructor before
+other work. Readonly/access checks precede consumption. Nonvirtual `callvirt`
+retains a null check after argument evaluation; a direct instance `call` does not
+insert one. Allocations, calls and fields have explicit method-exit fault edges.
+A test-only evaluator agrees with authored .NET probes; native object execution,
+ownership and rooting remain planned. Branches/reference-stack inference are
+conservatively rejected until their translation is implemented.
 
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors

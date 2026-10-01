@@ -18,8 +18,8 @@ public sealed partial class AssemblyResolver
     {
         CheckOwner(assembly);
         limits ??= new();
-        if (limits.MaximumBodyBytes <= 0 || limits.MaximumInstructions <= 0 || limits.MaximumInitializerMembers <= 0 || limits.MaximumOwnerDepth <= 0)
-            throw new ArgumentOutOfRangeException(nameof(limits), "Method input limits must be positive.");
+        if (limits.MaximumBodyBytes <= 0 || limits.MaximumInstructions <= 0 || limits.MaximumInitializerMembers <= 0 || limits.MaximumOwnerDepth is <= 0 or > TypeReadLimits.MaximumSupportedOwnerDepth)
+            throw new ArgumentOutOfRangeException(nameof(limits), "Method input limits must be positive, with owner depth 1..64.");
         return Bind<MethodInput>(assembly, handle, () =>
         {
             var reader = assembly.Image.Reader;
@@ -27,6 +27,7 @@ public sealed partial class AssemblyResolver
             var signature = MethodDefinitionSignature(assembly, handle);
             var owner = reader.GetTypeDefinition(method.GetDeclaringType());
             bool externallyVisible = true;
+            int ownerArity = 0;
             var owners = new HashSet<TypeDefinitionHandle>();
             for (TypeDefinitionHandle current = method.GetDeclaringType(); !current.IsNil;)
             {
@@ -34,6 +35,7 @@ public sealed partial class AssemblyResolver
                 if (owners.Count > limits.MaximumOwnerDepth)
                     throw Failure(DiagnosticIds.TranslationLimit, "Declaring-type depth limit exceeded.");
                 var definition = reader.GetTypeDefinition(current);
+                ownerArity = checked(ownerArity + definition.GetGenericParameters().Count);
                 var parent = definition.GetDeclaringType();
                 externallyVisible &= (definition.Attributes & TypeAttributes.VisibilityMask) ==
                     (parent.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
@@ -69,12 +71,13 @@ public sealed partial class AssemblyResolver
                 }
                 return false;
             }
-            return new(source, signature, method.Attributes, method.ImplAttributes, owner.GetGenericParameters().Count,
+            return new(source, signature, method.Attributes, method.ImplAttributes, ownerArity,
                 assembly.IsReferenceAssembly, Initializer(owner), Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1))),
                 locals, body.LocalVariablesInitialized, body.ExceptionRegions.Length, il.Length, body.MaxStack,
                 [.. instructions.Select(i => new MethodInstruction(i.Offset, i.Length, i.Code.Name,
                     i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets]))],
-                MetadataTokens.GetToken(method.GetDeclaringType()), externallyVisible);
+                MetadataTokens.GetToken(method.GetDeclaringType()), externallyVisible)
+            { DeclaredName = reader.GetString(method.Name), MetadataMembersRead = work };
         });
     }
 }

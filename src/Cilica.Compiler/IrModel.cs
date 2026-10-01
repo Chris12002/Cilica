@@ -5,13 +5,14 @@ using Cilica.Metadata.IL;
 
 namespace Cilica.Compiler;
 
-public enum IrTypeKind { Int32, Reference, NullReference }
+public enum IrTypeKind { Int32, Reference, NullReference, Void }
 
 /// <summary>A concrete reference retains its content-scoped class identity; null is a stack value, not storage.</summary>
 public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null)
 {
     public static IrType Int32 { get; } = new(IrTypeKind.Int32);
     public static IrType NullReference { get; } = new(IrTypeKind.NullReference);
+    public static IrType Void { get; } = new(IrTypeKind.Void);
     public static IrType Reference(ObjectTypeId type) => new(IrTypeKind.Reference, type);
 }
 
@@ -48,7 +49,9 @@ public abstract record IrExpression
     public sealed record Binary(Int32Operation Operation, int Left, int Right) : IrExpression;
     public sealed record Unary(Int32UnaryOperation Operation, int Operand) : IrExpression;
     public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
-    public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments) : IrExpression;
+    public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false) : IrExpression;
+    public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
+    public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
 }
 
 /// <summary>Block-local typed temporary; operands always refer to earlier values in that block.</summary>
@@ -57,12 +60,17 @@ public abstract record IrStatement
 {
     public sealed record Define(IrValue Value, IrExceptionTarget? Exceptional = null) : IrStatement;
     public sealed record StoreLocal(int ILOffset, int Local, int Value) : IrStatement;
+    public sealed record Invoke(int ILOffset, IrMethodId Target, ImmutableArray<int> Arguments,
+        bool NullCheckReceiver = false, IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
+    public sealed record StoreField(int ILOffset, ObjectFieldId Field, int Receiver, int Value,
+        IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
 }
 
 /// <summary>Arguments are immutable value IDs, ordered from stack bottom to top.</summary>
 public sealed record IrEdge(int Target, ImmutableArray<int> Arguments);
 public abstract record IrTerminator(int ILOffset);
 public sealed record IrReturn(int ILOffset, int Value) : IrTerminator(ILOffset);
+public sealed record IrVoidReturn(int ILOffset) : IrTerminator(ILOffset);
 public sealed record IrJump(int ILOffset, IrEdge Edge) : IrTerminator(ILOffset);
 public sealed record IrBranch(int ILOffset, Int32Comparison Comparison, int Left, int? Right,
     IrEdge Taken, IrEdge NotTaken) : IrTerminator(ILOffset);

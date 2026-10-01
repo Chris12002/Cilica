@@ -7,7 +7,7 @@ namespace Cilica.Compiler;
 
 internal static class IrValidator
 {
-    internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null)
+    internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
@@ -27,23 +27,32 @@ internal static class IrValidator
         var resources = new ProgramResources();
         foreach (IrMethod method in program.Methods)
         {
-            Validate(method, methods, catalog);
+            Validate(method, methods, catalog, objectRules);
             Require(resources.Add(method), "aggregate program IR limit exceeded.");
         }
         var visited = new HashSet<IrMethodId>(); var pending = new Stack<IrMethodId>(); pending.Push(program.Entry);
         while (pending.TryPop(out IrMethodId? key))
             if (visited.Add(key))
-                foreach (IrExpression.Call call in methods[key].Blocks.SelectMany(b => b.Statements)
-                    .OfType<IrStatement.Define>().Select(d => d.Value.Expression).OfType<IrExpression.Call>()) pending.Push(call.Target);
+                foreach (IrStatement statement in methods[key].Blocks.SelectMany(b => b.Statements))
+                    switch (statement)
+                    {
+                        case IrStatement.Define { Value.Expression: IrExpression.Call call }: pending.Push(call.Target); break;
+                        case IrStatement.Define { Value.Expression: IrExpression.NewObject allocated }: pending.Push(allocated.Constructor); break;
+                        case IrStatement.Invoke call: pending.Push(call.Target); break;
+                    }
         Require(visited.Count == methods.Count, "program contains methods unreachable from entry.");
         return entry;
     }
 
-    internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null)
+    internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null)
     {
+        int locationOffset = 0;
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
-            if (!condition) throw new ArgumentException((catalog is null ? "Invalid Int32 IR: " : "Invalid reference IR: ") + message, nameof(method));
+            if (condition) return;
+            string origin = objectRules is null ? "" : " " + method.Source?.Name + " token 0x" +
+                method.Source?.Token.ToString("x8", System.Globalization.CultureInfo.InvariantCulture) + " IL_" + locationOffset.ToString("x4", System.Globalization.CultureInfo.InvariantCulture);
+            if (!condition) throw new ArgumentException((catalog is null ? "Invalid Int32 IR: " : "Invalid reference IR: ") + message + origin, nameof(method));
         }
         var types = new IrTypeRules(catalog);
         Require(method.Source is not null, "source is missing.");
@@ -51,7 +60,7 @@ internal static class IrValidator
         Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "source hash must be SHA-256 hexadecimal.");
         Require((uint)method.Source.Token >> 24 == 0x06 && (method.Source.Token & 0xffffff) != 0, "source needs a non-nil MethodDef token.");
         Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters && method.Parameters.All(p => types.Valid(p, storage: true))
-            && types.Valid(method.ReturnType, storage: true), "signature is outside the bounded value profile.");
+            && (types.Valid(method.ReturnType, storage: true) || objectRules is not null && method.ReturnType == IrType.Void), "signature is outside the bounded value profile.");
         Require(!method.Locals.IsDefault && method.Locals.Length <= IrLimits.MaximumLocals && method.Locals.All(l => types.Valid(l, storage: true)), "locals must be bounded typed storage.");
         Require(!method.Blocks.IsDefault && method.Blocks.Length is > 0 and <= IrLimits.MaximumBlocks, "invalid block count.");
         int inputs = 0, statements = 0, edgeArguments = 0, callArguments = 0, previousBlockOffset = -1;
@@ -73,6 +82,7 @@ internal static class IrValidator
             statements += block.Statements.Length;
             Require(statements <= IrLimits.MaximumStatements, "aggregate statement limit exceeded.");
             var valueTypes = new List<IrType>();
+            var expressions = new List<IrExpression>();
             int values = 0, previousOffset = block.ILOffset;
             int end = block.Id + 1 < method.Blocks.Length ? method.Blocks[block.Id + 1].ILOffset : int.MaxValue;
             bool Earlier(int value) => value >= 0 && value < values;
@@ -80,7 +90,7 @@ internal static class IrValidator
             void Offset(int offset)
             {
                 Require(offset >= previousOffset && offset < end, "statement/terminator offset is outside its block or out of order.");
-                previousOffset = offset;
+                previousOffset = offset; locationOffset = offset;
             }
             foreach (IrStatement statement in block.Statements)
             {
@@ -111,10 +121,15 @@ internal static class IrValidator
                             IrExpression.Call c => c.Target is not null && methods is not null && methods.TryGetValue(c.Target, out IrMethod? target)
                                 && !c.Arguments.IsDefault && c.Arguments.Length <= IrLimits.MaximumParameters
                                 && !target.Parameters.IsDefault && c.Arguments.Length == target.Parameters.Length && c.Arguments.All(Earlier)
-                                && value.Type == target.ReturnType && c.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(ok => ok),
+                                && value.Type == target.ReturnType && c.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(ok => ok)
+                                && (objectRules is null ? !c.NullCheckReceiver : objectRules.Call(method, c.Target, c.Arguments, c.NullCheckReceiver, valueTypes)),
+                            IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
+                                && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
+                            IrExpression.LoadField f => objectRules is not null && objectRules.Field(method, f.Field, f.Receiver, valueTypes, out var storage)
+                                && value.Type == storage,
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
-                        bool throwing = value.Expression is IrExpression.Call ||
+                        bool throwing = value.Expression is IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation);
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
                             "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");
@@ -123,11 +138,28 @@ internal static class IrValidator
                             callArguments += call.Arguments.Length;
                             Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded.");
                         }
-                        valueTypes.Add(value.Type); values++;
+                        if (value.Expression is IrExpression.NewObject allocated)
+                        {
+                            callArguments += allocated.Arguments.Length;
+                            Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded.");
+                        }
+                        valueTypes.Add(value.Type); expressions.Add(value.Expression); values++;
                         break;
                     case IrStatement.StoreLocal store:
                         Offset(store.ILOffset);
                         Require(Local(store.Local) && Earlier(store.Value) && types.Assignable(valueTypes[store.Value], method.Locals[store.Local]), "invalid local store."); break;
+                    case IrStatement.Invoke invoke:
+                        Offset(invoke.ILOffset);
+                        Require(objectRules is not null && invoke.Exceptional == IrExceptionTarget.MethodExit
+                            && invoke.Target is not null && methods is not null && methods.TryGetValue(invoke.Target, out var callee)
+                            && callee.ReturnType == IrType.Void && !invoke.Arguments.IsDefault && invoke.Arguments.Length <= IrLimits.MaximumParameters
+                            && (objectRules.Call(method, invoke.Target, invoke.Arguments, invoke.NullCheckReceiver, valueTypes)
+                                || objectRules.BaseCall(method, invoke, valueTypes, expressions)), "invalid void call or base initialization.");
+                        callArguments += invoke.Arguments.Length;
+                        Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded."); break;
+                    case IrStatement.StoreField store:
+                        Offset(store.ILOffset);
+                        Require(objectRules is not null && objectRules.Store(method, store, valueTypes, expressions), "invalid field store, access or readonly receiver."); break;
                     default: Require(false, "missing or unknown statement."); break;
                 }
             }
@@ -135,6 +167,7 @@ internal static class IrValidator
             switch (block.Terminator)
             {
                 case IrReturn returned: Require(Earlier(returned.Value) && types.Assignable(valueTypes[returned.Value], method.ReturnType), "invalid returned value."); break;
+                case IrVoidReturn: Require(objectRules is not null && method.ReturnType == IrType.Void, "invalid void return."); break;
                 case IrJump jump: Edge(jump.Edge); break;
                 case IrBranch branch:
                     Require(Earlier(branch.Left) && (branch.Comparison is Int32Comparison.Zero or Int32Comparison.Nonzero
@@ -156,6 +189,7 @@ internal static class IrValidator
         while (pending.TryPop(out int id))
             if (visited.Add(id)) foreach (int target in successors[id]) pending.Push(target);
         Require(visited.Count == method.Blocks.Length, "all blocks must be reachable from entry.");
+        objectRules?.Method(method);
     }
 
     internal static bool BinaryComparison(Int32Comparison comparison) => (uint)comparison < (uint)Int32Comparison.Zero;

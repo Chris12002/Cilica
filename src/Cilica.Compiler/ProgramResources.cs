@@ -15,7 +15,12 @@ internal sealed class ProgramResources
         {
             _statements += block.Statements.Length; _inputs += block.Inputs.Length;
             foreach (IrStatement.Define define in block.Statements.OfType<IrStatement.Define>())
-                if (define.Value.Expression is IrExpression.Call call) _arguments += call.Arguments.Length;
+                switch (define.Value.Expression)
+                {
+                    case IrExpression.Call call: _arguments += call.Arguments.Length; break;
+                    case IrExpression.NewObject allocated: _arguments += allocated.Arguments.Length; break;
+                }
+            foreach (IrStatement.Invoke call in block.Statements.OfType<IrStatement.Invoke>()) _arguments += call.Arguments.Length;
             switch (block.Terminator)
             {
                 case IrJump jump: _edges += jump.Edge.Arguments.Length; break;

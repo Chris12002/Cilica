@@ -10,6 +10,7 @@ not establish native execution or platform compatibility.
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v1` | Bounded metadata snapshots and detached class/field graphs | Int32/CLASS/OBJECT field storage and logical reference slots only; no reference IL, byte layout, allocation, root frames or object execution |
 | `typed-reference-ir-v1` | Detached caller-constructed IR validation | Concrete references/null, typed locals/joins/calls/returns; no CIL object translation, constructor/field operations, native emission or execution |
+| `object-operations-ir-v1` | Bounded straight-line CIL translation and detached operation validation | Constructors, fields and nonvirtual static/instance calls; test-only .NET/IR conformance; no native reference emission, heap, ownership, root frames or collection |
 | Managed runtime and library | Planned | Object, array, GC, exception and library execution support is unimplemented |
 
 ## Int32 pending-fault profile
@@ -193,9 +194,9 @@ invalid storage/base shape and aggregate excess. Independent fixtures verify
 exact/excess limits, forwarding, cross-image namesakes, ownership and detached
 lifetime. See [ADR 0022](decisions/0022-detached-object-layouts.md).
 
-Object IL, target byte offsets, managed allocation, instance ownership enforcement,
-method root frames, null/object faults and collection remain unimplemented. The
-existing Int32 translation profile, emitted C++ and native status ABI retain their
+The layout model alone supplies no execution. Target byte offsets, native object
+allocation, instance ownership, method root frames, native null/object faults
+and collection remain unimplemented. The existing Int32 translation profile, emitted C++ and native status ABI retain their
 semantics. `IrType` is now a record carrying a kind and optional concrete class
 identity; this early compiler API is not a stable serialization contract.
 
@@ -224,11 +225,73 @@ retain explicit method-exit fault edges; primitive arithmetic keeps its existing
 fault rules. Iterative closure validation and existing per-method/program limits
 also cover reference values and argument copies.
 
-This API validates value flow only: method visibility, instance receivers,
-constructor initialization, readonly/access rules, allocation, fields, ownership,
-root assignment and safepoints require subsequent lowering. Caller-constructed
-sources do not authenticate metadata declarations. Void methods are not yet
-represented. The primitive C++ emitter rejects reference/null signatures,
+This API alone validates value flow: the object-operation profile below adds
+method bindings, constructor/field operations and their access checks. Native
+ownership, root assignment and safepoints still require subsequent lowering.
+Caller-constructed sources do not authenticate metadata declarations. Void
+signatures are accepted only through the object-operation profile; they remain
+invalid as value/storage types. The primitive C++ emitter rejects reference/null
+signatures,
 storage and values before returning an artifact. Internal reference-returning
 IR does not establish a native reference ABI. See
 [ADR 0023](decisions/0023-typed-reference-value-flow.md).
+
+## Straight-line object operation translation
+
+`ObjectTranslator.Translate` takes an explicit entry MethodDef and selected
+runtime library. Its `ObjectIrProgram` retains complete method closure, a shared
+class catalog and detached method bindings. `ObjectIrValidator` validates these
+before consumption; caller bindings are structural assertions, not authentication
+of arbitrary metadata. The entry has only Int32 parameters and result; references
+stay internal. Instance signatures include their exact declaring receiver as
+parameter zero. Other parameters, locals and results use Int32 or concrete class
+references; void is a return signature only. Locals require initialization.
+
+| IL/operation | Translation contract |
+| --- | --- |
+| `newobj` | Exact instance constructor; already-evaluated arguments in declaration order; distinct typed allocation definition with method-exit fault edge |
+| `ldfld`, `stfld` | Exact FieldDef/declaring owner via direct or MemberRef binding; typed receiver/storage; ordered load/store and method-exit fault edge |
+| `call` | Exact ordinary static/instance declaration; explicit receiver for instance calls; no automatic null-receiver check |
+| nonvirtual `callvirt` | Ordinary nonvirtual instance declaration; explicit null-receiver check after argument evaluation; virtual dispatch is unsupported |
+| void calls, `ret` | Separate invoke statement and void terminator; no void temporary or storage |
+| `ldnull`, reference `ceq` | Null stack type; identity equality produces Int32 |
+| reference `cgt.un` against null | Explicit identity inequality; other ordered reference comparisons are rejected |
+| argument/local/constant loads, local stores, `dup`, `pop`, supported Int32 operations | Preserve the existing operand order, type rules and arithmetic fault edges |
+
+Constructors are named `.ctor` definitions with instance/void signatures and
+both constructor flags. Their first effective operations load the direct receiver
+and call the selected Object constructor before other work. This profile rejects
+constructor chaining, repeated base initialization and aliases for readonly
+writes. The selected base constructor must be nongeneric ordinary managed IL
+with no parameters, locals, handlers or nontrivial body beyond `nop`/`ret`; its
+owner must be the exact explicitly mapped object base. No name-only intrinsic
+substitute or host runtime probing is used.
+
+Methods allow same-declaring-owner access or public members on externally visible
+owners. Fields allow same-owner access (excluding PrivateScope), or public fields
+on top-level public classes. Cross-owner nested-type field access, family/internal/
+friend rules and inherited MemberRef owners remain conservatively unsupported.
+Readonly stores require the declaring constructor and a direct parameter-zero
+receiver. Reference field stores accept null or an assignable concrete reference.
+Type/module initialization, reference-assembly/native bodies, generics, virtual/
+interface calls, prefixes, arrays, strings, byrefs and unsupported storage fail
+without partial programs. Bodies are straight-line and must finish with `ret`;
+branches, loops and trailing unreachable instructions are rejected. Reference
+join inference is a future expansion, not implemented by this translator.
+
+Existing aggregate IL/method/IR bounds remain. Member binding, initializer scans
+and cached type snapshots share a 65,536-unit metadata work ledger; repeated token
+bindings are cached. Budgeted member-owner formatting and method snapshots have
+a hard 64-level owner ceiling, including generic enclosing owners. Allocation
+arguments and void receiver/argument copies share the 65,536 call-copy limit.
+Multi-root catalogs retain the 256-type/4,096-field aggregate limits even when
+snapshots were cached before catalog construction.
+
+Evidence: the authored `ProbeNode` class creates two objects, initializes readonly
+fields, mutates an Int32 field, connects reference fields and invokes void/instance
+methods. A bounded test-only IR evaluator agrees with .NET on normal and wrapping
+results, plus a null field fault. Explicitly authored raw IL oracles verify direct
+null calls versus nonvirtual `callvirt` and null identity comparisons. These are
+translation checks, not a native heap, rooting or GC experiment. The Int32 native
+corpus remains the backend evidence. No object CLI command or native object ABI
+is exposed. See [ADR 0024](decisions/0024-straight-line-object-operations.md).

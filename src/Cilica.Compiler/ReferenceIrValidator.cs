@@ -7,17 +7,21 @@ namespace Cilica.Compiler;
 /// <summary>Validates detached typed value flow. It does not authenticate CIL declarations or lower objects.</summary>
 public static class ReferenceIrValidator
 {
-    public static void Validate(ReferenceIrProgram program)
+    public static void Validate(ReferenceIrProgram program) => Validate(program, null);
+
+    internal static void Validate(ReferenceIrProgram program, ObjectIrRules? objectRules)
     {
         ArgumentNullException.ThrowIfNull(program);
         ObjectModelValidator.Validate(program.Types);
-        IrValidator.Validate(new IrProgram(program.Entry, program.Methods), program.Types);
+        IrValidator.Validate(new IrProgram(program.Entry, program.Methods), program.Types, objectRules);
 
         // A catalog root cannot smuggle unrelated layouts into the program's resource/ownership contract.
         var layouts = program.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var pending = new Stack<ObjectTypeId>(); pending.Push(program.Types.ObjectBase);
         foreach (var method in program.Methods)
         {
+            if (objectRules is not null)
+                foreach (var type in objectRules.OperationTypes(method)) pending.Push(type);
             foreach (var type in method.Parameters.Concat(method.Locals).Append(method.ReturnType)
                 .Concat(method.Blocks.SelectMany(b => b.Inputs))
                 .Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type)))

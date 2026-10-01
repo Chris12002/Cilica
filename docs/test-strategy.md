@@ -31,7 +31,7 @@ even if all its malformed-input tests pass.
 | Resolution and reachability | Small assembly graphs with known resolutions, included/excluded members and inclusion reasons. | Binding, ordinary graphs, bounded dispatch (including closed named constrained instance calls) and audit reporting present in 1c; the initial local application audit records unresolved closure gaps. |
 | Real-library inspection | Checks for false rejection and practical scale on pinned compiler output. Acceptance alone does not prove complete verification or executable support. | Present, including CoreLib; wider/private runs are task-specific. |
 | Executable conformance | Compare controlled programs on .NET and Cilica, including state and exception traces. | Native Int32 results and division/remainder/checked-arithmetic fault propagation present; full managed exception traces remain planned. |
-| Detached object/reference contracts | Independent layout fixtures and caller-forged typed IR; acceptance/rejection, joins, exact identities, closure, fault edges and aggregate limits. These checks do not prove reference execution. | Present in 3a/3b-a. |
+| Detached object/reference contracts | Independent layout fixtures and caller-forged typed IR; acceptance/rejection, joins, exact identities, closure, fault edges and aggregate limits. These checks do not prove reference execution. | Present in 3a/3b-a; object bindings/operations extended in 3b-b. |
 | Runtime and embedding | Allocation stress, native sanitizers, boundary ownership, lifecycle and native/browser parity. | Planned with the relevant milestones. |
 
 ## Designing a useful regression
@@ -380,3 +380,29 @@ fixtures and reduced access/readonly/constructor/evaluation-order regressions;
 slice 3c must compare a created, mutated class passed through calls against .NET,
 with native sanitizers and root/lifetime checks. A passing IR validator cannot
 substitute for either checkpoint.
+
+## Slice 3b-b: object operation translation
+
+Use synthetic IL for constructor and field boundaries, and authored optimized
+C# for a complete small object program. Pair valid constructor initialization,
+readonly stores and private same-owner access with missing/repeated base calls,
+readonly writes outside the constructor, local receiver aliases, cross-owner
+private access, wrong receiver/value types and invalid declaration flags. Forge
+operation IR to verify targets, argument arrays, types and every fault edge.
+Reject virtual/native/reference bodies, initialization, generics and unsupported
+control flow explicitly; do not conceal them in the fixture.
+
+The current authored `ProbeNode` probe compares .NET with a bounded test-only IR
+evaluator for allocation order, Int32 mutation/wrapping, readonly initialization,
+reference fields, void calls and a null field load. Authored raw IL in the test
+process checks the direct-null-call/nonvirtual-callvirt distinction and null
+identity comparisons. No inspected input executes in compiler packages. This
+checks translation, not native allocation, instance ownership, root frames or
+collection; slice 3c still requires the actual native path and sanitizer evidence.
+
+Reduced resource regressions cover exact/excess allocation plus void argument
+copies, aggregate fields despite cached snapshots, bounded member candidate
+scans, generic enclosing method owners and member formatting before excessive
+owner recursion. A shared metadata ledger prevents repeated binding scans from
+bypassing work limits. Preserve the complete primitive native corpus while the
+shared IR and input reader change.

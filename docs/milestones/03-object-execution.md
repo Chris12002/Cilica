@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; slices 3a and 3b-a implement logical layouts and typed value-flow validation. Recorded 2026-10-01.
+Status: in progress; logical layouts, typed value flow and straight-line object IL translation are implemented. Recorded 2026-10-01.
 
 The next executable checkpoint is an independently authored small class created,
 mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -13,8 +13,9 @@ establish a collector, class-library compatibility or the stable embedding API.
 | --- | --- | --- |
 | 3a | Detached class identities, field storage and logical reference maps | Complete for bounded layout model |
 | 3b-a | Concrete reference/null types and validated locals, joins, calls and returns | Complete for detached IR contract |
-| 3b-b | CIL object translation, construction/field access and verified static/instance calls | Planned |
+| 3b-b | CIL object translation, construction/field access and verified static/instance calls | Complete for bounded straight-line profile |
 | 3c | Native object allocation, instance ownership and phase A root frames; first class differential execution | Planned |
+| 3b-c | Reference-stack inference through branches/backedges | Planned after first native checkpoint |
 | 3d | Inheritance, casts and verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -86,19 +87,52 @@ pass in the full suite of 751 tests (14.2 seconds), including native Int32
 ancestors; the remote advertises no branch refs. No push, hosted work or service
 was started.
 
-## Next checkpoint and exit gates
+## Slice 3b-b outcome
 
-Slice 3b-b must translate the validated reference contract from CIL, infer
-compatible stack joins through backedges, and add explicit object operations.
-Exact field declarations and access/readonly/initializer rules precede lowering.
-Constructors need explicit receiver/signature and selected object-base
-intrinsic binding; a method name alone is not an intrinsic. Object mutation must
-preserve operand evaluation and null/fault order.
+[ADR 0024](../decisions/0024-straight-line-object-operations.md) adds the bounded
+`ObjectTranslator` and `ObjectIrProgram`. Translation preserves exact constructor,
+method and field identities, explicit receivers, void calls and ordered
+allocation/field operations. Nonvirtual `callvirt` retains its receiver null
+check; direct calls do not insert one. Constructors initialize through the
+explicitly selected trivial Object constructor before other work. Access and
+readonly receiver checks precede IR consumption. Fault edges remain explicit.
+
+The profile is straight-line: branches/reference-stack inference are rejected
+with diagnostics. Slice 3b-c will expand that after the first native class
+checkpoint. Class catalogs now compose multiple roots, using cached type inputs
+without weakening aggregate bounds. Bindings, initializer scans and snapshots
+share a 65,536-unit metadata work ledger; repeated image/token bindings are cached.
+An Int32 boundary keeps managed references internal. Native object emission,
+allocation, ownership, roots and GC remain unimplemented.
+
+Self-review found and fixed aggregate fields bypassing limits when their snapshots
+were cached, and nongeneric nested methods bypassing enclosing generic rejection.
+Candidate binding scans now consume shared work, and budgeted member formatting
+checks its owner chain before recursive display formatting. Method inputs retain
+raw declaration names and a hard 64-owner ceiling. Reduced tests also cover
+readonly local aliases, allocation/void call copies at the exact aggregate limit,
+wrong receivers/targets/bindings and every object-operation fault edge. No
+remaining issue was found within this bounded translation contract.
+
+Validation: zero build warnings/errors; 60 new object translation/conformance cases
+pass in the full local suite of 811 tests (14.4 seconds). The authored C# class
+probe agrees with .NET using a bounded test-only evaluator, including Int32
+wrapping, readonly initialization, reference mutation and a null field fault.
+Authored raw IL confirms direct null calls, nonvirtual callvirt null checks and
+null identity comparison. This is translation evidence, not native object
+execution. The existing native Int32/sanitizer corpus also passes. Toolchain:
+SDK 10.0.400, .NET 10.0.11, existing macOS ARM64 native harness. Local main and
+cached origin/main remain ancestors; the remote advertises no branch refs.
+No push, hosted work, additional agent or runtime service was started.
+
+## Next checkpoint and exit gates
 
 Slice 3c must prove lifetime before expanding the example: publish root frames
 before allocation, preserve references across allocating calls, pop frames on all
 exits, reject cross-instance ownership and destroy bounded experimental heaps.
-Native offsets come from checked C++ layouts, not host metadata guesses. Null and
+The initial native probe can use the straight-line profile; reference-stack
+inference follows in 3b-c before broader control-flow examples. Native offsets
+come from checked C++ layouts, not host metadata guesses. Null and
 allocation failures need explicit semantics; foreign C++ exceptions do not supply
 them. Differential results and native sanitizers are required before calling this
 object execution support. Milestone 4 then supplies precise collection and stress.

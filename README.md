@@ -7,8 +7,8 @@ for embedding C# libraries in native and browser applications.
 The assembly explorer inspects IL and audits bounded dependencies without running
 input assemblies. The bounded integer profile now emits C++20 and passes local
 native differential tests, including division, remainder and checked-arithmetic faults.
-Detached class/field layouts and reference value-flow validation are also implemented
-as compiler foundations; CIL object translation and native object execution remain planned.
+Detached layouts, typed references and bounded straight-line object IL translation
+are also implemented. Native object allocation, ownership and root frames remain planned.
 Managed objects, exception objects/handlers, libraries and Expo integration are not implemented.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
