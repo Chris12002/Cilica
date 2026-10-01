@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; slice 3a implements logical class/field models only. Recorded 2026-10-01.
+Status: in progress; slices 3a and 3b-a implement logical layouts and typed value-flow validation. Recorded 2026-10-01.
 
 The next executable checkpoint is an independently authored small class created,
 mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -12,7 +12,8 @@ establish a collector, class-library compatibility or the stable embedding API.
 | Slice | Outcome | Status |
 | --- | --- | --- |
 | 3a | Detached class identities, field storage and logical reference maps | Complete for bounded layout model |
-| 3b | Typed reference IR, construction/field access and bounded static/instance calls | Planned |
+| 3b-a | Concrete reference/null types and validated locals, joins, calls and returns | Complete for detached IR contract |
+| 3b-b | CIL object translation, construction/field access and verified static/instance calls | Planned |
 | 3c | Native object allocation, instance ownership and phase A root frames; first class differential execution | Planned |
 | 3d | Inheritance, casts and verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
@@ -53,12 +54,44 @@ ancestors; the remote advertises no branch refs. No upstream integration, push,
 hosted work or runtime service was started. No remaining issue was found within
 this bounded layout contract; allocation/rooting execution is still untested.
 
+## Slice 3b-a outcome
+
+[ADR 0023](../decisions/0023-typed-reference-value-flow.md) adds concrete class
+identity and null to shared IR values. `ReferenceIrProgram` validates value flow
+against an explicit multi-root catalog, preserving the existing class/field
+bounds. Null enters reference storage; classes widen to the selected object
+base. Loads and call results retain exact types. Declared joins, locals,
+arguments and returns reject integer/reference mixes, sibling assignments,
+implicit downcasts and retagged values. Reference equality and truth branches
+are permitted; reference arithmetic and ordered comparisons are rejected.
+
+This is a detached compiler API contract, not a reference CIL translator. The
+shared validator retains complete iterative method/block closure, earlier
+operands, fault edges and aggregate limits. The primitive emitter rejects
+reference/null IR before returning source. `IrType` changed from an enum to a
+record in the early compiler API; the Int32 translation profile, emitted C++
+and status ABI preserve their semantics.
+
+Self-review covered type payloads/identity, both branch edges, callee result and
+argument types, cycles, unused catalog roots and exact resource boundaries. A
+forged null callee parameter could otherwise be dereferenced before its method
+was validated; a guard and reduced regression now reject it as an API error.
+Reference hash length is checked before catalog hashing. No remaining issue was
+found within the structural contract; access, initialization, ownership and
+execution are still unverified.
+
+Final local validation: zero build warnings/errors; all 64 new reference IR cases
+pass in the full suite of 751 tests (14.2 seconds), including native Int32
+.NET comparisons and sanitizer checks. Local main and cached origin/main remain
+ancestors; the remote advertises no branch refs. No push, hosted work or service
+was started.
+
 ## Next checkpoint and exit gates
 
-Slice 3b must integrate concrete reference types and null into typed values,
-locals, block inputs and calls. Joins cannot accept arbitrary reference/integer
-mixes. Exact field declarations and access/readonly/initializer rules precede
-lowering. Constructors need explicit receiver/signature and selected object-base
+Slice 3b-b must translate the validated reference contract from CIL, infer
+compatible stack joins through backedges, and add explicit object operations.
+Exact field declarations and access/readonly/initializer rules precede lowering.
+Constructors need explicit receiver/signature and selected object-base
 intrinsic binding; a method name alone is not an intrinsic. Object mutation must
 preserve operand evaluation and null/fault order.
 

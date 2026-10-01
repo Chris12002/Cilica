@@ -9,6 +9,7 @@ not establish native execution or platform compatibility.
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v1` | Bounded metadata snapshots and detached class/field graphs | Int32/CLASS/OBJECT field storage and logical reference slots only; no reference IL, byte layout, allocation, root frames or object execution |
+| `typed-reference-ir-v1` | Detached caller-constructed IR validation | Concrete references/null, typed locals/joins/calls/returns; no CIL object translation, constructor/field operations, native emission or execution |
 | Managed runtime and library | Planned | Object, array, GC, exception and library execution support is unimplemented |
 
 ## Int32 pending-fault profile
@@ -194,4 +195,40 @@ lifetime. See [ADR 0022](decisions/0022-detached-object-layouts.md).
 
 Object IL, target byte offsets, managed allocation, instance ownership enforcement,
 method root frames, null/object faults and collection remain unimplemented. The
-existing Int32 IR/profile and native status ABI are unchanged.
+existing Int32 translation profile, emitted C++ and native status ABI retain their
+semantics. `IrType` is now a record carrying a kind and optional concrete class
+identity; this early compiler API is not a stable serialization contract.
+
+## Typed reference value-flow foundation
+
+`ReferenceIrProgram` is a detached validation API, not a CIL translator or native
+entry. It shares block-local values and ordered statements with the primitive
+IR. `ReferenceIrValidator.Validate` checks both the complete method closure and
+an `ObjectTypeCatalog` with explicit class roots and their field closure. Catalogs
+use the same layout rules and aggregate bounds as `object-layout-v1`; every
+included type must occur in declared value/storage types or their field closure,
+apart from the selected object base. Class names do not supply identity.
+
+`IrType` distinguishes Int32, a concrete class reference and the null stack type.
+Parameters, locals and returns require Int32 or concrete references; null may
+occur in temporaries and block inputs. Loads and call results retain exact
+declared types. Assignments, returns, arguments and edge copies accept exact
+types, null into any reference, and a concrete class into the selected object
+base. Object-to-class and sibling-class assignments require later casts.
+Validation checks declared joins; it does not infer their common type from CIL.
+
+Reference equality/inequality returns Int32; reference/null truth branches are
+permitted. Ordered reference comparisons, reference arithmetic, mixed
+integer/reference operations and forged class identities are rejected. Calls
+retain explicit method-exit fault edges; primitive arithmetic keeps its existing
+fault rules. Iterative closure validation and existing per-method/program limits
+also cover reference values and argument copies.
+
+This API validates value flow only: method visibility, instance receivers,
+constructor initialization, readonly/access rules, allocation, fields, ownership,
+root assignment and safepoints require subsequent lowering. Caller-constructed
+sources do not authenticate metadata declarations. Void methods are not yet
+represented. The primitive C++ emitter rejects reference/null signatures,
+storage and values before returning an artifact. Internal reference-returning
+IR does not establish a native reference ABI. See
+[ADR 0023](decisions/0023-typed-reference-value-flow.md).

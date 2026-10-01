@@ -28,3 +28,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0020](0020-checked-int32-arithmetic.md) | Checked Int32 arithmetic | Accepted for bounded primitive profile |
 | [0021](0021-int32-remainder.md) | Int32 remainder | Accepted for bounded primitive profile |
 | [0022](0022-detached-object-layouts.md) | Detached object layouts and reference storage | Accepted for bounded logical model; native objects planned |
+| [0023](0023-typed-reference-value-flow.md) | Typed reference value flow | Accepted for detached IR validation; CIL objects and native references planned |

@@ -7,11 +7,11 @@ namespace Cilica.Compiler;
 
 internal static class IrValidator
 {
-    internal static IrMethod Validate(IrProgram program)
+    internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
-            if (!condition) throw new ArgumentException("Invalid Int32 program IR: " + message, nameof(program));
+            if (!condition) throw new ArgumentException((catalog is null ? "Invalid Int32 program IR: " : "Invalid reference program IR: ") + message, nameof(program));
         }
         Require(program.Entry is not null && !program.Methods.IsDefault && program.Methods.Length is > 0 and <= ProgramLimits.MaximumMethods,
             "entry and bounded methods are required.");
@@ -27,7 +27,7 @@ internal static class IrValidator
         var resources = new ProgramResources();
         foreach (IrMethod method in program.Methods)
         {
-            Validate(method, methods);
+            Validate(method, methods, catalog);
             Require(resources.Add(method), "aggregate program IR limit exceeded.");
         }
         var visited = new HashSet<IrMethodId>(); var pending = new Stack<IrMethodId>(); pending.Push(program.Entry);
@@ -39,26 +39,27 @@ internal static class IrValidator
         return entry;
     }
 
-    internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null)
+    internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
-            if (!condition) throw new ArgumentException("Invalid Int32 IR: " + message, nameof(method));
+            if (!condition) throw new ArgumentException((catalog is null ? "Invalid Int32 IR: " : "Invalid reference IR: ") + message, nameof(method));
         }
+        var types = new IrTypeRules(catalog);
         Require(method.Source is not null, "source is missing.");
         Require(method.Source.AssemblyIdentity is not null, "assembly identity is missing.");
         Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "source hash must be SHA-256 hexadecimal.");
         Require((uint)method.Source.Token >> 24 == 0x06 && (method.Source.Token & 0xffffff) != 0, "source needs a non-nil MethodDef token.");
-        Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters && method.Parameters.All(p => p == IrType.Int32)
-            && method.ReturnType == IrType.Int32, "signature is outside the bounded Int32 profile.");
-        Require(!method.Locals.IsDefault && method.Locals.Length <= IrLimits.MaximumLocals && method.Locals.All(l => l == IrType.Int32), "locals must be bounded Int32 storage.");
+        Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters && method.Parameters.All(p => types.Valid(p, storage: true))
+            && types.Valid(method.ReturnType, storage: true), "signature is outside the bounded value profile.");
+        Require(!method.Locals.IsDefault && method.Locals.Length <= IrLimits.MaximumLocals && method.Locals.All(l => types.Valid(l, storage: true)), "locals must be bounded typed storage.");
         Require(!method.Blocks.IsDefault && method.Blocks.Length is > 0 and <= IrLimits.MaximumBlocks, "invalid block count.");
         int inputs = 0, statements = 0, edgeArguments = 0, callArguments = 0, previousBlockOffset = -1;
         for (int id = 0; id < method.Blocks.Length; id++)
         {
             IrBlock block = method.Blocks[id];
             Require(block is not null && block.Id == id && block.ILOffset > previousBlockOffset, "blocks need consecutive IDs and increasing IL offsets.");
-            Require(!block.Inputs.IsDefault && block.Inputs.Length <= IrLimits.MaximumInputs && block.Inputs.All(t => t == IrType.Int32), "invalid block inputs.");
+            Require(!block.Inputs.IsDefault && block.Inputs.Length <= IrLimits.MaximumInputs && block.Inputs.All(t => types.Valid(t, storage: false)), "invalid block inputs.");
             inputs += block.Inputs.Length;
             Require(inputs <= IrLimits.MaximumInputs, "aggregate block-input limit exceeded.");
             previousBlockOffset = block.ILOffset;
@@ -71,6 +72,7 @@ internal static class IrValidator
             Require(!block.Statements.IsDefault && block.Statements.Length <= IrLimits.MaximumStatements, "invalid statement array.");
             statements += block.Statements.Length;
             Require(statements <= IrLimits.MaximumStatements, "aggregate statement limit exceeded.");
+            var valueTypes = new List<IrType>();
             int values = 0, previousOffset = block.ILOffset;
             int end = block.Id + 1 < method.Blocks.Length ? method.Blocks[block.Id + 1].ILOffset : int.MaxValue;
             bool Earlier(int value) => value >= 0 && value < values;
@@ -86,27 +88,30 @@ internal static class IrValidator
                 {
                     case IrStatement.Define define:
                         IrValue value = define.Value;
-                        Require(value is not null && value.Id == values && value.Type == IrType.Int32, "values need consecutive IDs and Int32 types.");
+                        Require(value is not null && value.Id == values && types.Valid(value.Type, storage: false), "values need consecutive IDs and valid types.");
                         Offset(value.ILOffset);
                         Require(value.Expression switch
                         {
-                            IrExpression.Constant => true,
-                            IrExpression.Parameter p => p.Index >= 0 && p.Index < method.Parameters.Length,
-                            IrExpression.Local l => Local(l.Index),
-                            IrExpression.StackInput s => s.Index >= 0 && s.Index < block.Inputs.Length,
-                            IrExpression.Binary b => b.Operation is Int32Operation.AddWrapping or Int32Operation.SubtractWrapping or Int32Operation.MultiplyWrapping
+                            IrExpression.Constant => value.Type == IrType.Int32,
+                            IrExpression.Null => catalog is not null && value.Type == IrType.NullReference,
+                            IrExpression.Parameter p => p.Index >= 0 && p.Index < method.Parameters.Length && value.Type == method.Parameters[p.Index],
+                            IrExpression.Local l => Local(l.Index) && value.Type == method.Locals[l.Index],
+                            IrExpression.StackInput s => s.Index >= 0 && s.Index < block.Inputs.Length && value.Type == block.Inputs[s.Index],
+                            IrExpression.Binary b => value.Type == IrType.Int32 && (b.Operation is Int32Operation.AddWrapping or Int32Operation.SubtractWrapping or Int32Operation.MultiplyWrapping
                                 or Int32Operation.BitwiseAnd or Int32Operation.BitwiseOr or Int32Operation.BitwiseXor
                                 or Int32Operation.ShiftLeft or Int32Operation.ShiftRightSigned or Int32Operation.ShiftRightUnsigned
                                 or Int32Operation.DivideSigned or Int32Operation.DivideUnsigned
                                 or Int32Operation.RemainderSigned or Int32Operation.RemainderUnsigned
                                 or Int32Operation.AddCheckedSigned or Int32Operation.SubtractCheckedSigned or Int32Operation.MultiplyCheckedSigned
-                                or Int32Operation.AddCheckedUnsigned or Int32Operation.SubtractCheckedUnsigned or Int32Operation.MultiplyCheckedUnsigned
-                                && Earlier(b.Left) && Earlier(b.Right),
-                            IrExpression.Unary u => u.Operation == Int32UnaryOperation.BitwiseNot && Earlier(u.Operand),
-                            IrExpression.Compare c => BinaryComparison(c.Comparison) && Earlier(c.Left) && Earlier(c.Right),
+                                or Int32Operation.AddCheckedUnsigned or Int32Operation.SubtractCheckedUnsigned or Int32Operation.MultiplyCheckedUnsigned)
+                                && Earlier(b.Left) && Earlier(b.Right) && valueTypes[b.Left] == IrType.Int32 && valueTypes[b.Right] == IrType.Int32,
+                            IrExpression.Unary u => value.Type == IrType.Int32 && u.Operation == Int32UnaryOperation.BitwiseNot && Earlier(u.Operand) && valueTypes[u.Operand] == IrType.Int32,
+                            IrExpression.Compare c => value.Type == IrType.Int32 && BinaryComparison(c.Comparison) && Earlier(c.Left) && Earlier(c.Right)
+                                && types.Comparable(c.Comparison, valueTypes[c.Left], valueTypes[c.Right]),
                             IrExpression.Call c => c.Target is not null && methods is not null && methods.TryGetValue(c.Target, out IrMethod? target)
                                 && !c.Arguments.IsDefault && c.Arguments.Length <= IrLimits.MaximumParameters
-                                && !target.Parameters.IsDefault && c.Arguments.Length == target.Parameters.Length && c.Arguments.All(Earlier),
+                                && !target.Parameters.IsDefault && c.Arguments.Length == target.Parameters.Length && c.Arguments.All(Earlier)
+                                && value.Type == target.ReturnType && c.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(ok => ok),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.Call ||
@@ -118,22 +123,22 @@ internal static class IrValidator
                             callArguments += call.Arguments.Length;
                             Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded.");
                         }
-                        values++;
+                        valueTypes.Add(value.Type); values++;
                         break;
                     case IrStatement.StoreLocal store:
                         Offset(store.ILOffset);
-                        Require(Local(store.Local) && Earlier(store.Value), "invalid local store."); break;
+                        Require(Local(store.Local) && Earlier(store.Value) && types.Assignable(valueTypes[store.Value], method.Locals[store.Local]), "invalid local store."); break;
                     default: Require(false, "missing or unknown statement."); break;
                 }
             }
             Require(block.Terminator is not null, "missing block terminator."); Offset(block.Terminator.ILOffset);
             switch (block.Terminator)
             {
-                case IrReturn returned: Require(Earlier(returned.Value), "invalid returned value."); break;
+                case IrReturn returned: Require(Earlier(returned.Value) && types.Assignable(valueTypes[returned.Value], method.ReturnType), "invalid returned value."); break;
                 case IrJump jump: Edge(jump.Edge); break;
                 case IrBranch branch:
                     Require(Earlier(branch.Left) && (branch.Comparison is Int32Comparison.Zero or Int32Comparison.Nonzero
-                        ? branch.Right is null : BinaryComparison(branch.Comparison) && branch.Right is int right && Earlier(right)), "invalid branch condition.");
+                        ? branch.Right is null : BinaryComparison(branch.Comparison) && branch.Right is int right && Earlier(right) && types.Comparable(branch.Comparison, valueTypes[branch.Left], valueTypes[right])), "invalid branch condition.");
                     Edge(branch.Taken); Edge(branch.NotTaken); break;
                 default: Require(false, "unknown block terminator."); break;
             }
@@ -141,7 +146,7 @@ internal static class IrValidator
             {
                 Require(edge is not null && edge.Target >= 0 && edge.Target < method.Blocks.Length, "invalid edge target.");
                 Require(!edge.Arguments.IsDefault && edge.Arguments.Length == method.Blocks[edge.Target].Inputs.Length
-                    && edge.Arguments.All(Earlier), "edge arguments must match the target's typed inputs.");
+                    && edge.Arguments.All(Earlier) && edge.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], method.Blocks[edge.Target].Inputs[index])).All(ok => ok), "edge arguments must match the target's typed inputs.");
                 edgeArguments += edge.Arguments.Length;
                 Require(edgeArguments <= IrLimits.MaximumEdgeArguments, "aggregate edge-argument limit exceeded.");
                 targets.Add(edge.Target);

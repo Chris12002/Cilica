@@ -39,6 +39,10 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
     public const string Profile = "object-layout-v1";
 }
 
+/// <summary>Several explicit class roots and their shared field closure, including the selected object base.</summary>
+public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, ObjectTypeId ObjectBase,
+    ImmutableArray<ObjectTypeLayout> Types);
+
 public static class ObjectModelLimits
 {
     public const int MaximumTypes = 256;

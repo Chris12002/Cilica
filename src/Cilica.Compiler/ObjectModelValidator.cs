@@ -15,11 +15,19 @@ public static class ObjectModelValidator
     public static void Validate(ObjectModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
+        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types));
+    }
+
+    public static void Validate(ObjectTypeCatalog model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
             if (!condition) throw new ArgumentException("Invalid object layout model: " + message, nameof(model));
         }
-        Require(Identity(model.Entry, 0x02) && Identity(model.ObjectBase, 0x02), "entry/base need canonical TypeDef identities.");
+        Require(!model.Roots.IsDefault && model.Roots.Length is > 0 and <= ObjectModelLimits.MaximumTypes
+            && model.Roots.All(r => Identity(r, 0x02)) && model.Roots.Distinct().Count() == model.Roots.Length
+            && Identity(model.ObjectBase, 0x02), "roots/base need unique canonical TypeDef identities.");
         Require(!model.Types.IsDefault && model.Types.Length is > 0 and <= ObjectModelLimits.MaximumTypes, "invalid type count.");
         var types = new Dictionary<ObjectTypeId, ObjectTypeLayout>();
         var fieldIdentities = new HashSet<(string Hash, int Token)>();
@@ -50,12 +58,14 @@ public static class ObjectModelValidator
                 ? type.BaseType is null && type.Fields.IsEmpty && (type.Attributes & TypeAttributes.Sealed) == 0
                 : type.BaseType == model.ObjectBase, "classes must derive directly from the fieldless selected object base.");
         }
-        Require(types.ContainsKey(model.Entry) && types.ContainsKey(model.ObjectBase), "entry/base are outside the model.");
+        Require(model.Roots.All(types.ContainsKey) && types.ContainsKey(model.ObjectBase), "roots/base are outside the model.");
         foreach (var type in model.Types)
             foreach (var reference in type.Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>())
                 Require(types.ContainsKey(reference.Type), "reference field targets are outside the model.");
         var visited = new HashSet<ObjectTypeId>();
-        var pending = new Stack<ObjectTypeId>(); pending.Push(model.Entry); pending.Push(model.ObjectBase);
+        var pending = new Stack<ObjectTypeId>();
+        foreach (var root in model.Roots) pending.Push(root);
+        pending.Push(model.ObjectBase);
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
                 foreach (var reference in types[id].Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>()) pending.Push(reference.Type);

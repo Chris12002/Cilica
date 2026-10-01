@@ -31,6 +31,7 @@ even if all its malformed-input tests pass.
 | Resolution and reachability | Small assembly graphs with known resolutions, included/excluded members and inclusion reasons. | Binding, ordinary graphs, bounded dispatch (including closed named constrained instance calls) and audit reporting present in 1c; the initial local application audit records unresolved closure gaps. |
 | Real-library inspection | Checks for false rejection and practical scale on pinned compiler output. Acceptance alone does not prove complete verification or executable support. | Present, including CoreLib; wider/private runs are task-specific. |
 | Executable conformance | Compare controlled programs on .NET and Cilica, including state and exception traces. | Native Int32 results and division/remainder/checked-arithmetic fault propagation present; full managed exception traces remain planned. |
+| Detached object/reference contracts | Independent layout fixtures and caller-forged typed IR; acceptance/rejection, joins, exact identities, closure, fault edges and aggregate limits. These checks do not prove reference execution. | Present in 3a/3b-a. |
 | Runtime and embedding | Allocation stress, native sanitizers, boundary ownership, lifecycle and native/browser parity. | Planned with the relevant milestones. |
 
 ## Designing a useful regression
@@ -360,3 +361,22 @@ is not mistaken for coverage of a different library version or configuration.
 Review and commit coherent changes, update the milestone record, and keep
 private artifacts out of Git. Test success supports the stated scope; it does
 not expand the advertised compatibility profile automatically.
+
+## Typed reference IR and the next execution checkpoint
+
+Slice 3b-a tests detached value-flow contracts independently of the future CIL
+translator. Pair accepted null/class-to-object assignments with rejected
+integer/reference mixes, sibling assignments, implicit downcasts and retagged
+loads/call results. Exercise both edges of joins, typed backedges, recursive
+calls, exact content identity despite equal names, missing fault edges and
+catalog/argument/stack-copy bounds. Validate forged callee signatures without
+allowing a null member to crash the compiler API. The primitive emitter must
+reject reference/null IR before an artifact is returned.
+
+These are structural validation claims, so no reference evaluator or native
+object execution is claimed. Keep the existing .NET/native Int32 differential
+corpus passing while the shared IR evolves. Slice 3b-b must add independent CIL
+fixtures and reduced access/readonly/constructor/evaluation-order regressions;
+slice 3c must compare a created, mutated class passed through calls against .NET,
+with native sanitizers and root/lifetime checks. A passing IR validator cannot
+substitute for either checkpoint.

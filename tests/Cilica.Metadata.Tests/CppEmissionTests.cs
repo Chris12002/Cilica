@@ -72,7 +72,7 @@ public sealed class CppEmissionTests
             "source" => method with { Source = null! },
             "hash" => method with { Source = method.Source with { ContentHash = new string('z', 64) } },
             "token" => method with { Source = method.Source with { Token = 0x06000000 } },
-            "signature" => method with { ReturnType = (IrType)99 },
+            "signature" => method with { ReturnType = new IrType((IrTypeKind)99) },
             "parameters" => method with { Parameters = default },
             "blocks" => method with { Blocks = default },
             _ => method with { Blocks = [damage switch
@@ -87,7 +87,7 @@ public sealed class CppEmissionTests
                 {
                     "null_value" => null!,
                     "value_id" => value with { Id = 1 },
-                    "type" => value with { Type = (IrType)99 },
+                    "type" => value with { Type = new IrType((IrTypeKind)99) },
                     "offset" => value with { ILOffset = -1 },
                     "argument" => value with { Expression = new IrExpression.Parameter(2) },
                     "negative_argument" => value with { Expression = new IrExpression.Parameter(-1) },

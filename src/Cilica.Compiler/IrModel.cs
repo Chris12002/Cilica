@@ -5,7 +5,15 @@ using Cilica.Metadata.IL;
 
 namespace Cilica.Compiler;
 
-public enum IrType { Int32 }
+public enum IrTypeKind { Int32, Reference, NullReference }
+
+/// <summary>A concrete reference retains its content-scoped class identity; null is a stack value, not storage.</summary>
+public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null)
+{
+    public static IrType Int32 { get; } = new(IrTypeKind.Int32);
+    public static IrType NullReference { get; } = new(IrTypeKind.NullReference);
+    public static IrType Reference(ObjectTypeId type) => new(IrTypeKind.Reference, type);
+}
 
 /// <summary>32-bit operations with explicit wrapping/checked arithmetic; shifts mask the count to five bits.</summary>
 public enum Int32Operation
@@ -33,6 +41,7 @@ public enum Int32Comparison
 public abstract record IrExpression
 {
     public sealed record Constant(int Value) : IrExpression;
+    public sealed record Null : IrExpression;
     public sealed record Parameter(int Index) : IrExpression;
     public sealed record Local(int Index) : IrExpression;
     public sealed record StackInput(int Index) : IrExpression;
@@ -69,6 +78,7 @@ public sealed record IrBlock(int Id, int ILOffset, ImmutableArray<IrType> Inputs
 public sealed record IrMethod(MethodSource Source, ImmutableArray<IrType> Parameters,
     IrType ReturnType, ImmutableArray<IrBlock> Blocks, ImmutableArray<IrType> Locals)
 {
+    // Kept for existing Int32 translation callers; reference contracts use ReferenceIrProgram.Profile.
     public const string Profile = IrProgram.Profile;
 }
 
@@ -100,6 +110,12 @@ public sealed record IrMethodId(string ContentHash, int Token)
 public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods)
 {
     public const string Profile = "int32-pending-fault-v1";
+}
+
+/// <summary>Typed value-flow contract only. CIL object translation and native execution are not implemented.</summary>
+public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
+{
+    public const string Profile = "typed-reference-ir-v1";
 }
 
 public static class ProgramLimits

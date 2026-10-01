@@ -274,6 +274,18 @@ not native byte offsets. This describes automatic-layout nongeneric classes
 derived directly from an explicitly selected object base; it does not yet lower
 reference IL, allocate objects, publish method roots or execute object programs.
 
+The subsequent typed value-flow contract is implemented
+([ADR 0023](decisions/0023-typed-reference-value-flow.md)). Shared IR values carry
+Int32, exact class-reference identity or the null stack type. A separate
+`ReferenceIrProgram` validates declared locals, joins, direct-call arguments and
+returns against a bounded class catalog. Null can enter reference storage;
+concrete references can widen to the selected object base. Loads/call results
+cannot change their declared type, and ordered reference comparisons or reference
+arithmetic fail validation. This checks caller-constructed IR, not CIL method
+access, constructor/field semantics or reference execution. Native emission
+continues to accept only the existing Int32 profile. Root assignment and
+safepoints must be implemented and verified before any native reference lowering.
+
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
 record base types, interfaces, dispatch tables, size, reference-field maps,

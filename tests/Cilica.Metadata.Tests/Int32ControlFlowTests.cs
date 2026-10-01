@@ -256,7 +256,7 @@ public sealed class Int32ControlFlowTests
         {
             case "target": blocks = blocks.SetItem(2, test with { Terminator = branch with { Taken = branch.Taken with { Target = 99 } } }); break;
             case "arity": blocks = blocks.SetItem(2, test with { Terminator = branch with { Taken = branch.Taken with { Arguments = [] } } }); break;
-            case "input_type": blocks = blocks.SetItem(1, blocks[1] with { Inputs = [(IrType)99] }); break;
+            case "input_type": blocks = blocks.SetItem(1, blocks[1] with { Inputs = [new IrType((IrTypeKind)99)] }); break;
             case "operand": blocks = blocks.SetItem(2, test with { Terminator = branch with { Left = 99 } }); break;
             case "condition": blocks = blocks.SetItem(2, test with { Terminator = branch with { Comparison = (Int32Comparison)99 } }); break;
             case "local": method = method with { Locals = [] }; break;
