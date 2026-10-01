@@ -9,7 +9,7 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-/// <summary>Translates the bounded Int32 control-flow profile without executing input.</summary>
+/// <summary>Translates bounded Int32 methods without executing input.</summary>
 public static partial class Int32Translator
 {
     public static TranslationResult Translate(AssemblyResolver resolver, ResolvedAssembly assembly,
@@ -125,14 +125,15 @@ public static partial class Int32Translator
                     case "ldc.i4.s" or "ldc.i4": Push(offset, new IrExpression.Constant(instruction.IntegerOperand!.Value)); break;
                     case "dup": int duplicated = Pop(offset); stack.Add(duplicated); stack.Add(duplicated); break;
                     case "pop": Pop(offset); break;
-                    case "add" or "sub" or "mul" or "and" or "or" or "xor" or "shl" or "shr" or "shr.un":
+                    case "add" or "sub" or "mul" or "and" or "or" or "xor" or "shl" or "shr" or "shr.un" or "div" or "div.un":
                         int right = Pop(offset), left = Pop(offset);
                         Push(offset, new IrExpression.Binary(opcode switch
                         {
                             "add" => Int32Operation.AddWrapping, "sub" => Int32Operation.SubtractWrapping, "mul" => Int32Operation.MultiplyWrapping,
                             "and" => Int32Operation.BitwiseAnd, "or" => Int32Operation.BitwiseOr, "xor" => Int32Operation.BitwiseXor,
-                            "shl" => Int32Operation.ShiftLeft, "shr" => Int32Operation.ShiftRightSigned, _ => Int32Operation.ShiftRightUnsigned,
-                        }, left, right)); break;
+                            "shl" => Int32Operation.ShiftLeft, "shr" => Int32Operation.ShiftRightSigned, "shr.un" => Int32Operation.ShiftRightUnsigned,
+                            "div" => Int32Operation.DivideSigned, _ => Int32Operation.DivideUnsigned,
+                        }, left, right), opcode is "div" or "div.un" ? IrExceptionTarget.MethodExit : null); break;
                     case "not": Push(offset, new IrExpression.Unary(Int32UnaryOperation.BitwiseNot, Pop(offset))); break;
                     case "ceq" or "clt" or "clt.un" or "cgt" or "cgt.un":
                         int compareRight = Pop(offset), compareLeft = Pop(offset);
@@ -145,7 +146,7 @@ public static partial class Int32Translator
                         var callee = resolveCall(instruction);
                         var arguments = new int[callee.Arity];
                         for (int argument = arguments.Length - 1; argument >= 0; argument--) arguments[argument] = Pop(offset);
-                        Push(offset, new IrExpression.Call(callee.Target, [.. arguments])); break;
+                        Push(offset, new IrExpression.Call(callee.Target, [.. arguments]), IrExceptionTarget.MethodExit); break;
                     case "br" or "br.s": terminator = new IrJump(offset, Edge(instruction.Targets[0], offset)); break;
                     case "ret":
                         if (stack.Count != 1) Fail(DiagnosticIds.InconsistentStack, "Int32 return requires exactly one value and no residual stack entries.", offset);
@@ -172,9 +173,9 @@ public static partial class Int32Translator
                 if (++_statements > IrLimits.MaximumStatements) Fail(DiagnosticIds.TranslationLimit, "Aggregate IR statement limit exceeded.", offset);
                 statements.Add(statement);
             }
-            void Push(int offset, IrExpression expression)
+            void Push(int offset, IrExpression expression, IrExceptionTarget? exceptional = null)
             {
-                int value = values++; Add(new IrStatement.Define(new(value, IrType.Int32, offset, expression)), offset); stack.Add(value);
+                int value = values++; Add(new IrStatement.Define(new(value, IrType.Int32, offset, expression), exceptional), offset); stack.Add(value);
             }
             int Pop(int offset)
             {

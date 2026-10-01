@@ -7,14 +7,19 @@ namespace Cilica.Compiler;
 
 public enum IrType { Int32 }
 
-/// <summary>32-bit operations; arithmetic wraps and shifts mask the count to five bits.</summary>
+/// <summary>32-bit operations; add/subtract/multiply wrap, division can fault, and shifts mask the count to five bits.</summary>
 public enum Int32Operation
 {
     AddWrapping, SubtractWrapping, MultiplyWrapping, BitwiseAnd, BitwiseOr, BitwiseXor,
     ShiftLeft, ShiftRightSigned, ShiftRightUnsigned,
+    DivideSigned, DivideUnsigned,
 }
 
 public enum Int32UnaryOperation { BitwiseNot }
+
+/// <summary>Current primitive profile propagates faults to the method's caller.</summary>
+public enum IrExceptionTarget { MethodExit }
+public enum Int32Fault { None = 0, DivideByZero = 1, Overflow = 2 }
 
 public enum Int32Comparison
 {
@@ -38,7 +43,7 @@ public abstract record IrExpression
 public sealed record IrValue(int Id, IrType Type, int ILOffset, IrExpression Expression);
 public abstract record IrStatement
 {
-    public sealed record Define(IrValue Value) : IrStatement;
+    public sealed record Define(IrValue Value, IrExceptionTarget? Exceptional = null) : IrStatement;
     public sealed record StoreLocal(int ILOffset, int Local, int Value) : IrStatement;
 }
 
@@ -61,7 +66,7 @@ public sealed record IrBlock(int Id, int ILOffset, ImmutableArray<IrType> Inputs
 public sealed record IrMethod(MethodSource Source, ImmutableArray<IrType> Parameters,
     IrType ReturnType, ImmutableArray<IrBlock> Blocks, ImmutableArray<IrType> Locals)
 {
-    public const string Profile = "int32-control-flow-v1";
+    public const string Profile = IrProgram.Profile;
 }
 
 /// <summary>Aggregate bounds also cover synthetic stack inputs and edge copies.</summary>
@@ -91,7 +96,7 @@ public sealed record IrMethodId(string ContentHash, int Token)
 /// <summary>One explicit entry and its complete reachable direct-call closure.</summary>
 public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods)
 {
-    public const string Profile = "int32-static-calls-v1";
+    public const string Profile = "int32-pending-fault-v1";
 }
 
 public static class ProgramLimits

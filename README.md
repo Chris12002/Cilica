@@ -6,8 +6,9 @@ for embedding C# libraries in native and browser applications.
 **Status: metadata frontend and bounded Int32 static-call execution implemented; managed runtime planned.**
 The assembly explorer inspects IL and audits bounded dependencies without running
 input assemblies. The bounded integer profile now emits C++20 and passes local
-native differential tests. Managed objects, exceptions, libraries and Expo integration
-are not implemented. Broader platform and language support are planned capabilities,
+native differential tests, including primitive division faults. Managed objects,
+exception objects/handlers, libraries and Expo integration are not implemented.
+Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.
 
@@ -117,15 +118,23 @@ clang++ -std=c++20 -Wall -Wextra -Werror -c generated.cpp -o generated.o
 ```
 
 The generated source declares its C entry point, named from the image SHA-256
-and method token, with `std::int32_t` parameters and return. A native caller
-can link that function; this command emits source and never starts a compiler or
-executes the input. Optional `--reference` directories use the existing explicit
+and method token. Programs proven not to fault retain the value-only entry with
+`std::int32_t` parameters and return. Every program also has a distinct `_try`
+entry: UInt32 status, four output pointers (Int32 result, UInt32 MethodDef,
+UInt32 IL offset, borrowed image-hash string), then its Int32 inputs. Throwing
+programs expose only this status entry. Status is 0 success, 1 divide-by-zero,
+2 signed division overflow, or 3 for null output pointers. Outputs require valid,
+disjoint storage; faults preserve the result output, and success clears origin
+outputs. The borrowed string lasts as long as the generated library. This is
+an experimental primitive ABI; managed exception objects/messages remain planned.
+A native caller can link the declared function; this command emits source and
+never starts a compiler or executes the input. Optional `--reference` directories use the existing explicit
 resolver. Unsupported operations write diagnostics to stderr, return code 1 and
 preserve an existing output file. The profile accepts constants, argument loads,
-unchecked add/subtract/multiply, bitwise operations and masked shifts, initialized
-Int32 locals, comparisons, branches,
+unchecked add/subtract/multiply, bitwise operations and masked shifts,
+signed/unsigned division, initialized Int32 locals, comparisons, branches,
 loops, direct static calls and return. All reachable helpers must fit the profile;
-required initialization and exceptional operations remain unsupported.
+required initialization, checked arithmetic and exception handlers remain unsupported.
 Boolean locals, including bookkeeping locals emitted by Debug C# builds, remain
 unsupported; use optimized C# builds for the current integer profile. See the
 [milestone 2 plan](docs/milestones/02-primitive-execution.md).
@@ -134,14 +143,16 @@ Run the complete authored C# → IR → C++ → native comparison locally:
 
 ```bash
 dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll \
-  -noColor -parallel none -class '*NativeExecutionTests'
+  -noColor -parallel none -class '*NativeExecutionTests' -class '*NativeFaultExecutionTests'
 ```
 
 The disposable harness builds 32 authored C# entry methods and five reduced IL probes
 at `-O0` and `-O2`, checks
 normal, wraparound and bitwise/shift results against .NET, and enables undefined-behaviour
 sanitization for the optimized build. It bounds native process time/output and
-cleans up its own processes and temporary files.
+cleans up its own processes and temporary files. The fault harness adds ten entries
+and 3,630 results per configuration, checking division faults, propagation order,
+source origins and reset between invocations, with C++ exceptions/RTTI disabled.
 
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before starting an implementation slice.
 - See the [test strategy](docs/test-strategy.md) for evidence requirements and

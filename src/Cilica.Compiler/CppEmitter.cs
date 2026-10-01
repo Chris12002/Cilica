@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cilica.Metadata.IL;
@@ -7,7 +8,11 @@ using Cilica.Metadata.IL;
 namespace Cilica.Compiler;
 
 /// <summary>Detached C++20 source for a complete program and its explicit C entry point.</summary>
-public sealed record CppArtifact(MethodSource Source, string EntryPoint, string Text);
+public sealed record CppArtifact(MethodSource Source, string EntryPoint, string Text)
+{
+    public string FaultEntryPoint { get; init; } = "";
+    public bool MayThrow { get; init; }
+}
 
 /// <summary>Emits validated Int32 programs; never starts a native process.</summary>
 public static class CppEmitter
@@ -26,11 +31,13 @@ public static class CppEmitter
     {
         ArgumentNullException.ThrowIfNull(program);
         IrMethod entryMethod = IrValidator.Validate(program);
-        string entry = Symbol(program.Entry), scope = entry + "_closure";
+        var throwing = ExceptionEffects.Analyze(program);
+        string entry = Symbol(program.Entry), scope = entry + "_closure", faultEntry = entry + "_try";
         var text = new StringBuilder();
         text.Append("// Cilica ").Append(IrProgram.Profile).Append("; sha256=")
             .Append(entryMethod.Source.ContentHash.ToLowerInvariant()).Append("; MethodDef=0x").Append(Hex(entryMethod.Source.Token, "x8")).Append('\n');
         text.Append("#include <bit>\n#include <cstdint>\n\nnamespace ").Append(scope).Append(" {\n");
+        text.Append("struct Context { std::uint32_t pending = 0u; const char* image = nullptr; std::uint32_t method = 0u; std::uint32_t il = 0u; };\n");
         IrMethod[] methods = [.. program.Methods.OrderBy(m => m.Source.ContentHash.ToLowerInvariant(), StringComparer.Ordinal).ThenBy(m => m.Source.Token)];
         if (methods.SelectMany(m => m.Blocks).SelectMany(b => b.Statements).OfType<IrStatement.Define>()
             .Any(d => d.Value.Expression is IrExpression.Binary { Operation: Int32Operation.ShiftRightSigned }))
@@ -46,23 +53,45 @@ public static class CppEmitter
         foreach (IrMethod method in methods)
         {
             text.Append("[[maybe_unused]] static std::int32_t ").Append(Symbol(IrMethodId.From(method.Source))).Append('(');
-            text.Append(string.Join(", ", method.Parameters.Select(_ => "std::int32_t"))).Append(") noexcept;\n");
+            text.Append("Context&");
+            foreach (var parameter in method.Parameters) text.Append(", std::int32_t");
+            text.Append(") noexcept;\n");
         }
-        foreach (IrMethod method in methods) AppendMethod(text, method);
-        text.Append("}\n\nextern \"C\" std::int32_t ").Append(entry).Append('(');
-        text.Append(string.Join(", ", entryMethod.Parameters.Select((_, i) => "std::int32_t p" + Number(i))));
-        text.Append(") noexcept\n{\n    return ").Append(scope).Append("::").Append(entry).Append('(');
-        text.Append(string.Join(", ", entryMethod.Parameters.Select((_, i) => "p" + Number(i)))).Append(");\n}\n");
-        return new(entryMethod.Source, entry, text.ToString());
+        foreach (IrMethod method in methods) AppendMethod(text, method, throwing);
+        text.Append("}\n");
+        string parameters = string.Join("", entryMethod.Parameters.Select((_, i) => ", std::int32_t p" + Number(i)));
+        string arguments = string.Join("", entryMethod.Parameters.Select((_, i) => ", p" + Number(i)));
+        // A distinct name prevents a throwing method from being accidentally
+        // called through the old value-only ABI. Context is fresh per invocation.
+        text.Append("\n// Status: 0 success, 1 DivideByZero, 2 Overflow, 3 invalid output pointers.\n")
+            .Append("// Outputs require valid, disjoint storage. Null outputs return 3 without writes.\n")
+            .Append("// On fault result is unchanged; origin strings borrow the generated library lifetime.\n")
+            .Append("extern \"C\" std::uint32_t ").Append(faultEntry)
+            .Append("(std::int32_t* result, std::uint32_t* method, std::uint32_t* il, const char** image")
+            .Append(parameters).Append(") noexcept\n{\n")
+            .Append("    if (result == nullptr || method == nullptr || il == nullptr || image == nullptr) return 3u;\n")
+            .Append("    ").Append(scope).Append("::Context context;\n")
+            .Append("    const std::int32_t value = ").Append(scope).Append("::").Append(entry).Append("(context").Append(arguments).Append(");\n")
+            .Append("    if (context.pending == 0u) *result = value;\n")
+            .Append("    *method = context.method; *il = context.il; *image = context.image;\n")
+            .Append("    return context.pending;\n}\n");
+        bool mayThrow = throwing.Contains(program.Entry);
+        if (!mayThrow)
+        {
+            text.Append("\nextern \"C\" std::int32_t ").Append(entry).Append('(');
+            text.Append(string.Join(", ", entryMethod.Parameters.Select((_, i) => "std::int32_t p" + Number(i))));
+            text.Append(") noexcept\n{\n    ").Append(scope).Append("::Context context;\n    return ")
+                .Append(scope).Append("::").Append(entry).Append("(context").Append(arguments).Append(");\n}\n");
+        }
+        return new(entryMethod.Source, mayThrow ? faultEntry : entry, text.ToString()) { FaultEntryPoint = faultEntry, MayThrow = mayThrow };
     }
 
-    private static void AppendMethod(StringBuilder text, IrMethod method)
+    private static void AppendMethod(StringBuilder text, IrMethod method, HashSet<IrMethodId> throwing)
     {
-        text.Append("[[maybe_unused]] static std::int32_t ").Append(Symbol(IrMethodId.From(method.Source))).Append('(');
+        text.Append("[[maybe_unused]] static std::int32_t ").Append(Symbol(IrMethodId.From(method.Source))).Append("([[maybe_unused]] Context& context");
         for (int index = 0; index < method.Parameters.Length; index++)
         {
-            if (index != 0) text.Append(", ");
-            text.Append("[[maybe_unused]] std::int32_t p").Append(Number(index));
+            text.Append(", [[maybe_unused]] std::int32_t p").Append(Number(index));
         }
         text.Append(") noexcept\n{\n");
         for (int index = 0; index < method.Locals.Length; index++)
@@ -80,8 +109,26 @@ public static class CppEmitter
                 {
                     case IrStatement.Define define:
                         IrValue value = define.Value; Location(value.ILOffset);
+                        if (value.Expression is IrExpression.Binary { Operation: Int32Operation.DivideSigned or Int32Operation.DivideUnsigned } division)
+                        {
+                            // Guard before any native division. The signed overflow
+                            // case is a managed fault even though the widened quotient fits.
+                            text.Append("    if (v").Append(Number(division.Right)).Append(" == 0u) {\n");
+                            Fault(Int32Fault.DivideByZero, value.ILOffset); text.Append("    }\n");
+                            if (division.Operation == Int32Operation.DivideSigned)
+                            {
+                                text.Append("    if (v").Append(Number(division.Left)).Append(" == 0x80000000u && v")
+                                    .Append(Number(division.Right)).Append(" == 0xffffffffu) {\n");
+                                Fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
+                            }
+                        }
                         text.Append("    [[maybe_unused]] const std::uint32_t v").Append(Number(value.Id)).Append(" = ")
-                            .Append(Expression(value.Expression, block.Id)).Append(";\n"); break;
+                            .Append(Expression(value.Expression, block.Id)).Append(";\n");
+                        if (value.Expression is IrExpression.Call call && throwing.Contains(call.Target))
+                            // Do not execute a store, edge transfer or later call with
+                            // the placeholder return value of a failed invocation.
+                            text.Append("    if (context.pending != 0u) return 0;\n");
+                        break;
                     case IrStatement.StoreLocal store:
                         Location(store.ILOffset); text.Append("    l").Append(Number(store.Local)).Append(" = v").Append(Number(store.Value)).Append(";\n"); break;
                 }
@@ -99,6 +146,12 @@ public static class CppEmitter
         }
         text.Append("}\n");
 
+        void Fault(Int32Fault fault, int offset)
+        {
+            text.Append("        context.pending = ").Append(Number((int)fault)).Append("u; context.image = \"")
+                .Append(method.Source.ContentHash.ToLowerInvariant()).Append("\"; context.method = 0x")
+                .Append(Hex(method.Source.Token, "x8")).Append("u; context.il = ").Append(Number(offset)).Append("u;\n        return 0;\n");
+        }
         void Location(int offset) => text.Append("    // IL_").Append(Hex(offset, "x4")).Append('\n');
         void Edge(IrEdge edge)
         {
@@ -120,7 +173,7 @@ public static class CppEmitter
         IrExpression.Unary u when u.Operation == Int32UnaryOperation.BitwiseNot =>
             "static_cast<std::uint32_t>(~static_cast<std::uint64_t>(v" + Number(u.Operand) + "))",
         IrExpression.Compare c => "(" + Comparison(c.Comparison, c.Left, c.Right) + " ? 1u : 0u)",
-        IrExpression.Call c => "std::bit_cast<std::uint32_t>(" + Symbol(c.Target) + "(" +
+        IrExpression.Call c => "std::bit_cast<std::uint32_t>(" + Symbol(c.Target) + "(context" + (c.Arguments.IsEmpty ? "" : ", ") +
             string.Join(", ", c.Arguments.Select(a => "std::bit_cast<std::int32_t>(v" + Number(a) + ")")) + "))",
         _ => throw new InvalidOperationException("Validated expression changed."),
     };
@@ -129,6 +182,9 @@ public static class CppEmitter
     {
         string left = "static_cast<std::uint64_t>(v" + Number(binary.Left) + ")";
         string right = "static_cast<std::uint64_t>(v" + Number(binary.Right) + ")";
+        if (binary.Operation == Int32Operation.DivideSigned)
+            return "static_cast<std::uint32_t>(static_cast<std::int64_t>(std::bit_cast<std::int32_t>(v" + Number(binary.Left) +
+                ")) / static_cast<std::int64_t>(std::bit_cast<std::int32_t>(v" + Number(binary.Right) + ")))";
         if (binary.Operation == Int32Operation.ShiftRightSigned)
             return "cilica_shr_i4(v" + Number(binary.Left) + ", v" + Number(binary.Right) + ")";
         if (binary.Operation is Int32Operation.ShiftLeft or Int32Operation.ShiftRightUnsigned) right = "(" + right + " & 31u)";
@@ -136,7 +192,7 @@ public static class CppEmitter
         {
             Int32Operation.AddWrapping => "+", Int32Operation.SubtractWrapping => "-", Int32Operation.MultiplyWrapping => "*",
             Int32Operation.BitwiseAnd => "&", Int32Operation.BitwiseOr => "|", Int32Operation.BitwiseXor => "^",
-            Int32Operation.ShiftLeft => "<<", Int32Operation.ShiftRightUnsigned => ">>",
+            Int32Operation.ShiftLeft => "<<", Int32Operation.ShiftRightUnsigned => ">>", Int32Operation.DivideUnsigned => "/",
             _ => throw new InvalidOperationException("Validated binary operation changed."),
         };
         return "static_cast<std::uint32_t>(" + left + " " + operation + " " + right + ")";

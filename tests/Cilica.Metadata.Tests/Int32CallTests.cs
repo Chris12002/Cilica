@@ -227,7 +227,7 @@ public sealed class Int32CallTests
         var source = new Cilica.Metadata.IL.MethodSource("display only", new string('a', 64), token, "display only");
         return new(source, [.. Enumerable.Repeat(IrType.Int32, arity)], IrType.Int32,
             [new(0, 0, [], [.. Enumerable.Range(0, statements).Select(index => (IrStatement)new IrStatement.Define(
-                new(index, IrType.Int32, 0, index == 0 && target is not null ? new IrExpression.Call(target, []) : new IrExpression.Constant(1))))],
+                new(index, IrType.Int32, 0, index == 0 && target is not null ? new IrExpression.Call(target, []) : new IrExpression.Constant(1)), index == 0 && target is not null ? IrExceptionTarget.MethodExit : null))],
                 new IrReturn(0, statements - 1))], []);
     }
 
@@ -254,7 +254,7 @@ public sealed class Int32CallTests
         caller = caller with { Blocks = [block with
         {
             Statements = block.Statements.AddRange(Enumerable.Range(1, calls).Select(id => (IrStatement)new IrStatement.Define(
-                new(id, IrType.Int32, 0, new IrExpression.Call(IrMethodId.From(helper.Source), [.. Enumerable.Repeat(0, 1024)]))))),
+                new(id, IrType.Int32, 0, new IrExpression.Call(IrMethodId.From(helper.Source), [.. Enumerable.Repeat(0, 1024)])), IrExceptionTarget.MethodExit))),
             Terminator = new IrReturn(0, calls),
         }] };
         var program = new IrProgram(IrMethodId.From(caller.Source), [caller, helper]);

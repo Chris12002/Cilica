@@ -30,7 +30,7 @@ even if all its malformed-input tests pass.
 | Malformed-input robustness | Targeted corruptions plus small, seeded mutation runs. A run without crashes does not establish that all invalid inputs are rejected. | Present; larger runs remain opt-in. |
 | Resolution and reachability | Small assembly graphs with known resolutions, included/excluded members and inclusion reasons. | Binding, ordinary graphs, bounded dispatch (including closed named constrained instance calls) and audit reporting present in 1c; the initial local application audit records unresolved closure gaps. |
 | Real-library inspection | Checks for false rejection and practical scale on pinned compiler output. Acceptance alone does not prove complete verification or executable support. | Present, including CoreLib; wider/private runs are task-specific. |
-| Executable conformance | Compare controlled programs on .NET and Cilica, including state and exception traces. | Planned from milestone 2 as semantics arrive. |
+| Executable conformance | Compare controlled programs on .NET and Cilica, including state and exception traces. | Native Int32 results and primitive division-fault propagation present; full managed exception traces remain planned. |
 | Runtime and embedding | Allocation stress, native sanitizers, boundary ownership, lifecycle and native/browser parity. | Planned with the relevant milestones. |
 
 ## Designing a useful regression
@@ -216,6 +216,23 @@ and serve as the runtime oracle. They never decode/load compiler input bytes.
 This checks backend masking directly rather than only observing the C# mask.
 See [ADR 0018](decisions/0018-int32-bitwise-and-shifts.md).
 
+Sub-slice 2e-b adds a separate authored fault harness with ten entries and 3,630
+outcomes per native configuration. It compares direct signed/unsigned division,
+transitive/cross-assembly propagation, competing faults in both evaluation orders,
+loops, bounded recursion, conditional avoidance and a pure status entry. Expected
+values or DivideByZero/Overflow kinds come from direct authored .NET calls;
+unexpected exceptions fail the test. Origin hash/MethodDef expectations are
+independent of translation, with a literal division offset 2. Faults must preserve
+a sentinel result; success after a fault must clear stale origin/status in the
+same process. All four null output pointers reject before execution or writes.
+Both native builds disable C++ exceptions/RTTI, and the optimized build keeps
+UBSan. Input batches keep richer output within the existing capture limit.
+Reduced tests reject missing/unknown exceptional edges and pure definitions with
+forged edges, verify division underflow/order and exercise both pure and throwing
+recursive analysis cycles. See [ADR 0019](decisions/0019-primitive-pending-faults.md).
+
+These checks validate primitive propagation and ABI behaviour. They do not prove
+managed exception objects, messages, identity, catches, filter or finally order.
 Future slices add ordered exceptional traces as those semantics exist.
 Preserve this complete native path; an IR evaluator alone is no longer sufficient
 execution evidence. See [ADR 0016](decisions/0016-int32-control-flow.md).

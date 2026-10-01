@@ -97,6 +97,7 @@ internal static class IrValidator
                             IrExpression.Binary b => b.Operation is Int32Operation.AddWrapping or Int32Operation.SubtractWrapping or Int32Operation.MultiplyWrapping
                                 or Int32Operation.BitwiseAnd or Int32Operation.BitwiseOr or Int32Operation.BitwiseXor
                                 or Int32Operation.ShiftLeft or Int32Operation.ShiftRightSigned or Int32Operation.ShiftRightUnsigned
+                                or Int32Operation.DivideSigned or Int32Operation.DivideUnsigned
                                 && Earlier(b.Left) && Earlier(b.Right),
                             IrExpression.Unary u => u.Operation == Int32UnaryOperation.BitwiseNot && Earlier(u.Operand),
                             IrExpression.Compare c => BinaryComparison(c.Comparison) && Earlier(c.Left) && Earlier(c.Right),
@@ -105,6 +106,10 @@ internal static class IrValidator
                                 && !target.Parameters.IsDefault && c.Arguments.Length == target.Parameters.Length && c.Arguments.All(Earlier),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
+                        bool throwing = value.Expression is IrExpression.Call or
+                            IrExpression.Binary { Operation: Int32Operation.DivideSigned or Int32Operation.DivideUnsigned };
+                        Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
+                            "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");
                         if (value.Expression is IrExpression.Call call)
                         {
                             callArguments += call.Arguments.Length;

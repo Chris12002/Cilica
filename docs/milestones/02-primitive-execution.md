@@ -1,6 +1,6 @@
 # Milestone 2: First primitive executable
 
-Status: in progress; slices 2a–2d and sub-slice 2e-a implemented. Slice outline recorded 2026-10-01.
+Status: in progress; slices 2a–2d and sub-slices 2e-a/2e-b implemented. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
 method into C++, compile locally and compare its result with .NET. This checkpoint
@@ -16,7 +16,7 @@ array-helper findings remain tracked gates for later capabilities.
 | 2b | C++ generation and bounded native compile/run harness for those methods | Complete for bounded native profile |
 | 2c | Locals, branches, loops and verified control-flow joins | Complete for initialized Int32 profile |
 | 2d | Direct static calls and a bounded method closure | Complete for bounded Int32 program profile |
-| 2e | Additional integer operations and required exceptional results, with .NET differential cases | In progress: 2e-a bitwise/shifts complete; exceptions next |
+| 2e | Additional integer operations and required exceptional results, with .NET differential cases | In progress: 2e-a bitwise/shifts and 2e-b pending faults/division complete; checked arithmetic next |
 | 2f | Integration review and documented supported subset | Planned |
 
 The first executable passed in 2b. These are proposed reviewable boundaries;
@@ -173,8 +173,37 @@ configurations and optimized UBSan. No remaining issue was found within this
 bounded capability. Upstream still advertises no branches; local main and cached
 origin/main remain ancestors. No push or hosted work ran.
 
-Slice 2e remains in progress. Next is a pending-exception result path across calls
-and the native entry, followed by division/checked arithmetic with zero-divisor,
-signed-overflow and ordered propagation tests. Catch/filter/finally execution,
-initialization, broader call access, the managed runtime and the CoreLib/Alchemy
-filter gate remain unsupported or unresolved until their own lowering is proven.
+## Sub-slice 2e-b outcome
+
+[ADR 0019](../decisions/0019-primitive-pending-faults.md) implements a primitive
+pending-fault context across internal calls, explicit method-exit failure edges
+and signed/unsigned Int32 division. A conservative reverse-call worklist propagates
+effects through recursive cycles. Zero-divisor and signed MinValue/-1 guards run
+before native division; may-fault calls return immediately before later work.
+Faults preserve their originating image hash, MethodDef and IL offset.
+
+The updated `int32-pending-fault-v1` profile exposes a distinct status entry with
+four result/origin outputs, a fresh context per invocation, and no value-only
+wrapper for throwing roots. Proven pure programs retain their original entry.
+Primitive tags carry no managed references; exception objects/messages and
+handlers remain unimplemented.
+
+Ten new authored entries check 3,630 outcomes per native configuration, including
+fault ordering, propagation through loops/recursion and other assemblies,
+conditional avoidance, origin provenance, preserved result outputs and reset
+between calls. Four null-output cases reject before execution/writes. Both builds
+disable C++ exceptions/RTTI; optimized execution retains UBSan. Prior pure native
+evidence remains intact. Reduced regressions cover stack/edge validation and
+recursive effect analysis. Review checks native division safety, immediate
+propagation, ABI lifetimes, identity and unchanged resource bounds.
+
+Final validation: zero build warnings/errors and all 547 local tests passed in
+16.7 seconds, including both native configurations and UBSan. Review found no
+remaining issue within this subset. Upstream still advertises no branches; local
+main and cached origin/main remain ancestors. No push or hosted work ran.
+
+Slice 2e remains in progress. Next is checked Int32 add/subtract/multiply using
+the same fault path, followed by a defined remainder contract. Catch/filter/finally
+execution, initialization, broader call access, the managed runtime and the
+CoreLib/Alchemy filter gate remain unsupported or unresolved until their own
+lowering is proven.

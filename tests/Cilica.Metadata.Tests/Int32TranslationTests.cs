@@ -84,7 +84,7 @@ public sealed class Int32TranslationTests
     [Theory]
     [InlineData(ILOpCode.Ldnull)]
     [InlineData(ILOpCode.Add_ovf)]
-    [InlineData(ILOpCode.Div)]
+    [InlineData(ILOpCode.Conv_i8)]
     public void Unsupported_instructions_never_return_partial_ir(ILOpCode opcode)
     {
         var builder = Builder(); builder.Type("", "Entry");

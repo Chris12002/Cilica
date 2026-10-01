@@ -2,6 +2,12 @@
 
 Status: proposed. Recorded 2026-09-28.
 
+Implementation note (2026-10-01): [ADR 0019](0019-primitive-pending-faults.md)
+implements the bounded primitive foundation: a per-invocation pending-fault
+context, explicit method-exit edges, may-fault analysis and a native status entry
+for Int32 division. It has no managed exception objects/messages, handlers or GC
+roots. This does not accept the full design or clear either filter stage's gate.
+
 ## Context
 
 Managed exceptions must keep .NET's observable behaviour: exception identity,

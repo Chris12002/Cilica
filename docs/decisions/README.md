@@ -24,3 +24,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0016](0016-int32-control-flow.md) | Initialized Int32 locals and explicit control flow | Accepted for initialized Int32 profile |
 | [0017](0017-bounded-static-call-closure.md) | Bounded direct static-call programs | Accepted for Int32 program profile |
 | [0018](0018-int32-bitwise-and-shifts.md) | Int32 bitwise operations and defined shifts | Accepted for Int32 program profile |
+| [0019](0019-primitive-pending-faults.md) | Primitive pending faults and Int32 division | Accepted for bounded primitive profile |

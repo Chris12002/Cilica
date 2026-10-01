@@ -177,8 +177,10 @@ The Int32 profile now also supports bitwise AND/OR/XOR/complement and left,
 signed-right and unsigned-right shifts ([ADR 0018](decisions/0018-int32-bitwise-and-shifts.md)).
 A unary expression captures complement's one-operand stack effect. Mask shift
 counts with 31, including raw IL counts outside 0..31; this is a defined C#/.NET
-profile choice for cases CIL leaves unspecified. Other types and the managed
-runtime remain planned.
+profile choice for cases CIL leaves unspecified. Signed/unsigned Int32 division
+now has explicit method-exit failure edges, with zero-divisor and signed-overflow
+faults ([ADR 0019](decisions/0019-primitive-pending-faults.md)). Calls also retain
+explicit failure edges. Other types and the managed runtime remain planned.
 
 Begin with typed basic blocks and temporaries. Introduce SSA after baseline
 semantics are established. Optimisations preserve exception order and observable
@@ -193,7 +195,7 @@ offsets. Use explicit managed layouts and dispatch tables rather than relying
 on C++ inheritance or RTTI matching CLI semantics.
 
 The implemented backend emits a validated Int32 program as private C++20 helper
-functions and one explicit C-linkage entry. Declarations precede bodies, including
+functions and explicit C-linkage entries. Declarations precede bodies, including
 recursive calls. Each program has a hash/token namespace; shared helpers in
 separately generated roots retain private linkage. Call arguments are immutable
 temporaries already evaluated in IL order, avoiding native argument-evaluation
@@ -218,6 +220,15 @@ bits. Shifts mask their count to 0..31 before unsigned native shifts. A private
 signed-right helper zero-fills the value and explicitly supplies its sign bits,
 with an empty fill at count zero. Native signed overflow and oversized shifts
 are never used to reproduce managed results.
+
+Division guards zero and signed MinValue/-1 before native evaluation. Signed
+division widens to Int64 and narrows by unsigned conversion; unsigned division
+uses operand bit patterns. Internal helpers share a private pending-fault context;
+a reverse-call analysis determines which calls need an immediate failure check.
+Each boundary uses a fresh context. A distinct `_try` entry returns a primitive
+status and writes result/origin outputs; only proven pure roots also expose the
+old value-only entry. See ADR 0019 for the pointer/lifetime contract. These tags
+are a propagation foundation, not managed exception objects or handlers.
 
 - Unchecked integer arithmetic wraps with defined behaviour.
 - Checked arithmetic raises the proper managed exception.
@@ -275,6 +286,10 @@ and root-liveness improvements must pass the same stress suite. Finalizers,
 weak references and concurrent collection are separately staged features.
 
 ## 9. Exceptions
+
+The primitive profile currently propagates division faults through a private
+context and returns status/origin at its native boundary (ADR 0019). Full managed
+exceptions below remain planned, including objects, messages and handler execution.
 
 First support try/catch/finally, throw and rethrow. Exceptions propagate
 explicitly through a pending-exception slot in the execution context, with the

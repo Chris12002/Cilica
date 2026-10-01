@@ -6,11 +6,11 @@ not establish native execution or platform compatibility.
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
-| `int32-static-calls-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; no initializer obligations |
-| C++ backend | One C-linkage entry with private helper definitions, hash/token identity, IL comments and scoped block labels | No managed objects or exceptions; public IR is validated before emission |
+| `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division faults; no initializer obligations |
+| C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | Managed runtime and library | Planned | Object, array, GC, exception and library execution support is unimplemented |
 
-## Int32 static-call profile
+## Int32 pending-fault profile
 
 | IL | Translation contract |
 | --- | --- |
@@ -20,15 +20,16 @@ not establish native execution or platform compatibility.
 | `add`, `sub`, `mul` | Ordered operands; explicit wrapping arithmetic modulo 2^32 |
 | `and`, `or`, `xor`, `not` | Exact 32-bit bitwise operations; `not` consumes one operand |
 | `shl`, `shr`, `shr.un` | Int32 value/count; count masked with 31; low 32-bit left shift, explicit sign extension or zero-fill right shift |
+| `div`, `div.un` | Signed quotient truncates toward zero; unsigned quotient uses operand bit patterns; zero divisor faults; signed MinValue/-1 faults with overflow |
 | `ldloc.0`–`ldloc.3`, `ldloc.s`, `ldloc`; corresponding `stloc` forms | Verified Int32 storage index; zero initialization required when locals exist; stores retain order |
 | `dup`, `pop` | Verified Int32 stack duplication/discard |
 | `ceq`, `clt`, `clt.un`, `cgt`, `cgt.un` | Int32 result 0/1; explicit signed/unsigned comparisons |
 | `br`, `br.s`; `brtrue`, `brfalse`; `beq`, `bne.un`, `blt`, `bgt`, `ble`, `bge` and applicable `.un`/`.s` forms | Explicit branch edges; exact instruction targets; matching Int32 stack inputs at each join/backedge |
-| `call` | Exact scoped declaration; nongeneric static Int32 signature; already-evaluated arguments in signature order; verified complete closure |
+| `call` | Exact scoped declaration; nongeneric static Int32 signature; already-evaluated arguments in signature order; verified complete closure; immediate propagation after may-fault calls |
 | `ret` | One Int32 value and empty remaining stack at every reachable return |
 
 Unsupported signatures/operations return diagnostics and no IR or C++ source. This includes
-checked arithmetic, division, conversions, switches, virtual/indirect calls,
+checked arithmetic, remainder, conversions, switches, virtual/indirect calls,
 argument stores, references,
 exception regions, required type/module initialization and synchronization.
 Boolean, pinned, non-Int32 and uninitialized locals are unsupported. Unreachable
@@ -60,7 +61,29 @@ bits even for raw IL without a C# mask. This is Cilica's defined choice consiste
 with C# and the tested .NET runtime; CIL leaves oversized counts unspecified.
 All native shifts use unsigned 64-bit operands with bounded counts; signed right
 shift supplies sign bits explicitly. Unary complement uses a new validated IR
-expression. No new throwing operations or exception ABI are implemented.
+expression.
+
+[ADR 0019](decisions/0019-primitive-pending-faults.md) adds explicit method-exit
+failure edges to divisions and calls. Caller-built IR must provide these edges;
+pure definitions must not carry one. The profile name changes from
+`int32-static-calls-v1` to `int32-pending-fault-v1`; prior pure programs retain
+their value-only native entry, with an additional status entry. A conservative
+closure analysis propagates may-fault effects through recursive cycles and omits
+checks only for proven pure callees. Each native entry owns a fresh stack context;
+the first fault leaves immediately and retains the originating image hash,
+MethodDef and IL offset across callers. This context has primitive fault tags,
+not managed exception objects or messages; catch/filter/finally, identity and GC
+rooting remain unimplemented. The CoreLib/Alchemy filter gate is unresolved.
+
+The `_try` C entry returns UInt32 status: 0 success, 1 divide-by-zero, 2 overflow,
+3 null output pointers. Its four outputs precede Int32 inputs: Int32 result,
+UInt32 MethodDef, UInt32 IL offset, `const char*` image SHA-256. Valid disjoint
+storage is required; null outputs cause no execution or writes. Faults leave the
+result unchanged. Successful calls zero the origin numbers and set image to null.
+Origin strings borrow the generated library lifetime. `CppArtifact.EntryPoint`
+selects this entry when `MayThrow` is true; `FaultEntryPoint` always names it.
+No value-only wrapper is generated for a may-fault root. This convention is not
+the stable managed embedding ABI.
 
 Current native evidence: .NET SDK 10.0.400 / runtime 10.0.11 and Apple Clang
 17.0.0 (`clang-1700.4.4.1`), target `arm64-apple-darwin24.6.0`. Thirty-two authored
@@ -83,6 +106,19 @@ Process timeout/output-limit termination and cleanup also pass. Reduced tests
 reject forged IR and verify CLI failures preserve existing output files.
 See [ADR 0015](decisions/0015-int32-cpp-emission.md) and
 [ADR 0016](decisions/0016-int32-control-flow.md).
+
+The separate fault harness checks ten authored entries and 3,630 outcomes per
+configuration (100 boundary combinations, 256 seeded tuples, seven ordered
+regressions). Direct signed/unsigned division, transitive/cross-assembly calls,
+competing fault order, loops, bounded recursion, skipped conditional faults and
+pure status entries match .NET return values or exception kinds. Origin hashes
+and MethodDef tokens are independently computed from the authored fixture, with
+expected division offset 2. Repeated invocations verify context reset and unchanged
+results on fault; all four null-output cases reject before execution/writes.
+Both builds disable C++ exceptions/RTTI; optimized execution retains UBSan.
+Output is batched within the existing process limits. These tests establish the
+selected profile's `Overflow` tag for signed MinValue/-1 on the recorded runtime,
+not a universal exception-object contract for every CLI implementation.
 
 These are local conformance observations for this subset and toolchain. Other
 native platforms, WebAssembly and the later runtime/embedding ABI are untested.
