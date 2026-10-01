@@ -122,7 +122,8 @@ can link that function; this command emits source and never starts a compiler or
 executes the input. Optional `--reference` directories use the existing explicit
 resolver. Unsupported operations write diagnostics to stderr, return code 1 and
 preserve an existing output file. The profile accepts constants, argument loads,
-unchecked add/subtract/multiply, initialized Int32 locals, comparisons, branches,
+unchecked add/subtract/multiply, bitwise operations and masked shifts, initialized
+Int32 locals, comparisons, branches,
 loops, direct static calls and return. All reachable helpers must fit the profile;
 required initialization and exceptional operations remain unsupported.
 Boolean locals, including bookkeeping locals emitted by Debug C# builds, remain
@@ -136,9 +137,9 @@ dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll \
   -noColor -parallel none -class '*NativeExecutionTests'
 ```
 
-The disposable harness builds 23 authored C# entry methods and two reduced IL probes
+The disposable harness builds 32 authored C# entry methods and five reduced IL probes
 at `-O0` and `-O2`, checks
-normal and wraparound results against .NET, and enables undefined-behaviour
+normal, wraparound and bitwise/shift results against .NET, and enables undefined-behaviour
 sanitization for the optimized build. It bounds native process time/output and
 cleans up its own processes and temporary files.
 

@@ -157,17 +157,17 @@ untrusted metadata display names out of C++ syntax. CLI cases cover exact roots,
 source/file output, write errors, unsupported operations and invalid/missing
 inputs without destroying an existing output artifact.
 
-`NativeExecutionTests` translates 23 independently authored C# entry methods and two
-reduced IL probes, checks their CLI source against the emitter, compiles one translation unit per
-configuration, and compares 8,900 native results with direct .NET fixture calls
+`NativeExecutionTests` translates 32 independently authored C# entry methods and
+five reduced IL probes, checks their CLI source against the emitter, compiles one
+translation unit per configuration, and compares 16,252 native results with direct .NET fixture calls
 and the zero-local probe's independent expected constant.
 The test runner owns the authored reference execution; production parsing and
 emission never load or invoke input code. There are 100 boundary combinations
 and 256 seeded tuples per method. Add/subtract/multiply, a compound expression,
 signed boundary constants, unused parameters, signed/unsigned comparisons,
 branches, loops, stack joins, shared helper closures, cross-assembly calls, argument
-capture before mutation and bounded direct/mutual recursion run at `-O0` and `-O2` with
-undefined-behaviour sanitizer on the optimized build. Require exact result count
+capture before mutation, bounded direct/mutual recursion and bitwise/shift
+composition run at `-O0` and `-O2` with undefined-behaviour sanitizer on the optimized build. Require exact result count
 and order, zero exit status and empty runtime stderr.
 
 Native processes use argument lists rather than shell interpolation, a default
@@ -179,8 +179,8 @@ compiler version and flags. The recorded toolchain/target and current support
 boundary are in the [compatibility manifest](compatibility.md) and
 [ADR 0015](decisions/0015-int32-cpp-emission.md). Other targets remain untested.
 
-Control-flow/call probes bound C# loop and recursion counts to -32..32 and the reduced live-stack
-loop to 0..31. An optimized fixture project avoids Debug C# Boolean bookkeeping
+Control-flow/call probes bound C# loop and recursion counts to -32..32 and the
+reduced live-stack loop to 0..31. An optimized fixture project avoids Debug C# Boolean bookkeeping
 locals, which remain outside the Int32 storage profile. Existing inspection
 fixtures retain their original optimization setting. The harness's case table
 keeps each input root and .NET oracle together rather than coupling them through
@@ -204,6 +204,17 @@ accepted/rejected cases, including caller-constructed programs with small value
 counts but many repeated argument references. Declaring-owner snapshot bounds,
 forged targets/arity/operands/closures and unreachable methods are checked.
 See [ADR 0017](decisions/0017-bounded-static-call-closure.md).
+
+`Int32BitwiseTests` covers six binary opcode mappings/operand order, unary
+complement, every missing-operand shape, forged enum/operand records and continued
+rejection of short/wide argument stores. Native bitwise composition exercises
+calls and initialized locals in loops. Seven shift probes add ten boundary values
+by 44 counts, covering every count 0..33, negative counts, wrapping boundaries
+and Int32 extremes. Three reduced IL methods omit C#'s explicit mask; independent
+.NET DynamicMethods emit only their authored load/load/shift/return instructions
+and serve as the runtime oracle. They never decode/load compiler input bytes.
+This checks backend masking directly rather than only observing the C# mask.
+See [ADR 0018](decisions/0018-int32-bitwise-and-shifts.md).
 
 Future slices add ordered exceptional traces as those semantics exist.
 Preserve this complete native path; an IR evaluator alone is no longer sufficient

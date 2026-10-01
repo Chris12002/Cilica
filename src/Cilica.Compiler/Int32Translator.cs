@@ -125,12 +125,15 @@ public static partial class Int32Translator
                     case "ldc.i4.s" or "ldc.i4": Push(offset, new IrExpression.Constant(instruction.IntegerOperand!.Value)); break;
                     case "dup": int duplicated = Pop(offset); stack.Add(duplicated); stack.Add(duplicated); break;
                     case "pop": Pop(offset); break;
-                    case "add" or "sub" or "mul":
+                    case "add" or "sub" or "mul" or "and" or "or" or "xor" or "shl" or "shr" or "shr.un":
                         int right = Pop(offset), left = Pop(offset);
                         Push(offset, new IrExpression.Binary(opcode switch
                         {
-                            "add" => Int32Operation.AddWrapping, "sub" => Int32Operation.SubtractWrapping, _ => Int32Operation.MultiplyWrapping,
+                            "add" => Int32Operation.AddWrapping, "sub" => Int32Operation.SubtractWrapping, "mul" => Int32Operation.MultiplyWrapping,
+                            "and" => Int32Operation.BitwiseAnd, "or" => Int32Operation.BitwiseOr, "xor" => Int32Operation.BitwiseXor,
+                            "shl" => Int32Operation.ShiftLeft, "shr" => Int32Operation.ShiftRightSigned, _ => Int32Operation.ShiftRightUnsigned,
                         }, left, right)); break;
+                    case "not": Push(offset, new IrExpression.Unary(Int32UnaryOperation.BitwiseNot, Pop(offset))); break;
                     case "ceq" or "clt" or "clt.un" or "cgt" or "cgt.un":
                         int compareRight = Pop(offset), compareLeft = Pop(offset);
                         Push(offset, new IrExpression.Compare(opcode switch

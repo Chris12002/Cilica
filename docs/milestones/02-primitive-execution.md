@@ -1,6 +1,6 @@
 # Milestone 2: First primitive executable
 
-Status: in progress; slices 2a–2d implemented. Slice outline recorded 2026-10-01.
+Status: in progress; slices 2a–2d and sub-slice 2e-a implemented. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
 method into C++, compile locally and compare its result with .NET. This checkpoint
@@ -16,7 +16,7 @@ array-helper findings remain tracked gates for later capabilities.
 | 2b | C++ generation and bounded native compile/run harness for those methods | Complete for bounded native profile |
 | 2c | Locals, branches, loops and verified control-flow joins | Complete for initialized Int32 profile |
 | 2d | Direct static calls and a bounded method closure | Complete for bounded Int32 program profile |
-| 2e | Additional integer operations and required exceptional results, with .NET differential cases | Next |
+| 2e | Additional integer operations and required exceptional results, with .NET differential cases | In progress: 2e-a bitwise/shifts complete; exceptions next |
 | 2f | Integration review and documented supported subset | Planned |
 
 The first executable passed in 2b. These are proposed reviewable boundaries;
@@ -148,9 +148,33 @@ working branch. The remote currently advertises no branch refs; fetching main
 reported that it does not exist. No upstream integration or push was attempted.
 Hosted CI remains disabled.
 
-Next: slice 2e adds integer operations and required exceptional outcomes. Start
-with Int32 bitwise operations and shifts, explicitly handling shift-count masking
-and signed/unsigned right shift. Then introduce the pending-exception result path
-needed for division and checked arithmetic, with ordered differential traces.
-Initialization, broader call access, general runtime execution and the wider
-CoreLib/Alchemy filter gate remain separate unresolved capabilities.
+## Sub-slice 2e-a outcome
+
+[ADR 0018](../decisions/0018-int32-bitwise-and-shifts.md) adds Int32 AND/OR/XOR,
+unary complement, left shift, signed-right shift and unsigned-right shift to
+both method and program translation. Native operations use unsigned intermediates
+and bounded counts; signed right shift supplies sign bits explicitly. Raw counts
+are masked with 31 as a defined profile choice consistent with C# and the tested
+.NET runtime, including cases CIL leaves unspecified.
+
+The native harness now covers 32 authored C# entries and five reduced IL probes,
+with 16,252 results per build. Seven shift probes add a ten-value/44-count matrix,
+including 0..33, negative/wrapping counts and Int32 extremes. Raw IL deliberately
+omits the C# compiler's mask; independently authored .NET DynamicMethods provide
+its runtime reference. Composition covers calls and initialized local storage
+in loops. Short/wide argument stores remain explicitly rejected; the initial
+parameter-mutating loop probe now performs the same calculation in a local.
+
+Review checked operand arity/order, zero-count sign fill, bit 31, unsigned
+promotions, shift bounds, truncation, forged IR rejection, private helper linkage
+and unchanged aggregate/ownership rules. Final validation: zero build warnings
+or errors, all 534 local tests passed in 14.0 seconds, including both native
+configurations and optimized UBSan. No remaining issue was found within this
+bounded capability. Upstream still advertises no branches; local main and cached
+origin/main remain ancestors. No push or hosted work ran.
+
+Slice 2e remains in progress. Next is a pending-exception result path across calls
+and the native entry, followed by division/checked arithmetic with zero-divisor,
+signed-overflow and ordered propagation tests. Catch/filter/finally execution,
+initialization, broader call access, the managed runtime and the CoreLib/Alchemy
+filter gate remain unsupported or unresolved until their own lowering is proven.

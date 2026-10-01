@@ -18,6 +18,8 @@ not establish native execution or platform compatibility.
 | `ldarg.0`–`ldarg.3`, `ldarg.s`, `ldarg` | Verified parameter index; Int32 load |
 | `ldc.i4.m1`, `ldc.i4.0`–`ldc.i4.8`, `ldc.i4.s`, `ldc.i4` | Exact signed 32-bit constant |
 | `add`, `sub`, `mul` | Ordered operands; explicit wrapping arithmetic modulo 2^32 |
+| `and`, `or`, `xor`, `not` | Exact 32-bit bitwise operations; `not` consumes one operand |
+| `shl`, `shr`, `shr.un` | Int32 value/count; count masked with 31; low 32-bit left shift, explicit sign extension or zero-fill right shift |
 | `ldloc.0`–`ldloc.3`, `ldloc.s`, `ldloc`; corresponding `stloc` forms | Verified Int32 storage index; zero initialization required when locals exist; stores retain order |
 | `dup`, `pop` | Verified Int32 stack duplication/discard |
 | `ceq`, `clt`, `clt.un`, `cgt`, `cgt.un` | Int32 result 0/1; explicit signed/unsigned comparisons |
@@ -52,19 +54,31 @@ bound. Declaring-type snapshots are bounded to 64 levels by default.
 handle complete closures. Caller IR with missing targets, invalid arity/operands,
 duplicate identities, unreachable methods or excess resources is rejected.
 
+Bitwise/shift semantics extend the same program profile; see
+[ADR 0018](decisions/0018-int32-bitwise-and-shifts.md). Counts are masked to five
+bits even for raw IL without a C# mask. This is Cilica's defined choice consistent
+with C# and the tested .NET runtime; CIL leaves oversized counts unspecified.
+All native shifts use unsigned 64-bit operands with bounded counts; signed right
+shift supplies sign bits explicitly. Unary complement uses a new validated IR
+expression. No new throwing operations or exception ABI are implemented.
+
 Current native evidence: .NET SDK 10.0.400 / runtime 10.0.11 and Apple Clang
-17.0.0 (`clang-1700.4.4.1`), target `arm64-apple-darwin24.6.0`. Twenty-three authored
-C# entry methods and two reduced IL probes produce 8,900 native results per build,
+17.0.0 (`clang-1700.4.4.1`), target `arm64-apple-darwin24.6.0`. Thirty-two authored
+C# entry methods and five reduced IL probes produce 16,252 native results per build,
 checked against authored .NET results and the independent zero-local expectation
 at `-O0` and `-O2`; the latter also enables `-fsanitize=undefined` and
 `-fno-sanitize-recover=all`. Cases include signed extremes, overflow/underflow,
 multiplication truncation, compound operand order, negative constants and an
 unused parameter, signed/unsigned comparisons, both branch outcomes, joins, loop
 mutation, live stack values across backedges, shared helpers, cross-assembly calls,
-argument capture before local mutation, and bounded direct/mutual recursion,
-using 100 boundary combinations
-and 256 seeded input tuples per method. C# loop/recursion counts are bounded to -32..32;
-the reduced stack-loop probe uses 0..31. The zero-local probe has expected result 0.
+argument capture before local mutation, bounded direct/mutual recursion, bitwise
+composition and shifts in calls/loops, using 100 boundary combinations and 256
+seeded input tuples per method. Seven shift probes additionally use ten boundary
+values and 44 counts (0..33, negative/wrap boundaries and Int32 extremes).
+C# loop/recursion counts are bounded to -32..32;
+the reduced stack-loop probe uses 0..31. Raw shift references run independently
+authored .NET DynamicMethods with no explicit count mask; no input bytes are
+loaded or executed by the compiler. The zero-local probe has expected result 0.
 Process timeout/output-limit termination and cleanup also pass. Reduced tests
 reject forged IR and verify CLI failures preserve existing output files.
 See [ADR 0015](decisions/0015-int32-cpp-emission.md) and

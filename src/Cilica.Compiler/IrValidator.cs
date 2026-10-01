@@ -95,7 +95,10 @@ internal static class IrValidator
                             IrExpression.Local l => Local(l.Index),
                             IrExpression.StackInput s => s.Index >= 0 && s.Index < block.Inputs.Length,
                             IrExpression.Binary b => b.Operation is Int32Operation.AddWrapping or Int32Operation.SubtractWrapping or Int32Operation.MultiplyWrapping
+                                or Int32Operation.BitwiseAnd or Int32Operation.BitwiseOr or Int32Operation.BitwiseXor
+                                or Int32Operation.ShiftLeft or Int32Operation.ShiftRightSigned or Int32Operation.ShiftRightUnsigned
                                 && Earlier(b.Left) && Earlier(b.Right),
+                            IrExpression.Unary u => u.Operation == Int32UnaryOperation.BitwiseNot && Earlier(u.Operand),
                             IrExpression.Compare c => BinaryComparison(c.Comparison) && Earlier(c.Left) && Earlier(c.Right),
                             IrExpression.Call c => c.Target is not null && methods is not null && methods.TryGetValue(c.Target, out IrMethod? target)
                                 && !c.Arguments.IsDefault && c.Arguments.Length <= IrLimits.MaximumParameters

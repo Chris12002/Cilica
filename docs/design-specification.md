@@ -173,7 +173,12 @@ declarations through explicit reference directories; keep method identity as ima
 content hash plus MethodDef token in detached IR. Validate all reachable bodies
 before exposing a program. Generic, virtual/indirect calls, broader access rules,
 inherited MemberRef owners and required initialization remain unsupported.
-Other types and the managed runtime remain planned.
+The Int32 profile now also supports bitwise AND/OR/XOR/complement and left,
+signed-right and unsigned-right shifts ([ADR 0018](decisions/0018-int32-bitwise-and-shifts.md)).
+A unary expression captures complement's one-operand stack effect. Mask shift
+counts with 31, including raw IL counts outside 0..31; this is a defined C#/.NET
+profile choice for cases CIL leaves unspecified. Other types and the managed
+runtime remain planned.
 
 Begin with typed basic blocks and temporaries. Introduce SSA after baseline
 semantics are established. Optimisations preserve exception order and observable
@@ -208,6 +213,11 @@ overwrite their own sources. Signed comparisons reinterpret bits as Int32,
 unsigned comparisons retain UInt32 bits. Verification rejects incompatible joins,
 invalid targets, unreachable blocks and missing local initialization. Bound aggregate
 statements, stack inputs and edge arguments as well as method bytes/instructions.
+Bitwise operations use unsigned 64-bit intermediates and narrow to the low 32
+bits. Shifts mask their count to 0..31 before unsigned native shifts. A private
+signed-right helper zero-fills the value and explicitly supplies its sign bits,
+with an empty fill at count zero. Native signed overflow and oversized shifts
+are never used to reproduce managed results.
 
 - Unchecked integer arithmetic wraps with defined behaviour.
 - Checked arithmetic raises the proper managed exception.

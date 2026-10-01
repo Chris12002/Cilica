@@ -18,9 +18,9 @@ namespace Cilica.Metadata.Tests;
 public sealed class NativeExecutionTests(ITestOutputHelper output)
 {
     private enum CountInput { None, First, Second }
-    private sealed record Case(string Assembly, int Token, Func<int, int, int, int> Reference, CountInput Count = CountInput.None);
-    private static Case Probe(Type owner, string name, Func<int, int, int, int> reference, CountInput count = CountInput.None) =>
-        new(owner.Assembly.Location, owner.GetMethod(name)!.MetadataToken, reference, count);
+    private sealed record Case(string Assembly, int Token, Func<int, int, int, int> Reference, CountInput Count = CountInput.None, bool ShiftCounts = false);
+    private static Case Probe(Type owner, string name, Func<int, int, int, int> reference, CountInput count = CountInput.None, bool shiftCounts = false) =>
+        new(owner.Assembly.Location, owner.GetMethod(name)!.MetadataToken, reference, count, shiftCounts);
 
     [Theory]
     [InlineData(false)]
@@ -57,13 +57,39 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
             Probe(typeof(IntegerCalls), nameof(IntegerCalls.Recursive), IntegerCalls.Recursive, CountInput.First),
             Probe(typeof(IntegerCalls), nameof(IntegerCalls.Mutual), IntegerCalls.Mutual, CountInput.First),
             Probe(arithmetic, nameof(NativeIntegerProbe.External), NativeIntegerProbe.External),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.BitwiseAnd), IntegerBits.BitwiseAnd),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.BitwiseOr), IntegerBits.BitwiseOr),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.BitwiseXor), IntegerBits.BitwiseXor),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.BitwiseNot), IntegerBits.BitwiseNot),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.ShiftLeft), IntegerBits.ShiftLeft, shiftCounts: true),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.ShiftRight), IntegerBits.ShiftRight, shiftCounts: true),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.ShiftRightUnsigned), IntegerBits.ShiftRightUnsigned, shiftCounts: true),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.MixBits), IntegerBits.MixBits, shiftCounts: true),
+            Probe(typeof(IntegerBits), nameof(IntegerBits.BitLoop), IntegerBits.BitLoop, CountInput.First),
         };
         var stackFixture = Int32ControlFlowTests.StackLoop();
         var zero = stackFixture.Builder.Method("ZeroLocal", [0, 0, 8], locals: [7, 1, 8], emit: il =>
         { il.LoadLocal(0); il.OpCode(ILOpCode.Ret); });
+        // Raw IL deliberately omits the count mask inserted by the C# compiler.
+        // The separate .NET oracle emits only these authored instructions; it
+        // never loads, decodes or executes compiler input bytes.
+        var rawShifts = new List<(MethodDefinitionHandle Root, Func<int, int, int> Reference)>();
+        foreach (var (cil, dotnet) in new[]
+        {
+            (ILOpCode.Shl, System.Reflection.Emit.OpCodes.Shl),
+            (ILOpCode.Shr, System.Reflection.Emit.OpCodes.Shr),
+            (ILOpCode.Shr_un, System.Reflection.Emit.OpCodes.Shr_Un),
+        })
+        {
+            var root = stackFixture.Builder.Method("Raw" + cil, [0, 2, 8, 8, 8], emit: il =>
+            { il.LoadArgument(0); il.LoadArgument(1); il.OpCode(cil); il.OpCode(ILOpCode.Ret); });
+            rawShifts.Add((root, AuthoredRawShift(dotnet)));
+        }
         string synthetic = files.Write("authored-stack.dll", stackFixture.Builder.Build());
         cases.Add(new(synthetic, MetadataTokens.GetToken(stackFixture.Root), (a, b, _) => IntegerControlFlow.Sum(b, a, 1), CountInput.Second));
         cases.Add(new(synthetic, MetadataTokens.GetToken(zero), (_, _, _) => 0));
+        foreach (var (root, reference) in rawShifts)
+            cases.Add(new(synthetic, MetadataTokens.GetToken(root), (a, b, _) => reference(a, b), ShiftCounts: true));
 
         var source = new StringBuilder(); var artifacts = new List<(CppArtifact Artifact, int Arity)>();
         foreach (Case probe in cases)
@@ -113,15 +139,22 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
         int Next() => (int)random.NextInt64(int.MinValue, (long)int.MaxValue + 1);
         var input = new StringBuilder(); var expected = new List<string>();
         foreach (var (a, b, c) in vectors)
-            for (int operation = 0; operation < cases.Count; operation++)
-            {
-                Case probe = cases[operation];
-                // Bound authored loops independently of the compiler path.
-                int first = probe.Count == CountInput.First ? a % 33 : a;
-                int second = probe.Count == CountInput.Second ? b & 31 : b;
-                input.Append(CultureInfo.InvariantCulture, $"{operation} {first} {second} {c}\n");
-                expected.Add(probe.Reference(first, second, c).ToString(CultureInfo.InvariantCulture));
-            }
+            for (int operation = 0; operation < cases.Count; operation++) Append(operation, a, b, c);
+        int[] shiftCounts = [.. Enumerable.Range(0, 34), int.MinValue, -65, -64, -33, -32, -31, -1, 63, 64, int.MaxValue];
+        for (int operation = 0; operation < cases.Count; operation++)
+            if (cases[operation].ShiftCounts)
+                foreach (int value in edges) foreach (int count in shiftCounts) Append(operation, value, count, unchecked(value + count));
+        output.WriteLine($"{cases.Count} entry probes; {expected.Count} expected native results.");
+
+        void Append(int operation, int a, int b, int c)
+        {
+            Case probe = cases[operation];
+            // Bound authored loops/recursion independently of the compiler path.
+            int first = probe.Count == CountInput.First ? a % 33 : a;
+            int second = probe.Count == CountInput.Second ? b & 31 : b;
+            input.Append(CultureInfo.InvariantCulture, $"{operation} {first} {second} {c}\n");
+            expected.Add(probe.Reference(first, second, c).ToString(CultureInfo.InvariantCulture));
+        }
         var run = await NativeProcess.Run(executable, [], directory, input.ToString());
         Assert.True(run.ExitCode == 0, version.Stdout + "\n" + run.Stderr);
         Assert.Empty(run.Stderr);
@@ -134,6 +167,15 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
             // A finite producer must still fail if exit and overflow complete together.
             await Assert.ThrowsAsync<InvalidOperationException>(() => NativeProcess.Run(executable, ["burst"], directory));
         }
+    }
+
+    private static Func<int, int, int> AuthoredRawShift(System.Reflection.Emit.OpCode operation)
+    {
+        var method = new System.Reflection.Emit.DynamicMethod("AuthoredRawShift", typeof(int), [typeof(int), typeof(int)]);
+        var il = method.GetILGenerator();
+        il.Emit(System.Reflection.Emit.OpCodes.Ldarg_0); il.Emit(System.Reflection.Emit.OpCodes.Ldarg_1);
+        il.Emit(operation); il.Emit(System.Reflection.Emit.OpCodes.Ret);
+        return method.CreateDelegate<Func<int, int, int>>();
     }
 }
 

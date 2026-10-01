@@ -7,8 +7,14 @@ namespace Cilica.Compiler;
 
 public enum IrType { Int32 }
 
-/// <summary>Each operation wraps modulo 2^32; it never uses native signed overflow.</summary>
-public enum Int32Operation { AddWrapping, SubtractWrapping, MultiplyWrapping }
+/// <summary>32-bit operations; arithmetic wraps and shifts mask the count to five bits.</summary>
+public enum Int32Operation
+{
+    AddWrapping, SubtractWrapping, MultiplyWrapping, BitwiseAnd, BitwiseOr, BitwiseXor,
+    ShiftLeft, ShiftRightSigned, ShiftRightUnsigned,
+}
+
+public enum Int32UnaryOperation { BitwiseNot }
 
 public enum Int32Comparison
 {
@@ -23,6 +29,7 @@ public abstract record IrExpression
     public sealed record Local(int Index) : IrExpression;
     public sealed record StackInput(int Index) : IrExpression;
     public sealed record Binary(Int32Operation Operation, int Left, int Right) : IrExpression;
+    public sealed record Unary(Int32UnaryOperation Operation, int Operand) : IrExpression;
     public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
     public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments) : IrExpression;
 }

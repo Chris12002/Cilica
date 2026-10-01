@@ -32,6 +32,17 @@ public static class CppEmitter
             .Append(entryMethod.Source.ContentHash.ToLowerInvariant()).Append("; MethodDef=0x").Append(Hex(entryMethod.Source.Token, "x8")).Append('\n');
         text.Append("#include <bit>\n#include <cstdint>\n\nnamespace ").Append(scope).Append(" {\n");
         IrMethod[] methods = [.. program.Methods.OrderBy(m => m.Source.ContentHash.ToLowerInvariant(), StringComparer.Ordinal).ThenBy(m => m.Source.Token)];
+        if (methods.SelectMany(m => m.Blocks).SelectMany(b => b.Statements).OfType<IrStatement.Define>()
+            .Any(d => d.Value.Expression is IrExpression.Binary { Operation: Int32Operation.ShiftRightSigned }))
+        {
+            // Shift only unsigned 64-bit values. The zero-count guard keeps the
+            // fill empty; every evaluated native count is strictly below 64.
+            text.Append("static std::uint32_t cilica_shr_i4(std::uint32_t value, std::uint32_t count) noexcept\n{\n")
+                .Append("    count &= 31u;\n    const std::uint64_t bits = value;\n")
+                .Append("    const std::uint64_t sign = std::uint64_t{0} - (bits >> 31u);\n")
+                .Append("    const std::uint64_t fill = count == 0u ? std::uint64_t{0} : sign << (32u - count);\n")
+                .Append("    return static_cast<std::uint32_t>((bits >> count) | fill);\n}\n");
+        }
         foreach (IrMethod method in methods)
         {
             text.Append("[[maybe_unused]] static std::int32_t ").Append(Symbol(IrMethodId.From(method.Source))).Append('(');
@@ -105,14 +116,31 @@ public static class CppEmitter
         IrExpression.Parameter p => "std::bit_cast<std::uint32_t>(p" + Number(p.Index) + ")",
         IrExpression.Local l => "l" + Number(l.Index),
         IrExpression.StackInput s => Input(block, s.Index),
-        IrExpression.Binary b => "static_cast<std::uint32_t>(static_cast<std::uint64_t>(v" + Number(b.Left) + ") " +
-            (b.Operation switch { Int32Operation.AddWrapping => "+", Int32Operation.SubtractWrapping => "-", Int32Operation.MultiplyWrapping => "*", _ => throw new InvalidOperationException() }) +
-            " static_cast<std::uint64_t>(v" + Number(b.Right) + "))",
+        IrExpression.Binary b => Binary(b),
+        IrExpression.Unary u when u.Operation == Int32UnaryOperation.BitwiseNot =>
+            "static_cast<std::uint32_t>(~static_cast<std::uint64_t>(v" + Number(u.Operand) + "))",
         IrExpression.Compare c => "(" + Comparison(c.Comparison, c.Left, c.Right) + " ? 1u : 0u)",
         IrExpression.Call c => "std::bit_cast<std::uint32_t>(" + Symbol(c.Target) + "(" +
             string.Join(", ", c.Arguments.Select(a => "std::bit_cast<std::int32_t>(v" + Number(a) + ")")) + "))",
         _ => throw new InvalidOperationException("Validated expression changed."),
     };
+
+    private static string Binary(IrExpression.Binary binary)
+    {
+        string left = "static_cast<std::uint64_t>(v" + Number(binary.Left) + ")";
+        string right = "static_cast<std::uint64_t>(v" + Number(binary.Right) + ")";
+        if (binary.Operation == Int32Operation.ShiftRightSigned)
+            return "cilica_shr_i4(v" + Number(binary.Left) + ", v" + Number(binary.Right) + ")";
+        if (binary.Operation is Int32Operation.ShiftLeft or Int32Operation.ShiftRightUnsigned) right = "(" + right + " & 31u)";
+        string operation = binary.Operation switch
+        {
+            Int32Operation.AddWrapping => "+", Int32Operation.SubtractWrapping => "-", Int32Operation.MultiplyWrapping => "*",
+            Int32Operation.BitwiseAnd => "&", Int32Operation.BitwiseOr => "|", Int32Operation.BitwiseXor => "^",
+            Int32Operation.ShiftLeft => "<<", Int32Operation.ShiftRightUnsigned => ">>",
+            _ => throw new InvalidOperationException("Validated binary operation changed."),
+        };
+        return "static_cast<std::uint32_t>(" + left + " " + operation + " " + right + ")";
+    }
 
     private static string Comparison(Int32Comparison comparison, int left, int? right)
     {
