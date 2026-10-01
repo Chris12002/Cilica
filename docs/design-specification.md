@@ -295,8 +295,8 @@ their direct receiver through the selected trivial Object constructor before
 other work. Readonly/access checks precede consumption. Nonvirtual `callvirt`
 retains a null check after argument evaluation; a direct instance `call` does not
 insert one. Allocations, calls and fields have explicit method-exit fault edges.
-A test-only evaluator agrees with authored .NET probes. Branches/reference-stack inference are
-conservatively rejected until their translation is implemented.
+A test-only evaluator agrees with authored .NET probes. The original straight-line
+profile is now extended by ordinary-method reference control flow below.
 
 
 The first bounded native object checkpoint is implemented
@@ -310,7 +310,19 @@ there is no collector or persistent object embedding API yet. Native O0/O2
 ASan/UBSan differential probes cover construction, mutation, reference returns,
 allocating calls, null/arithmetic faults, ownership and frame/heap lifetime.
 The initial limits are 1,024 roots per method, 64 active calls, 1 MiB of object
-storage and 4,096 allocations per invocation. Control flow remains unsupported.
+storage and 4,096 allocations per invocation.
+
+
+Ordinary object methods now support bounded branches and loops
+([ADR 0026](decisions/0026-reference-control-flow.md)). Stack type inference revisits
+blocks until null/class/Object joins converge; mixed integer/reference values or
+unsafe narrowing fail. The emitter uses block-scoped temporaries and distinct
+rooted input storage, preserving parallel stack transfers on backedges. Inference
+has an aggregate 262,144-unit work budget in addition to existing IR/metadata
+bounds. Constructors remain straight-line; casts, inheritance, dispatch, switches,
+argument stores and exception regions remain unsupported. Authored C# and raw
+stack-carrying IL match .NET under native sanitizers. The heap still retains
+objects until teardown, so actual collection remains unimplemented.
 
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors

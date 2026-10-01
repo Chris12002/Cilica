@@ -74,27 +74,9 @@ public static partial class Int32Translator
 
         private void Partition()
         {
-            var indices = input.Instructions.Select((instruction, index) => (instruction.Offset, index)).ToDictionary(p => p.Offset, p => p.index);
-            var leaders = new SortedSet<int> { 0 };
-            for (int index = 0; index < input.Instructions.Length; index++)
-            {
-                MethodInstruction instruction = input.Instructions[index];
-                bool branch = instruction.OpCode is "br" or "br.s" || BranchComparison(instruction.OpCode) is not null;
-                if (branch)
-                {
-                    if (instruction.Targets.Length != 1 || !indices.TryGetValue(instruction.Targets[0], out int target))
-                        Fail(DiagnosticIds.InvalidControlTransfer, "Branch target must be an instruction boundary inside this method.", instruction.Offset);
-                    else leaders.Add(target);
-                }
-                if ((branch || instruction.OpCode == "ret") && index + 1 < input.Instructions.Length) leaders.Add(index + 1);
-                if (leaders.Count > IrLimits.MaximumBlocks) Fail(DiagnosticIds.TranslationLimit, "Basic-block limit exceeded.", instruction.Offset);
-            }
-            int[] starts = [.. leaders];
-            for (int id = 0; id < starts.Length; id++)
-            {
-                _ranges.Add((starts[id], id + 1 < starts.Length ? starts[id + 1] : input.Instructions.Length));
-                _blockAt.Add(input.Instructions[starts[id]].Offset, id);
-            }
+            var partition = CilControlFlow.Partition(input, Fail);
+            _ranges.AddRange(partition.Ranges);
+            foreach (var pair in partition.BlockAt) _blockAt.Add(pair.Key, pair.Value);
         }
 
         private IrBlock TranslateBlock(int id, int depth)
@@ -200,14 +182,5 @@ public static partial class Int32Translator
         }
     }
 
-    private static Int32Comparison? BranchComparison(string opcode) => (opcode.EndsWith(".s", StringComparison.Ordinal) ? opcode[..^2] : opcode) switch
-    {
-        "brfalse" => Int32Comparison.Zero, "brtrue" => Int32Comparison.Nonzero,
-        "beq" => Int32Comparison.Equal, "bne.un" => Int32Comparison.NotEqual,
-        "blt" => Int32Comparison.LessSigned, "bgt" => Int32Comparison.GreaterSigned,
-        "ble" => Int32Comparison.LessOrEqualSigned, "bge" => Int32Comparison.GreaterOrEqualSigned,
-        "blt.un" => Int32Comparison.LessUnsigned, "bgt.un" => Int32Comparison.GreaterUnsigned,
-        "ble.un" => Int32Comparison.LessOrEqualUnsigned, "bge.un" => Int32Comparison.GreaterOrEqualUnsigned,
-        _ => null,
-    };
+    private static Int32Comparison? BranchComparison(string opcode) => CilControlFlow.BranchComparison(opcode);
 }

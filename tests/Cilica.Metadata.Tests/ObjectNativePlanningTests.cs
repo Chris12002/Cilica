@@ -33,7 +33,7 @@ public sealed class ObjectNativePlanningTests
     }
 
     [Fact]
-    public void Structurally_valid_reference_control_flow_requires_later_native_lowering()
+    public void Structurally_valid_control_flow_with_stack_inputs_emits_native_code()
     {
         var program = NativeObjectExecutionTests.Translate(nameof(ObjectProbe.Run));
         var entry = program.Flow.Methods.Single(m => IrMethodId.From(m.Source) == program.Flow.Entry);
@@ -43,7 +43,7 @@ public sealed class ObjectNativePlanningTests
         var branched = entry with { Blocks = [first with { Terminator = new IrJump(returned.ILOffset, new(1, [returned.Value])) }, second] };
         program = program with { Flow = program.Flow with { Methods = program.Flow.Methods.Replace(entry, branched) } };
         ObjectIrValidator.Validate(program);
-        Assert.Contains("straight-line", Assert.Throws<ArgumentException>(() => ObjectCppEmitter.EmitProgram(program)).Message, StringComparison.Ordinal);
+        Assert.NotEmpty(ObjectCppEmitter.EmitProgram(program).Text);
     }
 
     [Fact]

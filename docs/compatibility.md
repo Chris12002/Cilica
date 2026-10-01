@@ -10,8 +10,8 @@ not establish native execution or platform compatibility.
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v1` | Bounded metadata snapshots and detached class/field graphs | Int32/CLASS/OBJECT field storage and logical reference slots only; no reference IL, byte layout, allocation, root frames or object execution |
 | `typed-reference-ir-v1` | Detached caller-constructed IR validation | Concrete references/null, typed locals/joins/calls/returns; no CIL object translation, constructor/field operations, native emission or execution |
-| `object-operations-ir-v1` | Bounded straight-line CIL translation and detached operation validation | Constructors, fields and nonvirtual static/instance calls; test-only .NET/IR conformance; no native reference emission, heap, ownership, root frames or collection |
-| `straight-line-objects-native-v1` | C++20 emission and local native differential execution | Instance-owned retained heap, phase A roots, null/allocation faults; Int32 boundary only; no reference control flow or collector |
+| `object-operations-ir-v1` | Bounded CIL translation and detached operation validation | Constructors, fields and nonvirtual static/instance calls; test-only .NET/IR conformance; no native reference emission, heap, ownership, root frames or collection |
+| `object-control-flow-native-v1` | C++20 emission and local native differential execution | Instance-owned retained heap, phase A roots, typed branches/backedges, null/allocation faults; Int32 boundary only; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -237,7 +237,7 @@ storage and values before returning an artifact. Internal reference-returning
 IR does not establish a native reference ABI. See
 [ADR 0023](decisions/0023-typed-reference-value-flow.md).
 
-## Straight-line object operation translation
+## Object operation translation
 
 `ObjectTranslator.Translate` takes an explicit entry MethodDef and selected
 runtime library. Its `ObjectIrProgram` retains complete method closure, a shared
@@ -276,9 +276,9 @@ Readonly stores require the declaring constructor and a direct parameter-zero
 receiver. Reference field stores accept null or an assignable concrete reference.
 Type/module initialization, reference-assembly/native bodies, generics, virtual/
 interface calls, prefixes, arrays, strings, byrefs and unsupported storage fail
-without partial programs. Bodies are straight-line and must finish with `ret`;
-branches, loops and trailing unreachable instructions are rejected. Reference
-join inference is a future expansion, not implemented by this translator.
+without partial programs. Ordinary methods support branches/backedges with inferred
+typed inputs, described below. Constructors remain straight-line; unreachable
+blocks and unsupported operations/transfers are rejected.
 
 Existing aggregate IL/method/IR bounds remain. Member binding, initializer scans
 and cached type snapshots share a 65,536-unit metadata work ledger; repeated token
@@ -298,9 +298,9 @@ corpus remains the backend evidence. No object CLI command or native object ABI
 is exposed. See [ADR 0024](decisions/0024-straight-line-object-operations.md).
 
 
-## Straight-line native object checkpoint
+## Native object checkpoint
 
-`ObjectCppEmitter.EmitProgram` implements `straight-line-objects-native-v1` from
+`ObjectCppEmitter.EmitProgram` initially implemented `straight-line-objects-native-v1` from
 revalidated `ObjectIrProgram`; `ObjectRootAssignment.Assign` supplies the separate
 phase A plan. This compiler API emits C++20, without executing input assemblies
 or launching a compiler. The CLI still exposes only the Int32 native profile.
@@ -323,9 +323,10 @@ caller slot before any later allocation. Field maps derive from checked native
 before reading supplied references, and foreign heaps/types fail explicitly.
 
 Limits: 1,024 roots per method, 64 active calls, 1 MiB of object storage and 4,096
-allocations per invocation, plus existing object/IR budgets. Bodies remain one
-block with no stack inputs and a return. Caller-constructed valid control flow
-and excess frames fail before source is returned. The heap retains objects until
+allocations per invocation, plus existing object/IR budgets. The initial profile
+required one block with no stack inputs; the control-flow expansion below now
+provides native jumps/branches and typed inputs. Excess frames fail before source
+is returned. The heap retains objects until
 teardown; no GC, collection stress, phase B, performance, stable embedding,
 exception-handler, class-library or broader platform claim follows.
 
@@ -340,3 +341,39 @@ self-comparison, plus a native-only bounded recursion check. Exact fault origins
 are checked against the validated operation's IL offset; .NET supplies the
 independent result/fault-kind oracle. See
 [ADR 0025](decisions/0025-native-object-ownership-and-roots.md).
+
+
+## Reference control-flow expansion
+
+`object-control-flow-native-v1` expands ordinary object methods to the supported
+Int32 branch family and reference truth/null/identity branches, with typed stack
+joins and backedges. The primitive emitter remains Int32-only and retains its
+status ABI. The object entry still accepts/returns only Int32; frame/heap ownership,
+fault tags, teardown and limits remain those of the initial checkpoint.
+
+Null joins a concrete class; different direct-Object classes join as the selected
+Object base. Equal types remain exact. Depth mismatches, integer/reference joins
+and narrowing an Object input into a class consumer fail without partial IR.
+Inference revisits blocks until types converge, before complete operation validation.
+Unreachable blocks, ordered reference comparisons, switches, leave/handlers,
+argument stores and casts remain errors. Constructors still require a single
+block initialized through their direct base call before other work.
+
+A separate 262,144-unit closure budget counts instruction visits, input materialization,
+argument copies and edge slot visits plus one per edge. Cached call sites charge
+call-copy limits once; cached field snapshots have token indexes. Existing aggregate
+metadata/IR limits also apply. Root assignment includes block inputs and `(block,
+value)` temporaries within the same 1,024-root limit per method. Distinct source and
+input slots preserve parallel edge transfers, including reference swaps. Integer
+inputs live at method scope; references alias root slots. Block temporaries have
+C++ scopes, and all jumps follow frame publication. No termination proof or new
+collection/liveness claim is made.
+
+Evidence: seven authored C#/raw-IL entries compare 2,093 .NET result/fault cases at
+each O0/O2 configuration under ASan/UBSan on the previously recorded local ARM64
+toolchain. They cover linked-object traversal, nullable selection, sibling-class
+widening, identity, allocating stack swaps and arithmetic fault exits/origins.
+Observers inspect original references during loop allocations; allocation-budget
+failure pops the frame. Compiler fixtures cover convergence, invalid/widened uses,
+inference bounds and preserved rejection boundaries. See
+[ADR 0026](decisions/0026-reference-control-flow.md).

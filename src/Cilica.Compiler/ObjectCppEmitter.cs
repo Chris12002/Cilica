@@ -6,10 +6,10 @@ using System.Text;
 
 namespace Cilica.Compiler;
 
-/// <summary>Emits the bounded straight-line object profile; references never cross its Int32 C boundary.</summary>
+/// <summary>Emits the bounded typed object profile; references never cross its Int32 C boundary.</summary>
 public static class ObjectCppEmitter
 {
-    public const string Profile = "straight-line-objects-native-v1";
+    public const string Profile = "object-control-flow-native-v1";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -64,8 +64,7 @@ public static class ObjectCppEmitter
         void AppendMethod(IrMethod method)
         {
             var plan = plans[IrMethodId.From(method.Source)];
-            var roots = plan.Slots.ToDictionary(s => (s.Kind, s.Index), s => s.Slot);
-            var values = method.Blocks[0].Values.ToDictionary(v => v.Id);
+            var roots = plan.Slots.ToDictionary(s => (s.Kind, s.Block, s.Index), s => s.Slot);
             string Exit() => method.ReturnType.Kind switch { IrTypeKind.Void => "return;", IrTypeKind.Reference => "return nullptr;", _ => "return 0;" };
             void Fault(string code, int offset)
             {
@@ -84,7 +83,7 @@ public static class ObjectCppEmitter
                 if (type != program.Flow.Types.ObjectBase)
                     Guard(value + " != nullptr && " + value + "->type != &" + TypeSymbol(type) + "_descriptor", "6u", offset);
             }
-            string Root(ObjectRootKind kind, int index) => "roots[" + N(roots[(kind, index)]) + "]";
+            string Root(ObjectRootKind kind, int index, int block = -1) => "roots[" + N(roots[(kind, block, index)]) + "]";
             string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null)
             {
                 var parameters = methods[target].Parameters;
@@ -109,69 +108,97 @@ public static class ObjectCppEmitter
                     text.Append("    [[maybe_unused]] std::uint32_t l").Append(N(i)).Append(" = 0u;\n");
                 else text.Append("    [[maybe_unused]] Object*& l").Append(N(i)).Append(" = ").Append(Root(ObjectRootKind.Local, i)).Append(";\n");
             }
-            foreach (var statement in method.Blocks[0].Statements)
+            foreach (var block in method.Blocks)
+                for (int i = 0; i < block.Inputs.Length; i++)
+                    text.Append("    [[maybe_unused]] ").Append(block.Inputs[i].Kind == IrTypeKind.Int32 ? "std::uint32_t " : "Object*& ")
+                        .Append(Input(block.Id, i)).Append(" = ").Append(block.Inputs[i].Kind == IrTypeKind.Int32 ? "0u" : Root(ObjectRootKind.BlockInput, i, block.Id)).Append(";\n");
+            text.Append("    goto b0;\n");
+            foreach (var block in method.Blocks)
             {
-                switch (statement)
+                var values = block.Values.ToDictionary(v => v.Id);
+                text.Append('b').Append(N(block.Id)).Append(": {\n");
+                foreach (var statement in block.Statements)
                 {
-                    case IrStatement.Define define:
+                    switch (statement)
                     {
-                        var value = define.Value; string expression;
-                        text.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
-                        switch (value.Expression)
+                        case IrStatement.Define define:
                         {
-                            case IrExpression.NewObject allocation:
-                                string type = TypeSymbol(bindings[allocation.Constructor].Owner);
-                                expression = "allocate<" + type + ">(context, " + type + "_descriptor)"; break;
-                            case IrExpression.LoadField field:
-                                Check("v" + N(field.Receiver), field.Field.Owner, true, value.ILOffset);
-                                expression = Field(field.Field, field.Receiver); break;
-                            case IrExpression.Null: expression = "nullptr"; break;
-                            case IrExpression.Parameter p when value.Type.Kind == IrTypeKind.Reference:
-                                expression = Root(ObjectRootKind.Parameter, p.Index); break;
-                            case IrExpression.Call call:
-                                if (call.NullCheckReceiver) Guard("v" + N(call.Arguments[0]) + " == nullptr", "4u", value.ILOffset);
-                                expression = Call(call.Target, call.Arguments);
-                                if (value.Type.Kind == IrTypeKind.Int32) expression = "std::bit_cast<std::uint32_t>(" + expression + ")";
-                                break;
-                            default:
-                                expression = CppEmitter.AppendValuePreparation(text, value, 0, (fault, offset) => Fault(N((int)fault) + "u", offset)); break;
+                            var value = define.Value; string expression;
+                            text.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
+                            switch (value.Expression)
+                            {
+                                case IrExpression.NewObject allocation:
+                                    string type = TypeSymbol(bindings[allocation.Constructor].Owner);
+                                    expression = "allocate<" + type + ">(context, " + type + "_descriptor)"; break;
+                                case IrExpression.LoadField field:
+                                    Check("v" + N(field.Receiver), field.Field.Owner, true, value.ILOffset);
+                                    expression = Field(field.Field, field.Receiver); break;
+                                case IrExpression.Null: expression = "nullptr"; break;
+                                case IrExpression.Parameter p when value.Type.Kind == IrTypeKind.Reference:
+                                    expression = Root(ObjectRootKind.Parameter, p.Index); break;
+                                case IrExpression.Call call:
+                                    if (call.NullCheckReceiver) Guard("v" + N(call.Arguments[0]) + " == nullptr", "4u", value.ILOffset);
+                                    expression = Call(call.Target, call.Arguments);
+                                    if (value.Type.Kind == IrTypeKind.Int32) expression = "std::bit_cast<std::uint32_t>(" + expression + ")";
+                                    break;
+                                default:
+                                    expression = CppEmitter.AppendValuePreparation(text, value, block.Id, (fault, offset) => Fault(N((int)fault) + "u", offset)); break;
+                            }
+                            if (value.Type.Kind is IrTypeKind.Reference or IrTypeKind.NullReference)
+                            {
+                                text.Append("    [[maybe_unused]] Object*& v").Append(N(value.Id)).Append(" = ").Append(Root(ObjectRootKind.Value, value.Id, block.Id)).Append(";\n")
+                                    .Append("    v").Append(N(value.Id)).Append(" = ").Append(expression).Append(";\n");
+                            }
+                            else text.Append("    [[maybe_unused]] const std::uint32_t v").Append(N(value.Id)).Append(" = ").Append(expression).Append(";\n");
+                            if (value.Expression is IrExpression.NewObject created)
+                            {
+                                Guard("v" + N(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
+                                // Publish the new reference in the caller frame before entering its constructor.
+                                text.Append("    ").Append(Call(created.Constructor, created.Arguments, "v" + N(value.Id))).Append(";\n"); Pending();
+                            }
+                            else if (value.Expression is IrExpression.Call) Pending();
+                            break;
                         }
-                        if (value.Type.Kind is IrTypeKind.Reference or IrTypeKind.NullReference)
-                        {
-                            text.Append("    [[maybe_unused]] Object*& v").Append(N(value.Id)).Append(" = ").Append(Root(ObjectRootKind.Value, value.Id)).Append(";\n")
-                                .Append("    v").Append(N(value.Id)).Append(" = ").Append(expression).Append(";\n");
-                        }
-                        else text.Append("    [[maybe_unused]] const std::uint32_t v").Append(N(value.Id)).Append(" = ").Append(expression).Append(";\n");
-                        if (value.Expression is IrExpression.NewObject created)
-                        {
-                            Guard("v" + N(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
-                            // Publish the new reference in the caller frame before entering its constructor.
-                            text.Append("    ").Append(Call(created.Constructor, created.Arguments, "v" + N(value.Id))).Append(";\n"); Pending();
-                        }
-                        else if (value.Expression is IrExpression.Call) Pending();
-                        break;
+                        case IrStatement.StoreLocal store:
+                            text.Append("    l").Append(N(store.Local)).Append(" = v").Append(N(store.Value)).Append(";\n"); break;
+                        case IrStatement.Invoke invoke:
+                            if (invoke.NullCheckReceiver) Guard("v" + N(invoke.Arguments[0]) + " == nullptr", "4u", invoke.ILOffset);
+                            text.Append("    ").Append(Call(invoke.Target, invoke.Arguments)).Append(";\n"); Pending(); break;
+                        case IrStatement.StoreField store:
+                            Check("v" + N(store.Receiver), store.Field.Owner, true, store.ILOffset);
+                            if (values[store.Value].Type.Kind == IrTypeKind.Reference)
+                                Check("v" + N(store.Value), values[store.Value].Type.Class!, false, store.ILOffset);
+                            text.Append("    ").Append(Field(store.Field, store.Receiver)).Append(" = v").Append(N(store.Value)).Append(";\n"); break;
                     }
-                    case IrStatement.StoreLocal store:
-                        text.Append("    l").Append(N(store.Local)).Append(" = v").Append(N(store.Value)).Append(";\n"); break;
-                    case IrStatement.Invoke invoke:
-                        if (invoke.NullCheckReceiver) Guard("v" + N(invoke.Arguments[0]) + " == nullptr", "4u", invoke.ILOffset);
-                        text.Append("    ").Append(Call(invoke.Target, invoke.Arguments)).Append(";\n"); Pending(); break;
-                    case IrStatement.StoreField store:
-                        Check("v" + N(store.Receiver), store.Field.Owner, true, store.ILOffset);
-                        if (values[store.Value].Type.Kind == IrTypeKind.Reference)
-                            Check("v" + N(store.Value), values[store.Value].Type.Class!, false, store.ILOffset);
-                        text.Append("    ").Append(Field(store.Field, store.Receiver)).Append(" = v").Append(N(store.Value)).Append(";\n"); break;
                 }
+                switch (block.Terminator)
+                {
+                    case IrReturn returned:
+                        text.Append("    return ").Append(method.ReturnType.Kind == IrTypeKind.Int32
+                            ? "std::bit_cast<std::int32_t>(v" + N(returned.Value) + ")" : "v" + N(returned.Value)).Append(";\n"); break;
+                    case IrVoidReturn: text.Append("    return;\n"); break;
+                    case IrJump jump: Edge(jump.Edge); break;
+                    case IrBranch branch:
+                        text.Append("    if (").Append(CppEmitter.Comparison(branch.Comparison, branch.Left, branch.Right,
+                            values[branch.Left].Type.Kind != IrTypeKind.Int32)).Append(") {\n");
+                        Edge(branch.Taken); text.Append("    } else {\n"); Edge(branch.NotTaken); text.Append("    }\n"); break;
+                }
+                text.Append("}\n");
             }
-            if (method.Blocks[0].Terminator is IrReturn returned)
-                text.Append("    return ").Append(method.ReturnType.Kind == IrTypeKind.Int32
-                    ? "std::bit_cast<std::int32_t>(v" + N(returned.Value) + ")" : "v" + N(returned.Value)).Append(";\n");
-            else text.Append("    return;\n");
             text.Append("}\n");
+            void Edge(IrEdge edge)
+            {
+                // Every source v has distinct storage from every target input,
+                // so these copies preserve parallel transfer even on self edges.
+                for (int i = 0; i < edge.Arguments.Length; i++)
+                    text.Append("    ").Append(Input(edge.Target, i)).Append(" = v").Append(N(edge.Arguments[i])).Append(";\n");
+                text.Append("    goto b").Append(N(edge.Target)).Append(";\n");
+            }
         }
     }
 
     private static string CType(IrType type) => type.Kind switch { IrTypeKind.Int32 => "std::int32_t", IrTypeKind.Void => "void", _ => "Object*" };
+    private static string Input(int block, int index) => "s" + N(block) + "_" + N(index);
     private static string N(int value) => value.ToString(CultureInfo.InvariantCulture);
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture);
     private static string FieldSymbol(ObjectFieldId field) => "f_" + field.Token.ToString("x8", CultureInfo.InvariantCulture);

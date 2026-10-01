@@ -93,7 +93,6 @@ public sealed class ObjectTranslationTests
     [InlineData("wrong_readonly_receiver")]
     [InlineData("initializer")]
     [InlineData("reference")]
-    [InlineData("branch")]
     [InlineData("trailing")]
     [InlineData("maxstack")]
     public void Unsupported_or_invalid_object_input_has_diagnostics_and_no_partial_program(string damage)
@@ -107,6 +106,14 @@ public sealed class ObjectTranslationTests
     public void Public_fields_on_top_level_public_classes_allow_cross_owner_loads()
     {
         var result = Translate("public_field"); Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+    }
+
+    [Fact]
+    public void Ordinary_object_method_branches_are_translated()
+    {
+        var result = Translate("branch"); Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ObjectIrValidator.Validate(result.Program!);
+        Assert.NotEmpty(ObjectCppEmitter.EmitProgram(result.Program!).Text);
     }
 
     [Fact]

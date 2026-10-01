@@ -241,11 +241,11 @@ public static class CppEmitter
         return "static_cast<std::uint32_t>(" + left + " " + operation + " " + right + ")";
     }
 
-    private static string Comparison(Int32Comparison comparison, int left, int? right)
+    internal static string Comparison(Int32Comparison comparison, int left, int? right, bool reference = false)
     {
         string operand = "v" + Number(left);
         if (comparison is Int32Comparison.Zero or Int32Comparison.Nonzero)
-            return operand + (comparison == Int32Comparison.Zero ? " == 0u" : " != 0u");
+            return operand + (comparison == Int32Comparison.Zero ? " == " : " != ") + (reference ? "nullptr" : "0u");
         // dup can make both operands the same already-evaluated temporary.
         // Fold that identity to avoid tautological-compare errors under -Werror.
         if (left == right)

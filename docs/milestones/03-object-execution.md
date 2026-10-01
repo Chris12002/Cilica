@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; straight-line native objects, instance ownership and phase A roots are implemented. Updated 2026-10-02.
+Status: in progress; native object branches/backedges, instance ownership and phase A roots are implemented. Updated 2026-10-02.
 
 The first native class checkpoint now runs an independently authored small class
 created, mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -15,7 +15,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3b-a | Concrete reference/null types and validated locals, joins, calls and returns | Complete for detached IR contract |
 | 3b-b | CIL object translation, construction/field access and verified static/instance calls | Complete for bounded straight-line profile |
 | 3c | Native object allocation, instance ownership and phase A root frames; first class differential execution | Complete for bounded straight-line profile |
-| 3b-c | Reference-stack inference through branches/backedges | Planned after first native checkpoint |
+| 3b-c | Reference-stack inference through branches/backedges | Complete for bounded ordinary-method control flow |
 | 3d | Inheritance, casts and verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -163,13 +163,56 @@ Toolchain: SDK 10.0.400, .NET 10.0.11, Apple Clang 17 on macOS ARM64. Local main
 and cached origin/main remain ancestors; the remote advertises no branch refs.
 No push, hosted work, additional agent or runtime service was started.
 
+## Slice 3b-c outcome
+
+[ADR 0026](../decisions/0026-reference-control-flow.md) extends ordinary object
+methods through branches/backedges. A bounded work queue revisits stack inputs
+until null/class/Object types converge. Incompatible kinds/depths and uses that
+would narrow a widened Object fail without partial IR. Integer/object translation
+share instruction partitioning and branch vocabulary. Cached call sites preserve
+call-copy accounting across revisits, and field snapshots have token indexes.
+An additional 262,144-unit closure budget bounds instruction/input/argument/edge
+work independently of output size. Constructors remain straight-line; ordered
+reference comparisons, argument stores, switches and handlers remain unsupported.
+
+The native profile is now `object-control-flow-native-v1`. Root plans include
+block inputs and `(block, value)` identities. Different input and temporary slots
+preserve parallel edge transfers, including reference swaps on backedges. Native
+block scopes follow publication of a method frame; loop allocation/arithmetic
+faults pop it. Heap ownership, Int32 boundary and prior resource limits remain.
+The heap still retains objects until teardown, with no collector/liveness claim.
+
+Review checks convergence after backedge widening, final strict consumer validation,
+aggregate budgets, root identities, scoped C++ jumps, parallel edge transfer and
+pending-fault origins. Revisit work includes argument copies and avoids repeated
+field scans. Reduced fixtures reject a callee that becomes invalid only after
+widening and inference work that exceeds its bound while final IR would fit.
+No remaining issue was found within this bounded retained-heap profile.
+
+Seven authored C#/raw-IL entries compare 2,093 result/fault cases per native O0/O2
+configuration under ASan/UBSan, through private helpers and the C boundary. They
+cover linked-object traversal, nullable selection, identity, sibling-class-to-Object
+widening, allocating stack swaps and arithmetic exits/origins. An independently
+authored .NET DynamicMethod supplies the raw swap oracle. Native observers inspect
+original references during loop allocation; forced allocation failure unwinds
+frames. Compiler checks preserve constructor/ordering/argument-store rejections
+and root limits. A near-limit regression verifies 65,504 call arguments remain
+within the call-copy ledger when a loop is revisited.
+
+Final local validation: zero build warnings/errors; all 839 tests pass in 26.9
+seconds, including primitive and object native sanitizer cases. Toolchain: SDK
+10.0.400, .NET 10.0.11, Apple Clang 17 on macOS ARM64. Local main and cached
+origin/main remain ancestors; the remote advertises no branch refs. No push,
+hosted work, additional agent or runtime service was started.
+
 ## Next checkpoint and exit gates
 
-Slice 3b-c now adds reference-stack inference through branches/backedges, preserving
-parallel edge transfers and phase A root publication. The retained-heap execution
-checkpoint does not clear milestone 4: precise collection, stress at every
-allocation and poisoned reclamation must prove that these roots survive actual
-reclamation. Phase B and the wider ADR 0001/0002 experiments remain planned.
+Slice 3d next adds inheritance, casts and verified virtual/interface dispatch;
+its layout/type/dispatch boundaries must be split into coherent reviewed changes.
+The retained-heap execution checkpoint does not clear milestone 4: precise
+collection, stress at every allocation and poisoned reclamation must prove that
+these roots survive actual reclamation. Phase B and the wider ADR 0001/0002
+experiments remain planned.
 
 The Alchemy/CoreLib general-filter gate remains unresolved. No native checkpoint
 clears the library audit, catch/filter/finally, generics, initialization, browser

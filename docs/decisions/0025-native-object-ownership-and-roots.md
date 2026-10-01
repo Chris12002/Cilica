@@ -96,3 +96,8 @@ private observation hook, so invalid root addresses are not exposed to observers
 The retained-heap experiment cannot prove correctness under reclamation. Precise
 collection, stress at every allocation, phase B and Emscripten/other platforms
 remain gates. ADRs 0001 and 0002 remain proposed for their wider experiments.
+
+
+[ADR 0026](0026-reference-control-flow.md) subsequently expands ordinary methods
+through typed branches/backedges with block input/value root identities. The
+initial retained-heap/ownership/fault contract and its collection gates remain.

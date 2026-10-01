@@ -3,12 +3,12 @@
 An independent, open-source .NET IL-to-C++ compiler and managed runtime, designed
 for embedding C# libraries in native and browser applications.
 
-**Status: metadata frontend, bounded Int32 execution and a straight-line native object checkpoint implemented.**
+**Status: metadata frontend, bounded Int32 execution and native object control flow implemented.**
 The assembly explorer inspects IL and audits bounded dependencies without running
 input assemblies. The bounded integer profile now emits C++20 and passes local
 native differential tests, including division, remainder and checked-arithmetic faults.
-Detached layouts, typed references and bounded straight-line object IL translation
-are also implemented. The compiler API now emits a bounded instance-owned object
+Detached layouts, typed references and bounded object IL translation through
+branches and loops are also implemented. The compiler API now emits a bounded instance-owned object
 heap and phase A root frames, tested against .NET under native sanitizers.
 Collection, managed exception objects/handlers, libraries and Expo integration remain planned.
 Broader platform and language support are planned capabilities,

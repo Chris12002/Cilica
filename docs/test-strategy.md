@@ -433,3 +433,22 @@ and poisoned-reclamation stress. Preserve all primitive/native regressions after
 sharing arithmetic lowering. Slice 3b-c next adds reference control flow; milestone
 4 remains responsible for precise collection. Wider ADR 0001/0002 experiments
 and browser/mobile claims remain gated on their own toolchains and evidence.
+
+
+## Slice 3b-c: reference branches and loops
+
+Pair null/class and sibling-to-Object joins with incompatible depths/kinds and
+uses that become invalid after a backedge widens a provisional type. Check
+revisited calls near the 65,536-argument limit without charging them twice, and
+inference-work rejection for methods whose input/final IR otherwise fit. Constructors, ordered reference
+branches, argument stores, switches and exception transfers remain explicit gates.
+Root keys distinguish inputs and value IDs from different blocks; existing native
+frame limits apply to their aggregate.
+
+Run independently authored C# object selection/traversal/identity/arithmetic loops
+and raw IL with stack-carried reference swaps against .NET at O0/O2 under
+ASan/UBSan. Bound authored loop counts independently of translation. Inspect
+published references at allocations, validate fault origins and unchanged boundary
+results, and force allocation failure from within a loop to check frame teardown.
+The primitive CFG/native corpus remains required after sharing branch partitioning.
+These retained-heap tests do not replace future reclamation/poisoning stress.
