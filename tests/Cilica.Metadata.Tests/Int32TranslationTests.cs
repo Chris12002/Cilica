@@ -42,7 +42,7 @@ public sealed class Int32TranslationTests
         Assert.Equal(new IrExpression.Binary(Int32Operation.SubtractWrapping, 0, 1), block.Values[2].Expression);
         Assert.Equal(new IrExpression.Binary(Int32Operation.MultiplyWrapping, 2, 3), block.Values[4].Expression);
         Assert.Equal(new IrExpression.Binary(Int32Operation.AddWrapping, 4, 5), block.Values[6].Expression);
-        Assert.Equal(6, block.Return.Value);
+        Assert.Equal(6, ((IrReturn)block.Terminator).Value);
         Assert.Equal(2, block.Values[2].ILOffset);
         Assert.All(block.Values, value => Assert.Equal(IrType.Int32, value.Type));
         Assert.Equal(23, EvaluateAuthoredFixture(method, [10, 3]));
@@ -85,7 +85,6 @@ public sealed class Int32TranslationTests
     [InlineData(ILOpCode.Ldnull)]
     [InlineData(ILOpCode.Add_ovf)]
     [InlineData(ILOpCode.Div)]
-    [InlineData(ILOpCode.Pop)]
     public void Unsupported_instructions_never_return_partial_ir(ILOpCode opcode)
     {
         var builder = Builder(); builder.Type("", "Entry");
@@ -134,7 +133,6 @@ public sealed class Int32TranslationTests
     }
 
     [Theory]
-    [InlineData("locals")]
     [InlineData("reference")]
     [InlineData("type_initializer")]
     [InlineData("module_initializer")]
@@ -148,7 +146,6 @@ public sealed class Int32TranslationTests
         if (kind == "type_initializer") builder.Method(".cctor", [0, 0, 1], emit: Return);
         var root = builder.Method("Value", kind == "generic" ? [0x10, 1, 0, 8] : [0, 0, 8],
             arity: kind == "generic" ? 1 : 0,
-            locals: kind == "locals" ? [7, 1, 8] : null,
             emit: kind == "runtime" ? null : il => { il.LoadConstantI4(1); Return(il); });
         if (kind == "reference") builder.MarkReferenceAssembly();
         var result = Translate(builder, root); Assert.Null(result.Method);
@@ -267,7 +264,7 @@ public sealed class Int32TranslationTests
                 },
                 _ => throw new InvalidOperationException(),
             };
-        return values[block.Return.Value];
+        return values[((IrReturn)block.Terminator).Value];
     }
 }
 

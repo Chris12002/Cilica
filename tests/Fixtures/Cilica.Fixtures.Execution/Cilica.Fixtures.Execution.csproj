@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Keep authored branch/loop probes in the supported Int32 local profile;
+         Debug C# may introduce Boolean bookkeeping locals. -->
+    <OptimizeExecutionFixture>true</OptimizeExecutionFixture>
+  </PropertyGroup>
+</Project>

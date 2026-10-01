@@ -21,5 +21,7 @@
     <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Basic\Cilica.Fixtures.Basic.csproj" />
     <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Forwarding\Cilica.Fixtures.Forwarding.csproj" />
     <ProjectReference Include="..\Fixtures\Cilica.Fixtures.ControlFlow\Cilica.Fixtures.ControlFlow.csproj" />
+    <!-- Authored executable probes run only in the test oracle/native harness. -->
+    <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Execution\Cilica.Fixtures.Execution.csproj" />
   </ItemGroup>
 </Project>

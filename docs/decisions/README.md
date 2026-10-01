@@ -21,3 +21,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0013](0013-structural-array-receivers.md) | Structural array receivers with selected-library inheritance | Accepted for bounded array analysis |
 | [0014](0014-straight-line-int32-ir.md) | Typed IR for straight-line Int32 methods | Accepted for translation profile |
 | [0015](0015-int32-cpp-emission.md) | First Int32 C++ emission and native evidence | Accepted for bounded native profile |
+| [0016](0016-int32-control-flow.md) | Initialized Int32 locals and explicit control flow | Accepted for initialized Int32 profile |

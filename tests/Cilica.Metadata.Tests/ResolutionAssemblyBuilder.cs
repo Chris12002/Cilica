@@ -52,7 +52,7 @@ internal sealed class ResolutionAssemblyBuilder
     // Add each type before its contiguous member rows, as required by TypeDef lists.
     internal MethodDefinitionHandle Method(string name, byte[] signature, int arity = 0,
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.Static,
-        Action<InstructionEncoder>? emit = null, byte[]? locals = null)
+        Action<InstructionEncoder>? emit = null, byte[]? locals = null, bool initializeLocals = true, int maxStack = 8)
     {
         int offset = -1;
         if (emit is not null)
@@ -60,7 +60,7 @@ internal sealed class ResolutionAssemblyBuilder
             var il = new InstructionEncoder(new BlobBuilder(), new ControlFlowBuilder());
             emit(il);
             var localSignature = locals is null ? default : _metadata.AddStandaloneSignature(_metadata.GetOrAddBlob(locals));
-            offset = _bodies.AddMethodBody(il, 8, localSignature, MethodBodyAttributes.InitLocals);
+            offset = _bodies.AddMethodBody(il, maxStack, localSignature, initializeLocals ? MethodBodyAttributes.InitLocals : MethodBodyAttributes.None);
         }
         var handle = _metadata.AddMethodDefinition(attributes, emit is null ? MethodImplAttributes.Runtime : MethodImplAttributes.IL,
             _metadata.GetOrAddString(name), _metadata.GetOrAddBlob(signature), offset, MetadataTokens.ParameterHandle(1));

@@ -21,7 +21,13 @@ public sealed class CompiledMemberResolutionTests
         MetadataReader reader = pe.GetMetadataReader();
         using var resolver = AssemblyResolver.Create([]).Value!;
         var assembly = resolver.OpenInput(path).Value!;
-        var references = reader.MemberReferences.Where(h => reader.StringComparer.Equals(reader.GetMemberReference(h).Name, "Choose")).ToArray();
+        var owner = resolver.ResolveType(assembly, MetadataTokens.EntityHandle(typeof(BindingOverloads<>).MetadataToken)).Value!;
+        // Other authored fixtures can contain Choose; select the scoped owner,
+        // not every same-named member in this growing test assembly.
+        var references = reader.MemberReferences.Where(h => reader.StringComparer.Equals(reader.GetMemberReference(h).Name, "Choose"))
+            .Where(h => reader.GetMemberReference(h).Parent.Kind == HandleKind.TypeSpecification
+                && resolver.ResolveSignatureType(assembly, reader.GetMemberReference(h).Parent).Value is TypeSignature.Generic generic
+                && generic.Definition.Definition.Equals(owner)).ToArray();
         Assert.Equal(2, references.Length);
         foreach (var reference in references)
         {

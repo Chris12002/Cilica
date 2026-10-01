@@ -15,9 +15,9 @@ public sealed class CppEmissionTests
 {
     private static IrMethod Method() => new(new("ignored", new string('a', 64), 0x06000001, "ignored"),
         [IrType.Int32, IrType.Int32], IrType.Int32,
-        [new(0, [new(0, IrType.Int32, 0, new IrExpression.Parameter(0)),
-            new(1, IrType.Int32, 1, new IrExpression.Parameter(1)),
-            new(2, IrType.Int32, 2, new IrExpression.Binary(Int32Operation.SubtractWrapping, 0, 1))], new(3, 2))]);
+        [new(0, 0, [], [new IrStatement.Define(new(0, IrType.Int32, 0, new IrExpression.Parameter(0))),
+            new IrStatement.Define(new(1, IrType.Int32, 1, new IrExpression.Parameter(1))),
+            new IrStatement.Define(new(2, IrType.Int32, 2, new IrExpression.Binary(Int32Operation.SubtractWrapping, 0, 1)))], new IrReturn(3, 2))], []);
 
     [Fact]
     public void Source_is_deterministic_culture_independent_and_never_interpolates_metadata_names()
@@ -78,12 +78,12 @@ public sealed class CppEmissionTests
             _ => method with { Blocks = [damage switch
             {
                 "block_id" => block with { Id = 1 },
-                "values" => block with { Values = default },
-                "empty" => block with { Values = [] },
-                "return" => block with { Return = null! },
-                "return_offset" => block with { Return = block.Return with { ILOffset = 2 } },
-                "return_value" => block with { Return = block.Return with { Value = 3 } },
-                _ => block with { Values = block.Values.SetItem(2, damage switch
+                "values" => block with { Statements = default },
+                "empty" => block with { Statements = [] },
+                "return" => block with { Terminator = null! },
+                "return_offset" => block with { Terminator = ((IrReturn)block.Terminator) with { ILOffset = 1 } },
+                "return_value" => block with { Terminator = ((IrReturn)block.Terminator) with { Value = 3 } },
+                _ => block with { Statements = block.Statements.SetItem(2, new IrStatement.Define(damage switch
                 {
                     "null_value" => null!,
                     "value_id" => value with { Id = 1 },
@@ -91,12 +91,12 @@ public sealed class CppEmissionTests
                     "offset" => value with { ILOffset = -1 },
                     "argument" => value with { Expression = new IrExpression.Parameter(2) },
                     "negative_argument" => value with { Expression = new IrExpression.Parameter(-1) },
-                    "offset_order" => value with { ILOffset = 1 },
+                    "offset_order" => value with { ILOffset = 0 },
                     "forward_operand" => value with { Expression = new IrExpression.Binary(Int32Operation.AddWrapping, 0, 2) },
                     "negative_operand" => value with { Expression = new IrExpression.Binary(Int32Operation.AddWrapping, -1, 1) },
                     "operation" => value with { Expression = new IrExpression.Binary((Int32Operation)99, 0, 1) },
                     _ => value with { Expression = null! },
-                }) },
+                })) },
             }] },
         };
         Assert.Throws<ArgumentException>(() => CppEmitter.Emit(method));
@@ -109,7 +109,7 @@ public sealed class CppEmissionTests
         Assert.Throws<ArgumentException>(() => CppEmitter.Emit(method with
         { Parameters = Enumerable.Repeat(IrType.Int32, CppEmitter.MaximumParameters + 1).ToImmutableArray() }));
         Assert.Throws<ArgumentException>(() => CppEmitter.Emit(method with
-        { Blocks = [method.Blocks[0] with { Values = Enumerable.Repeat(method.Blocks[0].Values[0], CppEmitter.MaximumValues + 1).ToImmutableArray() }] }));
+        { Blocks = [method.Blocks[0] with { Statements = Enumerable.Repeat(method.Blocks[0].Statements[0], CppEmitter.MaximumValues + 1).ToImmutableArray() }] }));
         Assert.Throws<ArgumentNullException>(() => CppEmitter.Emit(null!));
     }
 
@@ -133,12 +133,12 @@ public sealed class CppEmissionTests
         var builder = new ResolutionAssemblyBuilder(new("Emit", new Version(1, 0, 0, 0)));
         builder.Type("", "Entry");
         builder.Method("Add", [0, 2, 8, 8, 8], emit: il => { il.LoadArgument(0); il.LoadArgument(1); il.OpCode(ILOpCode.Add); il.OpCode(ILOpCode.Ret); });
-        builder.Method("Unsupported", [0, 0, 8], emit: il => { il.LoadConstantI4(1); il.OpCode(ILOpCode.Pop); il.LoadConstantI4(2); il.OpCode(ILOpCode.Ret); });
+        builder.Method("Unsupported", [0, 0, 8], emit: il => { il.LoadConstantI4(1); il.OpCode(ILOpCode.Add_ovf); il.LoadConstantI4(2); il.OpCode(ILOpCode.Ret); });
         string input = files.Write("input.dll", builder.Build());
         string output = Path.Combine(files.Root, "generated.cpp");
         var stdout = Run("emit-cpp", input, "--root", "06000001");
         Assert.Equal(CilicaCommand.Success, stdout.Exit); Assert.Empty(stdout.Err);
-        Assert.StartsWith("// Cilica int32-straight-line-v1", stdout.Out, StringComparison.Ordinal);
+        Assert.StartsWith("// Cilica int32-control-flow-v1", stdout.Out, StringComparison.Ordinal);
         Assert.Equal(CilicaCommand.Success, Run("emit-cpp", input, "--root", "06000001", "--output", output).Exit);
         Assert.Equal(stdout.Out, File.ReadAllText(output));
         foreach (string root in new[] { "06000002", "06ffffff" })

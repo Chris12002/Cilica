@@ -1,6 +1,6 @@
 # Milestone 2: First primitive executable
 
-Status: in progress; slices 2a and 2b implemented. Slice outline recorded 2026-10-01.
+Status: in progress; slices 2a–2c implemented. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
 method into C++, compile locally and compare its result with .NET. This checkpoint
@@ -14,8 +14,8 @@ array-helper findings remain tracked gates for later capabilities.
 | --- | --- | --- |
 | 2a | Minimal execution contract and typed IR for straight-line Int32 methods | Complete for bounded translation profile |
 | 2b | C++ generation and bounded native compile/run harness for those methods | Complete for bounded native profile |
-| 2c | Locals, branches, loops and verified control-flow joins | Next |
-| 2d | Direct static calls and a bounded method closure | Planned |
+| 2c | Locals, branches, loops and verified control-flow joins | Complete for initialized Int32 profile |
+| 2d | Direct static calls and a bounded method closure | Next |
 | 2e | Additional integer operations and required exceptional results, with .NET differential cases | Planned |
 | 2f | Integration review and documented supported subset | Planned |
 
@@ -88,8 +88,35 @@ inspection confirmed no native compiler/test children remained. Keep the bound
 and stop retries under contention; this was a compile timeout, not a result or
 sanitizer mismatch. The logging change does not alter lowering semantics.
 
-Next: slice 2c introduces local storage and explicit basic-block transitions,
-including stack values across joins. Start with a reduced branching method and
-a bounded loop; verify typed joins before emitting control flow. Reject mismatched
-joins and unsupported exceptional operations. Extend the same native/.NET harness
-with both branch directions and loop boundary cases.
+## Slice 2c outcome
+
+[ADR 0016](../decisions/0016-int32-control-flow.md) replaces return-only blocks
+with ordered statements and explicit return/jump/branch terminators. Initialized
+Int32 locals, stack duplication/discard and integer comparisons are supported.
+Block inputs carry stack values across joins and backedges, with exact arity/type
+checks. C++ uses scoped blocks and immutable temporaries before edge copies.
+
+Reduced tests cover local encodings, initialization/types, stack effects, malformed
+targets, incompatible joins, live stack backedges, all conditional encodings,
+caller-forged IR and exact block/statement/edge-copy limits. Fixture budget chains
+use explicit branches to the next instruction; label fixups produced malformed
+bytes in the original long fixture and were removed from that construction.
+
+The local native harness now covers 17 authored C# methods plus two reduced IL
+probes. Each native build checks 6,764 results, including conditional selection,
+signed/unsigned ordering, zero/negative/bounded loop counts, mutations, stack joins,
+a live stack backedge and zero initialization. Other local types, uninitialized
+storage, unreachable blocks, switches, calls and exceptions remain errors.
+
+Final validation: zero build warnings/errors and all 460 local tests passed in
+9.1 seconds, including both native configurations and sanitizer checks. Review
+covered initialization, branch polarity/signedness, typed joins, block-local
+identity, C++ scopes/copies, source provenance and aggregate limits. The new Choose
+probe exposed an existing test's global name-selection assumption; that test now
+selects its exact scoped declaring type without weakening overload expectations.
+
+Next: slice 2d translates a bounded closure of direct static calls, preserving
+argument order and method identity. Start with two authored integer helpers and
+shared dependencies; diagnose unsupported callees before emitting any program.
+Keep initialization and exceptional operations explicitly unsupported until their
+own lowering is implemented.

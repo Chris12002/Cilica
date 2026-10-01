@@ -164,8 +164,10 @@ The initial straight-line Int32 translation profile is implemented in
 ordered typed temporaries and explicit wrapping arithmetic. The
 [compatibility manifest](compatibility.md) distinguishes translation from native
 execution. C++ emission and local native differential execution now cover that
-profile ([ADR 0015](decisions/0015-int32-cpp-emission.md)). Broader typed control
-flow and the managed runtime remain planned.
+profile ([ADR 0015](decisions/0015-int32-cpp-emission.md)). The control-flow profile
+adds initialized Int32 locals, comparisons, jumps, conditional branches and typed
+stack inputs across joins/backedges ([ADR 0016](decisions/0016-int32-control-flow.md)).
+Other types, direct calls and the managed runtime remain planned.
 
 Begin with typed basic blocks and temporaries. Introduce SSA after baseline
 semantics are established. Optimisations preserve exception order and observable
@@ -188,6 +190,14 @@ The compiler emits source only. An independently owned, bounded local test harne
 compiles and executes authored fixtures at `-O0` and `-O2` with sanitizer checks.
 This proves the small primitive profile on the recorded local target, not the
 planned managed runtime or embedding ABI.
+
+Control-flow lowering uses a C++ scope for each IR block and explicit labels.
+Local storage is zero-initialized once per invocation. Stack inputs are captured
+as immutable block-local temporaries before outgoing edge copies; copies cannot
+overwrite their own sources. Signed comparisons reinterpret bits as Int32,
+unsigned comparisons retain UInt32 bits. Verification rejects incompatible joins,
+invalid targets, unreachable blocks and missing local initialization. Bound aggregate
+statements, stack inputs and edge arguments as well as method bytes/instructions.
 
 - Unchecked integer arithmetic wraps with defined behaviour.
 - Checked arithmetic raises the proper managed exception.

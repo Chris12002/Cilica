@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
@@ -40,8 +41,8 @@ public sealed partial class AssemblyResolver
             var instructions = ILDecoder.Decode(il, out string? error, limits.MaximumInstructions);
             if (error is not null)
                 throw Failure(instructions.Count >= limits.MaximumInstructions ? DiagnosticIds.TranslationLimit : DiagnosticIds.MalformedMethodBody, error);
-            int locals = body.LocalSignature.IsNil ? 0 : new SignatureDecoder(this, assembly)
-                .Locals(reader.GetStandaloneSignature(body.LocalSignature).Signature).Count;
+            ImmutableArray<TypeSignature> locals = body.LocalSignature.IsNil ? [] : [.. new SignatureDecoder(this, assembly)
+                .Locals(reader.GetStandaloneSignature(body.LocalSignature).Signature)];
             int work = 0;
             bool Initializer(TypeDefinition definition)
             {
@@ -55,9 +56,9 @@ public sealed partial class AssemblyResolver
             }
             return new(source, signature, method.Attributes, method.ImplAttributes, owner.GetGenericParameters().Count,
                 assembly.IsReferenceAssembly, Initializer(owner), Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1))),
-                locals, body.ExceptionRegions.Length, il.Length, body.MaxStack,
+                locals, body.LocalVariablesInitialized, body.ExceptionRegions.Length, il.Length, body.MaxStack,
                 [.. instructions.Select(i => new MethodInstruction(i.Offset, i.Length, i.Code.Name,
-                    i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?))]);
+                    i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets]))]);
         });
     }
 }

@@ -8,7 +8,8 @@ namespace Cilica.Metadata.IL;
 public sealed record MethodSource(string AssemblyIdentity, string ContentHash, int Token, string Name);
 
 /// <summary>Decoded instruction snapshot. Integer operands include implicit argument indices.</summary>
-public sealed record MethodInstruction(int Offset, int Length, string OpCode, int? IntegerOperand);
+public sealed record MethodInstruction(int Offset, int Length, string OpCode, int? IntegerOperand,
+    ImmutableArray<int> Targets);
 
 /// <summary>
 /// Bounded input for translation. Signatures use resolver-owned type definitions;
@@ -16,7 +17,8 @@ public sealed record MethodInstruction(int Offset, int Length, string OpCode, in
 /// </summary>
 public sealed record MethodInput(MethodSource Source, MethodSignature Signature, MethodAttributes Attributes,
     MethodImplAttributes Implementation, int OwnerGenericArity, bool IsReferenceAssembly,
-    bool HasTypeInitializer, bool HasModuleInitializer, int LocalCount, int ExceptionRegionCount,
+    bool HasTypeInitializer, bool HasModuleInitializer, ImmutableArray<TypeSignature> Locals,
+    bool InitializeLocals, int ExceptionRegionCount,
     int CodeSize, int MaxStack, ImmutableArray<MethodInstruction> Instructions);
 
 public sealed record MethodReadLimits(int MaximumBodyBytes = 1048576, int MaximumInstructions = 65536,

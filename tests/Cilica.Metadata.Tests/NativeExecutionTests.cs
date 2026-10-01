@@ -9,12 +9,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Cilica.Cli;
 using Cilica.Compiler;
+using Cilica.Fixtures.Execution;
 using Xunit;
 
 namespace Cilica.Metadata.Tests;
 
 public sealed class NativeExecutionTests(ITestOutputHelper output)
 {
+    private enum CountInput { None, First, Second }
+    private sealed record Case(string Assembly, int Token, Func<int, int, int, int> Reference, CountInput Count = CountInput.None);
+    private static Case Probe(Type owner, string name, Func<int, int, int, int> reference, CountInput count = CountInput.None) =>
+        new(owner.Assembly.Location, owner.GetMethod(name)!.MetadataToken, reference, count);
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -22,21 +28,44 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
     {
         using var files = new ResolverFiles(); using var resolver = files.Open();
         string directory = files.DirectoryPath("native");
-        string inputAssembly = typeof(NativeIntegerProbe).Assembly.Location;
-        var assembly = resolver.OpenInput(inputAssembly).Value!;
-        string[] names = [nameof(NativeIntegerProbe.Add), nameof(NativeIntegerProbe.Subtract), nameof(NativeIntegerProbe.Multiply),
-            nameof(NativeIntegerProbe.Calculate), nameof(NativeIntegerProbe.Minimum), nameof(NativeIntegerProbe.Maximum),
-            nameof(NativeIntegerProbe.MinusOne), nameof(NativeIntegerProbe.Ignore)];
-        var source = new StringBuilder(); var artifacts = new List<CppArtifact>();
-        foreach (string name in names)
+        Type arithmetic = typeof(NativeIntegerProbe), flow = typeof(IntegerControlFlow);
+        var cases = new List<Case>
         {
-            int token = typeof(NativeIntegerProbe).GetMethod(name)!.MetadataToken;
-            var translated = Int32Translator.Translate(resolver, assembly, (MethodDefinitionHandle)MetadataTokens.EntityHandle(token));
+            Probe(arithmetic, nameof(NativeIntegerProbe.Add), (a, b, _) => NativeIntegerProbe.Add(a, b)),
+            Probe(arithmetic, nameof(NativeIntegerProbe.Subtract), (a, b, _) => NativeIntegerProbe.Subtract(a, b)),
+            Probe(arithmetic, nameof(NativeIntegerProbe.Multiply), (a, b, _) => NativeIntegerProbe.Multiply(a, b)),
+            Probe(arithmetic, nameof(NativeIntegerProbe.Calculate), NativeIntegerProbe.Calculate),
+            Probe(arithmetic, nameof(NativeIntegerProbe.Minimum), (_, _, _) => NativeIntegerProbe.Minimum()),
+            Probe(arithmetic, nameof(NativeIntegerProbe.Maximum), (_, _, _) => NativeIntegerProbe.Maximum()),
+            Probe(arithmetic, nameof(NativeIntegerProbe.MinusOne), (_, _, _) => NativeIntegerProbe.MinusOne()),
+            Probe(arithmetic, nameof(NativeIntegerProbe.Ignore), (a, _, _) => NativeIntegerProbe.Ignore(a)),
+            Probe(flow, nameof(IntegerControlFlow.Select), IntegerControlFlow.Select),
+            Probe(flow, nameof(IntegerControlFlow.Choose), IntegerControlFlow.Choose),
+            Probe(flow, nameof(IntegerControlFlow.UnsignedLess), IntegerControlFlow.UnsignedLess),
+            Probe(flow, nameof(IntegerControlFlow.Equal), IntegerControlFlow.Equal),
+            Probe(flow, nameof(IntegerControlFlow.Greater), IntegerControlFlow.Greater),
+            Probe(flow, nameof(IntegerControlFlow.UnsignedGreater), IntegerControlFlow.UnsignedGreater),
+            Probe(flow, nameof(IntegerControlFlow.Sum), IntegerControlFlow.Sum, CountInput.First),
+            Probe(flow, nameof(IntegerControlFlow.Nested), IntegerControlFlow.Nested, CountInput.First),
+            Probe(flow, nameof(IntegerControlFlow.StackJoin), IntegerControlFlow.StackJoin),
+        };
+        var stackFixture = Int32ControlFlowTests.StackLoop();
+        var zero = stackFixture.Builder.Method("ZeroLocal", [0, 0, 8], locals: [7, 1, 8], emit: il =>
+        { il.LoadLocal(0); il.OpCode(ILOpCode.Ret); });
+        string synthetic = files.Write("authored-stack.dll", stackFixture.Builder.Build());
+        cases.Add(new(synthetic, MetadataTokens.GetToken(stackFixture.Root), (a, b, _) => IntegerControlFlow.Sum(b, a, 1), CountInput.Second));
+        cases.Add(new(synthetic, MetadataTokens.GetToken(zero), (_, _, _) => 0));
+
+        var source = new StringBuilder(); var artifacts = new List<(CppArtifact Artifact, int Arity)>();
+        foreach (Case probe in cases)
+        {
+            var assembly = resolver.OpenInput(probe.Assembly).Value!;
+            var translated = Int32Translator.Translate(resolver, assembly, (MethodDefinitionHandle)MetadataTokens.EntityHandle(probe.Token));
             Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
-            CppArtifact artifact = CppEmitter.Emit(translated.Method!); artifacts.Add(artifact);
-            // Include the CLI in the complete source-generation path as well.
+            var artifact = CppEmitter.Emit(translated.Method!); artifacts.Add((artifact, translated.Method!.Parameters.Length));
+            // Include the CLI in every complete source-generation path.
             using var stdout = new StringWriter(); using var stderr = new StringWriter();
-            int exit = CilicaCommand.Run(["emit-cpp", inputAssembly, "--root", token.ToString("x8", CultureInfo.InvariantCulture)], stdout, stderr);
+            int exit = CilicaCommand.Run(["emit-cpp", probe.Assembly, "--root", probe.Token.ToString("x8", CultureInfo.InvariantCulture)], stdout, stderr);
             Assert.Equal(CilicaCommand.Success, exit); Assert.Empty(stderr.ToString()); Assert.Equal(artifact.Text, stdout.ToString());
             source.Append(stdout.ToString()).Append('\n');
         }
@@ -48,8 +77,9 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
             .Append("  int operation; std::int32_t a, b, c;\n  while (std::cin >> operation >> a >> b >> c) {\n    switch (operation) {\n");
         for (int index = 0; index < artifacts.Count; index++)
         {
-            string arguments = index switch { <= 2 => "a, b", 3 => "a, b, c", 7 => "a", _ => "" };
-            source.Append(CultureInfo.InvariantCulture, $"      case {index}: std::cout << {artifacts[index].EntryPoint}({arguments}) << '\\n'; break;\n");
+            var (artifact, arity) = artifacts[index];
+            string arguments = string.Join(", ", new[] { "a", "b", "c" }.Take(arity));
+            source.Append(CultureInfo.InvariantCulture, $"      case {index}: std::cout << {artifact.EntryPoint}({arguments}) << '\\n'; break;\n");
         }
         source.Append("      default: return 2;\n    }\n  }\n  return std::cin.eof() ? 0 : 3;\n}\n");
         string cpp = Path.Combine(directory, "authored.cpp"), executable = Path.Combine(directory, "authored");
@@ -74,17 +104,14 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
         int Next() => (int)random.NextInt64(int.MinValue, (long)int.MaxValue + 1);
         var input = new StringBuilder(); var expected = new List<string>();
         foreach (var (a, b, c) in vectors)
-            for (int operation = 0; operation < artifacts.Count; operation++)
+            for (int operation = 0; operation < cases.Count; operation++)
             {
-                input.Append(CultureInfo.InvariantCulture, $"{operation} {a} {b} {c}\n");
-                int result = operation switch
-                {
-                    0 => NativeIntegerProbe.Add(a, b), 1 => NativeIntegerProbe.Subtract(a, b),
-                    2 => NativeIntegerProbe.Multiply(a, b), 3 => NativeIntegerProbe.Calculate(a, b, c),
-                    4 => NativeIntegerProbe.Minimum(), 5 => NativeIntegerProbe.Maximum(),
-                    6 => NativeIntegerProbe.MinusOne(), _ => NativeIntegerProbe.Ignore(a),
-                };
-                expected.Add(result.ToString(CultureInfo.InvariantCulture));
+                Case probe = cases[operation];
+                // Bound authored loops independently of the compiler path.
+                int first = probe.Count == CountInput.First ? a % 33 : a;
+                int second = probe.Count == CountInput.Second ? b & 31 : b;
+                input.Append(CultureInfo.InvariantCulture, $"{operation} {first} {second} {c}\n");
+                expected.Add(probe.Reference(first, second, c).ToString(CultureInfo.InvariantCulture));
             }
         var run = await NativeProcess.Run(executable, [], directory, input.ToString());
         Assert.True(run.ExitCode == 0, version.Stdout + "\n" + run.Stderr);

@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Linq;
 using Cilica.Metadata;
 using Cilica.Metadata.IL;
 
@@ -9,23 +10,61 @@ public enum IrType { Int32 }
 /// <summary>Each operation wraps modulo 2^32; it never uses native signed overflow.</summary>
 public enum Int32Operation { AddWrapping, SubtractWrapping, MultiplyWrapping }
 
+public enum Int32Comparison
+{
+    Equal, NotEqual, LessSigned, GreaterSigned, LessOrEqualSigned, GreaterOrEqualSigned,
+    LessUnsigned, GreaterUnsigned, LessOrEqualUnsigned, GreaterOrEqualUnsigned, Zero, Nonzero,
+}
+
 public abstract record IrExpression
 {
     public sealed record Constant(int Value) : IrExpression;
     public sealed record Parameter(int Index) : IrExpression;
+    public sealed record Local(int Index) : IrExpression;
+    public sealed record StackInput(int Index) : IrExpression;
     public sealed record Binary(Int32Operation Operation, int Left, int Right) : IrExpression;
+    public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
 }
 
-/// <summary>Ordered typed temporary; binary operand IDs always refer to earlier values.</summary>
+/// <summary>Block-local typed temporary; operands always refer to earlier values in that block.</summary>
 public sealed record IrValue(int Id, IrType Type, int ILOffset, IrExpression Expression);
-public sealed record IrReturn(int ILOffset, int Value);
-public sealed record IrBlock(int Id, ImmutableArray<IrValue> Values, IrReturn Return);
+public abstract record IrStatement
+{
+    public sealed record Define(IrValue Value) : IrStatement;
+    public sealed record StoreLocal(int ILOffset, int Local, int Value) : IrStatement;
+}
+
+/// <summary>Arguments are immutable value IDs, ordered from stack bottom to top.</summary>
+public sealed record IrEdge(int Target, ImmutableArray<int> Arguments);
+public abstract record IrTerminator(int ILOffset);
+public sealed record IrReturn(int ILOffset, int Value) : IrTerminator(ILOffset);
+public sealed record IrJump(int ILOffset, IrEdge Edge) : IrTerminator(ILOffset);
+public sealed record IrBranch(int ILOffset, Int32Comparison Comparison, int Left, int? Right,
+    IrEdge Taken, IrEdge NotTaken) : IrTerminator(ILOffset);
+
+public sealed record IrBlock(int Id, int ILOffset, ImmutableArray<IrType> Inputs,
+    ImmutableArray<IrStatement> Statements, IrTerminator Terminator)
+{
+    public ImmutableArray<IrValue> Values => Statements.IsDefault ? default :
+        [.. Statements.OfType<IrStatement.Define>().Select(s => s.Value)];
+}
 
 /// <summary>Detached translation; no readers, assembly execution or generated native code.</summary>
 public sealed record IrMethod(MethodSource Source, ImmutableArray<IrType> Parameters,
-    IrType ReturnType, ImmutableArray<IrBlock> Blocks)
+    IrType ReturnType, ImmutableArray<IrBlock> Blocks, ImmutableArray<IrType> Locals)
 {
-    public const string Profile = "int32-straight-line-v1";
+    public const string Profile = "int32-control-flow-v1";
+}
+
+/// <summary>Aggregate bounds also cover synthetic stack inputs and edge copies.</summary>
+public static class IrLimits
+{
+    public const int MaximumBlocks = 4096;
+    public const int MaximumStatements = 65536;
+    public const int MaximumInputs = 65536;
+    public const int MaximumEdgeArguments = 65536;
+    public const int MaximumParameters = 4096;
+    public const int MaximumLocals = 4096;
 }
 
 /// <summary>A failed translation returns diagnostics and no consumable partial IR.</summary>

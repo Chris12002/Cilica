@@ -157,13 +157,15 @@ untrusted metadata display names out of C++ syntax. CLI cases cover exact roots,
 source/file output, write errors, unsupported operations and invalid/missing
 inputs without destroying an existing output artifact.
 
-`NativeExecutionTests` translates eight independently authored C# methods,
-checks their CLI source against the emitter, compiles one translation unit per
-configuration, and compares 2,848 native results with direct .NET fixture calls.
+`NativeExecutionTests` translates 17 independently authored C# methods and two
+reduced IL probes, checks their CLI source against the emitter, compiles one translation unit per
+configuration, and compares 6,764 native results with direct .NET fixture calls
+and the zero-local probe's independent expected constant.
 The test runner owns the authored reference execution; production parsing and
 emission never load or invoke input code. There are 100 boundary combinations
 and 256 seeded tuples per method. Add/subtract/multiply, a compound expression,
-signed boundary constants and unused parameters run at `-O0` and `-O2` with
+signed boundary constants, unused parameters, signed/unsigned comparisons,
+branches, loops and stack joins run at `-O0` and `-O2` with
 undefined-behaviour sanitizer on the optimized build. Require exact result count
 and order, zero exit status and empty runtime stderr.
 
@@ -176,9 +178,24 @@ compiler version and flags. The recorded toolchain/target and current support
 boundary are in the [compatibility manifest](compatibility.md) and
 [ADR 0015](decisions/0015-int32-cpp-emission.md). Other targets remain untested.
 
-Future slices add observable mutations and ordered traces as those semantics
-exist. Preserve this complete native path when adding locals, typed joins and
-calls; an IR evaluator alone is no longer sufficient execution evidence.
+Control-flow probes bound C# loop counts to -32..32 and the reduced live-stack
+loop to 0..31. An optimized fixture project avoids Debug C# Boolean bookkeeping
+locals, which remain outside the Int32 storage profile. Existing inspection
+fixtures retain their original optimization setting. The harness's case table
+keeps each input root and .NET oracle together rather than coupling them through
+unexplained numeric indices.
+
+`Int32ControlFlowTests` covers local encodings/initialization, rejected local
+types, depth and operand failures, malformed branch destinations, incompatible
+join depths, live stack backedges and every conditional encoding. Caller-forged
+IR cannot bypass edge arity/type/target, local, predicate or reachability checks.
+Exact accepted/rejected block, aggregate statement and conditional edge-copy
+budgets include synthetic stack-input values. The profile only produces Int32
+stack values; these checks do not establish a general CLI verifier for other types.
+
+Future slices add calls and ordered exceptional traces as those semantics exist.
+Preserve this complete native path; an IR evaluator alone is no longer sufficient
+execution evidence. See [ADR 0016](decisions/0016-int32-control-flow.md).
 
 ## Executable semantics and the managed runtime
 
