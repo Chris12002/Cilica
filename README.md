@@ -3,12 +3,13 @@
 An independent, open-source .NET IL-to-C++ compiler and managed runtime, designed
 for embedding C# libraries in native and browser applications.
 
-**Status: metadata frontend and initial Int32 IR translation implemented; native backend and runtime planned.**
+**Status: metadata frontend and first straight-line Int32 native execution implemented; managed runtime planned.**
 The assembly explorer inspects IL and audits bounded dependencies without running
-input assemblies. IL-to-C++ generation, runtime and Expo integration are not
-implemented. Platform and language support described here are planned capabilities,
+input assemblies. The bounded integer profile now emits C++20 and passes local
+native differential tests. Managed objects, exceptions, libraries and Expo integration
+are not implemented. Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
-records the current translation profile. Cilica is a working name, pending a naming check.
+records the current execution evidence. Cilica is a working name, pending a naming check.
 
 ## Intended pipeline
 
@@ -49,6 +50,13 @@ dotnet build Cilica.slnx
 ```bash
 dotnet test Cilica.slnx
 ```
+
+Native differential tests also require a C++20 compiler accepting Clang-style
+flags and the undefined-behaviour sanitizer. The recorded local toolchain is
+Apple Clang 17.0.0 (`clang-1700.4.4.1`) on macOS ARM64. `CILICA_CXX` optionally
+selects a compiler executable path; it does not accept extra flags. Missing tools
+fail these tests rather than silently skipping execution evidence. Other native
+targets and WebAssembly remain untested.
 
 If a restricted environment blocks MSBuild worker pipes or VSTest's local
 socket, build without worker/compiler servers and use the existing xUnit
@@ -99,6 +107,35 @@ Golden-file tests compare output with reviewed files in
 tests with `CILICA_UPDATE_GOLDEN=1` and review the diff before committing.
 Corruption tests run 500 iterations by default; set `CILICA_FUZZ_ITERATIONS`
 for a longer local run.
+
+Emit one supported static integer method, selected by its MethodDef token:
+
+```bash
+dotnet run --project src/Cilica.Cli -- emit-cpp path/to/Assembly.dll \
+  --root 0x06000001 --output generated.cpp
+clang++ -std=c++20 -Wall -Wextra -Werror -c generated.cpp -o generated.o
+```
+
+The generated source declares its C entry point, named from the image SHA-256
+and method token, with `std::int32_t` parameters and return. A native caller
+can link that function; this command emits source and never starts a compiler or
+executes the input. Optional `--reference` directories use the existing explicit
+resolver. Unsupported operations write diagnostics to stderr, return code 1 and
+preserve an existing output file. The profile accepts constants, argument loads,
+unchecked add/subtract/multiply and return; locals, control flow and calls follow
+in later slices. See the [milestone 2 plan](docs/milestones/02-primitive-execution.md).
+
+Run the complete authored C# → IR → C++ → native comparison locally:
+
+```bash
+dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll \
+  -noColor -parallel none -class '*NativeExecutionTests'
+```
+
+The disposable harness builds eight authored methods at `-O0` and `-O2`, checks
+normal and wraparound results against .NET, and enables undefined-behaviour
+sanitization for the optimized build. It bounds native process time/output and
+cleans up its own processes and temporary files.
 
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before starting an implementation slice.
 - See the [test strategy](docs/test-strategy.md) for evidence requirements and

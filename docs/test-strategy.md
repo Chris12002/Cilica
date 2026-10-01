@@ -144,10 +144,41 @@ and argument encodings, stack/return failures, unsupported instructions/signatur
 initializer and reference/native obligations, method-input bounds and session
 ownership. Its fixture-only IR evaluator compares an authored arithmetic method
 with .NET at normal and wraparound boundaries. This is translation evidence;
-slice 2b must compare compiled native output directly with .NET. Keep the evaluator
+slice 2b now compares compiled native output directly with .NET. Keep the evaluator
 out of production compiler code and never execute arbitrary inspected input.
 The banned-API analyzer and binary scan cover `Cilica.Compiler` as well as metadata
 and CLI packages. See [ADR 0014](decisions/0014-straight-line-int32-ir.md).
+
+## First native execution
+
+`CppEmissionTests` rejects malformed caller-constructed IR, bounds values and
+parameters, checks deterministic output under a different culture, and keeps
+untrusted metadata display names out of C++ syntax. CLI cases cover exact roots,
+source/file output, write errors, unsupported operations and invalid/missing
+inputs without destroying an existing output artifact.
+
+`NativeExecutionTests` translates eight independently authored C# methods,
+checks their CLI source against the emitter, compiles one translation unit per
+configuration, and compares 2,848 native results with direct .NET fixture calls.
+The test runner owns the authored reference execution; production parsing and
+emission never load or invoke input code. There are 100 boundary combinations
+and 256 seeded tuples per method. Add/subtract/multiply, a compound expression,
+signed boundary constants and unused parameters run at `-O0` and `-O2` with
+undefined-behaviour sanitizer on the optimized build. Require exact result count
+and order, zero exit status and empty runtime stderr.
+
+Native processes use argument lists rather than shell interpolation, a default
+30-second timeout, and at most 262,144 captured characters per output stream.
+Timeout/overflow tests terminate only their own process handles, wait for exit
+and allow temporary-directory cleanup. A missing compiler fails the tests;
+do not silently skip them while claiming native evidence. Failures include
+compiler version and flags. The recorded toolchain/target and current support
+boundary are in the [compatibility manifest](compatibility.md) and
+[ADR 0015](decisions/0015-int32-cpp-emission.md). Other targets remain untested.
+
+Future slices add observable mutations and ordered traces as those semantics
+exist. Preserve this complete native path when adding locals, typed joins and
+calls; an IR evaluator alone is no longer sufficient execution evidence.
 
 ## Executable semantics and the managed runtime
 

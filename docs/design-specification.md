@@ -163,7 +163,9 @@ The initial straight-line Int32 translation profile is implemented in
 `Cilica.Compiler` ([ADR 0014](decisions/0014-straight-line-int32-ir.md)), with
 ordered typed temporaries and explicit wrapping arithmetic. The
 [compatibility manifest](compatibility.md) distinguishes translation from native
-execution. Broader typed control flow and native generation remain planned.
+execution. C++ emission and local native differential execution now cover that
+profile ([ADR 0015](decisions/0015-int32-cpp-emission.md)). Broader typed control
+flow and the managed runtime remain planned.
 
 Begin with typed basic blocks and temporaries. Introduce SSA after baseline
 semantics are established. Optimisations preserve exception order and observable
@@ -176,6 +178,16 @@ disableable for diagnosis and differential testing.
 Generated methods have stable names and mappings to original methods and IL
 offsets. Use explicit managed layouts and dispatch tables rather than relying
 on C++ inheritance or RTTI matching CLI semantics.
+
+The first implemented backend emits one validated straight-line Int32 method as
+a C++20 C-linkage function. Temporaries hold unsigned bit patterns; arithmetic
+widens to unsigned 64 bits, then retains the low 32 bits. `std::bit_cast` preserves
+signed parameter/result representation. Source comments map the image hash,
+MethodDef token and IL offsets; input display names never become C++ syntax.
+The compiler emits source only. An independently owned, bounded local test harness
+compiles and executes authored fixtures at `-O0` and `-O2` with sanitizer checks.
+This proves the small primitive profile on the recorded local target, not the
+planned managed runtime or embedding ABI.
 
 - Unchecked integer arithmetic wraps with defined behaviour.
 - Checked arithmetic raises the proper managed exception.

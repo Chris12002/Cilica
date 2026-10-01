@@ -1,10 +1,11 @@
 # Milestone 2: First primitive executable
 
-Status: in progress; slice 2a translation implemented. Slice outline recorded 2026-10-01.
+Status: in progress; slices 2a and 2b implemented. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
-method into C++, compile locally and compare its result with .NET. The typed IR foundation is implemented; native code generation
-and runtime execution are currently unimplemented. Milestone 1's unresolved library and
+method into C++, compile locally and compare its result with .NET. This checkpoint
+now passes for the bounded integer profile. Broader runtime execution remains
+unimplemented. Milestone 1's unresolved library and
 array-helper findings remain tracked gates for later capabilities.
 
 ## Proposed slices
@@ -12,13 +13,13 @@ array-helper findings remain tracked gates for later capabilities.
 | Slice | Outcome | Status |
 | --- | --- | --- |
 | 2a | Minimal execution contract and typed IR for straight-line Int32 methods | Complete for bounded translation profile |
-| 2b | C++ generation and bounded native compile/run harness for those methods | Next |
-| 2c | Locals, branches, loops and verified control-flow joins | Planned |
+| 2b | C++ generation and bounded native compile/run harness for those methods | Complete for bounded native profile |
+| 2c | Locals, branches, loops and verified control-flow joins | Next |
 | 2d | Direct static calls and a bounded method closure | Planned |
 | 2e | Additional integer operations and required exceptional results, with .NET differential cases | Planned |
 | 2f | Integration review and documented supported subset | Planned |
 
-The first executable is targeted for 2b. These are proposed reviewable boundaries;
+The first executable passed in 2b. These are proposed reviewable boundaries;
 implementation findings may require a smaller corrective slice.
 
 ## Slice 2a design intent
@@ -62,3 +63,33 @@ claiming executable support.
 
 Use targeted local checks. No hosted CI, long-running service, broad framework
 compatibility claim or game-rule changes are part of this milestone plan.
+
+Slice 2b outcome ([ADR 0015](../decisions/0015-int32-cpp-emission.md)):
+
+- The validated IR becomes readable C++20 with an explicit hash/token C entry
+  point and IL offset comments. Wrapping arithmetic uses defined unsigned
+  operations; parameter/result conversion uses bit patterns.
+- `cilica emit-cpp` accepts one MethodDef root and explicit reference directories.
+  Failures emit no source and preserve an existing output file.
+- Eight authored C# methods, including Add, pass the complete native path. Each
+  configuration compares 2,848 results against .NET; local Clang `-O0` and
+  `-O2` with undefined-behaviour sanitizer pass. Owned subprocess timeout/output
+  bounds and cleanup are tested. No arbitrary compiler input is executed.
+- Review covered forged IR, symbol/source injection, signed overflow, promotions,
+  deterministic output and process ownership. See the compatibility manifest
+  for exact toolchain and profile limits; managed references and allocation
+  rooting are outside this profile.
+
+Validation record: the local full suite passed 408 tests in 11.3 seconds, with
+zero build warnings. After adding compiler/seed failure logging, a focused rerun
+passed the optimized native case but the unoptimized compiler subprocess hit its
+30-second bound during a host load spike (one-minute load above 138). Process
+inspection confirmed no native compiler/test children remained. Keep the bound
+and stop retries under contention; this was a compile timeout, not a result or
+sanitizer mismatch. The logging change does not alter lowering semantics.
+
+Next: slice 2c introduces local storage and explicit basic-block transitions,
+including stack values across joins. Start with a reduced branching method and
+a bounded loop; verify typed joins before emitting control flow. Reject mismatched
+joins and unsupported exceptional operations. Extend the same native/.NET harness
+with both branch directions and loop boundary cases.

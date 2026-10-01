@@ -24,6 +24,8 @@ public static partial class CilicaCommand
         "  cilica audit <assembly> [--reference <directory>]... [--runtime-library <assembly>]\n" +
         "    (--public-surface | --root <hex-token>... | --root-type <metadata-name>...)\n" +
         "    [--format text|json] [--output <file>]\n" +
+        "  cilica emit-cpp <assembly> --root <MethodDef hex-token>\n" +
+        "    [--reference <directory>]... [--output <file>]\n" +
         "  cilica --help\n" +
         "  cilica --version\n" +
         "\n" +
@@ -36,6 +38,7 @@ public static partial class CilicaCommand
         "            --root and --root-type may be combined; nested types use '/'.\n" +
         "            Reference directories are explicit; no runtime probing occurs.\n" +
         "            --runtime-library selects primitive/string receiver mappings.\n" +
+        "  emit-cpp  Emit one supported Int32 method as C++20; never compile or run it.\n" +
         "\n" +
         "Exit codes: 0 success, 1 errors reported, 2 usage error, 3 internal error.\n";
 
@@ -61,6 +64,8 @@ public static partial class CilicaCommand
                 return Success;
             case "audit":
                 return RunAudit(args, stdout, stderr);
+            case "emit-cpp":
+                return RunEmitCpp(args, stdout, stderr);
             case "inspect":
             case "il":
                 return RunReportCommand(args, stdout, stderr);
@@ -179,7 +184,8 @@ public static partial class CilicaCommand
         return pattern == qualified || pattern == withoutGenerics || pattern == simple;
     }
 
-    private static int Execute(Func<(string Rendered, bool HasErrors)> produce, Options options, TextWriter stdout, TextWriter stderr)
+    private static int Execute(Func<(string Rendered, bool HasErrors)> produce, Options options, TextWriter stdout, TextWriter stderr,
+        bool suppressOutputOnErrors = false)
     {
         string rendered;
         bool hasErrors;
@@ -195,6 +201,8 @@ public static partial class CilicaCommand
                 "Please report this with the input that caused it.\n");
             return InternalError;
         }
+
+        if (hasErrors && suppressOutputOnErrors) return ErrorsReported;
 
         if (options.Output is null)
         {

@@ -1,6 +1,6 @@
 # Contributing
 
-Cilica is at the design stage. Begin with the
+Cilica has an early metadata frontend and a bounded integer backend. Begin with the
 [specification](docs/design-specification.md) and propose a bounded milestone
 slice before implementing it.
 

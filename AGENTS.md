@@ -6,7 +6,8 @@ feedback before implementation. Explain consequential choices in plain language.
 
 ## Project boundaries
 
-- This repository is currently design-only. Never describe planned features as
+- This repository has a metadata frontend and bounded Int32 native backend;
+  the broader managed runtime is planned. Never describe planned features as
   implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not
   substitute NativeAOT, Mono or Unity's IL2CPP for its advertised implementation.

@@ -6,6 +6,7 @@
     <AssemblyName>cilica</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cilica.Compiler\Cilica.Compiler.csproj" />
     <ProjectReference Include="..\Cilica.Metadata\Cilica.Metadata.csproj" />
   </ItemGroup>
 </Project>
