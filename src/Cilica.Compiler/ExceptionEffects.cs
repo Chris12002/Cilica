@@ -17,7 +17,7 @@ internal static class ExceptionEffects
                 switch (define.Value.Expression)
                 {
                     case IrExpression.Call call: callers[call.Target].Add(id); break;
-                    case IrExpression.Binary { Operation: Int32Operation.DivideSigned or Int32Operation.DivideUnsigned }:
+                    case IrExpression.Binary binary when Int32Operations.MayFault(binary.Operation):
                         if (throwing.Add(id)) pending.Enqueue(id); break;
                 }
         }

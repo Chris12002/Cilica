@@ -13,7 +13,7 @@ public sealed class Int32FaultTests
     {
         var builder = new ResolutionAssemblyBuilder(new("Fault", new Version(1, 0, 0, 0)));
         builder.Type("", "Entry");
-        var root = builder.Method("Divide", [0, 2, 8, 8, 8], emit: il =>
+        var root = builder.Method("Arithmetic", [0, 2, 8, 8, 8], emit: il =>
         { il.LoadArgument(0); il.LoadArgument(1); il.OpCode(operation); il.OpCode(ILOpCode.Ret); });
         using var files = new ResolverFiles(); using var resolver = files.Open();
         var translated = Int32Translator.Translate(resolver, resolver.OpenInput(files.Write("input.dll", builder.Build())).Value!, root);
@@ -24,7 +24,13 @@ public sealed class Int32FaultTests
     [Theory]
     [InlineData(ILOpCode.Div, Int32Operation.DivideSigned)]
     [InlineData(ILOpCode.Div_un, Int32Operation.DivideUnsigned)]
-    public void Division_has_typed_operands_an_explicit_failure_exit_and_a_distinct_native_entry(ILOpCode cil, Int32Operation operation)
+    [InlineData(ILOpCode.Add_ovf, Int32Operation.AddCheckedSigned)]
+    [InlineData(ILOpCode.Sub_ovf, Int32Operation.SubtractCheckedSigned)]
+    [InlineData(ILOpCode.Mul_ovf, Int32Operation.MultiplyCheckedSigned)]
+    [InlineData(ILOpCode.Add_ovf_un, Int32Operation.AddCheckedUnsigned)]
+    [InlineData(ILOpCode.Sub_ovf_un, Int32Operation.SubtractCheckedUnsigned)]
+    [InlineData(ILOpCode.Mul_ovf_un, Int32Operation.MultiplyCheckedUnsigned)]
+    public void Throwing_arithmetic_has_typed_operands_an_explicit_failure_exit_and_a_distinct_native_entry(ILOpCode cil, Int32Operation operation)
     {
         var method = Translate(cil);
         var define = Assert.IsType<IrStatement.Define>(Assert.Single(method.Blocks).Statements[2]);
@@ -42,7 +48,19 @@ public sealed class Int32FaultTests
     [InlineData(ILOpCode.Div, 1)]
     [InlineData(ILOpCode.Div_un, 0)]
     [InlineData(ILOpCode.Div_un, 1)]
-    public void Division_underflow_returns_no_partial_ir(ILOpCode operation, int operands)
+    [InlineData(ILOpCode.Add_ovf, 0)]
+    [InlineData(ILOpCode.Add_ovf, 1)]
+    [InlineData(ILOpCode.Sub_ovf, 0)]
+    [InlineData(ILOpCode.Sub_ovf, 1)]
+    [InlineData(ILOpCode.Mul_ovf, 0)]
+    [InlineData(ILOpCode.Mul_ovf, 1)]
+    [InlineData(ILOpCode.Add_ovf_un, 0)]
+    [InlineData(ILOpCode.Add_ovf_un, 1)]
+    [InlineData(ILOpCode.Sub_ovf_un, 0)]
+    [InlineData(ILOpCode.Sub_ovf_un, 1)]
+    [InlineData(ILOpCode.Mul_ovf_un, 0)]
+    [InlineData(ILOpCode.Mul_ovf_un, 1)]
+    public void Throwing_arithmetic_underflow_returns_no_partial_ir(ILOpCode operation, int operands)
     {
         var builder = new ResolutionAssemblyBuilder(new("Fault", new Version(1, 0, 0, 0)));
         builder.Type("", "Entry");
@@ -55,11 +73,23 @@ public sealed class Int32FaultTests
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Missing_or_unknown_failure_edges_are_rejected(bool unknown)
+    [InlineData(ILOpCode.Div, false)]
+    [InlineData(ILOpCode.Div, true)]
+    [InlineData(ILOpCode.Add_ovf, false)]
+    [InlineData(ILOpCode.Add_ovf, true)]
+    [InlineData(ILOpCode.Sub_ovf, false)]
+    [InlineData(ILOpCode.Sub_ovf, true)]
+    [InlineData(ILOpCode.Mul_ovf, false)]
+    [InlineData(ILOpCode.Mul_ovf, true)]
+    [InlineData(ILOpCode.Add_ovf_un, false)]
+    [InlineData(ILOpCode.Add_ovf_un, true)]
+    [InlineData(ILOpCode.Sub_ovf_un, false)]
+    [InlineData(ILOpCode.Sub_ovf_un, true)]
+    [InlineData(ILOpCode.Mul_ovf_un, false)]
+    [InlineData(ILOpCode.Mul_ovf_un, true)]
+    public void Missing_or_unknown_failure_edges_are_rejected(ILOpCode operation, bool unknown)
     {
-        var method = Translate(ILOpCode.Div); var block = method.Blocks[0];
+        var method = Translate(operation); var block = method.Blocks[0];
         var define = (IrStatement.Define)block.Statements[2];
         method = method with { Blocks = [block with { Statements = block.Statements.SetItem(2,
             define with { Exceptional = unknown ? (IrExceptionTarget)99 : null }) }] };
@@ -78,21 +108,27 @@ public sealed class Int32FaultTests
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Recursive_effect_analysis_propagates_faults_and_preserves_pure_cycles(bool fault)
+    [InlineData(ILOpCode.Div, Int32Operation.DivideSigned, true)]
+    [InlineData(ILOpCode.Add, Int32Operation.AddWrapping, false)]
+    [InlineData(ILOpCode.Add_ovf, Int32Operation.AddCheckedSigned, true)]
+    [InlineData(ILOpCode.Sub_ovf, Int32Operation.SubtractCheckedSigned, true)]
+    [InlineData(ILOpCode.Mul_ovf, Int32Operation.MultiplyCheckedSigned, true)]
+    [InlineData(ILOpCode.Add_ovf_un, Int32Operation.AddCheckedUnsigned, true)]
+    [InlineData(ILOpCode.Sub_ovf_un, Int32Operation.SubtractCheckedUnsigned, true)]
+    [InlineData(ILOpCode.Mul_ovf_un, Int32Operation.MultiplyCheckedUnsigned, true)]
+    public void Recursive_effect_analysis_propagates_faults_and_preserves_pure_cycles(ILOpCode cil, Int32Operation operation, bool fault)
     {
-        // A -> B -> A, with a direct division in B only in the throwing case.
+        // A -> B -> A, with a direct arithmetic fault source in B when throwing.
         // This authored graph tests compilation; it is never executed.
-        var prototype = Translate(ILOpCode.Div);
+        var prototype = Translate(cil);
         var a = prototype.Source with { Token = 0x06000001 };
         var b = prototype.Source with { Token = 0x06000002 };
-        IrMethod Method(Cilica.Metadata.IL.MethodSource source, Cilica.Metadata.IL.MethodSource target, bool divides) =>
+        IrMethod Method(Cilica.Metadata.IL.MethodSource source, Cilica.Metadata.IL.MethodSource target, bool throwingArithmetic) =>
             new(source, [], IrType.Int32, [new(0, 0, [], [
                 new IrStatement.Define(new(0, IrType.Int32, 0, new IrExpression.Constant(1))),
                 new IrStatement.Define(new(1, IrType.Int32, 1, new IrExpression.Call(IrMethodId.From(target), [])), IrExceptionTarget.MethodExit),
                 new IrStatement.Define(new(2, IrType.Int32, 2, new IrExpression.Binary(
-                    divides ? Int32Operation.DivideSigned : Int32Operation.AddWrapping, 0, 1)), divides ? IrExceptionTarget.MethodExit : null),
+                    throwingArithmetic ? operation : Int32Operation.AddWrapping, 0, 1)), throwingArithmetic ? IrExceptionTarget.MethodExit : null),
             ], new IrReturn(3, 2))], []);
         var artifact = CppEmitter.EmitProgram(new(IrMethodId.From(a), [Method(a, b, false), Method(b, a, fault)]));
         Assert.Equal(fault, artifact.MayThrow);

@@ -122,8 +122,26 @@ public static class CppEmitter
                                 Fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
                             }
                         }
+                        string expression;
+                        if (value.Expression is IrExpression.Binary arithmetic && Int32Operations.IsChecked(arithmetic.Operation))
+                        {
+                            // Int32 signed products fit in Int64. UInt32 products
+                            // require UInt64; unsigned subtraction uses Int64 so
+                            // negative results are checked without native wraparound.
+                            bool signed = Int32Operations.IsSignedChecked(arithmetic.Operation);
+                            bool signedWide = signed || arithmetic.Operation == Int32Operation.SubtractCheckedUnsigned;
+                            string wide = "w" + Number(value.Id);
+                            text.Append("    const std::").Append(signedWide ? "int64_t " : "uint64_t ").Append(wide).Append(" = ")
+                                .Append(CheckedExpression(arithmetic, signed, signedWide)).Append(";\n");
+                            string range = signed ? wide + " < -2147483648LL || " + wide + " > 2147483647LL"
+                                : signedWide ? wide + " < 0LL || " + wide + " > 4294967295LL" : wide + " > 0xffffffffu";
+                            text.Append("    if (").Append(range).Append(") {\n");
+                            Fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
+                            expression = "static_cast<std::uint32_t>(" + wide + ")";
+                        }
+                        else expression = Expression(value.Expression, block.Id);
                         text.Append("    [[maybe_unused]] const std::uint32_t v").Append(Number(value.Id)).Append(" = ")
-                            .Append(Expression(value.Expression, block.Id)).Append(";\n");
+                            .Append(expression).Append(";\n");
                         if (value.Expression is IrExpression.Call call && throwing.Contains(call.Target))
                             // Do not execute a store, edge transfer or later call with
                             // the placeholder return value of a failed invocation.
@@ -177,6 +195,20 @@ public static class CppEmitter
             string.Join(", ", c.Arguments.Select(a => "std::bit_cast<std::int32_t>(v" + Number(a) + ")")) + "))",
         _ => throw new InvalidOperationException("Validated expression changed."),
     };
+
+    private static string CheckedExpression(IrExpression.Binary binary, bool signed, bool signedWide)
+    {
+        string Operand(int id) => "static_cast<std::" + (signedWide ? "int64_t>(" : "uint64_t>(") +
+            (signed ? "std::bit_cast<std::int32_t>(v" + Number(id) + ")" : "v" + Number(id)) + ")";
+        string operation = binary.Operation switch
+        {
+            Int32Operation.AddCheckedSigned or Int32Operation.AddCheckedUnsigned => "+",
+            Int32Operation.SubtractCheckedSigned or Int32Operation.SubtractCheckedUnsigned => "-",
+            Int32Operation.MultiplyCheckedSigned or Int32Operation.MultiplyCheckedUnsigned => "*",
+            _ => throw new InvalidOperationException("Validated checked operation changed."),
+        };
+        return Operand(binary.Left) + " " + operation + " " + Operand(binary.Right);
+    }
 
     private static string Binary(IrExpression.Binary binary)
     {

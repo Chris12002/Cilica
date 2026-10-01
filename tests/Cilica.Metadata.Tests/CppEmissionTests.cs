@@ -133,7 +133,7 @@ public sealed class CppEmissionTests
         var builder = new ResolutionAssemblyBuilder(new("Emit", new Version(1, 0, 0, 0)));
         builder.Type("", "Entry");
         builder.Method("Add", [0, 2, 8, 8, 8], emit: il => { il.LoadArgument(0); il.LoadArgument(1); il.OpCode(ILOpCode.Add); il.OpCode(ILOpCode.Ret); });
-        builder.Method("Unsupported", [0, 0, 8], emit: il => { il.LoadConstantI4(1); il.OpCode(ILOpCode.Add_ovf); il.LoadConstantI4(2); il.OpCode(ILOpCode.Ret); });
+        builder.Method("Unsupported", [0, 0, 8], emit: il => { il.LoadConstantI4(1); il.OpCode(ILOpCode.Neg); il.LoadConstantI4(2); il.OpCode(ILOpCode.Ret); });
         string input = files.Write("input.dll", builder.Build());
         string output = Path.Combine(files.Root, "generated.cpp");
         var stdout = Run("emit-cpp", input, "--root", "06000001");

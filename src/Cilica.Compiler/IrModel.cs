@@ -7,12 +7,14 @@ namespace Cilica.Compiler;
 
 public enum IrType { Int32 }
 
-/// <summary>32-bit operations; add/subtract/multiply wrap, division can fault, and shifts mask the count to five bits.</summary>
+/// <summary>32-bit operations with explicit wrapping/checked arithmetic; shifts mask the count to five bits.</summary>
 public enum Int32Operation
 {
     AddWrapping, SubtractWrapping, MultiplyWrapping, BitwiseAnd, BitwiseOr, BitwiseXor,
     ShiftLeft, ShiftRightSigned, ShiftRightUnsigned,
     DivideSigned, DivideUnsigned,
+    AddCheckedSigned, SubtractCheckedSigned, MultiplyCheckedSigned,
+    AddCheckedUnsigned, SubtractCheckedUnsigned, MultiplyCheckedUnsigned,
 }
 
 public enum Int32UnaryOperation { BitwiseNot }

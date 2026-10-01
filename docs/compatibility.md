@@ -6,7 +6,7 @@ not establish native execution or platform compatibility.
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
-| `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division faults; no initializer obligations |
+| `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | Managed runtime and library | Planned | Object, array, GC, exception and library execution support is unimplemented |
 
@@ -18,6 +18,7 @@ not establish native execution or platform compatibility.
 | `ldarg.0`–`ldarg.3`, `ldarg.s`, `ldarg` | Verified parameter index; Int32 load |
 | `ldc.i4.m1`, `ldc.i4.0`–`ldc.i4.8`, `ldc.i4.s`, `ldc.i4` | Exact signed 32-bit constant |
 | `add`, `sub`, `mul` | Ordered operands; explicit wrapping arithmetic modulo 2^32 |
+| `add.ovf`, `sub.ovf`, `mul.ovf`; corresponding `.un` forms | Signed/unsigned Int32 bit interpretation; overflow fault when the exact mathematical result is outside the selected 32-bit range; checked before narrowing |
 | `and`, `or`, `xor`, `not` | Exact 32-bit bitwise operations; `not` consumes one operand |
 | `shl`, `shr`, `shr.un` | Int32 value/count; count masked with 31; low 32-bit left shift, explicit sign extension or zero-fill right shift |
 | `div`, `div.un` | Signed quotient truncates toward zero; unsigned quotient uses operand bit patterns; zero divisor faults; signed MinValue/-1 faults with overflow |
@@ -29,7 +30,7 @@ not establish native execution or platform compatibility.
 | `ret` | One Int32 value and empty remaining stack at every reachable return |
 
 Unsupported signatures/operations return diagnostics and no IR or C++ source. This includes
-checked arithmetic, remainder, conversions, switches, virtual/indirect calls,
+remainder, conversions, unary negation, switches, virtual/indirect calls,
 argument stores, references,
 exception regions, required type/module initialization and synchronization.
 Boolean, pinned, non-Int32 and uninitialized locals are unsupported. Unreachable
@@ -75,6 +76,15 @@ MethodDef and IL offset across callers. This context has primitive fault tags,
 not managed exception objects or messages; catch/filter/finally, identity and GC
 rooting remain unimplemented. The CoreLib/Alchemy filter gate is unresolved.
 
+[ADR 0020](decisions/0020-checked-int32-arithmetic.md) adds six checked arithmetic
+operations with the same method-exit edges, pending tag and native status entry.
+Signed add/subtract/multiply use exact Int64 intermediates and signed range
+checks. Unsigned add/multiply use UInt64; unsigned subtraction uses Int64 and a
+0..UInt32Max range check. Conversion to UInt32 happens only after a successful
+check. Unsigned results above Int32Max retain their bits without a spurious fault.
+Shared operation classification keeps translation, edge validation and effect
+analysis consistent. The IR shape/profile name and ABI are unchanged.
+
 The `_try` C entry returns UInt32 status: 0 success, 1 divide-by-zero, 2 overflow,
 3 null output pointers. Its four outputs precede Int32 inputs: Int32 result,
 UInt32 MethodDef, UInt32 IL offset, `const char*` image SHA-256. Valid disjoint
@@ -107,13 +117,18 @@ reject forged IR and verify CLI failures preserve existing output files.
 See [ADR 0015](decisions/0015-int32-cpp-emission.md) and
 [ADR 0016](decisions/0016-int32-control-flow.md).
 
-The separate fault harness checks ten authored entries and 3,630 outcomes per
-configuration (100 boundary combinations, 256 seeded tuples, seven ordered
-regressions). Direct signed/unsigned division, transitive/cross-assembly calls,
-competing fault order, loops, bounded recursion, skipped conditional faults and
+The separate fault harness checks 25 authored entries and 9,325 outcomes per
+configuration (100 boundary combinations, 256 seeded tuples, 17 ordered/boundary
+regressions). Direct signed/unsigned division and six checked arithmetic forms,
+transitive/cross-assembly calls, competing fault order, loops, bounded recursion,
+skipped conditional faults, signed/unsigned compound operations and
 pure status entries match .NET return values or exception kinds. Origin hashes
 and MethodDef tokens are independently computed from the authored fixture, with
-expected division offset 2. Repeated invocations verify context reset and unchanged
+expected arithmetic offset 2, or 2/4 for two-operation compounds. First-fault
+origins are checked even when both competing failures have the Overflow tag.
+Product inputs straddle signed and unsigned limits, including products beyond
+Int64Max; unsigned input casts are unchecked to avoid testing unsupported
+conversions. Repeated invocations verify context reset and unchanged
 results on fault; all four null-output cases reject before execution/writes.
 Both builds disable C++ exceptions/RTTI; optimized execution retains UBSan.
 Output is batched within the existing process limits. These tests establish the

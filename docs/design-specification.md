@@ -182,6 +182,11 @@ now has explicit method-exit failure edges, with zero-divisor and signed-overflo
 faults ([ADR 0019](decisions/0019-primitive-pending-faults.md)). Calls also retain
 explicit failure edges. Other types and the managed runtime remain planned.
 
+Checked signed/unsigned Int32 add, subtract and multiply also use these edges
+([ADR 0020](decisions/0020-checked-int32-arithmetic.md)). Their exact wider result
+must fit the selected 32-bit range before conversion; otherwise an overflow
+fault propagates through the existing context.
+
 Begin with typed basic blocks and temporaries. Introduce SSA after baseline
 semantics are established. Optimisations preserve exception order and observable
 side effects. Planned passes include constant folding, unreachable-block removal,
@@ -229,6 +234,13 @@ Each boundary uses a fresh context. A distinct `_try` entry returns a primitive
 status and writes result/origin outputs; only proven pure roots also expose the
 old value-only entry. See ADR 0019 for the pointer/lifetime contract. These tags
 are a propagation foundation, not managed exception objects or handlers.
+
+Checked signed arithmetic uses Int64 intermediates, whose range contains all
+Int32 sums, differences and products. Unsigned add/multiply use UInt64 to retain
+the full product; unsigned subtraction uses Int64 to represent negative differences.
+Check the selected signed or unsigned 32-bit range before narrowing. The same
+operation classification drives translation's exceptional edges, IR validation
+and conservative may-fault analysis.
 
 - Unchecked integer arithmetic wraps with defined behaviour.
 - Checked arithmetic raises the proper managed exception.
@@ -287,8 +299,9 @@ weak references and concurrent collection are separately staged features.
 
 ## 9. Exceptions
 
-The primitive profile currently propagates division faults through a private
-context and returns status/origin at its native boundary (ADR 0019). Full managed
+The primitive profile currently propagates division and checked-arithmetic faults
+through a private context and returns status/origin at its native boundary
+(ADRs 0019/0020). Full managed
 exceptions below remain planned, including objects, messages and handler execution.
 
 First support try/catch/finally, throw and rethrow. Exceptions propagate

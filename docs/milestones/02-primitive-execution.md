@@ -1,6 +1,6 @@
 # Milestone 2: First primitive executable
 
-Status: in progress; slices 2a–2d and sub-slices 2e-a/2e-b implemented. Slice outline recorded 2026-10-01.
+Status: in progress; slices 2a–2d and sub-slices 2e-a/2e-b/2e-c implemented. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
 method into C++, compile locally and compare its result with .NET. This checkpoint
@@ -16,7 +16,7 @@ array-helper findings remain tracked gates for later capabilities.
 | 2b | C++ generation and bounded native compile/run harness for those methods | Complete for bounded native profile |
 | 2c | Locals, branches, loops and verified control-flow joins | Complete for initialized Int32 profile |
 | 2d | Direct static calls and a bounded method closure | Complete for bounded Int32 program profile |
-| 2e | Additional integer operations and required exceptional results, with .NET differential cases | In progress: 2e-a bitwise/shifts and 2e-b pending faults/division complete; checked arithmetic next |
+| 2e | Additional integer operations and required exceptional results, with .NET differential cases | In progress: bitwise/shifts, pending faults/division and checked arithmetic complete; remainder next |
 | 2f | Integration review and documented supported subset | Planned |
 
 The first executable passed in 2b. These are proposed reviewable boundaries;
@@ -202,8 +202,37 @@ Final validation: zero build warnings/errors and all 547 local tests passed in
 remaining issue within this subset. Upstream still advertises no branches; local
 main and cached origin/main remain ancestors. No push or hosted work ran.
 
-Slice 2e remains in progress. Next is checked Int32 add/subtract/multiply using
-the same fault path, followed by a defined remainder contract. Catch/filter/finally
+## Sub-slice 2e-c outcome
+
+[ADR 0020](../decisions/0020-checked-int32-arithmetic.md) adds signed and unsigned
+checked Int32 add/subtract/multiply. Exact wider arithmetic precedes the range
+check and successful narrowing. Signed arithmetic uses Int64; unsigned products
+use UInt64, and unsigned subtraction uses Int64 for negative results. Shared
+operation classification keeps translation, failure-edge validation and effect
+analysis aligned. The profile shape and native status ABI are unchanged.
+
+The existing fault harness now covers 25 entries and 9,325 outcomes per native
+configuration. New cases include all six forms, product boundaries, transitive
+and cross-assembly calls, loops/recursion, conditional avoidance, checked compound
+expressions and competing arithmetic/division faults. Origin checks distinguish
+equal-kind failures at different methods and instruction offsets 2/4. Unsigned
+fixture casts preserve input/output bits; checked conversions remain unsupported.
+Reduced tests check mapping, underflow, missing/unknown edges and recursive effects.
+Both native configurations retain warning-as-error builds with C++ exceptions/RTTI
+disabled, and optimized execution retains UBSan. Existing process budgets hold.
+
+Review covers exact intermediate ranges, signed/unsigned interpretation, checking
+before narrowing, fault origin/order, classification consistency and unchanged
+resource/ownership limits. Managed exception objects, allocation/rooting and
+handlers remain outside this slice.
+
+Final validation: zero build warnings/errors and all 583 local tests passed in
+12.0 seconds, including both native configurations and UBSan. Review found no
+remaining issue within this subset. Upstream still advertises no heads; local
+main and cached origin/main remain ancestors. No push or hosted work ran.
+
+Slice 2e remains in progress. Next is a defined signed/unsigned Int32 remainder
+contract with differential edge cases. Catch/filter/finally
 execution, initialization, broader call access, the managed runtime and the
 CoreLib/Alchemy filter gate remain unsupported or unresolved until their own
 lowering is proven.
