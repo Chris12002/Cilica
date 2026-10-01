@@ -120,7 +120,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
     public const string Profile = "int32-pending-fault-v1";
 }
 
-/// <summary>Typed value-flow contract only. CIL object translation and native execution are not implemented.</summary>
+/// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
     public const string Profile = "typed-reference-ir-v1";

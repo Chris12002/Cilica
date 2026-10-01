@@ -180,7 +180,8 @@ counts with 31, including raw IL counts outside 0..31; this is a defined C#/.NET
 profile choice for cases CIL leaves unspecified. Signed/unsigned Int32 division
 now has explicit method-exit failure edges, with zero-divisor and signed-overflow
 faults ([ADR 0019](decisions/0019-primitive-pending-faults.md)). Calls also retain
-explicit failure edges. Other types and the managed runtime remain planned.
+explicit failure edges. This primitive profile remains Int32-only; the bounded
+object checkpoint is described in section 7, with the broader runtime still planned.
 
 Checked signed/unsigned Int32 add, subtract and multiply also use these edges
 ([ADR 0020](decisions/0020-checked-int32-arithmetic.md)). Their exact wider result
@@ -282,9 +283,9 @@ returns against a bounded class catalog. Null can enter reference storage;
 concrete references can widen to the selected object base. Loads/call results
 cannot change their declared type, and ordered reference comparisons or reference
 arithmetic fail validation. This checks caller-constructed IR, not CIL method
-access, constructor/field semantics or reference execution. Native emission
-continues to accept only the existing Int32 profile. Root assignment and
-safepoints must be implemented and verified before any native reference lowering.
+access, constructor/field semantics or reference execution. The primitive emitter
+accepts only the existing Int32 profile. Object emission is a separate validated
+profile with phase A roots, described below.
 
 The bounded straight-line object-operation translator is now implemented
 ([ADR 0024](decisions/0024-straight-line-object-operations.md)). Its explicit entry
@@ -294,9 +295,22 @@ their direct receiver through the selected trivial Object constructor before
 other work. Readonly/access checks precede consumption. Nonvirtual `callvirt`
 retains a null check after argument evaluation; a direct instance `call` does not
 insert one. Allocations, calls and fields have explicit method-exit fault edges.
-A test-only evaluator agrees with authored .NET probes; native object execution,
-ownership and rooting remain planned. Branches/reference-stack inference are
+A test-only evaluator agrees with authored .NET probes. Branches/reference-stack inference are
 conservatively rejected until their translation is implemented.
+
+
+The first bounded native object checkpoint is implemented
+([ADR 0025](decisions/0025-native-object-ownership-and-roots.md)). A separate root
+assignment pass allocates distinct slots for reference arguments, locals and
+temporaries before C++ emission. Generated frames publish references before
+allocation and allocating calls and pop on every explicit fault/normal return.
+C++ standard-layout checks provide native sizes, alignments and reference-field
+offsets. Each invocation owns a bounded heap retaining objects until teardown;
+there is no collector or persistent object embedding API yet. Native O0/O2
+ASan/UBSan differential probes cover construction, mutation, reference returns,
+allocating calls, null/arithmetic faults, ownership and frame/heap lifetime.
+The initial limits are 1,024 roots per method, 64 active calls, 1 MiB of object
+storage and 4,096 allocations per invocation. Control flow remains unsupported.
 
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
@@ -316,7 +330,7 @@ preserve the distinction between modifying boxed storage and copying its value.
 
 ## 8. Garbage collection
 
-The baseline is precise, non-moving mark-and-sweep with one managed execution
+The planned baseline collector is precise, non-moving mark-and-sweep with one managed execution
 thread per runtime instance. The compiler identifies actual references; the
 collector does not guess from arbitrary memory. Before the multithreaded
 profile, parallelism uses independent runtime instances

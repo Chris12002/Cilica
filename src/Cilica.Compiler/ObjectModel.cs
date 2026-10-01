@@ -24,7 +24,7 @@ public abstract record ObjectStorage
 
 public sealed record ObjectField(ObjectFieldId Id, string Name, FieldAttributes Attributes, ObjectStorage Storage);
 
-/// <summary>Ordered logical fields. Native byte size/alignment and allocation are not yet lowered.</summary>
+/// <summary>Ordered logical fields; native byte sizes and offsets are supplied by target C++ layouts.</summary>
 public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
     TypeAttributes Attributes, ImmutableArray<ObjectField> Fields)
 {

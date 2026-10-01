@@ -406,3 +406,30 @@ scans, generic enclosing method owners and member formatting before excessive
 owner recursion. A shared metadata ledger prevents repeated binding scans from
 bypassing work limits. Preserve the complete primitive native corpus while the
 shared IR and input reader change.
+
+
+## Slice 3c: native objects and lifetime
+
+Compile authored C# through the object translator/emitter and compare results and
+fault kinds with .NET at O0/O2 under ASan/UBSan, with native exceptions/RTTI disabled.
+Check exact reported IR origins as a separate emitter contract. Cover receiver
+and argument roots in allocating methods, reference returns before later allocation,
+new objects rooted before allocating constructor entry, and children retained by
+reference fields after constructor frames have popped. Observe root/field maps
+at allocation points rather than relying on successful execution in a retained heap.
+
+Native checks cover distinct identity, zeroed fields, target descriptors, foreign
+instances/arbitrary pointers, invalid roots, byte/count limits, partial constructor
+failure, normal/fault frame cleanup, teardown callbacks and unchanged boundary
+results on failure. Raw authored IL covers direct null calls versus nonvirtual
+callvirt, null/same/distinct comparisons and the shared integer self-comparison
+regression. Test bounded recursion against the native resource contract without
+running an unbounded .NET oracle. Pair exact/excess root-frame limits and reject
+valid IR control flow before source is returned.
+
+The heap currently retains objects until teardown. These tests prove publication
+and ownership in that profile; they cannot replace future collect-at-every-allocation
+and poisoned-reclamation stress. Preserve all primitive/native regressions after
+sharing arithmetic lowering. Slice 3b-c next adds reference control flow; milestone
+4 remains responsible for precise collection. Wider ADR 0001/0002 experiments
+and browser/mobile claims remain gated on their own toolchains and evidence.

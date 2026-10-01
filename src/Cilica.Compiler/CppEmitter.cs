@@ -109,39 +109,7 @@ public static class CppEmitter
                 {
                     case IrStatement.Define define:
                         IrValue value = define.Value; Location(value.ILOffset);
-                        if (value.Expression is IrExpression.Binary { Operation: Int32Operation.DivideSigned or Int32Operation.DivideUnsigned
-                            or Int32Operation.RemainderSigned or Int32Operation.RemainderUnsigned } division)
-                        {
-                            // Guard before native division/remainder. Signed MinValue/-1
-                            // faults in the selected .NET profile for both operations,
-                            // even though evaluating the widened operation would be safe.
-                            text.Append("    if (v").Append(Number(division.Right)).Append(" == 0u) {\n");
-                            Fault(Int32Fault.DivideByZero, value.ILOffset); text.Append("    }\n");
-                            if (division.Operation is Int32Operation.DivideSigned or Int32Operation.RemainderSigned)
-                            {
-                                text.Append("    if (v").Append(Number(division.Left)).Append(" == 0x80000000u && v")
-                                    .Append(Number(division.Right)).Append(" == 0xffffffffu) {\n");
-                                Fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
-                            }
-                        }
-                        string expression;
-                        if (value.Expression is IrExpression.Binary arithmetic && Int32Operations.IsChecked(arithmetic.Operation))
-                        {
-                            // Int32 signed products fit in Int64. UInt32 products
-                            // require UInt64; unsigned subtraction uses Int64 so
-                            // negative results are checked without native wraparound.
-                            bool signed = Int32Operations.IsSignedChecked(arithmetic.Operation);
-                            bool signedWide = signed || arithmetic.Operation == Int32Operation.SubtractCheckedUnsigned;
-                            string wide = "w" + Number(value.Id);
-                            text.Append("    const std::").Append(signedWide ? "int64_t " : "uint64_t ").Append(wide).Append(" = ")
-                                .Append(CheckedExpression(arithmetic, signed, signedWide)).Append(";\n");
-                            string range = signed ? wide + " < -2147483648LL || " + wide + " > 2147483647LL"
-                                : signedWide ? wide + " < 0LL || " + wide + " > 4294967295LL" : wide + " > 0xffffffffu";
-                            text.Append("    if (").Append(range).Append(") {\n");
-                            Fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
-                            expression = "static_cast<std::uint32_t>(" + wide + ")";
-                        }
-                        else expression = Expression(value.Expression, block.Id);
+                        string expression = AppendValuePreparation(text, value, block.Id, Fault);
                         text.Append("    [[maybe_unused]] const std::uint32_t v").Append(Number(value.Id)).Append(" = ")
                             .Append(expression).Append(";\n");
                         if (value.Expression is IrExpression.Call call && throwing.Contains(call.Target))
@@ -183,7 +151,46 @@ public static class CppEmitter
         }
     }
 
-    private static string Expression(IrExpression expression, int block) => expression switch
+    // Shared integer lowering keeps object and primitive faults/bit semantics identical.
+    internal static string AppendValuePreparation(StringBuilder text, IrValue value, int block, Action<Int32Fault, int> fault)
+    {
+        if (value.Expression is IrExpression.Binary { Operation: Int32Operation.DivideSigned or Int32Operation.DivideUnsigned
+            or Int32Operation.RemainderSigned or Int32Operation.RemainderUnsigned } division)
+        {
+            // Guard before native division/remainder. Signed MinValue/-1
+            // faults in the selected .NET profile for both operations,
+            // even though evaluating the widened operation would be safe.
+            text.Append("    if (v").Append(Number(division.Right)).Append(" == 0u) {\n");
+            fault(Int32Fault.DivideByZero, value.ILOffset); text.Append("    }\n");
+            if (division.Operation is Int32Operation.DivideSigned or Int32Operation.RemainderSigned)
+            {
+                text.Append("    if (v").Append(Number(division.Left)).Append(" == 0x80000000u && v")
+                    .Append(Number(division.Right)).Append(" == 0xffffffffu) {\n");
+                fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
+            }
+        }
+        string expression;
+        if (value.Expression is IrExpression.Binary arithmetic && Int32Operations.IsChecked(arithmetic.Operation))
+        {
+            // Int32 signed products fit in Int64. UInt32 products
+            // require UInt64; unsigned subtraction uses Int64 so
+            // negative results are checked without native wraparound.
+            bool signed = Int32Operations.IsSignedChecked(arithmetic.Operation);
+            bool signedWide = signed || arithmetic.Operation == Int32Operation.SubtractCheckedUnsigned;
+            string wide = "w" + Number(value.Id);
+            text.Append("    const std::").Append(signedWide ? "int64_t " : "uint64_t ").Append(wide).Append(" = ")
+                .Append(CheckedExpression(arithmetic, signed, signedWide)).Append(";\n");
+            string range = signed ? wide + " < -2147483648LL || " + wide + " > 2147483647LL"
+                : signedWide ? wide + " < 0LL || " + wide + " > 4294967295LL" : wide + " > 0xffffffffu";
+            text.Append("    if (").Append(range).Append(") {\n");
+            fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
+            expression = "static_cast<std::uint32_t>(" + wide + ")";
+        }
+        else expression = Expression(value.Expression, block);
+        return expression;
+    }
+
+    internal static string Expression(IrExpression expression, int block) => expression switch
     {
         IrExpression.Constant c => "std::uint32_t{0x" + unchecked((uint)c.Value).ToString("x8", CultureInfo.InvariantCulture) + "u}",
         IrExpression.Parameter p => "std::bit_cast<std::uint32_t>(p" + Number(p.Index) + ")",
@@ -239,6 +246,11 @@ public static class CppEmitter
         string operand = "v" + Number(left);
         if (comparison is Int32Comparison.Zero or Int32Comparison.Nonzero)
             return operand + (comparison == Int32Comparison.Zero ? " == 0u" : " != 0u");
+        // dup can make both operands the same already-evaluated temporary.
+        // Fold that identity to avoid tautological-compare errors under -Werror.
+        if (left == right)
+            return comparison is Int32Comparison.Equal or Int32Comparison.LessOrEqualSigned or Int32Comparison.LessOrEqualUnsigned
+                or Int32Comparison.GreaterOrEqualSigned or Int32Comparison.GreaterOrEqualUnsigned ? "true" : "false";
         string other = "v" + Number(right!.Value);
         if (comparison is Int32Comparison.LessSigned or Int32Comparison.GreaterSigned or Int32Comparison.LessOrEqualSigned or Int32Comparison.GreaterOrEqualSigned)
         {
@@ -256,7 +268,7 @@ public static class CppEmitter
         };
         return operand + " " + operation + " " + other;
     }
-    private static string Symbol(IrMethodId id) => "cilica_m_" + id.ContentHash.ToLowerInvariant() + "_" + Hex(id.Token, "x8");
+    internal static string Symbol(IrMethodId id) => "cilica_m_" + id.ContentHash.ToLowerInvariant() + "_" + Hex(id.Token, "x8");
     private static string Input(int block, int index) => "s" + Number(block) + "_" + Number(index);
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
     private static string Hex(int value, string format) => value.ToString(format, CultureInfo.InvariantCulture);

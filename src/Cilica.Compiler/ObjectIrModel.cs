@@ -10,7 +10,7 @@ public enum ObjectMethodKind { Static, Instance, Constructor, ObjectBaseConstruc
 public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, ObjectMethodKind Kind,
     MethodAttributes Attributes, bool OwnerExternallyVisible);
 
-/// <summary>Object operation translation only. Allocation, ownership and rooting are not lowered to native code.</summary>
+/// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
     public const string Profile = "object-operations-ir-v1";

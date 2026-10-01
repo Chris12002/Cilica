@@ -125,3 +125,8 @@ pointer-heavy example in the Phase A frame style with Clang on macOS and with
 Emscripten. The experiment confirms that frames pop correctly under the chosen
 exception lowering and measures a first overhead estimate against a version
 with rooting removed.
+
+
+The bounded native phase A publication/ownership checkpoint is now implemented in
+[ADR 0025](0025-native-object-ownership-and-roots.md). Its retained heap does not
+establish precise collection, collection stress or the wider target/measurement gates.

@@ -99,3 +99,8 @@ a null reference field fault. Authored raw IL verifies direct null calls versus
 nonvirtual `callvirt` and null identity comparisons. The native Int32 differential
 corpus remains required. This experiment establishes translation, not an object
 heap, rooting, GC, full exception handling, library or platform compatibility.
+
+
+The bounded native phase A publication/ownership checkpoint is now implemented in
+[ADR 0025](0025-native-object-ownership-and-roots.md). Its retained heap does not
+establish precise collection, collection stress or the wider target/measurement gates.

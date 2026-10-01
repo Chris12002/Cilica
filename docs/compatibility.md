@@ -1,6 +1,6 @@
 # Compatibility manifest
 
-Recorded 2026-10-01. Capabilities are stage-specific. A translated operation does
+Recorded 2026-10-02. Capabilities are stage-specific. A translated operation does
 not establish native execution or platform compatibility.
 
 | Component/profile | Implemented stage | Boundaries |
@@ -11,7 +11,8 @@ not establish native execution or platform compatibility.
 | `object-layout-v1` | Bounded metadata snapshots and detached class/field graphs | Int32/CLASS/OBJECT field storage and logical reference slots only; no reference IL, byte layout, allocation, root frames or object execution |
 | `typed-reference-ir-v1` | Detached caller-constructed IR validation | Concrete references/null, typed locals/joins/calls/returns; no CIL object translation, constructor/field operations, native emission or execution |
 | `object-operations-ir-v1` | Bounded straight-line CIL translation and detached operation validation | Constructors, fields and nonvirtual static/instance calls; test-only .NET/IR conformance; no native reference emission, heap, ownership, root frames or collection |
-| Managed runtime and library | Planned | Object, array, GC, exception and library execution support is unimplemented |
+| `straight-line-objects-native-v1` | C++20 emission and local native differential execution | Instance-owned retained heap, phase A roots, null/allocation faults; Int32 boundary only; no reference control flow or collector |
+| Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
 
@@ -77,8 +78,8 @@ closure analysis propagates may-fault effects through recursive cycles and omits
 checks only for proven pure callees. Each native entry owns a fresh stack context;
 the first fault leaves immediately and retains the originating image hash,
 MethodDef and IL offset across callers. This context has primitive fault tags,
-not managed exception objects or messages; catch/filter/finally, identity and GC
-rooting remain unimplemented. The CoreLib/Alchemy filter gate is unresolved.
+not managed exception objects or messages; catch/filter/finally remain unimplemented.
+Object identity/rooting are supplied only by the separate object profile below. The CoreLib/Alchemy filter gate is unresolved.
 
 [ADR 0020](decisions/0020-checked-int32-arithmetic.md) adds six checked arithmetic
 operations with the same method-exit edges, pending tag and native status entry.
@@ -194,10 +195,10 @@ invalid storage/base shape and aggregate excess. Independent fixtures verify
 exact/excess limits, forwarding, cross-image namesakes, ownership and detached
 lifetime. See [ADR 0022](decisions/0022-detached-object-layouts.md).
 
-The layout model alone supplies no execution. Target byte offsets, native object
-allocation, instance ownership, method root frames, native null/object faults
-and collection remain unimplemented. The existing Int32 translation profile, emitted C++ and native status ABI retain their
-semantics. `IrType` is now a record carrying a kind and optional concrete class
+The layout model alone supplies no execution. Target layouts, allocation, ownership,
+root frames and native object faults require the separate object emitter below;
+collection remains unimplemented. The existing Int32 translation profile, emitted
+C++ and native status ABI retain their semantics. `IrType` is now a record carrying a kind and optional concrete class
 identity; this early compiler API is not a stable serialization contract.
 
 ## Typed reference value-flow foundation
@@ -227,7 +228,7 @@ also cover reference values and argument copies.
 
 This API alone validates value flow: the object-operation profile below adds
 method bindings, constructor/field operations and their access checks. Native
-ownership, root assignment and safepoints still require subsequent lowering.
+object lowering is supplied by the separate bounded profile below.
 Caller-constructed sources do not authenticate metadata declarations. Void
 signatures are accepted only through the object-operation profile; they remain
 invalid as value/storage types. The primitive C++ emitter rejects reference/null
@@ -295,3 +296,47 @@ null calls versus nonvirtual `callvirt` and null identity comparisons. These are
 translation checks, not a native heap, rooting or GC experiment. The Int32 native
 corpus remains the backend evidence. No object CLI command or native object ABI
 is exposed. See [ADR 0024](decisions/0024-straight-line-object-operations.md).
+
+
+## Straight-line native object checkpoint
+
+`ObjectCppEmitter.EmitProgram` implements `straight-line-objects-native-v1` from
+revalidated `ObjectIrProgram`; `ObjectRootAssignment.Assign` supplies the separate
+phase A plan. This compiler API emits C++20, without executing input assemblies
+or launching a compiler. The CLI still exposes only the Int32 native profile.
+Supported object operations above now run in a private instance-owned heap with
+concrete reference parameters/locals/returns, zeroed fields, constructor and
+void calls, identity comparisons and explicit null/allocation faults.
+
+The C entry accepts/returns Int32; it creates a fresh context/heap per invocation.
+No references, retained handles or persistent runtime cross that boundary. Output
+storage must be valid and disjoint. Null outputs return 3 without writes; faults
+leave the result unchanged and report image/MethodDef/IL origin. Statuses retain
+1 divide-by-zero and 2 overflow, add 4 null, 5 allocation failure, 6 ownership/type
+violation and 8 call-depth limit. These tags are not managed exception objects.
+
+All reference arguments, locals and temporaries receive distinct slots, including
+null temporaries. Frames publish before allocations/calls and pop on every exit.
+New objects are rooted before constructor entry; reference call results enter a
+caller slot before any later allocation. Field maps derive from checked native
+`sizeof`/`alignof`/`offsetof`, independently of method roots. Membership is checked
+before reading supplied references, and foreign heaps/types fail explicitly.
+
+Limits: 1,024 roots per method, 64 active calls, 1 MiB of object storage and 4,096
+allocations per invocation, plus existing object/IR budgets. Bodies remain one
+block with no stack inputs and a return. Caller-constructed valid control flow
+and excess frames fail before source is returned. The heap retains objects until
+teardown; no GC, collection stress, phase B, performance, stable embedding,
+exception-handler, class-library or broader platform claim follows.
+
+Evidence is local macOS ARM64, Apple Clang 17, .NET 10.0.11/SDK 10.0.400. Seven
+authored C# entries compare 1,463 result/fault cases per O0/O2 configuration under
+ASan/UBSan, checking both private helpers and the C boundary. Allocation observers
+inspect caller/callee/returned references and children retained through fields;
+ownership, invalid pointers/roots, zero fields, size/alignment/reference maps,
+allocation limits, constructor failure, frame cleanup and teardown have native
+checks. Authored raw IL covers null calls/comparisons, identity and integer
+self-comparison, plus a native-only bounded recursion check. Exact fault origins
+are checked against the validated operation's IL offset; .NET supplies the
+independent result/fault-kind oracle. See
+[ADR 0025](decisions/0025-native-object-ownership-and-roots.md).
