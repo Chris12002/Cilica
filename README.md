@@ -3,7 +3,7 @@
 An independent, open-source .NET IL-to-C++ compiler and managed runtime, designed
 for embedding C# libraries in native and browser applications.
 
-**Status: metadata frontend and bounded Int32 control-flow execution implemented; managed runtime planned.**
+**Status: metadata frontend and bounded Int32 static-call execution implemented; managed runtime planned.**
 The assembly explorer inspects IL and audits bounded dependencies without running
 input assemblies. The bounded integer profile now emits C++20 and passes local
 native differential tests. Managed objects, exceptions, libraries and Expo integration
@@ -123,7 +123,8 @@ executes the input. Optional `--reference` directories use the existing explicit
 resolver. Unsupported operations write diagnostics to stderr, return code 1 and
 preserve an existing output file. The profile accepts constants, argument loads,
 unchecked add/subtract/multiply, initialized Int32 locals, comparisons, branches,
-loops and return. Calls and exceptional operations follow in later slices.
+loops, direct static calls and return. All reachable helpers must fit the profile;
+required initialization and exceptional operations remain unsupported.
 Boolean locals, including bookkeeping locals emitted by Debug C# builds, remain
 unsupported; use optimized C# builds for the current integer profile. See the
 [milestone 2 plan](docs/milestones/02-primitive-execution.md).
@@ -135,7 +136,7 @@ dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll \
   -noColor -parallel none -class '*NativeExecutionTests'
 ```
 
-The disposable harness builds 17 authored C# methods and two reduced IL probes
+The disposable harness builds 23 authored C# entry methods and two reduced IL probes
 at `-O0` and `-O2`, checks
 normal and wraparound results against .NET, and enables undefined-behaviour
 sanitization for the optimized build. It bounds native process time/output and

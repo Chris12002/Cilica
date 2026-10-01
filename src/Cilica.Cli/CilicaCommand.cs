@@ -38,7 +38,7 @@ public static partial class CilicaCommand
         "            --root and --root-type may be combined; nested types use '/'.\n" +
         "            Reference directories are explicit; no runtime probing occurs.\n" +
         "            --runtime-library selects primitive/string receiver mappings.\n" +
-        "  emit-cpp  Emit one supported Int32 method as C++20; never compile or run it.\n" +
+        "  emit-cpp  Emit a supported Int32 static-call closure as C++20; never compile or run it.\n" +
         "\n" +
         "Exit codes: 0 success, 1 errors reported, 2 usage error, 3 internal error.\n";
 

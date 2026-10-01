@@ -24,6 +24,7 @@ public abstract record IrExpression
     public sealed record StackInput(int Index) : IrExpression;
     public sealed record Binary(Int32Operation Operation, int Left, int Right) : IrExpression;
     public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
+    public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments) : IrExpression;
 }
 
 /// <summary>Block-local typed temporary; operands always refer to earlier values in that block.</summary>
@@ -71,4 +72,31 @@ public static class IrLimits
 public sealed record TranslationResult(IrMethod? Method, ImmutableArray<Diagnostic> Diagnostics)
 {
     public bool Success => Method is not null;
+}
+
+/// <summary>Content-scoped MethodDef identity, independent of display names and readers.</summary>
+public sealed record IrMethodId(string ContentHash, int Token)
+{
+    public static IrMethodId From(MethodSource source) =>
+        new(source.ContentHash.ToLowerInvariant(), source.Token);
+}
+
+/// <summary>One explicit entry and its complete reachable direct-call closure.</summary>
+public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods)
+{
+    public const string Profile = "int32-static-calls-v1";
+}
+
+public static class ProgramLimits
+{
+    public const int MaximumMethods = 256;
+    public const int MaximumBodyBytes = 1048576;
+    public const int MaximumInstructions = 65536;
+    public const int MaximumCallArguments = 65536;
+    // Existing IR limits also apply to totals across all methods in a program.
+}
+
+public sealed record ProgramTranslationResult(IrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)
+{
+    public bool Success => Program is not null;
 }

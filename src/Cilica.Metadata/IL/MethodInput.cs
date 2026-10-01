@@ -19,7 +19,8 @@ public sealed record MethodInput(MethodSource Source, MethodSignature Signature,
     MethodImplAttributes Implementation, int OwnerGenericArity, bool IsReferenceAssembly,
     bool HasTypeInitializer, bool HasModuleInitializer, ImmutableArray<TypeSignature> Locals,
     bool InitializeLocals, int ExceptionRegionCount,
-    int CodeSize, int MaxStack, ImmutableArray<MethodInstruction> Instructions);
+    int CodeSize, int MaxStack, ImmutableArray<MethodInstruction> Instructions,
+    int OwnerToken, bool OwnerExternallyVisible);
 
 public sealed record MethodReadLimits(int MaximumBodyBytes = 1048576, int MaximumInstructions = 65536,
-    int MaximumInitializerMembers = 65536);
+    int MaximumInitializerMembers = 65536, int MaximumOwnerDepth = 64);

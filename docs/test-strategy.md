@@ -157,15 +157,16 @@ untrusted metadata display names out of C++ syntax. CLI cases cover exact roots,
 source/file output, write errors, unsupported operations and invalid/missing
 inputs without destroying an existing output artifact.
 
-`NativeExecutionTests` translates 17 independently authored C# methods and two
+`NativeExecutionTests` translates 23 independently authored C# entry methods and two
 reduced IL probes, checks their CLI source against the emitter, compiles one translation unit per
-configuration, and compares 6,764 native results with direct .NET fixture calls
+configuration, and compares 8,900 native results with direct .NET fixture calls
 and the zero-local probe's independent expected constant.
 The test runner owns the authored reference execution; production parsing and
 emission never load or invoke input code. There are 100 boundary combinations
 and 256 seeded tuples per method. Add/subtract/multiply, a compound expression,
 signed boundary constants, unused parameters, signed/unsigned comparisons,
-branches, loops and stack joins run at `-O0` and `-O2` with
+branches, loops, stack joins, shared helper closures, cross-assembly calls, argument
+capture before mutation and bounded direct/mutual recursion run at `-O0` and `-O2` with
 undefined-behaviour sanitizer on the optimized build. Require exact result count
 and order, zero exit status and empty runtime stderr.
 
@@ -178,7 +179,7 @@ compiler version and flags. The recorded toolchain/target and current support
 boundary are in the [compatibility manifest](compatibility.md) and
 [ADR 0015](decisions/0015-int32-cpp-emission.md). Other targets remain untested.
 
-Control-flow probes bound C# loop counts to -32..32 and the reduced live-stack
+Control-flow/call probes bound C# loop and recursion counts to -32..32 and the reduced live-stack
 loop to 0..31. An optimized fixture project avoids Debug C# Boolean bookkeeping
 locals, which remain outside the Int32 storage profile. Existing inspection
 fixtures retain their original optimization setting. The harness's case table
@@ -193,7 +194,18 @@ Exact accepted/rejected block, aggregate statement and conditional edge-copy
 budgets include synthetic stack-input values. The profile only produces Int32
 stack values; these checks do not establish a general CLI verifier for other types.
 
-Future slices add calls and ordered exceptional traces as those semantics exist.
+`Int32CallTests` checks content-scoped targets, shared/cyclic deduplication,
+detachment and deterministic method ordering, explicit-directory resolution,
+missing dependencies, transitive diagnostic paths and preserved output on failure.
+Reduced graphs reject invalid call tokens, stack underflow, unsupported callee
+bodies/signatures, generic owners/instantiations, access rules and inherited owners.
+Exact method/instruction, aggregate statement and call-argument bounds have paired
+accepted/rejected cases, including caller-constructed programs with small value
+counts but many repeated argument references. Declaring-owner snapshot bounds,
+forged targets/arity/operands/closures and unreachable methods are checked.
+See [ADR 0017](decisions/0017-bounded-static-call-closure.md).
+
+Future slices add ordered exceptional traces as those semantics exist.
 Preserve this complete native path; an IR evaluator alone is no longer sufficient
 execution evidence. See [ADR 0016](decisions/0016-int32-control-flow.md).
 

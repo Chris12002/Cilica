@@ -138,7 +138,7 @@ public sealed class CppEmissionTests
         string output = Path.Combine(files.Root, "generated.cpp");
         var stdout = Run("emit-cpp", input, "--root", "06000001");
         Assert.Equal(CilicaCommand.Success, stdout.Exit); Assert.Empty(stdout.Err);
-        Assert.StartsWith("// Cilica int32-control-flow-v1", stdout.Out, StringComparison.Ordinal);
+        Assert.StartsWith("// Cilica int32-static-calls-v1", stdout.Out, StringComparison.Ordinal);
         Assert.Equal(CilicaCommand.Success, Run("emit-cpp", input, "--root", "06000001", "--output", output).Exit);
         Assert.Equal(stdout.Out, File.ReadAllText(output));
         foreach (string root in new[] { "06000002", "06ffffff" })

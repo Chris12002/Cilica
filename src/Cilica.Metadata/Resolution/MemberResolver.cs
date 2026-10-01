@@ -24,6 +24,10 @@ public sealed partial class AssemblyResolver
     public ResolutionResult<ResolvedMethod> ResolveMethod(ResolvedAssembly assembly, EntityHandle handle) =>
         Bind(assembly, handle, () => Method(assembly, handle));
 
+    /// <summary>Resolves only on the referenced owner; inherited-owner obligations remain explicit.</summary>
+    public ResolutionResult<ResolvedMethod> ResolveDeclaredMethod(ResolvedAssembly assembly, EntityHandle handle) =>
+        Bind(assembly, handle, () => Method(assembly, handle, declaredOnly: true));
+
     public ResolutionResult<ResolvedField> ResolveField(ResolvedAssembly assembly, EntityHandle handle) =>
         Bind(assembly, handle, () => Field(assembly, handle));
 
@@ -47,7 +51,7 @@ public sealed partial class AssemblyResolver
         }
     }
 
-    private ResolvedMethod Method(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null)
+    private ResolvedMethod Method(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null, bool declaredOnly = false)
     {
         MetadataReader reader = assembly.Image.Reader;
         var decoder = new SignatureDecoder(this, assembly);
@@ -56,7 +60,7 @@ public sealed partial class AssemblyResolver
             MethodSpecification specification = reader.GetMethodSpecification((MethodSpecificationHandle)handle);
             if (specification.Method.Kind is not (HandleKind.MethodDefinition or HandleKind.MemberReference) || specification.Method.IsNil)
                 throw new BadImageFormatException("MethodSpec must refer to a MethodDef or MemberRef.");
-            ResolvedMethod definition = Method(assembly, specification.Method, context);
+            ResolvedMethod definition = Method(assembly, specification.Method, context, declaredOnly);
             SignatureList<TypeSignature> arguments = new(decoder.MethodArguments(specification.Signature).Select(a => InContext(a, context)));
             if (arguments.Count == 0 || arguments.Count != definition.Signature.GenericArity)
                 throw new BadImageFormatException("MethodSpec argument count does not match its declaration.");
@@ -110,6 +114,8 @@ public sealed partial class AssemblyResolver
             }
             if (name is ".ctor" or ".cctor" || !BaseTypes(lookup, actual, out var nextLookup, out var nextActual))
                 throw Failure(DiagnosticIds.MemberNotFound, $"No declaration matches method '{name}' on {requestedOwner} and its structural signature.");
+            if (declaredOnly)
+                throw new UnsupportedBindingException("Inherited MemberRef owners require access/initialization analysis before executable lowering; reference the declaring type explicitly.");
             lookup = nextLookup;
             actual = nextActual;
         }

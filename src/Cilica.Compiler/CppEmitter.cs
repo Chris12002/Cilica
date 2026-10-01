@@ -1,14 +1,15 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using Cilica.Metadata.IL;
 
 namespace Cilica.Compiler;
 
-/// <summary>Detached C++20 source and the explicit C entry point for one method.</summary>
+/// <summary>Detached C++20 source for a complete program and its explicit C entry point.</summary>
 public sealed record CppArtifact(MethodSource Source, string EntryPoint, string Text);
 
-/// <summary>Emits validated Int32 control flow; never starts a native process.</summary>
+/// <summary>Emits validated Int32 programs; never starts a native process.</summary>
 public static class CppEmitter
 {
     public const int MaximumValues = IrLimits.MaximumStatements;
@@ -18,11 +19,35 @@ public static class CppEmitter
     public static CppArtifact Emit(IrMethod method)
     {
         ArgumentNullException.ThrowIfNull(method); IrValidator.Validate(method);
-        string entry = "cilica_m_" + method.Source.ContentHash.ToLowerInvariant() + "_" + Hex(method.Source.Token, "x8");
+        return EmitProgram(new(IrMethodId.From(method.Source), [method]));
+    }
+
+    public static CppArtifact EmitProgram(IrProgram program)
+    {
+        ArgumentNullException.ThrowIfNull(program);
+        IrMethod entryMethod = IrValidator.Validate(program);
+        string entry = Symbol(program.Entry), scope = entry + "_closure";
         var text = new StringBuilder();
-        text.Append("// Cilica ").Append(IrMethod.Profile).Append("; sha256=")
-            .Append(method.Source.ContentHash.ToLowerInvariant()).Append("; MethodDef=0x").Append(Hex(method.Source.Token, "x8")).Append('\n');
-        text.Append("#include <bit>\n#include <cstdint>\n\nextern \"C\" std::int32_t ").Append(entry).Append('(');
+        text.Append("// Cilica ").Append(IrProgram.Profile).Append("; sha256=")
+            .Append(entryMethod.Source.ContentHash.ToLowerInvariant()).Append("; MethodDef=0x").Append(Hex(entryMethod.Source.Token, "x8")).Append('\n');
+        text.Append("#include <bit>\n#include <cstdint>\n\nnamespace ").Append(scope).Append(" {\n");
+        IrMethod[] methods = [.. program.Methods.OrderBy(m => m.Source.ContentHash.ToLowerInvariant(), StringComparer.Ordinal).ThenBy(m => m.Source.Token)];
+        foreach (IrMethod method in methods)
+        {
+            text.Append("[[maybe_unused]] static std::int32_t ").Append(Symbol(IrMethodId.From(method.Source))).Append('(');
+            text.Append(string.Join(", ", method.Parameters.Select(_ => "std::int32_t"))).Append(") noexcept;\n");
+        }
+        foreach (IrMethod method in methods) AppendMethod(text, method);
+        text.Append("}\n\nextern \"C\" std::int32_t ").Append(entry).Append('(');
+        text.Append(string.Join(", ", entryMethod.Parameters.Select((_, i) => "std::int32_t p" + Number(i))));
+        text.Append(") noexcept\n{\n    return ").Append(scope).Append("::").Append(entry).Append('(');
+        text.Append(string.Join(", ", entryMethod.Parameters.Select((_, i) => "p" + Number(i)))).Append(");\n}\n");
+        return new(entryMethod.Source, entry, text.ToString());
+    }
+
+    private static void AppendMethod(StringBuilder text, IrMethod method)
+    {
+        text.Append("[[maybe_unused]] static std::int32_t ").Append(Symbol(IrMethodId.From(method.Source))).Append('(');
         for (int index = 0; index < method.Parameters.Length; index++)
         {
             if (index != 0) text.Append(", ");
@@ -62,7 +87,6 @@ public static class CppEmitter
             text.Append("}\n");
         }
         text.Append("}\n");
-        return new(method.Source, entry, text.ToString());
 
         void Location(int offset) => text.Append("    // IL_").Append(Hex(offset, "x4")).Append('\n');
         void Edge(IrEdge edge)
@@ -85,6 +109,8 @@ public static class CppEmitter
             (b.Operation switch { Int32Operation.AddWrapping => "+", Int32Operation.SubtractWrapping => "-", Int32Operation.MultiplyWrapping => "*", _ => throw new InvalidOperationException() }) +
             " static_cast<std::uint64_t>(v" + Number(b.Right) + "))",
         IrExpression.Compare c => "(" + Comparison(c.Comparison, c.Left, c.Right) + " ? 1u : 0u)",
+        IrExpression.Call c => "std::bit_cast<std::uint32_t>(" + Symbol(c.Target) + "(" +
+            string.Join(", ", c.Arguments.Select(a => "std::bit_cast<std::int32_t>(v" + Number(a) + ")")) + "))",
         _ => throw new InvalidOperationException("Validated expression changed."),
     };
 
@@ -110,6 +136,7 @@ public static class CppEmitter
         };
         return operand + " " + operation + " " + other;
     }
+    private static string Symbol(IrMethodId id) => "cilica_m_" + id.ContentHash.ToLowerInvariant() + "_" + Hex(id.Token, "x8");
     private static string Input(int block, int index) => "s" + Number(block) + "_" + Number(index);
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
     private static string Hex(int value, string format) => value.ToString(format, CultureInfo.InvariantCulture);

@@ -6,11 +6,11 @@ not establish native execution or platform compatibility.
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
-| `int32-control-flow-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; no initializer obligations |
-| C++ backend | One C-linkage function with hash/token identity, IL comments and scoped block labels | No managed objects, exceptions or calls; public IR is validated before emission |
+| `int32-static-calls-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; no initializer obligations |
+| C++ backend | One C-linkage entry with private helper definitions, hash/token identity, IL comments and scoped block labels | No managed objects or exceptions; public IR is validated before emission |
 | Managed runtime and library | Planned | Object, array, GC, exception and library execution support is unimplemented |
 
-## Int32 control-flow profile
+## Int32 static-call profile
 
 | IL | Translation contract |
 | --- | --- |
@@ -22,29 +22,48 @@ not establish native execution or platform compatibility.
 | `dup`, `pop` | Verified Int32 stack duplication/discard |
 | `ceq`, `clt`, `clt.un`, `cgt`, `cgt.un` | Int32 result 0/1; explicit signed/unsigned comparisons |
 | `br`, `br.s`; `brtrue`, `brfalse`; `beq`, `bne.un`, `blt`, `bgt`, `ble`, `bge` and applicable `.un`/`.s` forms | Explicit branch edges; exact instruction targets; matching Int32 stack inputs at each join/backedge |
+| `call` | Exact scoped declaration; nongeneric static Int32 signature; already-evaluated arguments in signature order; verified complete closure |
 | `ret` | One Int32 value and empty remaining stack at every reachable return |
 
 Unsupported signatures/operations return diagnostics and no IR or C++ source. This includes
-checked arithmetic, division, conversions, switches, calls, argument stores, references,
+checked arithmetic, division, conversions, switches, virtual/indirect calls,
+argument stores, references,
 exception regions, required type/module initialization and synchronization.
 Boolean, pinned, non-Int32 and uninitialized locals are unsupported. Unreachable
-blocks are conservatively rejected. Loop termination is not proved by the compiler.
+blocks are conservatively rejected. Loop/recursion termination is not proved;
+managed stack exhaustion is unimplemented.
 Reference-assembly and native/runtime bodies cannot establish execution support.
 Bounds and ownership follow [ADR 0014](decisions/0014-straight-line-int32-ir.md)
-and [ADR 0016](decisions/0016-int32-control-flow.md). The current profile supersedes
-the straight-line IR data shape; this is an early evolving API, not a stable IR
+and [ADR 0016](decisions/0016-int32-control-flow.md), extended by
+[ADR 0017](decisions/0017-bounded-static-call-closure.md). The current program profile extends
+the control-flow IR data shape; this is an early evolving API, not a stable IR
 serialization or embedding ABI. Prior arithmetic inputs retain their semantics.
 
+Calls accept members of the same declaring type (excluding compiler-controlled
+PrivateScope), or public methods on externally visible types. Internal, family,
+friend-assembly and inherited MemberRef owner rules are conservatively unsupported.
+Reference the exact declaring type; required type/module initialization still fails.
+Program traversal is iterative, includes each content-hash/MethodDef identity once,
+and limits closures to 256 methods, 1 MiB IL and 65,536 instructions. Existing IR
+limits also apply across the program: 4,096 blocks/parameters/locals and 65,536
+statements/block inputs/edge arguments. Call argument copies have their own 65,536
+bound. Declaring-type snapshots are bounded to 64 levels by default.
+`Translate` retains the call-free method API; `TranslateProgram` and `EmitProgram`
+handle complete closures. Caller IR with missing targets, invalid arity/operands,
+duplicate identities, unreachable methods or excess resources is rejected.
+
 Current native evidence: .NET SDK 10.0.400 / runtime 10.0.11 and Apple Clang
-17.0.0 (`clang-1700.4.4.1`), target `arm64-apple-darwin24.6.0`. Seventeen authored
-C# methods and two reduced IL probes produce 6,764 native results per build,
+17.0.0 (`clang-1700.4.4.1`), target `arm64-apple-darwin24.6.0`. Twenty-three authored
+C# entry methods and two reduced IL probes produce 8,900 native results per build,
 checked against authored .NET results and the independent zero-local expectation
 at `-O0` and `-O2`; the latter also enables `-fsanitize=undefined` and
 `-fno-sanitize-recover=all`. Cases include signed extremes, overflow/underflow,
 multiplication truncation, compound operand order, negative constants and an
 unused parameter, signed/unsigned comparisons, both branch outcomes, joins, loop
-mutation and live stack values across backedges, using 100 boundary combinations
-and 256 seeded input tuples per method. C# loop counts are bounded to -32..32;
+mutation, live stack values across backedges, shared helpers, cross-assembly calls,
+argument capture before local mutation, and bounded direct/mutual recursion,
+using 100 boundary combinations
+and 256 seeded input tuples per method. C# loop/recursion counts are bounded to -32..32;
 the reduced stack-loop probe uses 0..31. The zero-local probe has expected result 0.
 Process timeout/output-limit termination and cleanup also pass. Reduced tests
 reject forged IR and verify CLI failures preserve existing output files.

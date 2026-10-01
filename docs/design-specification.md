@@ -167,7 +167,13 @@ execution. C++ emission and local native differential execution now cover that
 profile ([ADR 0015](decisions/0015-int32-cpp-emission.md)). The control-flow profile
 adds initialized Int32 locals, comparisons, jumps, conditional branches and typed
 stack inputs across joins/backedges ([ADR 0016](decisions/0016-int32-control-flow.md)).
-Other types, direct calls and the managed runtime remain planned.
+The program profile adds a complete bounded closure of direct static Int32 calls
+([ADR 0017](decisions/0017-bounded-static-call-closure.md)). Bind exact scoped
+declarations through explicit reference directories; keep method identity as image
+content hash plus MethodDef token in detached IR. Validate all reachable bodies
+before exposing a program. Generic, virtual/indirect calls, broader access rules,
+inherited MemberRef owners and required initialization remain unsupported.
+Other types and the managed runtime remain planned.
 
 Begin with typed basic blocks and temporaries. Introduce SSA after baseline
 semantics are established. Optimisations preserve exception order and observable
@@ -181,8 +187,12 @@ Generated methods have stable names and mappings to original methods and IL
 offsets. Use explicit managed layouts and dispatch tables rather than relying
 on C++ inheritance or RTTI matching CLI semantics.
 
-The first implemented backend emits one validated straight-line Int32 method as
-a C++20 C-linkage function. Temporaries hold unsigned bit patterns; arithmetic
+The implemented backend emits a validated Int32 program as private C++20 helper
+functions and one explicit C-linkage entry. Declarations precede bodies, including
+recursive calls. Each program has a hash/token namespace; shared helpers in
+separately generated roots retain private linkage. Call arguments are immutable
+temporaries already evaluated in IL order, avoiding native argument-evaluation
+ordering dependencies. Temporaries hold unsigned bit patterns; arithmetic
 widens to unsigned 64 bits, then retains the low 32 bits. `std::bit_cast` preserves
 signed parameter/result representation. Source comments map the image hash,
 MethodDef token and IL offsets; input display names never become C++ syntax.

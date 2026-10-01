@@ -7,20 +7,53 @@ namespace Cilica.Compiler;
 
 internal static class IrValidator
 {
-    internal static void Validate(IrMethod method)
+    internal static IrMethod Validate(IrProgram program)
+    {
+        void Require([DoesNotReturnIf(false)] bool condition, string message)
+        {
+            if (!condition) throw new ArgumentException("Invalid Int32 program IR: " + message, nameof(program));
+        }
+        Require(program.Entry is not null && !program.Methods.IsDefault && program.Methods.Length is > 0 and <= ProgramLimits.MaximumMethods,
+            "entry and bounded methods are required.");
+        var methods = new Dictionary<IrMethodId, IrMethod>();
+        foreach (IrMethod method in program.Methods)
+        {
+            Require(method is not null && method.Source is not null, "method source is missing.");
+            // Validate hash shape before deriving a native name/key.
+            Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "invalid source hash.");
+            Require(methods.TryAdd(IrMethodId.From(method.Source), method), "duplicate method identity/native symbol.");
+        }
+        Require(methods.TryGetValue(program.Entry, out IrMethod? entry), "entry is outside the program.");
+        var resources = new ProgramResources();
+        foreach (IrMethod method in program.Methods)
+        {
+            Validate(method, methods);
+            Require(resources.Add(method), "aggregate program IR limit exceeded.");
+        }
+        var visited = new HashSet<IrMethodId>(); var pending = new Stack<IrMethodId>(); pending.Push(program.Entry);
+        while (pending.TryPop(out IrMethodId? key))
+            if (visited.Add(key))
+                foreach (IrExpression.Call call in methods[key].Blocks.SelectMany(b => b.Statements)
+                    .OfType<IrStatement.Define>().Select(d => d.Value.Expression).OfType<IrExpression.Call>()) pending.Push(call.Target);
+        Require(visited.Count == methods.Count, "program contains methods unreachable from entry.");
+        return entry;
+    }
+
+    internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
             if (!condition) throw new ArgumentException("Invalid Int32 IR: " + message, nameof(method));
         }
         Require(method.Source is not null, "source is missing.");
+        Require(method.Source.AssemblyIdentity is not null, "assembly identity is missing.");
         Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "source hash must be SHA-256 hexadecimal.");
         Require((uint)method.Source.Token >> 24 == 0x06 && (method.Source.Token & 0xffffff) != 0, "source needs a non-nil MethodDef token.");
         Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters && method.Parameters.All(p => p == IrType.Int32)
             && method.ReturnType == IrType.Int32, "signature is outside the bounded Int32 profile.");
         Require(!method.Locals.IsDefault && method.Locals.Length <= IrLimits.MaximumLocals && method.Locals.All(l => l == IrType.Int32), "locals must be bounded Int32 storage.");
         Require(!method.Blocks.IsDefault && method.Blocks.Length is > 0 and <= IrLimits.MaximumBlocks, "invalid block count.");
-        int inputs = 0, statements = 0, edgeArguments = 0, previousBlockOffset = -1;
+        int inputs = 0, statements = 0, edgeArguments = 0, callArguments = 0, previousBlockOffset = -1;
         for (int id = 0; id < method.Blocks.Length; id++)
         {
             IrBlock block = method.Blocks[id];
@@ -64,8 +97,16 @@ internal static class IrValidator
                             IrExpression.Binary b => b.Operation is Int32Operation.AddWrapping or Int32Operation.SubtractWrapping or Int32Operation.MultiplyWrapping
                                 && Earlier(b.Left) && Earlier(b.Right),
                             IrExpression.Compare c => BinaryComparison(c.Comparison) && Earlier(c.Left) && Earlier(c.Right),
+                            IrExpression.Call c => c.Target is not null && methods is not null && methods.TryGetValue(c.Target, out IrMethod? target)
+                                && !c.Arguments.IsDefault && c.Arguments.Length <= IrLimits.MaximumParameters
+                                && !target.Parameters.IsDefault && c.Arguments.Length == target.Parameters.Length && c.Arguments.All(Earlier),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
+                        if (value.Expression is IrExpression.Call call)
+                        {
+                            callArguments += call.Arguments.Length;
+                            Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded.");
+                        }
                         values++;
                         break;
                     case IrStatement.StoreLocal store:

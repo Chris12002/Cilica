@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Cilica.Cli;
 using Cilica.Compiler;
+using Cilica.Metadata.Resolution;
 using Cilica.Fixtures.Execution;
 using Xunit;
 
@@ -26,7 +27,9 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
     [InlineData(true)]
     public async Task Authored_csharp_compiles_through_cilica_and_matches_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles(); using var resolver = files.Open();
+        using var files = new ResolverFiles();
+        string references = Path.GetDirectoryName(typeof(IntegerCalls).Assembly.Location)!;
+        using var resolver = AssemblyResolver.Create([references]).Value!;
         string directory = files.DirectoryPath("native");
         Type arithmetic = typeof(NativeIntegerProbe), flow = typeof(IntegerControlFlow);
         var cases = new List<Case>
@@ -48,6 +51,12 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
             Probe(flow, nameof(IntegerControlFlow.Sum), IntegerControlFlow.Sum, CountInput.First),
             Probe(flow, nameof(IntegerControlFlow.Nested), IntegerControlFlow.Nested, CountInput.First),
             Probe(flow, nameof(IntegerControlFlow.StackJoin), IntegerControlFlow.StackJoin),
+            Probe(typeof(IntegerCalls), nameof(IntegerCalls.Diamond), IntegerCalls.Diamond),
+            Probe(typeof(IntegerCalls), nameof(IntegerCalls.Ordered), IntegerCalls.Ordered),
+            Probe(typeof(IntegerCalls), nameof(IntegerCalls.CallLoop), IntegerCalls.CallLoop, CountInput.First),
+            Probe(typeof(IntegerCalls), nameof(IntegerCalls.Recursive), IntegerCalls.Recursive, CountInput.First),
+            Probe(typeof(IntegerCalls), nameof(IntegerCalls.Mutual), IntegerCalls.Mutual, CountInput.First),
+            Probe(arithmetic, nameof(NativeIntegerProbe.External), NativeIntegerProbe.External),
         };
         var stackFixture = Int32ControlFlowTests.StackLoop();
         var zero = stackFixture.Builder.Method("ZeroLocal", [0, 0, 8], locals: [7, 1, 8], emit: il =>
@@ -60,12 +69,12 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
         foreach (Case probe in cases)
         {
             var assembly = resolver.OpenInput(probe.Assembly).Value!;
-            var translated = Int32Translator.Translate(resolver, assembly, (MethodDefinitionHandle)MetadataTokens.EntityHandle(probe.Token));
+            var translated = Int32Translator.TranslateProgram(resolver, assembly, (MethodDefinitionHandle)MetadataTokens.EntityHandle(probe.Token));
             Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
-            var artifact = CppEmitter.Emit(translated.Method!); artifacts.Add((artifact, translated.Method!.Parameters.Length));
+            var artifact = CppEmitter.EmitProgram(translated.Program!); artifacts.Add((artifact, translated.Program!.Methods.Single(m => IrMethodId.From(m.Source) == translated.Program.Entry).Parameters.Length));
             // Include the CLI in every complete source-generation path.
             using var stdout = new StringWriter(); using var stderr = new StringWriter();
-            int exit = CilicaCommand.Run(["emit-cpp", probe.Assembly, "--root", probe.Token.ToString("x8", CultureInfo.InvariantCulture)], stdout, stderr);
+            int exit = CilicaCommand.Run(["emit-cpp", probe.Assembly, "--root", probe.Token.ToString("x8", CultureInfo.InvariantCulture), "--reference", references], stdout, stderr);
             Assert.Equal(CilicaCommand.Success, exit); Assert.Empty(stderr.ToString()); Assert.Equal(artifact.Text, stdout.ToString());
             source.Append(stdout.ToString()).Append('\n');
         }
@@ -131,6 +140,7 @@ public sealed class NativeExecutionTests(ITestOutputHelper output)
 // Authored reference code runs only in this test process. Compiler inputs remain data.
 internal static class NativeIntegerProbe
 {
+    public static int External(int a, int b, int c) => IntegerCalls.Diamond(a, b, c);
     public static int Add(int a, int b) => unchecked(a + b);
     public static int Subtract(int a, int b) => unchecked(a - b);
     public static int Multiply(int a, int b) => unchecked(a * b);

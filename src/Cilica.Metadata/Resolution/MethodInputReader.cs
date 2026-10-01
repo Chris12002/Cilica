@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using Cilica.Metadata.Formatting;
@@ -16,7 +18,7 @@ public sealed partial class AssemblyResolver
     {
         CheckOwner(assembly);
         limits ??= new();
-        if (limits.MaximumBodyBytes <= 0 || limits.MaximumInstructions <= 0 || limits.MaximumInitializerMembers <= 0)
+        if (limits.MaximumBodyBytes <= 0 || limits.MaximumInstructions <= 0 || limits.MaximumInitializerMembers <= 0 || limits.MaximumOwnerDepth <= 0)
             throw new ArgumentOutOfRangeException(nameof(limits), "Method input limits must be positive.");
         return Bind<MethodInput>(assembly, handle, () =>
         {
@@ -24,6 +26,19 @@ public sealed partial class AssemblyResolver
             var method = reader.GetMethodDefinition(handle);
             var signature = MethodDefinitionSignature(assembly, handle);
             var owner = reader.GetTypeDefinition(method.GetDeclaringType());
+            bool externallyVisible = true;
+            var owners = new HashSet<TypeDefinitionHandle>();
+            for (TypeDefinitionHandle current = method.GetDeclaringType(); !current.IsNil;)
+            {
+                if (!owners.Add(current)) throw Failure(DiagnosticIds.InvalidSignature, "Declaring-type chain is cyclic.");
+                if (owners.Count > limits.MaximumOwnerDepth)
+                    throw Failure(DiagnosticIds.TranslationLimit, "Declaring-type depth limit exceeded.");
+                var definition = reader.GetTypeDefinition(current);
+                var parent = definition.GetDeclaringType();
+                externallyVisible &= (definition.Attributes & TypeAttributes.VisibilityMask) ==
+                    (parent.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
+                current = parent;
+            }
             var names = new NameFormatter(reader);
             var source = new MethodSource(assembly.Identity.DisplayName, assembly.ContentHash, MetadataTokens.GetToken(handle),
                 names.TypeDefinitionName(method.GetDeclaringType()) + "::" + reader.GetString(method.Name));
@@ -58,7 +73,8 @@ public sealed partial class AssemblyResolver
                 assembly.IsReferenceAssembly, Initializer(owner), Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1))),
                 locals, body.LocalVariablesInitialized, body.ExceptionRegions.Length, il.Length, body.MaxStack,
                 [.. instructions.Select(i => new MethodInstruction(i.Offset, i.Length, i.Code.Name,
-                    i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets]))]);
+                    i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets]))],
+                MetadataTokens.GetToken(method.GetDeclaringType()), externallyVisible);
         });
     }
 }

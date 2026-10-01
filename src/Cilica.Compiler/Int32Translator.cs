@@ -10,7 +10,7 @@ using Cilica.Metadata.Resolution;
 namespace Cilica.Compiler;
 
 /// <summary>Translates the bounded Int32 control-flow profile without executing input.</summary>
-public static class Int32Translator
+public static partial class Int32Translator
 {
     public static TranslationResult Translate(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle method, MethodReadLimits? limits = null)
@@ -27,7 +27,7 @@ public static class Int32Translator
         internal Diagnostic Diagnostic { get; } = diagnostic;
     }
 
-    private sealed class Translation(MethodInput input)
+    private sealed class Translation(MethodInput input, Func<MethodInstruction, (IrMethodId Target, int Arity)>? resolveCall = null)
     {
         private readonly Dictionary<int, int> _blockAt = [];
         private readonly Queue<int> _pending = new();
@@ -49,6 +49,8 @@ public static class Int32Translator
                 || input.Locals.Any(l => !Int32(l)))
                 Fail(DiagnosticIds.ExecutionSignatureUnsupported, IrMethod.Profile +
                     " requires a static nongeneric default-convention method with Int32 parameters, locals and return type.");
+            if (input.Signature.Parameters.Count > IrLimits.MaximumParameters || input.Locals.Length > IrLimits.MaximumLocals)
+                Fail(DiagnosticIds.TranslationLimit, "Parameter/local storage limit exceeded.");
             if (input.IsReferenceAssembly)
                 Fail(DiagnosticIds.ExecutionUnsupported, "Reference-assembly bodies cannot establish executable semantics; select an implementation image.");
             if ((input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL
@@ -136,6 +138,11 @@ public static class Int32Translator
                             "ceq" => Int32Comparison.Equal, "clt" => Int32Comparison.LessSigned, "clt.un" => Int32Comparison.LessUnsigned,
                             "cgt" => Int32Comparison.GreaterSigned, _ => Int32Comparison.GreaterUnsigned,
                         }, compareLeft, compareRight)); break;
+                    case "call" when resolveCall is not null:
+                        var callee = resolveCall(instruction);
+                        var arguments = new int[callee.Arity];
+                        for (int argument = arguments.Length - 1; argument >= 0; argument--) arguments[argument] = Pop(offset);
+                        Push(offset, new IrExpression.Call(callee.Target, [.. arguments])); break;
                     case "br" or "br.s": terminator = new IrJump(offset, Edge(instruction.Targets[0], offset)); break;
                     case "ret":
                         if (stack.Count != 1) Fail(DiagnosticIds.InconsistentStack, "Int32 return requires exactly one value and no residual stack entries.", offset);

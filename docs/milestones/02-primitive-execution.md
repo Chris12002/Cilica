@@ -1,6 +1,6 @@
 # Milestone 2: First primitive executable
 
-Status: in progress; slices 2a–2c implemented. Slice outline recorded 2026-10-01.
+Status: in progress; slices 2a–2d implemented. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
 method into C++, compile locally and compare its result with .NET. This checkpoint
@@ -15,8 +15,8 @@ array-helper findings remain tracked gates for later capabilities.
 | 2a | Minimal execution contract and typed IR for straight-line Int32 methods | Complete for bounded translation profile |
 | 2b | C++ generation and bounded native compile/run harness for those methods | Complete for bounded native profile |
 | 2c | Locals, branches, loops and verified control-flow joins | Complete for initialized Int32 profile |
-| 2d | Direct static calls and a bounded method closure | Next |
-| 2e | Additional integer operations and required exceptional results, with .NET differential cases | Planned |
+| 2d | Direct static calls and a bounded method closure | Complete for bounded Int32 program profile |
+| 2e | Additional integer operations and required exceptional results, with .NET differential cases | Next |
 | 2f | Integration review and documented supported subset | Planned |
 
 The first executable passed in 2b. These are proposed reviewable boundaries;
@@ -115,8 +115,42 @@ identity, C++ scopes/copies, source provenance and aggregate limits. The new Cho
 probe exposed an existing test's global name-selection assumption; that test now
 selects its exact scoped declaring type without weakening overload expectations.
 
-Next: slice 2d translates a bounded closure of direct static calls, preserving
-argument order and method identity. Start with two authored integer helpers and
-shared dependencies; diagnose unsupported callees before emitting any program.
-Keep initialization and exceptional operations explicitly unsupported until their
-own lowering is implemented.
+## Slice 2d outcome
+
+[ADR 0017](../decisions/0017-bounded-static-call-closure.md) adds a detached
+program and exact call targets/ordered arguments to the established block IR.
+The compiler resolves a complete direct static Int32 closure through explicit
+reference directories. An iterative worklist deduplicates shared helpers and
+cycles; unsupported callees fail the whole program with an inclusion path.
+
+Declarations precede private helper bodies in a program-specific namespace.
+One C wrapper preserves the existing hash/token entry convention. Calls receive
+already-evaluated immutable arguments, preserving IL order and captured values.
+Separate generated roots can share helpers without native definition collisions.
+
+Review found two additional executable boundaries: declaration binding alone
+must not grant method access, and configurable reader limits must not defeat
+program budgets. The profile now conservatively checks same-owner/public access,
+rejects inherited MemberRef owners while preserving ordinary audit binding, and
+caps each read by remaining program bytes/instructions. Reduced regressions cover
+access/owner chains, malformed calls, unsupported callees, closure integrity,
+transitive output preservation and exact aggregate limits.
+
+The native harness covers 23 authored C# entries plus two reduced IL probes.
+Each native build checks 8,900 results, adding shared dependencies, cross-assembly
+calls, noncommutative arguments, capture before local mutation, calls in loops,
+and bounded direct/mutual recursion. Optimized execution retains UBSan.
+Final validation: zero build warnings/errors, all 506 local tests passed in
+11.8 seconds. Review found no remaining issue within this bounded profile.
+
+Repository check: local main and the cached origin/main remain ancestors of the
+working branch. The remote currently advertises no branch refs; fetching main
+reported that it does not exist. No upstream integration or push was attempted.
+Hosted CI remains disabled.
+
+Next: slice 2e adds integer operations and required exceptional outcomes. Start
+with Int32 bitwise operations and shifts, explicitly handling shift-count masking
+and signed/unsigned right shift. Then introduce the pending-exception result path
+needed for division and checked arithmetic, with ordered differential traces.
+Initialization, broader call access, general runtime execution and the wider
+CoreLib/Alchemy filter gate remain separate unresolved capabilities.

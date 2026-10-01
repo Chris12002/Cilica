@@ -60,9 +60,9 @@ public static partial class CilicaCommand
             {
                 var opened = resolver.OpenInput(input);
                 if (opened.Value is not ResolvedAssembly assembly) return Failure(opened.Diagnostics);
-                TranslationResult translated = Int32Translator.Translate(resolver, assembly, MetadataTokens.MethodDefinitionHandle(root.Value & 0xffffff));
-                if (translated.Method is null) return Failure(translated.Diagnostics);
-                return (CppEmitter.Emit(translated.Method).Text, false);
+                ProgramTranslationResult translated = Int32Translator.TranslateProgram(resolver, assembly, MetadataTokens.MethodDefinitionHandle(root.Value & 0xffffff));
+                if (translated.Program is null) return Failure(translated.Diagnostics);
+                return (CppEmitter.EmitProgram(translated.Program).Text, false);
             }
         }, new(input, "text", output, null), stdout, stderr, suppressOutputOnErrors: true);
 
