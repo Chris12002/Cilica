@@ -179,6 +179,22 @@ compiler version and flags. The recorded toolchain/target and current support
 boundary are in the [compatibility manifest](compatibility.md) and
 [ADR 0015](decisions/0015-int32-cpp-emission.md). Other targets remain untested.
 
+`PrimitiveExampleTests` runs the documented example script with prebuilt inputs
+in a bounded, test-owned process. Unlike the larger in-process CLI probes, this
+checks the external CLI, derived root/entry identifiers, prepared headers, native
+driver and exact .NET output comparison together. An output directory containing
+spaces tests argument quoting. Four fixed expected outcomes pin normal execution,
+helper overflow, recovery after a fault and conditional avoidance independently
+of the generator. The helper runs only its authored build-time kernel; compiler
+inputs remain data. The Release build is also checked locally using cached
+restore inputs. This integration test supplements the boundary/seeded native
+corpus; it does not replace arithmetic conformance or establish broader runtime
+compatibility.
+Reduced shell cases intercept the initial build with a disposable tool stub,
+checking both normal and offline argument lists without contacting NuGet. They
+cover a Bash 3.2 `set -u` failure discovered with an empty options array; the
+runner now initializes that array with its required build flags.
+
 Control-flow/call probes bound C# loop and recursion counts to -32..32 and the
 reduced live-stack loop to 0..31. An optimized fixture project avoids Debug C# Boolean bookkeeping
 locals, which remain outside the Int32 storage profile. Existing inspection

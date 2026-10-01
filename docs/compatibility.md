@@ -155,3 +155,12 @@ above Int32Max are covered. The existing 50-tuple batches preserve capture limit
 
 These are local conformance observations for this subset and toolchain. Other
 native platforms, WebAssembly and the later runtime/embedding ABI are untested.
+
+The [primitive example](../examples/Primitive/README.md) reproduces the complete
+C# → IL → external Cilica CLI → C++ → native path with four fixed probes. Debug
+and Release runs match .NET for a loop/helper result, overflow at the helper's
+IL offset 2, success immediately after that fault, and an empty loop avoiding
+the fault. The bounded smoke test also uses an output path containing spaces.
+The example derives identifiers from its own built kernel; only its separate
+authored reference helper executes .NET code. This closes milestone 2 for the
+documented subset without expanding the profile or platform claims.

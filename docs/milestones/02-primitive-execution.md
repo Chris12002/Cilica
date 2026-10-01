@@ -1,6 +1,6 @@
 # Milestone 2: First primitive executable
 
-Status: in progress; slices 2a–2e implemented for the documented Int32 subset; 2f integration review next. Slice outline recorded 2026-10-01.
+Status: complete for the documented bounded Int32 subset, including slice 2f integration review and reproducible example. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
 method into C++, compile locally and compare its result with .NET. This checkpoint
@@ -17,7 +17,7 @@ array-helper findings remain tracked gates for later capabilities.
 | 2c | Locals, branches, loops and verified control-flow joins | Complete for initialized Int32 profile |
 | 2d | Direct static calls and a bounded method closure | Complete for bounded Int32 program profile |
 | 2e | Additional integer operations and required exceptional results, with .NET differential cases | Complete for Int32 bitwise/shifts, division/remainder and checked arithmetic |
-| 2f | Integration review and documented supported subset | Planned |
+| 2f | Integration review and documented supported subset | Complete with reproducible native example |
 
 The first executable passed in 2b. These are proposed reviewable boundaries;
 implementation findings may require a smaller corrective slice.
@@ -256,10 +256,52 @@ and all 613 local tests passed in 13.5 seconds. No remaining issue was found in
 this subset. Upstream still advertises no branches; local main and cached
 origin/main remain ancestors. No push or hosted work ran.
 
-Slice 2e is complete for the documented Int32 subset. Next is 2f: integration
-review, supported/unsupported boundary consolidation and a reproducible authored
-example through C# → IL → C++ → native execution. Unary negation, conversions,
+Slice 2e is complete for the documented Int32 subset. Unary negation, conversions,
 other primitive widths remain later work. Catch/filter/finally
 execution, initialization, broader call access, the managed runtime and the
 CoreLib/Alchemy filter gate remain unsupported or unresolved until their own
 lowering is proven.
+
+## Slice 2f outcome
+
+The [primitive example](../../examples/Primitive/README.md) provides one command
+for C# → IL → external CLI → C++ → native execution. A separate helper derives
+the authored kernel's tokens/hash and .NET reference results. It accepts no
+arbitrary assembly input. The native driver checks the existing status ABI and
+origin/result storage, then the script compares exact output with .NET. Normal
+loop/helper execution, checked overflow, recovery after the fault and an empty
+loop all pass in Debug and Release with optimized UBSan and no C++ exceptions/RTTI.
+A bounded integration test runs the same command without rebuilding, using a
+temporary output path containing spaces. Example code stays outside production
+compiler/runtime packages; no profile or stable ABI change is required.
+
+Runner review exposed a Bash 3.2 `set -u` failure for an empty build-options
+array. Required build flags now initialize the array; two reduced regressions
+intercept normal/offline builds without restore or compilation. NuGet's audit
+feed was unreachable during the normal Release restore; `--no-restore` completed
+the Release build from cached dependencies without weakening normal audit checks.
+
+Integration review covered complete static closures and access/initializer
+boundaries, typed joins and aggregate resources, forged IR rejection, arithmetic
+intermediate ranges, immediate fault exits, origin identity/lifetimes and fresh
+boundary contexts. Generated example source was checked for defined arithmetic,
+initialized storage and ordering before stores. This profile allocates no managed
+objects, so allocation rooting remains a required later review. No remaining
+issue was found within the supported subset. Unsupported operations continue
+to fail compilation; broader exception and library capabilities are not inferred.
+
+Final validation: zero build warnings/errors and all 616 local tests passed in
+14.6 seconds, including both arithmetic native configurations and the example
+smoke/shell regressions. Debug and Release example results match .NET. Local main
+and cached origin/main remain ancestors; the remote still advertises no branch
+refs. No upstream integration, push or hosted work ran.
+
+Milestone 2 closes for this explicitly bounded subset. The next block is milestone
+3's object foundation: first specify detached type/layout identities, managed
+reference kinds and runtime-instance ownership before implementing allocation,
+field mutation or dispatch. Start with one small authored class and an Int32
+result at the native boundary; establish null/identity and root-slot rules before
+any allocating call. Collection remains milestone 4, but references must already
+be represented so its precise collector can find them. Keep strings, arrays,
+generics, initialization and full exception handling separately gated; do not
+extend the primitive ABI into an accidental general embedding API.

@@ -497,8 +497,11 @@ do run in browsers. These are aims, not claims, until baselines exist.
 | 12 | Multithreaded profile (native first) | Concurrency stress and ThreadSanitizer runs; differential results for race-free programs |
 
 Milestone plans and slice status live in [docs/milestones](milestones/), starting
-with [milestone 1](milestones/01-assembly-explorer.md). The next executable checkpoint
-is outlined in the [milestone 2 plan](milestones/02-primitive-execution.md).
+with [milestone 1](milestones/01-assembly-explorer.md). The bounded Int32 checkpoint
+is complete in the [milestone 2 record](milestones/02-primitive-execution.md), with
+a [reproducible native example](../examples/Primitive/README.md). Objects, arrays,
+strings and dispatch are the next capability gate; the managed runtime remains
+planned.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

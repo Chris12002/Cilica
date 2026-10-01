@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/examples/Primitive/">
+    <Project Path="examples/Primitive/Kernel/Kernel.csproj" />
+    <Project Path="examples/Primitive/Prepare/Prepare.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Cilica.Cli/Cilica.Cli.csproj" />
     <Project Path="src/Cilica.Compiler/Cilica.Compiler.csproj" />

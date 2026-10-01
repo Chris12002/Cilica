@@ -12,6 +12,16 @@ Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.
 
+Run the reproducible primitive example through C# → IL → Cilica C++ → native:
+
+```bash
+bash examples/Primitive/run.sh
+```
+
+It compares a loop and checked helper call with .NET, including overflow and
+recovery. See the [example instructions](examples/Primitive/README.md) for tools,
+generated artifacts, offline options and supported limits.
+
 ## Intended pipeline
 
 ```text
