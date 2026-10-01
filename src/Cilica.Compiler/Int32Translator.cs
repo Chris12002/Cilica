@@ -126,7 +126,7 @@ public static partial class Int32Translator
                     case "dup": int duplicated = Pop(offset); stack.Add(duplicated); stack.Add(duplicated); break;
                     case "pop": Pop(offset); break;
                     case "add" or "sub" or "mul" or "and" or "or" or "xor" or "shl" or "shr" or "shr.un" or "div" or "div.un"
-                        or "add.ovf" or "sub.ovf" or "mul.ovf" or "add.ovf.un" or "sub.ovf.un" or "mul.ovf.un":
+                        or "add.ovf" or "sub.ovf" or "mul.ovf" or "add.ovf.un" or "sub.ovf.un" or "mul.ovf.un" or "rem" or "rem.un":
                         int right = Pop(offset), left = Pop(offset);
                         Int32Operation operation = opcode switch
                         {
@@ -134,6 +134,7 @@ public static partial class Int32Translator
                             "and" => Int32Operation.BitwiseAnd, "or" => Int32Operation.BitwiseOr, "xor" => Int32Operation.BitwiseXor,
                             "shl" => Int32Operation.ShiftLeft, "shr" => Int32Operation.ShiftRightSigned, "shr.un" => Int32Operation.ShiftRightUnsigned,
                             "div" => Int32Operation.DivideSigned, "div.un" => Int32Operation.DivideUnsigned,
+                            "rem" => Int32Operation.RemainderSigned, "rem.un" => Int32Operation.RemainderUnsigned,
                             "add.ovf" => Int32Operation.AddCheckedSigned, "sub.ovf" => Int32Operation.SubtractCheckedSigned,
                             "mul.ovf" => Int32Operation.MultiplyCheckedSigned, "add.ovf.un" => Int32Operation.AddCheckedUnsigned,
                             "sub.ovf.un" => Int32Operation.SubtractCheckedUnsigned, "mul.ovf.un" => Int32Operation.MultiplyCheckedUnsigned,

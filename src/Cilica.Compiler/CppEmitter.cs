@@ -109,13 +109,15 @@ public static class CppEmitter
                 {
                     case IrStatement.Define define:
                         IrValue value = define.Value; Location(value.ILOffset);
-                        if (value.Expression is IrExpression.Binary { Operation: Int32Operation.DivideSigned or Int32Operation.DivideUnsigned } division)
+                        if (value.Expression is IrExpression.Binary { Operation: Int32Operation.DivideSigned or Int32Operation.DivideUnsigned
+                            or Int32Operation.RemainderSigned or Int32Operation.RemainderUnsigned } division)
                         {
-                            // Guard before any native division. The signed overflow
-                            // case is a managed fault even though the widened quotient fits.
+                            // Guard before native division/remainder. Signed MinValue/-1
+                            // faults in the selected .NET profile for both operations,
+                            // even though evaluating the widened operation would be safe.
                             text.Append("    if (v").Append(Number(division.Right)).Append(" == 0u) {\n");
                             Fault(Int32Fault.DivideByZero, value.ILOffset); text.Append("    }\n");
-                            if (division.Operation == Int32Operation.DivideSigned)
+                            if (division.Operation is Int32Operation.DivideSigned or Int32Operation.RemainderSigned)
                             {
                                 text.Append("    if (v").Append(Number(division.Left)).Append(" == 0x80000000u && v")
                                     .Append(Number(division.Right)).Append(" == 0xffffffffu) {\n");
@@ -214,9 +216,10 @@ public static class CppEmitter
     {
         string left = "static_cast<std::uint64_t>(v" + Number(binary.Left) + ")";
         string right = "static_cast<std::uint64_t>(v" + Number(binary.Right) + ")";
-        if (binary.Operation == Int32Operation.DivideSigned)
+        if (binary.Operation is Int32Operation.DivideSigned or Int32Operation.RemainderSigned)
             return "static_cast<std::uint32_t>(static_cast<std::int64_t>(std::bit_cast<std::int32_t>(v" + Number(binary.Left) +
-                ")) / static_cast<std::int64_t>(std::bit_cast<std::int32_t>(v" + Number(binary.Right) + ")))";
+                ")) " + (binary.Operation == Int32Operation.DivideSigned ? "/" : "%") +
+                " static_cast<std::int64_t>(std::bit_cast<std::int32_t>(v" + Number(binary.Right) + ")))";
         if (binary.Operation == Int32Operation.ShiftRightSigned)
             return "cilica_shr_i4(v" + Number(binary.Left) + ", v" + Number(binary.Right) + ")";
         if (binary.Operation is Int32Operation.ShiftLeft or Int32Operation.ShiftRightUnsigned) right = "(" + right + " & 31u)";
@@ -225,6 +228,7 @@ public static class CppEmitter
             Int32Operation.AddWrapping => "+", Int32Operation.SubtractWrapping => "-", Int32Operation.MultiplyWrapping => "*",
             Int32Operation.BitwiseAnd => "&", Int32Operation.BitwiseOr => "|", Int32Operation.BitwiseXor => "^",
             Int32Operation.ShiftLeft => "<<", Int32Operation.ShiftRightUnsigned => ">>", Int32Operation.DivideUnsigned => "/",
+            Int32Operation.RemainderUnsigned => "%",
             _ => throw new InvalidOperationException("Validated binary operation changed."),
         };
         return "static_cast<std::uint32_t>(" + left + " " + operation + " " + right + ")";

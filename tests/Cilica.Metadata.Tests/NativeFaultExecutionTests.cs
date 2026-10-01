@@ -60,6 +60,32 @@ public sealed class NativeFaultExecutionTests(ITestOutputHelper output)
             new(typeof(IntegerChecked), nameof(IntegerChecked.CompoundUnsigned), IntegerChecked.CompoundUnsigned,
                 FaultOrigin: (_, _, _) => nameof(IntegerChecked.CompoundUnsigned),
                 FaultOffset: (a, b, c) => FirstFaultOffset(() => IntegerChecked.AddUnsigned(a, b, c))),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.SignedRemainder), IntegerRemainder.SignedRemainder,
+                FaultOrigin: (_, _, _) => nameof(IntegerRemainder.SignedRemainder)),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.CheckedRemainder), IntegerRemainder.CheckedRemainder,
+                FaultOrigin: (_, _, _) => nameof(IntegerRemainder.CheckedRemainder)),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.UnsignedRemainder), IntegerRemainder.UnsignedRemainder,
+                FaultOrigin: (_, _, _) => nameof(IntegerRemainder.UnsignedRemainder)),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.TransitiveRemainder), IntegerRemainder.TransitiveRemainder,
+                FaultOrigin: (_, _, _) => nameof(IntegerRemainder.SignedRemainder)),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.RemainderLoop), IntegerRemainder.RemainderLoop,
+                BoundedCount: true, FaultOrigin: (_, _, _) => nameof(IntegerRemainder.SignedRemainder)),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.RecursiveRemainder), IntegerRemainder.RecursiveRemainder,
+                BoundedCount: true, FaultOrigin: (_, _, _) => nameof(IntegerRemainder.SignedRemainder)),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.ConditionalRemainder), IntegerRemainder.ConditionalRemainder,
+                FaultOrigin: (_, _, _) => nameof(IntegerRemainder.SignedRemainder)),
+            new(typeof(NativeFaultProbe), nameof(NativeFaultProbe.RemainderCrossAssembly), NativeFaultProbe.RemainderCrossAssembly,
+                FaultOrigin: (_, _, _) => nameof(IntegerRemainder.SignedRemainder)),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.RemainderBeforeOverflow), IntegerRemainder.RemainderBeforeOverflow,
+                FaultOrigin: (a, b, c) => FirstFaultOrigin(() => IntegerRemainder.SignedRemainder(a, c, b), nameof(IntegerRemainder.SignedRemainder), nameof(IntegerChecked.Add))),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.OverflowBeforeRemainder), IntegerRemainder.OverflowBeforeRemainder,
+                FaultOrigin: (a, b, c) => FirstFaultOrigin(() => IntegerChecked.Add(a, b, c), nameof(IntegerChecked.Add), nameof(IntegerRemainder.SignedRemainder))),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.CompoundRemainder), IntegerRemainder.CompoundRemainder,
+                FaultOrigin: (_, _, _) => nameof(IntegerRemainder.CompoundRemainder),
+                FaultOffset: (a, b, c) => FirstFaultOffset(() => IntegerRemainder.SignedRemainder(a, b, c))),
+            new(typeof(IntegerRemainder), nameof(IntegerRemainder.CompoundRemainderUnsigned), IntegerRemainder.CompoundRemainderUnsigned,
+                FaultOrigin: (_, _, _) => nameof(IntegerRemainder.CompoundRemainderUnsigned),
+                FaultOffset: (a, b, c) => FirstFaultOffset(() => IntegerRemainder.UnsignedRemainder(a, b, c))),
         };
         using var files = new ResolverFiles();
         string references = Path.GetDirectoryName(typeof(IntegerFaults).Assembly.Location)!;
@@ -123,13 +149,15 @@ public sealed class NativeFaultExecutionTests(ITestOutputHelper output)
             (65535, 65535, 1), (65536, 65536, 1),
             (int.MaxValue, 1, 0), (int.MinValue, -1, 0),
             (int.MinValue, -1, -1), (int.MaxValue, 1, -1), (-1, 0, 1),
+            // Nonzero signed remainders in all sign combinations and second-op faults.
+            (5, 4, 3), (5, -4, 3), (-5, 4, 3), (-5, -4, 3), (5, 4, 0),
         };
         foreach (int a in edges) foreach (int b in edges) vectors.Add((a, b, unchecked(a - b)));
         var random = new Random(0x2e2026);
         for (int index = 0; index < 256; index++) vectors.Add((Next(), Next(), Next()));
         int Next() => (int)random.NextInt64(int.MinValue, (long)int.MaxValue + 1);
         string hash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(typeof(IntegerFaults).Assembly.Location))).ToLowerInvariant();
-        var originTokens = new[] { typeof(IntegerFaults), typeof(IntegerChecked) }
+        var originTokens = new[] { typeof(IntegerFaults), typeof(IntegerChecked), typeof(IntegerRemainder) }
             .SelectMany(type => type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
             .ToDictionary(method => method.Name, method => method.MetadataToken, StringComparer.Ordinal);
         // Batches keep captured output below the existing 262144-character bound.
@@ -175,6 +203,7 @@ public sealed class NativeFaultExecutionTests(ITestOutputHelper output)
         // The authored compounds have arithmetic at IL_0002 and IL_0004.
         // The reference evaluates only the first operation to identify the fault.
         try { _ = first(); }
+        catch (DivideByZeroException) { return 2; }
         catch (OverflowException) { return 2; }
         return 4;
     }
@@ -184,5 +213,6 @@ internal static class NativeFaultProbe
 {
     public static int CrossAssembly(int a, int b, int c) => IntegerFaults.TransitiveDivide(a, b, c);
     public static int CheckedCrossAssembly(int a, int b, int c) => IntegerChecked.Transitive(a, b, c);
+    public static int RemainderCrossAssembly(int a, int b, int c) => IntegerRemainder.TransitiveRemainder(a, b, c);
     public static int Pure(int a, int b, int c) => unchecked(a + b + c);
 }

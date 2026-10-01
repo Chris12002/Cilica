@@ -30,7 +30,7 @@ even if all its malformed-input tests pass.
 | Malformed-input robustness | Targeted corruptions plus small, seeded mutation runs. A run without crashes does not establish that all invalid inputs are rejected. | Present; larger runs remain opt-in. |
 | Resolution and reachability | Small assembly graphs with known resolutions, included/excluded members and inclusion reasons. | Binding, ordinary graphs, bounded dispatch (including closed named constrained instance calls) and audit reporting present in 1c; the initial local application audit records unresolved closure gaps. |
 | Real-library inspection | Checks for false rejection and practical scale on pinned compiler output. Acceptance alone does not prove complete verification or executable support. | Present, including CoreLib; wider/private runs are task-specific. |
-| Executable conformance | Compare controlled programs on .NET and Cilica, including state and exception traces. | Native Int32 results and division/checked-arithmetic fault propagation present; full managed exception traces remain planned. |
+| Executable conformance | Compare controlled programs on .NET and Cilica, including state and exception traces. | Native Int32 results and division/remainder/checked-arithmetic fault propagation present; full managed exception traces remain planned. |
 | Runtime and embedding | Allocation stress, native sanitizers, boundary ownership, lifecycle and native/browser parity. | Planned with the relevant milestones. |
 
 ## Designing a useful regression
@@ -243,6 +243,23 @@ at literal IL offsets 2 and 4. Existing sentinel/reset/null-output checks remain
 batches use 50 input tuples to preserve the capture bound. Reduced tests now
 cover underflow, operation mapping, required failure edges and recursive effects
 for each checked operation. See [ADR 0020](decisions/0020-checked-int32-arithmetic.md).
+
+Sub-slice 2e-d adds remainder: 37 native entries now yield 13,986 outcomes per
+configuration. Signed/unsigned direct operations, checked/unchecked C# contexts,
+helpers, cross-assembly calls, loops/recursion, conditional avoidance, competing
+overflow faults and chained remainder retain the full native path. Five new
+tuples cover nonzero results in all sign combinations and a second-operation
+zero divisor. Origin expectations include literal offsets 2/4; sentinel/reset
+checks and the existing 50-tuple output batches remain.
+
+Eighteen fixed contract cases also compare checked/unchecked C# and raw authored
+.NET DynamicMethods with independent expected values/faults. They pin signed
+MinValue rem -1 to Overflow on the selected .NET 10.0.11 ARM64 profile, even
+though evaluating in a wider type would yield zero. Unsigned bit-pattern
+interpretation has no signed overflow case. These oracles never decode/load
+compiler input bytes. Reduced IR tests extend mapping, underflow, failure-edge
+validation and recursive effects to both remainder forms. See
+[ADR 0021](decisions/0021-int32-remainder.md).
 
 These checks validate primitive propagation and ABI behaviour. They do not prove
 managed exception objects, messages, identity, catches, filter or finally order.

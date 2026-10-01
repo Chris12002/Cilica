@@ -187,6 +187,12 @@ Checked signed/unsigned Int32 add, subtract and multiply also use these edges
 must fit the selected 32-bit range before conversion; otherwise an overflow
 fault propagates through the existing context.
 
+Signed/unsigned Int32 remainder also uses the pending-fault path
+([ADR 0021](decisions/0021-int32-remainder.md)). Zero divisors fault, and the
+selected profile raises Overflow for signed MinValue rem -1, independently
+observed on the pinned .NET runtime. Unsigned remainder interprets operand bits
+and has no signed overflow case.
+
 Begin with typed basic blocks and temporaries. Introduce SSA after baseline
 semantics are established. Optimisations preserve exception order and observable
 side effects. Planned passes include constant folding, unreachable-block removal,
@@ -241,6 +247,12 @@ the full product; unsigned subtraction uses Int64 to represent negative differen
 Check the selected signed or unsigned 32-bit range before narrowing. The same
 operation classification drives translation's exceptional edges, IR validation
 and conservative may-fault analysis.
+
+Remainder shares division's zero guard and the selected signed MinValue/-1
+overflow guard. Widen signed operands to Int64 or unsigned operands to UInt64
+before native `%`, then preserve the resulting low 32 bits. Nonzero signed
+remainders have the dividend's sign. Do not substitute a widened zero result
+for the selected profile's signed overflow fault.
 
 - Unchecked integer arithmetic wraps with defined behaviour.
 - Checked arithmetic raises the proper managed exception.
@@ -299,9 +311,9 @@ weak references and concurrent collection are separately staged features.
 
 ## 9. Exceptions
 
-The primitive profile currently propagates division and checked-arithmetic faults
+The primitive profile currently propagates division/remainder and checked-arithmetic faults
 through a private context and returns status/origin at its native boundary
-(ADRs 0019/0020). Full managed
+(ADRs 0019–0021). Full managed
 exceptions below remain planned, including objects, messages and handler execution.
 
 First support try/catch/finally, throw and rethrow. Exceptions propagate

@@ -9,6 +9,9 @@ for Int32 division. [ADR 0020](0020-checked-int32-arithmetic.md) adds checked
 Int32 arithmetic on this same path. It has no managed exception objects/messages,
 handlers or GC roots. This does not accept the full design or clear either filter stage's gate.
 
+[ADR 0021](0021-int32-remainder.md) extends the same primitive path to remainder;
+it does not add managed handlers or change the filter gates.
+
 ## Context
 
 Managed exceptions must keep .NET's observable behaviour: exception identity,

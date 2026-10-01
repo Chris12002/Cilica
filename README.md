@@ -6,7 +6,7 @@ for embedding C# libraries in native and browser applications.
 **Status: metadata frontend and bounded Int32 static-call execution implemented; managed runtime planned.**
 The assembly explorer inspects IL and audits bounded dependencies without running
 input assemblies. The bounded integer profile now emits C++20 and passes local
-native differential tests, including division and checked-arithmetic faults.
+native differential tests, including division, remainder and checked-arithmetic faults.
 Managed objects, exception objects/handlers, libraries and Expo integration are not implemented.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
@@ -132,10 +132,10 @@ never starts a compiler or executes the input. Optional `--reference` directorie
 resolver. Unsupported operations write diagnostics to stderr, return code 1 and
 preserve an existing output file. The profile accepts constants, argument loads,
 unchecked add/subtract/multiply, bitwise operations and masked shifts,
-signed/unsigned division and checked add/subtract/multiply, initialized Int32
-locals, comparisons, branches,
+signed/unsigned division/remainder and checked add/subtract/multiply, initialized
+Int32 locals, comparisons, branches,
 loops, direct static calls and return. All reachable helpers must fit the profile;
-required initialization, remainder, conversions and exception handlers remain unsupported.
+required initialization, conversions and exception handlers remain unsupported.
 Boolean locals, including bookkeeping locals emitted by Debug C# builds, remain
 unsupported; use optimized C# builds for the current integer profile. See the
 [milestone 2 plan](docs/milestones/02-primitive-execution.md).
@@ -151,9 +151,9 @@ The disposable harness builds 32 authored C# entry methods and five reduced IL p
 at `-O0` and `-O2`, checks
 normal, wraparound and bitwise/shift results against .NET, and enables undefined-behaviour
 sanitization for the optimized build. It bounds native process time/output and
-cleans up its own processes and temporary files. The fault harness covers 25 entries
-and 9,325 results per configuration, checking division and checked-arithmetic faults,
-propagation order, source origins and reset between invocations, with C++
+cleans up its own processes and temporary files. The fault harness covers 37 entries
+and 13,986 results per configuration, checking division/remainder and checked
+arithmetic faults, propagation order, source origins and reset between invocations, with C++
 exceptions/RTTI disabled.
 
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before starting an implementation slice.

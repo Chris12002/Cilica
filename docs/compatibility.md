@@ -6,7 +6,7 @@ not establish native execution or platform compatibility.
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
-| `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/checked-arithmetic faults; no initializer obligations |
+| `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | Managed runtime and library | Planned | Object, array, GC, exception and library execution support is unimplemented |
 
@@ -22,6 +22,7 @@ not establish native execution or platform compatibility.
 | `and`, `or`, `xor`, `not` | Exact 32-bit bitwise operations; `not` consumes one operand |
 | `shl`, `shr`, `shr.un` | Int32 value/count; count masked with 31; low 32-bit left shift, explicit sign extension or zero-fill right shift |
 | `div`, `div.un` | Signed quotient truncates toward zero; unsigned quotient uses operand bit patterns; zero divisor faults; signed MinValue/-1 faults with overflow |
+| `rem`, `rem.un` | Signed nonzero remainder has the dividend's sign; unsigned remainder uses operand bit patterns; zero divisor faults; signed MinValue/-1 faults with overflow in the selected profile |
 | `ldloc.0`–`ldloc.3`, `ldloc.s`, `ldloc`; corresponding `stloc` forms | Verified Int32 storage index; zero initialization required when locals exist; stores retain order |
 | `dup`, `pop` | Verified Int32 stack duplication/discard |
 | `ceq`, `clt`, `clt.un`, `cgt`, `cgt.un` | Int32 result 0/1; explicit signed/unsigned comparisons |
@@ -30,7 +31,7 @@ not establish native execution or platform compatibility.
 | `ret` | One Int32 value and empty remaining stack at every reachable return |
 
 Unsupported signatures/operations return diagnostics and no IR or C++ source. This includes
-remainder, conversions, unary negation, switches, virtual/indirect calls,
+conversions, unary negation, switches, virtual/indirect calls,
 argument stores, references,
 exception regions, required type/module initialization and synchronization.
 Boolean, pinned, non-Int32 and uninitialized locals are unsupported. Unreachable
@@ -85,6 +86,15 @@ check. Unsigned results above Int32Max retain their bits without a spurious faul
 Shared operation classification keeps translation, edge validation and effect
 analysis consistent. The IR shape/profile name and ABI are unchanged.
 
+[ADR 0021](decisions/0021-int32-remainder.md) adds signed/unsigned remainder on
+the existing pending-fault path. Signed operands widen to Int64 before `%`;
+unsigned operands widen to UInt64. Zero is guarded before native evaluation.
+Signed MinValue/-1 explicitly raises Overflow, independently observed in checked
+C#, unchecked C# and raw authored IL on .NET 10.0.11 ARM64. This is a selected
+profile contract, not a universal CLI-platform claim. Other signed remainders
+follow truncation-toward-zero division, retaining the dividend's sign when nonzero.
+Unsigned MinValue-bit-pattern rem -1-bit-pattern succeeds without signed overflow.
+
 The `_try` C entry returns UInt32 status: 0 success, 1 divide-by-zero, 2 overflow,
 3 null output pointers. Its four outputs precede Int32 inputs: Int32 result,
 UInt32 MethodDef, UInt32 IL offset, `const char*` image SHA-256. Valid disjoint
@@ -117,9 +127,9 @@ reject forged IR and verify CLI failures preserve existing output files.
 See [ADR 0015](decisions/0015-int32-cpp-emission.md) and
 [ADR 0016](decisions/0016-int32-control-flow.md).
 
-The separate fault harness checks 25 authored entries and 9,325 outcomes per
-configuration (100 boundary combinations, 256 seeded tuples, 17 ordered/boundary
-regressions). Direct signed/unsigned division and six checked arithmetic forms,
+The separate fault harness checks 37 authored entries and 13,986 outcomes per
+configuration (100 boundary combinations, 256 seeded tuples, 22 ordered/boundary
+regressions). Direct signed/unsigned division/remainder and six checked arithmetic forms,
 transitive/cross-assembly calls, competing fault order, loops, bounded recursion,
 skipped conditional faults, signed/unsigned compound operations and
 pure status entries match .NET return values or exception kinds. Origin hashes
@@ -134,6 +144,14 @@ Both builds disable C++ exceptions/RTTI; optimized execution retains UBSan.
 Output is batched within the existing process limits. These tests establish the
 selected profile's `Overflow` tag for signed MinValue/-1 on the recorded runtime,
 not a universal exception-object contract for every CLI implementation.
+
+Eighteen explicit remainder contract cases pin expected values/faults against
+independently authored raw-IL DynamicMethods and checked/unchecked C# references.
+The native harness adds checked/unchecked signed and unsigned remainder, helper
+and cross-assembly propagation, loops/recursion, conditional avoidance, competing
+checked-arithmetic faults and chained signed/unsigned remainder at offsets 2/4.
+All sign combinations, zero divisors, MinValue boundaries and unsigned results
+above Int32Max are covered. The existing 50-tuple batches preserve capture limits.
 
 These are local conformance observations for this subset and toolchain. Other
 native platforms, WebAssembly and the later runtime/embedding ABI are untested.

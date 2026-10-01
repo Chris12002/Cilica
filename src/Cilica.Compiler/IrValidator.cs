@@ -98,6 +98,7 @@ internal static class IrValidator
                                 or Int32Operation.BitwiseAnd or Int32Operation.BitwiseOr or Int32Operation.BitwiseXor
                                 or Int32Operation.ShiftLeft or Int32Operation.ShiftRightSigned or Int32Operation.ShiftRightUnsigned
                                 or Int32Operation.DivideSigned or Int32Operation.DivideUnsigned
+                                or Int32Operation.RemainderSigned or Int32Operation.RemainderUnsigned
                                 or Int32Operation.AddCheckedSigned or Int32Operation.SubtractCheckedSigned or Int32Operation.MultiplyCheckedSigned
                                 or Int32Operation.AddCheckedUnsigned or Int32Operation.SubtractCheckedUnsigned or Int32Operation.MultiplyCheckedUnsigned
                                 && Earlier(b.Left) && Earlier(b.Right),

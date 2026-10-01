@@ -15,6 +15,7 @@ public enum Int32Operation
     DivideSigned, DivideUnsigned,
     AddCheckedSigned, SubtractCheckedSigned, MultiplyCheckedSigned,
     AddCheckedUnsigned, SubtractCheckedUnsigned, MultiplyCheckedUnsigned,
+    RemainderSigned, RemainderUnsigned,
 }
 
 public enum Int32UnaryOperation { BitwiseNot }

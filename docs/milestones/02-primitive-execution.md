@@ -1,6 +1,6 @@
 # Milestone 2: First primitive executable
 
-Status: in progress; slices 2a–2d and sub-slices 2e-a/2e-b/2e-c implemented. Slice outline recorded 2026-10-01.
+Status: in progress; slices 2a–2e implemented for the documented Int32 subset; 2f integration review next. Slice outline recorded 2026-10-01.
 
 First checkpoint: independently translate a small authored static C# integer
 method into C++, compile locally and compare its result with .NET. This checkpoint
@@ -16,7 +16,7 @@ array-helper findings remain tracked gates for later capabilities.
 | 2b | C++ generation and bounded native compile/run harness for those methods | Complete for bounded native profile |
 | 2c | Locals, branches, loops and verified control-flow joins | Complete for initialized Int32 profile |
 | 2d | Direct static calls and a bounded method closure | Complete for bounded Int32 program profile |
-| 2e | Additional integer operations and required exceptional results, with .NET differential cases | In progress: bitwise/shifts, pending faults/division and checked arithmetic complete; remainder next |
+| 2e | Additional integer operations and required exceptional results, with .NET differential cases | Complete for Int32 bitwise/shifts, division/remainder and checked arithmetic |
 | 2f | Integration review and documented supported subset | Planned |
 
 The first executable passed in 2b. These are proposed reviewable boundaries;
@@ -231,8 +231,35 @@ Final validation: zero build warnings/errors and all 583 local tests passed in
 remaining issue within this subset. Upstream still advertises no heads; local
 main and cached origin/main remain ancestors. No push or hosted work ran.
 
-Slice 2e remains in progress. Next is a defined signed/unsigned Int32 remainder
-contract with differential edge cases. Catch/filter/finally
+## Sub-slice 2e-d outcome
+
+[ADR 0021](../decisions/0021-int32-remainder.md) adds signed/unsigned Int32
+remainder with existing method-exit edges, pending tags and native status ABI.
+Zero is guarded before native evaluation; signed MinValue/-1 also raises Overflow
+in the selected profile. An independent probe observed that fault in checked C#,
+unchecked C# and raw IL on .NET 10.0.11 ARM64. Signed `%` widens to Int64;
+unsigned `%` widens to UInt64. Signed nonzero results retain the dividend's sign.
+
+Eighteen fixed expected-value/fault cases pin the profile against authored raw-IL
+and C# references. The native fault harness now covers 37 entries and 13,986
+outcomes per configuration. Remainder composes with calls, loops, recursion,
+conditional avoidance, other assemblies and competing checked arithmetic.
+Chained signed/unsigned expressions verify first-fault offsets 2/4. Sentinel,
+reset and null-output checks remain; existing fifty-tuple batches retain process
+bounds. Both native configurations disable C++ exceptions/RTTI, treat warnings
+as errors and retain optimized UBSan. No compiler input is executed.
+
+Review checked guard order, signed/unsigned interpretation, widening/narrowing,
+the pinned overflow rule, first-fault provenance, explicit edges/effects and
+unchanged ownership/resource limits. Final validation: zero build warnings/errors
+and all 613 local tests passed in 13.5 seconds. No remaining issue was found in
+this subset. Upstream still advertises no branches; local main and cached
+origin/main remain ancestors. No push or hosted work ran.
+
+Slice 2e is complete for the documented Int32 subset. Next is 2f: integration
+review, supported/unsupported boundary consolidation and a reproducible authored
+example through C# → IL → C++ → native execution. Unary negation, conversions,
+other primitive widths remain later work. Catch/filter/finally
 execution, initialization, broader call access, the managed runtime and the
 CoreLib/Alchemy filter gate remain unsupported or unresolved until their own
 lowering is proven.
