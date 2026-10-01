@@ -8,6 +8,7 @@ not establish native execution or platform compatibility.
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
+| `object-layout-v1` | Bounded metadata snapshots and detached class/field graphs | Int32/CLASS/OBJECT field storage and logical reference slots only; no reference IL, byte layout, allocation, root frames or object execution |
 | Managed runtime and library | Planned | Object, array, GC, exception and library execution support is unimplemented |
 
 ## Int32 pending-fault profile
@@ -164,3 +165,33 @@ the fault. The bounded smoke test also uses an output path containing spaces.
 The example derives identifiers from its own built kernel; only its separate
 authored reference helper executes .NET code. This closes milestone 2 for the
 documented subset without expanding the profile or platform claims.
+
+## Object layout foundation
+
+`ObjectModelBuilder.Build` takes one resolved type and an explicitly selected
+runtime library, then resolves a complete class-field graph. Types use content
+hash/TypeDef identity; fields retain that declaring identity and their image-scoped
+FieldDef tokens. Logical reference maps distinguish reference fields from Int32.
+The immutable output survives reader disposal; input signatures remain
+resolver-owned until the build completes. Ordinary layout fields accept Int32,
+named CLASS or primitive OBJECT; self/mutual reference cycles are supported.
+
+Classes are concrete, nongeneric, automatic-layout and derived directly from the
+selected fieldless `System.Object`; enclosing generic owners are rejected.
+Interfaces, other inheritance, packing/native layouts, initialization, reference
+assemblies, static/literal/constant/RVA/marshalled/explicit-offset fields and
+unsupported signatures fail with no partial model. Readonly and visibility flags
+are retained for future access verification; layout inclusion does not grant
+executable access. This is not a general CLI verifier or intrinsic classifier.
+
+Bounds: 256 included types, 4,096 aggregate fields, 65,536 metadata inspection
+units and at most 64 enclosing types. Field signatures share a 4,096-node decoder
+budget per type; base decoding is separate. The model validator rejects forged
+identities, duplicate FieldDefs across owners, missing targets, unrelated types,
+invalid storage/base shape and aggregate excess. Independent fixtures verify
+exact/excess limits, forwarding, cross-image namesakes, ownership and detached
+lifetime. See [ADR 0022](decisions/0022-detached-object-layouts.md).
+
+Object IL, target byte offsets, managed allocation, instance ownership enforcement,
+method root frames, null/object faults and collection remain unimplemented. The
+existing Int32 IR/profile and native status ABI are unchanged.

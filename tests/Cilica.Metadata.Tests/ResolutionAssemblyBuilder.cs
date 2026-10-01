@@ -79,6 +79,9 @@ internal sealed class ResolutionAssemblyBuilder
     internal FieldDefinitionHandle FieldWithAttributes(string name, FieldAttributes attributes, params byte[] signature) =>
         _metadata.AddFieldDefinition(attributes, _metadata.GetOrAddString(name), _metadata.GetOrAddBlob(signature));
 
+    internal void TypeLayout(TypeDefinitionHandle type, ushort packing, uint size) => _metadata.AddTypeLayout(type, packing, size);
+    internal void FieldOffset(FieldDefinitionHandle field, int offset) => _metadata.AddFieldLayout(field, offset);
+
     internal void Implements(TypeDefinitionHandle owner, EntityHandle @interface) => _metadata.AddInterfaceImplementation(owner, @interface);
 
     internal void MethodImplementation(TypeDefinitionHandle owner, EntityHandle body, EntityHandle declaration) =>

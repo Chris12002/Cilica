@@ -149,6 +149,23 @@ out of production compiler code and never execute arbitrary inspected input.
 The banned-API analyzer and binary scan cover `Cilica.Compiler` as well as metadata
 and CLI packages. See [ADR 0014](decisions/0014-straight-line-int32-ir.md).
 
+## Object layout foundation
+
+The object foundation is tested separately in `ObjectModelTests` and
+`TypeInputTests`. Independent metadata graphs verify field order/readonly flags,
+logical reference-slot maps, primitive OBJECT selection, cyclic fields,
+cross-image namesakes, forwarding and detached lifetime. Tests reject unsupported
+type/storage shapes, nested generic owners, malformed signatures and foreign
+readers. Exact/excess type, aggregate field, metadata-work and owner-depth limits
+are exercised. Caller-forged graphs must fail for missing/unrelated targets,
+invalid tokens/owners, duplicate image-scoped FieldDefs and unknown storage.
+
+These are layout evidence, not reference execution or GC evidence. Future typed
+IR needs reduced join/access/null/fault-order cases; native allocation needs
+.NET differential fixtures plus root-frame lifetime, instance isolation and
+sanitizer checks. GC stress remains a milestone 4 gate. Keep the existing Int32
+native path intact. See [ADR 0022](decisions/0022-detached-object-layouts.md).
+
 ## First native execution
 
 `CppEmissionTests` rejects malformed caller-constructed IR, bounds values and

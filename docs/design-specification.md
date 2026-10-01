@@ -266,6 +266,14 @@ WebAssembly. Expand portability claims only after conformance passes per target.
 
 ## 7. Objects, types and initialization
 
+The bounded logical layout foundation is implemented
+([ADR 0022](decisions/0022-detached-object-layouts.md)): a detached class-field
+closure preserves content-scoped TypeDef/FieldDef identities and distinguishes
+Int32 fields from class references. Reference maps use logical field slots,
+not native byte offsets. This describes automatic-layout nongeneric classes
+derived directly from an explicitly selected object base; it does not yet lower
+reference IL, allocate objects, publish method roots or execute object programs.
+
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
 record base types, interfaces, dispatch tables, size, reference-field maps,
@@ -501,7 +509,8 @@ with [milestone 1](milestones/01-assembly-explorer.md). The bounded Int32 checkp
 is complete in the [milestone 2 record](milestones/02-primitive-execution.md), with
 a [reproducible native example](../examples/Primitive/README.md). Objects, arrays,
 strings and dispatch are the next capability gate; the managed runtime remains
-planned.
+planned. The [milestone 3 plan](milestones/03-object-execution.md) records its
+layout foundation and the next typed-reference/native-object checkpoints.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

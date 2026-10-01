@@ -27,3 +27,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0019](0019-primitive-pending-faults.md) | Primitive pending faults and Int32 division | Accepted for bounded primitive profile |
 | [0020](0020-checked-int32-arithmetic.md) | Checked Int32 arithmetic | Accepted for bounded primitive profile |
 | [0021](0021-int32-remainder.md) | Int32 remainder | Accepted for bounded primitive profile |
+| [0022](0022-detached-object-layouts.md) | Detached object layouts and reference storage | Accepted for bounded logical model; native objects planned |
