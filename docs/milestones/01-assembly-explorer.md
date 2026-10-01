@@ -272,9 +272,29 @@ are observed. The node cap still leaves the general-filter gate `unresolved`.
 A dispatch edge records target inclusion, not proof that its body finished scanning.
 Private reports retain the exact evidence and compiler provenance.
 
-Next implementation block: define array receiver/interface handling, including
-which runtime-provided bodies require an explicit library contract. Keep the
-public-surface baseline, and record any narrower export-root contract explicitly.
+Structural array receivers are implemented
+([ADR 0013](../decisions/0013-structural-array-receivers.md)):
+
+- Preserve vector/rank/element/bounds signatures and selected System.Array base
+  identity. Follow inherited class and explicitly declared interface bodies with
+  the array node as receiver evidence.
+- Keep generic helper interfaces, intrinsic array-owned members, covariance,
+  open shapes and unavailable mappings explicitly incomplete.
+- Independent fixtures and an authored .NET enumeration probe establish the
+  bounded profile. All 330 local tests pass; the audit profile is v5.
+
+The v5 private application audit selects 2,308 roots and records 116 array shapes,
+10,000 nodes / 45,218 edges and 4,782 issues. Its 210 conservative dispatch edges
+reach 24 distinct targets, but none uses an array receiver before the node cap.
+Three type-test filters still leave the general-filter gate `unresolved`. All five
+application image hashes changed since v4, so this is new baseline evidence rather
+than a controlled comparison. Reports and provenance remain private.
+
+Next implementation block: milestone [2a](02-primitive-execution.md), the minimal
+integer execution contract and typed IR. Slice 1c's intrinsic/helper and library
+closure gaps remain open and must be resolved before related runtime compatibility
+claims. Keep the public-surface baseline, and record any narrower export-root
+contract explicitly.
 Slice 1c remains incomplete while required dispatch/receiver dependencies are
 unresolved. The [test strategy](../test-strategy.md#slice-1c-dependency-resolution-and-reachability)
 defines incomplete-closure reporting. Slice 1d must still audit the trial ported

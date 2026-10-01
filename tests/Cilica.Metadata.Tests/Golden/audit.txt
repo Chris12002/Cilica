@@ -1,6 +1,6 @@
 cilica.audit v1: "audit.dll"
-profile: explicit-metadata-closure-v4
-scope: Conservative IL scan; receivers are included constructed named types, not all possible external inputs. Feature names are review signals, not exhaustive semantic detection or support claims. An audit does not clear ADR 0004: the trial ported-library implementation closure is still required.
+profile: explicit-metadata-closure-v5
+scope: Conservative IL scan; receivers are included constructed named types and selected-library array shapes, not all possible external inputs. Feature names are review signals, not exhaustive semantic detection or support claims. An audit does not clear ADR 0004: the trial ported-library implementation closure is still required.
 status: bounded-graph-analyzed
 general filters: observed
 selection: "token:0x06000001", "token:0x06000002"

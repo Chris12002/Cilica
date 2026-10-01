@@ -41,11 +41,15 @@ public sealed partial class AssemblyResolver
         private static MethodDefinition MethodDefinition(ResolvedMethod method) =>
             method.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(method.Handle);
 
-        private void Dispatch(DispatchSite site, ConstructedType receiver)
+        private void Dispatch(DispatchSite site, ConstructedType receiver, int receiverId)
         {
             TypeAttributes attributes = TypeDefinition(receiver).Attributes;
             if ((attributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != 0) return;
-            var hierarchy = Hierarchy(receiver);
+            DispatchHierarchy(site, Hierarchy(receiver), receiverId);
+        }
+
+        private void DispatchHierarchy(DispatchSite site, List<ConstructedType> hierarchy, int receiverId)
+        {
             if (site.Constraint is { } constraint)
             {
                 bool isInterfaceConstraint = (TypeDefinition(constraint).Attributes & TypeAttributes.Interface) != 0;
@@ -55,13 +59,13 @@ public sealed partial class AssemblyResolver
             bool isInterface = (TypeDefinition(site.Declaration.DeclaringType).Attributes & TypeAttributes.Interface) != 0;
             if (isInterface)
             {
-                if (Implements(hierarchy, site.Declaration.DeclaringType)) InterfaceTargets(site, hierarchy);
+                if (Implements(hierarchy, site.Declaration.DeclaringType)) InterfaceTargets(site, hierarchy, receiverId);
             }
             else if (hierarchy.Contains(site.Declaration.DeclaringType))
             {
                 if ((MethodDefinition(site.Declaration).Attributes & MethodAttributes.Virtual) != 0)
-                    ClassTargets(site, hierarchy, site.Declaration);
-                else IncludeTarget(site, site.Declaration, receiver);
+                    ClassTargets(site, hierarchy, site.Declaration, receiverId);
+                else IncludeTarget(site, site.Declaration, receiverId);
             }
         }
 
@@ -145,13 +149,13 @@ public sealed partial class AssemblyResolver
             return matches;
         }
 
-        private void ClassTargets(DispatchSite site, List<ConstructedType> hierarchy, ResolvedMethod target)
+        private void ClassTargets(DispatchSite site, List<ConstructedType> hierarchy, ResolvedMethod target, int receiverId)
         {
             int ownerIndex = hierarchy.IndexOf(target.DeclaringType);
             if (ownerIndex < 0) throw new BadImageFormatException("Dispatch method owner is outside the receiver hierarchy.");
             // Start at the operand declaration. Reuse-slot overrides below it belong
             // to this slot until a newslot declaration hides its name/signature.
-            IncludeTarget(site, target, hierarchy[0]);
+            IncludeTarget(site, target, receiverId);
             bool hidden = false;
             ResolvedMethod effective = target;
             bool final = (MethodDefinition(target).Attributes & MethodAttributes.Final) != 0;
@@ -170,7 +174,7 @@ public sealed partial class AssemblyResolver
                     }
                     if (hidden) continue;
                     if (final) throw new BadImageFormatException("A dispatch override attempts to replace a final virtual method.");
-                    IncludeTarget(site, candidate, hierarchy[0]);
+                    IncludeTarget(site, candidate, receiverId);
                     effective = candidate;
                     final = (flags & MethodAttributes.Final) != 0;
                 }
@@ -193,7 +197,7 @@ public sealed partial class AssemblyResolver
             }
         }
 
-        private void InterfaceTargets(DispatchSite site, List<ConstructedType> hierarchy)
+        private void InterfaceTargets(DispatchSite site, List<ConstructedType> hierarchy, int receiverId)
         {
             bool found = false;
             foreach (ConstructedType type in hierarchy)
@@ -215,24 +219,23 @@ public sealed partial class AssemblyResolver
                     if (OpenSignature(body) != OpenSignature(site.Declaration))
                         throw new UnsupportedBindingException("Explicit interface declaration/body signatures differ.");
                     found = true;
-                    ClassTargets(site, hierarchy, body);
+                    ClassTargets(site, hierarchy, body, receiverId);
                 }
                 // Retain all public matching bodies conservatively, including inherited
                 // ones. This avoids pretending to implement the runtime's full interface map.
                 foreach (ResolvedMethod candidate in Matches(type, site.Declaration, publicOnly: true))
                 {
                     found = true;
-                    if ((MethodDefinition(candidate).Attributes & MethodAttributes.Virtual) != 0) ClassTargets(site, hierarchy, candidate);
-                    else IncludeTarget(site, candidate, hierarchy[0]);
+                    if ((MethodDefinition(candidate).Attributes & MethodAttributes.Virtual) != 0) ClassTargets(site, hierarchy, candidate, receiverId);
+                    else IncludeTarget(site, candidate, receiverId);
                 }
             }
             if (!found) throw new UnsupportedBindingException("No class implementation found; default interface dispatch or missing implementation remains unresolved.");
         }
 
-        private void IncludeTarget(DispatchSite site, ResolvedMethod target, ConstructedType receiver)
+        private void IncludeTarget(DispatchSite site, ResolvedMethod target, int receiverId)
         {
             if ((MethodDefinition(target).Attributes & MethodAttributes.Abstract) != 0) return;
-            int receiverId = _ids[new ReachableEntity.Type(receiver)];
             if (Add(new ReachableEntity.Method(target), site.Caller, DependencyKind.ConservativeDispatch,
                 site.Offset, receiverId, site.ConstraintId) is not null)
                 site.HasTarget = true;

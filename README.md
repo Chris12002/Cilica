@@ -81,8 +81,10 @@ dotnet run --project src/Cilica.Cli -- audit path/to/Assembly.dll \
 Optionally add `--runtime-library path/to/CoreLibrary.dll` to map primitive
 receivers and implicit strings through a selected library. Supply its dependencies
 through `--reference`; no installed runtime is discovered automatically. Reports
-record the selected image and mappings used. Array receivers remain unsupported;
-see [ADR 0011](docs/decisions/0011-explicit-runtime-type-mapping.md).
+record the selected image and mappings used. Array shapes follow inherited and
+base-declared interface bodies; runtime-provided generic helpers and intrinsic
+array members remain explicit gaps. See [ADR 0011](docs/decisions/0011-explicit-runtime-type-mapping.md)
+and [ADR 0013](docs/decisions/0013-structural-array-receivers.md).
 
 Use `--public-surface` instead of explicit roots to select visible declarations,
 or repeat `--root 0x06000001` for exact metadata tokens. The report records feature

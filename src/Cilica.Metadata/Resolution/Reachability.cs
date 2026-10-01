@@ -194,7 +194,7 @@ public sealed partial class AssemblyResolver
             }
             // Register only after the incoming edge succeeds: rolled-back nodes
             // must never become receiver evidence.
-            if (!exists && entity is ReachableEntity.Type) RegisterReceiver(id);
+            if (!exists && entity is ReachableEntity.Type or ReachableEntity.ArrayReceiver) RegisterReceiver(id);
             if (entity is ReachableEntity.Method required && kind != DependencyKind.DispatchDeclaration && _bodyRequired.Add(id)
                 && exists && _processed.Contains(id) && (MethodDefinition(required.Definition).Attributes & MethodAttributes.Abstract) != 0)
                 _pending.Enqueue(id);
@@ -206,6 +206,9 @@ public sealed partial class AssemblyResolver
             switch (_nodes[id].Entity)
             {
                 case ReachableEntity.Type type: ExpandType(id, type.Definition); break;
+                case ReachableEntity.ArrayReceiver array:
+                    Add(new ReachableEntity.Type(array.BaseType), id, DependencyKind.BaseType, null);
+                    break;
                 case ReachableEntity.Method method: ExpandMethod(id, method.Definition); break;
                 case ReachableEntity.Field field:
                     Add(new ReachableEntity.Type(field.Definition.DeclaringType), id, DependencyKind.DeclaringType, null);
@@ -336,7 +339,12 @@ public sealed partial class AssemblyResolver
         {
             int offset = instruction.Offset;
             ObserveInstruction(id, instruction);
-            if (instruction.Code.Name == "newarr") _hasSyntheticReceivers = true;
+            if (instruction.Code.Name == "newarr")
+            {
+                TypeSignature element = InContext(new SignatureDecoder(_resolver, assembly).Type(Token(instruction.Token)), context);
+                Signature(id, new TypeSignature.Vector(element), DependencyKind.TypeOperand, offset);
+                return;
+            }
             // Decode the prefix with its following operation. A failed prefix must
             // never silently turn the operation into an unconstrained dispatch.
             if (instruction.Code.Name == "constrained.") return;
@@ -422,8 +430,8 @@ public sealed partial class AssemblyResolver
                     foreach (var argument in generic.Arguments) Signature(id, argument, kind, offset);
                     break;
                 case TypeSignature.Variable: Issue(id, offset, DiagnosticIds.ReachabilityIncomplete, "Open generic variables require a concrete caller environment; this graph is incomplete."); break;
-                case TypeSignature.Vector vector: _hasSyntheticReceivers = true; Signature(id, vector.Element, kind, offset); break;
-                case TypeSignature.Array array: _hasSyntheticReceivers = true; Signature(id, array.Element, kind, offset); break;
+                case TypeSignature.Vector vector: ArrayReceiver(id, vector, kind, offset); Signature(id, vector.Element, kind, offset); break;
+                case TypeSignature.Array array: ArrayReceiver(id, array, kind, offset); Signature(id, array.Element, kind, offset); break;
                 case TypeSignature.Pointer pointer: Signature(id, pointer.Element, kind, offset); break;
                 case TypeSignature.ByReference reference: Signature(id, reference.Element, kind, offset); break;
                 case TypeSignature.Pinned pinned: Signature(id, pinned.Element, kind, offset); break;

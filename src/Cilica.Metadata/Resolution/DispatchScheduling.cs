@@ -44,8 +44,14 @@ public sealed partial class AssemblyResolver
             }
             int receiverId = site.ExactReceiver ?? _receivers[site.NextReceiver++];
             _dispatchPairCount++;
-            var receiver = ((ReachableEntity.Type)_nodes[receiverId].Entity).Definition;
-            Guard(site.Caller, site.Offset, () => Dispatch(site, receiver));
+            Guard(site.Caller, site.Offset, () =>
+            {
+                switch (_nodes[receiverId].Entity)
+                {
+                    case ReachableEntity.Type receiver: Dispatch(site, receiver.Definition, receiverId); break;
+                    case ReachableEntity.ArrayReceiver array: DispatchArray(site, array, receiverId); break;
+                }
+            });
             // Advance even after a located binding failure. Another receiver may
             // still supply evidence; the failure remains in the partial report.
             if (_stopped || site.ExactReceiver is not null) return;

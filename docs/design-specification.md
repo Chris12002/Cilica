@@ -127,7 +127,10 @@ The `cilica audit` command reports feature observations, image hashes, inclusion
 reasons and incomplete-analysis status ([ADR 0009](decisions/0009-audit-evidence-contract.md)).
 Explicit library selection maps primitive constraints and implicit string receivers
 to named definitions ([ADR 0011](decisions/0011-explicit-runtime-type-mapping.md)).
-Broader framework retargeting, array receivers and ported-library closure evidence remain subsequent work;
+Selected-library structural array receivers follow inherited class and declared
+interface bodies ([ADR 0013](decisions/0013-structural-array-receivers.md)).
+Broader framework retargeting, array intrinsics/generic helpers and ported-library
+closure evidence remain subsequent work;
 these foundations do not establish executable compatibility or clear the
 general-filter gate.
 
@@ -406,7 +409,8 @@ do run in browsers. These are aims, not claims, until baselines exist.
 | 12 | Multithreaded profile (native first) | Concurrency stress and ThreadSanitizer runs; differential results for race-free programs |
 
 Milestone plans and slice status live in [docs/milestones](milestones/), starting
-with [milestone 1](milestones/01-assembly-explorer.md).
+with [milestone 1](milestones/01-assembly-explorer.md). The next executable checkpoint
+is outlined in the [milestone 2 plan](milestones/02-primitive-execution.md).
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

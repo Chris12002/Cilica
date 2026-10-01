@@ -74,6 +74,11 @@ and the actual mapped definitions through assembly indices and scoped tokens.
 [ADR 0012](0012-interleaved-reachability-scheduling.md) advances the current profile
 to `explicit-metadata-closure-v4`: ordinary and dispatch work interleave, changing
 evidence order and bounded partial results without changing the JSON fields.
+[ADR 0013](0013-structural-array-receivers.md) advances the current profile to
+`explicit-metadata-closure-v5`, adding structural `array-receiver` nodes. Their
+assembly/token identifies the selected array base; instantiation records the
+original array shape. Dispatch receiver IDs can identify either named type or
+array-receiver nodes. Existing format-version-1 fields remain unchanged.
 Successful analysis means `bounded-graph-analyzed`; any issue means `incomplete`. General-filter status is:
 
 - `observed`: at least one general-filter observation, possibly alongside issues.

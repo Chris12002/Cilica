@@ -67,8 +67,10 @@ Arrays and strings can produce runtime receiver types without an ordinary named
 type node. [ADR 0011](0011-explicit-runtime-type-mapping.md) maps reached string
 signatures and literals through an explicitly selected library. Without that
 mapping, strings retain the synthetic-receiver gap. Array signatures and `newarr`
-still expose the limitation. Relevant dispatch sites retain an incompleteness
-issue, except where ADR 0010 establishes a sealed named constraint. A complete
+are now represented structurally when a library is selected, following inherited
+bodies under [ADR 0013](0013-structural-array-receivers.md). Unmapped shapes and
+runtime-provided generic interface relationships retain incompleteness issues.
+ADR 0010 still establishes the exception for sealed named constraints. A complete
 receiver analysis remains separate work. This deliberately errs toward extra issues.
 
 Existing graph/body/signature bounds still apply. The default additional bound

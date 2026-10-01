@@ -6,6 +6,8 @@ namespace Cilica.Metadata.Analysis;
 public abstract record ReachableEntity
 {
     public sealed record Type(ConstructedType Definition) : ReachableEntity;
+    /// <summary>Structural array shape plus the explicitly selected System.Array base.</summary>
+    public sealed record ArrayReceiver(TypeSignature Shape, ConstructedType BaseType) : ReachableEntity;
     public sealed record Method(ResolvedMethod Definition) : ReachableEntity;
     public sealed record Field(ResolvedField Definition) : ReachableEntity;
 }

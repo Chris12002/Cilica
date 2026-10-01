@@ -67,6 +67,7 @@ public sealed partial class AssemblyResolver
             ConstructedType owner = node.Entity switch
             {
                 ReachableEntity.Type type => type.Definition,
+                ReachableEntity.ArrayReceiver array => array.BaseType,
                 ReachableEntity.Method method => method.Definition.DeclaringType,
                 ReachableEntity.Field field => field.Definition.DeclaringType,
                 _ => throw new InvalidOperationException("Unknown reachable entity."),
@@ -84,7 +85,12 @@ public sealed partial class AssemblyResolver
             {
                 name = new NameFormatter(image.Image.Reader).TypeDefinitionName(owner.Definition.Handle);
                 instance = formatter.Owner(owner);
-                if (node.Entity is ReachableEntity.Method method)
+                if (node.Entity is ReachableEntity.ArrayReceiver array)
+                {
+                    name = "array " + formatter.Type(array.Shape);
+                    instance = "array=" + formatter.Type(array.Shape) + ";base=" + formatter.Owner(owner);
+                }
+                else if (node.Entity is ReachableEntity.Method method)
                 {
                     name += "::" + image.Image.Reader.GetString(image.Image.Reader.GetMethodDefinition(method.Definition.Handle).Name);
                     instance += formatter.Arguments(method.Definition.MethodArguments) + " " + formatter.Method(method.Definition.Signature);
@@ -100,8 +106,8 @@ public sealed partial class AssemblyResolver
                 issues.Add(new(node.Id, null, new(DiagnosticIds.MalformedEntity, DiagnosticSeverity.Error, exception.Message, Token(token))));
             }
             bool external = !image.Identity.Equals(assembly.Identity) || image.ContentHash != assembly.ContentHash;
-            nodes.Add(new(node.Id, ImageId(image), node.Entity is ReachableEntity.Method ? "method" : node.Entity is ReachableEntity.Field ? "field" : "type",
-                Token(token), name, instance, node.FirstReason, external && node.Entity is not ReachableEntity.Type));
+            nodes.Add(new(node.Id, ImageId(image), node.Entity is ReachableEntity.Method ? "method" : node.Entity is ReachableEntity.Field ? "field" : node.Entity is ReachableEntity.ArrayReceiver ? "array-receiver" : "type",
+                Token(token), name, instance, node.FirstReason, external && node.Entity is (ReachableEntity.Method or ReachableEntity.Field)));
         }
         return new(assembly.InputName, [.. selection], limits,
             [.. images.Select((a, id) => new AuditAssembly(id, a.Identity.DisplayName, a.ContentHash, a.IsReferenceAssembly,
