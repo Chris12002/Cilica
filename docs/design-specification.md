@@ -134,6 +134,16 @@ closure evidence remain subsequent work;
 these foundations do not establish executable compatibility or clear the
 general-filter gate.
 
+Exact class virtual target resolution is now a separate metadata operation
+([ADR 0033](decisions/0033-exact-class-virtual-targets.md)). For a public nongeneric
+virtual declaration and a concrete class receiver, it identifies the canonical
+slot and one implementation, preserving newslot hiding and final overrides.
+An iterative hierarchy walk and the caller's shared metadata ledger bound its
+work. Interfaces, abstract/generic hierarchies and explicit MethodImpl remapping
+remain unsupported in this exact profile. The conservative audit walker retains
+its existing contract. Native dispatch still needs fixed-point closure discovery,
+a validated dispatch map and executable conformance checks.
+
 Verification covers the supported execution profile. Cilica is not initially
 a complete CLI verifier or a sandbox for hostile programs. Native compiler
 execution and dependency restoration are explicit build steps, not consequences

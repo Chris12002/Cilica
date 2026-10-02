@@ -6,6 +6,7 @@ not establish native execution or platform compatibility.
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
+| `class-virtual-target-v1` | Exact metadata target resolution | One public nongeneric class virtual slot/body per concrete receiver, with newslot/final checks; no native virtual/interface dispatch |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v2` | Bounded metadata snapshots and detached base-class/field graphs | Concrete nongeneric class chains, declared Int32/CLASS/OBJECT fields and logical reference slots; physical layouts belong to native lowering |

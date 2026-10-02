@@ -23,7 +23,10 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-a | Bounded class hierarchies and detached ancestor assignability | Complete for layout/reference IR |
 | 3d-b | Inherited native field storage and constructor chains | Complete for bounded concrete class profile |
 | 3d-c | Class casts and runtime type tests | Complete for bounded concrete classes |
-| 3d-d | Verified virtual/interface dispatch | Planned |
+| 3d-d | Verified virtual/interface dispatch | In progress; exact class resolution only |
+| 3d-d-a | Exact class virtual slot/target resolution | Complete for bounded metadata profile |
+| 3d-d-b | Closed-world class dispatch maps and native calls | Planned |
+| 3d-d-c | Interface mapping and native interface calls | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
@@ -353,7 +356,19 @@ with zero build warnings/errors. No hosted work or push was started.
 
 ## Next checkpoint and exit gates
 
-Slice 3d-d next adds verified virtual/interface dispatch. Performance work from
+Slice 3d-d-a now supplies exact class virtual target selection
+([ADR 0033](../decisions/0033-exact-class-virtual-targets.md)). It distinguishes
+ordinary overrides from new virtual slots, preserves canonical slot identity,
+rejects final overrides and unsupported remapping, and uses a shared bounded
+metadata ledger. The authored .NET oracle agrees on 41 valid receiver/declaration
+pairs. This resolves metadata only; the existing compiler still rejects native
+virtual/interface calls.
+Review is complete, with zero build warnings/errors and all 114 focused
+dispatch/member-binding regressions passing. No hosted work was started.
+
+Slice 3d-d-b next wires those choices into fixed-point method closure, detached
+dispatch-map validation and native calls. Interface dispatch follows separately.
+Performance work from
 ADR 0029 is deferred until representative applications run and does not block
 capability work. The 2 KiB warning is a conservative tested baseline, not a
 permanent production requirement. Any revised threshold needs measured speed

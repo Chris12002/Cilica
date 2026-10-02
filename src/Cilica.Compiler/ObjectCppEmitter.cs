@@ -76,7 +76,7 @@ public static class ObjectCppEmitter
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)) AppendMethod(method);
         text.Append("}\n// Private experimental boundary; valid disjoint outputs, references remain internal.\n")
             .Append("// Parameters must point to count readable Int32 values; exact arity required, null allowed only for zero arity.\n")
-            .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 8 call-depth, 9 execution storage.\n")
+            .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 7 invalid cast, 8 call-depth, 9 execution storage.\n")
             .Append("// Result unchanged on failure; origin text borrows the generated library lifetime.\n")
             .Append("extern \"C\" std::uint32_t ").Append(symbol).Append("_try(std::int32_t* result, std::uint32_t* method, std::uint32_t* il, const char** image, const std::int32_t* parameters, std::size_t count) noexcept {\n")
             .Append("    if (result == nullptr || method == nullptr || il == nullptr || image == nullptr || count != ").Append(N(entry.Parameters.Length))
