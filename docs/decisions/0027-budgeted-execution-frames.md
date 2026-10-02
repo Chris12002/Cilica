@@ -2,6 +2,11 @@
 
 Status: accepted for the bounded object backend. Recorded 2026-10-02.
 
+Follow-up: [ADR 0028](0028-packed-boundaries-and-arena-diagnostics.md) supersedes
+the individual-parameter boundary in decision 6, adds arena lifetime diagnostics
+and records constrained whole-call-chain execution. Measurements below describe
+the original checkpoint.
+
 ## Context
 
 The 64-call limit controls invocation count, not the native stack consumed by

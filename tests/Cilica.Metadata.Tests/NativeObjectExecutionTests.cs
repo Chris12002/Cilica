@@ -105,9 +105,9 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
         for (int pointer = 0; pointer < 4; pointer++)
         {
             string[] outputs = ["&value", "&method", "&il", "&image"]; outputs[pointer] = "nullptr";
-            source.Append("  { std::int32_t value = 7; std::uint32_t method = 8, il = 9; const char* image = nullptr; assert(")
+            source.Append("  { const std::int32_t parameters[] = {1, 2}; std::int32_t value = 7; std::uint32_t method = 8, il = 9; const char* image = nullptr; assert(")
                 .Append(artifacts[0].EntryPoint).Append('(').Append(string.Join(", ", outputs))
-                .Append(", 1, 2) == 3u && value == 7 && method == 8 && il == 9 && image == nullptr); }\n");
+                .Append(", parameters, 2) == 3u && value == 7 && method == 8 && il == 9 && image == nullptr); }\n");
         }
         source.Append("  int operation; std::int32_t a, b; while (std::cin >> operation >> a >> b) {\n")
             .Append("    std::int32_t value = -123456789; std::uint32_t method = 0, il = 0; const char* image = nullptr; std::uint32_t status = 0;\n    switch (operation) {\n");
@@ -119,8 +119,8 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
             source.Append(" const auto returned = ").Append(root).Append("(c, a").Append(cases[i].Arity == 2 ? ", b" : "").Append(");\n")
                 .Append("      assert(c.top == nullptr && c.depth == 0 && c.used == 0); status = c.pending; method = c.method; il = c.il; image = c.image; if (status == 0) value = returned;\n");
             if (i is 0 or 1 or 6) source.Append("      assert(polls == ").Append(i == 0 ? "2" : "3").Append(");\n");
-            source.Append("      std::int32_t boundary = -123456789; std::uint32_t bm = 0, bi = 0; const char* bh = nullptr; assert(")
-                .Append(artifacts[i].EntryPoint).Append("(&boundary, &bm, &bi, &bh, a").Append(cases[i].Arity == 2 ? ", b" : "").Append(") == status);\n")
+            source.Append("      const std::int32_t parameters[] = {a, b}; std::int32_t boundary = -123456789; std::uint32_t bm = 0, bi = 0; const char* bh = nullptr; assert(")
+                .Append(artifacts[i].EntryPoint).Append("(&boundary, &bm, &bi, &bh, parameters, ").Append(cases[i].Arity).Append(") == status);\n")
                 .Append("      assert(boundary == value && bm == method && bi == il && ((bh == nullptr && image == nullptr) || (bh != nullptr && image != nullptr && std::strcmp(bh, image) == 0)));\n")
                 .Append("      break; }\n");
         }
@@ -223,7 +223,7 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
                 source.Append("  { using namespace ").Append(Scope(artifact)).Append("; Instance heap; Context c(heap); (void)")
                     .Append(CppEmitterSymbol(IrMethodId.From(artifact.Source))).Append("(c); assert(c.pending == 8u && c.top == nullptr && c.depth == 0 && c.used == 0); }\n");
             source.Append("  { std::int32_t value = -123456789; std::uint32_t method = 0, il = 0; const char* image = nullptr; assert(")
-                .Append(artifact.FaultEntryPoint).Append("(&value, &method, &il, &image) == ").Append(status).Append("u && value == ").Append(result).Append("); }\n");
+                .Append(artifact.FaultEntryPoint).Append("(&value, &method, &il, &image").Append(artifact.FaultEntryPoint.Contains("_objects_packed_", StringComparison.Ordinal) ? ", nullptr, 0" : "").Append(") == ").Append(status).Append("u && value == ").Append(result).Append("); }\n");
         }
         source.Append("}\n"); string directory = files.DirectoryPath("raw-native"), cpp = Path.Combine(directory, "raw.cpp"), executable = Path.Combine(directory, "raw");
         File.WriteAllText(cpp, source.ToString(), new UTF8Encoding(false)); string compiler = Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++";

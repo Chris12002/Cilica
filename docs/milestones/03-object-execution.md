@@ -17,6 +17,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3c | Native object allocation, instance ownership and phase A root frames; first class differential execution | Complete for bounded straight-line profile |
 | 3b-c | Reference-stack inference through branches/backedges | Complete for bounded ordinary-method control flow |
 | 3c-a | Budgeted execution frames and native-stack regression checks | Complete for bounded object backend |
+| 3c-b | Packed exports, arena lifetime diagnostics and constrained native call chains | Complete for bounded object backend |
 | 3d | Inheritance, casts and verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -229,7 +230,35 @@ Final validation: zero build warnings/errors; all 416 targeted native, object,
 C++ emission and Int32 tests pass in 39.6 seconds, including the O0/O2 sanitizer
 and stack-report regressions. Review found no remaining issue within this
 bounded profile. Local main and cached origin/main are ancestors; the remote
-main query returned no branch ref. No push or hosted work was started.
+main query returned no branch ref. No push or hosted work was started. Follow-up
+review identified the wide export and diagnostic gaps addressed by slice 3c-b.
+
+## Slice 3c-b outcome
+
+[ADR 0028](../decisions/0028-packed-boundaries-and-arena-diagnostics.md) changes
+the experimental object export to a packed input pointer/count, avoiding a native
+parameter list that grows with managed arity. Profile v2 uses a distinct symbol
+and rejects invalid counts/null pointers before input reads or output writes.
+The existing entry argument packet remains charged to the execution arena.
+
+ASan builds now poison unused/released arena slots. Nested byte-sized storage,
+live neighbors and zero-initialized reuse are checked, and a deliberate stale
+read in a test-owned subprocess must produce `use-after-poison`. Reservation
+alignment is identical in instrumented and ordinary builds. Root cleanup still
+precedes storage release; this adds diagnostics without claiming collection.
+
+Local Apple Clang 17 macOS ARM64 reports packed export maxima of 288/224 bytes
+at O0/O2 for arities through 4,096. The wide finite/mutual-recursion test now runs
+both ordinary and ASan/UBSan builds on a pthread requesting 256 KiB. The observed
+268 KiB stack is checked against a 320 KiB ceiling. Static per-function maxima
+for that entire translation unit, including its harness, are 1,520/768 bytes;
+both builds retain the 2 KiB frame warning. Other targets and helper-dispatch
+performance still require their own measurements.
+
+Final validation: zero build warnings/errors and 420 targeted native, object,
+C++ emission and Int32 tests passed in 26.9 seconds. Review checked ABI callers,
+argument validation, reservation arithmetic and root/lifetime ordering; no
+further defect was identified in this slice. No push or hosted work was started.
 
 ## Next checkpoint and exit gates
 

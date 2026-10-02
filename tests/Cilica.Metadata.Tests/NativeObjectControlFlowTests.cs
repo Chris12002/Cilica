@@ -50,8 +50,8 @@ public sealed class NativeObjectControlFlowTests(ITestOutputHelper output)
             source.Append(" const auto returned = ").Append(root).Append("(c, ").Append(args).Append(");\n")
                 .Append("    assert(c.top == nullptr && c.depth == 0 && c.used == 0); status = c.pending; if (status == 0) value = returned; method = c.method; il = c.il; image = c.image;\n");
             if (i == 3) source.Append("    if (status == 2u) assert(method == ").Append(checkedMethod.Source.Token).Append("u && il == ").Append(checkedOffset).Append("u);\n");
-            source.Append("    std::int32_t boundary = -123456789; std::uint32_t bm = 0, bi = 0; const char* bh = nullptr; assert(")
-                .Append(artifacts[i].EntryPoint).Append("(&boundary, &bm, &bi, &bh, ").Append(args).Append(") == status);\n")
+            source.Append("    const std::int32_t parameters[] = {a, b, d}; std::int32_t boundary = -123456789; std::uint32_t bm = 0, bi = 0; const char* bh = nullptr; assert(")
+                .Append(artifacts[i].EntryPoint).Append("(&boundary, &bm, &bi, &bh, parameters, ").Append(entry.Parameters.Length).Append(") == status);\n")
                 .Append("    assert(boundary == value && bm == method && bi == il && ((bh == nullptr && image == nullptr) || (bh != nullptr && image != nullptr && std::strcmp(bh, image) == 0))); break; }\n");
         }
         // Allocation failure from a loop exits through the same frame guard.

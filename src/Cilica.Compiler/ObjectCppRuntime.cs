@@ -3,6 +3,26 @@ namespace Cilica.Compiler;
 /// <summary>Private single-thread experimental runtime, emitted inside each program namespace.</summary>
 internal static class ObjectCppRuntime
 {
+    // Define once even when several independently emitted closures share a TU.
+    internal const string DiagnosticIncludes = """
+#ifndef CILICA_ARENA_ASAN
+#if defined(__SANITIZE_ADDRESS__)
+#define CILICA_ARENA_ASAN 1
+#elif defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define CILICA_ARENA_ASAN 1
+#endif
+#endif
+#ifndef CILICA_ARENA_ASAN
+#define CILICA_ARENA_ASAN 0
+#endif
+#endif
+#if CILICA_ARENA_ASAN
+#include <sanitizer/asan_interface.h>
+#endif
+
+""";
+
     internal const string Text = """
 struct Object;
 struct Descriptor {
@@ -62,6 +82,20 @@ struct Context {
     Context& operator=(const Context&) = delete;
     ~Context() noexcept { ::operator delete(execution); }
 };
+[[maybe_unused]] static void poison_storage(void* address, std::size_t bytes) noexcept {
+#if CILICA_ARENA_ASAN
+    __asan_poison_memory_region(address, bytes);
+#else
+    (void)address; (void)bytes;
+#endif
+}
+[[maybe_unused]] static void unpoison_storage(void* address, std::size_t bytes) noexcept {
+#if CILICA_ARENA_ASAN
+    __asan_unpoison_memory_region(address, bytes);
+#else
+    (void)address; (void)bytes;
+#endif
+}
 // Owns one typed, stable, non-GC arena reservation. All size checks use
 // subtraction before addition; failed reservations do not mutate the cursor.
 template<class T> struct Storage {
@@ -69,23 +103,30 @@ template<class T> struct Storage {
     const std::size_t mark;
     T* value = nullptr;
     explicit Storage(Context& c) noexcept : context(c), mark(c.used) {
-        static_assert(alignof(T) <= alignof(std::max_align_t));
+        static_assert(alignof(T) <= alignof(std::max_align_t) && alignof(std::max_align_t) >= 8);
+        // Keep live reservations in separate ASan shadow granules on the tested
+        // targets. Apply the same layout in diagnostic and ordinary builds.
+        constexpr std::size_t alignment = alignof(T) < 8 ? 8 : alignof(T);
         static_assert(std::is_trivially_destructible_v<T>);
-        const std::size_t padding = (alignof(T) - mark % alignof(T)) % alignof(T);
+        const std::size_t padding = (alignment - mark % alignment) % alignment;
         if (mark > c.execution_limit || padding > c.execution_limit - mark ||
             sizeof(T) > c.execution_limit - mark - padding) return;
         if (c.execution == nullptr) {
             c.execution = static_cast<std::byte*>(::operator new(c.execution_limit, std::nothrow));
             if (c.execution == nullptr) return;
+            poison_storage(c.execution, c.execution_limit);
         }
         // Default member initializers zero roots/locals without a stack-sized T temporary.
+        unpoison_storage(c.execution + mark + padding, sizeof(T));
         value = ::new (static_cast<void*>(c.execution + mark + padding)) T;
         c.used = mark + padding + sizeof(T);
         if (c.used > c.peak) c.peak = c.used;
     }
     Storage(const Storage&) = delete;
     Storage& operator=(const Storage&) = delete;
-    ~Storage() noexcept { if (value != nullptr) { value->~T(); context.used = mark; } }
+    ~Storage() noexcept {
+        if (value != nullptr) { value->~T(); poison_storage(value, sizeof(T)); context.used = mark; }
+    }
 };
 struct RootScope {
     Context& context;

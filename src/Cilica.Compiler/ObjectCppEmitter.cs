@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v1";
+    public const string Profile = "object-frames-native-v2";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -23,9 +23,10 @@ public static class ObjectCppEmitter
         var bindings = program.Bindings.ToDictionary(b => b.Method);
         var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key]));
         var entry = methods[program.Flow.Entry];
-        string symbol = CppEmitter.Symbol(program.Flow.Entry) + "_objects", scope = symbol + "_closure";
+        string symbol = CppEmitter.Symbol(program.Flow.Entry) + "_objects_packed", scope = symbol + "_closure";
         var text = new StringBuilder();
-        text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <type_traits>\nnamespace ")
+        text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <type_traits>\n")
+            .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
             .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n');
         foreach (var layout in program.Flow.Types.Types.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token))
         {
@@ -53,17 +54,17 @@ public static class ObjectCppEmitter
         }
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)) AppendMethod(method);
         text.Append("}\n// Private experimental boundary; valid disjoint outputs, references remain internal.\n")
-            .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid outputs, 4 null, 5 allocation, 6 ownership/type, 8 call-depth, 9 execution storage.\n")
+            .Append("// Parameters must point to count readable Int32 values; exact arity required, null allowed only for zero arity.\n")
+            .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 8 call-depth, 9 execution storage.\n")
             .Append("// Result unchanged on failure; origin text borrows the generated library lifetime.\n")
-            .Append("extern \"C\" std::uint32_t ").Append(symbol).Append("_try(std::int32_t* result, std::uint32_t* method, std::uint32_t* il, const char** image");
-        for (int i = 0; i < entry.Parameters.Length; i++) text.Append(", std::int32_t p").Append(N(i));
-        text.Append(") noexcept {\n    if (result == nullptr || method == nullptr || il == nullptr || image == nullptr) return 3u;\n    using namespace ")
+            .Append("extern \"C\" std::uint32_t ").Append(symbol).Append("_try(std::int32_t* result, std::uint32_t* method, std::uint32_t* il, const char** image, const std::int32_t* parameters, std::size_t count) noexcept {\n")
+            .Append("    if (result == nullptr || method == nullptr || il == nullptr || image == nullptr || count != ").Append(N(entry.Parameters.Length))
+            .Append("u || (count != 0 && parameters == nullptr)) return 3u;\n    using namespace ")
             .Append(scope).Append(";\n    Instance heap;\n    Context context(heap);\n    std::int32_t value = 0;\n    {\n")
             .Append("    Storage<std::array<Argument, ").Append(N(entry.Parameters.Length)).Append(">> arguments(context);\n")
             .Append("    if (arguments.value == nullptr) { context.pending = 9u; context.image = \"").Append(entry.Source.ContentHash.ToLowerInvariant())
             .Append("\"; context.method = ").Append(N(entry.Source.Token)).Append("u; context.il = ").Append(N(entry.Blocks[0].ILOffset)).Append("u; } else {\n");
-        for (int i = 0; i < entry.Parameters.Length; i++)
-            text.Append("    (*arguments.value)[").Append(N(i)).Append("].bits = std::bit_cast<std::uint32_t>(p").Append(N(i)).Append(");\n");
+        text.Append("    for (std::size_t i = 0; i < count; ++i) (*arguments.value)[i].bits = std::bit_cast<std::uint32_t>(parameters[i]);\n");
         text.Append("    value = ").Append(CppEmitter.Symbol(program.Flow.Entry)).Append("(context, arguments.value->data());\n    }\n    }\n")
             .Append("    if (context.pending == 0u) *result = value;\n    *method = context.method; *il = context.il; *image = context.image;\n    return context.pending;\n}\n");
         return new(entry.Source, symbol + "_try", text.ToString()) { FaultEntryPoint = symbol + "_try", MayThrow = true };

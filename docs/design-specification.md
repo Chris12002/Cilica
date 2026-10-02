@@ -336,6 +336,16 @@ spills, so target native-stack measurements are part of this checkpoint.
 The separate primitive backend retains its earlier storage model. No collector,
 performance or additional target guarantee follows from execution frames.
 
+The object boundary now uses a fixed-size native signature with an Int32 input
+pointer and exact element count, including for wide managed entry methods
+([ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md)). Its
+`_objects_packed_try` symbol distinguishes the incompatible experimental ABI.
+Invalid counts or required null pointers return status 3 without output writes.
+ASan builds poison unused/released arena storage and unpoison reservations;
+ordinary builds retain the same layout. Native validation includes wide exports
+and complete finite/mutual recursion on a bounded pthread stack at O0/O2 on the
+recorded macOS ARM64 target. Other targets still require their own measurements.
+
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
 record base types, interfaces, dispatch tables, size, reference-field maps,

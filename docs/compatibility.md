@@ -11,7 +11,7 @@ not establish native execution or platform compatibility.
 | `object-layout-v1` | Bounded metadata snapshots and detached class/field graphs | Int32/CLASS/OBJECT field storage and logical reference slots only; no reference IL, byte layout, allocation, root frames or object execution |
 | `typed-reference-ir-v1` | Detached caller-constructed IR validation | Concrete references/null, typed locals/joins/calls/returns; no CIL object translation, constructor/field operations, native emission or execution |
 | `object-operations-ir-v1` | Bounded CIL translation and detached operation validation | Constructors, fields and nonvirtual static/instance calls; test-only .NET/IR conformance; no native reference emission, heap, ownership, root frames or collection |
-| `object-frames-native-v1` | C++20 emission and local native differential execution | Budgeted execution arena, bounded native helpers, retained heap, phase A roots and typed branches/backedges; Int32 boundary only; no collector |
+| `object-frames-native-v2` | C++20 emission and local native differential execution | Budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -380,8 +380,9 @@ inference bounds and preserved rejection boundaries. See
 
 ## Budgeted object execution frames
 
-`object-frames-native-v1` supersedes the object control-flow emission profile
-([ADR 0027](decisions/0027-budgeted-execution-frames.md)). It adds a 1 MiB
+`object-frames-native-v2` supersedes the object control-flow and v1 frame emission
+profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
+[ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md)). It has a 1 MiB
 per-context execution-storage budget independently of retained object storage.
 Target-sized typed frames include parameters, locals, values, block inputs,
 roots, metadata, scratch and reusable outgoing arguments. Frames have stable
@@ -395,15 +396,45 @@ depth precedes storage checks. Failed execution leaves the boundary result
 unchanged. The private context constructor permits test budgets; the public
 experimental Int32 boundary uses the default and budgets its entry packet too.
 
+The experimental export is now `cilica_m_<hash>_<token>_objects_packed_try`, with
+this fixed-size native signature:
+
+```cpp
+std::uint32_t entry(std::int32_t* result, std::uint32_t* method,
+    std::uint32_t* il, const char** image,
+    const std::int32_t* parameters, std::size_t count) noexcept;
+```
+
+`count` must equal the managed entry's parameter count. A zero-parameter entry
+allows a null input pointer; other entries require a readable array of `count`
+Int32 values. Null required pointers or a mismatched count return status 3 before
+reading inputs, allocating execution storage or writing any output. Callers own
+input storage; the runtime copies it to its budgeted entry packet. Outputs must
+remain valid and mutually disjoint. Pointer validity beyond null checks remains
+the native caller's responsibility. The new symbol prevents linking an old
+individual-parameter caller to this incompatible ABI. The primitive ABI is unchanged.
+
+ASan builds mark unused and released execution storage inaccessible, restoring
+access during each typed reservation. Reservations use at least 8-byte alignment
+in all builds, keeping neighboring live slots in separate tested ASan shadow
+granules without changing budget accounting between instrumented and ordinary
+builds. A negative subprocess regression confirms a stale read produces
+`use-after-poison`; address reuse cannot distinguish a stale pointer from a
+pointer to the new live occupant. This is arena diagnostics, not collection.
+
 Small non-inlined native helpers bound per-function spill growth; a dispatch
 loop advances between them without growing the native call chain. O0/O2 native
 regressions cover finite/mutual recursion, exact/excess memory and depth, cleanup,
-alignment, many call arguments and allocation-time roots. The wide regression's
-non-instrumented Apple Clang 17 macOS ARM64 stack reports measure maxima of 272
-bytes (O0) and 208 bytes (O2), below its 2 KiB threshold. Instrumented execution
-also enforces that warning threshold. These measurements do not guarantee total
-host stack availability, large exported signatures or other targets. Native
-runtime/library calls and dispatch overhead still count toward host stack use.
+alignment, many call arguments and allocation-time roots. Apple Clang 17 macOS
+ARM64 stack reports measure packed export maxima of 288 bytes (O0) and 224 bytes
+(O2), for arities 0, 1, 1,024 and 4,096. The wide recursion translation unit,
+including its complete test harness, has static per-function maxima of 1,520/768
+bytes at O0/O2, below its 2 KiB threshold. Instrumented execution also enforces
+that warning threshold. Both builds execute finite/mutual recursion through the
+64-call limit on a pthread requesting 256 KiB; macOS supplies 268 KiB, checked
+against a 320 KiB ceiling. This covers the authored call chains and runtime paths;
+it is not a universal host-stack guarantee or validation of other targets.
+Native runtime/library calls and dispatch overhead still count toward stack use.
 No throughput or code-size claim is made for the conservative step dispatch.
 The separate primitive emitter is unchanged in storage/depth policy; collection
 and broader managed-runtime capabilities remain planned.
