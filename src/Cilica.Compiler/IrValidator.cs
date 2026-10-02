@@ -25,9 +25,10 @@ internal static class IrValidator
         }
         Require(methods.TryGetValue(program.Entry, out IrMethod? entry), "entry is outside the program.");
         var resources = new ProgramResources();
+        var types = new IrTypeRules(catalog);
         foreach (IrMethod method in program.Methods)
         {
-            Validate(method, methods, catalog, objectRules);
+            Validate(method, methods, catalog, objectRules, types);
             Require(resources.Add(method), "aggregate program IR limit exceeded.");
         }
         var visited = new HashSet<IrMethodId>(); var pending = new Stack<IrMethodId>(); pending.Push(program.Entry);
@@ -44,7 +45,8 @@ internal static class IrValidator
         return entry;
     }
 
-    internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null)
+    internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null,
+        ObjectIrRules? objectRules = null, IrTypeRules? sharedTypes = null)
     {
         int locationOffset = 0;
         void Require([DoesNotReturnIf(false)] bool condition, string message)
@@ -54,7 +56,7 @@ internal static class IrValidator
                 method.Source?.Token.ToString("x8", System.Globalization.CultureInfo.InvariantCulture) + " IL_" + locationOffset.ToString("x4", System.Globalization.CultureInfo.InvariantCulture);
             if (!condition) throw new ArgumentException((catalog is null ? "Invalid Int32 IR: " : "Invalid reference IR: ") + message + origin, nameof(method));
         }
-        var types = new IrTypeRules(catalog);
+        var types = sharedTypes ?? new IrTypeRules(catalog);
         Require(method.Source is not null, "source is missing.");
         Require(method.Source.AssemblyIdentity is not null, "assembly identity is missing.");
         Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "source hash must be SHA-256 hexadecimal.");

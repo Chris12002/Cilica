@@ -32,7 +32,7 @@ public static class ObjectModelBuilder
 
         var selected = resolver.ResolveRuntimeType(runtimeLibrary, PrimitiveTypeCode.Object);
         if (selected.Value is not ResolvedType objectBase) return new(null, selected.Diagnostics);
-        var parents = new Dictionary<ObjectTypeId, (ObjectTypeId? Parent, int Field)>();
+        var parents = new Dictionary<ObjectTypeId, (ObjectTypeId? Parent, int Field, bool BaseEdge)>();
         var pending = new Queue<ResolvedType>();
         var layouts = new List<ObjectTypeLayout>();
         int fields = 0, members = 0;
@@ -43,7 +43,7 @@ public static class ObjectModelBuilder
             {
                 var inclusion = parents[id];
                 steps.Add(id.ContentHash + ":0x" + id.Token.ToString("x8", CultureInfo.InvariantCulture)
-                    + (inclusion.Field == 0 ? "" : " via field 0x" + inclusion.Field.ToString("x8", CultureInfo.InvariantCulture)));
+                    + (inclusion.BaseEdge ? " via base class" : inclusion.Field == 0 ? "" : " via field 0x" + inclusion.Field.ToString("x8", CultureInfo.InvariantCulture)));
                 if (inclusion.Parent is not ObjectTypeId parent) break;
                 id = parent;
             }
@@ -51,12 +51,12 @@ public static class ObjectModelBuilder
         }
         ObjectCatalogResult Failed(ObjectTypeId id, string code, string message, string? location = null) =>
             new(null, [new(code, DiagnosticSeverity.Error, message, (location is null ? "" : location + "; ") + "layout inclusion: " + Path(id))]);
-        bool Include(ResolvedType type, ObjectTypeId? parent = null, int field = 0)
+        bool Include(ResolvedType type, ObjectTypeId? parent = null, int field = 0, bool baseEdge = false)
         {
             var id = Id(type);
             if (parents.ContainsKey(id)) return true;
             if (parents.Count >= ObjectModelLimits.MaximumTypes) return false;
-            parents.Add(id, (parent, field)); pending.Enqueue(type); return true;
+            parents.Add(id, (parent, field, baseEdge)); pending.Enqueue(type); return true;
         }
         // Root first: ownership must be checked even if another session has the same content identity as the base.
         foreach (var root in roots)
@@ -95,10 +95,19 @@ public static class ObjectModelBuilder
                     " requires concrete nongeneric automatic-layout implementation classes without interfaces, native layout or type/module initialization.", input.Source.Name);
             ObjectTypeId? baseId = input.BaseType is TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } named
                 ? Id(named.Definition) : null;
-            if (id == Id(objectBase) ? input.BaseType is not null || !input.Fields.IsEmpty
-                || (input.Attributes & System.Reflection.TypeAttributes.Sealed) != 0
-                : baseId != Id(objectBase))
-                return Failed(id, DiagnosticIds.ExecutionUnsupported, "Classes must derive directly from the selected, fieldless System.Object definition.", input.Source.Name);
+            if (id == Id(objectBase))
+            {
+                if (input.BaseType is not null || !input.Fields.IsEmpty || (input.Attributes & System.Reflection.TypeAttributes.Sealed) != 0)
+                    return Failed(id, DiagnosticIds.ExecutionUnsupported, "The selected fieldless System.Object definition must be unsealed and have no parent.", input.Source.Name);
+            }
+            else
+            {
+                if (baseId is null)
+                    return Failed(id, DiagnosticIds.ExecutionUnsupported, "Classes require a named nongeneric class base leading to the selected System.Object.", input.Source.Name);
+                var parent = ((TypeSignature.Named)input.BaseType!).Definition;
+                if (!Include(parent, id, baseEdge: true))
+                    return Failed(id, DiagnosticIds.TranslationLimit, "Object layout type limit exceeded while including a base class.", input.Source.Name);
+            }
             var declared = new List<ObjectField>();
             foreach (var field in input.Fields)
             {
@@ -124,7 +133,10 @@ public static class ObjectModelBuilder
         }
         var model = new ObjectTypeCatalog([.. roots.Select(Id).Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)]);
-        ObjectModelValidator.Validate(model);
+        // Metadata can form cycles or extend sealed classes. Surface those as
+        // input diagnostics rather than leaking the detached API's exception.
+        try { ObjectModelValidator.Validate(model); }
+        catch (ArgumentException exception) { return Failed(Id(roots[0]), DiagnosticIds.ExecutionUnsupported, exception.Message); }
         return new(model, []);
     }
 

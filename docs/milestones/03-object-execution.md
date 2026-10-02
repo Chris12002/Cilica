@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; native object branches/backedges, instance ownership and phase A roots are implemented. Updated 2026-10-02.
+Status: in progress; native object control flow and roots plus detached class hierarchies are implemented. Updated 2026-10-02.
 
 The first native class checkpoint now runs an independently authored small class
 created, mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -19,7 +19,11 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3c-a | Budgeted execution frames and native-stack regression checks | Complete for bounded object backend |
 | 3c-b | Packed exports, arena lifetime diagnostics and constrained native call chains | Complete for bounded object backend |
 | 3c-c | Opt-in execution microbenchmarks and helper-batching experiment | Complete; larger batches rejected |
-| 3d | Inheritance, casts and verified virtual/interface dispatch | Planned |
+| 3d | Inheritance, casts and verified virtual/interface dispatch | In progress |
+| 3d-a | Bounded class hierarchies and detached ancestor assignability | Complete for layout/reference IR |
+| 3d-b | Inherited native field storage and constructor chains | Planned |
+| 3d-c | Class casts and runtime type tests | Planned |
+| 3d-d | Verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
@@ -281,10 +285,34 @@ The restored baseline passes both focused O0/O2 frame-budget cases. Production
 and test sources match the previously validated `c7a9147`; only the opt-in
 harness and documentation are retained. Builds have zero warnings/errors.
 
+## Slice 3d-a outcome
+
+[ADR 0030](../decisions/0030-detached-class-hierarchies.md) extends the detached
+layout catalog to include base classes while preserving declaration-local field
+identities and reference slots. It rejects inheritance cycles, sealed/missing
+bases and unsupported ancestors within the existing aggregate budgets. Concrete
+derived references widen to ancestors in detached locals, arguments, returns
+and declared joins; downcasts and sibling conversions remain invalid. A shared
+ancestry cache bounds repeated assignment checks across the method closure.
+
+Native object validation explicitly rejects inherited catalogs until base field
+storage and constructor ordering are lowered. Abstract classes, casts, virtual
+and interface dispatch remain later work. The frame arena, two-statement helper
+baseline and resource limits are unchanged.
+
+Validation: zero build warnings/errors; 504 targeted regression cases pass,
+including native O0/O2 safety checks. Review removed eager diagnostic-name
+allocation on valid ancestor steps; the added resource regression and all 145
+focused hierarchy/model/reference cases then pass. All 25 assignability pairs
+in the authored .NET hierarchy agree with the detached IR contract.
+
 ## Next checkpoint and exit gates
 
-Slice 3d next adds inheritance, casts and verified virtual/interface dispatch;
-its layout/type/dispatch boundaries must be split into coherent reviewed changes.
+Slice 3d-b next adds inherited native field storage and constructor chains,
+including root publication before an allocating base constructor. Casts and
+verified dispatch follow that executable layout. Performance work from ADR 0029
+is deferred and does not block these capability slices; any later optimization
+must retain the O0/O2 native-stack and reference-operation gates.
 The retained-heap execution checkpoint does not clear milestone 4: precise
 collection, stress at every allocation and poisoned reclamation must prove that
 these roots survive actual reclamation. Phase B and the wider ADR 0001/0002

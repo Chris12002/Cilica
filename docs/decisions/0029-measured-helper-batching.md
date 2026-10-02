@@ -18,6 +18,12 @@ threshold. An IR statement count alone does not capture ownership/type checks
 and sanitizer spill costs. Future batching needs a cost model or separate
 boundaries for expensive reference operations, followed by full stack validation.
 
+Deferred follow-up: this optimization is not a prerequisite for continuing the
+object-runtime milestones. Keep the safe baseline while adding capabilities.
+Revisit batching after representative workloads establish a bottleneck on a
+quiet host; distinguish arithmetic from reference checks, retain O0/O2 sanitizer
+and whole-chain stack gates, and validate every newly supported target separately.
+
 The existing native frame-budget regression caught this failure; no new test
 merely duplicating it is needed. No production compiler/runtime change is retained.
 

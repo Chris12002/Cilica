@@ -109,7 +109,6 @@ public sealed class ObjectModelTests
     [InlineData("explicit")]
     [InlineData("packing")]
     [InlineData("class_size")]
-    [InlineData("inheritance")]
     [InlineData("missing_base")]
     [InlineData("valuetype_base")]
     [InlineData("initializer")]
@@ -120,8 +119,7 @@ public sealed class ObjectModelTests
         var builder = Builder();
         if (shape == "module_initializer") builder.Method(".cctor", [0, 0, 1]);
         var objectBase = builder.Type("System", "Object");
-        var parent = shape == "inheritance" ? builder.Type("Example", "Parent", baseType: objectBase) : objectBase;
-        EntityHandle baseType = shape == "missing_base" ? default : parent;
+        EntityHandle baseType = shape == "missing_base" ? default : objectBase;
         if (shape == "valuetype_base") baseType = builder.Specification(Reference(objectBase, valueType: true)[1..]);
         var attributes = TypeAttributes.Public | (shape switch
         {

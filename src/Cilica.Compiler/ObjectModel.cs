@@ -24,7 +24,7 @@ public abstract record ObjectStorage
 
 public sealed record ObjectField(ObjectFieldId Id, string Name, FieldAttributes Attributes, ObjectStorage Storage);
 
-/// <summary>Ordered logical fields; native byte sizes and offsets are supplied by target C++ layouts.</summary>
+/// <summary>Ordered declared fields, without inherited copies; native byte layouts are a separate lowering.</summary>
 public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
     TypeAttributes Attributes, ImmutableArray<ObjectField> Fields)
 {
@@ -33,10 +33,10 @@ public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
         [.. Fields.Select((descriptor, slot) => (descriptor, slot)).Where(p => p.descriptor.Storage is ObjectStorage.Reference).Select(p => p.slot)];
 }
 
-/// <summary>Detached, complete class/field closure. This is a layout contract, not executable IR.</summary>
+/// <summary>Detached, complete base-class/field closure. This is a layout contract, not executable IR.</summary>
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
-    public const string Profile = "object-layout-v1";
+    public const string Profile = "object-layout-v2";
 }
 
 /// <summary>Several explicit class roots and their shared field closure, including the selected object base.</summary>

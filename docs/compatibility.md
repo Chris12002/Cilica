@@ -8,8 +8,8 @@ not establish native execution or platform compatibility.
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
-| `object-layout-v1` | Bounded metadata snapshots and detached class/field graphs | Int32/CLASS/OBJECT field storage and logical reference slots only; no reference IL, byte layout, allocation, root frames or object execution |
-| `typed-reference-ir-v1` | Detached caller-constructed IR validation | Concrete references/null, typed locals/joins/calls/returns; no CIL object translation, constructor/field operations, native emission or execution |
+| `object-layout-v2` | Bounded metadata snapshots and detached base-class/field graphs | Concrete nongeneric class chains, declared Int32/CLASS/OBJECT fields and logical reference slots; no inherited native layout or execution |
+| `typed-reference-ir-v2` | Detached caller-constructed IR validation | Concrete references/null, ancestor assignments and typed locals/joins/calls/returns; native inheritance and cast/dispatch lowering remain planned |
 | `object-operations-ir-v1` | Bounded CIL translation and detached operation validation | Constructors, fields and nonvirtual static/instance calls; test-only .NET/IR conformance; no native reference emission, heap, ownership, root frames or collection |
 | `object-frames-native-v2` | C++20 emission and local native differential execution | Budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
@@ -172,16 +172,20 @@ documented subset without expanding the profile or platform claims.
 ## Object layout foundation
 
 `ObjectModelBuilder.Build` takes one resolved type and an explicitly selected
-runtime library, then resolves a complete class-field graph. Types use content
+runtime library, then resolves a complete base-class and field graph. Types use content
 hash/TypeDef identity; fields retain that declaring identity and their image-scoped
 FieldDef tokens. Logical reference maps distinguish reference fields from Int32.
 The immutable output survives reader disposal; input signatures remain
 resolver-owned until the build completes. Ordinary layout fields accept Int32,
 named CLASS or primitive OBJECT; self/mutual reference cycles are supported.
 
-Classes are concrete, nongeneric, automatic-layout and derived directly from the
-selected fieldless `System.Object`; enclosing generic owners are rejected.
-Interfaces, other inheritance, packing/native layouts, initialization, reference
+Classes are concrete, nongeneric and automatic-layout, with acyclic base chains
+ending at the selected fieldless `System.Object`. A base must be present and
+unsealed; sealed leaves are permitted. Fields and `ReferenceSlots` describe only
+declarations on that class, without copying inherited fields or losing their
+original owner identities. Hidden fields therefore remain distinct. Enclosing
+generic owners are rejected. Abstract classes, interfaces, generic inheritance,
+packing/native layouts, initialization, reference
 assemblies, static/literal/constant/RVA/marshalled/explicit-offset fields and
 unsupported signatures fail with no partial model. Readonly and visibility flags
 are retained for future access verification; layout inclusion does not grant
@@ -193,7 +197,10 @@ budget per type; base decoding is separate. The model validator rejects forged
 identities, duplicate FieldDefs across owners, missing targets, unrelated types,
 invalid storage/base shape and aggregate excess. Independent fixtures verify
 exact/excess limits, forwarding, cross-image namesakes, ownership and detached
-lifetime. See [ADR 0022](decisions/0022-detached-object-layouts.md).
+lifetime. The 256-type limit includes ancestors, bounding base-chain checks and
+cached ancestry relationships to at most 256 squared entries/steps. Inheritance
+validation is iterative. See [ADR 0022](decisions/0022-detached-object-layouts.md)
+and [ADR 0030](decisions/0030-detached-class-hierarchies.md).
 
 The layout model alone supplies no execution. Target layouts, allocation, ownership,
 root frames and native object faults require the separate object emitter below;
@@ -206,17 +213,18 @@ identity; this early compiler API is not a stable serialization contract.
 `ReferenceIrProgram` is a detached validation API, not a CIL translator or native
 entry. It shares block-local values and ordered statements with the primitive
 IR. `ReferenceIrValidator.Validate` checks both the complete method closure and
-an `ObjectTypeCatalog` with explicit class roots and their field closure. Catalogs
-use the same layout rules and aggregate bounds as `object-layout-v1`; every
-included type must occur in declared value/storage types or their field closure,
+an `ObjectTypeCatalog` with explicit class roots and their base/field closure. Catalogs
+use the same layout rules and aggregate bounds as `object-layout-v2`; every
+included type must occur in declared value/storage types or their base/field closure,
 apart from the selected object base. Class names do not supply identity.
 
 `IrType` distinguishes Int32, a concrete class reference and the null stack type.
 Parameters, locals and returns require Int32 or concrete references; null may
 occur in temporaries and block inputs. Loads and call results retain exact
 declared types. Assignments, returns, arguments and edge copies accept exact
-types, null into any reference, and a concrete class into the selected object
-base. Object-to-class and sibling-class assignments require later casts.
+types, null into any reference, and a concrete class into any ancestor class.
+Downward and sibling-class assignments require later casts. One ancestry cache
+is shared across a program's method validation, rather than rebuilt per method.
 Validation checks declared joins; it does not infer their common type from CIL.
 
 Reference equality/inequality returns Int32; reference/null truth branches are
@@ -229,6 +237,10 @@ also cover reference values and argument copies.
 This API alone validates value flow: the object-operation profile below adds
 method bindings, constructor/field operations and their access checks. Native
 object lowering is supplied by the separate bounded profile below.
+That operation profile still rejects inherited catalogs with an actionable
+diagnostic: constructor chains, inherited native field access, casts and dispatch
+are not yet lowered. The CIL stack inference profile is consequently unchanged;
+hierarchical joins here are explicitly declared by the detached IR caller.
 Caller-constructed sources do not authenticate metadata declarations. Void
 signatures are accepted only through the object-operation profile; they remain
 invalid as value/storage types. The primitive C++ emitter rejects reference/null

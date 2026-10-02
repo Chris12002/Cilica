@@ -13,6 +13,8 @@ public static class ObjectIrValidator
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
         ObjectModelValidator.Validate(program.Flow.Types);
+        if (program.Flow.Types.Types.Any(t => t.BaseType is not null && t.BaseType != program.Flow.Types.ObjectBase))
+            throw new ArgumentException("Object execution still requires direct-System.Object classes; inherited native layouts and constructor chains need later lowering.", nameof(program));
         var rules = new ObjectIrRules(program);
         ReferenceIrValidator.Validate(program.Flow, rules);
         var entry = rules.Binding(program.Flow.Entry);

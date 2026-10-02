@@ -30,8 +30,11 @@ public static class ReferenceIrValidator
         var visited = new HashSet<ObjectTypeId>();
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
+            {
+                if (layouts[id].BaseType is { } parent) pending.Push(parent);
                 foreach (var reference in layouts[id].Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>())
                     pending.Push(reference.Type);
+            }
         if (visited.Count != layouts.Count)
             throw new ArgumentException("Invalid reference program IR: catalog contains types unused by value flow or its field closure.", nameof(program));
     }

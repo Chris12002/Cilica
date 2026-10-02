@@ -354,6 +354,15 @@ The emitter retains two-statement helpers. Throughput results are inconclusive
 because of measurement variability; future batching must account for the cost
 of reference checks as well as ordinary arithmetic.
 
+The detached layout and reference-IR APIs now support concrete nongeneric class
+hierarchies ([ADR 0030](decisions/0030-detached-class-hierarchies.md)). Catalogs
+include every ancestor, reject inheritance cycles and sealed bases, and retain
+fields on their declaring class. Derived references can flow to ancestor-typed
+locals, arguments, returns and declared joins. The existing type/field budgets
+bound this work. Native object operations continue rejecting inherited catalogs
+until constructor chains and inherited field layouts are lowered; abstract
+classes, casts and virtual/interface dispatch remain subsequent slices.
+
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
 record base types, interfaces, dispatch tables, size, reference-field maps,

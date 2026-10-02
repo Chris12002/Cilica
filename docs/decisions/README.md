@@ -35,3 +35,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0027](0027-budgeted-execution-frames.md) | Budgeted execution frames and bounded native helpers | Accepted for bounded object backend |
 | [0028](0028-packed-boundaries-and-arena-diagnostics.md) | Packed object boundaries and arena lifetime diagnostics | Accepted for bounded object backend |
 | [0029](0029-measured-helper-batching.md) | Dispatch benchmarks and rejected larger batches | Retain two-statement baseline |
+| [0030](0030-detached-class-hierarchies.md) | Detached class hierarchies and ancestor assignability | Accepted for layout and detached reference IR |

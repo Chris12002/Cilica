@@ -56,19 +56,37 @@ public static class ObjectModelValidator
             }
             Require(id == model.ObjectBase
                 ? type.BaseType is null && type.Fields.IsEmpty && (type.Attributes & TypeAttributes.Sealed) == 0
-                : type.BaseType == model.ObjectBase, "classes must derive directly from the fieldless selected object base.");
+                : Identity(type.BaseType, 0x02), "classes need a canonical base; the selected object base must be fieldless, unsealed and parentless.");
         }
         Require(model.Roots.All(types.ContainsKey) && types.ContainsKey(model.ObjectBase), "roots/base are outside the model.");
         foreach (var type in model.Types)
+        {
+            if (type.BaseType is { } parent && (!types.TryGetValue(parent, out var baseLayout) || (baseLayout.Attributes & TypeAttributes.Sealed) != 0))
+                Require(false, "base class is missing or sealed for " + type.Source.Name + ".");
             foreach (var reference in type.Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>())
                 Require(types.ContainsKey(reference.Type), "reference field targets are outside the model.");
+        }
+        // At most MaximumTypes squared steps; never recurse through input bases.
+        foreach (var id in types.Keys)
+        {
+            var chain = new HashSet<ObjectTypeId>();
+            var current = id;
+            while (current != model.ObjectBase)
+            {
+                if (!chain.Add(current)) Require(false, "inheritance cycle at " + types[current].Source.Name + ".");
+                current = types[current].BaseType!;
+            }
+        }
         var visited = new HashSet<ObjectTypeId>();
         var pending = new Stack<ObjectTypeId>();
         foreach (var root in model.Roots) pending.Push(root);
         pending.Push(model.ObjectBase);
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
+            {
+                if (types[id].BaseType is { } parent) pending.Push(parent);
                 foreach (var reference in types[id].Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>()) pending.Push(reference.Type);
+            }
         Require(visited.Count == types.Count, "model contains unrelated types.");
     }
 
