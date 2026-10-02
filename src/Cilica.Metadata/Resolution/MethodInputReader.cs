@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
-using Cilica.Metadata.Formatting;
 using Cilica.Metadata.IL;
 
 namespace Cilica.Metadata.Resolution;
@@ -24,26 +22,8 @@ public sealed partial class AssemblyResolver
         {
             var reader = assembly.Image.Reader;
             var method = reader.GetMethodDefinition(handle);
-            var signature = MethodDefinitionSignature(assembly, handle);
+            var header = ReadMethodHeader(assembly, handle, limits.MaximumOwnerDepth);
             var owner = reader.GetTypeDefinition(method.GetDeclaringType());
-            bool externallyVisible = true;
-            int ownerArity = 0;
-            var owners = new HashSet<TypeDefinitionHandle>();
-            for (TypeDefinitionHandle current = method.GetDeclaringType(); !current.IsNil;)
-            {
-                if (!owners.Add(current)) throw Failure(DiagnosticIds.InvalidSignature, "Declaring-type chain is cyclic.");
-                if (owners.Count > limits.MaximumOwnerDepth)
-                    throw Failure(DiagnosticIds.TranslationLimit, "Declaring-type depth limit exceeded.");
-                var definition = reader.GetTypeDefinition(current);
-                ownerArity = checked(ownerArity + definition.GetGenericParameters().Count);
-                var parent = definition.GetDeclaringType();
-                externallyVisible &= (definition.Attributes & TypeAttributes.VisibilityMask) ==
-                    (parent.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
-                current = parent;
-            }
-            var names = new NameFormatter(reader);
-            var source = new MethodSource(assembly.Identity.DisplayName, assembly.ContentHash, MetadataTokens.GetToken(handle),
-                names.TypeDefinitionName(method.GetDeclaringType()) + "::" + reader.GetString(method.Name));
             if (method.RelativeVirtualAddress == 0)
                 throw Failure(DiagnosticIds.ExecutionUnsupported, "Selected method has no managed IL body.");
             MethodBodyBlock body;
@@ -71,12 +51,12 @@ public sealed partial class AssemblyResolver
                 }
                 return false;
             }
-            return new(source, signature, method.Attributes, method.ImplAttributes, ownerArity,
+            return new(header.Source, header.Signature, method.Attributes, method.ImplAttributes, header.Arity,
                 assembly.IsReferenceAssembly, Initializer(owner), Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1))),
                 locals, body.LocalVariablesInitialized, body.ExceptionRegions.Length, il.Length, body.MaxStack,
                 [.. instructions.Select(i => new MethodInstruction(i.Offset, i.Length, i.Code.Name,
                     i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets]))],
-                MetadataTokens.GetToken(method.GetDeclaringType()), externallyVisible)
+                MetadataTokens.GetToken(method.GetDeclaringType()), header.Visible)
             { DeclaredName = reader.GetString(method.Name), MetadataMembersRead = work };
         });
     }
