@@ -89,6 +89,9 @@ internal static class IrValidator
             int end = block.Id + 1 < method.Blocks.Length ? method.Blocks[block.Id + 1].ILOffset : int.MaxValue;
             bool Earlier(int value) => value >= 0 && value < values;
             bool Local(int local) => local >= 0 && local < method.Locals.Length;
+            bool TypeTest(ObjectTypeId target, int operand, IrType result) => objectRules is not null
+                && objectRules.TypeTest(method, target) && result == IrType.Reference(target)
+                && Earlier(operand) && valueTypes[operand].Kind is IrTypeKind.Reference or IrTypeKind.NullReference;
             void Offset(int offset)
             {
                 Require(offset >= previousOffset && offset < end, "statement/terminator offset is outside its block or out of order.");
@@ -129,9 +132,12 @@ internal static class IrValidator
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
                             IrExpression.LoadField f => objectRules is not null && objectRules.Field(method, f.Field, f.Receiver, valueTypes, out var storage)
                                 && value.Type == storage,
+                            IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type),
+                            IrExpression.IsInstance t => TypeTest(t.Target, t.Operand, value.Type),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
-                        bool throwing = value.Expression is IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField ||
+                        bool throwing = value.Expression is IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
+                            or IrExpression.CastClass or IrExpression.IsInstance ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation);
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
                             "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");

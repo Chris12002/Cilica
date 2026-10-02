@@ -319,7 +319,7 @@ blocks until null/class/Object joins converge; mixed integer/reference values or
 unsafe narrowing fail. The emitter uses block-scoped temporaries and distinct
 rooted input storage, preserving parallel stack transfers on backedges. Inference
 has an aggregate 262,144-unit work budget in addition to existing IR/metadata
-bounds. Constructors remain straight-line; casts, inheritance, dispatch, switches,
+bounds. Constructors remain straight-line; dispatch, switches,
 argument stores and exception regions remain unsupported. Authored C# and raw
 stack-carrying IL match .NET under native sanitizers. The heap still retains
 objects until teardown, so actual collection remains unimplemented.
@@ -367,8 +367,23 @@ C++ struct. Single-block constructors call their immediate base once, preserving
 declared-field initializers and argument evaluation before that call. The derived
 receiver stays rooted with its original dynamic type throughout allocating base
 bodies. Physical field copies have a separate 65,536-slot bound; field-operation
-helper isolation retains the O0/O2 native-stack gate. Abstract classes, casts,
+helper isolation retains the O0/O2 native-stack gate. Abstract classes,
 broader access rules and virtual/interface dispatch remain subsequent slices.
+
+Class `castclass` and `isinst` now use those descriptor base links
+([ADR 0032](decisions/0032-class-casts-and-type-tests.md)). Targets are exact
+TypeDef/TypeRef identities in the bounded concrete catalog, including types
+reached only by a test. Both accept reference/null operands and preserve the
+original reference on success; null remains null. A failed cast reports status
+7 with its originating method/IL offset; a failed type test returns null.
+Ownership checks precede descriptor reads. Results occupy rooted arena slots,
+and casts/tests cannot expose an unfinished constructor receiver. Interface,
+value-type, generic, array and TypeSpec targets still require later lowering.
+
+Helper batching remains deferred until representative workloads justify it.
+The current 2 KiB warning is a tested baseline, not a permanent production
+requirement. Revisit it using speed measurements and complete native call-chain
+budgets for each target, with sanitizer overhead considered separately.
 
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors

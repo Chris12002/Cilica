@@ -46,6 +46,7 @@ public static class ObjectTranslator
         private readonly MemberResolutionBudget _metadata = new(ObjectModelLimits.MaximumMetadataMembers);
         private readonly Dictionary<(string Hash, int Token), ResolvedMethod> _callTargets = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedField> _fieldTargets = [];
+        private readonly Dictionary<(string Hash, int Token), ObjectTypeId> _typeTargets = [];
 
         internal ObjectIrProgram Run(ResolvedAssembly assembly, MethodDefinitionHandle entry)
         {
@@ -195,6 +196,24 @@ public static class ObjectTranslator
             return new(Include(field.DeclaringType.Definition), MetadataTokens.GetToken(field.Handle));
         }
 
+        private ObjectTypeId TypeTarget(Work caller, MethodInstruction instruction)
+        {
+            int token = instruction.IntegerOperand ?? 0;
+            if ((uint)token >> 24 == 0x1b)
+                Fail(caller, "Class casts/type tests require a named TypeDef or TypeRef; constructed TypeSpec targets need later lowering.", instruction.Offset);
+            if ((uint)token >> 24 is not (0x01 or 0x02) || (token & 0xffffff) == 0)
+                Fail(caller, "Class casts/type tests require a non-nil TypeDef or TypeRef.", instruction.Offset, DiagnosticIds.InvalidOperand);
+            var image = caller.Resolved.DeclaringType.Definition.Assembly;
+            var key = (image.ContentHash, token);
+            if (_typeTargets.TryGetValue(key, out var known)) return known;
+            var resolved = resolver.ResolveType(image, MetadataTokens.EntityHandle(token));
+            if (resolved.Value is not ResolvedType target)
+                throw new Failure(resolved.Diagnostics[0] with { Location = Location(caller, instruction.Offset) });
+            // The final catalog validates the complete target/base/field closure with
+            // the shared metadata budget, including targets used only by a type test.
+            var id = Include(target); _typeTargets.Add(key, id); return id;
+        }
+
         private IrMethod Body(Work work)
         {
             var input = work.Input;
@@ -263,6 +282,13 @@ public static class ObjectTranslator
                             if (allocation) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
                             else if (target.Return == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], opcode == "callvirt"), offset);
                             else Push(offset, target.Return, new IrExpression.Call(target.Binding.Method, [.. arguments], opcode == "callvirt"), true);
+                            break;
+                        case "castclass" or "isinst":
+                            var testedType = TypeTarget(work, instruction); int tested = Pop(offset);
+                            if (values[tested].Kind is not (IrTypeKind.Reference or IrTypeKind.NullReference))
+                                Fail(work, "Class casts/type tests require an object reference operand.", offset);
+                            Push(offset, IrType.Reference(testedType), opcode == "castclass"
+                                ? new IrExpression.CastClass(testedType, tested) : new IrExpression.IsInstance(testedType, tested), true);
                             break;
                         case "ldfld":
                             var loaded = Field(work, instruction); int receiver = Pop(offset);

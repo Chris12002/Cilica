@@ -25,6 +25,8 @@ public sealed class ObjectHierarchyTranslationTests
     [InlineData("read")]
     [InlineData("escape")]
     [InlineData("compare")]
+    [InlineData("cast")]
+    [InlineData("test")]
     [InlineData("inherited_write_before_base")]
     [InlineData("inherited_readonly_write")]
     [InlineData("branch")]
@@ -76,6 +78,7 @@ public sealed class ObjectHierarchyTranslationTests
             if (damage == "read") { il.LoadArgument(0); il.OpCode(ILOpCode.Ldfld); il.Token(childField); il.OpCode(ILOpCode.Pop); }
             if (damage == "escape") { il.LoadArgument(0); il.Call(escape); }
             if (damage == "compare") { il.LoadArgument(0); il.OpCode(ILOpCode.Ldnull); il.OpCode(ILOpCode.Ceq); il.OpCode(ILOpCode.Pop); }
+            if (damage is "cast" or "test") { il.LoadArgument(0); il.OpCode(damage == "cast" ? ILOpCode.Castclass : ILOpCode.Isinst); il.Token(child); il.OpCode(ILOpCode.Pop); }
             if (damage == "inherited_write_before_base") { il.LoadArgument(0); il.LoadConstantI4(1); il.OpCode(ILOpCode.Stfld); il.Token(parentField); }
             if (damage != "missing")
             {

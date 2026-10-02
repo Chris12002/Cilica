@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; bounded native object control flow, roots and concrete class inheritance are implemented. Updated 2026-10-02.
+Status: in progress; bounded native object control flow, roots, concrete class inheritance and casts/type tests are implemented. Updated 2026-10-02.
 
 The first native class checkpoint now runs an independently authored small class
 created, mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -22,7 +22,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d | Inheritance, casts and verified virtual/interface dispatch | In progress |
 | 3d-a | Bounded class hierarchies and detached ancestor assignability | Complete for layout/reference IR |
 | 3d-b | Inherited native field storage and constructor chains | Complete for bounded concrete class profile |
-| 3d-c | Class casts and runtime type tests | Planned |
+| 3d-c | Class casts and runtime type tests | Complete for bounded concrete classes |
 | 3d-d | Verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -334,12 +334,31 @@ also pass their 4,096-field O0/O2 regressions and the 21 focused hierarchy cases
 Review and local main/cached-origin ancestry checks are complete. No push or
 hosted execution was started.
 
+## Slice 3d-c outcome
+
+[ADR 0032](../decisions/0032-class-casts-and-type-tests.md) adds named-class
+`castclass` and `isinst` through exact descriptor ancestry. Null stays null;
+successful operations preserve reference identity. Failed casts report status
+7 with the original IL location, while failed tests return null. Target-only
+types enter the bounded catalog. Ownership checks precede descriptor reads;
+results use existing rooted arena slots. Unfinished constructor receivers cannot
+escape through casts/tests before base initialization.
+
+Two authored entries compare 84 .NET/native outcomes per O0/O2 build, with
+sanitizers and the current native-frame gate. Tests cover identity, allocation
+roots, fault order/origins, exact/short budgets, cleanup/reuse, malformed and
+unsupported targets, forged IR and same-name/equal-token cross-image types.
+Review is complete; all 544 relevant local regressions pass in 31.9 seconds,
+with zero build warnings/errors. No hosted work or push was started.
+
 ## Next checkpoint and exit gates
 
-Slice 3d-c next adds class casts and runtime type tests against these descriptor
-base links. Verified dispatch follows that executable layout. Performance work from ADR 0029
-is deferred and does not block these capability slices; any later optimization
-must retain the O0/O2 native-stack and reference-operation gates.
+Slice 3d-d next adds verified virtual/interface dispatch. Performance work from
+ADR 0029 is deferred until representative applications run and does not block
+capability work. The 2 KiB warning is a conservative tested baseline, not a
+permanent production requirement. Any revised threshold needs measured speed
+gains and target-specific whole-chain stack budgets, with sanitizer overhead
+considered separately; ownership, rooting and fault regressions remain required.
 The retained-heap execution checkpoint does not clear milestone 4: precise
 collection, stress at every allocation and poisoned reclamation must prove that
 these roots survive actual reclamation. Phase B and the wider ADR 0001/0002

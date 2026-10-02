@@ -52,6 +52,8 @@ public abstract record IrExpression
     public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false) : IrExpression;
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
+    public sealed record CastClass(ObjectTypeId Target, int Operand) : IrExpression;
+    public sealed record IsInstance(ObjectTypeId Target, int Operand) : IrExpression;
 }
 
 /// <summary>Block-local typed temporary; operands always refer to earlier values in that block.</summary>

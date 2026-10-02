@@ -9,9 +9,9 @@ not establish native execution or platform compatibility.
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v2` | Bounded metadata snapshots and detached base-class/field graphs | Concrete nongeneric class chains, declared Int32/CLASS/OBJECT fields and logical reference slots; physical layouts belong to native lowering |
-| `typed-reference-ir-v2` | Detached caller-constructed IR validation | Concrete references/null, ancestor assignments and typed locals/joins/calls/returns; cast/dispatch lowering remains planned |
-| `object-operations-ir-v2` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, declared-field initializers, inherited field access and nonvirtual static/instance calls; casts and broader access rules remain unsupported |
-| `object-frames-native-v3` | C++20 emission and local native differential execution | Composed inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
+| `typed-reference-ir-v2` | Detached caller-constructed IR validation | Concrete references/null, ancestor assignments and typed locals/joins/calls/returns; casts require the separate object-operation contract |
+| `object-operations-ir-v3` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, nonvirtual calls and concrete class casts/type tests; broader access rules and dispatch remain unsupported |
+| `object-frames-native-v4` | C++20 emission and local native differential execution | Class casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -223,7 +223,7 @@ Parameters, locals and returns require Int32 or concrete references; null may
 occur in temporaries and block inputs. Loads and call results retain exact
 declared types. Assignments, returns, arguments and edge copies accept exact
 types, null into any reference, and a concrete class into any ancestor class.
-Downward and sibling-class assignments require later casts. One ancestry cache
+Downward and sibling-class conversions require explicit casts in the object-operation profile. One ancestry cache
 is shared across a program's method validation, rather than rebuilt per method.
 Validation checks declared joins; it does not infer their common type from CIL.
 
@@ -264,6 +264,8 @@ references; void is a return signature only. Locals require initialization.
 | --- | --- |
 | `newobj` | Exact instance constructor; already-evaluated arguments in declaration order; distinct typed allocation definition with method-exit fault edge |
 | `ldfld`, `stfld` | Exact FieldDef/declaring owner via direct or MemberRef binding; typed receiver/storage; ordered load/store and method-exit fault edge |
+| `castclass` | Named concrete class target; null stays null, compatible references retain identity, mismatch reports invalid-cast status 7 |
+| `isinst` | Named concrete class target; compatible references retain identity, null/mismatch return null; result has the target reference type |
 | `call` | Exact ordinary static/instance declaration; explicit receiver for instance calls; no automatic null-receiver check |
 | nonvirtual `callvirt` | Ordinary nonvirtual instance declaration; explicit null-receiver check after argument evaluation; virtual dispatch is unsupported |
 | void calls, `ret` | Separate invoke statement and void terminator; no void temporary or storage |
@@ -332,7 +334,8 @@ No references, retained handles or persistent runtime cross that boundary. Outpu
 storage must be valid and disjoint. Null outputs return 3 without writes; faults
 leave the result unchanged and report image/MethodDef/IL origin. Statuses retain
 1 divide-by-zero and 2 overflow, add 4 null, 5 allocation failure, 6 ownership/type
-violation and 8 call-depth limit. These tags are not managed exception objects.
+violation, 7 invalid class cast and 8 call-depth limit. Execution storage adds
+status 9 below. These tags are not managed exception objects.
 
 All reference arguments, locals and temporaries receive distinct slots, including
 null temporaries. Frames publish before allocations/calls and pop on every exit.
@@ -375,7 +378,7 @@ Object base. Equal types remain exact. Depth mismatches, integer/reference joins
 and narrowing an Object input into a class consumer fail without partial IR.
 Inference revisits blocks until types converge, before complete operation validation.
 Unreachable blocks, ordered reference comparisons, switches, leave/handlers,
-argument stores and casts remain errors. Constructors still require a single
+argument stores remain errors. Constructors still require a single
 block with one immediate-base call under the initializer rules above.
 
 A separate 262,144-unit closure budget counts instruction visits, input materialization,
@@ -399,7 +402,7 @@ inference bounds and preserved rejection boundaries. See
 
 ## Budgeted object execution frames
 
-`object-frames-native-v3` supersedes the object control-flow and earlier frame emission
+`object-frames-native-v4` supersedes the object control-flow and earlier frame emission
 profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
 [ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md),
 [ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)). It has a 1 MiB
@@ -468,7 +471,7 @@ and broader managed-runtime capabilities remain planned.
 
 ## Native concrete inheritance
 
-`object-frames-native-v3` composes all ancestor fields into each concrete native
+Since `object-frames-native-v3`, emission composes all ancestor fields into each concrete native
 allocation ([ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)).
 There is one Object header; inherited methods keep the allocation's original
 dynamic type and identity. Hidden fields retain declaring image/type/token
@@ -496,5 +499,38 @@ failure stages, exact/short execution budgets, cleanup/reuse, ownership/type
 rejections and typed destruction. Cross-image same-name/equal-token fields are
 checked separately, including a 4,096-field accessor variant. Builds use
 ASan/UBSan and the 2 KiB native-frame warning at both optimization levels on the
-recorded macOS ARM64 toolchain. Collection, casts, dispatch, broader access and
+recorded macOS ARM64 toolchain. Collection, dispatch, broader access and
 other-target compatibility remain later work.
+
+## Class casts and runtime type tests
+
+`object-operations-ir-v3` and `object-frames-native-v4` add `castclass` and
+`isinst` against exact TypeDef/TypeRef targets, using the existing descriptor
+ancestry chain ([ADR 0032](decisions/0032-class-casts-and-type-tests.md)). Target
+identity includes the image content hash; equal names/tokens across images do
+not establish compatibility. Type-test-only targets enter the catalog and its
+existing type, metadata, field and physical-layout budgets. Target access is
+same-owner or top-level public. Interface, abstract, value-type, generic, array
+and TypeSpec targets remain unsupported, including with a null operand.
+
+Both operations consume a reference/null value and produce the target reference
+type. Successful casts/tests preserve object identity and dynamic type. Null
+stays null; mismatch returns null for `isinst` and status 7 for `castclass`.
+Membership checks run before descriptor reads; invalid/foreign pointers report
+status 6. Both IR operations therefore require method-exit fault edges, although
+an ordinary failed `isinst` is not a fault. Results use existing phase A roots
+and arena cleanup; no allocation, boxing, RTTI or managed exception object is
+introduced. Uninitialized constructor receivers cannot be cast or tested before
+their immediate-base call. The packed Int32 ABI is unchanged.
+
+Two authored C# entries provide 84 .NET/native result and exact fault-origin
+cases per O0/O2 build. Coverage includes null, exact/ancestor/descendant and
+sibling/unrelated tests, identity through casts, loops and allocating calls,
+cast-before-argument/null fault order, root observation, exact/short frame
+budgets, ownership checks and reuse after faults. Raw metadata/native fixtures
+distinguish same-name/equal-token classes in separate images. Malformed targets,
+unsupported shapes, forged IR and unfinished receiver casts/tests are rejected.
+Native builds pass ASan/UBSan and the current 2 KiB frame warning on the recorded
+macOS ARM64 toolchain. That threshold remains a conservative baseline; later
+performance tuning may revisit it with representative workloads and complete
+target-specific stack budgets, as recorded in ADR 0029.

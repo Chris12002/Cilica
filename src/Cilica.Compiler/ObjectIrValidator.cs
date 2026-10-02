@@ -77,6 +77,10 @@ internal sealed class ObjectIrRules
     }
 
     internal ObjectMethodBinding Binding(IrMethodId id) => _bindings[id];
+    internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is not null
+        && _layouts.TryGetValue(target, out var layout)
+        && (Binding(IrMethodId.From(method.Source)).Owner == target
+            || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public);
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch
     {
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
@@ -179,6 +183,8 @@ internal sealed class ObjectIrRules
                             IrExpression.Call c => c.Arguments.All(a => !This(a)),
                             IrExpression.NewObject n => n.Arguments.All(a => !This(a)),
                             IrExpression.LoadField f => !This(f.Receiver),
+                            IrExpression.CastClass c => !This(c.Operand),
+                            IrExpression.IsInstance t => !This(t.Operand),
                             _ => false,
                         },
                         IrStatement.StoreLocal s => !This(s.Value),

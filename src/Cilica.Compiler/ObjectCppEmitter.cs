@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v3";
+    public const string Profile = "object-frames-native-v4";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -175,11 +175,11 @@ public static class ObjectCppEmitter
                 int statementsInStep = 0;
                 foreach (var statement in block.Statements)
                 {
-                    bool fieldOperation = statement is IrStatement.StoreField
-                        or IrStatement.Define { Value.Expression: IrExpression.LoadField };
-                    // Field access includes ownership, ancestry and descriptor lookup.
+                    bool isolatedOperation = statement is IrStatement.StoreField
+                        or IrStatement.Define { Value.Expression: IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance };
+                    // Field access and type tests include ownership and ancestry checks.
                     // Keep it in its own step to retain the O0 sanitizer stack bound.
-                    if (fieldOperation) { Flush(); statementsInStep = 0; }
+                    if (isolatedOperation) { Flush(); statementsInStep = 0; }
                     switch (statement)
                     {
                         case IrStatement.Define define:
@@ -194,6 +194,15 @@ public static class ObjectCppEmitter
                                 case IrExpression.LoadField field:
                                     Check(Value(field.Receiver), field.Field.Owner, true, value.ILOffset);
                                     expression = Field(field.Field, field.Receiver); break;
+                                case IrExpression.CastClass cast:
+                                    Guard("!context.instance.owns(" + Value(cast.Operand) + ")", "6u", value.ILOffset);
+                                    Guard(Value(cast.Operand) + " != nullptr && !derives_from(" + Value(cast.Operand)
+                                        + "->type, &" + TypeSymbol(cast.Target) + "_descriptor)", "7u", value.ILOffset);
+                                    expression = Value(cast.Operand); break;
+                                case IrExpression.IsInstance test:
+                                    Guard("!context.instance.owns(" + Value(test.Operand) + ")", "6u", value.ILOffset);
+                                    expression = Value(test.Operand) + " != nullptr && derives_from(" + Value(test.Operand)
+                                        + "->type, &" + TypeSymbol(test.Target) + "_descriptor) ? " + Value(test.Operand) + " : nullptr"; break;
                                 case IrExpression.Null: expression = "nullptr"; break;
                                 case IrExpression.Parameter p: expression = layout.Storage(ObjectRootKind.Parameter, p.Index); break;
                                 case IrExpression.Local l: expression = layout.Storage(ObjectRootKind.Local, l.Index); break;
@@ -230,7 +239,7 @@ public static class ObjectCppEmitter
                                 Check(Value(store.Value), values[store.Value].Type.Class!, false, store.ILOffset);
                             code.Append("    ").Append(Field(store.Field, store.Receiver)).Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
                     }
-                    if (fieldOperation || ++statementsInStep == StatementsPerStep) { Flush(); statementsInStep = 0; }
+                    if (isolatedOperation || ++statementsInStep == StatementsPerStep) { Flush(); statementsInStep = 0; }
                 }
                 Flush();
                 switch (block.Terminator)

@@ -24,6 +24,16 @@ Revisit batching after representative workloads establish a bottleneck on a
 quiet host; distinguish arithmetic from reference checks, retain O0/O2 sanitizer
 and whole-chain stack gates, and validate every newly supported target separately.
 
+Follow-up decision: defer throughput tuning until representative applications
+run. The 2 KiB warning threshold is a conservative tested baseline, not a
+permanent architecture requirement. The experiment exceeded that baseline;
+it did not establish that a 4 or 8 KiB threshold is inherently unsafe or a poor
+tradeoff. A larger frame retained across managed calls accumulates through the
+depth limit; a leaf helper has a different whole-chain cost. Reconsider the
+threshold together with target thread-stack budgets, measured call-chain use,
+sanitizer overhead and reproducible speed gains. Do not let an O0 sanitizer
+frame measurement alone dictate the eventual production throughput design.
+
 The existing native frame-budget regression caught this failure; no new test
 merely duplicating it is needed. No production compiler/runtime change is retained.
 
