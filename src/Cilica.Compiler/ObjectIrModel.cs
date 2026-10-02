@@ -13,7 +13,7 @@ public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, 
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v1";
+    public const string Profile = "object-operations-ir-v2";
 }
 
 public sealed record ObjectTranslationResult(ObjectIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)

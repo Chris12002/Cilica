@@ -25,11 +25,17 @@ internal static class ObjectCppRuntime
 
     internal const string Text = """
 struct Object;
+using FieldAccessor = void* (*)(Object*) noexcept;
 struct Descriptor {
     std::size_t size, alignment;
     const std::size_t* references;
     std::size_t reference_count;
     void (*destroy)(Object*) noexcept;
+    const Descriptor* base;
+    const std::size_t* fields;
+    std::size_t field_count;
+    const FieldAccessor* accessors;
+    void* (*field_address)(Object*, std::size_t) noexcept;
 };
 struct Instance;
 struct Object {
@@ -38,6 +44,28 @@ struct Object {
     Object* next = nullptr;
     std::uintptr_t synchronization = 0;
 };
+[[maybe_unused]] static bool derives_from(const Descriptor* actual, const Descriptor* expected) noexcept {
+    for (const Descriptor* type = actual; type != nullptr; type = type->base)
+        if (type == expected) return true;
+    return false;
+}
+// Keep descriptor lookup out of statement helpers: repeated arena expressions
+// otherwise amplify Clang O0 sanitizer spills even for a single field store.
+[[maybe_unused, gnu::noinline]] static void* field_address(Object* value, std::size_t index) noexcept {
+    return value->type->accessors[index](value);
+}
+// Offset-based diagnostic/tracing lookup. Declared fields are emitted in order,
+// so measured offsets are strictly increasing; execution uses direct indices.
+[[maybe_unused, gnu::noinline]] static void* field_by_offset(Object* value, std::size_t offset) noexcept {
+    const Descriptor& type = *value->type;
+    std::size_t first = 0, last = type.field_count;
+    while (first < last) {
+        const std::size_t middle = first + (last - first) / 2;
+        if (type.fields[middle] < offset) first = middle + 1;
+        else last = middle;
+    }
+    return first < type.field_count && type.fields[first] == offset ? type.accessors[first](value) : nullptr;
+}
 struct Instance {
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;

@@ -8,10 +8,10 @@ not establish native execution or platform compatibility.
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
-| `object-layout-v2` | Bounded metadata snapshots and detached base-class/field graphs | Concrete nongeneric class chains, declared Int32/CLASS/OBJECT fields and logical reference slots; no inherited native layout or execution |
-| `typed-reference-ir-v2` | Detached caller-constructed IR validation | Concrete references/null, ancestor assignments and typed locals/joins/calls/returns; native inheritance and cast/dispatch lowering remain planned |
-| `object-operations-ir-v1` | Bounded CIL translation and detached operation validation | Constructors, fields and nonvirtual static/instance calls; test-only .NET/IR conformance; no native reference emission, heap, ownership, root frames or collection |
-| `object-frames-native-v2` | C++20 emission and local native differential execution | Budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
+| `object-layout-v2` | Bounded metadata snapshots and detached base-class/field graphs | Concrete nongeneric class chains, declared Int32/CLASS/OBJECT fields and logical reference slots; physical layouts belong to native lowering |
+| `typed-reference-ir-v2` | Detached caller-constructed IR validation | Concrete references/null, ancestor assignments and typed locals/joins/calls/returns; cast/dispatch lowering remains planned |
+| `object-operations-ir-v2` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, declared-field initializers, inherited field access and nonvirtual static/instance calls; casts and broader access rules remain unsupported |
+| `object-frames-native-v3` | C++20 emission and local native differential execution | Composed inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -237,10 +237,10 @@ also cover reference values and argument copies.
 This API alone validates value flow: the object-operation profile below adds
 method bindings, constructor/field operations and their access checks. Native
 object lowering is supplied by the separate bounded profile below.
-That operation profile still rejects inherited catalogs with an actionable
-diagnostic: constructor chains, inherited native field access, casts and dispatch
-are not yet lowered. The CIL stack inference profile is consequently unchanged;
-hierarchical joins here are explicitly declared by the detached IR caller.
+The operation/native profiles now lower inherited fields and immediate-base
+constructor chains. Casts and dispatch remain unsupported. CIL stack inference
+still widens distinct reference types to Object; ancestor-typed joins beyond
+that are explicitly declared by the detached IR caller or use declared locals.
 Caller-constructed sources do not authenticate metadata declarations. Void
 signatures are accepted only through the object-operation profile; they remain
 invalid as value/storage types. The primitive C++ emitter rejects reference/null
@@ -272,10 +272,14 @@ references; void is a return signature only. Locals require initialization.
 | argument/local/constant loads, local stores, `dup`, `pop`, supported Int32 operations | Preserve the existing operand order, type rules and arithmetic fault edges |
 
 Constructors are named `.ctor` definitions with instance/void signatures and
-both constructor flags. Their first effective operations load the direct receiver
-and call the selected Object constructor before other work. This profile rejects
-constructor chaining, repeated base initialization and aliases for readonly
-writes. The selected base constructor must be nongeneric ordinary managed IL
+both constructor flags. Each constructor calls its immediate base exactly once,
+using a direct parameter-zero receiver and assignable evaluated arguments.
+Before that call, its own declared fields may be initialized and independent
+arguments evaluated, including calls/allocations. Reading, aliasing, comparing or
+passing the unfinished receiver, or writing inherited fields before the call,
+is rejected. Initializers and argument faults retain their IL order. Same-owner
+constructor delegation, skipped/repeated bases and readonly receiver aliases
+remain unsupported. The selected Object constructor must be nongeneric ordinary managed IL
 with no parameters, locals, handlers or nontrivial body beyond `nop`/`ret`; its
 owner must be the exact explicitly mapped object base. No name-only intrinsic
 substitute or host runtime probing is used.
@@ -299,6 +303,9 @@ a hard 64-level owner ceiling, including generic enclosing owners. Allocation
 arguments and void receiver/argument copies share the 65,536 call-copy limit.
 Multi-root catalogs retain the 256-type/4,096-field aggregate limits even when
 snapshots were cached before catalog construction.
+Native composition separately caps physical field copies across all included
+concrete layouts at 65,536. This prevents inheritance from multiplying a valid
+4,096-declaration catalog into unbounded generated storage/offset tables.
 
 Evidence: the authored `ProbeNode` class creates two objects, initializes readonly
 fields, mutates an Int32 field, connects reference fields and invokes void/instance
@@ -363,13 +370,13 @@ joins and backedges. The primitive emitter remains Int32-only and retains its
 status ABI. The object entry still accepts/returns only Int32; frame/heap ownership,
 fault tags, teardown and limits remain those of the initial checkpoint.
 
-Null joins a concrete class; different direct-Object classes join as the selected
+Null joins a concrete class; different concrete classes join as the selected
 Object base. Equal types remain exact. Depth mismatches, integer/reference joins
 and narrowing an Object input into a class consumer fail without partial IR.
 Inference revisits blocks until types converge, before complete operation validation.
 Unreachable blocks, ordered reference comparisons, switches, leave/handlers,
 argument stores and casts remain errors. Constructors still require a single
-block initialized through their direct base call before other work.
+block with one immediate-base call under the initializer rules above.
 
 A separate 262,144-unit closure budget counts instruction visits, input materialization,
 argument copies and edge slot visits plus one per edge. Cached call sites charge
@@ -392,9 +399,10 @@ inference bounds and preserved rejection boundaries. See
 
 ## Budgeted object execution frames
 
-`object-frames-native-v2` supersedes the object control-flow and v1 frame emission
+`object-frames-native-v3` supersedes the object control-flow and earlier frame emission
 profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
-[ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md)). It has a 1 MiB
+[ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md),
+[ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)). It has a 1 MiB
 per-context execution-storage budget independently of retained object storage.
 Target-sized typed frames include parameters, locals, values, block inputs,
 roots, metadata, scratch and reusable outgoing arguments. Frames have stable
@@ -448,7 +456,8 @@ against a 320 KiB ceiling. This covers the authored call chains and runtime path
 it is not a universal host-stack guarantee or validation of other targets.
 Native runtime/library calls and dispatch overhead still count toward stack use.
 Helpers retain at most two ordinary IR statements and four-copy argument/edge
-batches. An opt-in local microbenchmark compared a four-statement candidate,
+batches. Field operations use individual steps and a non-inlined descriptor
+lookup to bound O0 sanitizer spills. An opt-in local microbenchmark compared a four-statement candidate,
 which reduced its three-workload executable size but exceeded the 2 KiB native
 frame ceiling in reference-field sanitizer tests and was rejected. Highly
 variable timing establishes no throughput improvement. See
@@ -456,3 +465,36 @@ variable timing establishes no throughput improvement. See
 [benchmark instructions](../benchmarks/ExecutionFrames/README.md).
 The separate primitive emitter is unchanged in storage/depth policy; collection
 and broader managed-runtime capabilities remain planned.
+
+## Native concrete inheritance
+
+`object-frames-native-v3` composes all ancestor fields into each concrete native
+allocation ([ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)).
+There is one Object header; inherited methods keep the allocation's original
+dynamic type and identity. Hidden fields retain declaring image/type/token
+identity. Descriptors contain immediate-base links, measured sizes/alignments,
+all field offsets and complete inherited reference maps. Typed member-address
+accessors select actual subobjects; execution does not manufacture member
+pointers through byte-offset arithmetic or reinterpret a derived object as a
+separate ancestor struct. Heap membership precedes ancestry and field access.
+
+The 65,536 physical field-copy limit includes all catalog layouts, even if a
+layout is only referenced rather than allocated. Runtime object bytes include
+all inherited fields. The execution arena, depth limit, root limit and packed
+export remain under their previous contracts. The derived receiver is published
+before constructor entry and remains rooted across every base invocation.
+Constructor faults unwind roots/arena reservations while partially initialized
+objects remain in the retained heap until teardown.
+
+Evidence: three independently authored C# entries supply 435 native/.NET result,
+fault-kind and exact-origin cases per O0/O2 configuration. They include a
+three-level hierarchy, private base integers, hidden readonly reference fields,
+base-typed locals/arguments/returns and inherited calls. Observers inspect roots
+and inherited child references while initializers and base constructors allocate.
+Native checks cover initialization order, zero storage, identity, all allocation
+failure stages, exact/short execution budgets, cleanup/reuse, ownership/type
+rejections and typed destruction. Cross-image same-name/equal-token fields are
+checked separately, including a 4,096-field accessor variant. Builds use
+ASan/UBSan and the 2 KiB native-frame warning at both optimization levels on the
+recorded macOS ARM64 toolchain. Collection, casts, dispatch, broader access and
+other-target compatibility remain later work.

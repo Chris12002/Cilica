@@ -14,13 +14,16 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v2";
+    public const string Profile = "object-frames-native-v3";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
         var plans = ObjectRootAssignment.Assign(program).ToDictionary(p => p.Method);
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
         var bindings = program.Bindings.ToDictionary(b => b.Method);
+        var native = new ObjectNativeLayout(program.Flow.Types);
+        var types = program.Flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
+        var fields = program.Flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key]));
         var entry = methods[program.Flow.Entry];
         string symbol = CppEmitter.Symbol(program.Flow.Entry) + "_objects_packed", scope = symbol + "_closure";
@@ -28,19 +31,37 @@ public static class ObjectCppEmitter
         text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <type_traits>\n")
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
             .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n');
-        foreach (var layout in program.Flow.Types.Types.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token))
+        foreach (var composed in native.Fields)
         {
-            string type = TypeSymbol(ObjectTypeId.From(layout.Source));
+            var layout = types[composed.Key];
+            string type = TypeSymbol(composed.Key);
+            string Member(ObjectField field) => field.Id.Owner == composed.Key ? FieldSymbol(field.Id)
+                : TypeSymbol(field.Id.Owner) + "_" + FieldSymbol(field.Id);
+            string Offset(ObjectField field) => "offsetof(" + type + ", " + Member(field) + ")";
+            var references = composed.Value.Where(f => f.Storage is ObjectStorage.Reference).ToArray();
             text.Append("struct ").Append(type).Append(" { Object header;\n");
-            foreach (var field in layout.Fields)
-                text.Append("    ").Append(field.Storage is ObjectStorage.Int32 ? "std::uint32_t" : "Object*").Append(' ').Append(FieldSymbol(field.Id)).Append(";\n");
+            foreach (var field in composed.Value)
+                text.Append("    ").Append(field.Storage is ObjectStorage.Int32 ? "std::uint32_t" : "Object*").Append(' ').Append(Member(field)).Append(";\n");
             text.Append("};\nstatic_assert(std::is_standard_layout_v<").Append(type).Append("> && std::is_trivially_destructible_v<")
                 .Append(type).Append("> && offsetof(").Append(type).Append(", header) == 0);\n")
-                .Append("static constexpr std::array<std::size_t, ").Append(N(layout.ReferenceSlots.Length)).Append("> ").Append(type).Append("_references = {")
-                .Append(string.Join(", ", layout.Fields.Where(f => f.Storage is ObjectStorage.Reference).Select(f => "offsetof(" + type + ", " + FieldSymbol(f.Id) + ")")))
-                .Append("};\n[[maybe_unused]] static constexpr Descriptor ").Append(type).Append("_descriptor = { sizeof(").Append(type).Append("), ")
-                .Append("alignof(").Append(type).Append("), ").Append(type).Append("_references.data(), ").Append(N(layout.ReferenceSlots.Length))
-                .Append(", [](Object* p) noexcept { delete reinterpret_cast<").Append(type).Append("*>(p); } };\n");
+                .Append("static constexpr std::array<std::size_t, ").Append(N(references.Length)).Append("> ").Append(type).Append("_references = {")
+                .Append(string.Join(", ", references.Select(Offset))).Append("};\n")
+                .Append("static constexpr std::array<std::size_t, ").Append(N(composed.Value.Length)).Append("> ").Append(type).Append("_fields = {")
+                .Append(string.Join(", ", composed.Value.Select(Offset))).Append("};\n");
+            // Typed member expressions preserve subobject provenance under C++20;
+            // offsets select members, rather than manufacture pointers with byte arithmetic.
+            for (int index = 0; index < composed.Value.Length; index++)
+                text.Append("[[maybe_unused, gnu::noinline]] static void* ").Append(type).Append("_field_").Append(N(index))
+                    .Append("(Object* p) noexcept { return &reinterpret_cast<").Append(type).Append("*>(p)->")
+                    .Append(Member(composed.Value[index])).Append("; }\n");
+            text.Append("static constexpr std::array<FieldAccessor, ").Append(N(composed.Value.Length)).Append("> ").Append(type).Append("_accessors = {")
+                .Append(string.Join(", ", Enumerable.Range(0, composed.Value.Length).Select(i => type + "_field_" + N(i)))).Append("};\n")
+                .Append("[[maybe_unused]] static constexpr Descriptor ").Append(type).Append("_descriptor = { sizeof(").Append(type).Append("), ")
+                .Append("alignof(").Append(type).Append("), ").Append(type).Append("_references.data(), ").Append(N(references.Length))
+                .Append(", [](Object* p) noexcept { delete reinterpret_cast<").Append(type).Append("*>(p); }, ")
+                .Append(layout.BaseType is null ? "nullptr" : "&" + TypeSymbol(layout.BaseType) + "_descriptor")
+                .Append(", ").Append(type).Append("_fields.data(), ").Append(N(composed.Value.Length))
+                .Append(", ").Append(type).Append("_accessors.data(), field_by_offset };\n");
         }
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
@@ -110,7 +131,7 @@ public static class ObjectCppEmitter
                 if (nullCheck) Guard(value + " == nullptr", "4u", offset);
                 Guard("!context.instance.owns(" + value + ")", "6u", offset);
                 if (type != program.Flow.Types.ObjectBase)
-                    Guard(value + " != nullptr && " + value + "->type != &" + TypeSymbol(type) + "_descriptor", "6u", offset);
+                    Guard(value + " != nullptr && !derives_from(" + value + "->type, &" + TypeSymbol(type) + "_descriptor)", "6u", offset);
             }
             string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null)
             {
@@ -127,7 +148,12 @@ public static class ObjectCppEmitter
                 return CppEmitter.Symbol(target) + "(context, f->arguments.data())";
             }
             void Pending() => code.Append("    if (context.pending != 0u) ").Append(Exit()).Append('\n');
-            string Field(ObjectFieldId field, int receiver) => "reinterpret_cast<" + TypeSymbol(field.Owner) + "*>(" + Value(receiver) + ")->" + FieldSymbol(field);
+            string Field(ObjectFieldId field, int receiver)
+            {
+                string value = Value(receiver);
+                string storage = fields[field].Storage is ObjectStorage.Int32 ? "std::uint32_t" : "Object*";
+                return "*static_cast<" + storage + "*>(field_address(" + value + ", " + N(native.Indices[field]) + "))";
+            }
             for (int i = 0; i < method.Parameters.Length; i++)
             {
                 code.Append("    ").Append(layout.Storage(ObjectRootKind.Parameter, i)).Append(" = f->incoming[").Append(N(i))
@@ -149,6 +175,11 @@ public static class ObjectCppEmitter
                 int statementsInStep = 0;
                 foreach (var statement in block.Statements)
                 {
+                    bool fieldOperation = statement is IrStatement.StoreField
+                        or IrStatement.Define { Value.Expression: IrExpression.LoadField };
+                    // Field access includes ownership, ancestry and descriptor lookup.
+                    // Keep it in its own step to retain the O0 sanitizer stack bound.
+                    if (fieldOperation) { Flush(); statementsInStep = 0; }
                     switch (statement)
                     {
                         case IrStatement.Define define:
@@ -199,7 +230,7 @@ public static class ObjectCppEmitter
                                 Check(Value(store.Value), values[store.Value].Type.Class!, false, store.ILOffset);
                             code.Append("    ").Append(Field(store.Field, store.Receiver)).Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
                     }
-                    if (++statementsInStep == StatementsPerStep) { Flush(); statementsInStep = 0; }
+                    if (fieldOperation || ++statementsInStep == StatementsPerStep) { Flush(); statementsInStep = 0; }
                 }
                 Flush();
                 switch (block.Terminator)

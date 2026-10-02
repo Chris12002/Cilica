@@ -82,3 +82,8 @@ validation together, including base-first initialization, ownership checks and
 root publication across allocating base constructors. Casts and dispatch follow
 that executable layout. Helper batching remains deferred under ADR 0029 and is
 not an entry gate for these capability slices.
+
+Follow-up: [ADR 0031](0031-native-inherited-fields-and-constructors.md) now
+implements the bounded native field/constructor portion and supersedes the
+inherited-catalog execution rejection in decision 5 above. Casts, broader access
+and verified dispatch remain later capabilities.

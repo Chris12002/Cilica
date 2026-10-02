@@ -246,17 +246,18 @@ public sealed class ObjectInheritanceTests
     }
 
     [Fact]
-    public void Native_object_emission_explicitly_rejects_inherited_catalogs_until_lowering_exists()
+    public void Native_object_emission_accepts_validated_inherited_catalogs()
     {
-        var method = Method([], IrType.Int32, [Define(0, IrType.Int32, new IrExpression.Constant(1))], 0);
+        var method = Method([], IrType.Int32, [Define(0, IrType.Int32, new IrExpression.Constant(1))], 0)
+            with { Locals = [IrType.Reference(Deep), IrType.Reference(Right)] };
         var program = new ObjectIrProgram(Program(method), [new(IrMethodId.From(method.Source), Deep, ObjectMethodKind.Static,
             MethodAttributes.Public | MethodAttributes.Static, true)]);
-        var error = Assert.Throws<ArgumentException>(() => ObjectCppEmitter.EmitProgram(program));
-        Assert.Contains("inherited native layouts", error.Message, StringComparison.Ordinal);
+        ObjectIrValidator.Validate(program);
+        Assert.Contains("derives_from", ObjectCppEmitter.EmitProgram(program).Text, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void Cil_translation_reports_the_native_inheritance_boundary_without_partial_IR()
+    public void Cil_translation_includes_inherited_reference_locals()
     {
         var builder = new ResolutionAssemblyBuilder(new("InheritedLocal", new Version(1, 0, 0, 0)));
         var rootObject = builder.Type("System", "Object"); var parent = builder.Type("Example", "Parent", baseType: rootObject);
@@ -267,9 +268,7 @@ public sealed class ObjectInheritanceTests
         using var files = new ResolverFiles(); using var resolver = files.Open();
         var image = resolver.OpenInput(files.Write("input.dll", builder.Build())).Value!;
         var result = ObjectTranslator.Translate(resolver, image, root, image);
-        Assert.Null(result.Program);
-        var diagnostic = Assert.Single(result.Diagnostics);
-        Assert.Equal(DiagnosticIds.ExecutionUnsupported, diagnostic.Id);
-        Assert.Contains("inherited native layouts", diagnostic.Message, StringComparison.Ordinal);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ObjectIrValidator.Validate(result.Program!);
     }
 }

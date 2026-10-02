@@ -13,8 +13,7 @@ public static class ObjectIrValidator
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
         ObjectModelValidator.Validate(program.Flow.Types);
-        if (program.Flow.Types.Types.Any(t => t.BaseType is not null && t.BaseType != program.Flow.Types.ObjectBase))
-            throw new ArgumentException("Object execution still requires direct-System.Object classes; inherited native layouts and constructor chains need later lowering.", nameof(program));
+        _ = new ObjectNativeLayout(program.Flow.Types);
         var rules = new ObjectIrRules(program);
         ReferenceIrValidator.Validate(program.Flow, rules);
         var entry = rules.Binding(program.Flow.Entry);
@@ -103,11 +102,15 @@ internal sealed class ObjectIrRules
     {
         if (call.Target is null || !_bindings.TryGetValue(call.Target, out var target)) return false;
         var owner = Binding(IrMethodId.From(caller.Source));
-        return owner.Kind == ObjectMethodKind.Constructor && target.Kind == ObjectMethodKind.ObjectBaseConstructor
-            && !call.NullCheckReceiver && !call.Arguments.IsDefault && call.Arguments.Length == 1
-            && call.Arguments[0] >= 0 && call.Arguments[0] < values.Count
-            && expressions[call.Arguments[0]] is IrExpression.Parameter { Index: 0 }
-            && values[call.Arguments[0]] == IrType.Reference(owner.Owner) && Access(owner, target);
+        if (owner.Kind != ObjectMethodKind.Constructor || !Constructor(target)
+            || target.Owner != _layouts[owner.Owner].BaseType || call.NullCheckReceiver || call.Arguments.IsDefault
+            || call.Arguments.Length != _methods[target.Method].Parameters.Length || call.Arguments.IsEmpty
+            || call.Arguments[0] < 0 || call.Arguments[0] >= values.Count
+            || expressions[call.Arguments[0]] is not IrExpression.Parameter { Index: 0 }
+            || values[call.Arguments[0]] != IrType.Reference(owner.Owner) || !Access(owner, target)) return false;
+        var signature = _methods[target.Method].Parameters;
+        return call.Arguments.Select((argument, index) => argument >= 0 && argument < values.Count
+            && _types.Assignable(values[argument], signature[index])).All(valid => valid);
     }
 
     internal IrType? AllocationType(IrMethodId? constructor) => constructor is not null && _bindings.TryGetValue(constructor, out var target)
@@ -142,13 +145,51 @@ internal sealed class ObjectIrRules
         string origin = " " + method.Source.Name + " token 0x" + method.Source.Token.ToString("x8", System.Globalization.CultureInfo.InvariantCulture);
         if (binding.Kind == ObjectMethodKind.Constructor)
         {
-            Require(method.Blocks.Length == 1 && method.Blocks[0].Statements.Length >= 2
-                && method.Blocks[0].Statements[0] is IrStatement.Define { Value.Expression: IrExpression.Parameter { Index: 0 } }
-                && method.Blocks[0].Statements[1] is IrStatement.Invoke call
-                && BaseCall(method, call, [IrType.Reference(binding.Owner)], [new IrExpression.Parameter(0)]),
-                "constructor must initialize its direct receiver through the selected Object constructor before other operations." + origin);
-            Require(method.Blocks[0].Statements.Skip(2).OfType<IrStatement.Invoke>().All(c => !_bindings.TryGetValue(c.Target, out var target) || !Constructor(target)),
-                "constructor base initialization cannot be repeated." + origin);
+            void ConstructorRequire(bool condition, string message)
+            {
+                if (!condition) Require(false, message + origin);
+            }
+            ConstructorRequire(method.Blocks.Length == 1, "constructors require straight-line initialization.");
+            var values = method.Blocks[0].Values;
+            var types = values.Select(v => v.Type).ToArray();
+            var expressions = values.Select(v => v.Expression).ToArray();
+            bool initialized = false;
+            bool This(int id) => expressions[id] is IrExpression.Parameter { Index: 0 };
+            foreach (var statement in method.Blocks[0].Statements)
+            {
+                if (statement is IrStatement.Invoke call && Constructor(_bindings[call.Target]))
+                {
+                    ConstructorRequire(!initialized && BaseCall(method, call, types, expressions)
+                        && call.Arguments.Skip(1).All(a => !This(a)),
+                        "constructor must call its immediate base once on its direct receiver.");
+                    initialized = true;
+                }
+                else if (!initialized)
+                {
+                    // CLI permits declared-field initialization before the base call.
+                    // Otherwise uninitialized this cannot be observed, aliased or escaped.
+                    bool valid = statement switch
+                    {
+                        IrStatement.Define d => d.Value.Expression switch
+                        {
+                            IrExpression.Parameter or IrExpression.Constant or IrExpression.Null or IrExpression.Local => true,
+                            IrExpression.Binary b => !This(b.Left) && !This(b.Right),
+                            IrExpression.Unary u => !This(u.Operand),
+                            IrExpression.Compare c => !This(c.Left) && !This(c.Right),
+                            IrExpression.Call c => c.Arguments.All(a => !This(a)),
+                            IrExpression.NewObject n => n.Arguments.All(a => !This(a)),
+                            IrExpression.LoadField f => !This(f.Receiver),
+                            _ => false,
+                        },
+                        IrStatement.StoreLocal s => !This(s.Value),
+                        IrStatement.Invoke c => c.Arguments.All(a => !This(a)),
+                        IrStatement.StoreField s => !This(s.Value) && (!This(s.Receiver) || s.Field.Owner == binding.Owner),
+                        _ => false,
+                    };
+                    ConstructorRequire(valid, "uninitialized constructor receiver cannot be read, aliased or passed before base initialization.");
+                }
+            }
+            ConstructorRequire(initialized, "constructor must initialize its direct receiver through its immediate base constructor.");
         }
         if (binding.Kind == ObjectMethodKind.ObjectBaseConstructor)
             Require(method.Blocks.Length == 1 && method.Blocks[0].Statements.IsEmpty && method.Locals.IsEmpty

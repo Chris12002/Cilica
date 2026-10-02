@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; native object control flow and roots plus detached class hierarchies are implemented. Updated 2026-10-02.
+Status: in progress; bounded native object control flow, roots and concrete class inheritance are implemented. Updated 2026-10-02.
 
 The first native class checkpoint now runs an independently authored small class
 created, mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -21,7 +21,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3c-c | Opt-in execution microbenchmarks and helper-batching experiment | Complete; larger batches rejected |
 | 3d | Inheritance, casts and verified virtual/interface dispatch | In progress |
 | 3d-a | Bounded class hierarchies and detached ancestor assignability | Complete for layout/reference IR |
-| 3d-b | Inherited native field storage and constructor chains | Planned |
+| 3d-b | Inherited native field storage and constructor chains | Complete for bounded concrete class profile |
 | 3d-c | Class casts and runtime type tests | Planned |
 | 3d-d | Verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
@@ -306,11 +306,38 @@ allocation on valid ancestor steps; the added resource regression and all 145
 focused hierarchy/model/reference cases then pass. All 25 assignability pairs
 in the authored .NET hierarchy agree with the detached IR contract.
 
+## Slice 3d-b outcome
+
+[ADR 0031](../decisions/0031-native-inherited-fields-and-constructors.md) composes
+ancestor fields into one standard-layout concrete allocation with a single
+header. Descriptors supply base links, actual field offsets and inherited
+reference maps; base methods retain the derived object's identity and dynamic
+type. A separate 65,536-slot physical field budget bounds generated expansion.
+
+Single-block constructors call their immediate base once on the same rooted
+receiver. Declared-field initializers and independent base arguments may run
+before that call, retaining C# fault order. Unfinished receiver reads/aliases/
+escapes, skipped/repeated bases and inherited readonly writes fail validation.
+Public/same-owner access and the trivial selected Object constructor remain the
+bounded access/runtime contract.
+
+Native O0/O2 probes cover three-level construction, hidden fields, base-typed
+calls/returns, roots during allocating base bodies, zero fields, resource faults,
+cleanup/reuse and cross-image equal-token field identities. Review preserves
+typed C++ lifetime/addressing and moves diagnostics onto failure paths. Field
+operations now occupy individual small helpers after new lookup code exposed
+O0 sanitizer spill growth; the existing 2 KiB stack gate remains.
+
+Final validation: zero build warnings/errors; all 526 targeted native/object/
+reference-IR/C++/Int32 cases pass in 43.3 seconds. The final typed accessor tables
+also pass their 4,096-field O0/O2 regressions and the 21 focused hierarchy cases.
+Review and local main/cached-origin ancestry checks are complete. No push or
+hosted execution was started.
+
 ## Next checkpoint and exit gates
 
-Slice 3d-b next adds inherited native field storage and constructor chains,
-including root publication before an allocating base constructor. Casts and
-verified dispatch follow that executable layout. Performance work from ADR 0029
+Slice 3d-c next adds class casts and runtime type tests against these descriptor
+base links. Verified dispatch follows that executable layout. Performance work from ADR 0029
 is deferred and does not block these capability slices; any later optimization
 must retain the O0/O2 native-stack and reference-operation gates.
 The retained-heap execution checkpoint does not clear milestone 4: precise

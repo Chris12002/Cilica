@@ -359,9 +359,16 @@ hierarchies ([ADR 0030](decisions/0030-detached-class-hierarchies.md)). Catalogs
 include every ancestor, reject inheritance cycles and sealed bases, and retain
 fields on their declaring class. Derived references can flow to ancestor-typed
 locals, arguments, returns and declared joins. The existing type/field budgets
-bound this work. Native object operations continue rejecting inherited catalogs
-until constructor chains and inherited field layouts are lowered; abstract
-classes, casts and virtual/interface dispatch remain subsequent slices.
+bound this work. Native object operations now compose ancestor fields into each
+concrete allocation ([ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)).
+Descriptors retain base links, measured field offsets and inherited reference
+maps; base methods access the actual allocation without casting it to a base
+C++ struct. Single-block constructors call their immediate base once, preserving
+declared-field initializers and argument evaluation before that call. The derived
+receiver stays rooted with its original dynamic type throughout allocating base
+bodies. Physical field copies have a separate 65,536-slot bound; field-operation
+helper isolation retains the O0/O2 native-stack gate. Abstract classes, casts,
+broader access rules and virtual/interface dispatch remain subsequent slices.
 
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
