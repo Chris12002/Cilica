@@ -141,8 +141,10 @@ slot and one implementation, preserving newslot hiding and final overrides.
 An iterative hierarchy walk and the caller's shared metadata ledger bound its
 work. Interfaces, abstract/generic hierarchies and explicit MethodImpl remapping
 remain unsupported in this exact profile. The conservative audit walker retains
-its existing contract. Native dispatch still needs fixed-point closure discovery,
-a validated dispatch map and executable conformance checks.
+its existing contract. The object translator now uses exact choices to expand
+class virtual method closure to a fixed point and validates detached dispatch
+maps before native consumption
+([ADR 0034](decisions/0034-native-class-virtual-dispatch.md)).
 
 Verification covers the supported execution profile. Cilica is not initially
 a complete CLI verifier or a sandbox for hostile programs. Native compiler
@@ -378,7 +380,7 @@ declared-field initializers and argument evaluation before that call. The derive
 receiver stays rooted with its original dynamic type throughout allocating base
 bodies. Physical field copies have a separate 65,536-slot bound; field-operation
 helper isolation retains the O0/O2 native-stack gate. Abstract classes,
-broader access rules and virtual/interface dispatch remain subsequent slices.
+broader access rules and interface dispatch remain subsequent slices.
 
 Class `castclass` and `isinst` now use those descriptor base links
 ([ADR 0032](decisions/0032-class-casts-and-type-tests.md)). Targets are exact
@@ -389,6 +391,20 @@ original reference on success; null remains null. A failed cast reports status
 Ownership checks precede descriptor reads. Results occupy rooted arena slots,
 and casts/tests cannot expose an unfinished constructor receiver. Interface,
 value-type, generic, array and TypeSpec targets still require later lowering.
+
+Public nongeneric class virtual calls now select one body from the receiver's
+exact descriptor. Override bodies can introduce new classes and virtual sites;
+closure expansion revisits all compatible catalog classes until no new bodies
+remain. Detached maps cover every compatible receiver and preserve canonical
+slots, nearest overrides, newslot hiding and final implementations. Direct
+`call` remains a direct invocation even when its declaration is virtual.
+Virtual `callvirt` checks null, ownership and ancestry after argument evaluation.
+Typed lookup helpers finish before the selected body executes; their function
+pointers live in the caller's budgeted heap frame, retaining the existing
+native call-chain bound. Reference results and allocating overrides use phase A
+roots and normal/fault cleanup. Interfaces, abstract classes, generics, covariance
+and MethodImpl remapping remain unsupported. The native evidence is O0/O2 on the
+recorded macOS ARM64 target; no wider platform or collector claim follows.
 
 Helper batching remains deferred until representative workloads justify it.
 The current 2 KiB warning is a tested baseline, not a permanent production

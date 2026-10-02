@@ -6,13 +6,13 @@ not establish native execution or platform compatibility.
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
-| `class-virtual-target-v1` | Exact metadata target resolution | One public nongeneric class virtual slot/body per concrete receiver, with newslot/final checks; no native virtual/interface dispatch |
+| `class-virtual-target-v1` | Exact metadata target resolution | One public nongeneric class virtual slot/body per concrete receiver, with newslot/final checks; executable calls use the separate object profile |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v2` | Bounded metadata snapshots and detached base-class/field graphs | Concrete nongeneric class chains, declared Int32/CLASS/OBJECT fields and logical reference slots; physical layouts belong to native lowering |
 | `typed-reference-ir-v2` | Detached caller-constructed IR validation | Concrete references/null, ancestor assignments and typed locals/joins/calls/returns; casts require the separate object-operation contract |
-| `object-operations-ir-v3` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, nonvirtual calls and concrete class casts/type tests; broader access rules and dispatch remain unsupported |
-| `object-frames-native-v4` | C++20 emission and local native differential execution | Class casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
+| `object-operations-ir-v4` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, concrete class casts/type tests and public nongeneric class virtual calls; interfaces and broader access rules remain unsupported |
+| `object-frames-native-v5` | C++20 emission and local native differential execution | Class virtual dispatch, casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -239,7 +239,7 @@ This API alone validates value flow: the object-operation profile below adds
 method bindings, constructor/field operations and their access checks. Native
 object lowering is supplied by the separate bounded profile below.
 The operation/native profiles now lower inherited fields and immediate-base
-constructor chains. Casts and dispatch remain unsupported. CIL stack inference
+constructor chains, class casts and bounded class virtual calls. CIL stack inference
 still widens distinct reference types to Object; ancestor-typed joins beyond
 that are explicitly declared by the detached IR caller or use declared locals.
 Caller-constructed sources do not authenticate metadata declarations. Void
@@ -267,8 +267,9 @@ references; void is a return signature only. Locals require initialization.
 | `ldfld`, `stfld` | Exact FieldDef/declaring owner via direct or MemberRef binding; typed receiver/storage; ordered load/store and method-exit fault edge |
 | `castclass` | Named concrete class target; null stays null, compatible references retain identity, mismatch reports invalid-cast status 7 |
 | `isinst` | Named concrete class target; compatible references retain identity, null/mismatch return null; result has the target reference type |
-| `call` | Exact ordinary static/instance declaration; explicit receiver for instance calls; no automatic null-receiver check |
-| nonvirtual `callvirt` | Ordinary nonvirtual instance declaration; explicit null-receiver check after argument evaluation; virtual dispatch is unsupported |
+| `call` | Exact ordinary static/instance declaration, including virtual declarations; explicit receiver for instance calls; direct body invocation without an automatic null-receiver check |
+| nonvirtual `callvirt` | Ordinary nonvirtual instance declaration; explicit null-receiver check after argument evaluation |
+| virtual `callvirt` | Public nongeneric concrete class declaration; exact canonical slot and complete receiver map; null/ownership/ancestry checks after argument evaluation; nearest effective body |
 | void calls, `ret` | Separate invoke statement and void terminator; no void temporary or storage |
 | `ldnull`, reference `ceq` | Null stack type; identity equality produces Int32 |
 | reference `cgt.un` against null | Explicit identity inequality; other ordered reference comparisons are rejected |
@@ -293,8 +294,9 @@ on top-level public classes. Cross-owner nested-type field access, family/intern
 friend rules and inherited MemberRef owners remain conservatively unsupported.
 Readonly stores require the declaring constructor and a direct parameter-zero
 receiver. Reference field stores accept null or an assignable concrete reference.
-Type/module initialization, reference-assembly/native bodies, generics, virtual/
-interface calls, prefixes, arrays, strings, byrefs and unsupported storage fail
+Type/module initialization, reference-assembly/native bodies, generics,
+interface calls, abstract classes, MethodImpl remapping, covariance, prefixes,
+arrays, strings, byrefs and unsupported storage fail
 without partial programs. Ordinary methods support branches/backedges with inferred
 typed inputs, described below. Constructors remain straight-line; unreachable
 blocks and unsupported operations/transfers are rejected.
@@ -403,14 +405,15 @@ inference bounds and preserved rejection boundaries. See
 
 ## Budgeted object execution frames
 
-`object-frames-native-v4` supersedes the object control-flow and earlier frame emission
+`object-frames-native-v5` supersedes the object control-flow and earlier frame emission
 profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
 [ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md),
 [ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)). It has a 1 MiB
 per-context execution-storage budget independently of retained object storage.
 Target-sized typed frames include parameters, locals, values, block inputs,
-roots, metadata, scratch and reusable outgoing arguments. Frames have stable
-addresses and release in reverse reservation order; root cleanup precedes reuse.
+roots, metadata, scratch, typed virtual-call pointers and reusable outgoing
+arguments. Frames have stable addresses and release in reverse reservation order;
+root cleanup precedes reuse.
 Existing root/IR limits and the 64-call limit remain.
 
 Status 9 reports execution storage exhaustion/backing-allocation failure. It is
@@ -500,7 +503,7 @@ failure stages, exact/short execution budgets, cleanup/reuse, ownership/type
 rejections and typed destruction. Cross-image same-name/equal-token fields are
 checked separately, including a 4,096-field accessor variant. Builds use
 ASan/UBSan and the 2 KiB native-frame warning at both optimization levels on the
-recorded macOS ARM64 toolchain. Collection, dispatch, broader access and
+recorded macOS ARM64 toolchain. Collection, interface dispatch, broader access and
 other-target compatibility remain later work.
 
 ## Class casts and runtime type tests
@@ -535,3 +538,34 @@ Native builds pass ASan/UBSan and the current 2 KiB frame warning on the recorde
 macOS ARM64 toolchain. That threshold remains a conservative baseline; later
 performance tuning may revisit it with representative workloads and complete
 target-specific stack budgets, as recorded in ADR 0029.
+
+## Concrete class virtual dispatch
+
+`object-operations-ir-v4` and `object-frames-native-v5` add public nongeneric class
+virtual calls ([ADR 0034](decisions/0034-native-class-virtual-dispatch.md)). The
+translator revisits compatible concrete catalog classes after discovering each
+wave of override bodies. Its metadata ledger, method/type limits and IR budgets
+remain shared; dispatch maps are bounded to 65,536 total entries. Unsupported
+override bodies fail with an inclusion path rather than producing partial IR.
+
+Bindings retain canonical slot identity and name. Complete detached maps select
+the nearest included same-slot implementation per compatible receiver, validate
+signatures and reject final replacements. New virtual slots remain independent;
+nonvirtual hiding does not replace an older slot. A direct `call` invokes its
+named body, including a base implementation, while virtual `callvirt` selects
+from the receiver's exact descriptor after evaluated arguments and null/ownership/
+ancestry checks. No matching descriptor entry reports status 6 at the call site.
+
+Typed lookup returns before invoking the managed body. Selected function pointers
+occupy caller arena slots and are included in target-sized frame reservations;
+there is no additional live dispatch-wrapper frame across recursion. Reference
+and void returns retain roots, fault propagation and cleanup. The Int32 boundary,
+64-call limit, execution/object budgets and retained-heap contract are unchanged.
+
+Evidence: 172 authored .NET/native outcomes per O0/O2 build, observed caller roots
+across allocating overrides, exact/short arena budgets, all allocation fault
+stages, ownership checks, cross-image equal-token slot/body identities and virtual
+recursion within a checked 320 KiB pthread stack ceiling. ASan/UBSan, static Clang
+stack reports and the current 2 KiB frame gate pass on macOS ARM64.
+Interfaces, abstract classes, generics, covariance, MethodImpl
+remapping, collection and other-target execution remain unimplemented.

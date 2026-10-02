@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v4";
+    public const string Profile = "object-frames-native-v5";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -70,8 +70,27 @@ public static class ObjectCppEmitter
                 .Append("    std::array<Object*, ").Append(N(layout.RootCount)).Append("> roots{};\n")
                 .Append("    std::array<std::uint32_t, ").Append(N(layout.IntegerCount)).Append("> integers{};\n")
                 .Append("    std::array<Argument, ").Append(N(layout.CallArgumentCount)).Append("> arguments{};\n")
-                .Append("    std::int64_t signed_scratch = 0; std::uint64_t unsigned_scratch = 0;\n};\n");
+                .Append("    std::int64_t signed_scratch = 0; std::uint64_t unsigned_scratch = 0;\n");
+            foreach (var kind in layout.DispatchKinds.OrderBy(k => k))
+                text.Append("    ").Append(CType(new(kind))).Append(" (*dispatch_").Append(kind.ToString().ToLowerInvariant())
+                    .Append(")(Context&, const Argument*) noexcept = nullptr;\n");
+            text.Append("};\n");
             Header(method); text.Append(";\n");
+        }
+        foreach (var map in program.Dispatch)
+        {
+            string name = DispatchSymbol(map.Declaration);
+            text.Append("using ").Append(name).Append("_body = ").Append(CType(methods[map.Declaration].ReturnType))
+                .Append(" (*)(Context&, const Argument*) noexcept;\nstruct ").Append(name)
+                .Append("_entry { const Descriptor* type; ").Append(name).Append("_body body; };\n")
+                .Append("static constexpr std::array<").Append(name).Append("_entry, ").Append(N(map.Targets.Length)).Append("> ")
+                .Append(name).Append("_table = {{\n");
+            foreach (var target in map.Targets)
+                text.Append("    { &").Append(TypeSymbol(target.Receiver)).Append("_descriptor, ")
+                    .Append(CppEmitter.Symbol(target.Implementation)).Append(" },\n");
+            text.Append("}};\n[[maybe_unused, gnu::noinline]] static ").Append(name).Append("_body ").Append(name)
+                .Append("(const Descriptor* type) noexcept {\n    for (const auto& entry : ").Append(name)
+                .Append("_table) if (entry.type == type) return entry.body;\n    return nullptr;\n}\n");
         }
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)) AppendMethod(method);
         text.Append("}\n// Private experimental boundary; valid disjoint outputs, references remain internal.\n")
@@ -133,7 +152,7 @@ public static class ObjectCppEmitter
                 if (type != program.Flow.Types.ObjectBase)
                     Guard(value + " != nullptr && !derives_from(" + value + "->type, &" + TypeSymbol(type) + "_descriptor)", "6u", offset);
             }
-            string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null)
+            string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false)
             {
                 var parameters = methods[target].Parameters;
                 int start = receiver is null ? 0 : 1;
@@ -145,7 +164,16 @@ public static class ObjectCppEmitter
                     if ((i + 1) % CopiesPerStep == 0) Flush();
                 }
                 Flush();
-                return CppEmitter.Symbol(target) + "(context, f->arguments.data())";
+                return (dispatch ? DispatchPointer(methods[target].ReturnType.Kind) : CppEmitter.Symbol(target)) + "(context, f->arguments.data())";
+            }
+            string DispatchPointer(IrTypeKind kind) => "f->dispatch_" + kind.ToString().ToLowerInvariant();
+            void SelectDispatch(IrMethodId target, ImmutableArray<int> arguments, int offset)
+            {
+                Check(Value(arguments[0]), bindings[target].Owner, true, offset); Flush();
+                string pointer = DispatchPointer(methods[target].ReturnType.Kind);
+                code.Append("    ").Append(pointer).Append(" = ").Append(DispatchSymbol(target)).Append('(')
+                    .Append(Value(arguments[0])).Append("->type);\n");
+                Guard(pointer + " == nullptr", "6u", offset); Flush();
             }
             void Pending() => code.Append("    if (context.pending != 0u) ").Append(Exit()).Append('\n');
             string Field(ObjectFieldId field, int receiver)
@@ -176,8 +204,10 @@ public static class ObjectCppEmitter
                 foreach (var statement in block.Statements)
                 {
                     bool isolatedOperation = statement is IrStatement.StoreField
-                        or IrStatement.Define { Value.Expression: IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance };
-                    // Field access and type tests include ownership and ancestry checks.
+                        or IrStatement.Define { Value.Expression: IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
+                            or IrExpression.Call { VirtualDispatch: true } }
+                        or IrStatement.Invoke { VirtualDispatch: true };
+                    // Fields, type tests and virtual calls include ownership/ancestry checks.
                     // Keep it in its own step to retain the O0 sanitizer stack bound.
                     if (isolatedOperation) { Flush(); statementsInStep = 0; }
                     switch (statement)
@@ -208,8 +238,9 @@ public static class ObjectCppEmitter
                                 case IrExpression.Local l: expression = layout.Storage(ObjectRootKind.Local, l.Index); break;
                                 case IrExpression.StackInput input: expression = layout.Storage(ObjectRootKind.BlockInput, input.Index, block.Id); break;
                                 case IrExpression.Call call:
-                                    if (call.NullCheckReceiver) Guard(Value(call.Arguments[0]) + " == nullptr", "4u", value.ILOffset);
-                                    expression = Call(call.Target, call.Arguments);
+                                    if (call.VirtualDispatch) SelectDispatch(call.Target, call.Arguments, value.ILOffset);
+                                    else if (call.NullCheckReceiver) Guard(Value(call.Arguments[0]) + " == nullptr", "4u", value.ILOffset);
+                                    expression = Call(call.Target, call.Arguments, dispatch: call.VirtualDispatch);
                                     if (value.Type.Kind == IrTypeKind.Int32) expression = "std::bit_cast<std::uint32_t>(" + expression + ")";
                                     break;
                                 default:
@@ -230,8 +261,9 @@ public static class ObjectCppEmitter
                         case IrStatement.StoreLocal store:
                             code.Append("    ").Append(layout.Storage(ObjectRootKind.Local, store.Local)).Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
                         case IrStatement.Invoke invoke:
-                            if (invoke.NullCheckReceiver) Guard(Value(invoke.Arguments[0]) + " == nullptr", "4u", invoke.ILOffset);
-                            string invocation = Call(invoke.Target, invoke.Arguments);
+                            if (invoke.VirtualDispatch) SelectDispatch(invoke.Target, invoke.Arguments, invoke.ILOffset);
+                            else if (invoke.NullCheckReceiver) Guard(Value(invoke.Arguments[0]) + " == nullptr", "4u", invoke.ILOffset);
+                            string invocation = Call(invoke.Target, invoke.Arguments, dispatch: invoke.VirtualDispatch);
                             code.Append("    ").Append(invocation).Append(";\n"); Pending(); break;
                         case IrStatement.StoreField store:
                             Check(Value(store.Receiver), store.Field.Owner, true, store.ILOffset);
@@ -296,5 +328,6 @@ public static class ObjectCppEmitter
     private static string CType(IrType type) => type.Kind switch { IrTypeKind.Int32 => "std::int32_t", IrTypeKind.Void => "void", _ => "Object*" };
     private static string N(int value) => value.ToString(CultureInfo.InvariantCulture);
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture);
+    private static string DispatchSymbol(IrMethodId method) => CppEmitter.Symbol(method) + "_dispatch";
     private static string FieldSymbol(ObjectFieldId field) => "f_" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
 }

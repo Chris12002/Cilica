@@ -10,6 +10,7 @@ internal sealed class ObjectFrameLayout
     internal int IntegerCount { get; }
     internal int RootCount { get; }
     internal int CallArgumentCount { get; }
+    internal HashSet<IrTypeKind> DispatchKinds { get; } = [];
 
     internal ObjectFrameLayout(IrMethod method, ObjectMethodRoots roots)
     {
@@ -30,6 +31,7 @@ internal sealed class ObjectFrameLayout
             foreach (var value in block.Values)
             {
                 Add(ObjectRootKind.Value, value.Id, value.Type, block.Id);
+                if (value.Expression is IrExpression.Call { VirtualDispatch: true }) DispatchKinds.Add(value.Type.Kind);
                 int count = value.Expression switch
                 {
                     IrExpression.Call call => call.Arguments.Length,
@@ -39,7 +41,10 @@ internal sealed class ObjectFrameLayout
                 arguments = System.Math.Max(arguments, count);
             }
             foreach (var call in block.Statements.OfType<IrStatement.Invoke>())
+            {
                 arguments = System.Math.Max(arguments, call.Arguments.Length);
+                if (call.VirtualDispatch) DispatchKinds.Add(IrTypeKind.Void);
+            }
         }
         IntegerCount = integers; CallArgumentCount = arguments;
     }

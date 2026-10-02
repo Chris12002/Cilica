@@ -85,7 +85,6 @@ public sealed class ObjectTranslationTests
     [InlineData("cross_private_field")]
     [InlineData("missing_base")]
     [InlineData("repeated_base")]
-    [InlineData("virtual")]
     [InlineData("newobj_nonconstructor")]
     [InlineData("wrong_receiver")]
     [InlineData("static_field")]
@@ -114,6 +113,16 @@ public sealed class ObjectTranslationTests
         var result = Translate("branch"); Assert.True(result.Success, string.Join("; ", result.Diagnostics));
         ObjectIrValidator.Validate(result.Program!);
         Assert.NotEmpty(ObjectCppEmitter.EmitProgram(result.Program!).Text);
+    }
+
+    [Fact]
+    public void Virtual_instance_calls_now_have_an_explicit_dispatch_map()
+    {
+        var result = Translate("virtual"); Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ObjectIrValidator.Validate(result.Program!);
+        Assert.Single(result.Program!.Dispatch);
+        Assert.Contains(result.Program.Flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values),
+            v => v.Expression is IrExpression.Call { VirtualDispatch: true, NullCheckReceiver: true });
     }
 
     [Fact]

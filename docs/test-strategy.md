@@ -389,8 +389,9 @@ readonly stores and private same-owner access with missing/repeated base calls,
 readonly writes outside the constructor, local receiver aliases, cross-owner
 private access, wrong receiver/value types and invalid declaration flags. Forge
 operation IR to verify targets, argument arrays, types and every fault edge.
-Reject virtual/native/reference bodies, initialization, generics and unsupported
-control flow explicitly; do not conceal them in the fixture.
+The initial slice rejects virtual/native/reference bodies, initialization,
+generics and unsupported control flow explicitly. Class virtual calls are expanded
+under slice 3d-d-b below; other unsupported cases remain explicit diagnostics.
 
 The current authored `ProbeNode` probe compares .NET with a bounded test-only IR
 evaluator for allocation order, Int32 mutation/wrapping, readonly initialization,
@@ -452,3 +453,26 @@ published references at allocations, validate fault origins and unchanged bounda
 results, and force allocation failure from within a loop to check frame teardown.
 The primitive CFG/native corpus remains required after sharing branch partitioning.
 These retained-heap tests do not replace future reclamation/poisoning stress.
+
+## Slice 3d-d-b: class virtual execution
+
+Compare independently authored class virtual calls with .NET at O0/O2, including
+ordinary/inherited/sealed overrides, newslot hiding, nonvirtual hiding, overloads,
+property getters and direct base calls. Cover Int32/reference/void returns,
+argument-before-null faults, exact method/IL origins and unchanged boundary results.
+An allocating override must introduce a receiver class absent from the first
+closure pass; verify its newly selected body is translated and executed.
+
+Observe returned references in caller roots across later allocating overrides.
+Force every allocation failure stage, exact/short frame budgets and depth limits;
+verify cleanup and reuse. Run virtual recursion on a bounded native thread stack
+with ASan/UBSan and the existing 2 KiB frame warning. Keep descriptor lookup off
+the live invocation chain. Distinguish equal-name/equal-token slots and bodies
+across images, and preserve direct null calls where the body does not dereference.
+
+Forge incomplete/duplicate/unknown receiver maps, wrong implementations, slot
+identities/names/final flags and missing null/dispatch/fault facts for value and
+void calls. All must fail before C++ is returned. A reachable unsupported override
+must produce a build error containing its virtual inclusion path. Preserve the
+existing native/object/reference/primitive corpus. Interface/abstract/generic/
+MethodImpl support and actual reclamation require separate evidence.

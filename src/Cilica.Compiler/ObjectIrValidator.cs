@@ -16,6 +16,7 @@ public static class ObjectIrValidator
         _ = new ObjectNativeLayout(program.Flow.Types);
         var rules = new ObjectIrRules(program);
         ReferenceIrValidator.Validate(program.Flow, rules);
+        rules.DispatchMaps();
         var entry = rules.Binding(program.Flow.Entry);
         var method = program.Flow.Methods.Single(m => IrMethodId.From(m.Source) == program.Flow.Entry);
         if (entry.Kind != ObjectMethodKind.Static || method.ReturnType != IrType.Int32 || method.Parameters.Any(p => p != IrType.Int32))
@@ -30,6 +31,7 @@ internal sealed class ObjectIrRules
     private readonly Dictionary<ObjectFieldId, ObjectField> _fields;
     private readonly Dictionary<ObjectTypeId, ObjectTypeLayout> _layouts;
     private readonly IrTypeRules _types;
+    private readonly ObjectDispatchRules _dispatch;
 
     internal ObjectIrRules(ObjectIrProgram program)
     {
@@ -54,9 +56,9 @@ internal sealed class ObjectIrRules
             Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
                 or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor, "invalid bound signature/kind.");
             Require((binding.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
-                | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) == 0
+                | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0
                 && (binding.Attributes & MethodAttributes.MemberAccessMask) is > MethodAttributes.PrivateScope and <= MethodAttributes.Public,
-                "virtual, native, abstract and unsupported method flags require later lowering.");
+                "native, abstract and unsupported method flags require later lowering.");
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
                 || (layout.Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic,
@@ -74,7 +76,11 @@ internal sealed class ObjectIrRules
             }
             else Require(binding.Owner != flow.Types.ObjectBase, "ordinary selected Object methods require explicit runtime support.");
         }
+        _dispatch = new(program, _bindings, _methods, _types);
     }
+
+    internal void DispatchMaps() => _dispatch.Validate();
+    internal IEnumerable<IrMethodId> DispatchTargets(IrMethodId declaration) => _dispatch.Targets(declaration);
 
     internal ObjectMethodBinding Binding(IrMethodId id) => _bindings[id];
     internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is not null
@@ -89,7 +95,7 @@ internal sealed class ObjectIrRules
     });
 
     internal bool Call(IrMethod caller, IrMethodId? target, System.Collections.Immutable.ImmutableArray<int> arguments,
-        bool nullCheck, IReadOnlyList<IrType> values, bool allocation = false)
+        bool nullCheck, IReadOnlyList<IrType> values, bool allocation = false, bool virtualDispatch = false)
     {
         if (target is null || !_bindings.TryGetValue(target, out var callee) || arguments.IsDefault) return false;
         var signature = _methods[target].Parameters;
@@ -97,6 +103,8 @@ internal sealed class ObjectIrRules
         if (signature.IsDefault || arguments.Length != signature.Length - skip || !Access(Binding(IrMethodId.From(caller.Source)), callee)) return false;
         if (allocation ? !Constructor(callee) : Constructor(callee)) return false;
         if (nullCheck && callee.Kind != ObjectMethodKind.Instance) return false;
+        if (virtualDispatch ? allocation || !nullCheck || callee.VirtualSlot is null || !_dispatch.Has(target)
+            : nullCheck && callee.VirtualSlot is not null) return false;
         for (int index = 0; index < arguments.Length; index++)
             if (arguments[index] < 0 || arguments[index] >= values.Count || !_types.Assignable(values[arguments[index]], signature[index + skip])) return false;
         return true;
@@ -107,7 +115,7 @@ internal sealed class ObjectIrRules
         if (call.Target is null || !_bindings.TryGetValue(call.Target, out var target)) return false;
         var owner = Binding(IrMethodId.From(caller.Source));
         if (owner.Kind != ObjectMethodKind.Constructor || !Constructor(target)
-            || target.Owner != _layouts[owner.Owner].BaseType || call.NullCheckReceiver || call.Arguments.IsDefault
+            || target.Owner != _layouts[owner.Owner].BaseType || call.NullCheckReceiver || call.VirtualDispatch || call.Arguments.IsDefault
             || call.Arguments.Length != _methods[target.Method].Parameters.Length || call.Arguments.IsEmpty
             || call.Arguments[0] < 0 || call.Arguments[0] >= values.Count
             || expressions[call.Arguments[0]] is not IrExpression.Parameter { Index: 0 }

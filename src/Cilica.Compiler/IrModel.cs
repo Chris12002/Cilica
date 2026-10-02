@@ -49,7 +49,8 @@ public abstract record IrExpression
     public sealed record Binary(Int32Operation Operation, int Left, int Right) : IrExpression;
     public sealed record Unary(Int32UnaryOperation Operation, int Operand) : IrExpression;
     public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
-    public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false) : IrExpression;
+    public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false,
+        bool VirtualDispatch = false) : IrExpression;
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
     public sealed record CastClass(ObjectTypeId Target, int Operand) : IrExpression;
@@ -63,7 +64,8 @@ public abstract record IrStatement
     public sealed record Define(IrValue Value, IrExceptionTarget? Exceptional = null) : IrStatement;
     public sealed record StoreLocal(int ILOffset, int Local, int Value) : IrStatement;
     public sealed record Invoke(int ILOffset, IrMethodId Target, ImmutableArray<int> Arguments,
-        bool NullCheckReceiver = false, IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
+        bool NullCheckReceiver = false, IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit,
+        bool VirtualDispatch = false) : IrStatement;
     public sealed record StoreField(int ILOffset, ObjectFieldId Field, int Receiver, int Value,
         IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
 }

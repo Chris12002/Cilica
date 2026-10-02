@@ -1,6 +1,6 @@
 # ADR 0033: Exact class virtual target resolution
 
-Status: accepted for metadata resolution; native dispatch remains planned.
+Status: accepted for metadata resolution; native class integration is recorded in ADR 0034.
 Recorded 2026-10-02.
 
 ## Context
@@ -92,8 +92,9 @@ ancestors; no push, hosted execution, additional agent or service was started.
 
 ## Follow-up
 
-Wire exact choices into the object translator's fixed-point method closure and
-a validated detached dispatch map. Newly discovered override bodies can allocate
+Implemented by [ADR 0034](0034-native-class-virtual-dispatch.md): exact choices now
+feed the object translator's fixed-point method closure and a validated detached
+dispatch map. Newly discovered override bodies can allocate
 new receiver classes, so closure expansion must revisit affected virtual sites.
 Native lowering must preserve direct `call` semantics separately from virtual
 `callvirt`, check the receiver after argument evaluation, and retain rooted

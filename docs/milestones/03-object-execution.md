@@ -23,9 +23,9 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-a | Bounded class hierarchies and detached ancestor assignability | Complete for layout/reference IR |
 | 3d-b | Inherited native field storage and constructor chains | Complete for bounded concrete class profile |
 | 3d-c | Class casts and runtime type tests | Complete for bounded concrete classes |
-| 3d-d | Verified virtual/interface dispatch | In progress; exact class resolution only |
+| 3d-d | Verified virtual/interface dispatch | In progress; concrete class dispatch complete |
 | 3d-d-a | Exact class virtual slot/target resolution | Complete for bounded metadata profile |
-| 3d-d-b | Closed-world class dispatch maps and native calls | Planned |
+| 3d-d-b | Closed-world class dispatch maps and native calls | Complete for bounded concrete class profile |
 | 3d-d-c | Interface mapping and native interface calls | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -361,13 +361,40 @@ Slice 3d-d-a now supplies exact class virtual target selection
 ordinary overrides from new virtual slots, preserves canonical slot identity,
 rejects final overrides and unsupported remapping, and uses a shared bounded
 metadata ledger. The authored .NET oracle agrees on 41 valid receiver/declaration
-pairs. This resolves metadata only; the existing compiler still rejects native
-virtual/interface calls.
+pairs. This operation resolves metadata only; executable class dispatch is a
+separate compiler/runtime contract below.
 Review is complete, with zero build warnings/errors and all 114 focused
 dispatch/member-binding regressions passing. No hosted work was started.
 
-Slice 3d-d-b next wires those choices into fixed-point method closure, detached
-dispatch-map validation and native calls. Interface dispatch follows separately.
+Slice 3d-d-b now wires those choices into fixed-point method closure, detached
+dispatch-map validation and native calls
+([ADR 0034](../decisions/0034-native-class-virtual-dispatch.md)). Maps cover every
+compatible concrete catalog receiver and validate nearest implementations,
+canonical slots and final overrides. Direct virtual calls retain direct body
+semantics. Per-declaration typed descriptor lookup finishes before invocation;
+its selected pointer lives in the caller's arena frame, avoiding another live
+native wrapper frame. Override bodies may add new receiver types and call sites.
+
+Four authored entries compare 172 .NET/native outcomes and exact fault origins
+per O0/O2 configuration. Coverage includes overloads, property getters, newslot
+hiding, nonvirtual hiding, sealed/inherited overrides, reference and void returns,
+argument-before-null ordering and receiver discovery inside an allocating override.
+Native probes check roots, every allocation failure stage, exact/short frame
+budgets, ownership, equal-token cross-image dispatch, direct null calls and
+recursion within a checked 320 KiB pthread stack ceiling under ASan/UBSan with
+static Clang stack reports and the 2 KiB frame gate.
+Unsupported override bodies retain their virtual inclusion path in build errors.
+Distinct-class evaluation-stack joins still conservatively widen to Object;
+the fixtures use declared base locals with separate branch stores.
+
+Review is complete. Builds have zero warnings/errors; all 604 relevant local
+native/object/reference-IR/C++/Int32/exact-target regressions pass in 55.1 seconds.
+Both O0/O2 native dispatch cases also pass after the final stack-report and
+thread-size assertions. Local main and cached origin/main remain ancestors;
+no push or hosted work was started.
+
+Interface dispatch follows separately as slice 3d-d-c. Abstract classes,
+generics, covariance and MethodImpl remapping also remain unsupported.
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block
 capability work. The 2 KiB warning is a conservative tested baseline, not a

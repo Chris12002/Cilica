@@ -47,6 +47,11 @@ public static class ObjectTranslator
         private readonly Dictionary<(string Hash, int Token), ResolvedMethod> _callTargets = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedField> _fieldTargets = [];
         private readonly Dictionary<(string Hash, int Token), ObjectTypeId> _typeTargets = [];
+        private readonly Dictionary<ObjectTypeId, ResolvedType> _knownTypes = [];
+        private readonly Dictionary<IrMethodId, (Work Caller, int Offset)> _virtualCalls = [];
+        private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ClassVirtualTarget> _virtualCache = [];
+        private readonly Dictionary<IrMethodId, Dictionary<ObjectTypeId, IrMethodId>> _dispatch = [];
+        private int _dispatchTargetCount;
 
         internal ObjectIrProgram Run(ResolvedAssembly assembly, MethodDefinitionHandle entry)
         {
@@ -58,17 +63,47 @@ public static class ObjectTranslator
             Work root = Discover(resolved, null, 0);
             if (root.Binding.Kind != ObjectMethodKind.Static || root.Return != IrType.Int32 || root.Parameters.Any(p => p != IrType.Int32))
                 Fail(root, "Entry requires a static Int32 signature; object references stay internal.", 0);
-            while (_pending.TryDequeue(out Work? work))
+            ObjectTypeCatalog catalog;
+            while (true)
             {
-                var method = Body(work);
-                if (!_resources.Add(method)) Fail(work, "Aggregate program IR limit exceeded.", 0, DiagnosticIds.TranslationLimit);
-                _translated.Add(method);
+                while (_pending.TryDequeue(out Work? work))
+                {
+                    var method = Body(work);
+                    if (!_resources.Add(method)) Fail(work, "Aggregate program IR limit exceeded.", 0, DiagnosticIds.TranslationLimit);
+                    _translated.Add(method);
+                }
+                var built = ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values], runtimeLibrary, ReadType);
+                if (built.Catalog is null) throw new Failure(built.Diagnostics[0]);
+                catalog = built.Catalog;
+                var types = new IrTypeRules(catalog);
+                foreach (var site in _virtualCalls.ToArray())
+                {
+                    var declaration = _methods[site.Key];
+                    if (!_dispatch.TryGetValue(site.Key, out var targets)) _dispatch.Add(site.Key, targets = []);
+                    foreach (var layout in catalog.Types)
+                    {
+                        var receiver = ObjectTypeId.From(layout.Source);
+                        if (!types.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Binding.Owner)) || targets.ContainsKey(receiver)) continue;
+                        if (_dispatchTargetCount >= ObjectDispatchLimits.MaximumTargets)
+                            Fail(site.Value.Caller, "Aggregate class dispatch target limit exceeded.", site.Value.Offset, DiagnosticIds.TranslationLimit);
+                        var exact = ResolveVirtual(declaration.Resolved, _knownTypes[receiver], site.Value.Caller, site.Value.Offset);
+                        var implementation = Discover(exact.Implementation, site.Value.Caller, site.Value.Offset);
+                        targets.Add(receiver, implementation.Binding.Method);
+                        _dispatchTargetCount++;
+                    }
+                }
+                // Override bodies may introduce new calls, allocations or type-test
+                // targets. Rebuild their catalog and revisit all affected sites.
+                if (_pending.Count == 0) break;
             }
-            var catalog = ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values], runtimeLibrary, ReadType);
-            if (catalog.Catalog is null) throw new Failure(catalog.Diagnostics[0]);
             var program = new ObjectIrProgram(new(IrMethodId.From(root.Input.Source),
-                [.. _translated.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)], catalog.Catalog),
-                [.. _methods.Values.Select(w => w.Binding).OrderBy(b => b.Method.ContentHash, StringComparer.Ordinal).ThenBy(b => b.Method.Token)]);
+                [.. _translated.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)], catalog),
+                [.. _methods.Values.Select(w => w.Binding).OrderBy(b => b.Method.ContentHash, StringComparer.Ordinal).ThenBy(b => b.Method.Token)])
+            {
+                Dispatch = [.. _dispatch.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token)
+                    .Select(p => new ObjectVirtualDispatch(p.Key, [.. p.Value.OrderBy(t => t.Key.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Key.Token)
+                        .Select(t => new ObjectVirtualTarget(t.Key, t.Value))]))],
+            };
             try { ObjectIrValidator.Validate(program); }
             catch (ArgumentException exception) { Fail(root, exception.Message, 0); }
             return program;
@@ -85,6 +120,7 @@ public static class ObjectTranslator
         private TypeInput ReadType(ResolvedType type, TypeReadLimits budget)
         {
             var id = ObjectModelBuilder.Id(type);
+            _knownTypes.TryAdd(id, type);
             if (_snapshots.TryGetValue(id, out var known)) return known;
             int remaining = _metadata.Remaining;
             if (remaining <= 0) throw new Failure(new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, "Aggregate object metadata-member limit exceeded."));
@@ -116,9 +152,10 @@ public static class ObjectTranslator
                 || input.Signature.Header is not (0 or 0x20) || input.HasTypeInitializer || input.HasModuleInitializer
                 || input.ExceptionRegionCount != 0 || !input.Locals.IsEmpty && !input.InitializeLocals
                 || (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL
-                || (input.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != 0
+                || (input.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.SpecialName
+                    | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) != 0
                 || (input.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.PrivateScope)
-                Fail(parent, "Object operations require nongeneric ordinary managed IL without virtual dispatch, initialization, exception regions or uninitialized locals.", offset);
+                Fail(parent, "Object operations require nongeneric ordinary managed IL without initialization, exception regions or uninitialized locals.", offset);
             var ownerId = ObjectModelBuilder.Id(owner);
             bool constructor = input.DeclaredName == ".ctor";
             bool isStatic = (input.Attributes & MethodAttributes.Static) != 0;
@@ -145,7 +182,17 @@ public static class ObjectTranslator
             if (kind == ObjectMethodKind.ObjectBaseConstructor && (parameters.Length != 1 || !input.Locals.IsEmpty
                 || input.Instructions.IsEmpty || input.Instructions[^1].OpCode != "ret" || input.Instructions[..^1].Any(i => i.OpCode != "nop")))
                 Fail(parent, "Selected Object constructor must be an ordinary parameterless nop/ret body; nontrivial runtime intrinsics need explicit support.", offset);
-            var work = new Work(resolved, input, new(key, ownerId, kind, input.Attributes, input.OwnerExternallyVisible),
+            var binding = new ObjectMethodBinding(key, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
+            if ((input.Attributes & MethodAttributes.Virtual) != 0)
+            {
+                var exact = ResolveVirtual(resolved, owner, parent, offset);
+                binding = binding with { VirtualName = input.DeclaredName, VirtualSlot = new(
+                    new(exact.Slot.DeclaringType.Definition.Assembly.ContentHash, MetadataTokens.GetToken(exact.Slot.Handle)),
+                    ObjectModelBuilder.Id(exact.Slot.DeclaringType.Definition)) };
+            }
+            else if ((input.Attributes & (MethodAttributes.NewSlot | MethodAttributes.Final)) != 0)
+                Fail(parent, "Slot flags require an ordinary virtual instance declaration.", offset);
+            var work = new Work(resolved, input, binding,
                 parameters, returned, [.. input.Locals.Select(l => Type(l))], parent, offset);
             _methods.Add(key, work); _pending.Enqueue(work); return work;
         }
@@ -170,13 +217,26 @@ public static class ObjectTranslator
             if (!sameOwner && ((callee.Input.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || !callee.Input.OwnerExternallyVisible))
                 Fail(caller, "Calls require same-owner access or a public member on an externally visible owner.", instruction.Offset);
             if (instruction.OpCode == "callvirt" && callee.Binding.Kind != ObjectMethodKind.Instance)
-                Fail(caller, "callvirt requires a nonvirtual ordinary instance method; constructors and static calls are unsupported.", instruction.Offset);
+                Fail(caller, "callvirt requires an ordinary instance method; constructors and static calls are unsupported.", instruction.Offset);
+            if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null)
+                _virtualCalls.TryAdd(callee.Binding.Method, (caller, instruction.Offset));
             if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor))
                 Fail(caller, "newobj requires an exact instance constructor declaration.", instruction.Offset);
             int arity = callee.Parameters.Length - (instruction.OpCode == "newobj" ? 1 : 0);
             _arguments += arity;
             if (_arguments > ProgramLimits.MaximumCallArguments) Fail(caller, "Aggregate call-argument limit exceeded.", instruction.Offset, DiagnosticIds.TranslationLimit);
             _callSites.Add(site, callee); return callee;
+        }
+
+        private ClassVirtualTarget ResolveVirtual(ResolvedMethod declaration, ResolvedType receiver, Work? caller, int offset)
+        {
+            var owner = declaration.DeclaringType.Definition;
+            var key = (new IrMethodId(owner.Assembly.ContentHash, MetadataTokens.GetToken(declaration.Handle)), ObjectModelBuilder.Id(receiver));
+            if (_virtualCache.TryGetValue(key, out var known)) return known;
+            var resolved = resolver.ResolveClassVirtualTarget(owner.Assembly, declaration.Handle, receiver, _metadata);
+            if (resolved.Value is not ClassVirtualTarget exact)
+                throw new Failure(resolved.Diagnostics[0] with { Location = Location(caller, offset), Message = resolved.Diagnostics[0].Message + Path(caller, offset) });
+            _virtualCache.Add(key, exact); return exact;
         }
 
         private ObjectFieldId Field(Work caller, MethodInstruction instruction)
@@ -275,13 +335,14 @@ public static class ObjectTranslator
                             Push(offset, IrType.Int32, new IrExpression.Compare(comparison, left, right)); break;
                         case "newobj" or "call" or "callvirt":
                             var target = Call(work, instruction); bool allocation = opcode == "newobj";
+                            bool dispatch = opcode == "callvirt" && target.Binding.VirtualSlot is not null;
                             int arity = target.Parameters.Length - (allocation ? 1 : 0);
                             Consume(arity, offset);
                             var arguments = new int[arity];
                             for (int argument = arguments.Length - 1; argument >= 0; argument--) arguments[argument] = Pop(offset);
                             if (allocation) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
-                            else if (target.Return == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], opcode == "callvirt"), offset);
-                            else Push(offset, target.Return, new IrExpression.Call(target.Binding.Method, [.. arguments], opcode == "callvirt"), true);
+                            else if (target.Return == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], opcode == "callvirt", VirtualDispatch: dispatch), offset);
+                            else Push(offset, target.Return, new IrExpression.Call(target.Binding.Method, [.. arguments], opcode == "callvirt", dispatch), true);
                             break;
                         case "castclass" or "isinst":
                             var testedType = TypeTarget(work, instruction); int tested = Pop(offset);

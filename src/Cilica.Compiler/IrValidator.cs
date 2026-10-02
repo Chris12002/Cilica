@@ -37,9 +37,15 @@ internal static class IrValidator
                 foreach (IrStatement statement in methods[key].Blocks.SelectMany(b => b.Statements))
                     switch (statement)
                     {
-                        case IrStatement.Define { Value.Expression: IrExpression.Call call }: pending.Push(call.Target); break;
+                        case IrStatement.Define { Value.Expression: IrExpression.Call call }:
+                            pending.Push(call.Target);
+                            if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
+                            break;
                         case IrStatement.Define { Value.Expression: IrExpression.NewObject allocated }: pending.Push(allocated.Constructor); break;
-                        case IrStatement.Invoke call: pending.Push(call.Target); break;
+                        case IrStatement.Invoke call:
+                            pending.Push(call.Target);
+                            if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
+                            break;
                     }
         Require(visited.Count == methods.Count, "program contains methods unreachable from entry.");
         return entry;
@@ -127,7 +133,8 @@ internal static class IrValidator
                                 && !c.Arguments.IsDefault && c.Arguments.Length <= IrLimits.MaximumParameters
                                 && !target.Parameters.IsDefault && c.Arguments.Length == target.Parameters.Length && c.Arguments.All(Earlier)
                                 && value.Type == target.ReturnType && c.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(ok => ok)
-                                && (objectRules is null ? !c.NullCheckReceiver : objectRules.Call(method, c.Target, c.Arguments, c.NullCheckReceiver, valueTypes)),
+                                && (objectRules is null ? !c.NullCheckReceiver && !c.VirtualDispatch
+                                    : objectRules.Call(method, c.Target, c.Arguments, c.NullCheckReceiver, valueTypes, virtualDispatch: c.VirtualDispatch)),
                             IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
                             IrExpression.LoadField f => objectRules is not null && objectRules.Field(method, f.Field, f.Receiver, valueTypes, out var storage)
@@ -161,7 +168,7 @@ internal static class IrValidator
                         Require(objectRules is not null && invoke.Exceptional == IrExceptionTarget.MethodExit
                             && invoke.Target is not null && methods is not null && methods.TryGetValue(invoke.Target, out var callee)
                             && callee.ReturnType == IrType.Void && !invoke.Arguments.IsDefault && invoke.Arguments.Length <= IrLimits.MaximumParameters
-                            && (objectRules.Call(method, invoke.Target, invoke.Arguments, invoke.NullCheckReceiver, valueTypes)
+                            && (objectRules.Call(method, invoke.Target, invoke.Arguments, invoke.NullCheckReceiver, valueTypes, virtualDispatch: invoke.VirtualDispatch)
                                 || objectRules.BaseCall(method, invoke, valueTypes, expressions)), "invalid void call or base initialization.");
                         callArguments += invoke.Arguments.Length;
                         Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded."); break;
