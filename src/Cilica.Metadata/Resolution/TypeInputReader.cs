@@ -16,8 +16,9 @@ public sealed partial class AssemblyResolver
     {
         CheckOwner(assembly);
         limits ??= new();
-        if (limits.MaximumFields < 0 || limits.MaximumMembers <= 0 || limits.MaximumOwnerDepth is <= 0 or > TypeReadLimits.MaximumSupportedOwnerDepth)
-            throw new ArgumentOutOfRangeException(nameof(limits), "Type input limits require nonnegative fields, positive member budgets and owner depth 1..64.");
+        if (limits.MaximumFields < 0 || limits.MaximumMembers <= 0 || limits.MaximumOwnerDepth is <= 0 or > TypeReadLimits.MaximumSupportedOwnerDepth
+            || limits.MaximumInterfaces is < 0 or > 256)
+            throw new ArgumentOutOfRangeException(nameof(limits), "Type input limits require nonnegative fields, positive member budgets, owner depth 1..64 and direct interfaces 0..256.");
         return Bind<TypeInput>(assembly, handle, () =>
         {
             var reader = assembly.Image.Reader;
@@ -41,6 +42,8 @@ public sealed partial class AssemblyResolver
             }
             if (type.GetFields().Count > limits.MaximumFields)
                 throw Failure(DiagnosticIds.TranslationLimit, "Type input exceeds the field limit.");
+            if (type.GetInterfaceImplementations().Count > limits.MaximumInterfaces)
+                throw Failure(DiagnosticIds.TranslationLimit, "Type input exceeds the direct-interface limit.");
             var decoder = new SignatureDecoder(this, assembly);
             var fields = ImmutableArray.CreateBuilder<FieldInput>();
             foreach (var fieldHandle in type.GetFields())
@@ -83,10 +86,17 @@ public sealed partial class AssemblyResolver
             // The field signatures share a node budget; resolving the base must
             // not consume a slot from the exact 4096-field boundary.
             TypeSignature? baseType = type.BaseType.IsNil ? null : new SignatureDecoder(this, assembly).Type(type.BaseType);
+            var interfaces = ImmutableArray.CreateBuilder<TypeSignature>();
+            var interfaceDecoder = new SignatureDecoder(this, assembly);
+            foreach (var implementation in type.GetInterfaceImplementations())
+            {
+                Member();
+                interfaces.Add(interfaceDecoder.Type(reader.GetInterfaceImplementation(implementation).Interface));
+            }
             bool typeInitializer = Initializer(type), moduleInitializer = Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1)));
-            return new(source, type.Attributes, arity, assembly.IsReferenceAssembly, baseType,
+            return new TypeInput(source, type.Attributes, arity, assembly.IsReferenceAssembly, baseType,
                 type.GetInterfaceImplementations().Count, layout.PackingSize, layout.Size,
-                typeInitializer, moduleInitializer, fields.ToImmutable(), work);
+                typeInitializer, moduleInitializer, fields.ToImmutable(), work) { Interfaces = interfaces.ToImmutable() };
         });
     }
 }

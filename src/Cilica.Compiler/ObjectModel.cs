@@ -12,6 +12,9 @@ public sealed record ObjectTypeId(string ContentHash, int Token)
     public static ObjectTypeId From(TypeSource source) => new(source.ContentHash.ToLowerInvariant(), source.Token);
 }
 
+/// <summary>A fieldless interface contract; it has no instance allocation layout.</summary>
+public sealed record ObjectInterface(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectTypeId> Parents);
+
 /// <summary>Field identity retains its declaring type, including its input image.</summary>
 public sealed record ObjectFieldId(ObjectTypeId Owner, int Token);
 
@@ -28,20 +31,25 @@ public sealed record ObjectField(ObjectFieldId Id, string Name, FieldAttributes 
 public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
     TypeAttributes Attributes, ImmutableArray<ObjectField> Fields)
 {
+    public ImmutableArray<ObjectTypeId> Interfaces { get; init; } = [];
     // Derived from field kinds so a caller cannot supply a contradictory tracing map.
     public ImmutableArray<int> ReferenceSlots => Fields.IsDefault ? default :
         [.. Fields.Select((descriptor, slot) => (descriptor, slot)).Where(p => p.descriptor.Storage is ObjectStorage.Reference).Select(p => p.slot)];
 }
 
-/// <summary>Detached, complete base-class/field closure. This is a layout contract, not executable IR.</summary>
+/// <summary>Detached base-class, field and interface closure. This is a storage/type contract, not executable IR.</summary>
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
-    public const string Profile = "object-layout-v2";
+    public const string Profile = "object-layout-v3";
+    public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
 }
 
-/// <summary>Several explicit class roots and their shared field closure, including the selected object base.</summary>
+/// <summary>Explicit class/interface roots and their shared closure, including the selected object base.</summary>
 public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, ObjectTypeId ObjectBase,
-    ImmutableArray<ObjectTypeLayout> Types);
+    ImmutableArray<ObjectTypeLayout> Types)
+{
+    public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
+}
 
 public static class ObjectModelLimits
 {

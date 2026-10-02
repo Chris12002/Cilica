@@ -12,9 +12,13 @@ public sealed record FieldInput(int Token, string Name, FieldAttributes Attribut
 /// <summary>Bounded type input for layout analysis, not permission to execute its methods.</summary>
 public sealed record TypeInput(TypeSource Source, TypeAttributes Attributes, int OwnerGenericArity,
     bool IsReferenceAssembly, TypeSignature? BaseType, int InterfaceCount, int PackingSize, int ClassSize,
-    bool HasTypeInitializer, bool HasModuleInitializer, ImmutableArray<FieldInput> Fields, int MetadataMembersRead);
+    bool HasTypeInitializer, bool HasModuleInitializer, ImmutableArray<FieldInput> Fields, int MetadataMembersRead)
+{
+    public ImmutableArray<TypeSignature> Interfaces { get; init; } = [];
+}
 
-public sealed record TypeReadLimits(int MaximumFields = 4096, int MaximumMembers = 65536, int MaximumOwnerDepth = 64)
+public sealed record TypeReadLimits(int MaximumFields = 4096, int MaximumMembers = 65536, int MaximumOwnerDepth = 64,
+    int MaximumInterfaces = 256)
 {
     // Bound the recursive display-name formatter even if a caller supplies larger limits.
     public const int MaximumSupportedOwnerDepth = 64;

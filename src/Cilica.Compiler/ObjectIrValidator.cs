@@ -13,6 +13,8 @@ public static class ObjectIrValidator
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
         ObjectModelValidator.Validate(program.Flow.Types);
+        if (!program.Flow.Types.Interfaces.IsEmpty)
+            throw new ArgumentException("Interface catalogs require interface operation/dispatch lowering before native object consumption.", nameof(program));
         _ = new ObjectNativeLayout(program.Flow.Types);
         var rules = new ObjectIrRules(program);
         ReferenceIrValidator.Validate(program.Flow, rules);

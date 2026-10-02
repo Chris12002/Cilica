@@ -37,3 +37,8 @@ capability. It becomes accepted once its validation experiment has run.
 | [0029](0029-measured-helper-batching.md) | Dispatch benchmarks and rejected larger batches | Retain two-statement baseline |
 | [0030](0030-detached-class-hierarchies.md) | Detached class hierarchies and ancestor assignability | Accepted for layout and detached reference IR |
 | [0031](0031-native-inherited-fields-and-constructors.md) | Native inherited fields and constructor chains | Accepted for bounded object execution |
+| [0032](0032-class-casts-and-type-tests.md) | Class casts and type tests | Accepted for bounded object execution |
+| [0033](0033-exact-class-virtual-targets.md) | Exact class virtual targets | Accepted for bounded metadata resolution |
+| [0034](0034-native-class-virtual-dispatch.md) | Native class virtual dispatch | Accepted for bounded object execution |
+| [0035](0035-exact-interface-method-targets.md) | Exact interface method targets | Accepted for bounded metadata resolution |
+| [0036](0036-interface-catalogs-and-reference-flow.md) | Interface catalogs and reference flow | Accepted for bounded detached validation |

@@ -127,7 +127,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 /// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
-    public const string Profile = "typed-reference-ir-v2";
+    public const string Profile = "typed-reference-ir-v3";
 }
 
 public static class ProgramLimits

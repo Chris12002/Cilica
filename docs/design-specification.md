@@ -152,7 +152,8 @@ mappings, starts a new search on reimplementation and validates explicit interfa
 MethodImpl bodies before selecting the effective class slot. Iterative interface
 closure handles diamonds within bounded type/work ledgers. Default/static interface
 members, generics, abstract class hierarchies and class slot remapping remain
-unsupported. Interface reference catalogs, detached maps and native calls still
+unsupported. Interface catalogs and detached reference flow are implemented
+as described in section 7. Executable declaration/maps and native calls still
 require implementation and execution evidence; the conservative audit contract
 and current native class profile remain unchanged.
 
@@ -391,6 +392,21 @@ receiver stays rooted with its original dynamic type throughout allocating base
 bodies. Physical field copies have a separate 65,536-slot bound; field-operation
 helper isolation retains the O0/O2 native-stack gate. Abstract classes,
 broader access rules and interface dispatch remain subsequent slices.
+
+Detached catalogs now include public nongeneric fieldless interface contracts
+separately from class layouts
+([ADR 0036](decisions/0036-interface-catalogs-and-reference-flow.md)). Classes retain
+their declared interface edges; contracts retain parent interfaces. Class/base,
+interface/parent and field closure share the 256-type budget. Iterative validation
+rejects cycles and edges of the wrong kind. Typed reference assignments support
+class-to-implemented-interface, inherited contracts, interface-to-parent and
+interface-to-Object widening, including locals, direct-call arguments, returns
+and declared joins. Interfaces use the existing logical reference storage kind
+without receiving instance layouts. Names do not establish identity. This is
+detached type flow only: catalogs do not validate interface method contracts or
+implementations. Object operations, root assignment and native emission reject
+catalogs containing interfaces until executable declarations/maps are implemented.
+Interface casts/tests, inferred interface joins and native calls remain planned.
 
 Class `castclass` and `isinst` now use those descriptor base links
 ([ADR 0032](decisions/0032-class-casts-and-type-tests.md)). Targets are exact

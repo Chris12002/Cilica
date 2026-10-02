@@ -10,14 +10,15 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-/// <summary>Builds a bounded class/field closure through explicit metadata resolution; never executes input.</summary>
+/// <summary>Builds a bounded class/field/interface closure through explicit metadata resolution; never executes input.</summary>
 public static class ObjectModelBuilder
 {
     public static ObjectModelResult Build(AssemblyResolver resolver, ResolvedType root, ResolvedAssembly runtimeLibrary)
     {
         ArgumentNullException.ThrowIfNull(root);
         var result = BuildCatalog(resolver, [root], runtimeLibrary);
-        return new(result.Catalog is null ? null : new(Id(root), result.Catalog.ObjectBase, result.Catalog.Types), result.Diagnostics);
+        return new(result.Catalog is null ? null : new ObjectModel(Id(root), result.Catalog.ObjectBase, result.Catalog.Types)
+            { Interfaces = result.Catalog.Interfaces }, result.Diagnostics);
     }
 
     public static ObjectCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
@@ -32,9 +33,10 @@ public static class ObjectModelBuilder
 
         var selected = resolver.ResolveRuntimeType(runtimeLibrary, PrimitiveTypeCode.Object);
         if (selected.Value is not ResolvedType objectBase) return new(null, selected.Diagnostics);
-        var parents = new Dictionary<ObjectTypeId, (ObjectTypeId? Parent, int Field, bool BaseEdge)>();
+        var parents = new Dictionary<ObjectTypeId, (ObjectTypeId? Parent, int Field, bool BaseEdge, bool InterfaceEdge)>();
         var pending = new Queue<ResolvedType>();
         var layouts = new List<ObjectTypeLayout>();
+        var interfaces = new List<ObjectInterface>();
         int fields = 0, members = 0;
         string Path(ObjectTypeId id)
         {
@@ -43,7 +45,7 @@ public static class ObjectModelBuilder
             {
                 var inclusion = parents[id];
                 steps.Add(id.ContentHash + ":0x" + id.Token.ToString("x8", CultureInfo.InvariantCulture)
-                    + (inclusion.BaseEdge ? " via base class" : inclusion.Field == 0 ? "" : " via field 0x" + inclusion.Field.ToString("x8", CultureInfo.InvariantCulture)));
+                    + (inclusion.BaseEdge ? " via base class" : inclusion.InterfaceEdge ? " via interface" : inclusion.Field == 0 ? "" : " via field 0x" + inclusion.Field.ToString("x8", CultureInfo.InvariantCulture)));
                 if (inclusion.Parent is not ObjectTypeId parent) break;
                 id = parent;
             }
@@ -51,12 +53,12 @@ public static class ObjectModelBuilder
         }
         ObjectCatalogResult Failed(ObjectTypeId id, string code, string message, string? location = null) =>
             new(null, [new(code, DiagnosticSeverity.Error, message, (location is null ? "" : location + "; ") + "layout inclusion: " + Path(id))]);
-        bool Include(ResolvedType type, ObjectTypeId? parent = null, int field = 0, bool baseEdge = false)
+        bool Include(ResolvedType type, ObjectTypeId? parent = null, int field = 0, bool baseEdge = false, bool interfaceEdge = false)
         {
             var id = Id(type);
             if (parents.ContainsKey(id)) return true;
             if (parents.Count >= ObjectModelLimits.MaximumTypes) return false;
-            parents.Add(id, (parent, field, baseEdge)); pending.Enqueue(type); return true;
+            parents.Add(id, (parent, field, baseEdge, interfaceEdge)); pending.Enqueue(type); return true;
         }
         // Root first: ownership must be checked even if another session has the same content identity as the base.
         foreach (var root in roots)
@@ -88,16 +90,35 @@ public static class ObjectModelBuilder
                 return Failed(id, DiagnosticIds.TranslationLimit, "Aggregate catalog field/metadata-member limit exceeded.");
             if (id.Token == 0x02000001)
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, "The module definition is not an instance class.", input.Source.Name);
-            if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || input.InterfaceCount != 0
+            bool isInterface = (input.Attributes & System.Reflection.TypeAttributes.Interface) != 0;
+            if (input.IsReferenceAssembly || input.OwnerGenericArity != 0
                 || input.PackingSize != 0 || input.ClassSize != 0 || input.HasTypeInitializer || input.HasModuleInitializer
-                || !ObjectModelValidator.ClassAttributes(input.Attributes))
+                || !(isInterface ? ObjectModelValidator.InterfaceAttributes(input.Attributes) : ObjectModelValidator.ClassAttributes(input.Attributes)))
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, ObjectModel.Profile +
-                    " requires concrete nongeneric automatic-layout implementation classes without interfaces, native layout or type/module initialization.", input.Source.Name);
+                    " requires concrete nongeneric automatic-layout classes or public fieldless interfaces without native layout or type/module initialization.", input.Source.Name);
+            if (input.Interfaces.IsDefault || input.Interfaces.Length != input.InterfaceCount || input.Interfaces.Length > ObjectModelLimits.MaximumTypes)
+                return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface snapshots must retain every bounded declaration edge.", input.Source.Name);
+            var contracts = new List<ObjectTypeId>();
+            foreach (var signature in input.Interfaces)
+            {
+                if (signature is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } contract)
+                    return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface edges require named nongeneric interface definitions.", input.Source.Name);
+                if (!Include(contract.Definition, id, interfaceEdge: true))
+                    return Failed(id, DiagnosticIds.TranslationLimit, "Object catalog type limit exceeded while including an interface.", input.Source.Name);
+                contracts.Add(Id(contract.Definition));
+            }
+            if (isInterface)
+            {
+                if (input.BaseType is not null || !input.Fields.IsEmpty)
+                    return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface contracts must be fieldless and have no class base.", input.Source.Name);
+                interfaces.Add(new(input.Source, input.Attributes, [.. contracts]));
+                continue;
+            }
             ObjectTypeId? baseId = input.BaseType is TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } named
                 ? Id(named.Definition) : null;
             if (id == Id(objectBase))
             {
-                if (input.BaseType is not null || !input.Fields.IsEmpty || (input.Attributes & System.Reflection.TypeAttributes.Sealed) != 0)
+                if (input.BaseType is not null || !input.Fields.IsEmpty || contracts.Count != 0 || (input.Attributes & System.Reflection.TypeAttributes.Sealed) != 0)
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "The selected fieldless System.Object definition must be unsealed and have no parent.", input.Source.Name);
             }
             else
@@ -124,15 +145,16 @@ public static class ObjectModelBuilder
                             return Failed(id, DiagnosticIds.TranslationLimit, "Object layout type limit exceeded.", location);
                         storage = new ObjectStorage.Reference(Id(reference.Definition)); break;
                     default: return Failed(id, DiagnosticIds.ExecutionSignatureUnsupported,
-                        "Object fields require Int32 or class-reference storage; value types, arrays, strings, modifiers and pointers need later profiles.", location);
+                        "Object fields require Int32 or class/interface-reference storage; value types, arrays, strings, modifiers and pointers need later profiles.", location);
                 }
                 declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
             }
             fields += input.Fields.Length;
-            layouts.Add(new(input.Source, baseId, input.Attributes, [.. declared]));
+            layouts.Add(new(input.Source, baseId, input.Attributes, [.. declared]) { Interfaces = [.. contracts] });
         }
         var model = new ObjectTypeCatalog([.. roots.Select(Id).Distinct()], Id(objectBase),
-            [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)]);
+            [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)])
+        { Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
         // Metadata can form cycles or extend sealed classes. Surface those as
         // input diagnostics rather than leaking the detached API's exception.
         try { ObjectModelValidator.Validate(model); }

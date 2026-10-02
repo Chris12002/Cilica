@@ -84,6 +84,58 @@ public sealed class TypeInputTests
     }
 
     [Fact]
+    public void Interface_edges_have_independent_count_and_shared_metadata_work_limits()
+    {
+        var builder = Builder();
+        var contract = builder.Type("Example", "Read", attributes: System.Reflection.TypeAttributes.Public
+            | System.Reflection.TypeAttributes.Interface | System.Reflection.TypeAttributes.Abstract);
+        var root = builder.Type("Example", "Root"); builder.Implements(root, contract);
+        using var files = new ResolverFiles(); using var resolver = files.Open();
+        var image = resolver.OpenInput(files.Write("input.dll", builder.Build())).Value!;
+        var read = resolver.ReadTypeInput(image, root, new(MaximumMembers: 4, MaximumInterfaces: 1)); Assert.True(read.Success);
+        Assert.Equal(1, read.Value!.InterfaceCount);
+        Assert.Equal(MetadataTokens.GetToken(contract), MetadataTokens.GetToken(Assert.IsType<TypeSignature.Named>(Assert.Single(read.Value.Interfaces)).Definition.Handle));
+        Assert.Equal(4, read.Value.MetadataMembersRead);
+        Assert.Equal(DiagnosticIds.TranslationLimit, Assert.Single(resolver.ReadTypeInput(image, root, new(MaximumInterfaces: 0)).Diagnostics).Id);
+        Assert.Equal(DiagnosticIds.TranslationLimit, Assert.Single(resolver.ReadTypeInput(image, root, new(MaximumMembers: 3)).Diagnostics).Id);
+        Assert.Throws<ArgumentOutOfRangeException>(() => resolver.ReadTypeInput(image, root, new(MaximumInterfaces: -1)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => resolver.ReadTypeInput(image, root, new(MaximumInterfaces: 257)));
+    }
+
+    [Fact]
+    public void Interface_decoding_does_not_consume_the_exact_field_signature_budget()
+    {
+        var builder = Builder();
+        var contract = builder.Type("Example", "Read", attributes: System.Reflection.TypeAttributes.Public
+            | System.Reflection.TypeAttributes.Interface | System.Reflection.TypeAttributes.Abstract);
+        var root = builder.Type("Example", "Root"); builder.Implements(root, contract);
+        for (int i = 0; i < 4096; i++) builder.Field("Value" + i, 0x06, 0x08);
+        using var files = new ResolverFiles(); using var resolver = files.Open();
+        var image = resolver.OpenInput(files.Write("input.dll", builder.Build())).Value!;
+        var read = resolver.ReadTypeInput(image, root); Assert.True(read.Success, string.Join("; ", read.Diagnostics));
+        Assert.Equal(4096, read.Value!.Fields.Length); Assert.Single(read.Value.Interfaces);
+    }
+
+    [Theory]
+    [InlineData(256, true)]
+    [InlineData(257, false)]
+    public void Direct_interface_snapshot_limit_is_enforced_before_decoding(int count, bool success)
+    {
+        var builder = Builder(); var root = builder.Type("Example", "Root");
+        for (int i = 0; i < count; i++)
+        {
+            var contract = builder.Type("Example", "I" + i, attributes: System.Reflection.TypeAttributes.Public
+                | System.Reflection.TypeAttributes.Interface | System.Reflection.TypeAttributes.Abstract);
+            builder.Implements(root, contract);
+        }
+        using var files = new ResolverFiles(); using var resolver = files.Open();
+        var image = resolver.OpenInput(files.Write("input.dll", builder.Build())).Value!;
+        var read = resolver.ReadTypeInput(image, root); Assert.Equal(success, read.Success);
+        if (success) Assert.Equal(count, read.Value!.Interfaces.Length);
+        else Assert.Equal(DiagnosticIds.TranslationLimit, Assert.Single(read.Diagnostics).Id);
+    }
+
+    [Fact]
     public void Foreign_roots_are_rejected_even_when_they_equal_the_selected_object_identity()
     {
         var builder = Builder(); var root = builder.Type("System", "Object");

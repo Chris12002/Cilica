@@ -28,7 +28,9 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-d-b | Closed-world class dispatch maps and native calls | Complete for bounded concrete class profile |
 | 3d-d-c | Interface mapping and native interface calls | In progress; exact metadata targets complete |
 | 3d-d-c-a | Exact nongeneric interface method targets | Complete for bounded metadata profile |
-| 3d-d-c-b | Interface catalogs, reference flow and detached maps | Planned |
+| 3d-d-c-b | Interface catalogs, reference flow and detached maps | In progress; catalog/type flow complete |
+| 3d-d-c-b-a | Detached interface catalogs and reference flow | Complete for bounded detached profile |
+| 3d-d-c-b-b | Executable interface declarations and validated implementation maps | Planned |
 | 3d-d-c-c | Native interface calls and execution conformance | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -404,13 +406,30 @@ An authored .NET oracle agrees on 47 receiver/member pairs. Iterative diamond
 closure and shared metadata work remain bounded; malformed maps, cycles,
 duplicate declarations and exact/excess budgets have reduced regressions.
 This is metadata resolution only. Interface catalogs/reference flow/maps and
-native calls remain separate slices 3d-d-c-b/c; abstract classes, generics,
+native calls are separate slices 3d-d-c-b/c; abstract classes, generics,
 covariance, default bodies and class MethodImpl remapping remain unsupported.
 Review is complete, with zero build warnings/errors and all 186 targeted
 metadata/compiler regressions passing after the final queue-bound change.
 The wider 188-case run also passes both O0/O2 native class-dispatch checks,
 including sanitizers and stack reports. Local main/cached origin/main ancestry
 checks pass; no push or hosted work was started.
+
+Slice 3d-d-c-b-a supplies detached interface catalogs and reference flow
+([ADR 0036](../decisions/0036-interface-catalogs-and-reference-flow.md)). Separate
+contract records have no instance layout. Declared class edges, interface parents
+and reference fields share existing type/metadata budgets. Iterative graph checks
+and assignment closure preserve diamonds, inherited implementations and exact
+cross-image identities. Locals, direct-call arguments, returns and declared joins
+accept implemented/parent interfaces and null; loads retain their declared type.
+Object operation validation, root assignment and native emission remain gated.
+Executable declarations/maps are the next slice; interface casts/tests and native
+calls still require lowering and execution evidence.
+
+Review is complete. Builds have zero warnings/errors; all 698 relevant local
+native/object/reference-IR/type-input/C++/Int32/exact-target checks pass in 40.5
+seconds, including existing O0/O2 sanitizer, root/resource and stack regressions.
+Local main and cached origin/main remain ancestors; no hosted work was started.
+
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block
 capability work. The 2 KiB warning is a conservative tested baseline, not a

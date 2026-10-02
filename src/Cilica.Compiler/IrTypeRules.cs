@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Cilica.Compiler;
 
-/// <summary>Class ancestry rules; the bounded, acyclic catalog is validated before use.</summary>
+/// <summary>Class/interface ancestry rules; the bounded, acyclic catalog is validated before use.</summary>
 internal sealed class IrTypeRules
 {
     private readonly Dictionary<ObjectTypeId, HashSet<ObjectTypeId>> _ancestors = [];
@@ -11,15 +10,7 @@ internal sealed class IrTypeRules
     internal IrTypeRules(ObjectTypeCatalog? catalog)
     {
         if (catalog is null) return;
-        var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
-        // Cache at most 256 * 256 identities; repeated IR assignments need no
-        // ancestor traversal and cannot multiply hierarchy work by IR size.
-        foreach (var id in layouts.Keys)
-        {
-            var ancestors = new HashSet<ObjectTypeId>();
-            for (ObjectTypeId? current = id; current is not null; current = layouts[current].BaseType) ancestors.Add(current);
-            _ancestors.Add(id, ancestors);
-        }
+        _ancestors = new ObjectTypeRelations(catalog).Ancestors;
     }
 
     internal bool Valid(IrType? type, bool storage) => type is not null && (type.Kind switch
