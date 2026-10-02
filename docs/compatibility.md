@@ -435,6 +435,12 @@ that warning threshold. Both builds execute finite/mutual recursion through the
 against a 320 KiB ceiling. This covers the authored call chains and runtime paths;
 it is not a universal host-stack guarantee or validation of other targets.
 Native runtime/library calls and dispatch overhead still count toward stack use.
-No throughput or code-size claim is made for the conservative step dispatch.
+Helpers retain at most two ordinary IR statements and four-copy argument/edge
+batches. An opt-in local microbenchmark compared a four-statement candidate,
+which reduced its three-workload executable size but exceeded the 2 KiB native
+frame ceiling in reference-field sanitizer tests and was rejected. Highly
+variable timing establishes no throughput improvement. See
+[ADR 0029](decisions/0029-measured-helper-batching.md) and the
+[benchmark instructions](../benchmarks/ExecutionFrames/README.md).
 The separate primitive emitter is unchanged in storage/depth policy; collection
 and broader managed-runtime capabilities remain planned.

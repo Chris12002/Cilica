@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/benchmarks/ExecutionFrames/">
+    <Project Path="benchmarks/ExecutionFrames/Kernels/Kernels.csproj" />
+    <Project Path="benchmarks/ExecutionFrames/Runner/Runner.csproj" />
+  </Folder>
   <Folder Name="/examples/Primitive/">
     <Project Path="examples/Primitive/Kernel/Kernel.csproj" />
     <Project Path="examples/Primitive/Prepare/Prepare.csproj" />

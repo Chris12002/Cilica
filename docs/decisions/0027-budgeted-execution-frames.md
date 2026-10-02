@@ -7,6 +7,9 @@ the individual-parameter boundary in decision 6, adds arena lifetime diagnostics
 and records constrained whole-call-chain execution. Measurements below describe
 the original checkpoint.
 
+[ADR 0029](0029-measured-helper-batching.md) later measures and rejects a larger
+ordinary-statement batch after native-stack checks catch a regression.
+
 ## Context
 
 The 64-call limit controls invocation count, not the native stack consumed by

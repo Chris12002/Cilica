@@ -346,6 +346,14 @@ ordinary builds retain the same layout. Native validation includes wide exports
 and complete finite/mutual recursion on a bounded pthread stack at O0/O2 on the
 recorded macOS ARM64 target. Other targets still require their own measurements.
 
+Local opt-in benchmarks now compare execution overhead with the primitive
+backend and .NET ([ADR 0029](decisions/0029-measured-helper-batching.md)). A
+four-statement candidate reduced generated code for nonallocating workloads but
+exceeded the 2 KiB native-frame ceiling in reference-field sanitizer tests.
+The emitter retains two-statement helpers. Throughput results are inconclusive
+because of measurement variability; future batching must account for the cost
+of reference checks as well as ordinary arithmetic.
+
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
 record base types, interfaces, dispatch tables, size, reference-field maps,

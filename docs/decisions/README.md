@@ -34,3 +34,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0026](0026-reference-control-flow.md) | Typed reference branches and backedges | Accepted for bounded object control flow |
 | [0027](0027-budgeted-execution-frames.md) | Budgeted execution frames and bounded native helpers | Accepted for bounded object backend |
 | [0028](0028-packed-boundaries-and-arena-diagnostics.md) | Packed object boundaries and arena lifetime diagnostics | Accepted for bounded object backend |
+| [0029](0029-measured-helper-batching.md) | Dispatch benchmarks and rejected larger batches | Retain two-statement baseline |

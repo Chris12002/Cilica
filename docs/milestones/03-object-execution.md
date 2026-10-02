@@ -18,6 +18,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3b-c | Reference-stack inference through branches/backedges | Complete for bounded ordinary-method control flow |
 | 3c-a | Budgeted execution frames and native-stack regression checks | Complete for bounded object backend |
 | 3c-b | Packed exports, arena lifetime diagnostics and constrained native call chains | Complete for bounded object backend |
+| 3c-c | Opt-in execution microbenchmarks and helper-batching experiment | Complete; larger batches rejected |
 | 3d | Inheritance, casts and verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -259,6 +260,26 @@ Final validation: zero build warnings/errors and 420 targeted native, object,
 C++ emission and Int32 tests passed in 26.9 seconds. Review checked ABI callers,
 argument validation, reservation arithmetic and root/lifetime ordering; no
 further defect was identified in this slice. No push or hosted work was started.
+
+## Slice 3c-c outcome
+
+[ADR 0029](../decisions/0029-measured-helper-batching.md) records a local baseline
+and rejects a four-statement helper-batching candidate. An opt-in benchmark checks authored
+arithmetic, loops and calls against .NET while separating fresh-boundary costs
+from private arena reuse. It adds no automatic timed tests or hosted work.
+
+The candidate's three-workload probe had 37 step helpers instead of 50 and an
+8.2% smaller complete executable. However, reference-field native tests produced
+2,304–2,576-byte frames at O0 with sanitizers, exceeding the 2 KiB ceiling. The
+candidate was reverted; two-statement helpers remain. Timing samples and
+unchanged comparators vary substantially, so no throughput improvement is claimed.
+Reference-heavy workloads and other targets still need their own benchmarks.
+
+Both benchmark runs matched all timed checksums to .NET. The candidate passed
+419/420 targeted cases; its native frame-budget failure triggered the revert.
+The restored baseline passes both focused O0/O2 frame-budget cases. Production
+and test sources match the previously validated `c7a9147`; only the opt-in
+harness and documentation are retained. Builds have zero warnings/errors.
 
 ## Next checkpoint and exit gates
 

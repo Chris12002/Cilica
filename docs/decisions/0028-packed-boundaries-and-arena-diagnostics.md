@@ -2,6 +2,10 @@
 
 Status: accepted for the bounded object backend. Recorded 2026-10-02.
 
+Follow-up: [ADR 0029](0029-measured-helper-batching.md) records local dispatch
+microbenchmarks and rejects a larger ordinary-statement batch. The unmeasured
+performance limitation below describes this checkpoint.
+
 ## Context
 
 Review after ADR 0027 found that the experimental export still placed one native
