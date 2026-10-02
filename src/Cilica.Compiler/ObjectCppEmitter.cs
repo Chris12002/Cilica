@@ -14,21 +14,25 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v5";
+    public const string Profile = "object-frames-native-v6";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
         ArgumentNullException.ThrowIfNull(program.Flow.Types);
-        if (program.InterfaceDispatch is not null || !program.Flow.Types.Interfaces.IsEmpty)
-            throw new ArgumentException("Interface programs require native lookup/execution lowering before C++ emission.", nameof(program));
         var plans = ObjectRootAssignment.Assign(program).ToDictionary(p => p.Method);
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
+        var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
+        if (program.InterfaceDispatch is { } interfacePlan)
+            foreach (var declaration in interfacePlan.Declarations)
+                signatures.Add(IrMethodId.From(declaration.Source), (declaration.Parameters, declaration.ReturnType));
         var bindings = program.Bindings.ToDictionary(b => b.Method);
         var native = new ObjectNativeLayout(program.Flow.Types);
         var types = program.Flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var fields = program.Flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
+        var typeRules = new IrTypeRules(program.Flow.Types);
+        var contracts = program.Flow.Types.Interfaces.Select(i => ObjectTypeId.From(i.Source)).ToHashSet();
         var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key]));
         var entry = methods[program.Flow.Entry];
         string symbol = CppEmitter.Symbol(program.Flow.Entry) + "_objects_packed", scope = symbol + "_closure";
@@ -68,6 +72,15 @@ public static class ObjectCppEmitter
                 .Append(", ").Append(type).Append("_fields.data(), ").Append(N(composed.Value.Length))
                 .Append(", ").Append(type).Append("_accessors.data(), field_by_offset };\n");
         }
+        foreach (var contract in contracts.OrderBy(t => t.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Token))
+        {
+            string name = ContractSymbol(contract);
+            var receivers = types.Keys.Where(t => typeRules.Assignable(IrType.Reference(t), IrType.Reference(contract))).ToArray();
+            text.Append("static constexpr std::array<const Descriptor*, ").Append(N(receivers.Length)).Append("> ")
+                .Append(name).Append("_types = {").Append(string.Join(", ", receivers.Select(t => "&" + TypeSymbol(t) + "_descriptor"))).Append("};\n")
+                .Append("[[maybe_unused, gnu::noinline]] static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n")
+                .Append("    for (const auto* receiver : ").Append(name).Append("_types) if (receiver == type) return true;\n    return false;\n}\n");
+        }
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
             var layout = layouts[IrMethodId.From(method.Source)];
@@ -82,10 +95,13 @@ public static class ObjectCppEmitter
             text.Append("};\n");
             Header(method); text.Append(";\n");
         }
-        foreach (var map in program.Dispatch)
+        var dispatch = program.Dispatch.Concat(program.InterfaceDispatch is { } prepared
+            ? prepared.Dispatch.Select(m => new ObjectVirtualDispatch(m.Declaration,
+                [.. m.Targets.Select(t => new ObjectVirtualTarget(t.Receiver, t.Implementation))])) : []);
+        foreach (var map in dispatch)
         {
             string name = DispatchSymbol(map.Declaration);
-            text.Append("using ").Append(name).Append("_body = ").Append(CType(methods[map.Declaration].ReturnType))
+            text.Append("using ").Append(name).Append("_body = ").Append(CType(signatures[map.Declaration].ReturnType))
                 .Append(" (*)(Context&, const Argument*) noexcept;\nstruct ").Append(name)
                 .Append("_entry { const Descriptor* type; ").Append(name).Append("_body body; };\n")
                 .Append("static constexpr std::array<").Append(name).Append("_entry, ").Append(N(map.Targets.Length)).Append("> ")
@@ -155,11 +171,13 @@ public static class ObjectCppEmitter
                 if (nullCheck) Guard(value + " == nullptr", "4u", offset);
                 Guard("!context.instance.owns(" + value + ")", "6u", offset);
                 if (type != program.Flow.Types.ObjectBase)
-                    Guard(value + " != nullptr && !derives_from(" + value + "->type, &" + TypeSymbol(type) + "_descriptor)", "6u", offset);
+                    Guard(value + " != nullptr && !" + (contracts.Contains(type)
+                        ? ContractSymbol(type) + "(" + value + "->type)"
+                        : "derives_from(" + value + "->type, &" + TypeSymbol(type) + "_descriptor)"), "6u", offset);
             }
             string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false)
             {
-                var parameters = methods[target].Parameters;
+                var parameters = signatures[target].Parameters;
                 int start = receiver is null ? 0 : 1;
                 if (receiver is not null) code.Append("    f->arguments[0].reference = ").Append(receiver).Append(";\n");
                 for (int i = 0; i < args.Length; i++)
@@ -169,13 +187,13 @@ public static class ObjectCppEmitter
                     if ((i + 1) % CopiesPerStep == 0) Flush();
                 }
                 Flush();
-                return (dispatch ? DispatchPointer(methods[target].ReturnType.Kind) : CppEmitter.Symbol(target)) + "(context, f->arguments.data())";
+                return (dispatch ? DispatchPointer(signatures[target].ReturnType.Kind) : CppEmitter.Symbol(target)) + "(context, f->arguments.data())";
             }
             string DispatchPointer(IrTypeKind kind) => "f->dispatch_" + kind.ToString().ToLowerInvariant();
             void SelectDispatch(IrMethodId target, ImmutableArray<int> arguments, int offset)
             {
-                Check(Value(arguments[0]), bindings[target].Owner, true, offset); Flush();
-                string pointer = DispatchPointer(methods[target].ReturnType.Kind);
+                Check(Value(arguments[0]), signatures[target].Parameters[0].Class!, true, offset); Flush();
+                string pointer = DispatchPointer(signatures[target].ReturnType.Kind);
                 code.Append("    ").Append(pointer).Append(" = ").Append(DispatchSymbol(target)).Append('(')
                     .Append(Value(arguments[0])).Append("->type);\n");
                 Guard(pointer + " == nullptr", "6u", offset); Flush();
@@ -334,5 +352,6 @@ public static class ObjectCppEmitter
     private static string N(int value) => value.ToString(CultureInfo.InvariantCulture);
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture);
     private static string DispatchSymbol(IrMethodId method) => CppEmitter.Symbol(method) + "_dispatch";
+    private static string ContractSymbol(ObjectTypeId type) => TypeSymbol(type) + "_implements";
     private static string FieldSymbol(ObjectFieldId field) => "f_" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
 }

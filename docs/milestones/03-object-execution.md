@@ -23,17 +23,17 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-a | Bounded class hierarchies and detached ancestor assignability | Complete for layout/reference IR |
 | 3d-b | Inherited native field storage and constructor chains | Complete for bounded concrete class profile |
 | 3d-c | Class casts and runtime type tests | Complete for bounded concrete classes |
-| 3d-d | Verified virtual/interface dispatch | In progress; concrete class dispatch complete |
+| 3d-d | Verified virtual/interface dispatch | Complete for bounded class/interface dispatch profile |
 | 3d-d-a | Exact class virtual slot/target resolution | Complete for bounded metadata profile |
 | 3d-d-b | Closed-world class dispatch maps and native calls | Complete for bounded concrete class profile |
-| 3d-d-c | Interface mapping and native interface calls | In progress; exact metadata targets complete |
+| 3d-d-c | Interface mapping and native interface calls | Complete for bounded nongeneric profile |
 | 3d-d-c-a | Exact nongeneric interface method targets | Complete for bounded metadata profile |
 | 3d-d-c-b | Interface catalogs, reference flow and detached maps | Complete for bounded detached preparation |
 | 3d-d-c-b-a | Detached interface catalogs and reference flow | Complete for bounded detached profile |
 | 3d-d-c-b-b | Bodyless interface declarations and validated implementation plans | Complete for bounded detached preparation |
-| 3d-d-c-c | Native interface calls and execution conformance | In progress; translated IR complete |
+| 3d-d-c-c | Native interface calls and execution conformance | Complete for bounded retained-heap profile |
 | 3d-d-c-c-a | Interface call translation and fixed-point body discovery | Complete for bounded CIL/IR profile |
-| 3d-d-c-c-b | Typed native interface lookup and execution conformance | Planned |
+| 3d-d-c-c-b | Typed native interface lookup and execution conformance | Complete for bounded retained-heap profile |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
@@ -423,9 +423,9 @@ and reference fields share existing type/metadata budgets. Iterative graph check
 and assignment closure preserve diamonds, inherited implementations and exact
 cross-image identities. Locals, direct-call arguments, returns and declared joins
 accept implemented/parent interfaces and null; loads retain their declared type.
-Object operation validation, root assignment and native emission remain gated.
-Executable declarations/maps are the next slice; interface casts/tests and native
-calls still require lowering and execution evidence.
+At this checkpoint object operations, roots and native emission remained gated;
+the subsequent 3d-d-c-b-b/3d-d-c-c slices below now supply declarations/maps and
+native calls. Interface casts/tests still require later lowering.
 
 Review is complete. Builds have zero warnings/errors; all 698 relevant local
 native/object/reference-IR/type-input/C++/Int32/exact-target checks pass in 40.5
@@ -462,8 +462,8 @@ existing budgets. Null-only calls permit empty maps and retain argument faults
 before their receiver check. Phase A assigns interface reference roots and call
 safepoints, with its existing cap. Authored .NET/translated-IR comparisons cover
 the inheritance/mapping cases, recursion, fields and reference/void results.
-Native emission remains gated until slice 3d-d-c-c-b proves actual lookup,
-execution, resource/fault cleanup and root survival. Class dispatch on MethodImpl
+Slice 3d-d-c-c-b supplies native lookup, execution, resource/fault cleanup and
+root checks during retained-heap allocations. Class dispatch on MethodImpl
 owners, interface casts/tests and inferred interface joins remain explicit gaps.
 
 Review is complete. Builds have zero warnings/errors. All 771 broader local
@@ -473,6 +473,30 @@ pass in 37.1 seconds, including existing O0/O2 native regressions. The final
 additional constructor-before/after-base regressions added during review.
 Local main and cached origin/main remain ancestors; no push or hosted work was
 started.
+
+Slice 3d-d-c-c-b supplies native interface membership and typed body lookup
+([ADR 0039](../decisions/0039-native-interface-dispatch.md)). Contract references
+retain their original pointer and dynamic class descriptor without a layout or
+wrapper. Ownership checks precede descriptor inspection; exact membership/table
+addresses preserve inherited/parent contracts and cross-image identities. Class
+and interface calls share typed body pointers, arena packets, depth/frame checks
+and cleanup. Eleven authored C# entries compare 170 native/.NET result and
+fault-origin cases per O0/O2 configuration. Native diagnostics check roots and
+interface fields during later allocations, exact/short frame budgets, every
+object-count failure stage, cleanup/reuse and invalid/foreign/wrong-type/null
+receivers. A raw two-image case retains distinct private bodies for same-name,
+equal-token contracts. Constrained-thread recursion and mutual recursion retain
+the existing 64-call policy. Collection/reclamation, interface casts/tests,
+inferred joins and ordinary class virtual resolution on MethodImpl owners remain
+explicit gaps; the broader 3d integration gate stays open.
+
+Review is complete. Builds have zero warnings/errors; all 779 relevant local
+native/object/reference-IR/declaration/type-input/C++/Int32/exact-target checks
+pass in 40.6 seconds. ASan/UBSan and the 2 KiB frame warning pass at O0/O2;
+uninstrumented stack reports for the interface driver/generated code show maxima
+of 896 bytes at O0 and 848 bytes at O2. An initial O0 failure was confined to the
+test driver's large `main`; splitting diagnostic cases retained the same gate.
+Local main and cached origin/main remain ancestors; no push or hosted work ran.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

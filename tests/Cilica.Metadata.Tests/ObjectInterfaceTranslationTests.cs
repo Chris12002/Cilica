@@ -17,7 +17,7 @@ namespace Cilica.Metadata.Tests;
 
 public sealed class ObjectInterfaceTranslationTests
 {
-    private static ObjectIrProgram Translate(string name)
+    internal static ObjectIrProgram Translate(string name)
     {
         using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
         var image = resolver.OpenInput(typeof(InterfaceCallProbe).Assembly.Location).Value!;
@@ -26,6 +26,63 @@ public sealed class ObjectInterfaceTranslationTests
         var result = ObjectTranslator.Translate(resolver, image, entry, runtime);
         Assert.True(result.Success, string.Join("; ", result.Diagnostics));
         return result.Program!;
+    }
+
+    internal static ObjectIrProgram CrossImage()
+    {
+        const TypeAttributes contractFlags = TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract;
+        const MethodAttributes abstractFlags = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract | MethodAttributes.NewSlot;
+        const MethodAttributes ctorFlags = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
+        const MethodAttributes explicitFlags = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.NewSlot;
+        var core = new ResolutionAssemblyBuilder(new("InterfaceCore", new Version(1, 0, 0, 0)));
+        core.Type("System", "Object");
+        core.Method(".ctor", [0x20, 0, 1], attributes: ctorFlags, emit: il => il.OpCode(ILOpCode.Ret));
+        core.Type("Common", "Read", attributes: contractFlags);
+        core.Method("Read", [0x20, 0, 8], attributes: abstractFlags);
+        var app = new ResolutionAssemblyBuilder(new("InterfaceApp", new Version(1, 0, 0, 0)));
+        app.Type("Example", "Unused"); app.Method("Unused", [0, 0, 8]);
+        var localContract = app.Type("Common", "Read", attributes: contractFlags);
+        var localRead = app.Method("Read", [0x20, 0, 8], attributes: abstractFlags);
+        var scope = app.Reference(new("InterfaceCore", new Version(1, 0, 0, 0)));
+        var objectRef = app.TypeReference("System", "Object", scope);
+        var contractRef = app.TypeReference("Common", "Read", scope);
+        var externalRead = app.Member(contractRef, "Read", 0x20, 0, 8);
+        var baseConstructor = app.Member(objectRef, ".ctor", 0x20, 0, 1);
+        var receiver = app.Type("Example", "Receiver", baseType: objectRef);
+        app.Implements(receiver, localContract); app.Implements(receiver, contractRef);
+        var first = app.Method("First.Read", [0x20, 0, 8], attributes: explicitFlags,
+            emit: il => { il.LoadConstantI4(17); il.OpCode(ILOpCode.Ret); });
+        var second = app.Method("Second.Read", [0x20, 0, 8], attributes: explicitFlags,
+            emit: il => { il.LoadConstantI4(31); il.OpCode(ILOpCode.Ret); });
+        app.MethodImplementation(receiver, first, externalRead); app.MethodImplementation(receiver, second, localRead);
+        var constructor = app.Method(".ctor", [0x20, 0, 1], attributes: ctorFlags,
+            emit: il => { il.LoadArgument(0); il.Call(baseConstructor); il.OpCode(ILOpCode.Ret); });
+        app.Type("Example", "Driver");
+        var entry = app.Method("Run", [0, 0, 8], locals: [7, 1, 0x12, (byte)(MetadataTokens.GetRowNumber(receiver) * 4)], emit: il =>
+        {
+            il.OpCode(ILOpCode.Newobj); il.Token(constructor); il.StoreLocal(0);
+            il.LoadLocal(0); il.OpCode(ILOpCode.Callvirt); il.Token(externalRead);
+            il.LoadLocal(0); il.OpCode(ILOpCode.Callvirt); il.Token(localRead);
+            il.OpCode(ILOpCode.Add); il.OpCode(ILOpCode.Ret);
+        });
+        using var files = new ResolverFiles(); files.Write("core.dll", core.Build()); string appPath = files.Write("app.dll", app.Build());
+        using var resolver = files.Open("refs"); var coreImage = resolver.OpenInput(Path.Combine(files.DirectoryPath("refs"), "core.dll")).Value!;
+        var image = resolver.OpenInput(appPath).Value!;
+        var result = ObjectTranslator.Translate(resolver, image, entry, coreImage);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics)); return result.Program!;
+    }
+
+    [Fact]
+    public void Same_named_equal_token_contracts_keep_distinct_calls_and_bodies_across_images()
+    {
+        var program = CrossImage(); var plan = program.InterfaceDispatch!;
+        Assert.Equal(2, plan.Declarations.Length);
+        Assert.Equal(plan.Declarations[0].Owner.Token, plan.Declarations[1].Owner.Token);
+        Assert.Equal(plan.Declarations[0].Source.Token, plan.Declarations[1].Source.Token);
+        Assert.NotEqual(plan.Declarations[0].Owner.ContentHash, plan.Declarations[1].Owner.ContentHash);
+        Assert.Equal(2, plan.Dispatch.SelectMany(m => m.Targets.Select(t => t.Implementation)).Distinct().Count());
+        Assert.Equal(48, new Evaluator(program).Run());
+        ObjectCppEmitter.EmitProgram(program);
     }
 
     [Fact]
@@ -41,7 +98,7 @@ public sealed class ObjectInterfaceTranslationTests
         for (int kind = 0; kind < 12; kind++)
             foreach (int value in new[] { 0, -19, int.MinValue, int.MaxValue })
                 Assert.Equal(InterfaceCallProbe.Run(kind, value), new Evaluator(program).Run(kind, value));
-        Assert.Throws<ArgumentException>(() => ObjectCppEmitter.EmitProgram(program));
+        Assert.Contains(ObjectCppEmitter.Profile, ObjectCppEmitter.EmitProgram(program).Text, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -51,6 +108,9 @@ public sealed class ObjectInterfaceTranslationTests
     [InlineData(nameof(InterfaceCallProbe.Recursive))]
     [InlineData(nameof(InterfaceCallProbe.MetadataOnlySlot))]
     [InlineData(nameof(InterfaceCallProbe.MixedClassCall))]
+    [InlineData(nameof(InterfaceCallProbe.ContractBoundary))]
+    [InlineData(nameof(InterfaceCallProbe.BoxBoundary))]
+    [InlineData(nameof(InterfaceCallProbe.MutuallyRecursive))]
     public void Body_discovery_reference_results_void_calls_and_recursive_interface_calls_match_dotnet(string name)
     {
         var program = Translate(name);
@@ -61,6 +121,9 @@ public sealed class ObjectInterfaceTranslationTests
             nameof(InterfaceCallProbe.ReferenceFlow) => InterfaceCallProbe.ReferenceFlow,
             nameof(InterfaceCallProbe.MetadataOnlySlot) => InterfaceCallProbe.MetadataOnlySlot,
             nameof(InterfaceCallProbe.MixedClassCall) => InterfaceCallProbe.MixedClassCall,
+            nameof(InterfaceCallProbe.ContractBoundary) => InterfaceCallProbe.ContractBoundary,
+            nameof(InterfaceCallProbe.BoxBoundary) => InterfaceCallProbe.BoxBoundary,
+            nameof(InterfaceCallProbe.MutuallyRecursive) => InterfaceCallProbe.MutuallyRecursive,
             _ => InterfaceCallProbe.Recursive,
         };
         foreach (int value in new[] { 0, 1, 7, 19 }) Assert.Equal(oracle(value), new Evaluator(program).Run(value));
@@ -274,6 +337,7 @@ public sealed class ObjectInterfaceTranslationTests
             program = program with { Flow = program.Flow with { Methods = program.Flow.Methods.SetItem(entryIndex, entry) } };
         Assert.Throws<ArgumentException>(() => ObjectIrValidator.Validate(program));
         Assert.Throws<ArgumentException>(() => ObjectRootAssignment.Assign(program));
+        Assert.Throws<ArgumentException>(() => ObjectCppEmitter.EmitProgram(program));
         IrStatement.Define Change(IrStatement.Define d)
         {
             var call = (IrExpression.Call)d.Value.Expression;

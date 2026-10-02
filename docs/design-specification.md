@@ -392,7 +392,7 @@ declared-field initializers and argument evaluation before that call. The derive
 receiver stays rooted with its original dynamic type throughout allocating base
 bodies. Physical field copies have a separate 65,536-slot bound; field-operation
 helper isolation retains the O0/O2 native-stack gate. Abstract classes,
-broader access rules and native interface dispatch remain subsequent slices.
+broader access rules remain subsequent slices.
 
 Detached catalogs now include public nongeneric fieldless interface contracts
 separately from class layouts
@@ -406,8 +406,8 @@ and declared joins. Interfaces use the existing logical reference storage kind
 without receiving instance layouts. Names do not establish identity. This is
 detached type flow only: catalogs alone do not validate interface method contracts
 or implementations. Object operations and root assignment now accept contract
-references; native emission still rejects catalogs containing interfaces.
-Interface casts/tests, inferred interface joins and native calls remain planned.
+references; native emission also accepts those catalogs and validated call plans.
+Interface casts/tests and inferred interface joins remain planned.
 
 Interface dispatch preparation now retains bodyless signatures separately from
 class method facts ([ADR 0037](decisions/0037-detached-interface-dispatch-plans.md)).
@@ -432,10 +432,23 @@ map, while retaining argument evaluation before its null check and method-exit
 fault edge. Executable signatures/bindings must agree with the plan; declarations,
 mapping facts and bodies share the 256-method cap, and class/interface target
 entries share 65,536 entries. Phase A assigns interface reference slots and call
-safepoints using the existing reference storage kind. This is translated IR and
-root-plan evidence only: native interface lookup, execution and root survival
-remain the next slice. Ordinary class virtual resolution on MethodImpl owners
-still requires its separate lowering; interface casts/tests remain rejected.
+safepoints using the existing reference storage kind. Ordinary class virtual
+resolution on MethodImpl owners still requires its separate lowering; interface
+casts/tests remain rejected.
+
+Native interface calls now use exact descriptor membership and typed method
+tables ([ADR 0039](decisions/0039-native-interface-dispatch.md)). Contracts receive
+no physical layout. A reference retains the original object pointer and dynamic
+class descriptor through interface locals, fields, arguments and returns.
+Ownership is checked before reading a receiver descriptor; membership compares
+the descriptor address with the compatible catalog classes, including inherited
+and parent contracts. Each interface call then chooses its validated effective
+body using the same typed function pointers and arena argument packets as class
+dispatch. Null and ownership/type faults retain their method/IL origin, with
+argument faults occurring first. Callee depth/frame checks and root cleanup are
+unchanged. O0/O2 native comparisons, allocation observers, exact/short budgets,
+fault cleanup and constrained-stack recursion prove this retained-heap slice;
+collection and other target toolchains remain separate gates.
 
 Class `castclass` and `isinst` now use those descriptor base links
 ([ADR 0032](decisions/0032-class-casts-and-type-tests.md)). Targets are exact

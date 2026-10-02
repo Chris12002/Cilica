@@ -256,7 +256,7 @@ public sealed class ObjectInterfaceCatalogTests
     }
 
     [Fact]
-    public void Root_plans_accept_contract_references_but_native_emission_remains_gated()
+    public void Root_plans_and_native_emission_accept_contract_references()
     {
         var method = Method([], IrType.Int32, [Define(0, IrType.Int32, new IrExpression.Constant(1))], 0)
             with { Locals = [.. AllIds.Select(IrType.Reference)] };
@@ -265,11 +265,11 @@ public sealed class ObjectInterfaceCatalogTests
             MethodAttributes.Public | MethodAttributes.Static, true)]);
         ObjectIrValidator.Validate(program);
         Assert.Single(ObjectRootAssignment.Assign(program));
-        Assert.Throws<ArgumentException>(() => ObjectCppEmitter.EmitProgram(program));
+        Assert.Contains(ObjectCppEmitter.Profile, ObjectCppEmitter.EmitProgram(program).Text, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void Cil_translation_accepts_an_included_interface_class_and_native_emission_remains_gated()
+    public void Cil_translation_and_native_emission_accept_an_included_interface_class()
     {
         var builder = new ResolutionAssemblyBuilder(new("ContractBody", new Version(1, 0, 0, 0)));
         var rootObject = builder.Type("System", "Object"); var contract = builder.Type("Example", "Read", attributes: ContractFlags);
@@ -282,6 +282,6 @@ public sealed class ObjectInterfaceCatalogTests
         Assert.True(result.Success, string.Join("; ", result.Diagnostics));
         ObjectIrValidator.Validate(result.Program!);
         Assert.Null(result.Program!.InterfaceDispatch);
-        Assert.Throws<ArgumentException>(() => ObjectCppEmitter.EmitProgram(result.Program));
+        Assert.Contains(ObjectCppEmitter.Profile, ObjectCppEmitter.EmitProgram(result.Program).Text, StringComparison.Ordinal);
     }
 }

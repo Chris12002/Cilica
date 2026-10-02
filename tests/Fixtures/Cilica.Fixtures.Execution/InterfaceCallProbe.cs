@@ -38,7 +38,9 @@ namespace Cilica.Fixtures.Execution
             box.Set(value);
             IFrameBox next = box.Next();
             next.Set(unchecked(value + 1));
-            return unchecked(box.Read() + next.Read());
+            IFrameBox third = next.Next();
+            third.Set(unchecked(value + 2));
+            return unchecked(box.Read() + next.Read() + third.Read());
         }
 
         public static int NullCall(int divisor)
@@ -65,6 +67,22 @@ namespace Cilica.Fixtures.Execution
             ExactInterfaceBase instance = new ExactInterfaceOverride();
             IExactRead reader = instance;
             return unchecked(reader.Read(value) + instance.Read(value));
+        }
+
+        public static int ThroughContract(IExactRead reader, int value) { return reader.Read(value); }
+        public static int ContractBoundary(int value) { return ThroughContract(new ExactInterfaceDiamond(), value); }
+
+        public static int ThroughBox(IFrameBox box, int value)
+        {
+            box.Set(value);
+            return box.Read();
+        }
+        public static int BoxBoundary(int value) { return ThroughBox(new FirstFrameBox(), value); }
+
+        public static int MutuallyRecursive(int depth)
+        {
+            IFrameRecursion reader = new MutualFrameRecursion();
+            return reader.Count(depth);
         }
     }
 
@@ -100,6 +118,26 @@ namespace Cilica.Fixtures.Execution
         {
             if (depth == 0) return 0;
             IFrameRecursion next = this;
+            return unchecked(1 + next.Count(depth - 1));
+        }
+    }
+
+    public sealed class OtherFrameRecursion : IFrameRecursion
+    {
+        public int Count(int depth)
+        {
+            if (depth == 0) return 0;
+            IFrameRecursion next = new MutualFrameRecursion();
+            return unchecked(1 + next.Count(depth - 1));
+        }
+    }
+
+    public sealed class MutualFrameRecursion : IFrameRecursion
+    {
+        public int Count(int depth)
+        {
+            if (depth == 0) return 0;
+            IFrameRecursion next = new OtherFrameRecursion();
             return unchecked(1 + next.Count(depth - 1));
         }
     }
