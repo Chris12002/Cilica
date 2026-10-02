@@ -324,6 +324,18 @@ argument stores and exception regions remain unsupported. Authored C# and raw
 stack-carrying IL match .NET under native sanitizers. The heap still retains
 objects until teardown, so actual collection remains unimplemented.
 
+Object execution storage now uses a separate context-owned, non-moving arena
+([ADR 0027](decisions/0027-budgeted-execution-frames.md)). The default 1 MiB
+execution budget includes typed parameter/local/value/input slots, roots,
+argument packets, scratch and frame metadata with target alignment. The 64-call
+limit remains; storage exhaustion returns status 9. Scope guards unlink roots
+and release reservations on all exits. Internal calls pass argument-storage
+pointers, and bounded non-inlined C++ helpers share each heap frame through a
+small dispatch loop. Merely moving explicit locals did not bound Clang's O0
+spills, so target native-stack measurements are part of this checkpoint.
+The separate primitive backend retains its earlier storage model. No collector,
+performance or additional target guarantee follows from execution frames.
+
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
 record base types, interfaces, dispatch tables, size, reference-field maps,

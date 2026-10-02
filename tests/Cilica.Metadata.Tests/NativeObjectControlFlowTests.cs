@@ -29,7 +29,7 @@ public sealed class NativeObjectControlFlowTests(ITestOutputHelper output)
         var checkedMethod = programs[3].Flow.Methods.Single(m => m.Source.Token == typeof(ProbeNode).GetMethod(nameof(ProbeNode.CheckedChange))!.MetadataToken);
         int checkedOffset = checkedMethod.Blocks.SelectMany(b => b.Values).Single(v => v.Expression is IrExpression.Binary).ILOffset;
         var artifacts = programs.Select(ObjectCppEmitter.EmitProgram).ToArray();
-        var source = new StringBuilder(); foreach (var artifact in artifacts) source.Append(artifact.Text).Append('\n');
+        var source = new StringBuilder(); for (int i = 0; i < artifacts.Length; i++) source.Append(artifacts[i].Text).Append(NativeObjectAdapters.Emit(programs[i], artifacts[i])).Append('\n');
         string scope = artifacts[4].EntryPoint[..^4] + "_closure";
         // Original references must remain published while loop temporaries/locals change.
         source.Append("#include <cassert>\n#include <iostream>\n#include <cstring>\nnamespace ").Append(scope).Append(" {\n")
@@ -48,7 +48,7 @@ public sealed class NativeObjectControlFlowTests(ITestOutputHelper output)
             source.Append("  case ").Append(i).Append(": { using namespace ").Append(ownScope).Append("; Instance heap; Context c(heap);");
             if (i == 4) source.Append(" first = nullptr; second = nullptr; c.observe = observe;");
             source.Append(" const auto returned = ").Append(root).Append("(c, ").Append(args).Append(");\n")
-                .Append("    assert(c.top == nullptr && c.depth == 0); status = c.pending; if (status == 0) value = returned; method = c.method; il = c.il; image = c.image;\n");
+                .Append("    assert(c.top == nullptr && c.depth == 0 && c.used == 0); status = c.pending; if (status == 0) value = returned; method = c.method; il = c.il; image = c.image;\n");
             if (i == 3) source.Append("    if (status == 2u) assert(method == ").Append(checkedMethod.Source.Token).Append("u && il == ").Append(checkedOffset).Append("u);\n");
             source.Append("    std::int32_t boundary = -123456789; std::uint32_t bm = 0, bi = 0; const char* bh = nullptr; assert(")
                 .Append(artifacts[i].EntryPoint).Append("(&boundary, &bm, &bi, &bh, ").Append(args).Append(") == status);\n")
@@ -60,7 +60,7 @@ public sealed class NativeObjectControlFlowTests(ITestOutputHelper output)
         var chainEntry = programs[0].Flow.Entry; string chainScope = artifacts[0].EntryPoint[..^4] + "_closure";
         source.Append("  { using namespace ").Append(chainScope).Append("; Instance heap; heap.object_limit = 2; Context c(heap); (void)cilica_m_")
             .Append(chainEntry.ContentHash).Append('_').Append(chainEntry.Token.ToString("x8", CultureInfo.InvariantCulture))
-            .Append("(c, 4, 1); assert(c.pending == 5u && heap.count == 2 && c.top == nullptr && c.depth == 0); }\n  return std::cin.eof() ? 0 : 3; }\n");
+            .Append("(c, 4, 1); assert(c.pending == 5u && heap.count == 2 && c.top == nullptr && c.depth == 0 && c.used == 0); }\n  return std::cin.eof() ? 0 : 3; }\n");
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("object-flow-native"), cpp = Path.Combine(directory, "flow.cpp"), executable = Path.Combine(directory, "flow");
         File.WriteAllText(cpp, source.ToString(), new UTF8Encoding(false)); string compiler = Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++";
         string[] flags = ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", executable];

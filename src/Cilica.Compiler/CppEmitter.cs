@@ -152,20 +152,22 @@ public static class CppEmitter
     }
 
     // Shared integer lowering keeps object and primitive faults/bit semantics identical.
-    internal static string AppendValuePreparation(StringBuilder text, IrValue value, int block, Action<Int32Fault, int> fault)
+    internal static string AppendValuePreparation(StringBuilder text, IrValue value, int block, Action<Int32Fault, int> fault,
+        Func<int, string>? operand = null, Func<bool, string>? scratch = null)
     {
+        operand ??= id => "v" + Number(id);
         if (value.Expression is IrExpression.Binary { Operation: Int32Operation.DivideSigned or Int32Operation.DivideUnsigned
             or Int32Operation.RemainderSigned or Int32Operation.RemainderUnsigned } division)
         {
             // Guard before native division/remainder. Signed MinValue/-1
             // faults in the selected .NET profile for both operations,
             // even though evaluating the widened operation would be safe.
-            text.Append("    if (v").Append(Number(division.Right)).Append(" == 0u) {\n");
+            text.Append("    if (").Append(operand(division.Right)).Append(" == 0u) {\n");
             fault(Int32Fault.DivideByZero, value.ILOffset); text.Append("    }\n");
             if (division.Operation is Int32Operation.DivideSigned or Int32Operation.RemainderSigned)
             {
-                text.Append("    if (v").Append(Number(division.Left)).Append(" == 0x80000000u && v")
-                    .Append(Number(division.Right)).Append(" == 0xffffffffu) {\n");
+                text.Append("    if (").Append(operand(division.Left)).Append(" == 0x80000000u && ")
+                    .Append(operand(division.Right)).Append(" == 0xffffffffu) {\n");
                 fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
             }
         }
@@ -177,38 +179,43 @@ public static class CppEmitter
             // negative results are checked without native wraparound.
             bool signed = Int32Operations.IsSignedChecked(arithmetic.Operation);
             bool signedWide = signed || arithmetic.Operation == Int32Operation.SubtractCheckedUnsigned;
-            string wide = "w" + Number(value.Id);
-            text.Append("    const std::").Append(signedWide ? "int64_t " : "uint64_t ").Append(wide).Append(" = ")
-                .Append(CheckedExpression(arithmetic, signed, signedWide)).Append(";\n");
+            string wide = scratch is null ? "w" + Number(value.Id) : scratch(signedWide);
+            text.Append("    ");
+            if (scratch is null) text.Append("const std::").Append(signedWide ? "int64_t " : "uint64_t ");
+            text.Append(wide).Append(" = ").Append(CheckedExpression(arithmetic, signed, signedWide, operand)).Append(";\n");
             string range = signed ? wide + " < -2147483648LL || " + wide + " > 2147483647LL"
                 : signedWide ? wide + " < 0LL || " + wide + " > 4294967295LL" : wide + " > 0xffffffffu";
             text.Append("    if (").Append(range).Append(") {\n");
             fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
             expression = "static_cast<std::uint32_t>(" + wide + ")";
         }
-        else expression = Expression(value.Expression, block);
+        else expression = Expression(value.Expression, block, operand);
         return expression;
     }
 
-    internal static string Expression(IrExpression expression, int block) => expression switch
+    internal static string Expression(IrExpression expression, int block, Func<int, string>? operand = null)
     {
-        IrExpression.Constant c => "std::uint32_t{0x" + unchecked((uint)c.Value).ToString("x8", CultureInfo.InvariantCulture) + "u}",
-        IrExpression.Parameter p => "std::bit_cast<std::uint32_t>(p" + Number(p.Index) + ")",
-        IrExpression.Local l => "l" + Number(l.Index),
-        IrExpression.StackInput s => Input(block, s.Index),
-        IrExpression.Binary b => Binary(b),
-        IrExpression.Unary u when u.Operation == Int32UnaryOperation.BitwiseNot =>
-            "static_cast<std::uint32_t>(~static_cast<std::uint64_t>(v" + Number(u.Operand) + "))",
-        IrExpression.Compare c => "(" + Comparison(c.Comparison, c.Left, c.Right) + " ? 1u : 0u)",
-        IrExpression.Call c => "std::bit_cast<std::uint32_t>(" + Symbol(c.Target) + "(context" + (c.Arguments.IsEmpty ? "" : ", ") +
-            string.Join(", ", c.Arguments.Select(a => "std::bit_cast<std::int32_t>(v" + Number(a) + ")")) + "))",
-        _ => throw new InvalidOperationException("Validated expression changed."),
-    };
+        operand ??= id => "v" + Number(id);
+        return expression switch
+        {
+            IrExpression.Constant c => "std::uint32_t{0x" + unchecked((uint)c.Value).ToString("x8", CultureInfo.InvariantCulture) + "u}",
+            IrExpression.Parameter p => "std::bit_cast<std::uint32_t>(p" + Number(p.Index) + ")",
+            IrExpression.Local l => "l" + Number(l.Index),
+            IrExpression.StackInput s => Input(block, s.Index),
+            IrExpression.Binary b => Binary(b, operand),
+            IrExpression.Unary u when u.Operation == Int32UnaryOperation.BitwiseNot =>
+                "static_cast<std::uint32_t>(~static_cast<std::uint64_t>(" + operand(u.Operand) + "))",
+            IrExpression.Compare c => "(" + Comparison(c.Comparison, c.Left, c.Right, operand: operand) + " ? 1u : 0u)",
+            IrExpression.Call c => "std::bit_cast<std::uint32_t>(" + Symbol(c.Target) + "(context" + (c.Arguments.IsEmpty ? "" : ", ") +
+                string.Join(", ", c.Arguments.Select(a => "std::bit_cast<std::int32_t>(" + operand(a) + ")")) + "))",
+            _ => throw new InvalidOperationException("Validated expression changed."),
+        };
+    }
 
-    private static string CheckedExpression(IrExpression.Binary binary, bool signed, bool signedWide)
+    private static string CheckedExpression(IrExpression.Binary binary, bool signed, bool signedWide, Func<int, string> operand)
     {
         string Operand(int id) => "static_cast<std::" + (signedWide ? "int64_t>(" : "uint64_t>(") +
-            (signed ? "std::bit_cast<std::int32_t>(v" + Number(id) + ")" : "v" + Number(id)) + ")";
+            (signed ? "std::bit_cast<std::int32_t>(" + operand(id) + ")" : operand(id)) + ")";
         string operation = binary.Operation switch
         {
             Int32Operation.AddCheckedSigned or Int32Operation.AddCheckedUnsigned => "+",
@@ -219,16 +226,16 @@ public static class CppEmitter
         return Operand(binary.Left) + " " + operation + " " + Operand(binary.Right);
     }
 
-    private static string Binary(IrExpression.Binary binary)
+    private static string Binary(IrExpression.Binary binary, Func<int, string> operand)
     {
-        string left = "static_cast<std::uint64_t>(v" + Number(binary.Left) + ")";
-        string right = "static_cast<std::uint64_t>(v" + Number(binary.Right) + ")";
+        string left = "static_cast<std::uint64_t>(" + operand(binary.Left) + ")";
+        string right = "static_cast<std::uint64_t>(" + operand(binary.Right) + ")";
         if (binary.Operation is Int32Operation.DivideSigned or Int32Operation.RemainderSigned)
-            return "static_cast<std::uint32_t>(static_cast<std::int64_t>(std::bit_cast<std::int32_t>(v" + Number(binary.Left) +
+            return "static_cast<std::uint32_t>(static_cast<std::int64_t>(std::bit_cast<std::int32_t>(" + operand(binary.Left) +
                 ")) " + (binary.Operation == Int32Operation.DivideSigned ? "/" : "%") +
-                " static_cast<std::int64_t>(std::bit_cast<std::int32_t>(v" + Number(binary.Right) + ")))";
+                " static_cast<std::int64_t>(std::bit_cast<std::int32_t>(" + operand(binary.Right) + ")))";
         if (binary.Operation == Int32Operation.ShiftRightSigned)
-            return "cilica_shr_i4(v" + Number(binary.Left) + ", v" + Number(binary.Right) + ")";
+            return "cilica_shr_i4(" + operand(binary.Left) + ", " + operand(binary.Right) + ")";
         if (binary.Operation is Int32Operation.ShiftLeft or Int32Operation.ShiftRightUnsigned) right = "(" + right + " & 31u)";
         string operation = binary.Operation switch
         {
@@ -241,20 +248,21 @@ public static class CppEmitter
         return "static_cast<std::uint32_t>(" + left + " " + operation + " " + right + ")";
     }
 
-    internal static string Comparison(Int32Comparison comparison, int left, int? right, bool reference = false)
+    internal static string Comparison(Int32Comparison comparison, int left, int? right, bool reference = false, Func<int, string>? operand = null)
     {
-        string operand = "v" + Number(left);
+        operand ??= id => "v" + Number(id);
+        string first = operand(left);
         if (comparison is Int32Comparison.Zero or Int32Comparison.Nonzero)
-            return operand + (comparison == Int32Comparison.Zero ? " == " : " != ") + (reference ? "nullptr" : "0u");
+            return first + (comparison == Int32Comparison.Zero ? " == " : " != ") + (reference ? "nullptr" : "0u");
         // dup can make both operands the same already-evaluated temporary.
         // Fold that identity to avoid tautological-compare errors under -Werror.
         if (left == right)
             return comparison is Int32Comparison.Equal or Int32Comparison.LessOrEqualSigned or Int32Comparison.LessOrEqualUnsigned
                 or Int32Comparison.GreaterOrEqualSigned or Int32Comparison.GreaterOrEqualUnsigned ? "true" : "false";
-        string other = "v" + Number(right!.Value);
+        string other = operand(right!.Value);
         if (comparison is Int32Comparison.LessSigned or Int32Comparison.GreaterSigned or Int32Comparison.LessOrEqualSigned or Int32Comparison.GreaterOrEqualSigned)
         {
-            operand = "std::bit_cast<std::int32_t>(" + operand + ")";
+            first = "std::bit_cast<std::int32_t>(" + first + ")";
             other = "std::bit_cast<std::int32_t>(" + other + ")";
         }
         string operation = comparison switch
@@ -266,7 +274,7 @@ public static class CppEmitter
             Int32Comparison.GreaterOrEqualSigned or Int32Comparison.GreaterOrEqualUnsigned => ">=",
             _ => throw new InvalidOperationException("Validated comparison changed."),
         };
-        return operand + " " + operation + " " + other;
+        return first + " " + operation + " " + other;
     }
     internal static string Symbol(IrMethodId id) => "cilica_m_" + id.ContentHash.ToLowerInvariant() + "_" + Hex(id.Token, "x8");
     private static string Input(int block, int index) => "s" + Number(block) + "_" + Number(index);

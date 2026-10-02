@@ -16,6 +16,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3b-b | CIL object translation, construction/field access and verified static/instance calls | Complete for bounded straight-line profile |
 | 3c | Native object allocation, instance ownership and phase A root frames; first class differential execution | Complete for bounded straight-line profile |
 | 3b-c | Reference-stack inference through branches/backedges | Complete for bounded ordinary-method control flow |
+| 3c-a | Budgeted execution frames and native-stack regression checks | Complete for bounded object backend |
 | 3d | Inheritance, casts and verified virtual/interface dispatch | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -204,6 +205,31 @@ seconds, including primitive and object native sanitizer cases. Toolchain: SDK
 10.0.400, .NET 10.0.11, Apple Clang 17 on macOS ARM64. Local main and cached
 origin/main remain ancestors; the remote advertises no branch refs. No push,
 hosted work, additional agent or runtime service was started.
+
+## Slice 3c-a outcome
+
+[ADR 0027](../decisions/0027-budgeted-execution-frames.md) replaces native method
+storage with target-sized typed frames in a separate, stable 1 MiB execution
+arena. It retains depth 64 and the phase A root contract, adds resource status 9,
+and releases frames/roots on all normal/fault paths. Internal argument packets
+are budgeted; native bodies access frame slots through bounded non-inlined
+helpers. Measurement caught megabyte-sized O0 spill frames even after explicit
+locals moved to the heap, motivating the small dispatch loop between helpers.
+
+Validation includes O0/O2 native finite/mutual recursion, exact/short budgets,
+alignment, depth, many arguments, fault ordering, reuse after failure and roots.
+The reduced wide case has 1,024 checked additions and 2,048 locals per invocation;
+Clang stack reports give 272/208-byte maxima at O0/O2 without instrumentation.
+ASan/UBSan execution also builds with a 2 KiB frame warning threshold. Existing
+object differential probes continue to exercise reference returns and backedges.
+These are local macOS ARM64 results, with no performance, collector or wider
+platform claim. The primitive backend retains its previous storage model.
+
+Final validation: zero build warnings/errors; all 416 targeted native, object,
+C++ emission and Int32 tests pass in 39.6 seconds, including the O0/O2 sanitizer
+and stack-report regressions. Review found no remaining issue within this
+bounded profile. Local main and cached origin/main are ancestors; the remote
+main query returned no branch ref. No push or hosted work was started.
 
 ## Next checkpoint and exit gates
 

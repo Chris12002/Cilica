@@ -42,7 +42,7 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
         var programs = cases.Select(c => Translate(c.Name)).ToArray();
         var artifacts = programs.Select(ObjectCppEmitter.EmitProgram).ToArray();
         var source = new StringBuilder();
-        foreach (var artifact in artifacts) source.Append(artifact.Text).Append('\n');
+        for (int i = 0; i < artifacts.Length; i++) source.Append(artifacts[i].Text).Append(NativeObjectAdapters.Emit(programs[i], artifacts[i])).Append('\n');
         source.Append("#include <cassert>\n#include <cstring>\n#include <iostream>\n");
         // Observe published root contents at allocation, including references returned
         // from a now-popped callee and receiver/arguments in an allocating callee.
@@ -57,6 +57,9 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
                 .Append("    std::memcpy(&child, reinterpret_cast<const char*>(root) + root->type->references[j], sizeof(child));\n")
                 .Append("    if (reaches(child, target, remaining - 1)) return true; } return false;\n}\n")
                 .Append("static void inspect(Context& c) noexcept { ++polls; assert(c.top != nullptr && c.depth != 0 && valid_roots(c));\n")
+                .Append("  for (Frame* f = c.top; f != nullptr; f = f->previous) { const auto begin = reinterpret_cast<std::uintptr_t>(c.execution), end = begin + c.used;\n")
+                .Append("    assert(reinterpret_cast<std::uintptr_t>(f) >= begin && reinterpret_cast<std::uintptr_t>(f) + sizeof(Frame) <= end);\n")
+                .Append("    if (f->count != 0) assert(reinterpret_cast<std::uintptr_t>(f->slots) >= begin && reinterpret_cast<std::uintptr_t>(f->slots) + f->count * sizeof(Object*) <= end); }\n")
                 .Append("  for (Object* p = c.instance.head; p != nullptr; p = p->next) { bool found = false;\n")
                 .Append("    for (Frame* f = c.top; f != nullptr; f = f->previous) for (std::size_t j = 0; j < f->count; ++j) found |= reaches(f->slots[j], p);\n")
                 .Append("    assert(found); }\n}\n}\n");
@@ -82,20 +85,20 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
         source.Append("  { using namespace ").Append(firstScope).Append("; Instance a, b; Context ca(a), cb(b); Object* p = allocate<").Append(nodeType).Append(">(ca, ").Append(nodeType).Append("_descriptor);\n")
             .Append("    assert(").Append(change).Append("(cb, p, 1) == 0 && cb.pending == 6u && cb.top == nullptr && cb.depth == 0 && b.count == 0);\n")
             .Append("    Context invalid(b); assert(").Append(change).Append("(invalid, reinterpret_cast<Object*>(std::uintptr_t{1}), 1) == 0 && invalid.pending == 6u && invalid.top == nullptr);\n")
-            .Append("    Context poisoned(b); Object* slots[] = {p}; { Frame frame(poisoned, slots, 1); assert(!valid_roots(poisoned));\n")
+            .Append("    Context poisoned(b); Object* slots[] = {p}; { Frame header; RootScope frame(poisoned, header, slots, 1); assert(!valid_roots(poisoned));\n")
             .Append("      assert(allocate<").Append(nodeType).Append(">(poisoned, ").Append(nodeType).Append("_descriptor) == nullptr && poisoned.pending == 6u && b.count == 0); } assert(poisoned.top == nullptr); }\n");
         for (int i = 0; i < artifacts.Length; i++)
         {
             var program = programs[i]; string scope = Scope(artifacts[i]), root = CppEmitterSymbol(program.Flow.Entry);
             source.Append("  { using namespace ").Append(scope).Append("; Instance heap; heap.limit = 0; Context c(heap);\n    (void)")
                 .Append(root).Append("(c, 1").Append(cases[i].Arity == 2 ? ", 1" : "").Append(");\n")
-                .Append("    assert(c.pending == ").Append(i == 4 ? "4u" : "5u").Append(" && c.top == nullptr && c.depth == 0 && heap.count == 0); }\n");
+                .Append("    assert(c.pending == ").Append(i == 4 ? "4u" : "5u").Append(" && c.top == nullptr && c.depth == 0 && c.used == 0 && heap.count == 0); }\n");
         }
         // Failure at the second allocation also unwinds an allocating constructor.
         foreach (int i in new[] { 0, 6 })
         {
             source.Append("  { using namespace ").Append(Scope(artifacts[i])).Append("; Instance heap; heap.object_limit = 1; Context c(heap); (void)")
-                .Append(CppEmitterSymbol(programs[i].Flow.Entry)).Append("(c, 1, 2); assert(c.pending == 5u && heap.count == 1 && c.top == nullptr && c.depth == 0);");
+                .Append(CppEmitterSymbol(programs[i].Flow.Entry)).Append("(c, 1, 2); assert(c.pending == 5u && heap.count == 1 && c.top == nullptr && c.depth == 0 && c.used == 0);");
             if (i == 6) source.Append(" assert(c.method == ").Append(typeof(ProbeWrapper).GetConstructor([typeof(int)])!.MetadataToken).Append("u);");
             source.Append(" }\n");
         }
@@ -114,7 +117,7 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
             source.Append("    case ").Append(i).Append(": { using namespace ").Append(scope).Append("; Instance heap; Context c(heap);");
             if (i is 0 or 1 or 6) source.Append(" polls = 0; c.observe = inspect;");
             source.Append(" const auto returned = ").Append(root).Append("(c, a").Append(cases[i].Arity == 2 ? ", b" : "").Append(");\n")
-                .Append("      assert(c.top == nullptr && c.depth == 0); status = c.pending; method = c.method; il = c.il; image = c.image; if (status == 0) value = returned;\n");
+                .Append("      assert(c.top == nullptr && c.depth == 0 && c.used == 0); status = c.pending; method = c.method; il = c.il; image = c.image; if (status == 0) value = returned;\n");
             if (i is 0 or 1 or 6) source.Append("      assert(polls == ").Append(i == 0 ? "2" : "3").Append(");\n");
             source.Append("      std::int32_t boundary = -123456789; std::uint32_t bm = 0, bi = 0; const char* bh = nullptr; assert(")
                 .Append(artifacts[i].EntryPoint).Append("(&boundary, &bm, &bi, &bh, a").Append(cases[i].Arity == 2 ? ", b" : "").Append(") == status);\n")
@@ -211,13 +214,14 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
             var translated = ObjectTranslator.Translate(resolver, image, root, image); Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
             var artifact = mode == 6 ? CppEmitter.EmitProgram(new(translated.Program!.Flow.Entry, translated.Program.Flow.Methods))
                 : ObjectCppEmitter.EmitProgram(translated.Program!); artifacts.Add((artifact, status, expected)); source.Append(artifact.Text).Append('\n');
+            if (mode != 6) source.Append(NativeObjectAdapters.Emit(translated.Program!, artifact));
         }
         source.Append("#include <cassert>\nint main() {\n");
         foreach (var (artifact, status, result) in artifacts)
         {
             if (status == 8)
                 source.Append("  { using namespace ").Append(Scope(artifact)).Append("; Instance heap; Context c(heap); (void)")
-                    .Append(CppEmitterSymbol(IrMethodId.From(artifact.Source))).Append("(c); assert(c.pending == 8u && c.top == nullptr && c.depth == 0); }\n");
+                    .Append(CppEmitterSymbol(IrMethodId.From(artifact.Source))).Append("(c); assert(c.pending == 8u && c.top == nullptr && c.depth == 0 && c.used == 0); }\n");
             source.Append("  { std::int32_t value = -123456789; std::uint32_t method = 0, il = 0; const char* image = nullptr; assert(")
                 .Append(artifact.FaultEntryPoint).Append("(&value, &method, &il, &image) == ").Append(status).Append("u && value == ").Append(result).Append("); }\n");
         }

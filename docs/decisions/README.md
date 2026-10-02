@@ -30,3 +30,6 @@ capability. It becomes accepted once its validation experiment has run.
 | [0022](0022-detached-object-layouts.md) | Detached object layouts and reference storage | Accepted for bounded logical model; native objects planned |
 | [0023](0023-typed-reference-value-flow.md) | Typed reference value flow | Accepted for detached IR validation; CIL objects and native references planned |
 | [0024](0024-straight-line-object-operations.md) | Straight-line object operations | Accepted for bounded CIL translation; native objects and roots planned |
+| [0025](0025-native-object-ownership-and-roots.md) | Native object ownership and phase A roots | Accepted for bounded native objects |
+| [0026](0026-reference-control-flow.md) | Typed reference branches and backedges | Accepted for bounded object control flow |
+| [0027](0027-budgeted-execution-frames.md) | Budgeted execution frames and bounded native helpers | Accepted for bounded object backend |

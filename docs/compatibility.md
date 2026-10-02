@@ -11,7 +11,7 @@ not establish native execution or platform compatibility.
 | `object-layout-v1` | Bounded metadata snapshots and detached class/field graphs | Int32/CLASS/OBJECT field storage and logical reference slots only; no reference IL, byte layout, allocation, root frames or object execution |
 | `typed-reference-ir-v1` | Detached caller-constructed IR validation | Concrete references/null, typed locals/joins/calls/returns; no CIL object translation, constructor/field operations, native emission or execution |
 | `object-operations-ir-v1` | Bounded CIL translation and detached operation validation | Constructors, fields and nonvirtual static/instance calls; test-only .NET/IR conformance; no native reference emission, heap, ownership, root frames or collection |
-| `object-control-flow-native-v1` | C++20 emission and local native differential execution | Instance-owned retained heap, phase A roots, typed branches/backedges, null/allocation faults; Int32 boundary only; no collector |
+| `object-frames-native-v1` | C++20 emission and local native differential execution | Budgeted execution arena, bounded native helpers, retained heap, phase A roots and typed branches/backedges; Int32 boundary only; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -377,3 +377,33 @@ Observers inspect original references during loop allocations; allocation-budget
 failure pops the frame. Compiler fixtures cover convergence, invalid/widened uses,
 inference bounds and preserved rejection boundaries. See
 [ADR 0026](decisions/0026-reference-control-flow.md).
+
+## Budgeted object execution frames
+
+`object-frames-native-v1` supersedes the object control-flow emission profile
+([ADR 0027](decisions/0027-budgeted-execution-frames.md)). It adds a 1 MiB
+per-context execution-storage budget independently of retained object storage.
+Target-sized typed frames include parameters, locals, values, block inputs,
+roots, metadata, scratch and reusable outgoing arguments. Frames have stable
+addresses and release in reverse reservation order; root cleanup precedes reuse.
+Existing root/IR limits and the 64-call limit remain.
+
+Status 9 reports execution storage exhaustion/backing-allocation failure. It is
+not a managed StackOverflowException. Callee-entry failures identify that method
+and its first block's IL offset; argument and receiver faults occur first, then
+depth precedes storage checks. Failed execution leaves the boundary result
+unchanged. The private context constructor permits test budgets; the public
+experimental Int32 boundary uses the default and budgets its entry packet too.
+
+Small non-inlined native helpers bound per-function spill growth; a dispatch
+loop advances between them without growing the native call chain. O0/O2 native
+regressions cover finite/mutual recursion, exact/excess memory and depth, cleanup,
+alignment, many call arguments and allocation-time roots. The wide regression's
+non-instrumented Apple Clang 17 macOS ARM64 stack reports measure maxima of 272
+bytes (O0) and 208 bytes (O2), below its 2 KiB threshold. Instrumented execution
+also enforces that warning threshold. These measurements do not guarantee total
+host stack availability, large exported signatures or other targets. Native
+runtime/library calls and dispatch overhead still count toward host stack use.
+No throughput or code-size claim is made for the conservative step dispatch.
+The separate primitive emitter is unchanged in storage/depth policy; collection
+and broader managed-runtime capabilities remain planned.
