@@ -10,6 +10,18 @@ namespace Cilica.Metadata.Resolution;
 
 public sealed partial class AssemblyResolver
 {
+    /// <summary>Reads one owned TypeDef row and charges the caller's metadata work ledger.</summary>
+    public ResolutionResult<TypeDefinitionFlags> ReadTypeFlags(ResolvedType type, MemberResolutionBudget budget)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(budget);
+        return Bind(type.Assembly, type.Handle, () =>
+        {
+            InspectMember(budget);
+            return new TypeDefinitionFlags(type.Assembly.Image.Reader.GetTypeDefinition(type.Handle).Attributes);
+        });
+    }
+
     /// <summary>Snapshots bounded structural metadata without loading or running the type.</summary>
     public ResolutionResult<TypeInput> ReadTypeInput(ResolvedAssembly assembly, TypeDefinitionHandle handle,
         TypeReadLimits? limits = null)

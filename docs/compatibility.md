@@ -7,13 +7,13 @@ not establish native execution or platform compatibility.
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
 | `class-virtual-target-v1` | Exact metadata target resolution | One public nongeneric class virtual slot/body per concrete receiver, with newslot/final checks; executable calls use the separate object profile |
-| `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings; executable interface IR/native calls remain planned |
+| `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings; native interface calls remain planned |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v3` | Bounded metadata snapshots and detached class/field/interface graphs | Concrete nongeneric class chains, public fieldless nongeneric interface contracts, declared Int32/CLASS/OBJECT fields and logical reference slots; interfaces have no instance layout |
-| `typed-reference-ir-v3` | Detached caller-constructed IR validation | Class/interface references/null, ancestor/implemented-contract assignments and typed locals/joins/direct calls/returns; interface operations/native calls remain gated |
+| `typed-reference-ir-v3` | Detached caller-constructed IR validation | Class/interface references/null, ancestor/implemented-contract assignments and typed locals/joins/direct calls/returns; executable interface calls require the object-operation profile |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
-| `object-operations-ir-v4` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, concrete class casts/type tests and public nongeneric class virtual calls; interfaces and broader access rules remain unsupported |
+| `object-operations-ir-v5` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, concrete class casts/type tests, class virtual calls and interface calls with dispatch plans and selected executable bodies; native interface lookup and broader access rules remain unsupported |
 | `object-frames-native-v5` | C++20 emission and local native differential execution | Class virtual dispatch, casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
@@ -251,7 +251,8 @@ also cover reference values and argument copies.
 This API alone validates value flow: the object-operation profile below adds
 method bindings, constructor/field operations and their access checks. Native
 object lowering is supplied by the separate bounded profile below, which still
-rejects catalogs containing interfaces before root assignment or source emission.
+rejects catalogs containing interfaces before source emission. Phase A root
+assignment accepts interface references in validated object-operation IR.
 The operation/native profiles now lower inherited fields and immediate-base
 constructor chains, class casts and bounded class virtual calls. CIL stack inference
 still widens distinct reference types to Object; ancestor-typed joins beyond
@@ -309,7 +310,7 @@ friend rules and inherited MemberRef owners remain conservatively unsupported.
 Readonly stores require the declaring constructor and a direct parameter-zero
 receiver. Reference field stores accept null or an assignable concrete reference.
 Type/module initialization, reference-assembly/native bodies, generics,
-interface calls, abstract classes, MethodImpl remapping, covariance, prefixes,
+abstract classes, broader MethodImpl remapping, covariance, prefixes,
 arrays, strings, byrefs and unsupported storage fail
 without partial programs. Ordinary methods support branches/backedges with inferred
 typed inputs, described below. Constructors remain straight-line; unreachable
@@ -613,8 +614,8 @@ Evidence: 47 authored .NET interface-map and trusted call comparisons, plus raw
 selection, malformed metadata and exact/excess resource regressions. The class
 metadata operation and conservative audits retain their previous contracts.
 Detached interface catalogs and reference flow are implemented under ADR 0036.
-The object compiler/native backend still reject included interface catalogs;
-CIL call integration, interface casts and native calls are subsequent work.
+The object compiler now integrates calls through those declarations under ADR
+0038. Interface casts and native calls remain subsequent work.
 
 ## Detached interface dispatch preparation
 
@@ -657,7 +658,47 @@ ordinary translation checks.
 Evidence: 47 authored .NET map/slot comparisons, reference/void signatures,
 detached lifetime/contract serialization for the fieldless fixture, cross-image
 namesakes, forged maps, hiding/final regressions, ownership and exact/excess
-method/parameter/shared-work budgets. The object-operation/native profiles and
-ABI remain unchanged and continue rejecting included interface catalogs. Fixed-point
-CIL call discovery, actual native interface calls, casts/tests, root survival and
-runtime resource-fault conformance remain subsequent work.
+method/parameter/shared-work budgets. The standalone preparation API remains
+separate from executable translation below.
+
+## Interface call translation and executable closure
+
+`object-operations-ir-v5` attaches an optional detached interface plan to
+`ObjectIrProgram` ([ADR 0038](decisions/0038-interface-call-translation.md)).
+Interface declarations appear only in the plan. CIL `callvirt` obtains its exact
+receiver/argument/result signature there; only selected class implementations
+enter the executable method closure. Mapping and canonical-slot methods can
+remain metadata facts, including when their unused IL is outside the supported
+profile. Selected bodies still undergo all ordinary IL, access, constructor,
+initialization and fault-order checks. An explicit private final newslot body
+does not become accessible through ordinary cross-owner calls.
+
+Each newly translated body can introduce receiver types or interface/class calls.
+Preparation revisits the growing catalog until body discovery stops, caching
+snapshots and exact declaration/receiver choices within the shared 65,536-unit
+ledger. Call-owner classification reads one TypeDef row without decoding unused
+static-owner fields. Executable bodies, bodyless declarations and mapping facts
+share 256 distinct method identities. Class and interface maps share 65,536
+target entries. A null-only interface call permits an empty map if no compatible
+class is included; arguments still evaluate before the null check.
+
+Validation requires identical plan/executable catalogs, matching body signatures
+and bindings, every selected implementation body, and exactly the maps used by
+interface calls. Calls retain receiver null checks and explicit method-exit fault
+edges. Phase A assigns the usual parameter/local/value/block-input reference
+slots and allocation/call safepoints for interface references; its existing
+1,024-root method cap remains. These plans do not prove survival through native
+calls or collection.
+
+Authored .NET comparisons cover hiding, overrides, explicit implementation,
+reimplementation, diamonds, two distinct contracts, recursion, reference fields,
+reference/void results, implementation-discovered receivers/calls and argument
+faults before null receivers. A bounded test evaluator supplies translated-IR
+evidence only. Forged IR and unsupported CIL receive reduced regressions.
+`object-frames-native-v5` and its ABI remain unchanged: native emission rejects
+interface catalogs/plans until typed lookup and execution are implemented.
+Interface casts/tests, inferred interface joins, default/static/generic contracts,
+abstract classes and broader MethodImpl remapping remain unsupported. Ordinary
+class virtual resolution still rejects MethodImpl owners even when their explicit
+interface calls are supported; mixed class dispatch on those owners needs later
+integration.

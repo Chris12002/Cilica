@@ -38,12 +38,12 @@ internal static class IrValidator
                     switch (statement)
                     {
                         case IrStatement.Define { Value.Expression: IrExpression.Call call }:
-                            pending.Push(call.Target);
+                            if (objectRules is null || !objectRules.Interface(call.Target)) pending.Push(call.Target);
                             if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
                             break;
                         case IrStatement.Define { Value.Expression: IrExpression.NewObject allocated }: pending.Push(allocated.Constructor); break;
                         case IrStatement.Invoke call:
-                            pending.Push(call.Target);
+                            if (!objectRules!.Interface(call.Target)) pending.Push(call.Target);
                             if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
                             break;
                     }
@@ -95,6 +95,15 @@ internal static class IrValidator
             int end = block.Id + 1 < method.Blocks.Length ? method.Blocks[block.Id + 1].ILOffset : int.MaxValue;
             bool Earlier(int value) => value >= 0 && value < values;
             bool Local(int local) => local >= 0 && local < method.Locals.Length;
+            bool Call(IrExpression.Call call, IrType result)
+            {
+                if (call.Target is null || call.Arguments.IsDefault || call.Arguments.Length > IrLimits.MaximumParameters || !call.Arguments.All(Earlier)) return false;
+                if (objectRules is not null) return result == objectRules.ReturnType(call.Target)
+                    && objectRules.Call(method, call.Target, call.Arguments, call.NullCheckReceiver, valueTypes, virtualDispatch: call.VirtualDispatch);
+                return methods is not null && methods.TryGetValue(call.Target, out var target) && !target.Parameters.IsDefault
+                    && call.Arguments.Length == target.Parameters.Length && result == target.ReturnType && !call.NullCheckReceiver && !call.VirtualDispatch
+                    && call.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(valid => valid);
+            }
             bool TypeTest(ObjectTypeId target, int operand, IrType result) => objectRules is not null
                 && objectRules.TypeTest(method, target) && result == IrType.Reference(target)
                 && Earlier(operand) && valueTypes[operand].Kind is IrTypeKind.Reference or IrTypeKind.NullReference;
@@ -129,12 +138,7 @@ internal static class IrValidator
                             IrExpression.Unary u => value.Type == IrType.Int32 && u.Operation == Int32UnaryOperation.BitwiseNot && Earlier(u.Operand) && valueTypes[u.Operand] == IrType.Int32,
                             IrExpression.Compare c => value.Type == IrType.Int32 && BinaryComparison(c.Comparison) && Earlier(c.Left) && Earlier(c.Right)
                                 && types.Comparable(c.Comparison, valueTypes[c.Left], valueTypes[c.Right]),
-                            IrExpression.Call c => c.Target is not null && methods is not null && methods.TryGetValue(c.Target, out IrMethod? target)
-                                && !c.Arguments.IsDefault && c.Arguments.Length <= IrLimits.MaximumParameters
-                                && !target.Parameters.IsDefault && c.Arguments.Length == target.Parameters.Length && c.Arguments.All(Earlier)
-                                && value.Type == target.ReturnType && c.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(ok => ok)
-                                && (objectRules is null ? !c.NullCheckReceiver && !c.VirtualDispatch
-                                    : objectRules.Call(method, c.Target, c.Arguments, c.NullCheckReceiver, valueTypes, virtualDispatch: c.VirtualDispatch)),
+                            IrExpression.Call c => Call(c, value.Type),
                             IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
                             IrExpression.LoadField f => objectRules is not null && objectRules.Field(method, f.Field, f.Receiver, valueTypes, out var storage)
@@ -166,8 +170,8 @@ internal static class IrValidator
                     case IrStatement.Invoke invoke:
                         Offset(invoke.ILOffset);
                         Require(objectRules is not null && invoke.Exceptional == IrExceptionTarget.MethodExit
-                            && invoke.Target is not null && methods is not null && methods.TryGetValue(invoke.Target, out var callee)
-                            && callee.ReturnType == IrType.Void && !invoke.Arguments.IsDefault && invoke.Arguments.Length <= IrLimits.MaximumParameters
+                            && invoke.Target is not null && objectRules.ReturnType(invoke.Target) == IrType.Void
+                            && !invoke.Arguments.IsDefault && invoke.Arguments.Length <= IrLimits.MaximumParameters
                             && (objectRules.Call(method, invoke.Target, invoke.Arguments, invoke.NullCheckReceiver, valueTypes, virtualDispatch: invoke.VirtualDispatch)
                                 || objectRules.BaseCall(method, invoke, valueTypes, expressions)), "invalid void call or base initialization.");
                         callArguments += invoke.Arguments.Length;

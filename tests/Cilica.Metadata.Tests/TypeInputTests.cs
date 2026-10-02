@@ -12,6 +12,25 @@ public sealed class TypeInputTests
 {
     private static ResolutionAssemblyBuilder Builder() => new(new("Types", new Version(1, 0, 0, 0)));
 
+    [Fact]
+    public void Type_flags_charge_one_row_without_decoding_unused_fields_and_obey_session_ownership()
+    {
+        var builder = Builder(); var root = builder.Type("Example", "Flags"); builder.Field("Malformed", 0);
+        using var files = new ResolverFiles(); string path = files.Write("flags.dll", builder.Build());
+        using var first = files.Open(); using var second = files.Open();
+        var image = first.OpenInput(path).Value!; var type = first.ResolveType(image, root).Value!;
+        var budget = new MemberResolutionBudget(1);
+        Assert.Equal(System.Reflection.TypeAttributes.Public, first.ReadTypeFlags(type, budget).Value!.Attributes);
+        Assert.Equal(0, budget.Remaining);
+        Assert.Equal(DiagnosticIds.TranslationLimit, Assert.Single(first.ReadTypeFlags(type, budget).Diagnostics).Id);
+        Assert.False(first.ReadTypeInput(image, root).Success);
+        var foreignBudget = new MemberResolutionBudget(1);
+        Assert.Throws<ArgumentException>(() => second.ReadTypeFlags(type, foreignBudget));
+        Assert.Equal(1, foreignBudget.Remaining);
+        first.Dispose();
+        Assert.Throws<ObjectDisposedException>(() => first.ReadTypeFlags(type, new(1)));
+    }
+
     [Theory]
     [InlineData(64, true)]
     [InlineData(65, false)]

@@ -22,47 +22,46 @@ public static class ObjectInterfacePlanBuilder
             || declarations.Length > ProgramLimits.MaximumMethods)
             throw new ArgumentException("Interface plans need 1..256 explicit roots and declarations.");
         budget ??= new();
-        try { return new(new Preparation(resolver, runtimeLibrary, budget).Run(roots, declarations), []); }
+        try { return new(new Session(resolver, runtimeLibrary, budget).Run(roots, declarations), []); }
         catch (PlanFailure failure) { return new(null, [failure.Diagnostic]); }
     }
 
-    private sealed class PlanFailure(Diagnostic diagnostic) : Exception(diagnostic.Message)
+    internal sealed class PlanFailure(Diagnostic diagnostic, IrMethodId? declaration = null) : Exception(diagnostic.Message)
     {
         internal Diagnostic Diagnostic { get; } = diagnostic;
+        internal IrMethodId? Declaration { get; } = declaration;
     }
-    private sealed class Preparation(AssemblyResolver resolver, ResolvedAssembly runtimeLibrary, MemberResolutionBudget budget)
+    // A monotonic translation closure: Run receives the complete declaration set on each pass.
+    internal sealed class Session(AssemblyResolver resolver, ResolvedAssembly runtimeLibrary, MemberResolutionBudget budget,
+        Func<ResolvedType, TypeReadLimits, TypeInput>? readType = null)
     {
         private readonly Dictionary<ObjectTypeId, ResolvedType> _roots = [], _knownTypes = [];
         private readonly Dictionary<IrMethodId, MethodDeclarationInput> _inputs = [];
         private readonly Dictionary<IrMethodId, ObjectDispatchMethod> _methods = [];
         private readonly Dictionary<IrMethodId, ObjectInterfaceDeclaration> _declarations = [];
+        private readonly Dictionary<IrMethodId, ResolvedMethod> _resolved = [];
+        private readonly Dictionary<ObjectTypeId, TypeInput> _typeInputs = [];
+        private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), InterfaceMethodTarget> _choices = [];
         private ObjectTypeId _object = null!;
         private int _parameters;
 
         internal ObjectInterfaceDispatchPlan Run(ImmutableArray<ResolvedType> roots, ImmutableArray<ResolvedMethod> declarations)
         {
-            var selected = resolver.ResolveRuntimeType(runtimeLibrary, PrimitiveTypeCode.Object);
-            _object = Include(Value(selected));
+            Initialize();
             foreach (var root in roots) Include(root);
+            var requested = new HashSet<IrMethodId>();
             foreach (var resolved in declarations)
             {
-                var input = Read(resolved); var owner = Include(resolved.DeclaringType.Definition);
-                const MethodAttributes required = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract;
-                const MethodAttributes allowed = required | MethodAttributes.NewSlot | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
-                if ((input.OwnerAttributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
-                    || (input.Attributes & required) != required || (input.Attributes & ~allowed) != 0 || input.HasBody || !input.OwnerExternallyVisible)
-                    Fail("Interface declarations require public abstract instance contracts without a body.", input.Source.Name);
-                var parameters = Parameters(input, owner); var returned = Type(input.Signature.ReturnType, true);
-                if (!_declarations.TryAdd(IrMethodId.From(input.Source), new(input.Source, owner, input.DeclaredName,
-                    input.Attributes, input.OwnerExternallyVisible, parameters, returned)))
-                    Fail("Duplicate interface declaration requested.", input.Source.Name);
-                Count(parameters.Length);
+                var declaration = Declare(resolved);
+                if (!requested.Add(IrMethodId.From(declaration.Source))) Fail("Duplicate interface declaration requested.", declaration.Source.Name);
             }
             var catalog = Value(ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values], runtimeLibrary, (type, limits) =>
             {
                 _knownTypes.TryAdd(ObjectModelBuilder.Id(type), type);
+                if (readType is not null) return readType(type, limits);
+                if (_typeInputs.TryGetValue(ObjectModelBuilder.Id(type), out var cached)) return cached;
                 var read = resolver.ReadTypeInput(type.Assembly, type.Handle, limits with { MaximumMembers = Remaining() });
-                var input = Value(read); Consume(input.MetadataMembersRead); return input;
+                var input = Value(read); Consume(input.MetadataMembersRead); _typeInputs.Add(ObjectModelBuilder.Id(type), input); return input;
             }));
             var types = new IrTypeRules(catalog); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
             foreach (var resolved in declarations)
@@ -73,8 +72,13 @@ public static class ObjectInterfacePlanBuilder
                     var receiver = ObjectTypeId.From(layout.Source);
                     if (!types.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Owner))) continue;
                     if (++targetCount > ObjectDispatchLimits.MaximumTargets) Fail("Interface dispatch target limit exceeded.", limit: true);
-                    var exact = Value(resolver.ResolveInterfaceMethodTarget(resolved.DeclaringType.Definition.Assembly,
-                        resolved.Handle, _knownTypes[receiver], budget));
+                    if (!_choices.TryGetValue((id, receiver), out var exact))
+                    {
+                        try { exact = Value(resolver.ResolveInterfaceMethodTarget(resolved.DeclaringType.Definition.Assembly,
+                            resolved.Handle, _knownTypes[receiver], budget)); }
+                        catch (PlanFailure failure) { throw new PlanFailure(failure.Diagnostic, id); }
+                        _choices.Add((id, receiver), exact);
+                    }
                     ObjectVirtualSlot? slot = null;
                     if (exact.Slot is { } introduction)
                     {
@@ -84,7 +88,6 @@ public static class ObjectInterfacePlanBuilder
                     Method(exact.Mapping, slot, catalog); Method(exact.Implementation, slot, catalog);
                     targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit));
                 }
-                if (targets.Count == 0) Fail("Requested interface declaration has no compatible catalog class.", declaration.Source.Name);
                 maps.Add(new(id, [.. targets]));
             }
             var plan = new ObjectInterfaceDispatchPlan(catalog,
@@ -94,6 +97,28 @@ public static class ObjectInterfacePlanBuilder
             try { ObjectInterfacePlanValidator.Validate(plan); }
             catch (ArgumentException exception) { Fail(exception.Message); }
             return plan;
+        }
+
+        internal ObjectInterfaceDeclaration Declare(ResolvedMethod method)
+        {
+            Initialize(); var input = Read(method); var id = IrMethodId.From(input.Source);
+            if (_declarations.TryGetValue(id, out var cached)) return cached;
+            var owner = Include(method.DeclaringType.Definition);
+            const MethodAttributes required = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract;
+            const MethodAttributes allowed = required | MethodAttributes.NewSlot | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
+            if ((input.OwnerAttributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
+                || (input.Attributes & required) != required || (input.Attributes & ~allowed) != 0 || input.HasBody || !input.OwnerExternallyVisible)
+                Fail("Interface declarations require public abstract instance contracts without a body.", input.Source.Name);
+            var parameters = Parameters(input, owner); var returned = Type(input.Signature.ReturnType, true);
+            var declaration = new ObjectInterfaceDeclaration(input.Source, owner, input.DeclaredName,
+                input.Attributes, input.OwnerExternallyVisible, parameters, returned);
+            Count(parameters.Length); _declarations.Add(id, declaration); return declaration;
+        }
+        internal ResolvedMethod Resolved(IrMethodId id) => _resolved[id];
+        internal ObjectDispatchMethod? Fact(IrMethodId id) => _methods.GetValueOrDefault(id);
+        private void Initialize()
+        {
+            if (_object is null) _object = Include(Value(resolver.ResolveRuntimeType(runtimeLibrary, PrimitiveTypeCode.Object)));
         }
 
         private ObjectTypeId Include(ResolvedType type)
@@ -119,7 +144,7 @@ public static class ObjectInterfacePlanBuilder
             if (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0 || input.Signature.Header != 0x20
                 || input.IsReferenceAssembly || input.HasTypeInitializer || input.HasModuleInitializer)
                 Fail("Interface dispatch preparation requires nongeneric instance implementation metadata without initialization.", input.Source.Name);
-            _inputs.Add(id, input); return input;
+            _inputs.Add(id, input); _resolved.Add(id, method); return input;
         }
         private void Method(ResolvedMethod method, ObjectVirtualSlot? slot, ObjectTypeCatalog catalog)
         {

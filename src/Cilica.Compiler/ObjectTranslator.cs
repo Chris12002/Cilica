@@ -33,6 +33,7 @@ public static class ObjectTranslator
     {
         private sealed record Work(ResolvedMethod Resolved, MethodInput Input, ObjectMethodBinding Binding,
             ImmutableArray<IrType> Parameters, IrType Return, ImmutableArray<IrType> Locals, Work? Parent, int Offset);
+        private sealed record CallTarget(IrMethodId Method, ObjectTypeId Owner, ImmutableArray<IrType> Parameters, IrType Return, bool Virtual);
         private readonly Dictionary<IrMethodId, Work> _methods = [];
         private readonly Dictionary<ObjectTypeId, ResolvedType> _roots = [];
         private readonly Dictionary<ObjectTypeId, TypeInput> _snapshots = [];
@@ -42,7 +43,7 @@ public static class ObjectTranslator
         private readonly ProgramResources _resources = new();
         private ObjectTypeId _object = null!;
         private int _bytes, _instructions, _arguments, _inferenceWork;
-        private readonly Dictionary<(IrMethodId Method, int Offset), Work> _callSites = [];
+        private readonly Dictionary<(IrMethodId Method, int Offset), CallTarget> _callSites = [];
         private readonly MemberResolutionBudget _metadata = new(ObjectModelLimits.MaximumMetadataMembers);
         private readonly Dictionary<(string Hash, int Token), ResolvedMethod> _callTargets = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedField> _fieldTargets = [];
@@ -52,18 +53,23 @@ public static class ObjectTranslator
         private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ClassVirtualTarget> _virtualCache = [];
         private readonly Dictionary<IrMethodId, Dictionary<ObjectTypeId, IrMethodId>> _dispatch = [];
         private int _dispatchTargetCount;
+        private readonly Dictionary<IrMethodId, (ResolvedMethod Method, Work Caller, int Offset)> _interfaces = [];
+        private readonly Dictionary<ObjectTypeId, bool> _interfaceOwners = [];
+        private ObjectInterfacePlanBuilder.Session? _interfaceSession;
 
         internal ObjectIrProgram Run(ResolvedAssembly assembly, MethodDefinitionHandle entry)
         {
             var selected = resolver.ResolveRuntimeType(runtimeLibrary, PrimitiveTypeCode.Object);
             if (selected.Value is not ResolvedType objectBase) throw new Failure(selected.Diagnostics[0]);
             _object = Include(objectBase); // Explicit selected library, never host runtime probing.
+            _interfaceSession = new(resolver, runtimeLibrary, _metadata, ReadType);
             var declared = resolver.ResolveDeclaredMethod(assembly, entry, _metadata);
             if (declared.Value is not ResolvedMethod resolved) throw new Failure(declared.Diagnostics[0]);
             Work root = Discover(resolved, null, 0);
             if (root.Binding.Kind != ObjectMethodKind.Static || root.Return != IrType.Int32 || root.Parameters.Any(p => p != IrType.Int32))
                 Fail(root, "Entry requires a static Int32 signature; object references stay internal.", 0);
             ObjectTypeCatalog catalog;
+            ObjectInterfaceDispatchPlan? interfacePlan = null;
             while (true)
             {
                 while (_pending.TryDequeue(out Work? work))
@@ -72,9 +78,33 @@ public static class ObjectTranslator
                     if (!_resources.Add(method)) Fail(work, "Aggregate program IR limit exceeded.", 0, DiagnosticIds.TranslationLimit);
                     _translated.Add(method);
                 }
-                var built = ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values], runtimeLibrary, ReadType);
-                if (built.Catalog is null) throw new Failure(built.Diagnostics[0]);
-                catalog = built.Catalog;
+                if (_interfaces.Count != 0)
+                {
+                    try { interfacePlan = _interfaceSession.Run([.. _roots.Values], [.. _interfaces.Values.Select(s => s.Method)]); }
+                    catch (ObjectInterfacePlanBuilder.PlanFailure failure)
+                    {
+                        if (failure.Declaration is { } id && _interfaces.TryGetValue(id, out var site))
+                            throw new Failure(failure.Diagnostic with { Message = failure.Diagnostic.Message + Path(site.Caller, site.Offset) });
+                        throw new Failure(failure.Diagnostic);
+                    }
+                    catalog = interfacePlan.Types;
+                    if (_methods.Keys.Concat(interfacePlan.Declarations.Select(d => IrMethodId.From(d.Source)))
+                        .Concat(interfacePlan.Methods.Select(m => m.Binding.Method)).Distinct().Count() > ProgramLimits.MaximumMethods)
+                        Fail(root, "Executable bodies, interface declarations and mapping facts share the method limit.", 0, DiagnosticIds.TranslationLimit);
+                    var facts = interfacePlan.Methods.ToDictionary(m => m.Binding.Method);
+                    foreach (var map in interfacePlan.Dispatch)
+                    {
+                        var site = _interfaces[map.Declaration];
+                        foreach (var target in map.Targets)
+                            Discover(_interfaceSession.Resolved(target.Implementation), site.Caller, site.Offset, facts[target.Implementation]);
+                    }
+                }
+                else
+                {
+                    var built = ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values], runtimeLibrary, ReadType);
+                    if (built.Catalog is null) throw new Failure(built.Diagnostics[0]);
+                    catalog = built.Catalog;
+                }
                 var types = new IrTypeRules(catalog);
                 foreach (var site in _virtualCalls.ToArray())
                 {
@@ -84,7 +114,7 @@ public static class ObjectTranslator
                     {
                         var receiver = ObjectTypeId.From(layout.Source);
                         if (!types.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Binding.Owner)) || targets.ContainsKey(receiver)) continue;
-                        if (_dispatchTargetCount >= ObjectDispatchLimits.MaximumTargets)
+                        if (_dispatchTargetCount + (interfacePlan?.Dispatch.Sum(m => m.Targets.Length) ?? 0) >= ObjectDispatchLimits.MaximumTargets)
                             Fail(site.Value.Caller, "Aggregate class dispatch target limit exceeded.", site.Value.Offset, DiagnosticIds.TranslationLimit);
                         var exact = ResolveVirtual(declaration.Resolved, _knownTypes[receiver], site.Value.Caller, site.Value.Offset);
                         var implementation = Discover(exact.Implementation, site.Value.Caller, site.Value.Offset);
@@ -100,6 +130,7 @@ public static class ObjectTranslator
                 [.. _translated.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)], catalog),
                 [.. _methods.Values.Select(w => w.Binding).OrderBy(b => b.Method.ContentHash, StringComparer.Ordinal).ThenBy(b => b.Method.Token)])
             {
+                InterfaceDispatch = interfacePlan,
                 Dispatch = [.. _dispatch.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token)
                     .Select(p => new ObjectVirtualDispatch(p.Key, [.. p.Value.OrderBy(t => t.Key.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Key.Token)
                         .Select(t => new ObjectVirtualTarget(t.Key, t.Value))]))],
@@ -130,12 +161,18 @@ public static class ObjectTranslator
             _snapshots.Add(id, input); _snapshotFields.Add(id, input.Fields.ToDictionary(f => f.Token)); return input;
         }
 
-        private Work Discover(ResolvedMethod resolved, Work? parent, int offset)
+        private Work Discover(ResolvedMethod resolved, Work? parent, int offset, ObjectDispatchMethod? fact = null)
         {
             var owner = resolved.DeclaringType.Definition;
             var key = new IrMethodId(owner.Assembly.ContentHash.ToLowerInvariant(), MetadataTokens.GetToken(resolved.Handle));
-            if (_methods.TryGetValue(key, out var known)) return known;
-            if (_methods.Count >= ProgramLimits.MaximumMethods || _bytes >= ProgramLimits.MaximumBodyBytes
+            fact ??= _interfaceSession?.Fact(key);
+            if (_methods.TryGetValue(key, out var known))
+            {
+                if (fact is not null && (known.Binding != fact.Binding || known.Return != fact.ReturnType || !known.Parameters.SequenceEqual(fact.Parameters)))
+                    Fail(parent, "Executable method contradicts its validated interface mapping facts.", offset);
+                return known;
+            }
+            if (_methods.Count + _interfaces.Count >= ProgramLimits.MaximumMethods || _bytes >= ProgramLimits.MaximumBodyBytes
                 || _instructions >= ProgramLimits.MaximumInstructions || _metadata.Remaining == 0)
                 Fail(parent, "Aggregate method, IL or metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             var read = resolver.ReadMethodInput(owner.Assembly, resolved.Handle, limits with
@@ -171,7 +208,7 @@ public static class ObjectTranslator
                 TypeSignature.Primitive { Code: PrimitiveTypeCode.Object } => IrType.Reference(_object),
                 TypeSignature.Named { Kind: SignatureTypeKind.Class } named => IrType.Reference(Include(named.Definition)),
                 _ => throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
-                    "Object signatures require Int32 or concrete class references; other storage needs later lowering." + Path(parent, offset), input.Source.Name)),
+                    "Object signatures require Int32 or class/interface references; other storage needs later lowering." + Path(parent, offset), input.Source.Name)),
             };
             ImmutableArray<IrType> parameters = [.. (isStatic ? Array.Empty<IrType>() : new[] { IrType.Reference(ownerId) }),
                 .. input.Signature.Parameters.Select(p => Type(p))];
@@ -183,7 +220,15 @@ public static class ObjectTranslator
                 || input.Instructions.IsEmpty || input.Instructions[^1].OpCode != "ret" || input.Instructions[..^1].Any(i => i.OpCode != "nop")))
                 Fail(parent, "Selected Object constructor must be an ordinary parameterless nop/ret body; nontrivial runtime intrinsics need explicit support.", offset);
             var binding = new ObjectMethodBinding(key, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
-            if ((input.Attributes & MethodAttributes.Virtual) != 0)
+            if (fact is not null)
+            {
+                if (fact.Binding.Owner != ownerId || fact.Binding.Attributes != input.Attributes || fact.Binding.Kind != kind
+                    || fact.Binding.OwnerExternallyVisible != input.OwnerExternallyVisible || fact.ReturnType != returned || !fact.Parameters.SequenceEqual(parameters)
+                    || fact.Name != input.DeclaredName)
+                    Fail(parent, "Selected IL body disagrees with its validated interface method facts.", offset);
+                binding = fact.Binding;
+            }
+            else if ((input.Attributes & MethodAttributes.Virtual) != 0)
             {
                 var exact = ResolveVirtual(resolved, owner, parent, offset);
                 binding = binding with { VirtualName = input.DeclaredName, VirtualSlot = new(
@@ -197,7 +242,7 @@ public static class ObjectTranslator
             _methods.Add(key, work); _pending.Enqueue(work); return work;
         }
 
-        private Work Call(Work caller, MethodInstruction instruction)
+        private CallTarget Call(Work caller, MethodInstruction instruction)
         {
             var site = (caller.Binding.Method, instruction.Offset);
             if (_callSites.TryGetValue(site, out var cached)) return cached;
@@ -212,6 +257,20 @@ public static class ObjectTranslator
                 if (resolved.Value is not ResolvedMethod declared) throw new Failure(resolved.Diagnostics[0] with { Location = Location(caller, instruction.Offset), Message = resolved.Diagnostics[0].Message + Path(caller, instruction.Offset) });
                 target = declared; _callTargets.Add(cacheKey, target);
             }
+            if (InterfaceOwner(target.DeclaringType.Definition, caller, instruction.Offset))
+            {
+                if (instruction.OpCode != "callvirt") Fail(caller, "Bodyless interface declarations require callvirt; direct calls and allocations are unsupported.", instruction.Offset);
+                ObjectInterfaceDeclaration declaration;
+                try { declaration = _interfaceSession!.Declare(target); }
+                catch (ObjectInterfacePlanBuilder.PlanFailure failure)
+                { throw new Failure(failure.Diagnostic with { Location = Location(caller, instruction.Offset), Message = failure.Diagnostic.Message + Path(caller, instruction.Offset) }); }
+                var id = IrMethodId.From(declaration.Source);
+                if (!_interfaces.ContainsKey(id) && _methods.Count + _interfaces.Count >= ProgramLimits.MaximumMethods)
+                    Fail(caller, "Executable methods and interface declarations share the method limit.", instruction.Offset, DiagnosticIds.TranslationLimit);
+                _interfaces.TryAdd(id, (target, caller, instruction.Offset));
+                var contract = new CallTarget(id, declaration.Owner, declaration.Parameters, declaration.ReturnType, true);
+                CountArguments(contract.Parameters.Length); _callSites.Add(site, contract); return contract;
+            }
             var callee = Discover(target, caller, instruction.Offset);
             bool sameOwner = caller.Binding.Owner == callee.Binding.Owner;
             if (!sameOwner && ((callee.Input.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || !callee.Input.OwnerExternallyVisible))
@@ -223,9 +282,25 @@ public static class ObjectTranslator
             if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor))
                 Fail(caller, "newobj requires an exact instance constructor declaration.", instruction.Offset);
             int arity = callee.Parameters.Length - (instruction.OpCode == "newobj" ? 1 : 0);
-            _arguments += arity;
-            if (_arguments > ProgramLimits.MaximumCallArguments) Fail(caller, "Aggregate call-argument limit exceeded.", instruction.Offset, DiagnosticIds.TranslationLimit);
-            _callSites.Add(site, callee); return callee;
+            CountArguments(arity);
+            var result = new CallTarget(callee.Binding.Method, callee.Binding.Owner, callee.Parameters, callee.Return, callee.Binding.VirtualSlot is not null);
+            _callSites.Add(site, result); return result;
+            void CountArguments(int count)
+            {
+                _arguments += count;
+                if (_arguments > ProgramLimits.MaximumCallArguments) Fail(caller, "Aggregate call-argument limit exceeded.", instruction.Offset, DiagnosticIds.TranslationLimit);
+            }
+        }
+
+        private bool InterfaceOwner(ResolvedType owner, Work caller, int offset)
+        {
+            var id = ObjectModelBuilder.Id(owner);
+            if (_interfaceOwners.TryGetValue(id, out bool cached)) return cached;
+            var flags = resolver.ReadTypeFlags(owner, _metadata);
+            if (flags.Value is not TypeDefinitionFlags input)
+                throw new Failure(flags.Diagnostics[0] with { Location = Location(caller, offset), Message = flags.Diagnostics[0].Message + Path(caller, offset) });
+            bool contract = (input.Attributes & TypeAttributes.Interface) != 0;
+            _interfaceOwners.Add(id, contract); return contract;
         }
 
         private ClassVirtualTarget ResolveVirtual(ResolvedMethod declaration, ResolvedType receiver, Work? caller, int offset)
@@ -269,6 +344,8 @@ public static class ObjectTranslator
             var resolved = resolver.ResolveType(image, MetadataTokens.EntityHandle(token));
             if (resolved.Value is not ResolvedType target)
                 throw new Failure(resolved.Diagnostics[0] with { Location = Location(caller, instruction.Offset) });
+            if (InterfaceOwner(target, caller, instruction.Offset))
+                Fail(caller, "Interface casts/type tests require later lowering; interface references and callvirt are supported separately.", instruction.Offset);
             // The final catalog validates the complete target/base/field closure with
             // the shared metadata budget, including targets used only by a type test.
             var id = Include(target); _typeTargets.Add(key, id); return id;
@@ -335,14 +412,14 @@ public static class ObjectTranslator
                             Push(offset, IrType.Int32, new IrExpression.Compare(comparison, left, right)); break;
                         case "newobj" or "call" or "callvirt":
                             var target = Call(work, instruction); bool allocation = opcode == "newobj";
-                            bool dispatch = opcode == "callvirt" && target.Binding.VirtualSlot is not null;
+                            bool dispatch = opcode == "callvirt" && target.Virtual;
                             int arity = target.Parameters.Length - (allocation ? 1 : 0);
                             Consume(arity, offset);
                             var arguments = new int[arity];
                             for (int argument = arguments.Length - 1; argument >= 0; argument--) arguments[argument] = Pop(offset);
-                            if (allocation) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
-                            else if (target.Return == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], opcode == "callvirt", VirtualDispatch: dispatch), offset);
-                            else Push(offset, target.Return, new IrExpression.Call(target.Binding.Method, [.. arguments], opcode == "callvirt", dispatch), true);
+                            if (allocation) Push(offset, IrType.Reference(target.Owner), new IrExpression.NewObject(target.Method, [.. arguments]), true);
+                            else if (target.Return == IrType.Void) Add(new IrStatement.Invoke(offset, target.Method, [.. arguments], opcode == "callvirt", VirtualDispatch: dispatch), offset);
+                            else Push(offset, target.Return, new IrExpression.Call(target.Method, [.. arguments], opcode == "callvirt", dispatch), true);
                             break;
                         case "castclass" or "isinst":
                             var testedType = TypeTarget(work, instruction); int tested = Pop(offset);

@@ -256,20 +256,20 @@ public sealed class ObjectInterfaceCatalogTests
     }
 
     [Fact]
-    public void Native_consumers_reject_valid_contract_catalogs_before_producing_source_or_root_plans()
+    public void Root_plans_accept_contract_references_but_native_emission_remains_gated()
     {
         var method = Method([], IrType.Int32, [Define(0, IrType.Int32, new IrExpression.Constant(1))], 0)
             with { Locals = [.. AllIds.Select(IrType.Reference)] };
         ReferenceIrValidator.Validate(Program(method));
         var program = new ObjectIrProgram(Program(method), [new(IrMethodId.From(method.Source), Child, ObjectMethodKind.Static,
             MethodAttributes.Public | MethodAttributes.Static, true)]);
-        Assert.Throws<ArgumentException>(() => ObjectIrValidator.Validate(program));
-        Assert.Throws<ArgumentException>(() => ObjectRootAssignment.Assign(program));
+        ObjectIrValidator.Validate(program);
+        Assert.Single(ObjectRootAssignment.Assign(program));
         Assert.Throws<ArgumentException>(() => ObjectCppEmitter.EmitProgram(program));
     }
 
     [Fact]
-    public void Cil_translation_with_an_included_interface_class_remains_explicitly_gated()
+    public void Cil_translation_accepts_an_included_interface_class_and_native_emission_remains_gated()
     {
         var builder = new ResolutionAssemblyBuilder(new("ContractBody", new Version(1, 0, 0, 0)));
         var rootObject = builder.Type("System", "Object"); var contract = builder.Type("Example", "Read", attributes: ContractFlags);
@@ -278,7 +278,10 @@ public sealed class ObjectInterfaceCatalogTests
         var entry = builder.Method("Run", [0, 0, 8], locals: locals, emit: il => { il.LoadConstantI4(1); il.OpCode(ILOpCode.Ret); });
         using var files = new ResolverFiles(); using var resolver = files.Open();
         var image = resolver.OpenInput(files.Write("input.dll", builder.Build())).Value!;
-        var result = ObjectTranslator.Translate(resolver, image, entry, image); Assert.Null(result.Program);
-        Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.ExecutionUnsupported && d.Message.Contains("Interface catalogs", StringComparison.Ordinal));
+        var result = ObjectTranslator.Translate(resolver, image, entry, image);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ObjectIrValidator.Validate(result.Program!);
+        Assert.Null(result.Program!.InterfaceDispatch);
+        Assert.Throws<ArgumentException>(() => ObjectCppEmitter.EmitProgram(result.Program));
     }
 }

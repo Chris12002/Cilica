@@ -18,6 +18,11 @@ public static class ObjectCppEmitter
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
+        ArgumentNullException.ThrowIfNull(program);
+        ArgumentNullException.ThrowIfNull(program.Flow);
+        ArgumentNullException.ThrowIfNull(program.Flow.Types);
+        if (program.InterfaceDispatch is not null || !program.Flow.Types.Interfaces.IsEmpty)
+            throw new ArgumentException("Interface programs require native lookup/execution lowering before C++ emission.", nameof(program));
         var plans = ObjectRootAssignment.Assign(program).ToDictionary(p => p.Method);
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
         var bindings = program.Bindings.ToDictionary(b => b.Method);

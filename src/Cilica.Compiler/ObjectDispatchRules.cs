@@ -15,11 +15,12 @@ internal sealed class ObjectDispatchRules
     private readonly Dictionary<IrMethodId, ObjectVirtualDispatch> _maps = [];
     private readonly Dictionary<(ObjectVirtualSlot Slot, ObjectTypeId Owner), IrMethodId> _bodies = [];
     private readonly IrTypeRules _types;
+    private readonly ObjectInterfaceOperationRules _interfaces;
 
     internal ObjectDispatchRules(ObjectIrProgram program, IReadOnlyDictionary<IrMethodId, ObjectMethodBinding> bindings,
-        IReadOnlyDictionary<IrMethodId, IrMethod> methods, IrTypeRules types)
+        IReadOnlyDictionary<IrMethodId, IrMethod> methods, IrTypeRules types, ObjectInterfaceOperationRules interfaces)
     {
-        _program = program; _bindings = bindings; _types = types;
+        _program = program; _bindings = bindings; _types = types; _interfaces = interfaces;
         _layouts = program.Flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var signatures = new Dictionary<ObjectVirtualSlot, ObjectMethodBinding>();
         foreach (var binding in bindings.Values)
@@ -33,9 +34,10 @@ internal sealed class ObjectDispatchRules
                 continue;
             }
             var slot = binding.VirtualSlot!;
-            Require(binding.Kind == ObjectMethodKind.Instance && (binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+            Require(binding.Kind == ObjectMethodKind.Instance && ((binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                    || interfaces.Mapped(binding))
                 && (binding.Attributes & MethodAttributes.RTSpecialName) == 0 && !string.IsNullOrEmpty(binding.VirtualName),
-                "class virtual declarations require public ordinary instance methods and names.");
+                "class virtual declarations require public instance methods or validated interface slots, with names.");
             Require(slot.Method is not null && slot.Owner is not null && _layouts.ContainsKey(slot.Owner)
                 && slot.Method.ContentHash == slot.Owner.ContentHash && (uint)slot.Method.Token >> 24 == 0x06 && (slot.Method.Token & 0xffffff) != 0
                 && types.Assignable(IrType.Reference(binding.Owner), IrType.Reference(slot.Owner)), "invalid canonical virtual slot identity/owner.");
@@ -54,11 +56,12 @@ internal sealed class ObjectDispatchRules
             else signatures.Add(slot, binding);
         }
         Require(!program.Dispatch.IsDefault && program.Dispatch.Length <= ProgramLimits.MaximumMethods, "invalid dispatch map array.");
-        int entries = 0;
+        int entries = interfaces.TargetCount;
         foreach (var map in program.Dispatch)
         {
             Require(map?.Declaration is not null && bindings.TryGetValue(map.Declaration, out var declaration)
-                && declaration.VirtualSlot is not null && _maps.TryAdd(map.Declaration, map), "invalid/duplicate dispatch declaration.");
+                && declaration.VirtualSlot is not null && (declaration.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                && _maps.TryAdd(map.Declaration, map), "invalid/duplicate dispatch declaration.");
             Require(!map.Targets.IsDefault && map.Targets.Length is > 0 and <= ObjectModelLimits.MaximumTypes, "invalid dispatch targets.");
             entries += map.Targets.Length;
             Require(entries <= ObjectDispatchLimits.MaximumTargets, "aggregate dispatch target limit exceeded.");
@@ -78,8 +81,8 @@ internal sealed class ObjectDispatchRules
         foreach (var statement in _program.Flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Statements))
             switch (statement)
             {
-                case IrStatement.Define { Value.Expression: IrExpression.Call { VirtualDispatch: true } call }: used.Add(call.Target); break;
-                case IrStatement.Invoke { VirtualDispatch: true } call: used.Add(call.Target); break;
+                case IrStatement.Define { Value.Expression: IrExpression.Call { VirtualDispatch: true } call } when !_interfaces.Has(call.Target): used.Add(call.Target); break;
+                case IrStatement.Invoke { VirtualDispatch: true } call when !_interfaces.Has(call.Target): used.Add(call.Target); break;
             }
         Require(used.SetEquals(_maps.Keys), "dispatch maps must exactly match virtual call declarations.");
         var nearest = new Dictionary<(ObjectVirtualSlot Slot, ObjectTypeId Receiver), IrMethodId>();

@@ -25,8 +25,9 @@ public static class ObjectDispatchLimits
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v4";
+    public const string Profile = "object-operations-ir-v5";
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
+    public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
 }
 
 public sealed record ObjectTranslationResult(ObjectIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)

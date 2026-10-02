@@ -31,8 +31,8 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-d-c-b | Interface catalogs, reference flow and detached maps | Complete for bounded detached preparation |
 | 3d-d-c-b-a | Detached interface catalogs and reference flow | Complete for bounded detached profile |
 | 3d-d-c-b-b | Bodyless interface declarations and validated implementation plans | Complete for bounded detached preparation |
-| 3d-d-c-c | Native interface calls and execution conformance | Planned |
-| 3d-d-c-c-a | Interface call translation and fixed-point body discovery | Planned |
+| 3d-d-c-c | Native interface calls and execution conformance | In progress; translated IR complete |
+| 3d-d-c-c-a | Interface call translation and fixed-point body discovery | Complete for bounded CIL/IR profile |
 | 3d-d-c-c-b | Typed native interface lookup and execution conformance | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
@@ -441,14 +441,38 @@ validation covers every compatible receiver, inherited mappings through hiding,
 reimplementation, private final slots, exact signatures and nearest included
 overrides. The authored .NET oracle agrees on 47 map/slot choices. These plans
 do not read/translate body instructions, grant executable access or lower calls.
-Call translation and fixed-point body discovery are next; native calls and their
-root/fault/stack conformance remain separate exit gates. Performance tuning remains
-deferred.
+Call translation and fixed-point body discovery are supplied by the slice below;
+native calls and their root/fault/stack conformance remain separate exit gates.
+Performance tuning remains deferred.
 
 Review is complete. Builds have zero warnings/errors; all 738 relevant local
 native/object/reference-IR/declaration/type-input/C++/Int32/exact-target checks
 pass in 43.0 seconds, including existing O0/O2 native regressions. Local main and
 cached origin/main remain ancestors; no push or hosted work was started.
+
+Slice 3d-d-c-c-a integrates interface call translation and executable body closure
+([ADR 0038](../decisions/0038-interface-call-translation.md)). Bodyless signatures
+stay in the plan; selected class bodies enter ordinary translation. Mapping and
+slot facts need no executable IL when unused. Cached exact choices support
+fixed-point discovery as implementations introduce calls and receiver types.
+Executable validation checks plan/catalog/signature/binding agreement and exact
+call/map usage, including private explicit bodies without public access changes.
+Class/interface targets and executable/declaration/fact identities share their
+existing budgets. Null-only calls permit empty maps and retain argument faults
+before their receiver check. Phase A assigns interface reference roots and call
+safepoints, with its existing cap. Authored .NET/translated-IR comparisons cover
+the inheritance/mapping cases, recursion, fields and reference/void results.
+Native emission remains gated until slice 3d-d-c-c-b proves actual lookup,
+execution, resource/fault cleanup and root survival. Class dispatch on MethodImpl
+owners, interface casts/tests and inferred interface joins remain explicit gaps.
+
+Review is complete. Builds have zero warnings/errors. All 771 broader local
+native/object/reference-IR/declaration/type-input/C++/Int32/exact-target checks
+pass in 37.1 seconds, including existing O0/O2 native regressions. The final
+50 focused interface-translation/type-input checks also pass, including two
+additional constructor-before/after-base regressions added during review.
+Local main and cached origin/main remain ancestors; no push or hosted work was
+started.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

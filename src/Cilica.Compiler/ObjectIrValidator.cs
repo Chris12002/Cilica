@@ -13,8 +13,6 @@ public static class ObjectIrValidator
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
         ObjectModelValidator.Validate(program.Flow.Types);
-        if (!program.Flow.Types.Interfaces.IsEmpty)
-            throw new ArgumentException("Interface catalogs require interface operation/dispatch lowering before native object consumption.", nameof(program));
         _ = new ObjectNativeLayout(program.Flow.Types);
         var rules = new ObjectIrRules(program);
         ReferenceIrValidator.Validate(program.Flow, rules);
@@ -34,9 +32,12 @@ internal sealed class ObjectIrRules
     private readonly Dictionary<ObjectTypeId, ObjectTypeLayout> _layouts;
     private readonly IrTypeRules _types;
     private readonly ObjectDispatchRules _dispatch;
+    private readonly ObjectInterfaceOperationRules _interfaces;
+    private readonly ObjectIrProgram _program;
 
     internal ObjectIrRules(ObjectIrProgram program)
     {
+        _program = program;
         var flow = program.Flow;
         _types = new(flow.Types);
         _layouts = flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
@@ -78,11 +79,16 @@ internal sealed class ObjectIrRules
             }
             else Require(binding.Owner != flow.Types.ObjectBase, "ordinary selected Object methods require explicit runtime support.");
         }
-        _dispatch = new(program, _bindings, _methods, _types);
+        _interfaces = new(program, _bindings, _methods);
+        _dispatch = new(program, _bindings, _methods, _types, _interfaces);
     }
 
-    internal void DispatchMaps() => _dispatch.Validate();
-    internal IEnumerable<IrMethodId> DispatchTargets(IrMethodId declaration) => _dispatch.Targets(declaration);
+    internal void DispatchMaps() { _dispatch.Validate(); _interfaces.ValidateUsage(_program); }
+    internal IEnumerable<IrMethodId> DispatchTargets(IrMethodId declaration) => _interfaces.Has(declaration)
+        ? _interfaces.Targets(declaration) : _dispatch.Targets(declaration);
+    internal bool Interface(IrMethodId declaration) => _interfaces.Has(declaration);
+    internal IrType? ReturnType(IrMethodId? id) => id is null ? null : _interfaces.Has(id)
+        ? _interfaces.Declaration(id).ReturnType : _methods.TryGetValue(id, out var method) ? method.ReturnType : null;
 
     internal ObjectMethodBinding Binding(IrMethodId id) => _bindings[id];
     internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is not null
@@ -93,13 +99,23 @@ internal sealed class ObjectIrRules
     {
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
         IrStatement.StoreField f => new[] { f.Field.Owner },
+        IrStatement.Define { Value.Expression: IrExpression.Call c } when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
+        IrStatement.Invoke c when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         _ => Array.Empty<ObjectTypeId>(),
     });
 
     internal bool Call(IrMethod caller, IrMethodId? target, System.Collections.Immutable.ImmutableArray<int> arguments,
         bool nullCheck, IReadOnlyList<IrType> values, bool allocation = false, bool virtualDispatch = false)
     {
-        if (target is null || !_bindings.TryGetValue(target, out var callee) || arguments.IsDefault) return false;
+        if (target is null || arguments.IsDefault) return false;
+        if (_interfaces.Has(target))
+        {
+            var declaration = _interfaces.Declaration(target);
+            return !allocation && nullCheck && virtualDispatch && arguments.Length == declaration.Parameters.Length
+                && arguments.Select((argument, index) => argument >= 0 && argument < values.Count
+                    && _types.Assignable(values[argument], declaration.Parameters[index])).All(valid => valid);
+        }
+        if (!_bindings.TryGetValue(target, out var callee)) return false;
         var signature = _methods[target].Parameters;
         int skip = allocation ? 1 : 0;
         if (signature.IsDefault || arguments.Length != signature.Length - skip || !Access(Binding(IrMethodId.From(caller.Source)), callee)) return false;
@@ -171,7 +187,7 @@ internal sealed class ObjectIrRules
             bool This(int id) => expressions[id] is IrExpression.Parameter { Index: 0 };
             foreach (var statement in method.Blocks[0].Statements)
             {
-                if (statement is IrStatement.Invoke call && Constructor(_bindings[call.Target]))
+                if (statement is IrStatement.Invoke call && _bindings.TryGetValue(call.Target, out var callee) && Constructor(callee))
                 {
                     ConstructorRequire(!initialized && BaseCall(method, call, types, expressions)
                         && call.Arguments.Skip(1).All(a => !This(a)),

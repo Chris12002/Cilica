@@ -95,7 +95,7 @@ public static class ObjectInterfacePlanValidator
         foreach (var map in plan.Dispatch)
         {
             Require(map?.Declaration is not null && declarations.ContainsKey(map.Declaration)
-                && maps.Add(map.Declaration) && !map.Targets.IsDefault && map.Targets.Length is > 0 and <= ObjectModelLimits.MaximumTypes,
+                && maps.Add(map.Declaration) && !map.Targets.IsDefault && map.Targets.Length <= ObjectModelLimits.MaximumTypes,
                 "invalid/duplicate interface map.");
             var declaration = declarations[map.Declaration];
             var expected = classes.Keys.Where(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();

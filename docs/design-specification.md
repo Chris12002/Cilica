@@ -392,7 +392,7 @@ declared-field initializers and argument evaluation before that call. The derive
 receiver stays rooted with its original dynamic type throughout allocating base
 bodies. Physical field copies have a separate 65,536-slot bound; field-operation
 helper isolation retains the O0/O2 native-stack gate. Abstract classes,
-broader access rules and interface dispatch remain subsequent slices.
+broader access rules and native interface dispatch remain subsequent slices.
 
 Detached catalogs now include public nongeneric fieldless interface contracts
 separately from class layouts
@@ -404,9 +404,9 @@ class-to-implemented-interface, inherited contracts, interface-to-parent and
 interface-to-Object widening, including locals, direct-call arguments, returns
 and declared joins. Interfaces use the existing logical reference storage kind
 without receiving instance layouts. Names do not establish identity. This is
-detached type flow only: catalogs do not validate interface method contracts or
-implementations. Object operations, root assignment and native emission reject
-catalogs containing interfaces until executable call integration is implemented.
+detached type flow only: catalogs alone do not validate interface method contracts
+or implementations. Object operations and root assignment now accept contract
+references; native emission still rejects catalogs containing interfaces.
 Interface casts/tests, inferred interface joins and native calls remain planned.
 
 Interface dispatch preparation now retains bodyless signatures separately from
@@ -420,6 +420,22 @@ plus class facts share 256 method identities and 65,536 parameter slots. Class
 facts assert that a managed IL body exists but do not read its instructions.
 This preparation API does not authenticate caller-forged metadata assertions,
 translate bodies, grant private access, assign roots or emit executable calls.
+
+Interface `callvirt` translation now uses those bodyless signatures while
+discovering only the selected implementation bodies
+([ADR 0038](decisions/0038-interface-call-translation.md)). Each body can add
+calls or receiver types; translation revisits dispatch maps until that closure
+stops growing. Declaration, type and exact receiver-choice caches share the
+existing metadata ledger. Initial mappings and canonical slots remain metadata
+unless a call actually needs their bodies. A null-only call can have an empty
+map, while retaining argument evaluation before its null check and method-exit
+fault edge. Executable signatures/bindings must agree with the plan; declarations,
+mapping facts and bodies share the 256-method cap, and class/interface target
+entries share 65,536 entries. Phase A assigns interface reference slots and call
+safepoints using the existing reference storage kind. This is translated IR and
+root-plan evidence only: native interface lookup, execution and root survival
+remain the next slice. Ordinary class virtual resolution on MethodImpl owners
+still requires its separate lowering; interface casts/tests remain rejected.
 
 Class `castclass` and `isinst` now use those descriptor base links
 ([ADR 0032](decisions/0032-class-casts-and-type-tests.md)). Targets are exact

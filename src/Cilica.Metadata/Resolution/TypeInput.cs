@@ -5,6 +5,9 @@ namespace Cilica.Metadata.Resolution;
 
 public sealed record TypeSource(string AssemblyIdentity, string ContentHash, int Token, string Name);
 
+/// <summary>A single TypeDef row's flags, without decoding fields or method bodies.</summary>
+public sealed record TypeDefinitionFlags(TypeAttributes Attributes);
+
 /// <summary>Structural input; named signatures remain owned by the resolver session.</summary>
 public sealed record FieldInput(int Token, string Name, FieldAttributes Attributes,
     TypeSignature Signature, bool HasExplicitStorage);
