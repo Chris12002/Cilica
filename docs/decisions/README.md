@@ -42,3 +42,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0034](0034-native-class-virtual-dispatch.md) | Native class virtual dispatch | Accepted for bounded object execution |
 | [0035](0035-exact-interface-method-targets.md) | Exact interface method targets | Accepted for bounded metadata resolution |
 | [0036](0036-interface-catalogs-and-reference-flow.md) | Interface catalogs and reference flow | Accepted for bounded detached validation |
+| [0037](0037-detached-interface-dispatch-plans.md) | Detached interface declarations and dispatch plans | Accepted for bounded dispatch preparation |

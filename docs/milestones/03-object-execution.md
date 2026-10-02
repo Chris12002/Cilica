@@ -28,10 +28,12 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-d-b | Closed-world class dispatch maps and native calls | Complete for bounded concrete class profile |
 | 3d-d-c | Interface mapping and native interface calls | In progress; exact metadata targets complete |
 | 3d-d-c-a | Exact nongeneric interface method targets | Complete for bounded metadata profile |
-| 3d-d-c-b | Interface catalogs, reference flow and detached maps | In progress; catalog/type flow complete |
+| 3d-d-c-b | Interface catalogs, reference flow and detached maps | Complete for bounded detached preparation |
 | 3d-d-c-b-a | Detached interface catalogs and reference flow | Complete for bounded detached profile |
-| 3d-d-c-b-b | Executable interface declarations and validated implementation maps | Planned |
+| 3d-d-c-b-b | Bodyless interface declarations and validated implementation plans | Complete for bounded detached preparation |
 | 3d-d-c-c | Native interface calls and execution conformance | Planned |
+| 3d-d-c-c-a | Interface call translation and fixed-point body discovery | Planned |
+| 3d-d-c-c-b | Typed native interface lookup and execution conformance | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
@@ -429,6 +431,24 @@ Review is complete. Builds have zero warnings/errors; all 698 relevant local
 native/object/reference-IR/type-input/C++/Int32/exact-target checks pass in 40.5
 seconds, including existing O0/O2 sanitizer, root/resource and stack regressions.
 Local main and cached origin/main remain ancestors; no hosted work was started.
+
+Slice 3d-d-c-b-b supplies bodyless declarations and detached dispatch plans
+([ADR 0037](../decisions/0037-detached-interface-dispatch-plans.md)). A bounded
+declaration reader shares provenance logic with body input without weakening
+its IL requirement. Plans retain initial mappings separately from effective
+overrides and share catalog, method, signature and metadata budgets. Structural
+validation covers every compatible receiver, inherited mappings through hiding,
+reimplementation, private final slots, exact signatures and nearest included
+overrides. The authored .NET oracle agrees on 47 map/slot choices. These plans
+do not read/translate body instructions, grant executable access or lower calls.
+Call translation and fixed-point body discovery are next; native calls and their
+root/fault/stack conformance remain separate exit gates. Performance tuning remains
+deferred.
+
+Review is complete. Builds have zero warnings/errors; all 738 relevant local
+native/object/reference-IR/declaration/type-input/C++/Int32/exact-target checks
+pass in 43.0 seconds, including existing O0/O2 native regressions. Local main and
+cached origin/main remain ancestors; no push or hosted work was started.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

@@ -12,6 +12,7 @@ not establish native execution or platform compatibility.
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v3` | Bounded metadata snapshots and detached class/field/interface graphs | Concrete nongeneric class chains, public fieldless nongeneric interface contracts, declared Int32/CLASS/OBJECT fields and logical reference slots; interfaces have no instance layout |
 | `typed-reference-ir-v3` | Detached caller-constructed IR validation | Class/interface references/null, ancestor/implemented-contract assignments and typed locals/joins/direct calls/returns; interface operations/native calls remain gated |
+| `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
 | `object-operations-ir-v4` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, concrete class casts/type tests and public nongeneric class virtual calls; interfaces and broader access rules remain unsupported |
 | `object-frames-native-v5` | C++20 emission and local native differential execution | Class virtual dispatch, casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
@@ -613,4 +614,50 @@ selection, malformed metadata and exact/excess resource regressions. The class
 metadata operation and conservative audits retain their previous contracts.
 Detached interface catalogs and reference flow are implemented under ADR 0036.
 The object compiler/native backend still reject included interface catalogs;
-executable declarations/maps, interface casts and native calls are subsequent work.
+CIL call integration, interface casts and native calls are subsequent work.
+
+## Detached interface dispatch preparation
+
+`ObjectInterfacePlanBuilder.Build` takes resolver-owned class/type roots, explicit
+interface method declarations and a selected runtime library
+([ADR 0037](decisions/0037-detached-interface-dispatch-plans.md)). It builds the
+catalog, snapshots bodyless declarations, and prepares exact maps for every
+compatible class using ADR 0035. Declarations permit Int32/reference parameters
+and Int32/reference/void returns with public abstract instance flags. Selected
+class facts retain their receiver type, member name/flags, exact signature and
+canonical slot. Nonvirtual mappings retain their direct implementation. Private
+final newslots remain mapping facts, without gaining executable public access.
+
+`ReadMethodDeclarationInput` snapshots signatures, owner visibility/generic facts,
+initializer obligations and the presence of a body RVA without reading IL. It
+uses member/owner limits and shares the body reader's existing bounded provenance
+logic. The body reader continues rejecting bodyless methods. Input signatures
+remain resolver-owned; finished plans contain detached identities and types.
+
+Plans share the catalog's 256-type/4,096-field limits. Interface declarations and
+class method facts together permit at most 256 identities, each with at most
+4,096 parameters including the receiver; aggregate parameter slots are bounded
+to 65,536. Target entries share the existing 65,536 dispatch cap, with at most
+256 receivers per declaration. One caller-owned metadata ledger, at most 65,536
+units, covers declaration inputs, catalog reads and exact target resolution.
+Exhaustion returns a diagnostic and no partial plan. Ownership is checked before
+content-based caching; equal tokens/names across images remain separate.
+
+`ObjectInterfacePlanValidator` checks flags, identity/ownership assertions,
+signatures, canonical slot introductions, nearest included overrides, final
+implementations, compatible receiver coverage and inherited mapping stability.
+Class method hiding cannot change a mapping without reimplementation or a new
+asserted explicit mapping. Duplicate/unknown declarations, receivers and method
+facts, unsupported signatures and unrelated facts fail. These are structural
+checks on asserted facts, not authentication of every metadata row or the absence
+of omitted methods/MethodImpl rows; the builder obtains its choices from exact
+metadata resolution. Body instructions and executable access still require
+ordinary translation checks.
+
+Evidence: 47 authored .NET map/slot comparisons, reference/void signatures,
+detached lifetime/contract serialization for the fieldless fixture, cross-image
+namesakes, forged maps, hiding/final regressions, ownership and exact/excess
+method/parameter/shared-work budgets. The object-operation/native profiles and
+ABI remain unchanged and continue rejecting included interface catalogs. Fixed-point
+CIL call discovery, actual native interface calls, casts/tests, root survival and
+runtime resource-fault conformance remain subsequent work.

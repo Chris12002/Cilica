@@ -153,8 +153,9 @@ MethodImpl bodies before selecting the effective class slot. Iterative interface
 closure handles diamonds within bounded type/work ledgers. Default/static interface
 members, generics, abstract class hierarchies and class slot remapping remain
 unsupported. Interface catalogs and detached reference flow are implemented
-as described in section 7. Executable declaration/maps and native calls still
-require implementation and execution evidence; the conservative audit contract
+as described in section 7. Detached declarations/maps are implemented under
+ADR 0037; CIL call integration and native calls still require implementation
+and execution evidence. The conservative audit contract
 and current native class profile remain unchanged.
 
 Verification covers the supported execution profile. Cilica is not initially
@@ -405,8 +406,20 @@ and declared joins. Interfaces use the existing logical reference storage kind
 without receiving instance layouts. Names do not establish identity. This is
 detached type flow only: catalogs do not validate interface method contracts or
 implementations. Object operations, root assignment and native emission reject
-catalogs containing interfaces until executable declarations/maps are implemented.
+catalogs containing interfaces until executable call integration is implemented.
 Interface casts/tests, inferred interface joins and native calls remain planned.
+
+Interface dispatch preparation now retains bodyless signatures separately from
+class method facts ([ADR 0037](decisions/0037-detached-interface-dispatch-plans.md)).
+Plans cover every compatible catalog class for each requested interface member,
+preserving the initial mapping and effective override as distinct identities.
+Detached validation checks exact signatures, inherited mapping stability,
+canonical class slots, nearest included overrides and final/private slot rules.
+One shared ledger bounds declaration/catalog/target inspection, and declarations
+plus class facts share 256 method identities and 65,536 parameter slots. Class
+facts assert that a managed IL body exists but do not read its instructions.
+This preparation API does not authenticate caller-forged metadata assertions,
+translate bodies, grant private access, assign roots or emit executable calls.
 
 Class `castclass` and `isinst` now use those descriptor base links
 ([ADR 0032](decisions/0032-class-casts-and-type-tests.md)). Targets are exact
