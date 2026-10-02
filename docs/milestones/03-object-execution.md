@@ -26,7 +26,10 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-d | Verified virtual/interface dispatch | In progress; concrete class dispatch complete |
 | 3d-d-a | Exact class virtual slot/target resolution | Complete for bounded metadata profile |
 | 3d-d-b | Closed-world class dispatch maps and native calls | Complete for bounded concrete class profile |
-| 3d-d-c | Interface mapping and native interface calls | Planned |
+| 3d-d-c | Interface mapping and native interface calls | In progress; exact metadata targets complete |
+| 3d-d-c-a | Exact nongeneric interface method targets | Complete for bounded metadata profile |
+| 3d-d-c-b | Interface catalogs, reference flow and detached maps | Planned |
+| 3d-d-c-c | Native interface calls and execution conformance | Planned |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
@@ -393,8 +396,21 @@ Both O0/O2 native dispatch cases also pass after the final stack-report and
 thread-size assertions. Local main and cached origin/main remain ancestors;
 no push or hosted work was started.
 
-Interface dispatch follows separately as slice 3d-d-c. Abstract classes,
-generics, covariance and MethodImpl remapping also remain unsupported.
+Slice 3d-d-c-a adds exact interface method mapping
+([ADR 0035](../decisions/0035-exact-interface-method-targets.md)). It preserves
+inherited mappings through hiding, supports reimplementation and validated
+explicit interface MethodImpl bodies, then reuses exact class-slot selection.
+An authored .NET oracle agrees on 47 receiver/member pairs. Iterative diamond
+closure and shared metadata work remain bounded; malformed maps, cycles,
+duplicate declarations and exact/excess budgets have reduced regressions.
+This is metadata resolution only. Interface catalogs/reference flow/maps and
+native calls remain separate slices 3d-d-c-b/c; abstract classes, generics,
+covariance, default bodies and class MethodImpl remapping remain unsupported.
+Review is complete, with zero build warnings/errors and all 186 targeted
+metadata/compiler regressions passing after the final queue-bound change.
+The wider 188-case run also passes both O0/O2 native class-dispatch checks,
+including sanitizers and stack reports. Local main/cached origin/main ancestry
+checks pass; no push or hosted work was started.
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block
 capability work. The 2 KiB warning is a conservative tested baseline, not a

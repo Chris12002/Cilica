@@ -146,6 +146,16 @@ class virtual method closure to a fixed point and validates detached dispatch
 maps before native consumption
 ([ADR 0034](decisions/0034-native-class-virtual-dispatch.md)).
 
+Exact nongeneric interface target resolution is a separate metadata operation
+([ADR 0035](decisions/0035-exact-interface-method-targets.md)). It preserves inherited
+mappings, starts a new search on reimplementation and validates explicit interface
+MethodImpl bodies before selecting the effective class slot. Iterative interface
+closure handles diamonds within bounded type/work ledgers. Default/static interface
+members, generics, abstract class hierarchies and class slot remapping remain
+unsupported. Interface reference catalogs, detached maps and native calls still
+require implementation and execution evidence; the conservative audit contract
+and current native class profile remain unchanged.
+
 Verification covers the supported execution profile. Cilica is not initially
 a complete CLI verifier or a sandbox for hostile programs. Native compiler
 execution and dependency restoration are explicit build steps, not consequences

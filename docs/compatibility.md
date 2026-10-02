@@ -7,6 +7,7 @@ not establish native execution or platform compatibility.
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
 | `class-virtual-target-v1` | Exact metadata target resolution | One public nongeneric class virtual slot/body per concrete receiver, with newslot/final checks; executable calls use the separate object profile |
+| `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings; interface IR/native execution remain planned |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v2` | Bounded metadata snapshots and detached base-class/field graphs | Concrete nongeneric class chains, declared Int32/CLASS/OBJECT fields and logical reference slots; physical layouts belong to native lowering |
@@ -569,3 +570,34 @@ recursion within a checked 320 KiB pthread stack ceiling. ASan/UBSan, static Cla
 stack reports and the current 2 KiB frame gate pass on macOS ARM64.
 Interfaces, abstract classes, generics, covariance, MethodImpl
 remapping, collection and other-target execution remain unimplemented.
+
+## Exact interface target metadata
+
+`AssemblyResolver.ResolveInterfaceMethodTarget` accepts an interface MethodDef,
+concrete resolver-owned class receiver and optional shared metadata ledger
+([ADR 0035](decisions/0035-exact-interface-method-targets.md)). Its result retains
+the initially mapped method, optional canonical class slot, effective body and
+explicit-mapping fact. Abstract interface declarations have no executable body
+in this contract; the operation never executes inspected code or verifies IL.
+
+The bounded profile covers public nongeneric interfaces and concrete nongeneric
+class ancestors. Inherited mappings survive method hiding; reimplementation
+starts a fresh owner/ancestor search. Exact MethodImpl rows take precedence over
+same-owner public name/signature matches. Explicit bodies require public virtual
+or private final newslot declarations with exact signatures/owners. Mapped virtual
+bodies select overrides through their canonical slot; inherited public nonvirtual
+bodies remain direct. Interface ancestry supports diamonds, with 256 distinct
+interface types and direct-list entries, a 256-class bound, 64 declaring owners
+and the existing shared 65,536-unit metadata ledger.
+
+Default/static interface methods, generics, abstract classes, private contracts,
+class slot remapping, interface remapping and differing return signatures remain
+unsupported. Malformed cycles, duplicate edges/members/mappings, missing bodies,
+foreign readers and unrelated contracts return diagnostics without partial targets.
+Equal names/tokens across input images do not merge contracts or bodies.
+
+Evidence: 47 authored .NET interface-map and trusted call comparisons, plus raw
+selection, malformed metadata and exact/excess resource regressions. The class
+metadata operation and conservative audits retain their previous contracts.
+The object compiler/native backend still reject interface operations; reference
+catalogs, interface casts and actual native interface calls are subsequent work.

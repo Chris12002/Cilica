@@ -476,3 +476,22 @@ void calls. All must fail before C++ is returned. A reachable unsupported overri
 must produce a build error containing its virtual inclusion path. Preserve the
 existing native/object/reference/primitive corpus. Interface/abstract/generic/
 MethodImpl support and actual reclamation require separate evidence.
+
+## Slice 3d-d-c-a: exact interface metadata
+
+Use authored nongeneric C# interface maps and test-only dynamic calls as an
+independent oracle for exact target selection. Check inherited mappings through
+hiding, ordinary virtual overrides, reimplementation, private explicit bodies,
+same-signature independent contracts, overloads, property getters, inherited
+nonvirtual public bodies and diamonds. Compare canonical class slots separately
+from effective MethodDefs. Reject unrelated contracts even when names match.
+
+Raw metadata must cover duplicate members/edges/mappings, wrong explicit body
+owners/signatures, cyclic/deep/wide interface graphs, generic/enclosing-generic,
+default/static/abstract-class shapes, class/interface remapping and foreign
+readers. Pair exact and one-unit-short shared ledgers and exact/excess graph
+limits. Cross-image equal names/tokens must retain distinct contract/body identity.
+Preserve exact class and conservative/constrained dispatch regressions after
+sharing slot-walk code, including existing native class-dispatch checks.
+These are metadata checks: interface IR/native support still needs independent
+reference-flow, ownership, roots, fault-order and execution evidence.
