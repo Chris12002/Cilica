@@ -582,6 +582,18 @@ retained host handles and pending exceptions too. Collect at controlled
 allocation points; values needed across allocating calls must already be
 rooted. Reference-bearing structs require recursive field tracing.
 
+Private native v10 visitors now enumerate the current context's published slots,
+instance-local literal roots, inherited reference fields and reference-array
+elements ([ADR 0049](decisions/0049-precise-reference-visitation.md)). They return
+borrowed provenance, validate contained reference ownership/descriptor identity,
+and distinguish complete, stopped and invalid walks without changing runtime state.
+They allocate no memory and do not recurse into child objects. Only complete walks
+can feed a future reclamation decision. The allocation list, integer storage and
+string code units are not roots. Marking, sweeping, allocation retry and collection
+stress remain planned; the [milestone 4 plan](milestones/04-collection-and-handles.md)
+records those separate gates. Multiple active contexts within one instance require
+a future registration/coordination contract.
+
 Interior managed references retain their owner. Non-moving collection preserves
 addresses but does not eliminate owner tracking or stack-lifetime checks.
 
@@ -786,8 +798,8 @@ complete for its explicitly bounded retained-heap profile, with a
 [composed object example](../examples/Objects/README.md) covering arrays, strings,
 inheritance and dispatch through the compiler API. Its .NET oracle and metadata-only
 compiler run in separate processes. The [milestone 3 record](milestones/03-object-execution.md)
-consolidates the supported boundary; precise collection and handles are the next
-gate. The broader managed runtime, library and production embedding API remain planned.
+consolidates the supported boundary; [milestone 4](milestones/04-collection-and-handles.md)
+has begun with precise visitation, while collection and handles remain the next gate. The broader managed runtime, library and production embedding API remain planned.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

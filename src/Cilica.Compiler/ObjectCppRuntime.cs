@@ -44,6 +44,7 @@ struct Descriptor {
     Object** (*dynamic_references)(Object*) noexcept = nullptr;
 };
 [[maybe_unused]] static bool known_type(const Descriptor*) noexcept;
+[[maybe_unused]] static bool string_type(const Descriptor*) noexcept;
 struct Instance;
 struct Object {
     const Descriptor* type = nullptr;

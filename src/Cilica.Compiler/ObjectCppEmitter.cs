@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v9";
+    public const string Profile = "object-frames-native-v10";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -49,7 +49,7 @@ public static class ObjectCppEmitter
         var text = new StringBuilder();
         text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <type_traits>\n")
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
-            .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n');
+            .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n');
         foreach (var type in referenceTypes)
             text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
         foreach (var composed in native.Fields)
@@ -116,6 +116,9 @@ public static class ObjectCppEmitter
         foreach (var array in arrays)
             text.Append("    if (type == &").Append(TypeSymbol(array)).Append("_descriptor) return true;\n");
         text.Append("    (void)type; return false;\n}\n");
+        text.Append("[[maybe_unused]] static bool string_type(const Descriptor* type) noexcept { ")
+            .Append(program.Flow.Types.String is { } textType ? "return type == &" + TypeSymbol(textType) + "_descriptor;" : "(void)type; return false;")
+            .Append(" }\n");
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
             var layout = layouts[IrMethodId.From(method.Source)];

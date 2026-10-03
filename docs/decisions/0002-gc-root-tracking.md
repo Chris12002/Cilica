@@ -130,3 +130,8 @@ with rooting removed.
 The bounded native phase A publication/ownership checkpoint is now implemented in
 [ADR 0025](0025-native-object-ownership-and-roots.md). Its retained heap does not
 establish precise collection, collection stress or the wider target/measurement gates.
+
+[ADR 0049](0049-precise-reference-visitation.md) adds allocation-free native visitors
+for published frames, literal-cache roots, inherited reference fields and reference
+arrays. This is precise enumeration only; marking/reclamation, phase B and wider
+platform experiments remain separate gates.

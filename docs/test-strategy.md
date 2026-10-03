@@ -554,3 +554,27 @@ Release script separately from Debug test outputs. Use ASan/UBSan, warnings as
 errors and the established native frame warning. Retain the primitive example
 regression. No hosted jobs, benchmarks or collection claims follow from this
 integration check.
+
+
+## Slice 4a: precise reference visitation
+
+Assert exact callback edge values and provenance for inherited fields, null/alias
+slots, reference arrays, nested frames and literal-cache roots. String code units,
+integer fields/vectors, ownership links and the heap allocation list must never
+appear as managed edges. Compose the two visitors with a test-owned iterative
+consumer over a cyclic graph; after removing frame roots, retained garbage must
+be absent while cached literals remain.
+
+Exercise complete/stopped/invalid outcomes, callback absence, foreign/unreadable
+contained values, copied descriptors, owner mismatch, malformed readable frame/cache
+chains, null slot buffers, and exact/excess frame/root/literal limits. Verify that
+visits preserve heap counters, execution storage and pending fault/origin state.
+The tests do not make arbitrary corrupted native backing storage valid input.
+
+Observe every allocation in an authored .NET/native graph probe. Walk real caller
+and callee frames, including unfinished receivers and allocating string calls;
+verify the expected reachable graph before allocation. Force each allocation stage
+to fail and inspect cache roots after frame unwinding without overwriting the fault.
+Run O0/O2 ASan/UBSan and static frame checks, then relevant existing native/example
+regressions, including programs with no String catalog. These are enumeration
+checks; actual mark/sweep and poisoned reclamation stress remain later work.

@@ -715,3 +715,6 @@ marking/reclamation and prove live roots survive collection at every allocation.
 Persistent handles need their own ownership/lifetime contract before references
 cross the embedding boundary. The current retained heap is not a collector, and
 this example does not clear exception/library, generics, Alchemy or mobile/web gates.
+
+Milestone 4 has now started with [precise reference visitation](04-collection-and-handles.md),
+without enabling marking or reclamation in the retained heap.
