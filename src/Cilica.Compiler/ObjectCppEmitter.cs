@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v7";
+    public const string Profile = "object-frames-native-v8";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -22,8 +22,6 @@ public static class ObjectCppEmitter
         ArgumentNullException.ThrowIfNull(program.Flow);
         ArgumentNullException.ThrowIfNull(program.Flow.Types);
         var plans = ObjectRootAssignment.Assign(program).ToDictionary(p => p.Method);
-        if (!program.Flow.Types.Arrays.IsEmpty)
-            throw new NotSupportedException("Native array lowering is not implemented; array catalogs and operations currently support translation, validation and root assignment only.");
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
         var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
         if (program.InterfaceDispatch is { } interfacePlan)
@@ -35,6 +33,10 @@ public static class ObjectCppEmitter
         var fields = program.Flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         var typeRules = new IrTypeRules(program.Flow.Types);
         var contracts = program.Flow.Types.Interfaces.Select(i => ObjectTypeId.From(i.Source)).ToHashSet();
+        var arrays = program.Flow.Types.Arrays;
+        var concrete = types.Keys.Concat(arrays).ToArray();
+        var referenceTypes = concrete.Concat(contracts).ToArray();
+        string Predicate(ObjectTypeId type) => contracts.Contains(type) ? ContractSymbol(type) : TypeSymbol(type) + "_accepts";
         var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key]));
         var entry = methods[program.Flow.Entry];
         string symbol = CppEmitter.Symbol(program.Flow.Entry) + "_objects_packed", scope = symbol + "_closure";
@@ -42,6 +44,8 @@ public static class ObjectCppEmitter
         text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <type_traits>\n")
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
             .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n');
+        foreach (var type in referenceTypes)
+            text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
         foreach (var composed in native.Fields)
         {
             var layout = types[composed.Key];
@@ -74,15 +78,30 @@ public static class ObjectCppEmitter
                 .Append(", ").Append(type).Append("_fields.data(), ").Append(N(composed.Value.Length))
                 .Append(", ").Append(type).Append("_accessors.data(), field_by_offset };\n");
         }
-        foreach (var contract in contracts.OrderBy(t => t.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Token))
+        foreach (var array in arrays)
         {
-            string name = ContractSymbol(contract);
-            var receivers = types.Keys.Where(t => typeRules.Assignable(IrType.Reference(t), IrType.Reference(contract))).ToArray();
+            bool reference = array.ArrayElement!.Kind == ObjectArrayElementKind.Reference;
+            text.Append("[[maybe_unused]] static constexpr Descriptor ").Append(TypeSymbol(array)).Append("_descriptor = { sizeof(ArrayObject), alignof(ArrayObject), nullptr, 0, destroy_array, &")
+                .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
+                .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : "1, nullptr, nullptr, nullptr").Append(" };\n");
+        }
+        // Exact membership compares untrusted descriptor addresses without dereferencing them.
+        // This covers nominal/interface ancestry, vector covariance and widening to Object.
+        foreach (var expected in referenceTypes)
+        {
+            string name = Predicate(expected);
+            var receivers = concrete.Where(t => typeRules.Assignable(IrType.Reference(t), IrType.Reference(expected))).ToArray();
             text.Append("static constexpr std::array<const Descriptor*, ").Append(N(receivers.Length)).Append("> ")
                 .Append(name).Append("_types = {").Append(string.Join(", ", receivers.Select(t => "&" + TypeSymbol(t) + "_descriptor"))).Append("};\n")
                 .Append("[[maybe_unused, gnu::noinline]] static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n")
                 .Append("    for (const auto* receiver : ").Append(name).Append("_types) if (receiver == type) return true;\n    return false;\n}\n");
         }
+        text.Append("[[maybe_unused]] static bool known_type(const Descriptor* type) noexcept { return ")
+            .Append(Predicate(program.Flow.Types.ObjectBase)).Append("(type); }\n")
+            .Append("[[maybe_unused, gnu::noinline]] static bool array_type(const Descriptor* type) noexcept {\n");
+        foreach (var array in arrays)
+            text.Append("    if (type == &").Append(TypeSymbol(array)).Append("_descriptor) return true;\n");
+        text.Append("    (void)type; return false;\n}\n");
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
             var layout = layouts[IrMethodId.From(method.Source)];
@@ -118,7 +137,7 @@ public static class ObjectCppEmitter
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)) AppendMethod(method);
         text.Append("}\n// Private experimental boundary; valid disjoint outputs, references remain internal.\n")
             .Append("// Parameters must point to count readable Int32 values; exact arity required, null allowed only for zero arity.\n")
-            .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 7 invalid cast, 8 call-depth, 9 execution storage.\n")
+            .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 7 invalid cast, 8 call-depth, 9 execution storage, 10 array bounds, 11 array type mismatch.\n")
             .Append("// Result unchanged on failure; origin text borrows the generated library lifetime.\n")
             .Append("extern \"C\" std::uint32_t ").Append(symbol).Append("_try(std::int32_t* result, std::uint32_t* method, std::uint32_t* il, const char** image, const std::int32_t* parameters, std::size_t count) noexcept {\n")
             .Append("    if (result == nullptr || method == nullptr || il == nullptr || image == nullptr || count != ").Append(N(entry.Parameters.Length))
@@ -168,15 +187,26 @@ public static class ObjectCppEmitter
             {
                 code.Append("    if (").Append(condition).Append(") {\n"); Fault(status, offset); code.Append("    }\n");
             }
-            string Matches(string value, ObjectTypeId type) => contracts.Contains(type)
-                ? ContractSymbol(type) + "(" + value + "->type)"
-                : "derives_from(" + value + "->type, &" + TypeSymbol(type) + "_descriptor)";
+            string Matches(string value, ObjectTypeId type) => Predicate(type) + "(" + value + "->type)";
             void Check(string value, ObjectTypeId type, bool nullCheck, int offset)
             {
                 if (nullCheck) Guard(value + " == nullptr", "4u", offset);
                 Guard("!context.instance.owns(" + value + ")", "6u", offset);
                 if (type != program.Flow.Types.ObjectBase)
                     Guard(value + " != nullptr && !" + Matches(value, type), "6u", offset);
+            }
+            void ArrayCheck(int receiver, ObjectTypeId? view, int? index, int offset)
+            {
+                string value = Value(receiver);
+                Guard(value + " == nullptr", "4u", offset);
+                Guard("!context.instance.owns(" + value + ")", "6u", offset);
+                Guard("!" + (view is null ? "array_type(" + value + "->type)" : Matches(value, view)), "6u", offset);
+                Flush();
+                if (index is { } element)
+                {
+                    Guard(Value(element) + " >= array_length(" + value + ")", "10u", offset);
+                    Flush();
+                }
             }
             string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false)
             {
@@ -229,12 +259,12 @@ public static class ObjectCppEmitter
                 int statementsInStep = 0;
                 foreach (var statement in block.Statements)
                 {
-                    bool isolatedOperation = statement is IrStatement.StoreField
-                        or IrStatement.Define { Value.Expression: IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
+                    bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement
+                        or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.Invoke { VirtualDispatch: true };
-                    // Fields, type tests and virtual calls include ownership/ancestry checks.
-                    // Keep it in its own step to retain the O0 sanitizer stack bound.
+                    // Array/field access, type tests and virtual calls include ownership/type checks.
+                    // Keep them in separate steps to retain the O0 sanitizer stack bound.
                     if (isolatedOperation) { Flush(); statementsInStep = 0; }
                     switch (statement)
                     {
@@ -247,6 +277,15 @@ public static class ObjectCppEmitter
                                 case IrExpression.NewObject allocation:
                                     string type = TypeSymbol(bindings[allocation.Constructor].Owner);
                                     expression = "allocate<" + type + ">(context, " + type + "_descriptor)"; break;
+                                case IrExpression.NewArray array:
+                                    expression = "allocate_array(context, " + TypeSymbol(array.ArrayType) + "_descriptor, " + Value(array.Length) + ")"; break;
+                                case IrExpression.ArrayLength length:
+                                    ArrayCheck(length.Array, null, null, value.ILOffset);
+                                    expression = "array_length(" + Value(length.Array) + ")"; break;
+                                case IrExpression.LoadElement element:
+                                    ArrayCheck(element.Array, element.ArrayType, element.Index, value.ILOffset);
+                                    expression = (value.Type.Kind == IrTypeKind.Int32 ? "load_integer_element(" : "load_reference_element(")
+                                        + Value(element.Array) + ", " + Value(element.Index) + ")"; break;
                                 case IrExpression.LoadField field:
                                     Check(Value(field.Receiver), field.Field.Owner, true, value.ILOffset);
                                     expression = Field(field.Field, field.Receiver); break;
@@ -280,6 +319,12 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
+                            else if (value.Expression is IrExpression.NewArray)
+                                Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
+                            else if (value.Expression is IrExpression.LoadElement && value.Type.Kind == IrTypeKind.Reference)
+                            {
+                                Flush(); Check(Value(value.Id), value.Type.Class!, false, value.ILOffset);
+                            }
                             else if (value.Expression is IrExpression.Call) Pending();
                             break;
                         }
@@ -290,6 +335,14 @@ public static class ObjectCppEmitter
                             else if (invoke.NullCheckReceiver) Guard(Value(invoke.Arguments[0]) + " == nullptr", "4u", invoke.ILOffset);
                             string invocation = Call(invoke.Target, invoke.Arguments, dispatch: invoke.VirtualDispatch);
                             code.Append("    ").Append(invocation).Append(";\n"); Pending(); break;
+                        case IrStatement.StoreElement store:
+                            ArrayCheck(store.Array, store.ArrayType, store.Index, store.ILOffset);
+                            if (store.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Int32)
+                                code.Append("    store_integer_element(").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ")
+                                    .Append(Value(store.Value)).Append(");\n");
+                            else
+                                Guard("!store_reference_element(context, " + Value(store.Array) + ", " + Value(store.Index) + ", " + Value(store.Value) + ")", "context.pending", store.ILOffset);
+                            break;
                         case IrStatement.StoreField store:
                             Check(Value(store.Receiver), store.Field.Owner, true, store.ILOffset);
                             if (values[store.Value].Type.Kind == IrTypeKind.Reference)
@@ -352,7 +405,9 @@ public static class ObjectCppEmitter
 
     private static string CType(IrType type) => type.Kind switch { IrTypeKind.Int32 => "std::int32_t", IrTypeKind.Void => "void", _ => "Object*" };
     private static string N(int value) => value.ToString(CultureInfo.InvariantCulture);
-    private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture);
+    private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture)
+        + (type.ArrayElement is null ? "" : type.ArrayElement.Kind == ObjectArrayElementKind.Int32 ? "_vector_i4"
+            : "_vector_ref_" + TypeSymbol(type.ArrayElement.Type!));
     private static string DispatchSymbol(IrMethodId method) => CppEmitter.Symbol(method) + "_dispatch";
     private static string ContractSymbol(ObjectTypeId type) => TypeSymbol(type) + "_implements";
     private static string FieldSymbol(ObjectFieldId field) => "f_" + field.Token.ToString("x8", CultureInfo.InvariantCulture);

@@ -115,7 +115,7 @@ public sealed class ObjectArrayContractTests
         Assert.Equal(roots.Slots.Length, roots.Slots.Select(s => s.Slot).Distinct().Count());
         Assert.Throws<ArgumentException>(() => ReferenceIrValidator.Validate(program.Flow));
         Assert.Throws<ArgumentException>(() => CppEmitter.EmitProgram(new(program.Flow.Entry, program.Flow.Methods)));
-        Assert.Contains("Native array lowering", Assert.Throws<NotSupportedException>(() => ObjectCppEmitter.EmitProgram(program)).Message, StringComparison.Ordinal);
+        Assert.Contains("allocate_array", ObjectCppEmitter.EmitProgram(program).Text, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -267,7 +267,7 @@ public sealed class ObjectArrayContractTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void Cil_vectors_translate_but_native_emission_remains_an_explicit_boundary(bool signature)
+    public void Cil_vectors_translate_and_emit_native_storage(bool signature)
     {
         var b = new ResolutionAssemblyBuilder(new("ArrayBoundary" + signature, new Version(1, 0, 0, 0)));
         var obj = b.Type("System", "Object"); b.Type("Example", "Driver", baseType: obj);
@@ -279,7 +279,7 @@ public sealed class ObjectArrayContractTests
         var result = ObjectControlFlowTests.Translate(new(b, entry));
         Assert.True(result.Success, string.Join("; ", result.Diagnostics));
         Assert.Single(result.Program!.Flow.Types.Arrays);
-        Assert.Throws<NotSupportedException>(() => ObjectCppEmitter.EmitProgram(result.Program));
+        Assert.Contains("ArrayObject", ObjectCppEmitter.EmitProgram(result.Program).Text, StringComparison.Ordinal);
     }
 
     [Theory]

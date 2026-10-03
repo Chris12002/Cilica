@@ -14,7 +14,7 @@ namespace Cilica.Metadata.Tests;
 
 public sealed class ObjectArrayTranslationTests
 {
-    private static ObjectIrProgram Authored(string name)
+    internal static ObjectIrProgram Authored(string name)
     {
         using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
         var image = resolver.OpenInput(typeof(ArrayProbe).Assembly.Location).Value!;
@@ -41,7 +41,7 @@ public sealed class ObjectArrayTranslationTests
         else Assert.Equal(ArrayProbe.Integers(length, index, value), evaluator.Run(length, index, value));
         Assert.Single(program.Flow.Types.Arrays);
         Assert.Contains(ObjectRootAssignment.Assign(program).SelectMany(r => r.Safepoints), p => p.Kind == ObjectSafepointKind.Allocation);
-        Assert.Throws<NotSupportedException>(() => ObjectCppEmitter.EmitProgram(program));
+        Assert.Contains("allocate_array", ObjectCppEmitter.EmitProgram(program).Text, StringComparison.Ordinal);
     }
 
     [Theory]

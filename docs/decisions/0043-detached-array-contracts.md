@@ -2,7 +2,7 @@
 
 Status: Accepted for detached catalogs, value/operation validation and phase A root
 assignment. Array metadata/CIL lowering subsequently landed in ADR 0044; native
-execution remains planned.
+execution subsequently landed in ADR 0045.
 Recorded 2026-10-03.
 
 ## Context
@@ -70,9 +70,9 @@ Dynamic element tracing requires a later native descriptor/allocation design.
 
 At this slice boundary, metadata/CIL array lowering was still rejected.
 [ADR 0044](0044-array-metadata-and-cil.md) subsequently enables bounded fields/signatures
-and instructions. The object emitter explicitly rejects any array-bearing catalog,
-including one with only array locals and no allocation. This keeps incomplete
-lowering from treating an array anchor as the ordinary Object descriptor. Primitive
+and instructions. The native gate remained through that translation slice, preventing
+an array anchor from becoming an ordinary Object descriptor; ADR 0045 subsequently
+implements separate array storage and removes the gate. Primitive
 emission remains unchanged. Interface plan/executable catalog agreement includes
 the array identities, while mapping receivers and method owners stay nominal.
 

@@ -10,11 +10,11 @@ not establish native execution or platform compatibility.
 | `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
-| `object-layout-v4` | Bounded nominal metadata snapshots and detached class/interface/vector graphs | Int32/reference vectors have structural element identities and share the 256-type limit; SZARRAY fields/signatures are read; native array storage remains planned |
-| `typed-reference-ir-v4` | Detached caller-constructed IR validation | Class/interface/array references/null, nominal ancestry, reference-vector covariance and typed locals/joins/direct calls/returns; array CIL translates in the object profile; native array execution remains planned |
+| `object-layout-v4` | Bounded nominal metadata snapshots and detached class/interface/vector graphs | Int32/reference vectors have structural element identities and share the 256-type limit; SZARRAY fields/signatures are read; bounded native storage is described below |
+| `typed-reference-ir-v4` | Detached caller-constructed IR validation | Class/interface/array references/null, nominal ancestry, reference-vector covariance and typed locals/joins/direct calls/returns; array CIL/native execution is supported by the bounded object profile |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
-| `object-operations-ir-v7` | Bounded nominal/vector CIL translation and detached operation validation | Class/interface operations plus array allocation, Int32 length conversion and Int32/reference element access; native array lowering remains planned |
-| `object-frames-native-v7` | C++20 emission and local native differential execution | Class/interface dispatch, interface reference membership, class/interface casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
+| `object-operations-ir-v7` | Bounded nominal/vector CIL translation and detached operation validation | Class/interface operations plus array allocation, Int32 length conversion and Int32/reference element access; native array lowering is implemented in v8 |
+| `object-frames-native-v8` | C++20 emission and local native differential execution | Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Array execution, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -363,7 +363,8 @@ storage must be valid and disjoint. Null outputs return 3 without writes; faults
 leave the result unchanged and report image/MethodDef/IL origin. Statuses retain
 1 divide-by-zero and 2 overflow, add 4 null, 5 allocation failure, 6 ownership/type
 violation, 7 invalid reference cast and 8 call-depth limit. Execution storage adds
-status 9 below. These tags are not managed exception objects.
+status 9 below. Bounded array operations add status 10 for bounds and 11 for element
+type mismatch. These tags are not managed exception objects.
 
 All reference arguments, locals and temporaries receive distinct slots, including
 null temporaries. Frames publish before allocations/calls and pop on every exit.
@@ -443,7 +444,7 @@ for convergence, ambiguity and shared-work-budget boundaries.
 
 ## Budgeted object execution frames
 
-`object-frames-native-v7` supersedes the object control-flow and earlier frame emission
+`object-frames-native-v8` retains the budgeted frames that superseded the object control-flow and earlier emission
 profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
 [ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md),
 [ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)). It has a 1 MiB
@@ -816,14 +817,13 @@ the bounded Int32 contract; reference loads retain the static view's element typ
 Every array operation carries an explicit fault edge. Covariant reference stores
 still require a runtime check against the actual allocation's element type;
 null must be checked before bounds, and bounds before a store-type mismatch.
-Those checks are lowering obligations, not array execution implemented here.
+Those lowering obligations are implemented by native v8, described below.
 
 Root assignment includes array values and loaded references and marks array
 allocation as a safepoint. Constructor validation prevents the unfinished receiver
-escaping through an element store. Metadata/CIL lowering is described below; native
-dynamic storage remains planned. The native emitter explicitly rejects all array-bearing
-catalogs; it must not reinterpret an array's Object anchor as a class descriptor.
-No native profile, ABI, runtime fault code or platform-support claim changes.
+escaping through an element store. Metadata/CIL lowering and native dynamic storage
+are described below. Array descriptors remain distinct from their Object anchor;
+no nominal Object layout is substituted for vector storage.
 
 The detached assignment matrix matches .NET on all 196 modeled type pairs.
 Fixtures cover cross-image identities, JSON round trips, covariance/declared flow,
@@ -855,4 +855,32 @@ aliasing, calls/returns, mutation, zero initialization, bounds/null/negative-len
 faults and Object[] field/identity behavior. Additional translation tests cover
 reference covariance and array signatures in class/interface dispatch. These are
 translation checks, not native array execution, runtime store-check or collection
-evidence. Native emission remains explicitly gated for every array-bearing catalog.
+evidence. The native checkpoint below provides separate execution evidence.
+
+
+## Native vector execution
+
+`object-frames-native-v8` emits bounded Int32/reference arrays
+([ADR 0045](decisions/0045-native-array-storage.md)). A fixed header owns a separate
+zero-initialized typed element buffer. Heap accounting includes header and payload;
+failed allocation leaves counters/list unchanged, and instance cleanup frees both.
+Empty arrays have distinct identity. Array descriptors retain exact vector identity,
+reference-element acceptance and dynamic reference-slot inspection callbacks.
+
+Null checks precede bounds; bounds precede reference-store type checks. Negative
+lengths report overflow (2), allocation failure reports 5, bounds report 10 and
+array element mismatch reports 11. Failed stores preserve the previous element.
+Native method-entry argument checks and operation ownership checks retain status 6.
+Exact descriptor membership implements covariance and safely rejects unknown
+addresses without traversing their contents. Existing class/interface casts and
+Object widening compose with arrays; array-target casts remain unsupported.
+
+Reference slots, safepoints, execution storage and the packed Int32 boundary retain
+their existing contracts. The new native tests check roots across array/object
+allocations, dynamic slots, cycles through Object elements, exact byte/count/frame
+budgets, failure cleanup/reuse and invalid/foreign references. O0/O2 .NET comparisons
+also cover 155 values/fault-origin cases per build under ASan/UBSan, without C++
+exceptions or RTTI. Both static stack reports peak at 656 bytes, within the 2 KiB
+frame gate. Only the recorded macOS ARM64 target
+is evidenced. Collection, jagged static types, framework array interfaces, general
+native-sized integers, managed exception handlers and broader platforms remain gaps.

@@ -529,9 +529,12 @@ fields/signatures and bounded array CIL translation are implemented
 ([ADR 0044](decisions/0044-array-metadata-and-cil.md)), including exact array signatures
 through class/interface dispatch. The `ldlen; conv.i4` pair stays within Int32;
 general native integers remain unsupported. Element access after an unequal-reference
-stack merge requires an explicitly typed array local. Native storage, checked stores
-and dynamic element tracing remain planned; the native emitter rejects array-bearing
-catalogs until that work lands.
+stack merge requires an explicitly typed array local. Native v8 stores vectors in
+an owned header and a separate typed element buffer, charges both to the retained
+heap budget, and checks null, bounds and the actual reference element type before
+mutation ([ADR 0045](decisions/0045-native-array-storage.md)). Dynamic reference-slot
+callbacks support inspection/future tracing. Phase A roots cover arrays and loaded
+references across allocations; actual collection remains planned.
 Structs with references have generated tracing descriptions.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch

@@ -36,7 +36,14 @@ struct Descriptor {
     std::size_t field_count;
     const FieldAccessor* accessors;
     void* (*field_address)(Object*, std::size_t) noexcept;
+    // 0 nominal, 1 Int32 vector, 2 reference vector. Dynamic slots complement
+    // fixed reference-field offsets; neither is a collector implementation.
+    unsigned array_kind = 0;
+    bool (*accepts_element)(const Descriptor*) noexcept = nullptr;
+    std::size_t (*dynamic_reference_count)(Object*) noexcept = nullptr;
+    Object** (*dynamic_references)(Object*) noexcept = nullptr;
 };
+[[maybe_unused]] static bool known_type(const Descriptor*) noexcept;
 struct Instance;
 struct Object {
     const Descriptor* type = nullptr;
@@ -44,6 +51,23 @@ struct Object {
     Object* next = nullptr;
     std::uintptr_t synchronization = 0;
 };
+struct ArrayObject {
+    Object header;
+    std::uint32_t length = 0;
+    std::uint32_t* integers = nullptr;
+    Object** references = nullptr;
+};
+static_assert(std::is_standard_layout_v<ArrayObject> && offsetof(ArrayObject, header) == 0);
+[[maybe_unused]] static void destroy_array(Object* value) noexcept {
+    auto* array = reinterpret_cast<ArrayObject*>(value);
+    delete[] array->integers; delete[] array->references; delete array;
+}
+[[maybe_unused]] static std::size_t array_reference_count(Object* value) noexcept {
+    return reinterpret_cast<ArrayObject*>(value)->length;
+}
+[[maybe_unused]] static Object** array_references(Object* value) noexcept {
+    return reinterpret_cast<ArrayObject*>(value)->references;
+}
 [[maybe_unused]] static bool derives_from(const Descriptor* actual, const Descriptor* expected) noexcept {
     for (const Descriptor* type = actual; type != nullptr; type = type->base)
         if (type == expected) return true;
@@ -184,6 +208,49 @@ template<class T> static Object* allocate(Context& context, const Descriptor& de
     value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
     heap.head = &value->header; heap.bytes += sizeof(T); ++heap.count;
     return &value->header;
+}
+[[maybe_unused, gnu::noinline]] static Object* allocate_array(Context& context, const Descriptor& descriptor, std::uint32_t length) noexcept {
+    if (length > 0x7fffffffu) { context.pending = 2u; return nullptr; }
+    if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
+    if (context.observe != nullptr) context.observe(context);
+    Instance& heap = context.instance;
+    const std::size_t stride = descriptor.array_kind == 1 ? sizeof(std::uint32_t) : sizeof(Object*);
+    if (heap.bytes > heap.limit || sizeof(ArrayObject) > heap.limit - heap.bytes || heap.count >= heap.object_limit)
+        return nullptr;
+    const std::size_t available = heap.limit - heap.bytes - sizeof(ArrayObject);
+    if (length > available / stride) return nullptr;
+    auto* value = new (std::nothrow) ArrayObject;
+    if (value == nullptr) return nullptr;
+    if (length != 0) {
+        if (descriptor.array_kind == 1) value->integers = new (std::nothrow) std::uint32_t[length]{};
+        else value->references = new (std::nothrow) Object*[length]{};
+        if (value->integers == nullptr && value->references == nullptr) { delete value; return nullptr; }
+    }
+    value->length = length;
+    value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
+    heap.head = &value->header; heap.bytes += sizeof(ArrayObject) + std::size_t{length} * stride; ++heap.count;
+    return &value->header;
+}
+// Receivers have passed exact descriptor membership before these helpers run.
+// Keep pointer arithmetic on actual new[] elements, never a fabricated flexible member.
+[[maybe_unused, gnu::noinline]] static std::uint32_t array_length(Object* value) noexcept {
+    return reinterpret_cast<ArrayObject*>(value)->length;
+}
+[[maybe_unused, gnu::noinline]] static std::uint32_t load_integer_element(Object* value, std::uint32_t index) noexcept {
+    return reinterpret_cast<ArrayObject*>(value)->integers[index];
+}
+[[maybe_unused, gnu::noinline]] static Object* load_reference_element(Object* value, std::uint32_t index) noexcept {
+    return reinterpret_cast<ArrayObject*>(value)->references[index];
+}
+[[maybe_unused, gnu::noinline]] static void store_integer_element(Object* value, std::uint32_t index, std::uint32_t element) noexcept {
+    reinterpret_cast<ArrayObject*>(value)->integers[index] = element;
+}
+[[maybe_unused, gnu::noinline]] static bool store_reference_element(Context& context, Object* value, std::uint32_t index, Object* element) noexcept {
+    if (!context.instance.owns(element)) { context.pending = 6u; return false; }
+    if (element != nullptr && !known_type(element->type)) { context.pending = 6u; return false; }
+    if (element != nullptr && !value->type->accepts_element(element->type)) { context.pending = 11u; return false; }
+    reinterpret_cast<ArrayObject*>(value)->references[index] = element;
+    return true;
 }
 [[maybe_unused]] static std::uint32_t cilica_shr_i4(std::uint32_t value, std::uint32_t count) noexcept {
     count &= 31u;

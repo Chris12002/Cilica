@@ -48,4 +48,6 @@ capability. It becomes accepted once its validation experiment has run.
 | [0040](0040-interface-casts-and-type-tests.md) | Interface casts and type tests | Accepted for bounded retained-heap execution |
 | [0041](0041-mixed-class-interface-dispatch.md) | Mixed class/interface dispatch | Accepted for validated interface-mapping owners |
 | [0042](0042-reference-join-inference.md) | Common reference types at stack joins | Accepted for bounded class/interface inference |
-| [0043](0043-detached-array-contracts.md) | Detached vector identities and array operations | Accepted for catalogs, validation and root assignment; CIL/native lowering planned |
+| [0043](0043-detached-array-contracts.md) | Detached vector identities and array operations | Accepted for catalogs, validation and root assignment |
+| [0044](0044-array-metadata-and-cil.md) | Array metadata and bounded CIL translation | Accepted for bounded SZARRAY signatures and operations |
+| [0045](0045-native-array-storage.md) | Native vector storage and checked element operations | Accepted for bounded retained-heap execution |

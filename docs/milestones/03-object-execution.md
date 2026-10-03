@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; bounded native object control flow, roots, concrete class inheritance and class/interface casts/type tests are implemented. Updated 2026-10-03.
+Status: in progress; bounded native object control flow, roots, concrete class inheritance class/interface casts/type tests and bounded native vectors are implemented. Updated 2026-10-03.
 
 The first native class checkpoint now runs an independently authored small class
 created, mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -37,10 +37,10 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-d-c-c-b | Typed native interface lookup and execution conformance | Complete for bounded retained-heap profile |
 | 3d-d-d | Mixed class/interface calls on validated interface-mapping owners | Complete for bounded retained-heap profile |
 | 3d-e | Unique common class/interface inference at stack joins | Complete for bounded CIL/retained-heap profile |
-| 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | In progress |
+| 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Complete for bounded vector profile |
 | 3e-a | Detached vector identities, covariance, operations and root contracts | Complete for detached validation |
 | 3e-b | SZARRAY metadata/signatures and bounded array CIL translation | Complete for translation |
-| 3e-c | Native variable storage, checked stores and execution conformance | Planned |
+| 3e-c | Native variable storage, checked stores and execution conformance | Complete for bounded retained-heap profile |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
 
@@ -569,7 +569,7 @@ the existing type limit with classes/interfaces. Reference covariance, fields,
 declared joins, calls and returns retain exact identities. Array allocation/length/
 load/store operations require typed operands and fault edges; phase A includes
 array references and allocation safepoints. Constructor escape checks also cover
-array stores. No array CIL or native execution is claimed; emission remains gated.
+array stores. This slice established no CIL/native execution claim; subsequent 3e-b/3e-c supply it.
 
 Review completed with a warning-free solution build, an 874-check broader local
 pass and a 275-check final focused pass after signature-validation hardening.
@@ -585,16 +585,30 @@ Int32/reference element operations and the same-block `ldlen; conv.i4` idiom low
 to the existing array IR with fault edges and allocation roots. Exact/null joins
 work; element access after unequal-reference joins requires an explicit array local.
 Catalog registration excludes transient null-only views from stack inference.
-The native gate stays in place.
+The native gate remained until the subsequent 3e-c checkpoint.
 
 Review completed with a warning-free solution build, 910 broader local checks and
 156 final focused checks passing. The new suite includes 36 array translation cases,
 with authored .NET comparisons and a reduced cross-image runtime-identity regression.
 Local main remains an ancestor; no push, hosted work or additional agents ran.
 
-The next slice is native variable storage, checked reference stores and ordered-failure
-conformance (3e-c). Strings (3f) and the composed example/review (3g) remain planned;
-collection remains a separate milestone.
+Slice 3e-c implements native vector storage and checked element operations
+([ADR 0045](../decisions/0045-native-array-storage.md)). Native v8 owns a fixed header
+and typed variable buffer, charging both to the retained heap. Exact descriptor
+membership covers nominal/interface types and array covariance; null/bounds/type
+checks precede stores, and failed stores preserve their element. Dynamic reference
+callbacks expose slots for inspection/future tracing. Array values and loaded
+references use phase A roots across class/array allocations and loops. New bounds
+and array-type-mismatch fault tags retain precise origins and boundary cleanup.
+
+Review completed with a warning-free solution build and 919 selected local checks
+passing. The array harness compares 155 .NET/native outcomes at each of O0/O2 under
+ASan/UBSan; both static frame reports have a 656-byte maximum for the generated code
+and driver. Local main remains an ancestor; no push, hosted runs or agents ran.
+
+The next slice is bounded UTF-16 strings and explicit literal/operation semantics
+(3f), followed by the composed example/review (3g). Collection remains a separate
+milestone.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

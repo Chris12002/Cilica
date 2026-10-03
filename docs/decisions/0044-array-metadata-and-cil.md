@@ -1,6 +1,6 @@
 # ADR 0044: Array metadata and bounded CIL translation
 
-Status: Accepted for translation; native array execution remains planned.
+Status: Accepted for translation; native array execution subsequently landed in ADR 0045.
 
 ## Context and decision
 
@@ -56,7 +56,8 @@ virtual overrides with exact array signatures. Raw tests cover supported/null/
 unequal stack joins, typed-local recovery, combined exact/excess type limits,
 unsupported signatures, opcode/storage mismatches and native-length boundaries.
 
-The native emitter continues rejecting every array-bearing catalog. These tests
+At this checkpoint the emitter still rejected array-bearing catalogs; ADR 0045
+subsequently implements native storage and removes the gate. These tests
 establish translation semantics, not native array storage, runtime covariance
 checks, element tracing or collection. Native storage and ordered-failure
 conformance are the next slice (3e-c).
