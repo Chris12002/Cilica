@@ -10,10 +10,10 @@ not establish native execution or platform compatibility.
 | `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
-| `object-layout-v5` | Bounded nominal/vector metadata snapshots and detached intrinsic String identity | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String metadata reading remains planned |
-| `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String support is detached only |
+| `object-layout-v5` | Bounded nominal/vector/String metadata and detached catalogs | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String uses an intrinsic shell, without framework layout or interfaces |
+| `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow is translated; native storage remains gated |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
-| `object-operations-ir-v8` | Bounded nominal/vector CIL translation and detached string operation validation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; String CIL/native lowering remains planned |
+| `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated; native string lowering remains planned |
 | `object-frames-native-v8` | C++20 emission and local native differential execution | Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, string execution, GC, exception handlers, library and embedding support are unimplemented |
 
@@ -907,6 +907,32 @@ and 256 distinct ordinal contents; unit limits are checked before copying/hashin
 identity counts toward the existing 256-type cap. Tests compare modeled assignment
 pairs with .NET and verify malformed identities, UTF-16 round trips, resource
 limits, fault edges and constructor/root rules. These are detached validation
-results. String metadata/CIL, exact intrinsic recognition, native immutable storage,
-literal interning and content-operation differential execution remain planned;
-string-bearing catalogs fail native emission explicitly. Native arrays remain supported.
+results. String metadata/CIL now translates under ADR 0047 below; native immutable
+storage, literal interning and native content-operation differential execution
+remain planned. String-bearing catalogs fail native emission explicitly.
+Native arrays remain supported.
+
+## String metadata and intrinsic CIL
+
+[ADR 0047](decisions/0047-string-metadata-and-cil.md) connects the detached contract
+to the selected library's public sealed nongeneric String definition, directly
+based on selected Object and without type/module initializers. Its fields/interfaces
+are not imported. String supports method parameters/returns, locals, fields,
+reference vectors, dispatch signatures and named cast/test targets.
+
+`ldstr` validates and bounds the encoded heap payload before copying numeric UTF-16.
+The existing literal limits count every occurrence across methods, while caches
+avoid charging stack-inference revisits twice. Intrinsic declaration snapshots
+share method/metadata limits and never read framework IL bodies.
+
+Exact supported members are `callvirt String.get_Length()` and
+`callvirt String.get_Chars(Int32)`; `call` to static `String.Equals(String,String)`,
+`op_Equality`, `op_Inequality`, and `Concat(String,String)`. Char/Boolean results
+normalize only these calls to Int32 stack values. Operands retain source order,
+null/index checks and fault origins. All other overloads/call forms, constructors,
+String.Empty and general Char/Boolean storage remain unsupported.
+
+Authored C# and reduced metadata tests cover composition, wrong signatures/owners,
+initializer rejection, raw UTF-16, malformed heaps, shared limits and .NET comparisons
+of translation through a test-only evaluator. This is not native string execution
+or evidence of interning/collection behavior; native emission remains gated.

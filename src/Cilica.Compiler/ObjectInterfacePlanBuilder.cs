@@ -24,6 +24,7 @@ public static class ObjectInterfacePlanBuilder
         budget ??= new();
         try { return new(new Session(resolver, runtimeLibrary, budget).Run(roots, declarations), []); }
         catch (PlanFailure failure) { return new(null, [failure.Diagnostic]); }
+        catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
     internal sealed class PlanFailure(Diagnostic diagnostic, IrMethodId? declaration = null) : Exception(diagnostic.Message)
@@ -35,6 +36,7 @@ public static class ObjectInterfacePlanBuilder
     internal sealed class Session(AssemblyResolver resolver, ResolvedAssembly runtimeLibrary, MemberResolutionBudget budget,
         Func<ResolvedType, TypeReadLimits, TypeInput>? readType = null)
     {
+        private readonly ObjectStringType _strings = new(resolver, runtimeLibrary, budget);
         private readonly Dictionary<ObjectTypeId, ResolvedType> _roots = [], _knownTypes = [];
         private readonly HashSet<ObjectTypeId> _arrays = [];
         private readonly Dictionary<IrMethodId, MethodDeclarationInput> _inputs = [];
@@ -65,7 +67,7 @@ public static class ObjectInterfacePlanBuilder
                 if (_typeInputs.TryGetValue(ObjectModelBuilder.Id(type), out var cached)) return cached;
                 var read = resolver.ReadTypeInput(type.Assembly, type.Handle, limits with { MaximumMembers = Remaining() });
                 var input = Value(read); Consume(input.MetadataMembersRead); _typeInputs.Add(ObjectModelBuilder.Id(type), input); return input;
-            }, [.. _arrays]));
+            }, [.. _arrays], _strings));
             var types = new IrTypeRules(catalog); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
             foreach (var resolved in declarations)
             {
@@ -162,7 +164,7 @@ public static class ObjectInterfacePlanBuilder
             }
             var parameters = Parameters(input, owner); var returned = Type(input.Signature.ReturnType, true);
             if (parameters.Append(returned).Any(t => t.Class is { } type && !catalog.Types.Any(c => ObjectTypeId.From(c.Source) == type)
-                && !catalog.Interfaces.Any(c => ObjectTypeId.From(c.Source) == type) && !catalog.Arrays.Contains(type)))
+                && !catalog.Interfaces.Any(c => ObjectTypeId.From(c.Source) == type) && !catalog.Arrays.Contains(type) && type != catalog.String))
                 Fail("Mapped method signature introduced a type outside the prepared catalog.", input.Source.Name);
             Count(parameters.Length);
             _methods.Add(id, new(new(id, owner, ObjectMethodKind.Instance, input.Attributes, input.OwnerExternallyVisible)
@@ -180,7 +182,7 @@ public static class ObjectInterfacePlanBuilder
             _arrays.Add(array); return array;
         }
         private IrType Type(TypeSignature signature, bool allowVoid = false) =>
-            ObjectSignatureTypes.Convert(signature, _object, Include, IncludeArray, allowVoid)
+            ObjectSignatureTypes.Convert(signature, _object, Include, IncludeArray, allowVoid, () => Include(_strings.Require()))
             ?? throw new PlanFailure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error, ObjectSignatureTypes.Unsupported));
         private void Count(int count) { _parameters += count; if (_parameters > ProgramLimits.MaximumCallArguments) Fail("Aggregate dispatch parameter limit exceeded.", limit: true); }
         private int Remaining() { if (budget.Remaining == 0) Fail("Interface preparation metadata budget exhausted.", limit: true); return budget.Remaining; }

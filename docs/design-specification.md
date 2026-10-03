@@ -524,8 +524,15 @@ limit with classes, interfaces and vectors. Numeric UTF-16 literal payloads pres
 embedded zero and unpaired surrogates. Literal, length, code-unit access, ordinal
 equality and two-operand concat operations validate types and fault edges; literals
 and concat receive allocation safepoints. Program-wide literal budgets bound data
-and hashing work. String metadata/CIL and native storage/interning remain planned;
-the native emitter explicitly rejects string-bearing catalogs.
+and hashing work. String metadata and CIL now produce these contracts through
+exact selected-library identity and member signatures
+([ADR 0047](decisions/0047-string-metadata-and-cil.md)). Bounded literal decoding
+preserves numeric UTF-16; fields, method/dispatch signatures, vectors and type tests
+share the same selected identity. Length/indexer calls, static ordinal equality
+and two-string concat lower directly without importing framework bodies. Type/module
+initialization, unsupported overloads and broader String members remain diagnostics.
+Native storage/interning remains planned; the native emitter explicitly rejects
+string-bearing catalogs.
 The detached array foundation is implemented
 ([ADR 0043](decisions/0043-detached-array-contracts.md)): zero-based one-dimensional
 Int32/reference vector identities retain their element type separately from nominal

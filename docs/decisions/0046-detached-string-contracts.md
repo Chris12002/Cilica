@@ -1,7 +1,7 @@
 # ADR 0046: Detached immutable UTF-16 string contracts
 
-Status: Accepted for detached validation and phase A roots; metadata/CIL and native
-string execution remain planned.
+Status: Accepted for detached validation and phase A roots. ADR 0047 subsequently
+adds metadata/CIL translation; native string execution remains planned.
 Recorded 2026-10-03.
 
 ## Context and type decision
@@ -66,8 +66,8 @@ valid; default/uninitialized immutable arrays are rejected.
 
 ## Implementation boundary and validation
 
-The metadata builder and CIL translator continue rejecting String storage and
-instructions. The native emitter explicitly rejects any selected-String catalog,
+At this checkpoint the metadata builder and CIL translator still rejected String
+storage and instructions; ADR 0047 subsequently adds bounded translation. The native emitter explicitly rejects any selected-String catalog,
 even when it has only String locals. This prevents a special string reference
 from falling through to the ordinary class layout or array native backend.
 The native profile remains v8, including working arrays; no string runtime claim

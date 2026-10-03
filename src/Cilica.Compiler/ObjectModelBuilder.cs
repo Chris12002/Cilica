@@ -25,8 +25,19 @@ public static class ObjectModelBuilder
         ResolvedAssembly runtimeLibrary) => BuildCatalog(resolver, roots, runtimeLibrary, null);
 
     internal static ObjectCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
-        ResolvedAssembly runtimeLibrary, Func<ResolvedType, TypeReadLimits, TypeInput>? readType, ImmutableArray<ObjectTypeId> arrayRoots = default)
+        ResolvedAssembly runtimeLibrary, Func<ResolvedType, TypeReadLimits, TypeInput>? readType, ImmutableArray<ObjectTypeId> arrayRoots = default,
+        ObjectStringType? strings = null)
     {
+        try { return BuildCatalogCore(resolver, roots, runtimeLibrary, readType, arrayRoots, strings); }
+        catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
+    }
+
+    private static ObjectCatalogResult BuildCatalogCore(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
+        ResolvedAssembly runtimeLibrary, Func<ResolvedType, TypeReadLimits, TypeInput>? readType, ImmutableArray<ObjectTypeId> arrayRoots,
+        ObjectStringType? strings)
+    {
+        strings ??= new(resolver, runtimeLibrary, new(ObjectModelLimits.MaximumMetadataMembers));
+        ObjectTypeId? stringType = null;
         ArgumentNullException.ThrowIfNull(resolver);
         if (roots.IsDefaultOrEmpty || roots.Length > ObjectModelLimits.MaximumTypes)
             throw new ArgumentException("Catalog needs 1..256 explicit roots.", nameof(roots));
@@ -76,6 +87,14 @@ public static class ObjectModelBuilder
             var id = Id(type);
             if (members >= ObjectModelLimits.MaximumMetadataMembers)
                 return Failed(id, DiagnosticIds.TranslationLimit, "Object layout metadata-member limit exceeded.");
+            if (strings.Matches(type))
+            {
+                stringType = Id(strings.Require(ObjectModelLimits.MaximumMetadataMembers - members));
+                members += strings.ValidationWork; // Shell replaces the ordinary field/interface snapshot.
+                if (members > ObjectModelLimits.MaximumMetadataMembers)
+                    return Failed(id, DiagnosticIds.TranslationLimit, "Aggregate catalog metadata-member limit exceeded.");
+                continue;
+            }
             var budget = new TypeReadLimits(ObjectModelLimits.MaximumFields - fields, ObjectModelLimits.MaximumMetadataMembers - members, ObjectModelLimits.MaximumOwnerDepth);
             TypeInput input;
             if (readType is not null) input = readType(type, budget);
@@ -149,6 +168,11 @@ public static class ObjectModelBuilder
                     if (!arrays.Contains(array) && parents.Count + arrays.Count >= ObjectModelLimits.MaximumTypes) exceeded = true;
                     else arrays.Add(array);
                     return array;
+                }, text: () =>
+                {
+                    var text = strings.Require(ObjectModelLimits.MaximumMetadataMembers - members);
+                    if (!Include(text, id, field.Token)) exceeded = true;
+                    return Id(text);
                 });
                 if (exceeded) return Failed(id, DiagnosticIds.TranslationLimit, "Object layout type limit exceeded.", location);
                 if (storageType is null) return Failed(id, DiagnosticIds.ExecutionSignatureUnsupported, ObjectSignatureTypes.Unsupported, location);
@@ -160,7 +184,7 @@ public static class ObjectModelBuilder
         }
         var model = new ObjectTypeCatalog([.. roots.Select(Id).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)])
-        { Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
+        { String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
             Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
         // Metadata can form cycles or extend sealed classes. Surface those as
         // input diagnostics rather than leaking the detached API's exception.

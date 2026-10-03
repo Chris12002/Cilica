@@ -128,6 +128,11 @@ public sealed class ObjectTranslationConformanceTests
                             IrExpression.Null => null,
                             IrExpression.Parameter parameter => arguments[parameter.Index],
                             IrExpression.Local local => locals[local.Index],
+                            IrExpression.StringLiteral literal => new string(literal.CodeUnits.Select(c => (char)c).ToArray()),
+                            IrExpression.StringLength text => ((string)values[text.Operand]!).Length,
+                            IrExpression.StringCodeUnit text => (int)((string)values[text.Operand]!)[(int)values[text.Index]!],
+                            IrExpression.StringEquals text => string.Equals((string?)values[text.Left], (string?)values[text.Right], StringComparison.Ordinal) ? 1 : 0,
+                            IrExpression.StringConcat text => string.Concat((string?)values[text.Left], (string?)values[text.Right]),
                             IrExpression.NewObject created => Allocate(created),
                             IrExpression.NewArray array => array.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Int32
                                 ? (object)new int[(int)values[array.Length]!] : new object?[(int)values[array.Length]!],
@@ -135,8 +140,8 @@ public sealed class ObjectTranslationConformanceTests
                             IrExpression.LoadElement load => ((Array)values[load.Array]!).GetValue((int)values[load.Index]!),
                             IrExpression.LoadField field => Receiver(values[field.Receiver]).Fields[field.Field],
                             IrExpression.Call called => Invoke(called.Target, called.Arguments.Select(a => values[a]).ToArray(), called.NullCheckReceiver),
-                            IrExpression.Compare { Comparison: Int32Comparison.Equal } compare => ReferenceEquals(values[compare.Left], values[compare.Right]) ? 1 : 0,
-                            IrExpression.Compare { Comparison: Int32Comparison.NotEqual } compare => ReferenceEquals(values[compare.Left], values[compare.Right]) ? 0 : 1,
+                            IrExpression.Compare { Comparison: Int32Comparison.Equal } compare => Same(values[compare.Left], values[compare.Right]) ? 1 : 0,
+                            IrExpression.Compare { Comparison: Int32Comparison.NotEqual } compare => Same(values[compare.Left], values[compare.Right]) ? 0 : 1,
                             IrExpression.Binary { Operation: Int32Operation.AddWrapping } add => unchecked((int)values[add.Left]! + (int)values[add.Right]!),
                             _ => throw new InvalidOperationException("Outside authored evaluator profile."),
                         };
@@ -164,6 +169,7 @@ public sealed class ObjectTranslationConformanceTests
                 return instance;
             }
         }
+        private static bool Same(object? left, object? right) => left is int a && right is int b ? a == b : ReferenceEquals(left, right);
         private static ObjectValue Receiver(object? value) => value as ObjectValue ?? throw new NullReferenceException();
     }
 }

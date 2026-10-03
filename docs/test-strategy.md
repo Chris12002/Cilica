@@ -495,3 +495,22 @@ Preserve exact class and conservative/constrained dispatch regressions after
 sharing slot-walk code, including existing native class-dispatch checks.
 These are metadata checks: interface IR/native support still needs independent
 reference-flow, ownership, roots, fault-order and execution evidence.
+
+
+## Slice 3f-b: string metadata and intrinsic translation
+
+Verify selected-library String identity through forwarding and reject equal-name,
+equal-token lookalikes in other images. Cover primitive/named String references in
+fields, locals, vectors, calls, class/interface signatures and cast/test targets.
+Intrinsic recognition must compare the resolved owner, full signature and call
+form without reading its method body; authored unsupported bodies establish that
+boundary. Initializer/access/generic/overload failures must remain diagnostics.
+
+Read user-string sizes before allocating their UTF-16 snapshots. Test empty values,
+embedded zeros and lone surrogates, malformed lengths/flags/tokens, exact/excess unit
+and distinct-content limits, cross-method occurrences and stack-inference revisits.
+Pair exact/short metadata and combined method budgets. Preserve the native rejection
+of even a String-only local. A test-only evaluator can compare translation wiring
+and null/index fault order with authored .NET calls; it does not establish native
+string identity, interning, immutable storage or roots across reclamation. Those
+need the actual native path in 3f-c. Keep existing array/object/primitive regressions.

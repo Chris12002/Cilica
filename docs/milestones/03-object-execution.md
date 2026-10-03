@@ -43,7 +43,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3e-c | Native variable storage, checked stores and execution conformance | Complete for bounded retained-heap profile |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | In progress |
 | 3f-a | Detached immutable String identity, UTF-16 operations and root/resource contracts | Complete for detached validation |
-| 3f-b | Selected String metadata/signatures, literals and exact intrinsic CIL recognition | Planned |
+| 3f-b | Selected String metadata/signatures, literals and exact intrinsic CIL recognition | Complete for bounded translation |
 | 3f-c | Immutable native storage, literal identity and operation conformance | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
 
@@ -624,9 +624,23 @@ checks and a final 283-check focused run, all passing. The runs overlap. Coverag
 includes cross-method literal budgets, constructor roots and interface-plan String
 identity agreement. Local main remains an ancestor; no hosted work or agents ran.
 
-The next slice is selected String metadata/signatures, literal decoding and exact
-intrinsic CIL recognition (3f-b), followed by native string storage/conformance (3f-c)
-and the composed example/review (3g). Collection remains a separate milestone.
+Slice 3f-b connects selected String metadata, signatures and numeric UTF-16 literals
+to the detached operation contract
+([ADR 0047](../decisions/0047-string-metadata-and-cil.md)). Shared storage conversion
+covers fields, vectors, methods and dispatch; exact member recognition emits length,
+indexing, ordinal equality/inequality and two-string concat without reading framework
+bodies. Token/heap, initializer, signature/call-form and resource failures remain
+located diagnostics. Native emission stays gated for String catalogs.
+
+Review completed with a warning-free solution build and 1,020 selected local
+regressions passing, including existing native O0/O2 sanitizer checks. The final
+102-check String run also passed after the API argument guard (overlapping coverage).
+Review checked selected identity/initializers, bounded literal reads, combined
+work/method budgets, roots and the native gate. Local main remains an ancestor;
+no push, hosted work or additional agents ran.
+
+The next slice is native string storage/conformance (3f-c), followed by the composed
+example/review (3g). Collection remains a separate milestone.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block
