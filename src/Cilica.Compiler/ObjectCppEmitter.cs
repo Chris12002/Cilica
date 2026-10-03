@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v8";
+    public const string Profile = "object-frames-native-v9";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -22,8 +22,6 @@ public static class ObjectCppEmitter
         ArgumentNullException.ThrowIfNull(program.Flow);
         ArgumentNullException.ThrowIfNull(program.Flow.Types);
         var plans = ObjectRootAssignment.Assign(program).ToDictionary(p => p.Method);
-        if (program.Flow.Types.String is not null)
-            throw new NotSupportedException("Native string lowering is not implemented; string catalogs and operations support detached validation and root assignment only.");
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
         var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
         if (program.InterfaceDispatch is { } interfacePlan)
@@ -36,7 +34,13 @@ public static class ObjectCppEmitter
         var typeRules = new IrTypeRules(program.Flow.Types);
         var contracts = program.Flow.Types.Interfaces.Select(i => ObjectTypeId.From(i.Source)).ToHashSet();
         var arrays = program.Flow.Types.Arrays;
-        var concrete = types.Keys.Concat(arrays).ToArray();
+        var concrete = types.Keys.Concat(arrays).Concat(program.Flow.Types.String is { } selectedString ? [selectedString] : Array.Empty<ObjectTypeId>()).ToArray();
+        // Empty has a reserved identity even when produced only by Concat(null, null).
+        var literals = new Dictionary<string, ImmutableArray<ushort>>(StringComparer.Ordinal) { [""] = [] };
+        string LiteralKey(ImmutableArray<ushort> units) => new(units.Select(u => (char)u).ToArray());
+        foreach (var literal in methods.Values.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression).OfType<IrExpression.StringLiteral>())
+            literals.TryAdd(LiteralKey(literal.CodeUnits), literal.CodeUnits);
+        var literalIds = literals.Keys.Select((key, index) => (key, index)).ToDictionary(p => p.key, p => p.index, StringComparer.Ordinal);
         var referenceTypes = concrete.Concat(contracts).ToArray();
         string Predicate(ObjectTypeId type) => contracts.Contains(type) ? ContractSymbol(type) : TypeSymbol(type) + "_accepts";
         var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key]));
@@ -79,6 +83,14 @@ public static class ObjectCppEmitter
                 .Append(layout.BaseType is null ? "nullptr" : "&" + TypeSymbol(layout.BaseType) + "_descriptor")
                 .Append(", ").Append(type).Append("_fields.data(), ").Append(N(composed.Value.Length))
                 .Append(", ").Append(type).Append("_accessors.data(), field_by_offset };\n");
+        }
+        if (program.Flow.Types.String is { } stringType)
+        {
+            text.Append("[[maybe_unused]] static constexpr Descriptor ").Append(TypeSymbol(stringType)).Append("_descriptor = { sizeof(StringObject), alignof(StringObject), nullptr, 0, destroy_string, &")
+                .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr };\n");
+            foreach (var literal in literals)
+                text.Append("[[maybe_unused]] static constexpr std::array<std::uint16_t, ").Append(N(literal.Value.Length)).Append("> literal_")
+                    .Append(N(literalIds[literal.Key])).Append(" = {").Append(string.Join(", ", literal.Value.Select(u => N(u) + "u"))).Append("};\n");
         }
         foreach (var array in arrays)
         {
@@ -139,7 +151,7 @@ public static class ObjectCppEmitter
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)) AppendMethod(method);
         text.Append("}\n// Private experimental boundary; valid disjoint outputs, references remain internal.\n")
             .Append("// Parameters must point to count readable Int32 values; exact arity required, null allowed only for zero arity.\n")
-            .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 7 invalid cast, 8 call-depth, 9 execution storage, 10 array bounds, 11 array type mismatch.\n")
+            .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 7 invalid cast, 8 call-depth, 9 execution storage, 10 index bounds, 11 array type mismatch.\n")
             .Append("// Result unchanged on failure; origin text borrows the generated library lifetime.\n")
             .Append("extern \"C\" std::uint32_t ").Append(symbol).Append("_try(std::int32_t* result, std::uint32_t* method, std::uint32_t* il, const char** image, const std::int32_t* parameters, std::size_t count) noexcept {\n")
             .Append("    if (result == nullptr || method == nullptr || il == nullptr || image == nullptr || count != ").Append(N(entry.Parameters.Length))
@@ -263,6 +275,7 @@ public static class ObjectCppEmitter
                 {
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement
                         or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
+                            or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.Invoke { VirtualDispatch: true };
                     // Array/field access, type tests and virtual calls include ownership/type checks.
@@ -276,6 +289,25 @@ public static class ObjectCppEmitter
                             code.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                             switch (value.Expression)
                             {
+                                case IrExpression.StringLiteral literal:
+                                    int literalId = literalIds[LiteralKey(literal.CodeUnits)];
+                                    expression = "string_literal(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + N(literalId)
+                                        + ", literal_" + N(literalId) + ".data(), " + N(literal.CodeUnits.Length) + "u)"; break;
+                                case IrExpression.StringLength length:
+                                    Check(Value(length.Operand), program.Flow.Types.String!, true, value.ILOffset); Flush();
+                                    expression = "string_length(" + Value(length.Operand) + ")"; break;
+                                case IrExpression.StringCodeUnit unit:
+                                    Check(Value(unit.Operand), program.Flow.Types.String!, true, value.ILOffset); Flush();
+                                    Guard(Value(unit.Index) + " >= string_length(" + Value(unit.Operand) + ")", "10u", value.ILOffset); Flush();
+                                    expression = "string_code_unit(" + Value(unit.Operand) + ", " + Value(unit.Index) + ")"; break;
+                                case IrExpression.StringEquals equal:
+                                    Check(Value(equal.Left), program.Flow.Types.String!, false, value.ILOffset); Flush();
+                                    Check(Value(equal.Right), program.Flow.Types.String!, false, value.ILOffset); Flush();
+                                    expression = "string_equals(" + Value(equal.Left) + ", " + Value(equal.Right) + ")"; break;
+                                case IrExpression.StringConcat concat:
+                                    Check(Value(concat.Left), program.Flow.Types.String!, false, value.ILOffset); Flush();
+                                    Check(Value(concat.Right), program.Flow.Types.String!, false, value.ILOffset); Flush();
+                                    expression = "string_concat(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + Value(concat.Left) + ", " + Value(concat.Right) + ")"; break;
                                 case IrExpression.NewObject allocation:
                                     string type = TypeSymbol(bindings[allocation.Constructor].Owner);
                                     expression = "allocate<" + type + ">(context, " + type + "_descriptor)"; break;
@@ -321,7 +353,7 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
-                            else if (value.Expression is IrExpression.NewArray)
+                            else if (value.Expression is IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.StringConcat)
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
                             else if (value.Expression is IrExpression.LoadElement && value.Type.Kind == IrTypeKind.Reference)
                             {

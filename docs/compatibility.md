@@ -11,11 +11,11 @@ not establish native execution or platform compatibility.
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v5` | Bounded nominal/vector/String metadata and detached catalogs | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String uses an intrinsic shell, without framework layout or interfaces |
-| `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow is translated; native storage remains gated |
+| `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
-| `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated; native string lowering remains planned |
-| `object-frames-native-v8` | C++20 emission and local native differential execution | Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, retained heap, phase A roots and typed branches/backedges; no collector |
-| Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, string execution, GC, exception handlers, library and embedding support are unimplemented |
+| `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated and executes in native v9 |
+| `object-frames-native-v9` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, retained heap, phase A roots and typed branches/backedges; no collector |
+| Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
 
@@ -321,7 +321,7 @@ Readonly stores require the declaring constructor and a direct parameter-zero
 receiver. Reference field stores accept null or an assignable concrete reference.
 Type/module initialization, reference-assembly/native bodies, generics,
 abstract classes, broader MethodImpl remapping, method-return covariance, prefixes,
-strings, byrefs and storage outside the bounded vector profile fail
+broader String APIs, byrefs and storage outside the bounded vector profile fail
 without partial programs. Ordinary methods support branches/backedges with inferred
 typed inputs, described below. Constructors remain straight-line; unreachable
 blocks and unsupported operations/transfers are rejected.
@@ -444,7 +444,7 @@ for convergence, ambiguity and shared-work-budget boundaries.
 
 ## Budgeted object execution frames
 
-`object-frames-native-v8` retains the budgeted frames that superseded the object control-flow and earlier emission
+`object-frames-native-v9` retains the budgeted frames that superseded the object control-flow and earlier emission
 profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
 [ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md),
 [ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)). It has a 1 MiB
@@ -860,7 +860,7 @@ evidence. The native checkpoint below provides separate execution evidence.
 
 ## Native vector execution
 
-`object-frames-native-v8` emits bounded Int32/reference arrays
+`object-frames-native-v9` emits bounded Int32/reference arrays
 ([ADR 0045](decisions/0045-native-array-storage.md)). A fixed header owns a separate
 zero-initialized typed element buffer. Heap accounting includes header and payload;
 failed allocation leaves counters/list unchanged, and instance cleanup frees both.
@@ -907,10 +907,8 @@ and 256 distinct ordinal contents; unit limits are checked before copying/hashin
 identity counts toward the existing 256-type cap. Tests compare modeled assignment
 pairs with .NET and verify malformed identities, UTF-16 round trips, resource
 limits, fault edges and constructor/root rules. These are detached validation
-results. String metadata/CIL now translates under ADR 0047 below; native immutable
-storage, literal interning and native content-operation differential execution
-remain planned. String-bearing catalogs fail native emission explicitly.
-Native arrays remain supported.
+results. String metadata/CIL translates under ADR 0047 below; ADR 0048 adds
+native immutable storage, literal identity and content-operation conformance.
 
 ## String metadata and intrinsic CIL
 
@@ -934,5 +932,39 @@ String.Empty and general Char/Boolean storage remain unsupported.
 
 Authored C# and reduced metadata tests cover composition, wrong signatures/owners,
 initializer rejection, raw UTF-16, malformed heaps, shared limits and .NET comparisons
-of translation through a test-only evaluator. This is not native string execution
-or evidence of interning/collection behavior; native emission remains gated.
+of translation through a test-only evaluator. Native execution evidence is recorded
+separately below; collection remains unimplemented.
+
+
+## Native immutable UTF-16 strings
+
+`object-frames-native-v9` executes the five bounded String operations
+([ADR 0048](decisions/0048-native-string-storage.md)). Each string owns an immutable
+numeric UTF-16 buffer. Its header and buffer consume the retained instance heap's
+byte/object limits; failed allocation leaves the heap and literal cache unchanged.
+Equal literals across methods share an instance-local object. Empty concat uses
+the same canonical empty as an empty literal; two nonempty operands produce a
+fresh noninterned result. Null/empty concat reuses a sole nonempty operand.
+
+Exact String descriptors join Object widening, fields, vectors and casts/tests.
+Length/index operations check ownership/type and null before bounds; index values
+are zero-extended to Int32. Ordinal equality supports null, embedded zeros and lone
+surrogates. References use existing root slots, including both operands during
+allocating concat. Allocation/combined-length exhaustion reports status 5; null
+reports 4 and string index bounds use status 10. Faults preserve method/image/IL
+origin and leave the packed Int32 result unchanged. No string reference crosses
+that boundary. The literal cache dies with its instance; no process-global intern
+pool or collector is present.
+
+A metadata catalog that combines String with an interface actually implemented
+by the selected String is conservatively rejected. A bounded interface-ancestry
+scan includes nongeneric parents of generic interfaces without importing their
+bodies or adding generic execution. This prevents incorrect casts and covariant
+array stores while String's modeled ancestry is only Object. Unrelated user
+interfaces with string arguments/results remain supported.
+
+Local .NET/native conformance covers O0/O2 on macOS ARM64 with ASan/UBSan and the
+2 KiB static frame baseline. It covers contents/identity, fields/vectors/dispatch,
+null/index/cast/store faults and operand order, exact heap/execution limits,
+foreign/forged references, root publication and cleanup/retry. This does not claim
+wider platform support, thread safety, interop strings or roots across collection.

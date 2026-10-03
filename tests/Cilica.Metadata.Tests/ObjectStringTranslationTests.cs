@@ -46,7 +46,33 @@ public sealed class ObjectStringTranslationTests
         Assert.DoesNotContain(program.Flow.Types.Types, t => ObjectTypeId.From(t.Source) == program.Flow.Types.String);
         Assert.DoesNotContain(program.Bindings, b => b.Owner == program.Flow.Types.String);
         ObjectIrValidator.Validate(program); ObjectRootAssignment.Assign(program);
-        Assert.Throws<NotSupportedException>(() => ObjectCppEmitter.EmitProgram(program));
+        Assert.NotEmpty(ObjectCppEmitter.EmitProgram(program).Text);
+    }
+
+    [Fact]
+    public void Intrinsic_interface_scan_is_bounded_and_reads_inherited_contracts()
+    {
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        var runtime = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
+        var text = resolver.ResolveRuntimeType(runtime, PrimitiveTypeCode.String).Value!;
+        var budget = new MemberResolutionBudget();
+        var result = resolver.ReadIntrinsicStringInterfaces(text, budget);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        Assert.Contains(result.Value!.Types, t => MetadataTokens.GetToken(t.Handle) == typeof(System.Collections.IEnumerable).MetadataToken);
+        Assert.Contains(result.Value.Types, t => MetadataTokens.GetToken(t.Handle) == typeof(IComparable).MetadataToken);
+        int consumed = 65536 - budget.Remaining;
+        Assert.True(consumed > 1);
+        Assert.True(resolver.ReadIntrinsicStringInterfaces(text, new(consumed)).Success);
+        Assert.Equal(DiagnosticIds.TranslationLimit, Assert.Single(resolver.ReadIntrinsicStringInterfaces(text, new(consumed - 1)).Diagnostics).Id);
+    }
+
+    [Theory]
+    [InlineData("FrameworkInterface")]
+    [InlineData("FrameworkArrayStore")]
+    public void Unmodeled_string_interfaces_fail_before_native_execution(string name)
+    {
+        var result = Authored(name); Assert.False(result.Success); Assert.Null(result.Program);
+        Assert.Contains(result.Diagnostics, d => d.Message.Contains("String interface", StringComparison.Ordinal));
     }
 
     [Theory]

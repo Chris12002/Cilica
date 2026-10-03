@@ -47,7 +47,7 @@ public sealed class ObjectStringContractTests
         Assert.Equal(new[] { 0, 1, 6 }, roots.Slots.Select(s => s.Index));
         Assert.Throws<ArgumentException>(() => ReferenceIrValidator.Validate(program.Flow));
         Assert.Throws<ArgumentException>(() => CppEmitter.EmitProgram(new(program.Flow.Entry, program.Flow.Methods)));
-        Assert.Contains("Native string lowering", Assert.Throws<NotSupportedException>(() => ObjectCppEmitter.EmitProgram(program)).Message, StringComparison.Ordinal);
+        Assert.NotEmpty(ObjectCppEmitter.EmitProgram(program).Text);
     }
 
     [Fact]
@@ -260,13 +260,13 @@ public sealed class ObjectStringContractTests
     }
 
     [Fact]
-    public void Unused_selected_string_is_rejected_by_value_flow_and_native_emission_is_gated_even_for_storage_only()
+    public void Unused_selected_string_is_rejected_but_storage_only_programs_emit()
     {
         var method = Method([Define(0, IrType.Int32, new IrExpression.Constant(0))]);
         Assert.Throws<ArgumentException>(() => ObjectIrValidator.Validate(Program(method)));
         var storage = Program(method with { Locals = [StringType] });
         ObjectIrValidator.Validate(storage);
-        Assert.Throws<NotSupportedException>(() => ObjectCppEmitter.EmitProgram(storage));
+        Assert.NotEmpty(ObjectCppEmitter.EmitProgram(storage).Text);
     }
 
     [Theory]

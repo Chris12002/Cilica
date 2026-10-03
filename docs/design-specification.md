@@ -531,8 +531,16 @@ preserves numeric UTF-16; fields, method/dispatch signatures, vectors and type t
 share the same selected identity. Length/indexer calls, static ordinal equality
 and two-string concat lower directly without importing framework bodies. Type/module
 initialization, unsupported overloads and broader String members remain diagnostics.
-Native storage/interning remains planned; the native emitter explicitly rejects
-string-bearing catalogs.
+Native v9 stores immutable numeric UTF-16 buffers in the retained instance heap
+([ADR 0048](decisions/0048-native-string-storage.md)). Header and buffer bytes share
+existing limits. Literal identity, including canonical empty, is cached per instance;
+nonempty concat creates a fresh object after checked sizing. All references use
+phase A roots, and checked operations preserve fault order/origin. The selected
+String still widens only to Object: metadata catalogs combining it with one of
+its actual framework interfaces fail until that ancestry is modeled. Unrelated
+user-interface dispatch with String signatures remains supported. The literal
+cache is retained until teardown; its roots must join future collection tracing.
+O0/O2 local sanitizer conformance is not evidence of collection or other platforms.
 The detached array foundation is implemented
 ([ADR 0043](decisions/0043-detached-array-contracts.md)): zero-based one-dimensional
 Int32/reference vector identities retain their element type separately from nominal

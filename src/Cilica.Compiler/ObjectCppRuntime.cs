@@ -90,7 +90,20 @@ static_assert(std::is_standard_layout_v<ArrayObject> && offsetof(ArrayObject, he
     }
     return first < type.field_count && type.fields[first] == offset ? type.accessors[first](value) : nullptr;
 }
+struct StringObject {
+    Object header;
+    std::uint32_t length = 0;
+    const std::uint16_t* units = nullptr;
+    StringObject* literal_next = nullptr;
+    std::size_t literal_id = 0;
+};
+static_assert(std::is_standard_layout_v<StringObject> && offsetof(StringObject, header) == 0);
+[[maybe_unused]] static void destroy_string(Object* value) noexcept {
+    auto* text = reinterpret_cast<StringObject*>(value);
+    delete[] text->units; delete text;
+}
 struct Instance {
+    StringObject* literals = nullptr;
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;
     std::size_t limit = 1048576, object_limit = 4096;
@@ -196,6 +209,64 @@ struct RootScope {
         for (std::size_t i = 0; i < f->count; ++i)
             if (!context.instance.owns(f->slots[i])) return false;
     return true;
+}
+// Buffers are filled before publication and exposed only through const units.
+// Callers validate the owned, exact String descriptors before reading operands.
+[[maybe_unused, gnu::noinline]] static Object* allocate_string(Context& context, const Descriptor& descriptor,
+    const std::uint16_t* left, std::uint32_t first, const std::uint16_t* right, std::uint32_t second) noexcept {
+    if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
+    if (context.observe != nullptr) context.observe(context);
+    Instance& heap = context.instance;
+    if (first > 0x7fffffffu || second > 0x7fffffffu - first) return nullptr;
+    const std::uint32_t length = first + second;
+    if (heap.bytes > heap.limit || sizeof(StringObject) > heap.limit - heap.bytes || heap.count >= heap.object_limit)
+        return nullptr;
+    const std::size_t available = heap.limit - heap.bytes - sizeof(StringObject);
+    if (length > available / sizeof(std::uint16_t)) return nullptr;
+    auto* value = new (std::nothrow) StringObject{};
+    if (value == nullptr) return nullptr;
+    auto* units = length == 0 ? nullptr : new (std::nothrow) std::uint16_t[length];
+    if (length != 0 && units == nullptr) { delete value; return nullptr; }
+    for (std::uint32_t i = 0; i < first; ++i) units[i] = left[i];
+    for (std::uint32_t i = 0; i < second; ++i) units[first + i] = right[i];
+    value->length = length; value->units = units;
+    value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
+    heap.head = &value->header; heap.bytes += sizeof(StringObject) + length * sizeof(std::uint16_t); ++heap.count;
+    return &value->header;
+}
+[[maybe_unused, gnu::noinline]] static Object* string_literal(Context& context, const Descriptor& descriptor,
+    std::size_t id, const std::uint16_t* units, std::uint32_t length) noexcept {
+    for (auto* value = context.instance.literals; value != nullptr; value = value->literal_next)
+        if (value->literal_id == id) return &value->header;
+    Object* result = allocate_string(context, descriptor, units, length, nullptr, 0);
+    if (result == nullptr) return nullptr;
+    auto* value = reinterpret_cast<StringObject*>(result);
+    value->literal_id = id; value->literal_next = context.instance.literals; context.instance.literals = value;
+    return result;
+}
+[[maybe_unused, gnu::noinline]] static std::uint32_t string_length(Object* value) noexcept {
+    return reinterpret_cast<StringObject*>(value)->length;
+}
+[[maybe_unused, gnu::noinline]] static std::uint32_t string_code_unit(Object* value, std::uint32_t index) noexcept {
+    return reinterpret_cast<StringObject*>(value)->units[index];
+}
+[[maybe_unused, gnu::noinline]] static std::uint32_t string_equals(Object* left, Object* right) noexcept {
+    if (left == right) return 1u;
+    if (left == nullptr || right == nullptr) return 0u;
+    const auto* a = reinterpret_cast<StringObject*>(left);
+    const auto* b = reinterpret_cast<StringObject*>(right);
+    if (a->length != b->length) return 0u;
+    for (std::uint32_t i = 0; i < a->length; ++i) if (a->units[i] != b->units[i]) return 0u;
+    return 1u;
+}
+[[maybe_unused, gnu::noinline]] static Object* string_concat(Context& context, const Descriptor& descriptor, Object* left, Object* right) noexcept {
+    const auto* a = reinterpret_cast<StringObject*>(left);
+    const auto* b = reinterpret_cast<StringObject*>(right);
+    const std::uint32_t first = a == nullptr ? 0u : a->length, second = b == nullptr ? 0u : b->length;
+    if (first == 0 && second == 0) return string_literal(context, descriptor, 0, nullptr, 0);
+    if (first == 0) return right;
+    if (second == 0) return left;
+    return allocate_string(context, descriptor, a->units, first, b->units, second);
 }
 template<class T> static Object* allocate(Context& context, const Descriptor& descriptor) noexcept {
     if (!valid_roots(context)) { context.pending = 6u; return nullptr; }

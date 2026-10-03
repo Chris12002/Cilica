@@ -41,10 +41,10 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3e-a | Detached vector identities, covariance, operations and root contracts | Complete for detached validation |
 | 3e-b | SZARRAY metadata/signatures and bounded array CIL translation | Complete for translation |
 | 3e-c | Native variable storage, checked stores and execution conformance | Complete for bounded retained-heap profile |
-| 3f | UTF-16 strings and an explicit bounded operation/literal profile | In progress |
+| 3f | UTF-16 strings and an explicit bounded operation/literal profile | Complete for bounded native execution |
 | 3f-a | Detached immutable String identity, UTF-16 operations and root/resource contracts | Complete for detached validation |
 | 3f-b | Selected String metadata/signatures, literals and exact intrinsic CIL recognition | Complete for bounded translation |
-| 3f-c | Immutable native storage, literal identity and operation conformance | Planned |
+| 3f-c | Immutable native storage, literal identity and operation conformance | Complete for bounded native execution |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
 
 These are reviewable boundaries, not schedule estimates. Split a slice when
@@ -616,8 +616,8 @@ with reference fields, null/Object flow and vectors. Numeric UTF-16 literal payl
 preserve all code units. Literal, length, indexed code-unit access, ordinal equality
 and two-operand concat operations require exact types/fault edges; literal/concat
 allocation safepoints preserve phase A rooting. Shared literal limits bound unit
-counts and distinct contents before hashing/copying. String CIL and native emission
-remain explicit diagnostic boundaries; arrays remain executable.
+counts and distinct contents before hashing/copying. At that checkpoint String CIL
+and native emission remained explicit diagnostic boundaries.
 
 Review completed with a warning-free solution build, 744 selected local regression
 checks and a final 283-check focused run, all passing. The runs overlap. Coverage
@@ -630,7 +630,7 @@ to the detached operation contract
 covers fields, vectors, methods and dispatch; exact member recognition emits length,
 indexing, ordinal equality/inequality and two-string concat without reading framework
 bodies. Token/heap, initializer, signature/call-form and resource failures remain
-located diagnostics. Native emission stays gated for String catalogs.
+located diagnostics. Native emission stayed gated until 3f-c below.
 
 Review completed with a warning-free solution build and 1,020 selected local
 regressions passing, including existing native O0/O2 sanitizer checks. The final
@@ -639,8 +639,22 @@ Review checked selected identity/initializers, bounded literal reads, combined
 work/method budgets, roots and the native gate. Local main remains an ancestor;
 no push, hosted work or additional agents ran.
 
-The next slice is native string storage/conformance (3f-c), followed by the composed
-example/review (3g). Collection remains a separate milestone.
+Slice 3f-c adds native immutable string storage and checked operations
+([ADR 0048](../decisions/0048-native-string-storage.md)). Numeric UTF-16 buffers and
+headers share retained heap budgets; instance-local literal caching preserves
+identity, including canonical empty, while two nonempty concat operands allocate
+a fresh result. Exact descriptor checks, phase A roots and normal/fault cleanup
+compose with fields, vectors, casts/tests and user-defined dispatch. Metadata
+catalogs combining String with its actual framework interfaces fail explicitly
+until that ancestry is modeled, avoiding wrong casts and array-store outcomes.
+
+Review completed with a warning-free solution build and 739 selected local
+regressions passing. The final focused native run matched 150 .NET outcomes at
+each of O0/O2 with ASan/UBSan; maximum static frames were 784/720 bytes respectively.
+The runs overlap. Local main remains an ancestor; no hosted work or agents ran.
+
+The next slice is the composed example/review (3g). Collection remains a separate
+milestone.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

@@ -162,7 +162,7 @@ public sealed class StringMetadataBoundaryTests
         var result = ObjectTranslator.Translate(resolver, image, root, runtime);
         Assert.True(result.Success, string.Join("; ", result.Diagnostics));
         Assert.Equal(resolver.OpenInput(corePath).Value!.ContentHash, result.Program!.Flow.Types.String!.ContentHash);
-        Assert.Throws<NotSupportedException>(() => ObjectCppEmitter.EmitProgram(result.Program));
+        Assert.NotEmpty(ObjectCppEmitter.EmitProgram(result.Program).Text);
     }
 
     [Theory]

@@ -509,8 +509,30 @@ boundary. Initializer/access/generic/overload failures must remain diagnostics.
 Read user-string sizes before allocating their UTF-16 snapshots. Test empty values,
 embedded zeros and lone surrogates, malformed lengths/flags/tokens, exact/excess unit
 and distinct-content limits, cross-method occurrences and stack-inference revisits.
-Pair exact/short metadata and combined method budgets. Preserve the native rejection
-of even a String-only local. A test-only evaluator can compare translation wiring
-and null/index fault order with authored .NET calls; it does not establish native
-string identity, interning, immutable storage or roots across reclamation. Those
-need the actual native path in 3f-c. Keep existing array/object/primitive regressions.
+Pair exact/short metadata and combined method budgets. The native rejection gate
+at that checkpoint is superseded by 3f-c. A test-only evaluator can compare
+translation wiring and null/index fault order with authored .NET calls. Native
+string identity, interning and immutable storage need the actual native path in
+3f-c; roots across reclamation need the later collector milestone. Keep existing
+array/object/primitive regressions.
+
+
+## Slice 3f-c: native strings
+
+Run the authored StringProbe against .NET and emitted C++ at O0 and O2 with
+ASan/UBSan, warnings as errors, and static frame measurements. Cover raw UTF-16
+including zeros/surrogates, null/content equality, literal identity across methods,
+fresh concat identity and null/empty reuse, fields/vectors, virtual/interface calls,
+casts and reference joins. Check fault kind and method/IL origin, including index
+argument evaluation before null, and packed-boundary result preservation.
+
+Private harness checks exact/one-short header-plus-buffer budgets, object limits,
+combined-length guards before buffer access, cache reuse at exhausted budgets,
+instance separation, allocation failure without partial publication, and teardown.
+Observe published concat operand roots before allocation. Check exact/one-short
+execution arena budgets and clean frames after faults/retries. Reject foreign,
+unreadable and copied-descriptor references before payload access. A reduced
+metadata regression rejects String/framework-interface casts and covariant stores;
+interface ancestry reads consume the shared metadata budget, including generic
+parents whose nongeneric ancestors are unmodeled. Keep unrelated interface string
+signatures working. These tests do not demonstrate roots across actual collection.

@@ -1,6 +1,6 @@
 # ADR 0047: Selected String metadata and bounded intrinsic translation
 
-Status: Accepted for metadata/CIL translation; native string execution remains planned.
+Status: Accepted for metadata/CIL translation; ADR 0048 subsequently adds bounded native execution.
 Recorded 2026-10-03.
 
 ## Identity and shared storage
@@ -72,7 +72,7 @@ with deliberately unsupported bodies, wrong signatures/call forms/operands,
 cross-image lookalikes, malformed user strings, initializer rejection and
 exact/excess literal budgets across methods and inference revisits.
 
-These are translation and detached-validation results. The native emitter still
+These are translation and detached-validation results. At this checkpoint the native emitter still
 rejects all String catalogs, including programs containing only String locals.
 The IR/native version identifiers stay unchanged because this slice produces the
 already defined operations. Slice 3f-c must implement native immutable storage,

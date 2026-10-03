@@ -53,3 +53,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0045](0045-native-array-storage.md) | Native vector storage and checked element operations | Accepted for bounded retained-heap execution |
 | [0046](0046-detached-string-contracts.md) | Detached immutable UTF-16 string contracts | Accepted for detached identity, operations, resource limits and roots |
 | [0047](0047-string-metadata-and-cil.md) | Selected String metadata and bounded intrinsic translation | Accepted for metadata, signatures, literals and exact CIL recognition |
+| [0048](0048-native-string-storage.md) | Native immutable UTF-16 strings | Accepted for retained storage, instance-local literals and bounded native operations |

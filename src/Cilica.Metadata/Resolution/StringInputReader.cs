@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -8,6 +9,7 @@ using System.Reflection.Metadata.Ecma335;
 namespace Cilica.Metadata.Resolution;
 
 public sealed record UserStringInput(ImmutableArray<ushort> CodeUnits);
+public sealed record IntrinsicStringInterfaces(ImmutableArray<ResolvedType> Types);
 
 public sealed partial class AssemblyResolver
 {
@@ -42,6 +44,27 @@ public sealed partial class AssemblyResolver
         {
             return ResolutionResult<UserStringInput>.Failed(DiagnosticIds.InvalidOperand, exception.Message, location);
         }
+    }
+
+    /// <summary>Reads only interface ancestry, including nongeneric parents of generic contracts.
+    /// Used to reject unmodeled String conversions, not to import implementations.</summary>
+    public ResolutionResult<IntrinsicStringInterfaces> ReadIntrinsicStringInterfaces(ResolvedType text, MemberResolutionBudget budget)
+    {
+        ArgumentNullException.ThrowIfNull(text); ArgumentNullException.ThrowIfNull(budget);
+        return Bind(text.Assembly, text.Handle, () =>
+        {
+            var pending = new Queue<ConstructedType>();
+            var seen = new HashSet<ResolvedType>();
+            pending.Enqueue(new(text, SignatureList<TypeSignature>.Empty));
+            while (pending.TryDequeue(out var current))
+            {
+                if (!seen.Add(current.Definition)) continue;
+                if (seen.Count > 256) throw Failure(DiagnosticIds.TranslationLimit, "Intrinsic String interface ancestry exceeds 256 definitions.");
+                foreach (var parent in ReadInterfaceEdges(current, budget)) pending.Enqueue(parent);
+            }
+            seen.Remove(text);
+            return new IntrinsicStringInterfaces([.. seen]);
+        });
     }
 
     /// <summary>Validates the selected intrinsic String shell, without importing its implementation fields/interfaces.</summary>

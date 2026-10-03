@@ -182,6 +182,8 @@ public static class ObjectModelBuilder
             fields += input.Fields.Length;
             layouts.Add(new(input.Source, baseId, input.Attributes, [.. declared]) { Interfaces = [.. contracts] });
         }
+        if (stringType is not null && interfaces.Count != 0)
+            members += strings.CheckInterfaces([.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members);
         var model = new ObjectTypeCatalog([.. roots.Select(Id).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)])
         { String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
