@@ -145,7 +145,7 @@ public sealed class ObjectModelTests
     [InlineData("invalid_access")]
     [InlineData("offset")]
     [InlineData("string")]
-    [InlineData("array")]
+    [InlineData("jagged_array")]
     [InlineData("pointer")]
     [InlineData("byref")]
     [InlineData("valuetype")]
@@ -164,7 +164,7 @@ public sealed class ObjectModelTests
         };
         byte[] signature = shape switch
         {
-            "string" => [0x06, 0x0e], "array" => [0x06, 0x1d, 0x08], "pointer" => [0x06, 0x0f, 0x08],
+            "string" => [0x06, 0x0e], "jagged_array" => [0x06, 0x1d, 0x1d, 0x08], "pointer" => [0x06, 0x0f, 0x08],
             "byref" => [0x06, 0x10, 0x08], "valuetype" => Reference(root, valueType: true),
             "modifier" => [0x06, 0x1f, 0x08, 0x08], _ => [0x06, 0x08],
         };

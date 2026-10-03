@@ -102,7 +102,7 @@ public sealed class ObjectTranslationConformanceTests
     }
 
     // Restricted to these independently authored probes. This is not Cilica's runtime or native execution evidence.
-    private sealed class Evaluator(ObjectIrProgram program)
+    internal sealed class Evaluator(ObjectIrProgram program)
     {
         private sealed record ObjectValue(Dictionary<ObjectFieldId, object?> Fields);
         private readonly Dictionary<IrMethodId, IrMethod> _methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
@@ -129,6 +129,10 @@ public sealed class ObjectTranslationConformanceTests
                             IrExpression.Parameter parameter => arguments[parameter.Index],
                             IrExpression.Local local => locals[local.Index],
                             IrExpression.NewObject created => Allocate(created),
+                            IrExpression.NewArray array => array.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Int32
+                                ? (object)new int[(int)values[array.Length]!] : new object?[(int)values[array.Length]!],
+                            IrExpression.ArrayLength length => ((Array)values[length.Array]!).Length,
+                            IrExpression.LoadElement load => ((Array)values[load.Array]!).GetValue((int)values[load.Index]!),
                             IrExpression.LoadField field => Receiver(values[field.Receiver]).Fields[field.Field],
                             IrExpression.Call called => Invoke(called.Target, called.Arguments.Select(a => values[a]).ToArray(), called.NullCheckReceiver),
                             IrExpression.Compare { Comparison: Int32Comparison.Equal } compare => ReferenceEquals(values[compare.Left], values[compare.Right]) ? 1 : 0,
@@ -137,6 +141,7 @@ public sealed class ObjectTranslationConformanceTests
                             _ => throw new InvalidOperationException("Outside authored evaluator profile."),
                         };
                         values.Add(value); break;
+                    case IrStatement.StoreElement store: ((Array)values[store.Array]!).SetValue(values[store.Value], (int)values[store.Index]!); break;
                     case IrStatement.StoreLocal store: locals[store.Local] = values[store.Value]; break;
                     case IrStatement.StoreField store: Receiver(values[store.Receiver]).Fields[store.Field] = values[store.Value]; break;
                     case IrStatement.Invoke invoked: Invoke(invoked.Target, invoked.Arguments.Select(a => values[a]).ToArray(), invoked.NullCheckReceiver); break;

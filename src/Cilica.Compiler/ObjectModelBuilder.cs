@@ -10,7 +10,7 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-/// <summary>Builds a bounded class/field/interface closure through explicit metadata resolution; never executes input.</summary>
+/// <summary>Builds a bounded class/field/interface/vector closure through explicit metadata resolution; never executes input.</summary>
 public static class ObjectModelBuilder
 {
     public static ObjectModelResult Build(AssemblyResolver resolver, ResolvedType root, ResolvedAssembly runtimeLibrary)
@@ -25,7 +25,7 @@ public static class ObjectModelBuilder
         ResolvedAssembly runtimeLibrary) => BuildCatalog(resolver, roots, runtimeLibrary, null);
 
     internal static ObjectCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
-        ResolvedAssembly runtimeLibrary, Func<ResolvedType, TypeReadLimits, TypeInput>? readType)
+        ResolvedAssembly runtimeLibrary, Func<ResolvedType, TypeReadLimits, TypeInput>? readType, ImmutableArray<ObjectTypeId> arrayRoots = default)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         if (roots.IsDefaultOrEmpty || roots.Length > ObjectModelLimits.MaximumTypes)
@@ -34,6 +34,7 @@ public static class ObjectModelBuilder
         var selected = resolver.ResolveRuntimeType(runtimeLibrary, PrimitiveTypeCode.Object);
         if (selected.Value is not ResolvedType objectBase) return new(null, selected.Diagnostics);
         var parents = new Dictionary<ObjectTypeId, (ObjectTypeId? Parent, int Field, bool BaseEdge, bool InterfaceEdge)>();
+        var arrays = arrayRoots.IsDefault ? new HashSet<ObjectTypeId>() : new HashSet<ObjectTypeId>(arrayRoots);
         var pending = new Queue<ResolvedType>();
         var layouts = new List<ObjectTypeLayout>();
         var interfaces = new List<ObjectInterface>();
@@ -57,7 +58,7 @@ public static class ObjectModelBuilder
         {
             var id = Id(type);
             if (parents.ContainsKey(id)) return true;
-            if (parents.Count >= ObjectModelLimits.MaximumTypes) return false;
+            if (parents.Count + arrays.Count >= ObjectModelLimits.MaximumTypes) return false;
             parents.Add(id, (parent, field, baseEdge, interfaceEdge)); pending.Enqueue(type); return true;
         }
         // Root first: ownership must be checked even if another session has the same content identity as the base.
@@ -138,26 +139,29 @@ public static class ObjectModelBuilder
                 string location = input.Source.Name + "::" + field.Name + " token 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
                 if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "Static, literal, marshalled, RVA, constant and explicit-offset field storage require later lowering.", location);
-                ObjectStorage storage;
-                switch (field.Signature)
+                bool exceeded = false;
+                var storageType = ObjectSignatureTypes.Convert(field.Signature, Id(objectBase), reference =>
                 {
-                    case TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }: storage = new ObjectStorage.Int32(); break;
-                    case TypeSignature.Primitive { Code: PrimitiveTypeCode.Object }: storage = new ObjectStorage.Reference(Id(objectBase)); break;
-                    case TypeSignature.Named { Kind: SignatureTypeKind.Class } reference:
-                        if (!Include(reference.Definition, id, field.Token))
-                            return Failed(id, DiagnosticIds.TranslationLimit, "Object layout type limit exceeded.", location);
-                        storage = new ObjectStorage.Reference(Id(reference.Definition)); break;
-                    default: return Failed(id, DiagnosticIds.ExecutionSignatureUnsupported,
-                        "Object fields require Int32 or class/interface-reference storage; value types, arrays, strings, modifiers and pointers need later profiles.", location);
-                }
+                    if (!Include(reference, id, field.Token)) exceeded = true;
+                    return Id(reference);
+                }, array =>
+                {
+                    if (!arrays.Contains(array) && parents.Count + arrays.Count >= ObjectModelLimits.MaximumTypes) exceeded = true;
+                    else arrays.Add(array);
+                    return array;
+                });
+                if (exceeded) return Failed(id, DiagnosticIds.TranslationLimit, "Object layout type limit exceeded.", location);
+                if (storageType is null) return Failed(id, DiagnosticIds.ExecutionSignatureUnsupported, ObjectSignatureTypes.Unsupported, location);
+                ObjectStorage storage = storageType == IrType.Int32 ? new ObjectStorage.Int32() : new ObjectStorage.Reference(storageType.Class!);
                 declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
             }
             fields += input.Fields.Length;
             layouts.Add(new(input.Source, baseId, input.Attributes, [.. declared]) { Interfaces = [.. contracts] });
         }
-        var model = new ObjectTypeCatalog([.. roots.Select(Id).Distinct()], Id(objectBase),
+        var model = new ObjectTypeCatalog([.. roots.Select(Id).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)])
-        { Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
+        { Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
+            Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
         // Metadata can form cycles or extend sealed classes. Surface those as
         // input diagnostics rather than leaking the detached API's exception.
         try { ObjectModelValidator.Validate(model); }

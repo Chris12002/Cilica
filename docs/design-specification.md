@@ -524,9 +524,14 @@ class layouts and share the 256-type catalog limit. Reference vectors support
 nominal element covariance and widening to Object. Detached allocation, length,
 load and store operations validate exact types and explicit fault edges; array
 allocation uses the existing phase A root/safepoint contract. Runtime stores must
-check the actual allocation's element type after null/bounds checks. Array metadata
-and CIL lowering, native storage and dynamic element tracing remain planned;
-the native emitter explicitly rejects array-bearing catalogs until that work lands.
+check the actual allocation's element type after null/bounds checks. SZARRAY metadata,
+fields/signatures and bounded array CIL translation are implemented
+([ADR 0044](decisions/0044-array-metadata-and-cil.md)), including exact array signatures
+through class/interface dispatch. The `ldlen; conv.i4` pair stays within Int32;
+general native integers remain unsupported. Element access after an unequal-reference
+stack merge requires an explicitly typed array local. Native storage, checked stores
+and dynamic element tracing remain planned; the native emitter rejects array-bearing
+catalogs until that work lands.
 Structs with references have generated tracing descriptions.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch

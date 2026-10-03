@@ -39,7 +39,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-e | Unique common class/interface inference at stack joins | Complete for bounded CIL/retained-heap profile |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | In progress |
 | 3e-a | Detached vector identities, covariance, operations and root contracts | Complete for detached validation |
-| 3e-b | SZARRAY metadata/signatures and bounded array CIL translation | Planned |
+| 3e-b | SZARRAY metadata/signatures and bounded array CIL translation | Complete for translation |
 | 3e-c | Native variable storage, checked stores and execution conformance | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
@@ -578,9 +578,23 @@ checks deep malformed types, exact/excess type limits, covariance, fault edges,
 constructor escapes and roots. Local main remains an ancestor; no push or hosted
 work ran.
 
-The next slice is array metadata/signature handling and CIL translation (3e-b),
-then native storage and ordered-failure conformance (3e-c). Strings (3f) and the
-composed example/review (3g) remain planned; collection remains a separate milestone.
+Slice 3e-b implements SZARRAY field/signature closure and bounded CIL translation
+([ADR 0044](../decisions/0044-array-metadata-and-cil.md)). A shared signature grammar
+covers executable methods, class/interface dispatch and model fields. `newarr`,
+Int32/reference element operations and the same-block `ldlen; conv.i4` idiom lower
+to the existing array IR with fault edges and allocation roots. Exact/null joins
+work; element access after unequal-reference joins requires an explicit array local.
+Catalog registration excludes transient null-only views from stack inference.
+The native gate stays in place.
+
+Review completed with a warning-free solution build, 910 broader local checks and
+156 final focused checks passing. The new suite includes 36 array translation cases,
+with authored .NET comparisons and a reduced cross-image runtime-identity regression.
+Local main remains an ancestor; no push, hosted work or additional agents ran.
+
+The next slice is native variable storage, checked reference stores and ordered-failure
+conformance (3e-c). Strings (3f) and the composed example/review (3g) remain planned;
+collection remains a separate milestone.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

@@ -36,12 +36,16 @@ public static class ObjectTranslator
         private sealed record CallTarget(IrMethodId Method, ObjectTypeId Owner, ImmutableArray<IrType> Parameters, IrType Return, bool Virtual);
         private readonly Dictionary<IrMethodId, Work> _methods = [];
         private readonly Dictionary<ObjectTypeId, ResolvedType> _roots = [];
+        private readonly HashSet<ObjectTypeId> _arrays = [];
+        private readonly Dictionary<(string Hash, int Token), ObjectTypeId> _arrayTargets = [];
         private readonly Dictionary<ObjectTypeId, TypeInput> _snapshots = [];
         private readonly Dictionary<ObjectTypeId, Dictionary<int, FieldInput>> _snapshotFields = [];
         private readonly Queue<Work> _pending = new();
         private readonly List<IrMethod> _translated = [];
         private readonly ProgramResources _resources = new();
         private ObjectTypeId _object = null!;
+        private ObjectTypeId? _integer;
+        private bool _integerResolved;
         private int _bytes, _instructions, _arguments, _inferenceWork;
         private readonly Dictionary<(IrMethodId Method, int Offset), CallTarget> _callSites = [];
         private readonly MemberResolutionBudget _metadata = new(ObjectModelLimits.MaximumMetadataMembers);
@@ -75,12 +79,19 @@ public static class ObjectTranslator
                 while (_pending.TryDequeue(out Work? work))
                 {
                     var method = Body(work);
+                    // Null-only accesses acquire a view from the opcode. Register only
+                    // final blocks, so transient stack-inference views cannot leak roots.
+                    foreach (var statement in method.Blocks.SelectMany(b => b.Statements))
+                    {
+                        if (statement is IrStatement.Define { Value.Expression: IrExpression.LoadElement load }) IncludeArray(load.ArrayType);
+                        if (statement is IrStatement.StoreElement store) IncludeArray(store.ArrayType);
+                    }
                     if (!_resources.Add(method)) Fail(work, "Aggregate program IR limit exceeded.", 0, DiagnosticIds.TranslationLimit);
                     _translated.Add(method);
                 }
                 if (_interfaces.Count != 0)
                 {
-                    try { interfacePlan = _interfaceSession.Run([.. _roots.Values], [.. _interfaces.Values.Select(s => s.Method)]); }
+                    try { interfacePlan = _interfaceSession.Run([.. _roots.Values], [.. _interfaces.Values.Select(s => s.Method)], [.. _arrays]); }
                     catch (ObjectInterfacePlanBuilder.PlanFailure failure)
                     {
                         if (failure.Declaration is { } id && _interfaces.TryGetValue(id, out var site))
@@ -101,7 +112,7 @@ public static class ObjectTranslator
                 }
                 else
                 {
-                    var built = ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values], runtimeLibrary, ReadType);
+                    var built = ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values], runtimeLibrary, ReadType, [.. _arrays]);
                     if (built.Catalog is null) throw new Failure(built.Diagnostics[0]);
                     catalog = built.Catalog;
                 }
@@ -151,9 +162,49 @@ public static class ObjectTranslator
         private ObjectTypeId Include(ResolvedType type)
         {
             var id = ObjectModelBuilder.Id(type);
-            if (!_roots.ContainsKey(id) && _roots.Count >= ObjectModelLimits.MaximumTypes)
+            if (!_roots.ContainsKey(id) && _roots.Count + _arrays.Count >= ObjectModelLimits.MaximumTypes)
                 throw new Failure(new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, "Object signature/layout root limit exceeded."));
             _roots.TryAdd(id, type); return id;
+        }
+
+        private ObjectTypeId IncludeArray(ObjectTypeId array)
+        {
+            if (!_arrays.Contains(array) && _roots.Count + _arrays.Count >= ObjectModelLimits.MaximumTypes)
+                throw new Failure(new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, "Object signature/layout root limit exceeded."));
+            _arrays.Add(array); return array;
+        }
+
+        private IrType Storage(TypeSignature signature, Work? caller, int offset, bool allowVoid = false) =>
+            ObjectSignatureTypes.Convert(signature, _object, Include, IncludeArray, allowVoid)
+            ?? throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
+                ObjectSignatureTypes.Unsupported + Path(caller, offset), Location(caller, offset)));
+
+        private ObjectTypeId ArrayTarget(Work caller, MethodInstruction instruction)
+        {
+            int token = instruction.IntegerOperand ?? 0;
+            if ((uint)token >> 24 is not (0x01 or 0x02 or 0x1b) || (token & 0xffffff) == 0)
+                Fail(caller, "newarr requires a non-nil type token.", instruction.Offset, DiagnosticIds.InvalidOperand);
+            var image = caller.Resolved.DeclaringType.Definition.Assembly;
+            var key = (image.ContentHash, token);
+            if (_arrayTargets.TryGetValue(key, out var cached)) return cached;
+            var resolved = resolver.ResolveSignatureType(image, MetadataTokens.EntityHandle(token));
+            if (resolved.Value is not TypeSignature signature)
+                throw new Failure(resolved.Diagnostics[0] with { Location = Location(caller, instruction.Offset) });
+            if (signature is TypeSignature.Named named)
+            {
+                // Only the explicitly selected runtime's Int32 is primitive storage.
+                if (!_integerResolved)
+                {
+                    var integer = resolver.ResolveRuntimeType(runtimeLibrary, PrimitiveTypeCode.Int32);
+                    _integer = integer.Value is { } type ? ObjectModelBuilder.Id(type) : null;
+                    _integerResolved = true;
+                }
+                signature = _integer == ObjectModelBuilder.Id(named.Definition)
+                    ? new TypeSignature.Primitive(PrimitiveTypeCode.Int32)
+                    : named.Kind == SignatureTypeKind.Unknown ? named with { Kind = SignatureTypeKind.Class } : named;
+            }
+            var array = Storage(new TypeSignature.Vector(signature), caller, instruction.Offset).Class!;
+            _arrayTargets.Add(key, array); return array;
         }
 
         private TypeInput ReadType(ResolvedType type, TypeReadLimits budget)
@@ -209,15 +260,10 @@ public static class ObjectTranslator
             var kind = constructor ? ownerId == _object ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor
                 : isStatic ? ObjectMethodKind.Static : ObjectMethodKind.Instance;
             if (!isStatic) Include(owner);
-            IrType Type(TypeSignature signature, bool allowVoid = false) => signature switch
-            {
-                TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
-                TypeSignature.Primitive { Code: PrimitiveTypeCode.Void } when allowVoid => IrType.Void,
-                TypeSignature.Primitive { Code: PrimitiveTypeCode.Object } => IrType.Reference(_object),
-                TypeSignature.Named { Kind: SignatureTypeKind.Class } named => IrType.Reference(Include(named.Definition)),
-                _ => throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
-                    "Object signatures require Int32 or class/interface references; other storage needs later lowering." + Path(parent, offset), input.Source.Name)),
-            };
+            IrType Type(TypeSignature signature, bool allowVoid = false) =>
+                ObjectSignatureTypes.Convert(signature, _object, Include, IncludeArray, allowVoid)
+                ?? throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
+                    ObjectSignatureTypes.Unsupported + Path(parent, offset), input.Source.Name));
             ImmutableArray<IrType> parameters = [.. (isStatic ? Array.Empty<IrType>() : new[] { IrType.Reference(ownerId) }),
                 .. input.Signature.Parameters.Select(p => Type(p))];
             var returned = Type(input.Signature.ReturnType, allowVoid: true);
@@ -414,6 +460,26 @@ public static class ObjectTranslator
                                 "cgt.un" when values[left].Kind is IrTypeKind.Reference or IrTypeKind.NullReference && values[right] == IrType.NullReference => Int32Comparison.NotEqual,
                                 _ => Int32Comparison.GreaterUnsigned };
                             Push(offset, IrType.Int32, new IrExpression.Compare(comparison, left, right)); break;
+                        case "newarr":
+                            var arrayType = ArrayTarget(work, instruction); int length = Pop(offset);
+                            Push(offset, IrType.Reference(arrayType), new IrExpression.NewArray(arrayType, length), true); break;
+                        case "ldlen":
+                            // CLI ldlen produces native unsigned. Normalize only the compiler's
+                            // bounded Int32 length idiom; never let a native integer escape into IR.
+                            if (index + 1 >= end || input.Instructions[index + 1].OpCode != "conv.i4")
+                                Fail(work, "ldlen requires an immediate conv.i4 in the same block; native-sized lengths require later lowering.", offset);
+                            Consume(1, input.Instructions[++index].Offset);
+                            Push(offset, IrType.Int32, new IrExpression.ArrayLength(Pop(offset)), true); break;
+                        case "ldelem.i4" or "ldelem.ref":
+                            int elementIndex = Pop(offset), arrayReceiver = Pop(offset);
+                            var loadView = ArrayView(arrayReceiver, opcode == "ldelem.ref", offset);
+                            var elementType = loadView.ArrayElement!.Kind == ObjectArrayElementKind.Int32
+                                ? IrType.Int32 : IrType.Reference(loadView.ArrayElement.Type!);
+                            Push(offset, elementType, new IrExpression.LoadElement(loadView, arrayReceiver, elementIndex), true); break;
+                        case "stelem.i4" or "stelem.ref":
+                            int elementValue = Pop(offset), storeIndex = Pop(offset), storeArray = Pop(offset);
+                            var storeView = ArrayView(storeArray, opcode == "stelem.ref", offset);
+                            Add(new IrStatement.StoreElement(offset, storeView, storeArray, storeIndex, elementValue), offset); break;
                         case "newobj" or "call" or "callvirt":
                             var target = Call(work, instruction); bool allocation = opcode == "newobj";
                             bool dispatch = opcode == "callvirt" && target.Virtual;
@@ -438,10 +504,7 @@ public static class ObjectTranslator
                             _ = ReadType(definition, new());
                             _snapshotFields[loaded.Owner].TryGetValue(loaded.Token, out var field);
                             if (field is null) Fail(work, "Field is not listed by its declaring owner.", offset);
-                            IrType storage = field!.Signature switch { TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
-                                TypeSignature.Primitive { Code: PrimitiveTypeCode.Object } => IrType.Reference(_object),
-                                TypeSignature.Named { Kind: SignatureTypeKind.Class } named => IrType.Reference(Include(named.Definition)),
-                                _ => throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error, "Unsupported field storage.", Location(work, offset))) };
+                            IrType storage = Storage(field!.Signature, work, offset);
                             Push(offset, storage, new IrExpression.LoadField(loaded, receiver), true); break;
                         case "stfld":
                             var stored = Field(work, instruction); int storedValue = Pop(offset), storedReceiver = Pop(offset);
@@ -466,6 +529,18 @@ public static class ObjectTranslator
                 var last = input.Instructions[end - 1];
                 returned ??= new IrJump(last.Offset, Edge(last.Offset + last.Length, last.Offset));
                 return new(id, blockOffset, inputs, [.. statements], returned);
+
+                ObjectTypeId ArrayView(int receiver, bool reference, int offset)
+                {
+                    var type = values[receiver];
+                    if (type == IrType.NullReference)
+                        return ObjectTypeId.Vector(_object, reference ? ObjectArrayElement.Reference(_object) : ObjectArrayElement.Int32);
+                    if (type.Class?.ArrayElement is null)
+                        Fail(work, "Element access requires a known array type. Store branch results into an explicitly typed array local before access.", offset);
+                    if (type.Class!.ArrayElement!.Kind != (reference ? ObjectArrayElementKind.Reference : ObjectArrayElementKind.Int32))
+                        Fail(work, "Array element opcode does not match its element storage.", offset);
+                    return type.Class;
+                }
 
                 IrEdge Edge(int targetOffset, int from)
                 {

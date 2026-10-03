@@ -10,10 +10,10 @@ not establish native execution or platform compatibility.
 | `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
-| `object-layout-v4` | Bounded nominal metadata snapshots and detached class/interface/vector graphs | Int32/reference vectors have structural element identities and share the 256-type limit; array metadata reading and native storage remain planned |
-| `typed-reference-ir-v4` | Detached caller-constructed IR validation | Class/interface/array references/null, nominal ancestry, reference-vector covariance and typed locals/joins/direct calls/returns; array CIL/native execution remains planned |
+| `object-layout-v4` | Bounded nominal metadata snapshots and detached class/interface/vector graphs | Int32/reference vectors have structural element identities and share the 256-type limit; SZARRAY fields/signatures are read; native array storage remains planned |
+| `typed-reference-ir-v4` | Detached caller-constructed IR validation | Class/interface/array references/null, nominal ancestry, reference-vector covariance and typed locals/joins/direct calls/returns; array CIL translates in the object profile; native array execution remains planned |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
-| `object-operations-ir-v7` | Bounded nominal CIL translation and detached operation validation | Existing class/interface operations plus detached array allocation/length/load/store validation and root assignment; array CIL/native lowering remains planned |
+| `object-operations-ir-v7` | Bounded nominal/vector CIL translation and detached operation validation | Class/interface operations plus array allocation, Int32 length conversion and Int32/reference element access; native array lowering remains planned |
 | `object-frames-native-v7` | C++20 emission and local native differential execution | Class/interface dispatch, interface reference membership, class/interface casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Array execution, strings, GC, exception handlers, library and embedding support are unimplemented |
 
@@ -320,8 +320,8 @@ friend rules and inherited MemberRef owners remain conservatively unsupported.
 Readonly stores require the declaring constructor and a direct parameter-zero
 receiver. Reference field stores accept null or an assignable concrete reference.
 Type/module initialization, reference-assembly/native bodies, generics,
-abstract classes, broader MethodImpl remapping, covariance, prefixes,
-arrays, strings, byrefs and unsupported storage fail
+abstract classes, broader MethodImpl remapping, method-return covariance, prefixes,
+strings, byrefs and storage outside the bounded vector profile fail
 without partial programs. Ordinary methods support branches/backedges with inferred
 typed inputs, described below. Constructors remain straight-line; unreachable
 blocks and unsupported operations/transfers are rejected.
@@ -820,8 +820,8 @@ Those checks are lowering obligations, not array execution implemented here.
 
 Root assignment includes array values and loaded references and marks array
 allocation as a safepoint. Constructor validation prevents the unfinished receiver
-escaping through an element store. Metadata/CIL array lowering and native dynamic
-storage remain planned. The native emitter explicitly rejects all array-bearing
+escaping through an element store. Metadata/CIL lowering is described below; native
+dynamic storage remains planned. The native emitter explicitly rejects all array-bearing
 catalogs; it must not reinterpret an array's Object anchor as a class descriptor.
 No native profile, ABI, runtime fault code or platform-support claim changes.
 
@@ -830,3 +830,29 @@ Fixtures cover cross-image identities, JSON round trips, covariance/declared flo
 field/element closure, root contracts, exact/excess 256-type limits, invalid
 operations, constructor escapes and deep forged identities. These tests establish
 validation behavior, not native array execution or collection.
+
+
+## Array metadata and CIL translation
+
+SZARRAY fields, parameters, returns and initialized locals accept Int32 or nominal
+class/interface elements ([ADR 0044](decisions/0044-array-metadata-and-cil.md)).
+Executable methods and standalone interface preparation share one signature grammar;
+class/interface dispatch preserves exact array signatures. Nominal element closure
+and vectors share the existing 256-type budget, field/member limits and read cache.
+
+Supported instructions are `newarr`, `ldelem.i4`, `stelem.i4`, `ldelem.ref`,
+`stelem.ref`, and the adjacent same-block `ldlen; conv.i4` idiom. Length/index/value
+checks and method-exit fault edges use the validated array IR. Only the selected
+runtime's exact Int32 identity maps a named allocation element to primitive storage.
+Reference element loads retain the static receiver view. Element access following
+an unequal-reference stack merge requires an explicitly typed array local;
+exact/null array joins remain supported. General native integers, token-form
+`ldelem`/`stelem`, `ldelema`, array casts, nested/multidimensional vectors and other
+primitive/value elements remain diagnostic boundaries.
+
+Authored C# comparisons use a bounded test-only evaluator for Int32 array allocation,
+aliasing, calls/returns, mutation, zero initialization, bounds/null/negative-length
+faults and Object[] field/identity behavior. Additional translation tests cover
+reference covariance and array signatures in class/interface dispatch. These are
+translation checks, not native array execution, runtime store-check or collection
+evidence. Native emission remains explicitly gated for every array-bearing catalog.

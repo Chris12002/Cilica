@@ -1,7 +1,8 @@
 # ADR 0043: Detached vector identities and array operations
 
 Status: Accepted for detached catalogs, value/operation validation and phase A root
-assignment. Array metadata/CIL lowering and native execution remain planned.
+assignment. Array metadata/CIL lowering subsequently landed in ADR 0044; native
+execution remains planned.
 Recorded 2026-10-03.
 
 ## Context
@@ -67,7 +68,8 @@ safepoint. Reference stores cannot leak an unfinished constructor receiver; arra
 allocation unrelated to that receiver remains legal before base initialization.
 Dynamic element tracing requires a later native descriptor/allocation design.
 
-The metadata builder and CIL translator continue rejecting array fields/signatures
+At this slice boundary, metadata/CIL array lowering was still rejected.
+[ADR 0044](0044-array-metadata-and-cil.md) subsequently enables bounded fields/signatures
 and instructions. The object emitter explicitly rejects any array-bearing catalog,
 including one with only array locals and no allocation. This keeps incomplete
 lowering from treating an array anchor as the ordinary Object descriptor. Primitive
