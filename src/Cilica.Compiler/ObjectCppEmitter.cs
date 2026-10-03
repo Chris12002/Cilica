@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v6";
+    public const string Profile = "object-frames-native-v7";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -166,14 +166,15 @@ public static class ObjectCppEmitter
             {
                 code.Append("    if (").Append(condition).Append(") {\n"); Fault(status, offset); code.Append("    }\n");
             }
+            string Matches(string value, ObjectTypeId type) => contracts.Contains(type)
+                ? ContractSymbol(type) + "(" + value + "->type)"
+                : "derives_from(" + value + "->type, &" + TypeSymbol(type) + "_descriptor)";
             void Check(string value, ObjectTypeId type, bool nullCheck, int offset)
             {
                 if (nullCheck) Guard(value + " == nullptr", "4u", offset);
                 Guard("!context.instance.owns(" + value + ")", "6u", offset);
                 if (type != program.Flow.Types.ObjectBase)
-                    Guard(value + " != nullptr && !" + (contracts.Contains(type)
-                        ? ContractSymbol(type) + "(" + value + "->type)"
-                        : "derives_from(" + value + "->type, &" + TypeSymbol(type) + "_descriptor)"), "6u", offset);
+                    Guard(value + " != nullptr && !" + Matches(value, type), "6u", offset);
             }
             string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false)
             {
@@ -249,13 +250,12 @@ public static class ObjectCppEmitter
                                     expression = Field(field.Field, field.Receiver); break;
                                 case IrExpression.CastClass cast:
                                     Guard("!context.instance.owns(" + Value(cast.Operand) + ")", "6u", value.ILOffset);
-                                    Guard(Value(cast.Operand) + " != nullptr && !derives_from(" + Value(cast.Operand)
-                                        + "->type, &" + TypeSymbol(cast.Target) + "_descriptor)", "7u", value.ILOffset);
+                                    Guard(Value(cast.Operand) + " != nullptr && !" + Matches(Value(cast.Operand), cast.Target), "7u", value.ILOffset);
                                     expression = Value(cast.Operand); break;
                                 case IrExpression.IsInstance test:
                                     Guard("!context.instance.owns(" + Value(test.Operand) + ")", "6u", value.ILOffset);
-                                    expression = Value(test.Operand) + " != nullptr && derives_from(" + Value(test.Operand)
-                                        + "->type, &" + TypeSymbol(test.Target) + "_descriptor) ? " + Value(test.Operand) + " : nullptr"; break;
+                                    expression = Value(test.Operand) + " != nullptr && " + Matches(Value(test.Operand), test.Target)
+                                        + " ? " + Value(test.Operand) + " : nullptr"; break;
                                 case IrExpression.Null: expression = "nullptr"; break;
                                 case IrExpression.Parameter p: expression = layout.Storage(ObjectRootKind.Parameter, p.Index); break;
                                 case IrExpression.Local l: expression = layout.Storage(ObjectRootKind.Local, l.Index); break;

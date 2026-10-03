@@ -175,8 +175,6 @@ public sealed class ObjectInterfaceTranslationTests
     [InlineData("generic")]
     [InlineData("missing")]
     [InlineData("unsupported_body")]
-    [InlineData("cast")]
-    [InlineData("isinst")]
     public void Unsupported_reachable_interface_semantics_return_actionable_errors_without_partial_ir(string kind)
     {
         var builder = new ResolutionAssemblyBuilder(new("InterfaceCalls", new Version(1, 0, 0, 0)));
@@ -198,12 +196,7 @@ public sealed class ObjectInterfaceTranslationTests
         var entry = builder.Method("Run", [0, 0, 8], locals: [7, 1, 0x12, (byte)(MetadataTokens.GetRowNumber(receiver) * 4)], emit: il =>
         {
             if (kind != "static") il.OpCode(ILOpCode.Ldnull);
-            if (kind is "cast" or "isinst")
-            {
-                il.OpCode(kind == "cast" ? ILOpCode.Castclass : ILOpCode.Isinst); il.Token(contract);
-                il.OpCode(ILOpCode.Pop); il.LoadConstantI4(1);
-            }
-            else { il.OpCode(kind is "direct" or "static" ? ILOpCode.Call : ILOpCode.Callvirt); il.Token(declaration); }
+            il.OpCode(kind is "direct" or "static" ? ILOpCode.Call : ILOpCode.Callvirt); il.Token(declaration);
             il.OpCode(ILOpCode.Ret);
         });
         using var files = new ResolverFiles(); using var resolver = files.Open();
@@ -212,7 +205,6 @@ public sealed class ObjectInterfaceTranslationTests
         Assert.Null(result.Program); var diagnostic = Assert.Single(result.Diagnostics);
         Assert.Contains("Run", diagnostic.Message, StringComparison.Ordinal);
         Assert.Contains("IL_", diagnostic.Message, StringComparison.Ordinal);
-        if (kind is "cast" or "isinst") Assert.Contains("Interface casts/type tests", diagnostic.Message, StringComparison.Ordinal);
     }
 
     [Fact]

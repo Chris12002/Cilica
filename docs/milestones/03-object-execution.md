@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; bounded native object control flow, roots, concrete class inheritance and casts/type tests are implemented. Updated 2026-10-02.
+Status: in progress; bounded native object control flow, roots, concrete class inheritance and class/interface casts/type tests are implemented. Updated 2026-10-03.
 
 The first native class checkpoint now runs an independently authored small class
 created, mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -23,6 +23,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-a | Bounded class hierarchies and detached ancestor assignability | Complete for layout/reference IR |
 | 3d-b | Inherited native field storage and constructor chains | Complete for bounded concrete class profile |
 | 3d-c | Class casts and runtime type tests | Complete for bounded concrete classes |
+| 3d-c-a | Interface casts and runtime type tests | Complete for bounded nongeneric contracts |
 | 3d-d | Verified virtual/interface dispatch | Complete for bounded class/interface dispatch profile |
 | 3d-d-a | Exact class virtual slot/target resolution | Complete for bounded metadata profile |
 | 3d-d-b | Closed-world class dispatch maps and native calls | Complete for bounded concrete class profile |
@@ -497,6 +498,32 @@ uninstrumented stack reports for the interface driver/generated code show maxima
 of 896 bytes at O0 and 848 bytes at O2. An initial O0 failure was confined to the
 test driver's large `main`; splitting diagnostic cases retained the same gate.
 Local main and cached origin/main remain ancestors; no push or hosted work ran.
+
+
+Slice 3d-c-a adds named public nongeneric interface casts and type tests
+([ADR 0040](../decisions/0040-interface-casts-and-type-tests.md)). Casts reuse exact
+membership tables and preserve object identity, including inherited and parent/
+diamond contracts. Null remains null; mismatches report status 7 for casts or
+return null for type tests. Ownership precedes descriptor reads, and unknown
+descriptor addresses are compared without dereferencing them. Rooted arena
+storage, constructor restrictions, fault order/origin and cleanup are unchanged.
+Target-only contracts require no interface body or dispatch plan.
+
+Three authored entries compare 144 .NET/native outcomes at each of O0/O2,
+including composed class/interface casts, explicit implementations, identity and
+cast/argument/null fault order. Allocation observers check both cast and type-test
+roots; exact/short budgets, every object-count failure stage, cleanup/reuse and
+invalid/foreign/null references pass. Copied/unreadable descriptors cannot gain
+membership. Raw native fixtures distinguish same-name/equal-token contracts
+across images and test null against empty target-only tables. Malformed targets,
+forged IR and casts/tests on unfinished constructor receivers retain regressions.
+
+Review is complete: all 788 relevant local checks pass in 47.6 seconds, with zero
+build warnings/errors. ASan/UBSan and the 2 KiB native-frame warning pass at O0/O2;
+static stack reports measure maxima of 704 bytes at O0 and 640 bytes at O2 across
+the new driver/generated code. Local main and cached origin/main remain ancestors.
+No push or hosted work ran. Inferred joins, ordinary class virtual resolution on
+MethodImpl owners and collection/reclamation remain separate integration gates.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

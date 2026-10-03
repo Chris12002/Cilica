@@ -407,7 +407,7 @@ without receiving instance layouts. Names do not establish identity. This is
 detached type flow only: catalogs alone do not validate interface method contracts
 or implementations. Object operations and root assignment now accept contract
 references; native emission also accepts those catalogs and validated call plans.
-Interface casts/tests and inferred interface joins remain planned.
+Interface casts/tests are described below; inferred interface joins remain planned.
 
 Interface dispatch preparation now retains bodyless signatures separately from
 class method facts ([ADR 0037](decisions/0037-detached-interface-dispatch-plans.md)).
@@ -433,8 +433,7 @@ fault edge. Executable signatures/bindings must agree with the plan; declaration
 mapping facts and bodies share the 256-method cap, and class/interface target
 entries share 65,536 entries. Phase A assigns interface reference slots and call
 safepoints using the existing reference storage kind. Ordinary class virtual
-resolution on MethodImpl owners still requires its separate lowering; interface
-casts/tests remain rejected.
+resolution on MethodImpl owners still requires its separate lowering.
 
 Native interface calls now use exact descriptor membership and typed method
 tables ([ADR 0039](decisions/0039-native-interface-dispatch.md)). Contracts receive
@@ -457,8 +456,19 @@ reached only by a test. Both accept reference/null operands and preserve the
 original reference on success; null remains null. A failed cast reports status
 7 with its originating method/IL offset; a failed type test returns null.
 Ownership checks precede descriptor reads. Results occupy rooted arena slots,
-and casts/tests cannot expose an unfinished constructor receiver. Interface,
-value-type, generic, array and TypeSpec targets still require later lowering.
+and casts/tests cannot expose an unfinished constructor receiver. Value-type,
+generic, array and TypeSpec targets still require later lowering.
+
+Interface `castclass` and `isinst` now use exact descriptor membership
+([ADR 0040](decisions/0040-interface-casts-and-type-tests.md)). Named public
+nongeneric contracts enter the same bounded catalog even when used only as a
+target. Membership includes inherited implementations and transitive parent/diamond
+contracts; an empty table still accepts null. Both operations preserve the
+original reference on success and use the existing cast/type-test fault behavior,
+rooted arena slots and constructor restrictions. Ownership is established before
+reading an object descriptor, and membership never dereferences unknown descriptor
+addresses. Native O0/O2 comparisons cover composed class/interface casts,
+identity, argument fault order, allocation roots, exact/short budgets and cleanup.
 
 Public nongeneric class virtual calls now select one body from the receiver's
 exact descriptor. Override bodies can introduce new classes and virtual sites;
@@ -470,9 +480,10 @@ Virtual `callvirt` checks null, ownership and ancestry after argument evaluation
 Typed lookup helpers finish before the selected body executes; their function
 pointers live in the caller's budgeted heap frame, retaining the existing
 native call-chain bound. Reference results and allocating overrides use phase A
-roots and normal/fault cleanup. Interfaces, abstract classes, generics, covariance
-and MethodImpl remapping remain unsupported. The native evidence is O0/O2 on the
-recorded macOS ARM64 target; no wider platform or collector claim follows.
+roots and normal/fault cleanup. Abstract classes, generics, covariance
+and ordinary class virtual resolution on MethodImpl owners remain unsupported.
+The native evidence is O0/O2 on the recorded macOS ARM64 target; no wider platform
+or collector claim follows.
 
 Helper batching remains deferred until representative workloads justify it.
 The current 2 KiB warning is a tested baseline, not a permanent production

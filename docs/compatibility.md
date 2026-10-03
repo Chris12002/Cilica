@@ -13,8 +13,8 @@ not establish native execution or platform compatibility.
 | `object-layout-v3` | Bounded metadata snapshots and detached class/field/interface graphs | Concrete nongeneric class chains, public fieldless nongeneric interface contracts, declared Int32/CLASS/OBJECT fields and logical reference slots; interfaces have no instance layout |
 | `typed-reference-ir-v3` | Detached caller-constructed IR validation | Class/interface references/null, ancestor/implemented-contract assignments and typed locals/joins/direct calls/returns; executable interface calls require the object-operation profile |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
-| `object-operations-ir-v5` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, concrete class casts/type tests, class virtual calls and interface calls with dispatch plans and selected executable bodies; broader access rules remain unsupported |
-| `object-frames-native-v6` | C++20 emission and local native differential execution | Class/interface dispatch, interface reference membership, class casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
+| `object-operations-ir-v6` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, concrete class/interface casts/type tests, class virtual calls and interface calls with dispatch plans and selected executable bodies; broader access rules remain unsupported |
+| `object-frames-native-v7` | C++20 emission and local native differential execution | Class/interface dispatch, interface reference membership, class/interface casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
 | Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -237,8 +237,10 @@ types, null into any reference, a concrete class into any ancestor class or
 implemented interface, and an interface into any parent interface or Object.
 Inherited contracts and diamond ancestry are transitive; an interface cannot
 implicitly narrow to an implementing class or unrelated interface.
-Downward and sibling-class conversions require explicit casts in the object-operation profile. Interface casts/tests remain unsupported. One ancestry cache
-is shared across a program's method validation, rather than rebuilt per method.
+Downward and sibling-class conversions require explicit casts in the
+object-operation profile. Interface casts/tests use exact contract membership in
+that profile. One ancestry cache is shared across a program's method validation,
+rather than rebuilt per method.
 Validation checks declared joins; it does not infer their common type from CIL.
 
 Reference equality/inequality returns Int32; reference/null truth branches are
@@ -279,8 +281,8 @@ references; void is a return signature only. Locals require initialization.
 | --- | --- |
 | `newobj` | Exact instance constructor; already-evaluated arguments in declaration order; distinct typed allocation definition with method-exit fault edge |
 | `ldfld`, `stfld` | Exact FieldDef/declaring owner via direct or MemberRef binding; typed receiver/storage; ordered load/store and method-exit fault edge |
-| `castclass` | Named concrete class target; null stays null, compatible references retain identity, mismatch reports invalid-cast status 7 |
-| `isinst` | Named concrete class target; compatible references retain identity, null/mismatch return null; result has the target reference type |
+| `castclass` | Named concrete class or public nongeneric interface target; null stays null, compatible references retain identity, mismatch reports invalid-cast status 7 |
+| `isinst` | Named concrete class or public nongeneric interface target; compatible references retain identity, null/mismatch return null; result has the target reference type |
 | `call` | Exact ordinary static/instance declaration, including virtual declarations; explicit receiver for instance calls; direct body invocation without an automatic null-receiver check |
 | nonvirtual `callvirt` | Ordinary nonvirtual instance declaration; explicit null-receiver check after argument evaluation |
 | virtual `callvirt` | Public nongeneric concrete class declaration; exact canonical slot and complete receiver map; null/ownership/ancestry checks after argument evaluation; nearest effective body |
@@ -351,7 +353,7 @@ No references, retained handles or persistent runtime cross that boundary. Outpu
 storage must be valid and disjoint. Null outputs return 3 without writes; faults
 leave the result unchanged and report image/MethodDef/IL origin. Statuses retain
 1 divide-by-zero and 2 overflow, add 4 null, 5 allocation failure, 6 ownership/type
-violation, 7 invalid class cast and 8 call-depth limit. Execution storage adds
+violation, 7 invalid reference cast and 8 call-depth limit. Execution storage adds
 status 9 below. These tags are not managed exception objects.
 
 All reference arguments, locals and temporaries receive distinct slots, including
@@ -419,7 +421,7 @@ inference bounds and preserved rejection boundaries. See
 
 ## Budgeted object execution frames
 
-`object-frames-native-v6` supersedes the object control-flow and earlier frame emission
+`object-frames-native-v7` supersedes the object control-flow and earlier frame emission
 profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
 [ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md),
 [ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)). It has a 1 MiB
@@ -528,8 +530,9 @@ ancestry chain ([ADR 0032](decisions/0032-class-casts-and-type-tests.md)). Targe
 identity includes the image content hash; equal names/tokens across images do
 not establish compatibility. Type-test-only targets enter the catalog and its
 existing type, metadata, field and physical-layout budgets. Target access is
-same-owner or top-level public. Interface, abstract, value-type, generic, array
-and TypeSpec targets remain unsupported, including with a null operand.
+same-owner or top-level public. Interface targets are described below. Abstract,
+value-type, generic, array and TypeSpec targets remain unsupported, including with
+a null operand.
 
 Both operations consume a reference/null value and produce the target reference
 type. Successful casts/tests preserve object identity and dynamic type. Null
@@ -581,8 +584,8 @@ across allocating overrides, exact/short arena budgets, all allocation fault
 stages, ownership checks, cross-image equal-token slot/body identities and virtual
 recursion within a checked 320 KiB pthread stack ceiling. ASan/UBSan, static Clang
 stack reports and the current 2 KiB frame gate pass on macOS ARM64.
-Interfaces, abstract classes, generics, covariance, MethodImpl
-remapping, collection and other-target execution remain unimplemented.
+Abstract classes, generics, covariance, ordinary class virtual resolution on
+MethodImpl owners, collection and other-target execution remain unimplemented.
 
 ## Exact interface target metadata
 
@@ -614,7 +617,7 @@ selection, malformed metadata and exact/excess resource regressions. The class
 metadata operation and conservative audits retain their previous contracts.
 Detached interface catalogs and reference flow are implemented under ADR 0036.
 The object compiler now integrates calls through those declarations under ADR
-0038 and emits native calls under ADR 0039. Interface casts remain subsequent work.
+0038 and emits native calls under ADR 0039. Interface casts are covered by ADR 0040.
 
 ## Detached interface dispatch preparation
 
@@ -695,7 +698,7 @@ reference/void results, implementation-discovered receivers/calls and argument
 faults before null receivers. A bounded test evaluator supplies translated-IR
 evidence only. Forged IR and unsupported CIL receive reduced regressions.
 `object-frames-native-v6` now consumes validated interface plans with the same ABI.
-Interface casts/tests, inferred interface joins, default/static/generic contracts,
+Inferred interface joins, default/static/generic contracts,
 abstract classes and broader MethodImpl remapping remain unsupported. Ordinary
 class virtual resolution still rejects MethodImpl owners even when their explicit
 interface calls are supported; mixed class dispatch on those owners needs later
@@ -736,6 +739,35 @@ check the existing native-stack policy on the recorded macOS ARM64 toolchain.
 
 The heap remains retained. These checks do not implement a collector or prove
 roots under reclamation, and they do not establish compatibility with other
-platforms. Interface casts/tests, inferred interface joins, default/static/generic
+platforms. Inferred interface joins, default/static/generic
 interface semantics, abstract classes and ordinary class virtual resolution on
 MethodImpl owners remain unsupported. Performance optimization stays deferred.
+
+## Interface casts and runtime type tests
+
+`object-operations-ir-v6` and `object-frames-native-v7` accept named public
+nongeneric interface targets for `castclass` and `isinst`
+([ADR 0040](decisions/0040-interface-casts-and-type-tests.md)). Target-only contracts
+and transitive parents enter the shared bounded catalog. A cast needs no dispatch
+plan or executable interface body. Class/interface identity remains content-scoped;
+compatible classes include inherited implementations and parent/diamond contracts.
+
+Native casts reuse exact descriptor membership after ownership checks. Successful
+operations preserve the original pointer; null stays null. A mismatch returns
+null for `isinst` or status 7 for `castclass`, while invalid/foreign pointers report
+status 6 first. Membership compares unknown descriptor addresses without reading
+their contents. Results retain existing rooted arena storage, constructor rules,
+fault origin/order and cleanup. No allocation or boundary ABI change is introduced.
+
+Three authored entries compare 144 .NET/native result and exact fault-origin cases
+per O0/O2 build. Coverage includes identity, class/interface composition, explicit
+implementations, inherited/parent/diamond contracts, empty target-only contracts,
+casts versus argument/null fault order and roots across allocations/backedges.
+Exact/short frame budgets, allocation failures, cleanup/reuse, ownership and
+copied/unreadable descriptors are checked independently. Raw native cases keep
+same-name/equal-token contracts across images distinct. Malformed targets, forged
+IR and unfinished constructor casts/tests retain rejection regressions.
+ASan/UBSan and the 2 KiB stack gate pass on macOS ARM64; static reports measure
+maxima of 704 bytes at O0 and 640 bytes at O2 across the new driver/generated code.
+Collection, inferred joins and ordinary class virtual resolution on MethodImpl
+owners remain separate gates; generic/nonpublic/array/TypeSpec targets are unsupported.

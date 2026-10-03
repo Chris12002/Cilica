@@ -335,17 +335,15 @@ public static class ObjectTranslator
         {
             int token = instruction.IntegerOperand ?? 0;
             if ((uint)token >> 24 == 0x1b)
-                Fail(caller, "Class casts/type tests require a named TypeDef or TypeRef; constructed TypeSpec targets need later lowering.", instruction.Offset);
+                Fail(caller, "Reference casts/type tests require a named TypeDef or TypeRef; constructed TypeSpec targets need later lowering.", instruction.Offset);
             if ((uint)token >> 24 is not (0x01 or 0x02) || (token & 0xffffff) == 0)
-                Fail(caller, "Class casts/type tests require a non-nil TypeDef or TypeRef.", instruction.Offset, DiagnosticIds.InvalidOperand);
+                Fail(caller, "Reference casts/type tests require a non-nil TypeDef or TypeRef.", instruction.Offset, DiagnosticIds.InvalidOperand);
             var image = caller.Resolved.DeclaringType.Definition.Assembly;
             var key = (image.ContentHash, token);
             if (_typeTargets.TryGetValue(key, out var known)) return known;
             var resolved = resolver.ResolveType(image, MetadataTokens.EntityHandle(token));
             if (resolved.Value is not ResolvedType target)
                 throw new Failure(resolved.Diagnostics[0] with { Location = Location(caller, instruction.Offset) });
-            if (InterfaceOwner(target, caller, instruction.Offset))
-                Fail(caller, "Interface casts/type tests require later lowering; interface references and callvirt are supported separately.", instruction.Offset);
             // The final catalog validates the complete target/base/field closure with
             // the shared metadata budget, including targets used only by a type test.
             var id = Include(target); _typeTargets.Add(key, id); return id;
@@ -424,7 +422,7 @@ public static class ObjectTranslator
                         case "castclass" or "isinst":
                             var testedType = TypeTarget(work, instruction); int tested = Pop(offset);
                             if (values[tested].Kind is not (IrTypeKind.Reference or IrTypeKind.NullReference))
-                                Fail(work, "Class casts/type tests require an object reference operand.", offset);
+                                Fail(work, "Reference casts/type tests require an object reference operand.", offset);
                             Push(offset, IrType.Reference(testedType), opcode == "castclass"
                                 ? new IrExpression.CastClass(testedType, tested) : new IrExpression.IsInstance(testedType, tested), true);
                             break;

@@ -30,6 +30,7 @@ internal sealed class ObjectIrRules
     private readonly Dictionary<IrMethodId, IrMethod> _methods = [];
     private readonly Dictionary<ObjectFieldId, ObjectField> _fields;
     private readonly Dictionary<ObjectTypeId, ObjectTypeLayout> _layouts;
+    private readonly HashSet<ObjectTypeId> _contracts;
     private readonly IrTypeRules _types;
     private readonly ObjectDispatchRules _dispatch;
     private readonly ObjectInterfaceOperationRules _interfaces;
@@ -41,6 +42,7 @@ internal sealed class ObjectIrRules
         var flow = program.Flow;
         _types = new(flow.Types);
         _layouts = flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
+        _contracts = flow.Types.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _fields = flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         Require(!flow.Methods.IsDefault && flow.Methods.Length is > 0 and <= ProgramLimits.MaximumMethods
             && !program.Bindings.IsDefault && program.Bindings.Length == flow.Methods.Length, "bounded methods and matching bindings are required.");
@@ -92,9 +94,9 @@ internal sealed class ObjectIrRules
 
     internal ObjectMethodBinding Binding(IrMethodId id) => _bindings[id];
     internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is not null
-        && _layouts.TryGetValue(target, out var layout)
-        && (Binding(IrMethodId.From(method.Source)).Owner == target
-            || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public);
+        && (_contracts.Contains(target) || _layouts.TryGetValue(target, out var layout)
+            && (Binding(IrMethodId.From(method.Source)).Owner == target
+                || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public));
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch
     {
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
