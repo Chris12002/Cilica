@@ -968,3 +968,23 @@ Local .NET/native conformance covers O0/O2 on macOS ARM64 with ASan/UBSan and th
 null/index/cast/store faults and operand order, exact heap/execution limits,
 foreign/forged references, root publication and cleanup/retry. This does not claim
 wider platform support, thread safety, interop strings or roots across collection.
+
+
+## Composed retained-heap checkpoint
+
+Milestone 3 closes for the bounded profiles above. The reproducible
+[object example](../examples/Objects/README.md) combines constructor/inherited
+fields, class/interface dispatch, class type tests, Int32/reference vectors,
+String[] covariance, immutable UTF-16 operations and branches/backedges in one
+12-body inventory closure. A separate authored .NET oracle checks results and
+exact null/bounds/overflow origins; the metadata-only emitter never executes the
+input. Debug O0/O2 and Release O2 pass on the recorded macOS ARM64 target with
+ASan/UBSan and the 2 KiB frame warning. This is integration evidence, not an
+additional compiler profile or broader language/platform compatibility claim.
+
+The runtime retains allocations until each instance ends. Phase A roots and
+reference maps are implemented, but collection, reclamation stress, persistent
+managed handles, exception objects/handlers, generic execution, broader library
+APIs and mobile/browser execution remain separate gates. Object emission remains
+a compiler API; the example's dedicated metadata-only helper is not a new general
+CLI command or stable embedding API.

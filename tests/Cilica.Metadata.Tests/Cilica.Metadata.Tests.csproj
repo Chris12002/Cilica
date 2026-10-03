@@ -25,5 +25,6 @@
     <ProjectReference Include="..\Fixtures\Cilica.Fixtures.Execution\Cilica.Fixtures.Execution.csproj" />
     <!-- Build the example helper; run its authored oracle only in a separate process. -->
     <ProjectReference Include="..\..\examples\Primitive\Prepare\Prepare.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\examples\Objects\Prepare\Prepare.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 # Milestone 3: Objects, arrays, strings and dispatch
 
-Status: in progress; bounded native object control flow, roots, concrete class inheritance class/interface casts/type tests and bounded native vectors are implemented. Updated 2026-10-03.
+Status: complete for the documented bounded retained-heap profile, including slice 3g integration review and a reproducible composed example. Updated 2026-10-03.
 
 The first native class checkpoint now runs an independently authored small class
 created, mutated and passed through calls, returning an Int32 result identical to .NET.
@@ -19,7 +19,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3c-a | Budgeted execution frames and native-stack regression checks | Complete for bounded object backend |
 | 3c-b | Packed exports, arena lifetime diagnostics and constrained native call chains | Complete for bounded object backend |
 | 3c-c | Opt-in execution microbenchmarks and helper-batching experiment | Complete; larger batches rejected |
-| 3d | Inheritance, casts and verified virtual/interface dispatch | In progress |
+| 3d | Inheritance, casts and verified virtual/interface dispatch | Complete for bounded nongeneric profile |
 | 3d-a | Bounded class hierarchies and detached ancestor assignability | Complete for layout/reference IR |
 | 3d-b | Inherited native field storage and constructor chains | Complete for bounded concrete class profile |
 | 3d-c | Class casts and runtime type tests | Complete for bounded concrete classes |
@@ -45,7 +45,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3f-a | Detached immutable String identity, UTF-16 operations and root/resource contracts | Complete for detached validation |
 | 3f-b | Selected String metadata/signatures, literals and exact intrinsic CIL recognition | Complete for bounded translation |
 | 3f-c | Immutable native storage, literal identity and operation conformance | Complete for bounded native execution |
-| 3g | Integration review, composed example and supported-boundary consolidation | Planned |
+| 3g | Integration review, composed example and supported-boundary consolidation | Complete for bounded retained-heap profile |
 
 These are reviewable boundaries, not schedule estimates. Split a slice when
 correctness findings justify it. Preserve primitive regressions at every step.
@@ -653,7 +653,7 @@ regressions passing. The final focused native run matched 150 .NET outcomes at
 each of O0/O2 with ASan/UBSan; maximum static frames were 784/720 bytes respectively.
 The runs overlap. Local main remains an ancestor; no hosted work or agents ran.
 
-The next slice is the composed example/review (3g). Collection remains a separate
+The composed example/review follows in 3g below. Collection remains a separate
 milestone.
 
 Performance work from
@@ -670,3 +670,48 @@ experiments remain planned.
 The Alchemy/CoreLib general-filter gate remains unresolved. No native checkpoint
 clears the library audit, catch/filter/finally, generics, initialization, browser
 or mobile execution gates.
+
+
+## Slice 3g: integration review and reproducible example
+
+`bash examples/Objects/run.sh` builds and runs an independent inventory simulation
+through C# -> IL -> Cilica C++ -> native, comparing twelve probes with .NET.
+The kernel combines constructor chains and inherited fields, allocating overrides,
+mixed class/interface calls, arrays, string-array covariance, type tests, UTF-16
+content operations and loop/backedge flow. An ordered transcript checksum makes
+string contents observable at the existing packed Int32 boundary. The explicit
+0–12 turn cap belongs to the application; no compiler/runtime logic knows these
+rules. The prior primitive example remains available.
+
+The authored oracle and metadata-only emitter are separate executables. Only the
+oracle references/executes the kernel; the emitter consumes explicit image/runtime
+paths and the root token through the existing compiler API. No general object CLI
+or public embedding ABI is introduced. Independent checks of the authored fault
+helpers' IL shapes establish exact expected method/IL origins. The driver verifies
+unchanged result storage on faults and cleared origins on success, with successful
+calls after each failure. Every call owns a fresh retained-heap instance.
+
+Review covered process separation, explicit dependency selection, generated unsigned
+wrapping and widened checked arithmetic, caller/callee root publication through
+allocating overrides and concat, covariant stores, descriptor/type checks, fault
+unwinding and boundary lifetimes. It found and fixed an oracle formatting bug:
+StringBuilder's interpolated-string handler appended a success prefix before a
+faulting interpolation completed. Evaluate the kernel first, then append. The
+example regression checks fault lines independently; application rules were unchanged.
+No new compiler/runtime defect was found in this composed workload.
+
+Debug O0/O2 example checks and the primitive example regressions pass (five tests).
+Release O2 also matches all twelve .NET probes. Native builds use ASan/UBSan,
+warning errors and the 2 KiB frame warning on macOS ARM64 with the recorded toolchain.
+These example checks complement the prior slices' semantic, resource and fault
+regressions; they do not replace those tests. The final solution build has zero
+warnings/errors, and local main remains an ancestor. No push, hosted work or
+agents ran.
+
+Milestone 3 closes only for its documented bounded subset. Next is milestone 4:
+first establish precise visitation of published frames, inherited reference fields,
+reference-array elements and instance-local literal roots, then implement bounded
+marking/reclamation and prove live roots survive collection at every allocation.
+Persistent handles need their own ownership/lifetime contract before references
+cross the embedding boundary. The current retained heap is not a collector, and
+this example does not clear exception/library, generics, Alchemy or mobile/web gates.

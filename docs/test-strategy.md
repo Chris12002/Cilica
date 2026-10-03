@@ -536,3 +536,21 @@ metadata regression rejects String/framework-interface casts and covariant store
 interface ancestry reads consume the shared metadata budget, including generic
 parents whose nongeneric ancestors are unmodeled. Keep unrelated interface string
 signatures working. These tests do not demonstrate roots across actual collection.
+
+
+## Slice 3g: composed object example
+
+Run the documented Objects script from the test harness at native O0 and O2,
+including an output path with spaces. Compare the authored .NET oracle and native
+output exactly and independently assert each expected success/fault line. Include
+zero/maximum turns, different receiver selections, null/bounds/overflow failures,
+and successful calls after failures. The oracle verifies its tiny fault helpers'
+IL instruction shapes so method/IL expectations are independent of generated IR.
+Keep arbitrary assembly execution out of the metadata-only emitter process.
+
+Review generated arithmetic, roots around string-allocating virtual calls and
+concat, field/vector stores and packed-boundary ownership. Validate the default
+Release script separately from Debug test outputs. Use ASan/UBSan, warnings as
+errors and the established native frame warning. Retain the primitive example
+regression. No hosted jobs, benchmarks or collection claims follow from this
+integration check.

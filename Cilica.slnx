@@ -3,6 +3,11 @@
     <Project Path="benchmarks/ExecutionFrames/Kernels/Kernels.csproj" />
     <Project Path="benchmarks/ExecutionFrames/Runner/Runner.csproj" />
   </Folder>
+  <Folder Name="/examples/Objects/">
+    <Project Path="examples/Objects/Kernel/Kernel.csproj" />
+    <Project Path="examples/Objects/Prepare/Prepare.csproj" />
+    <Project Path="examples/Objects/Emit/Emit.csproj" />
+  </Folder>
   <Folder Name="/examples/Primitive/">
     <Project Path="examples/Primitive/Kernel/Kernel.csproj" />
     <Project Path="examples/Primitive/Prepare/Prepare.csproj" />

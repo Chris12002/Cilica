@@ -781,10 +781,13 @@ do run in browsers. These are aims, not claims, until baselines exist.
 Milestone plans and slice status live in [docs/milestones](milestones/), starting
 with [milestone 1](milestones/01-assembly-explorer.md). The bounded Int32 checkpoint
 is complete in the [milestone 2 record](milestones/02-primitive-execution.md), with
-a [reproducible native example](../examples/Primitive/README.md). Objects, arrays,
-strings and dispatch are the next capability gate; the managed runtime remains
-planned. The [milestone 3 plan](milestones/03-object-execution.md) records its
-layout foundation and the next typed-reference/native-object checkpoints.
+a [reproducible native example](../examples/Primitive/README.md). Milestone 3 is
+complete for its explicitly bounded retained-heap profile, with a
+[composed object example](../examples/Objects/README.md) covering arrays, strings,
+inheritance and dispatch through the compiler API. Its .NET oracle and metadata-only
+compiler run in separate processes. The [milestone 3 record](milestones/03-object-execution.md)
+consolidates the supported boundary; precise collection and handles are the next
+gate. The broader managed runtime, library and production embedding API remain planned.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

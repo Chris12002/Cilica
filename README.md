@@ -10,7 +10,8 @@ native differential tests, including division, remainder and checked-arithmetic 
 Detached layouts, typed references and bounded object IL translation through
 branches and loops are also implemented. The compiler API now emits a bounded instance-owned object
 heap and phase A root frames, including bounded Int32/reference vectors with checked
-element stores, tested against .NET under native sanitizers.
+element stores, immutable UTF-16 strings and class/interface dispatch, tested against
+.NET under native sanitizers.
 Collection, managed exception objects/handlers, libraries and Expo integration remain planned.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
@@ -25,6 +26,16 @@ bash examples/Primitive/run.sh
 It compares a loop and checked helper call with .NET, including overflow and
 recovery. See the [example instructions](examples/Primitive/README.md) for tools,
 generated artifacts, offline options and supported limits.
+
+Run the composed object example with arrays, strings, inheritance and dispatch:
+
+```bash
+bash examples/Objects/run.sh
+```
+
+Its inventory simulation compares results and exact null/bounds/overflow fault
+origins with .NET. See the [object example instructions](examples/Objects/README.md)
+for the workload, O0/O2 options and retained-heap limitations.
 
 ## Intended pipeline
 
