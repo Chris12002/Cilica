@@ -256,8 +256,9 @@ object lowering is supplied by the separate bounded profile below. Phase A root
 assignment accepts interface references in validated object-operation IR.
 The operation/native profiles now lower inherited fields and immediate-base
 constructor chains, class casts and bounded class virtual calls. CIL stack inference
-still widens distinct reference types to Object; ancestor-typed joins beyond
-that are explicitly declared by the detached IR caller or use declared locals.
+retains a unique most-specific shared class or interface after catalog discovery
+([ADR 0042](decisions/0042-reference-join-inference.md)); ambiguous intersections
+require explicitly typed locals or casts before the join.
 Caller-constructed sources do not authenticate metadata declarations. Void
 signatures are accepted only through the object-operation profile; they remain
 invalid as value/storage types. The primitive C++ emitter rejects reference/null
@@ -392,16 +393,22 @@ joins and backedges. The primitive emitter remains Int32-only and retains its
 status ABI. The object entry still accepts/returns only Int32; frame/heap ownership,
 fault tags, teardown and limits remain those of the initial checkpoint.
 
-Null joins a concrete class; different concrete classes join as the selected
-Object base. Equal types remain exact. Depth mismatches, integer/reference joins
+Null joins a concrete reference; distinct references retain a unique most-specific
+common class/interface, or Object when it is their only common type. Equal types
+remain exact. Ambiguous intersections, depth mismatches, integer/reference joins
 and narrowing an Object input into a class consumer fail without partial IR.
 Inference revisits blocks until types converge, before complete operation validation.
+Common-ancestor sets propagate intact through stack inputs until convergence;
+selection therefore does not depend on predecessor order. Explicit producers retain
+their static types and a real Object source cannot be narrowed into an interface.
 Unreachable blocks, ordered reference comparisons, switches, leave/handlers,
 argument stores remain errors. Constructors still require a single
 block with one immediate-base call under the initializer rules above.
 
 A separate 262,144-unit closure budget counts instruction visits, input materialization,
-argument copies and edge slot visits plus one per edge. Cached call sites charge
+argument copies and edge slot visits plus one per edge. Reference refinement shares
+that ledger for block visits, set operations, type selection and rewriting.
+Cached call sites charge
 call-copy limits once; cached field snapshots have token indexes. Existing aggregate
 metadata/IR limits also apply. Root assignment includes block inputs and `(block,
 value)` temporaries within the same 1,024-root limit per method. Distinct source and
@@ -418,6 +425,13 @@ Observers inspect original references during loop allocations; allocation-budget
 failure pops the frame. Compiler fixtures cover convergence, invalid/widened uses,
 inference bounds and preserved rejection boundaries. See
 [ADR 0026](decisions/0026-reference-control-flow.md).
+
+Common-reference inference adds 210 .NET/native comparisons per O0/O2 build,
+including parent-interface joins, sibling-class calls/fields and stack-carrying
+loops with allocating safepoints. Input-slot root observations, exact fault origins,
+resource failures and cleanup pass under ASan/UBSan and the 2 KiB static native-frame
+gate on the recorded macOS ARM64 target. See [ADR 0042](decisions/0042-reference-join-inference.md)
+for convergence, ambiguity and shared-work-budget boundaries.
 
 ## Budgeted object execution frames
 
@@ -709,7 +723,7 @@ reference/void results, implementation-discovered receivers/calls and argument
 faults before null receivers. A bounded test evaluator supplies translated-IR
 evidence only. Forged IR and unsupported CIL receive reduced regressions.
 `object-frames-native-v6` now consumes validated interface plans with the same ABI.
-Inferred interface joins, default/static/generic contracts,
+Ambiguous inferred reference intersections, default/static/generic contracts,
 abstract classes and class MethodImpl remapping remain unsupported. Mixed class
 dispatch on owners with validated interface mappings is supported under ADR 0041.
 
@@ -748,7 +762,7 @@ check the existing native-stack policy on the recorded macOS ARM64 toolchain.
 
 The heap remains retained. These checks do not implement a collector or prove
 roots under reclamation, and they do not establish compatibility with other
-platforms. Inferred interface joins, default/static/generic
+platforms. Ambiguous inferred reference intersections, default/static/generic
 interface semantics, abstract classes and class MethodImpl slot remapping remain
 unsupported. Performance optimization stays deferred.
 
@@ -782,5 +796,5 @@ same-name/equal-token contracts across images distinct. Malformed targets, forge
 IR and unfinished constructor casts/tests retain rejection regressions.
 ASan/UBSan and the 2 KiB stack gate pass on macOS ARM64; static reports measure
 maxima of 704 bytes at O0 and 640 bytes at O2 across the new driver/generated code.
-Collection and inferred joins remain separate gates;
+Collection and ambiguous inferred intersections remain separate gates;
 generic/nonpublic/array/TypeSpec targets and class MethodImpl remapping are unsupported.

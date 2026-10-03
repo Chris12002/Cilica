@@ -2,6 +2,10 @@
 
 Status: accepted for the bounded direct-Object class profile. Recorded 2026-10-02.
 
+The distinct-reference-to-Object inference rule below is superseded by
+[ADR 0042](0042-reference-join-inference.md), which selects unique common class or
+interface types after catalog discovery and rejects ambiguous intersections.
+
 ## Context
 
 ADR 0025 runs straight-line object methods with phase A roots. Ordinary C# object

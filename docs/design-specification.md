@@ -345,11 +345,15 @@ storage and 4,096 allocations per invocation.
 
 Ordinary object methods now support bounded branches and loops
 ([ADR 0026](decisions/0026-reference-control-flow.md)). Stack type inference revisits
-blocks until null/class/Object joins converge; mixed integer/reference values or
-unsafe narrowing fail. The emitter uses block-scoped temporaries and distinct
+blocks until structural stack types converge; mixed integer/reference values or
+unsafe narrowing fail. After complete catalog discovery, a bounded refinement pass
+intersects common ancestor sets across branches/backedges and selects a unique
+most-specific shared class or interface ([ADR 0042](decisions/0042-reference-join-inference.md)).
+Ambiguous intersections require explicitly typed locals or casts before the join.
+The emitter uses block-scoped temporaries and distinct
 rooted input storage, preserving parallel stack transfers on backedges. Inference
 has an aggregate 262,144-unit work budget in addition to existing IR/metadata
-bounds. Constructors remain straight-line; dispatch, switches,
+bounds. Constructors remain straight-line; switches,
 argument stores and exception regions remain unsupported. Authored C# and raw
 stack-carrying IL match .NET under native sanitizers. The heap still retains
 objects until teardown, so actual collection remains unimplemented.
@@ -413,7 +417,8 @@ without receiving instance layouts. Names do not establish identity. This is
 detached type flow only: catalogs alone do not validate interface method contracts
 or implementations. Object operations and root assignment now accept contract
 references; native emission also accepts those catalogs and validated call plans.
-Interface casts/tests are described below; inferred interface joins remain planned.
+Interface casts/tests are described below; inferred joins with a unique common
+class or interface are supported under ADR 0042.
 
 Interface dispatch preparation now retains bodyless signatures separately from
 class method facts ([ADR 0037](decisions/0037-detached-interface-dispatch-plans.md)).

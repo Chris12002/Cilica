@@ -47,3 +47,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0039](0039-native-interface-dispatch.md) | Native interface lookup and execution | Accepted for bounded retained-heap execution |
 | [0040](0040-interface-casts-and-type-tests.md) | Interface casts and type tests | Accepted for bounded retained-heap execution |
 | [0041](0041-mixed-class-interface-dispatch.md) | Mixed class/interface dispatch | Accepted for validated interface-mapping owners |
+| [0042](0042-reference-join-inference.md) | Common reference types at stack joins | Accepted for bounded class/interface inference |

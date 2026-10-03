@@ -126,6 +126,14 @@ public static class ObjectTranslator
                 // targets. Rebuild their catalog and revisit all affected sites.
                 if (_pending.Count == 0) break;
             }
+            var relations = new ObjectTypeRelations(catalog);
+            for (int i = 0; i < _translated.Count; i++)
+            {
+                var method = _translated[i]; var work = _methods[IrMethodId.From(method.Source)];
+                _translated[i] = ObjectReferenceJoins.Refine(method, _object, relations,
+                    (amount, offset) => ConsumeInference(work, amount, offset),
+                    (message, offset) => Fail(work, message, offset));
+            }
             var program = new ObjectIrProgram(new(IrMethodId.From(root.Input.Source),
                 [.. _translated.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)], catalog),
                 [.. _methods.Values.Select(w => w.Binding).OrderBy(b => b.Method.ContentHash, StringComparer.Ordinal).ThenBy(b => b.Method.Token)])
@@ -360,9 +368,7 @@ public static class ObjectTranslator
 
             void Consume(int amount, int offset)
             {
-                if (amount > MaximumInferenceWork - _inferenceWork)
-                    Fail(work, "Aggregate object stack-inference work limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-                _inferenceWork += amount;
+                ConsumeInference(work, amount, offset);
             }
             IrBlock TranslateBlock(int id, int start, int end, ImmutableArray<IrType> inputs)
             {
@@ -488,6 +494,13 @@ public static class ObjectTranslator
                     int id = values.Count; values.Add(type); Add(new IrStatement.Define(new(id, type, offset, expression), throwing ? IrExceptionTarget.MethodExit : null), offset); stack.Add(id);
                 }
             }
+        }
+
+        private void ConsumeInference(Work work, int amount, int offset)
+        {
+            if (amount > MaximumInferenceWork - _inferenceWork)
+                Fail(work, "Aggregate object stack-inference work limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+            _inferenceWork += amount;
         }
 
         private static string Location(Work? work, int offset) => work is null ? "entry" : work.Input.Source.Name

@@ -36,6 +36,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-d-c-c-a | Interface call translation and fixed-point body discovery | Complete for bounded CIL/IR profile |
 | 3d-d-c-c-b | Typed native interface lookup and execution conformance | Complete for bounded retained-heap profile |
 | 3d-d-d | Mixed class/interface calls on validated interface-mapping owners | Complete for bounded retained-heap profile |
+| 3d-e | Unique common class/interface inference at stack joins | Complete for bounded CIL/retained-heap profile |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
@@ -524,7 +525,8 @@ build warnings/errors. ASan/UBSan and the 2 KiB native-frame warning pass at O0/
 static stack reports measure maxima of 704 bytes at O0 and 640 bytes at O2 across
 the new driver/generated code. Local main and cached origin/main remain ancestors.
 No push or hosted work ran. Mixed class/interface calls are integrated by slice
-3d-d-d below. Inferred joins and collection/reclamation remain separate gates.
+3d-d-d below, and unique common-type joins by 3d-e. Collection/reclamation remains
+a separate gate.
 
 Slice 3d-d-d permits ordinary class virtual calls on hierarchies containing
 validated interface-only MethodImpl rows
@@ -542,8 +544,23 @@ discovery order, roots across allocating calls, fault origins and cleanup. ASan/
 and the existing 2 KiB static native-frame gate pass. Local main remains an ancestor;
 no push or hosted work ran.
 
-The next 3d integration slice is reference-type inference at branch joins.
-Arrays (3e), strings (3f) and the composed example/review (3g) remain planned.
+Slice 3d-e adds unique common class/interface inference at branch joins and
+backedges ([ADR 0042](../decisions/0042-reference-join-inference.md)). A bounded
+refinement pass uses the complete catalog after method discovery, retaining
+common ancestor sets through stack forwarding until convergence. Only then does
+it choose a single most-specific type and revalidate every consumer/edge.
+Ambiguous intersections require explicitly typed locals or casts; Object values
+are never narrowed. Native storage, dispatch and phase A roots remain unchanged.
+
+Review completed with a warning-free solution build and 824 selected local
+regressions passing in 64.5 seconds. The new harness compares 210 .NET/native
+outcomes at each of O0/O2, including a raw stack-carrying loop, exact fault origins,
+inferred input roots across allocations and resource-failure cleanup. ASan/UBSan
+and the existing 2 KiB static native-frame gate pass. Local main remains an ancestor;
+no push or hosted work ran.
+
+The next slice is Int32/reference arrays (3e). Strings (3f) and the composed
+example/review (3g) remain planned; collection remains a separate milestone.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

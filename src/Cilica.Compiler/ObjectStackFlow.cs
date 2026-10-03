@@ -7,7 +7,7 @@ using Cilica.Metadata.IL;
 
 namespace Cilica.Compiler;
 
-/// <summary>Monotone stack inference for Int32/null/classes, widening distinct classes to Object.</summary>
+/// <summary>Structural stack inference; distinct references use Object until catalog-based refinement.</summary>
 internal static class ObjectStackFlow
 {
     internal static ImmutableArray<IrBlock> Infer(MethodInput input, ObjectTypeId objectBase,
