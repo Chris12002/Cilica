@@ -154,9 +154,13 @@ closure handles diamonds within bounded type/work ledgers. Default/static interf
 members, generics, abstract class hierarchies and class slot remapping remain
 unsupported. Interface catalogs and detached reference flow are implemented
 as described in section 7. Detached declarations/maps are implemented under
-ADR 0037; CIL call integration and native calls still require implementation
-and execution evidence. The conservative audit contract
-and current native class profile remain unchanged.
+ADR 0037. Interface `callvirt` translation discovers selected executable bodies
+([ADR 0038](decisions/0038-interface-call-translation.md)), and native interface
+dispatch has local O0/O2 differential execution evidence on macOS ARM64
+([ADR 0039](decisions/0039-native-interface-dispatch.md)). Interface casts and type
+tests are also implemented ([ADR 0040](decisions/0040-interface-casts-and-type-tests.md)).
+The conservative audit contract remains unchanged; collection, broader interface
+semantics and other-target execution remain separate gates.
 
 Verification covers the supported execution profile. Cilica is not initially
 a complete CLI verifier or a sandbox for hostile programs. Native compiler
