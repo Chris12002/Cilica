@@ -35,6 +35,7 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-d-c-c | Native interface calls and execution conformance | Complete for bounded retained-heap profile |
 | 3d-d-c-c-a | Interface call translation and fixed-point body discovery | Complete for bounded CIL/IR profile |
 | 3d-d-c-c-b | Typed native interface lookup and execution conformance | Complete for bounded retained-heap profile |
+| 3d-d-d | Mixed class/interface calls on validated interface-mapping owners | Complete for bounded retained-heap profile |
 | 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
@@ -522,8 +523,27 @@ Review is complete: all 788 relevant local checks pass in 47.6 seconds, with zer
 build warnings/errors. ASan/UBSan and the 2 KiB native-frame warning pass at O0/O2;
 static stack reports measure maxima of 704 bytes at O0 and 640 bytes at O2 across
 the new driver/generated code. Local main and cached origin/main remain ancestors.
-No push or hosted work ran. Inferred joins, ordinary class virtual resolution on
-MethodImpl owners and collection/reclamation remain separate integration gates.
+No push or hosted work ran. Mixed class/interface calls are integrated by slice
+3d-d-d below. Inferred joins and collection/reclamation remain separate gates.
+
+Slice 3d-d-d permits ordinary class virtual calls on hierarchies containing
+validated interface-only MethodImpl rows
+([ADR 0041](../decisions/0041-mixed-class-interface-dispatch.md)). Shared bounded
+validation checks all interface mappings before class-slot selection. Class slots,
+explicit interface bodies, inherited mappings and newslot chains remain distinct;
+class MethodImpl remapping remains unsupported. Class-only closures need no
+interface dispatch plan and do not translate unused mapped IL. The existing
+translator fixed point and native calling convention need no changes.
+
+Review completed with a warning-free solution build and 315 focused local tests
+passing. Seventeen exact class target/slot comparisons match .NET; the new native
+harness compares 184 outcomes per optimization level at O0/O2, including mixed
+discovery order, roots across allocating calls, fault origins and cleanup. ASan/UBSan
+and the existing 2 KiB static native-frame gate pass. Local main remains an ancestor;
+no push or hosted work ran.
+
+The next 3d integration slice is reference-type inference at branch joins.
+Arrays (3e), strings (3f) and the composed example/review (3g) remain planned.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

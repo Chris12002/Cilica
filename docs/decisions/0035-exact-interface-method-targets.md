@@ -1,7 +1,12 @@
 # ADR 0035: Exact nongeneric interface method targets
 
-Status: accepted for metadata resolution; interface IR/native lowering remains planned.
+Status: accepted for metadata resolution; interface IR/native lowering is recorded
+in ADRs 0038 and 0039.
 Recorded 2026-10-02.
+
+The class resolver's blanket MethodImpl rejection described below is superseded by
+[ADR 0041](0041-mixed-class-interface-dispatch.md), which shares this interface
+mapping validation with class-slot resolution.
 
 ## Context
 

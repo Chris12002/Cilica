@@ -10,7 +10,7 @@ namespace Cilica.Metadata.Resolution;
 public sealed record ClassVirtualTarget(ResolvedMethod Declaration, ResolvedMethod Slot,
     ResolvedType Receiver, ResolvedMethod Implementation)
 {
-    public const string Profile = "class-virtual-target-v1";
+    public const string Profile = "class-virtual-target-v2";
     public const int MaximumHierarchyDepth = 256;
 }
 
@@ -19,7 +19,8 @@ public sealed partial class AssemblyResolver
     /// <summary>
     /// Selects a public nongeneric class virtual slot for one concrete named receiver.
     /// Unlike conservative reachability, success identifies exactly one implementation.
-    /// Interface/abstract/generic hierarchies, MethodImpl remapping and differing return
+    /// Interface-only MethodImpl rows are validated without changing class slots.
+    /// Interface/abstract/generic hierarchies, class slot remapping and differing return
     /// signatures require later profiles. No inspected method is executed.
     /// </summary>
     public ResolutionResult<ClassVirtualTarget> ResolveClassVirtualTarget(ResolvedAssembly declarationAssembly,
@@ -38,11 +39,12 @@ public sealed partial class AssemblyResolver
         var declaration = Method(assembly, handle, declaredOnly: true, budget: budget);
         ValidateClassVirtual(declaration);
         var hierarchy = DispatchClassHierarchy(receiver, budget);
+        if (hierarchy.Exists(t => t.Definition.Assembly.Image.Reader.GetTypeDefinition(t.Definition.Handle).GetMethodImplementations().Count != 0))
+            _ = ReadInterfaceHierarchy(hierarchy, budget);
         return ClassSlotTarget(declaration, receiver, hierarchy, budget);
     }
 
-    private List<ConstructedType> DispatchClassHierarchy(ResolvedType receiver, MemberResolutionBudget budget,
-        bool allowInterfaceMappings = false)
+    private List<ConstructedType> DispatchClassHierarchy(ResolvedType receiver, MemberResolutionBudget budget)
     {
         var hierarchy = new List<ConstructedType>();
         var seen = new HashSet<ResolvedType>();
@@ -59,10 +61,6 @@ public sealed partial class AssemblyResolver
                 throw new UnsupportedBindingException("Exact class dispatch requires concrete nongeneric class ancestors; interfaces and abstract classes need later lowering.");
             if (hierarchy.Count > 0 && (type.Attributes & TypeAttributes.Sealed) != 0)
                 throw new BadImageFormatException("Class virtual hierarchy extends a sealed class.");
-            // Any explicit remapping can change slot identity, including a differently
-            // named body. Never silently fall back to name/signature matching.
-            if (!allowInterfaceMappings && type.GetMethodImplementations().Count != 0)
-                throw new UnsupportedBindingException("Exact class dispatch does not yet support MethodImpl slot remapping.");
             var owners = new HashSet<TypeDefinitionHandle>();
             for (var owner = current.Definition.Handle; !owner.IsNil;)
             {

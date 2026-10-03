@@ -3,6 +3,10 @@
 Status: accepted for metadata resolution; native class integration is recorded in ADR 0034.
 Recorded 2026-10-02.
 
+The blanket MethodImpl rejection below is superseded by
+[ADR 0041](0041-mixed-class-interface-dispatch.md): validated interface-only rows
+are supported by `class-virtual-target-v2`; class-slot remapping remains unsupported.
+
 ## Context
 
 The existing reachability walker retains a conservative set of possible virtual

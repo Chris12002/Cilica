@@ -43,3 +43,7 @@ capability. It becomes accepted once its validation experiment has run.
 | [0035](0035-exact-interface-method-targets.md) | Exact interface method targets | Accepted for bounded metadata resolution |
 | [0036](0036-interface-catalogs-and-reference-flow.md) | Interface catalogs and reference flow | Accepted for bounded detached validation |
 | [0037](0037-detached-interface-dispatch-plans.md) | Detached interface declarations and dispatch plans | Accepted for bounded dispatch preparation |
+| [0038](0038-interface-call-translation.md) | Interface call translation and executable body discovery | Accepted for bounded CIL/IR |
+| [0039](0039-native-interface-dispatch.md) | Native interface lookup and execution | Accepted for bounded retained-heap execution |
+| [0040](0040-interface-casts-and-type-tests.md) | Interface casts and type tests | Accepted for bounded retained-heap execution |
+| [0041](0041-mixed-class-interface-dispatch.md) | Mixed class/interface dispatch | Accepted for validated interface-mapping owners |

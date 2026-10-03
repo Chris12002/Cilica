@@ -139,8 +139,10 @@ Exact class virtual target resolution is now a separate metadata operation
 virtual declaration and a concrete class receiver, it identifies the canonical
 slot and one implementation, preserving newslot hiding and final overrides.
 An iterative hierarchy walk and the caller's shared metadata ledger bound its
-work. Interfaces, abstract/generic hierarchies and explicit MethodImpl remapping
-remain unsupported in this exact profile. The conservative audit walker retains
+work. Interface receivers, abstract/generic hierarchies and class MethodImpl remapping
+remain unsupported in this exact profile. Validated interface-only MethodImpl rows
+can coexist with ordinary class slots ([ADR 0041](decisions/0041-mixed-class-interface-dispatch.md)).
+The conservative audit walker retains
 its existing contract. The object translator now uses exact choices to expand
 class virtual method closure to a fixed point and validates detached dispatch
 maps before native consumption
@@ -437,7 +439,8 @@ fault edge. Executable signatures/bindings must agree with the plan; declaration
 mapping facts and bodies share the 256-method cap, and class/interface target
 entries share 65,536 entries. Phase A assigns interface reference slots and call
 safepoints using the existing reference storage kind. Ordinary class virtual
-resolution on MethodImpl owners still requires its separate lowering.
+resolution now validates interface-only MethodImpl rows through the same bounded
+interface hierarchy reader; class slot remapping still requires later lowering.
 
 Native interface calls now use exact descriptor membership and typed method
 tables ([ADR 0039](decisions/0039-native-interface-dispatch.md)). Contracts receive
@@ -487,7 +490,9 @@ Typed lookup helpers finish before the selected body executes; their function
 pointers live in the caller's budgeted heap frame, retaining the existing
 native call-chain bound. Reference results and allocating overrides use phase A
 roots and normal/fault cleanup. Abstract classes, generics, covariance
-and ordinary class virtual resolution on MethodImpl owners remain unsupported.
+and class MethodImpl slot remapping remain unsupported. Mixed class/interface calls
+on owners with validated interface mappings share the existing native call path
+([ADR 0041](decisions/0041-mixed-class-interface-dispatch.md)).
 The native evidence is O0/O2 on the recorded macOS ARM64 target; no wider platform
 or collector claim follows.
 

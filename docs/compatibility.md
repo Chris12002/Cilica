@@ -6,7 +6,7 @@ not establish native execution or platform compatibility.
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
-| `class-virtual-target-v1` | Exact metadata target resolution | One public nongeneric class virtual slot/body per concrete receiver, with newslot/final checks; executable calls use the separate object profile |
+| `class-virtual-target-v2` | Exact metadata target resolution | One public nongeneric class virtual slot/body per concrete receiver, with newslot/final checks and validated interface-only MethodImpl rows; executable calls use the separate object profile |
 | `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
@@ -584,8 +584,19 @@ across allocating overrides, exact/short arena budgets, all allocation fault
 stages, ownership checks, cross-image equal-token slot/body identities and virtual
 recursion within a checked 320 KiB pthread stack ceiling. ASan/UBSan, static Clang
 stack reports and the current 2 KiB frame gate pass on macOS ARM64.
-Abstract classes, generics, covariance, ordinary class virtual resolution on
-MethodImpl owners, collection and other-target execution remain unimplemented.
+Abstract classes, generics, covariance, class MethodImpl slot remapping,
+collection and other-target execution remain unimplemented.
+
+`class-virtual-target-v2` permits mixed class/interface dispatch on owners with
+validated interface-only MethodImpl rows
+([ADR 0041](decisions/0041-mixed-class-interface-dispatch.md)). Both exact resolvers
+share the bounded contract graph and mapping validation. Class calls retain their
+canonical class slots; explicit interface bodies remain reachable only through
+interface maps or separately permitted calls. Every mapping in the hierarchy is
+checked, even for class-only programs, without translating unused interface bodies.
+Class-slot remapping, invalid body owners/signatures, unimplemented or inaccessible
+contracts and duplicate rows still fail with diagnostics. Existing IR/native
+profiles, calling convention, fault order and resource bounds remain unchanged.
 
 ## Exact interface target metadata
 
@@ -699,10 +710,8 @@ faults before null receivers. A bounded test evaluator supplies translated-IR
 evidence only. Forged IR and unsupported CIL receive reduced regressions.
 `object-frames-native-v6` now consumes validated interface plans with the same ABI.
 Inferred interface joins, default/static/generic contracts,
-abstract classes and broader MethodImpl remapping remain unsupported. Ordinary
-class virtual resolution still rejects MethodImpl owners even when their explicit
-interface calls are supported; mixed class dispatch on those owners needs later
-integration.
+abstract classes and class MethodImpl remapping remain unsupported. Mixed class
+dispatch on owners with validated interface mappings is supported under ADR 0041.
 
 ## Native interface lookup and execution
 
@@ -740,8 +749,8 @@ check the existing native-stack policy on the recorded macOS ARM64 toolchain.
 The heap remains retained. These checks do not implement a collector or prove
 roots under reclamation, and they do not establish compatibility with other
 platforms. Inferred interface joins, default/static/generic
-interface semantics, abstract classes and ordinary class virtual resolution on
-MethodImpl owners remain unsupported. Performance optimization stays deferred.
+interface semantics, abstract classes and class MethodImpl slot remapping remain
+unsupported. Performance optimization stays deferred.
 
 ## Interface casts and runtime type tests
 
@@ -773,5 +782,5 @@ same-name/equal-token contracts across images distinct. Malformed targets, forge
 IR and unfinished constructor casts/tests retain rejection regressions.
 ASan/UBSan and the 2 KiB stack gate pass on macOS ARM64; static reports measure
 maxima of 704 bytes at O0 and 640 bytes at O2 across the new driver/generated code.
-Collection, inferred joins and ordinary class virtual resolution on MethodImpl
-owners remain separate gates; generic/nonpublic/array/TypeSpec targets are unsupported.
+Collection and inferred joins remain separate gates;
+generic/nonpublic/array/TypeSpec targets and class MethodImpl remapping are unsupported.

@@ -59,6 +59,32 @@ public sealed class ClassVirtualTargetTests(ITestOutputHelper output)
         return function.CreateDelegate<Func<object, int>>()(receiver);
     }
 
+    [Fact]
+    public void Class_slots_on_explicit_interface_owners_match_dotnet_without_using_interface_mappings()
+    {
+        object[] receivers = [new MixedDispatchBase(), new MixedDispatchOverride(), new MixedDispatchHidden(),
+            new MixedDispatchLeaf(), new MixedDispatchInherited(), new MixedDispatchReimplemented()];
+        var declarations = receivers.Select(o => o.GetType()).SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+            .Where(m => m.IsVirtual).ToArray();
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        var image = resolver.OpenInput(typeof(MixedDispatchBase).Assembly.Location).Value!;
+        int count = 0;
+        foreach (var receiver in receivers) foreach (var declaration in declarations)
+        {
+            if (!declaration.DeclaringType!.IsInstanceOfType(receiver)) continue;
+            var target = resolver.ResolveClassVirtualTarget(image, (MethodDefinitionHandle)MetadataTokens.EntityHandle(declaration.MetadataToken),
+                resolver.ResolveType(image, (TypeDefinitionHandle)MetadataTokens.EntityHandle(receiver.GetType().MetadataToken)).Value!);
+            Assert.True(target.Success, string.Join("; ", target.Diagnostics));
+            Assert.Equal(declaration.GetBaseDefinition().MetadataToken, MetadataTokens.GetToken(target.Value!.Slot.Handle));
+            var implementation = (MethodInfo)typeof(MixedDispatchBase).Module.ResolveMethod(MetadataTokens.GetToken(target.Value.Implementation.Handle))!;
+            Assert.Equal(Call(declaration, receiver, true), Call(implementation, receiver, false));
+            Assert.True(implementation.IsPublic);
+            count++;
+        }
+        Assert.Equal(17, count);
+        output.WriteLine($"{count} mixed-hierarchy class targets and canonical slots match .NET.");
+    }
+
     [Theory]
     [InlineData("plain")]
     [InlineData("final")]

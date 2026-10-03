@@ -31,7 +31,49 @@ public sealed partial class AssemblyResolver
     {
         var declaration = Method(assembly, handle, declaredOnly: true, budget: budget);
         ValidateInterfaceMethod(declaration);
-        var hierarchy = DispatchClassHierarchy(receiver, budget, allowInterfaceMappings: true);
+        var hierarchy = DispatchClassHierarchy(receiver, budget);
+        var facts = ReadInterfaceHierarchy(hierarchy, budget, declaration.DeclaringType);
+        var direct = facts.Direct; var mappings = facts.Mappings; var implemented = facts.Implemented;
+        if (!implemented.Contains(declaration.DeclaringType))
+            throw Failure(DiagnosticIds.MemberNotFound, "Receiver does not declare or inherit the requested interface contract.");
+
+        ResolvedMethod? mapping = null; bool isExplicit = false;
+        for (int i = hierarchy.Count - 1; i >= 0; i--)
+        {
+            var type = hierarchy[i];
+            if (mappings[type].TryGetValue(declaration, out var explicitBody)) { mapping = explicitBody; isExplicit = true; }
+            else if (direct[type].Contains(declaration.DeclaringType))
+            {
+                // Reimplementation starts a fresh search on this class; an
+                // inherited mapping must not win over its public matching body.
+                mapping = null;
+                for (int search = i; search < hierarchy.Count && mapping is null; search++)
+                {
+                    var owner = hierarchy[search];
+                    isExplicit = mappings[owner].TryGetValue(declaration, out mapping);
+                    if (!isExplicit) mapping = InterfaceNameMatch(owner, declaration, budget);
+                }
+                if (mapping is null)
+                    throw Failure(DiagnosticIds.MemberNotFound, "Concrete class has no implementation for the interface declaration; default bodies require later lowering.");
+            }
+        }
+        if (mapping is null) throw Failure(DiagnosticIds.MemberNotFound, "Interface declaration has no supported class mapping.");
+        if ((MethodFlags(mapping) & MethodAttributes.Virtual) == 0)
+            return new(declaration, receiver, mapping, null, mapping, isExplicit);
+        var target = ClassSlotTarget(mapping, receiver, hierarchy, budget, allowPrivateFinalSlots: isExplicit);
+        return new(declaration, receiver, mapping, target.Slot, target.Implementation, isExplicit);
+    }
+
+    private sealed record InterfaceHierarchy(
+        Dictionary<ConstructedType, HashSet<ConstructedType>> Direct,
+        Dictionary<ConstructedType, Dictionary<ResolvedMethod, ResolvedMethod>> Mappings,
+        HashSet<ConstructedType> Implemented);
+
+    // Both exact resolvers authenticate every MethodImpl row against this same
+    // bounded interface closure before the class-slot walk may consume it.
+    private InterfaceHierarchy ReadInterfaceHierarchy(List<ConstructedType> hierarchy, MemberResolutionBudget budget,
+        ConstructedType? requiredContract = null)
+    {
         var direct = new Dictionary<ConstructedType, HashSet<ConstructedType>>();
         var graph = new Dictionary<ConstructedType, List<ConstructedType>>();
         var pending = new Queue<ConstructedType>(); var scheduled = new HashSet<ConstructedType>();
@@ -42,7 +84,7 @@ public sealed partial class AssemblyResolver
                 throw Failure(DiagnosticIds.TranslationLimit, "Interface dispatch exceeds 256 distinct interface types.");
             pending.Enqueue(type);
         }
-        Schedule(declaration.DeclaringType);
+        if (requiredContract is not null) Schedule(requiredContract);
         foreach (var type in hierarchy)
         {
             var interfaces = ReadInterfaceEdges(type, budget);
@@ -96,34 +138,7 @@ public sealed partial class AssemblyResolver
             var type = hierarchy[i]; implemented.UnionWith(direct[type]);
             mappings.Add(type, ReadInterfaceMappings(type, implemented, budget));
         }
-        if (!implemented.Contains(declaration.DeclaringType))
-            throw Failure(DiagnosticIds.MemberNotFound, "Receiver does not declare or inherit the requested interface contract.");
-
-        ResolvedMethod? mapping = null; bool isExplicit = false;
-        for (int i = hierarchy.Count - 1; i >= 0; i--)
-        {
-            var type = hierarchy[i];
-            if (mappings[type].TryGetValue(declaration, out var explicitBody)) { mapping = explicitBody; isExplicit = true; }
-            else if (direct[type].Contains(declaration.DeclaringType))
-            {
-                // Reimplementation starts a fresh search on this class; an
-                // inherited mapping must not win over its public matching body.
-                mapping = null;
-                for (int search = i; search < hierarchy.Count && mapping is null; search++)
-                {
-                    var owner = hierarchy[search];
-                    isExplicit = mappings[owner].TryGetValue(declaration, out mapping);
-                    if (!isExplicit) mapping = InterfaceNameMatch(owner, declaration, budget);
-                }
-                if (mapping is null)
-                    throw Failure(DiagnosticIds.MemberNotFound, "Concrete class has no implementation for the interface declaration; default bodies require later lowering.");
-            }
-        }
-        if (mapping is null) throw Failure(DiagnosticIds.MemberNotFound, "Interface declaration has no supported class mapping.");
-        if ((MethodFlags(mapping) & MethodAttributes.Virtual) == 0)
-            return new(declaration, receiver, mapping, null, mapping, isExplicit);
-        var target = ClassSlotTarget(mapping, receiver, hierarchy, budget, allowPrivateFinalSlots: isExplicit);
-        return new(declaration, receiver, mapping, target.Slot, target.Implementation, isExplicit);
+        return new(direct, mappings, implemented);
     }
 
     private List<ConstructedType> ReadInterfaceEdges(ConstructedType type, MemberResolutionBudget budget)
@@ -203,6 +218,8 @@ public sealed partial class AssemblyResolver
             InspectMember(budget);
             var row = reader.GetMethodImplementation(handle);
             var declaration = Method(type.Definition.Assembly, row.MethodDeclaration, declaredOnly: true, budget: budget);
+            if ((declaration.DeclaringType.Definition.Assembly.Image.Reader.GetTypeDefinition(declaration.DeclaringType.Definition.Handle).Attributes & TypeAttributes.Interface) == 0)
+                throw new UnsupportedBindingException("Class MethodImpl slot remapping requires later lowering; only interface declarations are supported.");
             ValidateInterfaceMethod(declaration);
             if (!implemented.Contains(declaration.DeclaringType)) throw new BadImageFormatException("Explicit mapping refers to an unimplemented interface.");
             var body = Method(type.Definition.Assembly, row.MethodBody, declaredOnly: true, budget: budget);
