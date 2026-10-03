@@ -221,11 +221,112 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                 assert(string_literal(c, {{text}}_descriptor, 257, &unit, 1) != nullptr);
                 assert(visit_roots(c, record, &records) == TraceResult::invalid);
             }
+            static void clean_marks(const Instance& heap) {
+                assert(!heap.marking);
+                for (Object* value = heap.head; value != nullptr; value = value->next)
+                    assert(!value->marked && value->mark_next == nullptr);
+            }
+            struct Classification {
+                Context& context;
+                const Walk& expected;
+                std::vector<Object*> delivered;
+                std::size_t stop = static_cast<std::size_t>(-1);
+            };
+            static bool classify(void* opaque, Object* value, bool live) noexcept {
+                auto& report = *static_cast<Classification*>(opaque);
+                assert(report.context.instance.marking && value->marked == live);
+                assert(live == (std::find(report.expected.values.begin(), report.expected.values.end(), value) != report.expected.values.end()));
+                assert(std::find(report.delivered.begin(), report.delivered.end(), value) == report.delivered.end());
+                report.delivered.push_back(value);
+                const auto nested_mark = mark_reachable(report.context);
+                assert(nested_mark.status == MarkStatus::busy && nested_mark.reachable == 0 && nested_mark.unreachable == 0 && nested_mark.edges == 0);
+                return report.delivered.size() < report.stop;
+            }
+            static void failed_mark(Context& c, MarkStatus status, MarkLimits limits = {}) {
+                const auto report = mark_reachable(c, limits);
+                assert(report.status == status && report.reachable == 0 && report.unreachable == 0 && report.edges == 0);
+                clean_marks(c.instance);
+            }
+            [[gnu::noinline]] static void marking_reports(Graph& g) {
+                auto expected = reachable(g.c); Classification classification{g.c, expected, {} };
+                const auto report = mark_reachable(g.c, {g.heap.count, 17}, classify, &classification);
+                assert(report.status == MarkStatus::complete && report.reachable == 6 && report.unreachable == 2 && report.edges == 17);
+                assert(classification.delivered.size() == g.heap.count); clean_marks(g.heap);
+                classification.delivered.clear(); classification.stop = 2;
+                const auto stopped = mark_reachable(g.c, {}, classify, &classification);
+                assert(stopped.status == MarkStatus::stopped && stopped.reachable == 0 && stopped.unreachable == 0 && stopped.edges == 0);
+                assert(classification.delivered.size() == 2); clean_marks(g.heap);
+            }
+            [[gnu::noinline]] static void marking_limits(Graph& g) {
+                for (std::size_t edges = 0; edges < 17; ++edges) failed_mark(g.c, MarkStatus::limit, {g.heap.count, edges});
+                failed_mark(g.c, MarkStatus::limit, {g.heap.count - 1, 17});
+                assert(mark_reachable(g.c, {g.heap.count, 17}).status == MarkStatus::complete); clean_marks(g.heap);
+            }
+            [[gnu::noinline]] static void marking_graph_and_budgets() {
+                auto graph = std::make_unique<Graph>(); auto& g = *graph;
+                Object* slots[] = {g.a, g.numbers, nullptr, g.a}; Frame frame;
+                RootScope roots(g.c, frame, slots, 4);
+                const auto bytes = g.heap.bytes, count = g.heap.count;
+                g.heap.limit = bytes; g.heap.object_limit = count; // Marking needs no allocation headroom.
+                g.c.pending = 2; g.c.method = 19; g.c.il = 23; const char* image = "mark-origin"; g.c.image = image;
+                for (Object* value = g.heap.head; value != nullptr; value = value->next) value->synchronization = 71;
+                marking_reports(g); marking_limits(g);
+                assert(g.heap.bytes == bytes && g.heap.count == count && g.c.pending == 2 && g.c.method == 19 && g.c.il == 23 && g.c.image == image);
+                assert(g.c.top == &frame && g.c.depth == 1 && g.c.used == 0);
+                for (Object* value = g.heap.head; value != nullptr; value = value->next) assert(value->synchronization == 71);
+                // Changed roots must be traced afresh; no persistent marks authorize later work.
+                slots[0] = nullptr; slots[3] = nullptr;
+                const auto reduced = mark_reachable(g.c);
+                assert(reduced.status == MarkStatus::complete && reduced.reachable == 3 && reduced.unreachable == 5); clean_marks(g.heap);
+            }
+            [[gnu::noinline]] static void invalid_marking_and_retry() {
+                auto graph = std::make_unique<Graph>(); auto& g = *graph;
+                Object* slots[] = {g.a}; Frame frame; RootScope roots(g.c, frame, slots, 1);
+                auto expected = reachable(g.c); Classification classification{g.c, expected, {} };
+                Object* bogus = reinterpret_cast<Object*>(std::uintptr_t{1});
+                field(g.b, 0) = bogus;
+                const auto invalid = mark_reachable(g.c, {}, classify, &classification);
+                assert(invalid.status == MarkStatus::invalid && invalid.reachable == 0 && classification.delivered.empty()); clean_marks(g.heap);
+                field(g.b, 0) = g.a; assert(mark_reachable(g.c).status == MarkStatus::complete); clean_marks(g.heap);
+                slots[0] = bogus; failed_mark(g.c, MarkStatus::invalid); slots[0] = g.a;
+                const Descriptor* saved = g.garbage->type; const Descriptor copied = *saved;
+                g.garbage->type = &copied; failed_mark(g.c, MarkStatus::invalid); g.garbage->type = saved;
+                ++g.heap.count; failed_mark(g.c, MarkStatus::invalid); --g.heap.count;
+                --g.heap.count; failed_mark(g.c, MarkStatus::invalid); ++g.heap.count;
+                // Readable allocation-list cycles terminate before any marking writes.
+                Object* tail = g.heap.head; while (tail->next != nullptr) tail = tail->next;
+                tail->next = g.heap.head;
+                const auto cyclic = mark_reachable(g.c); assert(cyclic.status == MarkStatus::invalid);
+                tail->next = nullptr; clean_marks(g.heap);
+                assert(mark_reachable(g.c).status == MarkStatus::complete); clean_marks(g.heap);
+            }
+            [[gnu::noinline]] static void deep_marking_and_empty_heap() {
+                Instance heap; Context c(heap);
+                const auto empty_report = mark_reachable(c, {0, 0});
+                assert(empty_report.status == MarkStatus::complete && empty_report.reachable == 0 && empty_report.unreachable == 0 && empty_report.edges == 0);
+                Object* first = nullptr; Object* last = nullptr;
+                for (std::size_t i = 0; i < 4096; ++i) {
+                    Object* node = allocate<{{node}}>(c, {{node}}_descriptor); assert(node != nullptr);
+                    if (first == nullptr) first = node;
+                    if (last != nullptr) { field(last, 0) = node; field(last, 2) = node; }
+                    last = node;
+                }
+                field(last, 0) = first;
+                Object* slots[] = {first}; Frame frame; RootScope roots(c, frame, slots, 1);
+                const auto report = mark_reachable(c, {4096, 16385});
+                assert(report.status == MarkStatus::complete && report.reachable == 4096 && report.unreachable == 0 && report.edges == 16385);
+                clean_marks(heap); failed_mark(c, MarkStatus::limit, {4095, 16385}); failed_mark(c, MarkStatus::limit, {4096, 16384});
+                slots[0] = nullptr;
+                const auto dead = mark_reachable(c, {4096, 1});
+                assert(dead.status == MarkStatus::complete && dead.reachable == 0 && dead.unreachable == 4096 && dead.edges == 1); clean_marks(heap);
+            }
             static unsigned observations = 0;
             static bool nested = false;
             static void observe(Context& c) noexcept {
                 const auto bytes = c.instance.bytes, count = c.instance.count, used = c.used;
                 auto walk = reachable(c); assert(walk.values.size() == count);
+                const auto marked = mark_reachable(c);
+                assert(marked.status == MarkStatus::complete && marked.reachable == count && marked.unreachable == 0); clean_marks(c.instance);
                 assert(c.instance.bytes == bytes && c.instance.count == count && c.used == used && c.pending == 0);
                 nested |= c.depth > 1; ++observations;
             }
@@ -234,15 +335,19 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                 assert({{root}}(c, 21) == {{TracingProbe.Run(21)}} && c.pending == 0 && nested && observations > 8);
                 assert(c.top == nullptr && c.depth == 0 && c.used == 0);
                 auto after = reachable(c); assert(after.values.size() == 3 && after.values.size() < heap.count);
+                const auto marked = mark_reachable(c);
+                assert(marked.status == MarkStatus::complete && marked.reachable == 3 && marked.unreachable == heap.count - 3); clean_marks(heap);
                 for (std::size_t limit = 0; limit < heap.count; ++limit) {
                     Instance short_heap; short_heap.object_limit = limit; Context failed(short_heap); failed.observe = observe;
                     (void){{root}}(failed, 21); assert(failed.pending == 5 && failed.top == nullptr && failed.used == 0 && failed.depth == 0);
                     const auto pending = failed.pending, method = failed.method, il = failed.il; const char* image = failed.image;
-                    (void)reachable(failed);
+                    const auto live = reachable(failed);
+                    const auto marked_fault = mark_reachable(failed);
+                    assert(marked_fault.status == MarkStatus::complete && marked_fault.reachable == live.values.size()); clean_marks(short_heap);
                     assert(failed.pending == pending && failed.method == method && failed.il == il && failed.image == image);
                 }
             }
-            int main() { exact_edges(); exact_roots_and_cycles(); invalid_edges_and_stop(); invalid_roots(); frame_limits(); literal_limits(); real_generated_frames(); }
+            int main() { exact_edges(); exact_roots_and_cycles(); invalid_edges_and_stop(); invalid_roots(); frame_limits(); literal_limits(); marking_graph_and_budgets(); invalid_marking_and_retry(); deep_marking_and_empty_heap(); real_generated_frames(); }
             """);
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("native-tracing");
         string cpp = Path.Combine(directory, "tracing.cpp"), executable = Path.Combine(directory, "tracing");
@@ -257,6 +362,6 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
         Assert.True(measured.ExitCode == 0, measured.Stderr);
         var rows = File.ReadAllLines(Path.Combine(directory, "measured.su")).Select(line => line.Split('\t')).ToArray();
         Assert.NotEmpty(rows); Assert.All(rows, row => { Assert.Equal("static", row[^1]); Assert.InRange(int.Parse(row[^2], CultureInfo.InvariantCulture), 0, 2048); });
-        output.WriteLine($"Precise visitation O{(optimized ? 2 : 0)}; maximum measured static frame {rows.Max(row => int.Parse(row[^2], CultureInfo.InvariantCulture))} bytes.");
+        output.WriteLine($"Precise visitation and marking O{(optimized ? 2 : 0)}; maximum measured static frame {rows.Max(row => int.Parse(row[^2], CultureInfo.InvariantCulture))} bytes.");
     }
 }

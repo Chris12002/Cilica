@@ -51,6 +51,9 @@ struct Object {
     Instance* owner = nullptr;
     Object* next = nullptr;
     std::uintptr_t synchronization = 0;
+    // Collector scratch is separate from identity/lock state and ownership links.
+    Object* mark_next = nullptr;
+    bool marked = false;
 };
 struct ArrayObject {
     Object header;
@@ -104,6 +107,7 @@ static_assert(std::is_standard_layout_v<StringObject> && offsetof(StringObject, 
     delete[] text->units; delete text;
 }
 struct Instance {
+    bool marking = false;
     StringObject* literals = nullptr;
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;

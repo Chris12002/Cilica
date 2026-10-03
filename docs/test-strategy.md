@@ -578,3 +578,21 @@ to fail and inspect cache roots after frame unwinding without overwriting the fa
 Run O0/O2 ASan/UBSan and static frame checks, then relevant existing native/example
 regressions, including programs with no String catalog. These are enumeration
 checks; actual mark/sweep and poisoned reclamation stress remain later work.
+
+
+## Slice 4b: bounded marking
+
+Compare native classifications with an explicit expected graph and the test-owned
+iterative visitor consumer. Include cycles, aliases, inherited fields, arrays,
+nulls, literal-only roots and retained garbage; change roots between passes and
+ensure no marks persist. Check counts and callbacks only appear after a full trace.
+Force every small-graph edge-budget failure, exact/short object budgets, zero
+limits, diagnostic stop and nested marking. Corrupt reachable values and readable
+inventory metadata separately, then repair and retry. Preserve synchronization,
+heap counters, published frames and an already pending managed fault/origin.
+
+A 4,096-node aliased cycle verifies deep iterative traversal with exact work bounds.
+Run marking at real allocation observers in the authored .NET/native graph fixture,
+including partially initialized objects, nested calls, strings and forced allocation
+failures. O0/O2 sanitizer and frame checks plus native/example regressions cover
+the header-size change. These tests exercise marking, not sweep or collection stress.

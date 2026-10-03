@@ -1,6 +1,6 @@
 # Compatibility manifest
 
-Updated 2026-10-03. Capabilities are stage-specific. A translated operation does
+Updated 2026-10-04. Capabilities are stage-specific. A translated operation does
 not establish native execution or platform compatibility.
 
 | Component/profile | Implemented stage | Boundaries |
@@ -14,7 +14,7 @@ not establish native execution or platform compatibility.
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
 | `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated and executes in native v9 |
-| `object-frames-native-v10` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, retained heap, phase A roots and typed branches/backedges, private precise root/edge visitors; no collector |
+| `object-frames-native-v11` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, retained heap, phase A roots and typed branches/backedges, private precise visitors and bounded marking diagnostics; no reclamation |
 | Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -444,7 +444,7 @@ for convergence, ambiguity and shared-work-budget boundaries.
 
 ## Budgeted object execution frames
 
-`object-frames-native-v10` retains the budgeted frames that superseded the object control-flow and earlier emission
+`object-frames-native-v11` retains the budgeted frames that superseded the object control-flow and earlier emission
 profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
 [ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md),
 [ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)). It has a 1 MiB
@@ -860,7 +860,7 @@ evidence. The native checkpoint below provides separate execution evidence.
 
 ## Native vector execution
 
-`object-frames-native-v10` emits bounded Int32/reference arrays
+`object-frames-native-v11` emits bounded Int32/reference arrays
 ([ADR 0045](decisions/0045-native-array-storage.md)). A fixed header owns a separate
 zero-initialized typed element buffer. Heap accounting includes header and payload;
 failed allocation leaves counters/list unchanged, and instance cleanup frees both.
@@ -938,7 +938,7 @@ separately below; collection remains unimplemented.
 
 ## Native immutable UTF-16 strings
 
-`object-frames-native-v10` executes the five bounded String operations
+`object-frames-native-v11` executes the five bounded String operations
 ([ADR 0048](decisions/0048-native-string-storage.md)). Each string owns an immutable
 numeric UTF-16 buffer. Its header and buffer consume the retained instance heap's
 byte/object limits; failed allocation leaves the heap and literal cache unchanged.
@@ -997,7 +997,8 @@ Native v10 adds private, allocation-free root and object-edge visitors
 context's published frame slots and its instance's cached literals. Object children
 are flattened inherited reference fields and reference-array elements. Null and
 alias slots retain provenance; integers, string units, descriptor/owner links and
-the retained heap list are excluded. No marking or reclamation runs yet.
+the retained heap list are excluded. Marking is implemented separately below;
+reclamation remains unimplemented.
 
 Contained reference values require instance ownership and exact known descriptors
 before delivery. Callbacks receive borrowed frame/slot, literal-ID or owner/field/
@@ -1014,3 +1015,28 @@ Local O0/O2 sanitizer and stack checks cover exact visitation, aliases/cycles,
 invalid contained references, exact/excess limits and real frames at allocation
 points. Those observations do not demonstrate safe reclamation, handles, multiple
 active contexts or phase B liveness. See the [milestone 4 plan](milestones/04-collection-and-handles.md).
+
+
+## Bounded marking and reachability diagnostics
+
+Native v11 adds allocation-free marking using header scratch and the precise
+visitors ([ADR 0050](decisions/0050-bounded-native-marking.md)). Cycles/aliases are
+processed iteratively, with default caps of 4,096 retained objects and 262,144
+root/child slots. Null/alias slots consume work. Ownership membership searches
+remain bounded list scans; the marker does not claim linear time. Header scratch
+is charged through the existing allocation sizes and byte quota.
+
+Validate inventory ownership, canonical descriptors and count agreement first.
+Only a complete reachable-graph trace permits per-object diagnostic classification.
+Reports distinguish complete, invalid, limit, stopped and busy; counts are zero
+unless tracing and optional reporting both finish. Diagnostic callbacks may have
+received a prefix before stopping. Scratch clears before return, including after
+failure; nested marking cannot alter an outer pass. Ordinary managed fields,
+root/storage state, synchronization and pending faults remain unchanged.
+
+A completed report is a snapshot, not a retained mark set or sweep authorization.
+No marking is automatically invoked by normal allocation, and no objects are freed.
+Local O0/O2 ASan/UBSan checks cover exact reachable sets, a 4,096-node cycle, budgets,
+callback stop/reentry, invalid input, retries and real allocation-observer frames.
+Reclamation/accounting, allocation retry, poisoned collection stress and retained
+handles remain later slices of milestone 4.

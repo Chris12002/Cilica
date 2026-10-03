@@ -12,7 +12,9 @@ branches and loops are also implemented. The compiler API now emits a bounded in
 heap and phase A root frames, including bounded Int32/reference vectors with checked
 element stores, immutable UTF-16 strings and class/interface dispatch, tested against
 .NET under native sanitizers.
-Collection, managed exception objects/handlers, libraries and Expo integration remain planned.
+Private precise reference visitation and bounded reachability marking are implemented;
+allocations remain retained until instance teardown. Reclamation, managed exception
+objects/handlers, libraries and Expo integration remain planned.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

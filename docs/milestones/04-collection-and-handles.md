@@ -1,7 +1,7 @@
 # Milestone 4: Precise collection and handles
 
-Status: in progress; precise reference visitation is implemented, collection and
-persistent managed handles are not. Recorded 2026-10-03.
+Status: in progress; precise visitation and bounded marking are implemented.
+Reclamation and persistent managed handles are not. Updated 2026-10-04.
 
 The baseline remains single-threaded, non-moving mark-and-sweep, using the phase A
 shadow stack and exact reference maps from milestone 3. Retained allocations must
@@ -10,7 +10,7 @@ not be mistaken for roots. No managed reference crosses the packed Int32 boundar
 | Slice | Outcome | Status |
 | --- | --- | --- |
 | 4a | Precise root and object-edge visitation with provenance and bounded failure | Complete for private native enumeration |
-| 4b | Bounded marking, cycle/alias handling, reachable-set diagnostics and failure semantics | Planned |
+| 4b | Bounded marking, cycle/alias handling, reachable-set diagnostics and failure semantics | Complete for private native marking |
 | 4c | Reclamation, exact heap accounting and allocation-triggered collection/retry | Planned |
 | 4d | Collection-before-every-allocation stress and poisoned reclamation regressions | Planned |
 | 4e | Instance-owned retained handles with stale/foreign-handle rejection | Planned |
@@ -45,7 +45,7 @@ pointers/descriptors, early termination and clean fault unwinding are covered.
 
 The runtime still retains every allocation until teardown. The visitors are not
 called as a new mandatory allocation pass; tests use the existing observation hook.
-The next slice adds bounded marking and explicit failure handling. Reclamation,
+Slice 4b below adds bounded marking and explicit failure handling. Reclamation,
 allocation retry, collection stress and handles require their own later evidence.
 Multiple simultaneously active contexts within one instance are also outside the
 current execution model and require a registration/coordination contract.
@@ -55,3 +55,39 @@ selected local regression checks pass, including native/example regressions and
 programs without String catalogs. The final O0/O2 tracing runs pass ASan/UBSan;
 maximum measured static frames are 544/432 bytes respectively, below 2 KiB.
 Local main remains an ancestor. No push, hosted work or additional agents ran.
+
+
+## Slice 4b outcome
+
+[ADR 0050](../decisions/0050-bounded-native-marking.md) implements private native v11
+marking with an intrusive work list and separate header mark bit. Mark before
+enqueueing; process each reachable object's children once. Cycles and aliases
+terminate without recursion or a scratch allocation. The existing heap byte quota
+includes the larger headers. Ordinary allocation still does not trigger marking.
+
+Validate the full retained inventory before scratch writes. Bound retained objects
+and root/child slot work (defaults 4,096 and 262,144), with nulls and aliases charged.
+Use existing precise ownership/descriptor checks. An optional diagnostic callback
+classifies every retained object only after the reachable graph fully validates.
+Successful reports include live/dead and slot counts; invalid, exhausted, stopped
+or nested passes publish no counts. Diagnostic cancellation may expose a prefix.
+
+Scoped cleanup clears marks/work links and the per-instance guard on exit. Preserve
+managed fault/origin state and all ordinary heap/root data. A complete report is
+an observation, not a durable authorization to reclaim later after graph mutation.
+The next slice must combine a complete mark phase with sweeping under one unchanged
+graph, exact allocation accounting and explicit allocation-failure/retry semantics.
+
+Tests cover explicit and independently visited reachable sets, changed roots,
+all small-graph edge-exhaustion points, exact/short object budgets, callbacks and
+reentry, malformed reachable values/inventory, scratch cleanup and retry. A
+4,096-object aliased cycle exercises bounded iterative marking. Real allocation
+observers compare native marking with precise visitation throughout the authored
+.NET/native probe and forced allocation faults. No reclamation, persistent handles,
+phase B or multi-context execution is enabled.
+
+Review and validation: all 194 selected native/example regressions pass, and the
+final solution build has zero warnings/errors. Focused O0/O2 ASan/UBSan checks pass;
+maximum measured static frames are 688/496 bytes, below 2 KiB. Review found no
+remaining issue within this scope. Local main remains an ancestor. No push, hosted
+work or additional agents ran.

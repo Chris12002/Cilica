@@ -589,8 +589,13 @@ borrowed provenance, validate contained reference ownership/descriptor identity,
 and distinguish complete, stopped and invalid walks without changing runtime state.
 They allocate no memory and do not recurse into child objects. Only complete walks
 can feed a future reclamation decision. The allocation list, integer storage and
-string code units are not roots. Marking, sweeping, allocation retry and collection
-stress remain planned; the [milestone 4 plan](milestones/04-collection-and-handles.md)
+string code units are not roots. Native v11 adds bounded iterative marking using
+separate header scratch ([ADR 0050](decisions/0050-bounded-native-marking.md)). It
+validates the inventory, marks each discovered object once and reports reachability
+only after a complete trace. Object/edge limits and scoped cleanup handle failure;
+no marks remain valid across a return to managed execution. Larger headers consume
+the existing heap byte quota. Sweeping, allocation retry and collection stress
+remain planned; the [milestone 4 plan](milestones/04-collection-and-handles.md)
 records those separate gates. Multiple active contexts within one instance require
 a future registration/coordination contract.
 
@@ -799,7 +804,8 @@ complete for its explicitly bounded retained-heap profile, with a
 inheritance and dispatch through the compiler API. Its .NET oracle and metadata-only
 compiler run in separate processes. The [milestone 3 record](milestones/03-object-execution.md)
 consolidates the supported boundary; [milestone 4](milestones/04-collection-and-handles.md)
-has begun with precise visitation, while collection and handles remain the next gate. The broader managed runtime, library and production embedding API remain planned.
+has begun with precise visitation and bounded marking; reclamation and handles
+remain the next gates. The broader managed runtime, library and production embedding API remain planned.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,
