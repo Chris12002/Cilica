@@ -6,10 +6,25 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-/// <summary>Content-scoped TypeDef identity, independent of names, paths and readers.</summary>
-public sealed record ObjectTypeId(string ContentHash, int Token)
+/// <summary>Nominal TypeDef identity, or a vector identity anchored to the selected Object plus its element.</summary>
+public sealed record ObjectTypeId(string ContentHash, int Token, ObjectArrayElement? ArrayElement = null)
 {
     public static ObjectTypeId From(TypeSource source) => new(source.ContentHash.ToLowerInvariant(), source.Token);
+    public static ObjectTypeId Vector(ObjectTypeId objectBase, ObjectArrayElement element)
+    {
+        System.ArgumentNullException.ThrowIfNull(objectBase);
+        System.ArgumentNullException.ThrowIfNull(element);
+        if (objectBase.ArrayElement is not null) throw new System.ArgumentException("An array anchor must be a nominal Object identity.", nameof(objectBase));
+        return new(objectBase.ContentHash, objectBase.Token, element);
+    }
+}
+
+public enum ObjectArrayElementKind { Int32, Reference }
+/// <summary>One-dimensional zero-based arrays of Int32 or a nominal class/interface reference; no nested vectors.</summary>
+public sealed record ObjectArrayElement(ObjectArrayElementKind Kind, ObjectTypeId? Type = null)
+{
+    public static ObjectArrayElement Int32 { get; } = new(ObjectArrayElementKind.Int32);
+    public static ObjectArrayElement Reference(ObjectTypeId type) => new(ObjectArrayElementKind.Reference, type);
 }
 
 /// <summary>A fieldless interface contract; it has no instance allocation layout.</summary>
@@ -42,18 +57,20 @@ public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
         [.. Fields.Select((descriptor, slot) => (descriptor, slot)).Where(p => p.descriptor.Storage is ObjectStorage.Reference).Select(p => p.slot)];
 }
 
-/// <summary>Detached base-class, field and interface closure. This is a storage/type contract, not executable IR.</summary>
+/// <summary>Detached base/field/interface/array-element closure. This is a storage/type contract, not executable IR.</summary>
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
-    public const string Profile = "object-layout-v3";
+    public const string Profile = "object-layout-v4";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
+    public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
 }
 
-/// <summary>Explicit class/interface roots and their shared closure, including the selected object base.</summary>
+/// <summary>Explicit nominal/vector roots and their shared closure, including the selected object base.</summary>
 public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, ObjectTypeId ObjectBase,
     ImmutableArray<ObjectTypeLayout> Types)
 {
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
+    public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
 }
 
 public static class ObjectModelLimits

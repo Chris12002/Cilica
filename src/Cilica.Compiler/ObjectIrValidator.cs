@@ -31,6 +31,7 @@ internal sealed class ObjectIrRules
     private readonly Dictionary<ObjectFieldId, ObjectField> _fields;
     private readonly Dictionary<ObjectTypeId, ObjectTypeLayout> _layouts;
     private readonly HashSet<ObjectTypeId> _contracts;
+    private readonly HashSet<ObjectTypeId> _arrays;
     private readonly IrTypeRules _types;
     private readonly ObjectDispatchRules _dispatch;
     private readonly ObjectInterfaceOperationRules _interfaces;
@@ -43,6 +44,7 @@ internal sealed class ObjectIrRules
         _types = new(flow.Types);
         _layouts = flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         _contracts = flow.Types.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
+        _arrays = flow.Types.Arrays.ToHashSet();
         _fields = flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         Require(!flow.Methods.IsDefault && flow.Methods.Length is > 0 and <= ProgramLimits.MaximumMethods
             && !program.Bindings.IsDefault && program.Bindings.Length == flow.Methods.Length, "bounded methods and matching bindings are required.");
@@ -53,12 +55,14 @@ internal sealed class ObjectIrRules
         }
         foreach (var binding in program.Bindings)
         {
-            Require(binding?.Method is not null && binding.Owner is not null && CanonicalHash(binding.Owner.ContentHash)
+            Require(binding?.Method is not null && binding.Owner is not null && binding.Owner.ArrayElement is null && CanonicalHash(binding.Owner.ContentHash)
                 && (uint)binding.Owner.Token >> 24 == 0x02 && (binding.Owner.Token & 0xffffff) > 1
                 && binding.Owner.ContentHash == binding.Method.ContentHash
                 && _methods.ContainsKey(binding.Method) && _bindings.TryAdd(binding.Method, binding), "invalid or duplicate method binding identity.");
             var method = _methods[binding.Method];
-            Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
+            Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
+                && method.Parameters.All(p => _types.Valid(p, true)) && (_types.Valid(method.ReturnType, true) || method.ReturnType == IrType.Void)
+                && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
                 or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor, "invalid bound signature/kind.");
             Require((binding.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0
@@ -93,7 +97,7 @@ internal sealed class ObjectIrRules
         ? _interfaces.Declaration(id).ReturnType : _methods.TryGetValue(id, out var method) ? method.ReturnType : null;
 
     internal ObjectMethodBinding Binding(IrMethodId id) => _bindings[id];
-    internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is not null
+    internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is { ArrayElement: null }
         && (_contracts.Contains(target) || _layouts.TryGetValue(target, out var layout)
             && (Binding(IrMethodId.From(method.Source)).Owner == target
                 || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public));
@@ -101,10 +105,30 @@ internal sealed class ObjectIrRules
     {
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
         IrStatement.StoreField f => new[] { f.Field.Owner },
+        IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
+        IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },
+        IrStatement.StoreElement a => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.Call c } when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         IrStatement.Invoke c when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         _ => Array.Empty<ObjectTypeId>(),
     });
+
+    internal IrType? ArrayElement(ObjectTypeId? array) => array is not null && _types.Valid(IrType.Reference(array), true) && _arrays.Contains(array)
+        ? array.ArrayElement!.Type is { } element ? IrType.Reference(element) : IrType.Int32 : null;
+
+    internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array) => ArrayElement(array) is not null
+        && (array!.ArrayElement!.Type is not { } element || TypeTest(caller, element));
+
+    internal bool ArrayLength(int array, IReadOnlyList<IrType> values) => array >= 0 && array < values.Count
+        && (values[array] == IrType.NullReference || values[array].Class is { } type && _arrays.Contains(type));
+
+    internal bool Element(ObjectTypeId? type, int array, int index, IReadOnlyList<IrType> values) => ArrayElement(type) is not null
+        && array >= 0 && array < values.Count && index >= 0 && index < values.Count
+        && _types.Assignable(values[array], IrType.Reference(type!)) && values[index] == IrType.Int32;
+
+    internal bool StoreElement(IrStatement.StoreElement store, IReadOnlyList<IrType> values) =>
+        Element(store.ArrayType, store.Array, store.Index, values) && store.Value >= 0 && store.Value < values.Count
+        && _types.Assignable(values[store.Value], ArrayElement(store.ArrayType)) && store.Exceptional == IrExceptionTarget.MethodExit;
 
     internal bool Call(IrMethod caller, IrMethodId? target, System.Collections.Immutable.ImmutableArray<int> arguments,
         bool nullCheck, IReadOnlyList<IrType> values, bool allocation = false, bool virtualDispatch = false)
@@ -151,7 +175,7 @@ internal sealed class ObjectIrRules
     internal bool Field(IrMethod method, ObjectFieldId? id, int receiver, IReadOnlyList<IrType> values, out IrType? storage)
     {
         storage = null;
-        if (id is null || !_fields.TryGetValue(id, out var field) || receiver < 0 || receiver >= values.Count
+        if (id?.Owner is not { ArrayElement: null } || !_fields.TryGetValue(id, out var field) || receiver < 0 || receiver >= values.Count
             || !_types.Assignable(values[receiver], IrType.Reference(id.Owner))) return false;
         var owner = Binding(IrMethodId.From(method.Source)).Owner;
         var access = field.Attributes & FieldAttributes.FieldAccessMask;
@@ -210,6 +234,9 @@ internal sealed class ObjectIrRules
                             IrExpression.Compare c => !This(c.Left) && !This(c.Right),
                             IrExpression.Call c => c.Arguments.All(a => !This(a)),
                             IrExpression.NewObject n => n.Arguments.All(a => !This(a)),
+                            IrExpression.NewArray a => !This(a.Length),
+                            IrExpression.ArrayLength a => !This(a.Array),
+                            IrExpression.LoadElement a => !This(a.Array) && !This(a.Index),
                             IrExpression.LoadField f => !This(f.Receiver),
                             IrExpression.CastClass c => !This(c.Operand),
                             IrExpression.IsInstance t => !This(t.Operand),
@@ -218,6 +245,7 @@ internal sealed class ObjectIrRules
                         IrStatement.StoreLocal s => !This(s.Value),
                         IrStatement.Invoke c => c.Arguments.All(a => !This(a)),
                         IrStatement.StoreField s => !This(s.Value) && (!This(s.Receiver) || s.Field.Owner == binding.Owner),
+                        IrStatement.StoreElement s => !This(s.Array) && !This(s.Index) && !This(s.Value),
                         _ => false,
                     };
                     ConstructorRequire(valid, "uninitialized constructor receiver cannot be read, aliased or passed before base initialization.");

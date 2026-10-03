@@ -37,7 +37,10 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3d-d-c-c-b | Typed native interface lookup and execution conformance | Complete for bounded retained-heap profile |
 | 3d-d-d | Mixed class/interface calls on validated interface-mapping owners | Complete for bounded retained-heap profile |
 | 3d-e | Unique common class/interface inference at stack joins | Complete for bounded CIL/retained-heap profile |
-| 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | Planned |
+| 3e | Int32/reference arrays, identity, mutation and ordered bounds/null failures | In progress |
+| 3e-a | Detached vector identities, covariance, operations and root contracts | Complete for detached validation |
+| 3e-b | SZARRAY metadata/signatures and bounded array CIL translation | Planned |
+| 3e-c | Native variable storage, checked stores and execution conformance | Planned |
 | 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
 
@@ -559,8 +562,25 @@ inferred input roots across allocations and resource-failure cleanup. ASan/UBSan
 and the existing 2 KiB static native-frame gate pass. Local main remains an ancestor;
 no push or hosted work ran.
 
-The next slice is Int32/reference arrays (3e). Strings (3f) and the composed
-example/review (3g) remain planned; collection remains a separate milestone.
+Slice 3e-a establishes the detached vector and operation contract
+([ADR 0043](../decisions/0043-detached-array-contracts.md)). Structural identities
+retain the selected Object anchor and Int32 or nominal-reference element, sharing
+the existing type limit with classes/interfaces. Reference covariance, fields,
+declared joins, calls and returns retain exact identities. Array allocation/length/
+load/store operations require typed operands and fault edges; phase A includes
+array references and allocation safepoints. Constructor escape checks also cover
+array stores. No array CIL or native execution is claimed; emission remains gated.
+
+Review completed with a warning-free solution build, an 874-check broader local
+pass and a 275-check final focused pass after signature-validation hardening.
+The new detached suite compares all 196 modeled assignment pairs against .NET and
+checks deep malformed types, exact/excess type limits, covariance, fault edges,
+constructor escapes and roots. Local main remains an ancestor; no push or hosted
+work ran.
+
+The next slice is array metadata/signature handling and CIL translation (3e-b),
+then native storage and ordered-failure conformance (3e-c). Strings (3f) and the
+composed example/review (3g) remain planned; collection remains a separate milestone.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

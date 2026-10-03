@@ -63,7 +63,8 @@ internal sealed class ObjectInterfaceOperationRules
     private static bool CatalogMatches(ObjectTypeCatalog left, ObjectTypeCatalog right)
     {
         if (left.ObjectBase != right.ObjectBase || !left.Roots.ToHashSet().SetEquals(right.Roots)
-            || left.Types.Length != right.Types.Length || left.Interfaces.Length != right.Interfaces.Length) return false;
+            || left.Types.Length != right.Types.Length || left.Interfaces.Length != right.Interfaces.Length
+            || !left.Arrays.ToHashSet().SetEquals(right.Arrays)) return false;
         var classes = right.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var interfaces = right.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
         return left.Types.All(t => classes.TryGetValue(ObjectTypeId.From(t.Source), out var other) && t.Attributes == other.Attributes

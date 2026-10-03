@@ -18,6 +18,7 @@ public static class ReferenceIrValidator
         // A catalog root cannot smuggle unrelated layouts into the program's resource/ownership contract.
         var layouts = program.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var interfaces = program.Types.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
+        var arrays = program.Types.Arrays.ToHashSet();
         var pending = new Stack<ObjectTypeId>(); pending.Push(program.Types.ObjectBase);
         foreach (var method in program.Methods)
         {
@@ -32,7 +33,11 @@ public static class ReferenceIrValidator
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
             {
-                if (interfaces.TryGetValue(id, out var contract))
+                if (arrays.Contains(id))
+                {
+                    if (id.ArrayElement!.Type is { } element) pending.Push(element);
+                }
+                else if (interfaces.TryGetValue(id, out var contract))
                     foreach (var parent in contract.Parents) pending.Push(parent);
                 else
                 {
@@ -42,7 +47,7 @@ public static class ReferenceIrValidator
                         pending.Push(reference.Type);
                 }
             }
-        if (visited.Count != layouts.Count + interfaces.Count)
+        if (visited.Count != layouts.Count + interfaces.Count + arrays.Count)
             throw new ArgumentException("Invalid reference program IR: catalog contains types unused by value flow or its field closure.", nameof(program));
     }
 }

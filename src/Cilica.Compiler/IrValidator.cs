@@ -141,6 +141,12 @@ internal static class IrValidator
                             IrExpression.Call c => Call(c, value.Type),
                             IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
+                            IrExpression.NewArray a => objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType)
+                                && value.Type == IrType.Reference(a.ArrayType) && Earlier(a.Length) && valueTypes[a.Length] == IrType.Int32,
+                            IrExpression.ArrayLength a => objectRules is not null && value.Type == IrType.Int32
+                                && objectRules.ArrayLength(a.Array, valueTypes),
+                            IrExpression.LoadElement a => objectRules is not null && objectRules.Element(a.ArrayType, a.Array, a.Index, valueTypes)
+                                && value.Type == objectRules.ArrayElement(a.ArrayType),
                             IrExpression.LoadField f => objectRules is not null && objectRules.Field(method, f.Field, f.Receiver, valueTypes, out var storage)
                                 && value.Type == storage,
                             IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type),
@@ -148,7 +154,7 @@ internal static class IrValidator
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
-                            or IrExpression.CastClass or IrExpression.IsInstance ||
+                            or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation);
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
                             "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");
@@ -179,6 +185,9 @@ internal static class IrValidator
                     case IrStatement.StoreField store:
                         Offset(store.ILOffset);
                         Require(objectRules is not null && objectRules.Store(method, store, valueTypes, expressions), "invalid field store, access or readonly receiver."); break;
+                    case IrStatement.StoreElement store:
+                        Offset(store.ILOffset);
+                        Require(objectRules is not null && objectRules.StoreElement(store, valueTypes), "invalid array element store or missing fault edge."); break;
                     default: Require(false, "missing or unknown statement."); break;
                 }
             }

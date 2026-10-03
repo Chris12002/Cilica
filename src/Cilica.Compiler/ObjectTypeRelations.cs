@@ -43,5 +43,16 @@ internal sealed class ObjectTypeRelations
         }
         if (completed != Ancestors.Count)
             throw new ArgumentException("Invalid object layout model: inheritance/interface cycle.");
+        // Vector covariance depends only on the already validated nominal graph.
+        // No element may itself be a vector in this profile, so no recursive closure is needed.
+        foreach (var array in catalog.Arrays)
+        {
+            var ancestors = new HashSet<ObjectTypeId> { array, catalog.ObjectBase };
+            if (array.ArrayElement!.Type is { } element)
+                foreach (var target in catalog.Arrays)
+                    if (target.ArrayElement!.Type is { } targetElement && Ancestors[element].Contains(targetElement))
+                        ancestors.Add(target);
+            Ancestors.Add(array, ancestors);
+        }
     }
 }

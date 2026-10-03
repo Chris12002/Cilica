@@ -40,7 +40,7 @@ public static class ObjectRootAssignment
                     if (statement is IrStatement.Define define)
                     {
                         Add(ObjectRootKind.Value, define.Value.Id, define.Value.Type, block.Id);
-                        if (define.Value.Expression is IrExpression.NewObject)
+                        if (define.Value.Expression is IrExpression.NewObject or IrExpression.NewArray)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Allocation, block.Id));
                         else if (define.Value.Expression is IrExpression.Call)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Call, block.Id));

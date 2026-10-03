@@ -102,7 +102,7 @@ public static class ObjectInterfacePlanValidator
             var receivers = new Dictionary<ObjectTypeId, ObjectInterfaceTarget>();
             foreach (var target in map.Targets)
             {
-                Require(target?.Receiver is not null && expected.Contains(target.Receiver) && receivers.TryAdd(target.Receiver, target)
+                Require(target?.Receiver is { ArrayElement: null } && expected.Contains(target.Receiver) && receivers.TryAdd(target.Receiver, target)
                     && target.Mapping is not null && methods.ContainsKey(target.Mapping)
                     && target.Implementation is not null && methods.ContainsKey(target.Implementation), "invalid/duplicate receiver or missing method facts.");
                 var mapping = methods[target.Mapping]; var implementation = methods[target.Implementation];
@@ -150,7 +150,7 @@ public static class ObjectInterfacePlanValidator
 
     private static bool SameSignature(ObjectDispatchMethod left, ObjectDispatchMethod right) =>
         left.ReturnType == right.ReturnType && left.Parameters.Skip(1).SequenceEqual(right.Parameters.Skip(1));
-    private static bool Identity(ObjectTypeId? id, uint table) => id is not null && Token(id.ContentHash, id.Token, table);
+    private static bool Identity(ObjectTypeId? id, uint table) => id is { ArrayElement: null } && Token(id.ContentHash, id.Token, table);
     private static bool Identity(IrMethodId? id, uint table) => id is not null && Token(id.ContentHash, id.Token, table);
     private static bool Token(string? hash, int token, uint table) => hash is { Length: 64 } && hash.All(char.IsAsciiHexDigit)
         && hash == hash.ToLowerInvariant() && (uint)token >> 24 == table && (token & 0xffffff) > (table == 0x02 ? 1 : 0);

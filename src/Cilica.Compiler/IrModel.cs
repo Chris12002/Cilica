@@ -52,6 +52,12 @@ public abstract record IrExpression
     public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false,
         bool VirtualDispatch = false) : IrExpression;
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
+    // Vector lengths/indices use bounded Int32 values. Allocation zero-initializes
+    // elements; negative length and allocation failure leave via the fault edge.
+    public sealed record NewArray(ObjectTypeId ArrayType, int Length) : IrExpression;
+    public sealed record ArrayLength(int Array) : IrExpression;
+    // ArrayType is the static view; access checks null before bounds.
+    public sealed record LoadElement(ObjectTypeId ArrayType, int Array, int Index) : IrExpression;
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
     public sealed record CastClass(ObjectTypeId Target, int Operand) : IrExpression;
     public sealed record IsInstance(ObjectTypeId Target, int Operand) : IrExpression;
@@ -67,6 +73,10 @@ public abstract record IrStatement
         bool NullCheckReceiver = false, IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit,
         bool VirtualDispatch = false) : IrStatement;
     public sealed record StoreField(int ILOffset, ObjectFieldId Field, int Receiver, int Value,
+        IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
+    // Reference stores additionally check the allocation's actual element type,
+    // after null/bounds checks; static covariance never removes that obligation.
+    public sealed record StoreElement(int ILOffset, ObjectTypeId ArrayType, int Array, int Index, int Value,
         IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
 }
 
@@ -127,7 +137,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 /// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
-    public const string Profile = "typed-reference-ir-v3";
+    public const string Profile = "typed-reference-ir-v4";
 }
 
 public static class ProgramLimits

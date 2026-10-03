@@ -1,6 +1,6 @@
 # Compatibility manifest
 
-Recorded 2026-10-02. Capabilities are stage-specific. A translated operation does
+Updated 2026-10-03. Capabilities are stage-specific. A translated operation does
 not establish native execution or platform compatibility.
 
 | Component/profile | Implemented stage | Boundaries |
@@ -10,12 +10,12 @@ not establish native execution or platform compatibility.
 | `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
-| `object-layout-v3` | Bounded metadata snapshots and detached class/field/interface graphs | Concrete nongeneric class chains, public fieldless nongeneric interface contracts, declared Int32/CLASS/OBJECT fields and logical reference slots; interfaces have no instance layout |
-| `typed-reference-ir-v3` | Detached caller-constructed IR validation | Class/interface references/null, ancestor/implemented-contract assignments and typed locals/joins/direct calls/returns; executable interface calls require the object-operation profile |
+| `object-layout-v4` | Bounded nominal metadata snapshots and detached class/interface/vector graphs | Int32/reference vectors have structural element identities and share the 256-type limit; array metadata reading and native storage remain planned |
+| `typed-reference-ir-v4` | Detached caller-constructed IR validation | Class/interface/array references/null, nominal ancestry, reference-vector covariance and typed locals/joins/direct calls/returns; array CIL/native execution remains planned |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
-| `object-operations-ir-v6` | Bounded CIL translation and detached operation validation | Immediate-base constructor chains, inherited fields, concrete class/interface casts/type tests, class virtual calls and interface calls with dispatch plans and selected executable bodies; broader access rules remain unsupported |
+| `object-operations-ir-v7` | Bounded nominal CIL translation and detached operation validation | Existing class/interface operations plus detached array allocation/length/load/store validation and root assignment; array CIL/native lowering remains planned |
 | `object-frames-native-v7` | C++20 emission and local native differential execution | Class/interface dispatch, interface reference membership, class/interface casts/type tests, inherited fields and tracing maps, budgeted execution arena, packed Int32 boundary, bounded native helpers, retained heap, phase A roots and typed branches/backedges; no collector |
-| Broader managed runtime and library | Planned | Arrays, strings, GC, exception handlers, library and embedding support are unimplemented |
+| Broader managed runtime and library | Planned | Array execution, strings, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
 
@@ -224,13 +224,13 @@ or interface identity; this early compiler API is not a stable serialization con
 `ReferenceIrProgram` is a detached validation API, not a CIL translator or native
 entry. It shares block-local values and ordered statements with the primitive
 IR. `ReferenceIrValidator.Validate` checks both the complete method closure and
-an `ObjectTypeCatalog` with explicit class/interface roots and their base/field/contract closure. Catalogs
-use the same layout rules and aggregate bounds as `object-layout-v3`; every
-included type must occur in declared value/storage types or their base/field/contract closure,
+an `ObjectTypeCatalog` with explicit class/interface/vector roots and their base/field/contract/element closure. Catalogs
+use the same layout rules and aggregate bounds as `object-layout-v4`; every
+included type must occur in declared value/storage types or their base/field/contract/element closure,
 apart from the selected object base. Class names do not supply identity.
 
-`IrType` distinguishes Int32, an exact class/interface reference and the null stack type.
-Parameters, locals and returns require Int32 or declared class/interface references; null may
+`IrType` distinguishes Int32, an exact class/interface/vector reference and the null stack type.
+Parameters, locals and returns require Int32 or declared reference types; null may
 occur in temporaries and block inputs. Loads and call results retain exact
 declared types. Assignments, returns, arguments and edge copies accept exact
 types, null into any reference, a concrete class into any ancestor class or
@@ -242,6 +242,14 @@ object-operation profile. Interface casts/tests use exact contract membership in
 that profile. One ancestry cache is shared across a program's method validation,
 rather than rebuilt per method.
 Validation checks declared joins; it does not infer their common type from CIL.
+
+Detached arrays use structural identities anchored to the selected Object plus
+Int32 or a nominal reference element. Reference-vector covariance follows nominal
+element assignability; Int32 vectors are invariant, and every vector widens to
+Object. Array entries, classes and interfaces share the 256-type cap. Array fields
+retain logical reference slots and include their element's nominal closure.
+Jagged/multidimensional arrays, other value-type elements, System.Array and array
+framework interfaces remain outside this contract.
 
 Reference equality/inequality returns Int32; reference/null truth branches are
 permitted. Ordered reference comparisons, reference arithmetic, mixed
@@ -798,3 +806,27 @@ ASan/UBSan and the 2 KiB stack gate pass on macOS ARM64; static reports measure
 maxima of 704 bytes at O0 and 640 bytes at O2 across the new driver/generated code.
 Collection and ambiguous inferred intersections remain separate gates;
 generic/nonpublic/array/TypeSpec targets and class MethodImpl remapping are unsupported.
+
+## Detached array operation foundation
+
+`object-operations-ir-v7` validates caller-constructed vector allocation, length,
+element loads and element stores
+([ADR 0043](decisions/0043-detached-array-contracts.md)). Lengths and indices use
+the bounded Int32 contract; reference loads retain the static view's element type.
+Every array operation carries an explicit fault edge. Covariant reference stores
+still require a runtime check against the actual allocation's element type;
+null must be checked before bounds, and bounds before a store-type mismatch.
+Those checks are lowering obligations, not array execution implemented here.
+
+Root assignment includes array values and loaded references and marks array
+allocation as a safepoint. Constructor validation prevents the unfinished receiver
+escaping through an element store. Metadata/CIL array lowering and native dynamic
+storage remain planned. The native emitter explicitly rejects all array-bearing
+catalogs; it must not reinterpret an array's Object anchor as a class descriptor.
+No native profile, ABI, runtime fault code or platform-support claim changes.
+
+The detached assignment matrix matches .NET on all 196 modeled type pairs.
+Fixtures cover cross-image identities, JSON round trips, covariance/declared flow,
+field/element closure, root contracts, exact/excess 256-type limits, invalid
+operations, constructor escapes and deep forged identities. These tests establish
+validation behavior, not native array execution or collection.

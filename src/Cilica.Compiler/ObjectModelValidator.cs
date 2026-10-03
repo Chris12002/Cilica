@@ -15,7 +15,7 @@ public static class ObjectModelValidator
     public static void Validate(ObjectModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Interfaces = model.Interfaces });
+        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Interfaces = model.Interfaces, Arrays = model.Arrays });
     }
 
     public static void Validate(ObjectTypeCatalog model)
@@ -25,12 +25,18 @@ public static class ObjectModelValidator
         {
             if (!condition) throw new ArgumentException("Invalid object layout model: " + message, nameof(model));
         }
-        Require(!model.Roots.IsDefault && model.Roots.Length is > 0 and <= ObjectModelLimits.MaximumTypes
-            && model.Roots.All(r => Identity(r, 0x02)) && model.Roots.Distinct().Count() == model.Roots.Length
-            && Identity(model.ObjectBase, 0x02), "roots/base need unique canonical TypeDef identities.");
+        Require(Identity(model.ObjectBase, 0x02) && !model.Roots.IsDefault && model.Roots.Length is > 0 and <= ObjectModelLimits.MaximumTypes
+            && model.Roots.All(r => ReferenceIdentity(r, model.ObjectBase)) && model.Roots.Distinct().Count() == model.Roots.Length,
+            "roots/base need unique canonical nominal or array identities.");
         Require(!model.Types.IsDefault && model.Types.Length is > 0 and <= ObjectModelLimits.MaximumTypes, "invalid type count.");
         Require(!model.Interfaces.IsDefault && model.Interfaces.Length <= ObjectModelLimits.MaximumTypes
             && model.Types.Length + model.Interfaces.Length <= ObjectModelLimits.MaximumTypes, "combined class/interface type limit exceeded.");
+        Require(!model.Arrays.IsDefault && model.Arrays.Length <= ObjectModelLimits.MaximumTypes
+            && model.Types.Length + model.Interfaces.Length + model.Arrays.Length <= ObjectModelLimits.MaximumTypes,
+            "combined class/interface/array type limit exceeded.");
+        Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase)) && model.Arrays.Distinct().Count() == model.Arrays.Length,
+            "array identities require a unique selected-Object anchor and Int32 or nominal reference elements.");
+        var arrays = model.Arrays.ToHashSet();
         var types = new Dictionary<ObjectTypeId, ObjectTypeLayout>();
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
         var fieldIdentities = new HashSet<(string Hash, int Token)>();
@@ -56,7 +62,7 @@ public static class ObjectModelValidator
                 previous = field.Id.Token;
                 Require(field.Name is not null && FieldAttributesSupported(field.Attributes), "unsupported field attributes/name.");
                 Require(field.Storage is ObjectStorage.Int32 || field.Storage is ObjectStorage.Reference reference
-                    && Identity(reference.Type, 0x02), "unsupported field storage.");
+                    && ReferenceIdentity(reference.Type, model.ObjectBase), "unsupported field storage.");
             }
             Require(id == model.ObjectBase
                 ? type.BaseType is null && type.Fields.IsEmpty && type.Interfaces.IsEmpty && (type.Attributes & TypeAttributes.Sealed) == 0
@@ -71,7 +77,10 @@ public static class ObjectModelValidator
             Require(InterfaceAttributes(contract.Attributes) && contract.ExternallyVisible && Edges(contract.Parents),
                 "interfaces require public visibility, public enclosing types and valid parent identities.");
         }
-        bool Known(ObjectTypeId id) => types.ContainsKey(id) || interfaces.ContainsKey(id);
+        bool Known(ObjectTypeId id) => types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id);
+        foreach (var array in arrays)
+            Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element),
+                "array reference element is outside the nominal catalog.");
         Require(model.Roots.All(Known) && types.ContainsKey(model.ObjectBase), "roots/base are outside the model.");
         foreach (var type in model.Types)
         {
@@ -91,7 +100,11 @@ public static class ObjectModelValidator
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
             {
-                if (interfaces.TryGetValue(id, out var contract))
+                if (arrays.Contains(id))
+                {
+                    if (id.ArrayElement!.Type is { } element) pending.Push(element);
+                }
+                else if (interfaces.TryGetValue(id, out var contract))
                     foreach (var parent in contract.Parents) pending.Push(parent);
                 else
                 {
@@ -100,7 +113,7 @@ public static class ObjectModelValidator
                     foreach (var reference in types[id].Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>()) pending.Push(reference.Type);
                 }
             }
-        Require(visited.Count == types.Count + interfaces.Count, "model contains unrelated types.");
+        Require(visited.Count == types.Count + interfaces.Count + arrays.Count, "model contains unrelated types.");
     }
 
     internal static bool ClassAttributes(TypeAttributes attributes) =>
@@ -122,7 +135,12 @@ public static class ObjectModelValidator
             | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName)) == 0;
 
     private static bool Hash(string? hash) => hash is { Length: 64 } && hash.All(char.IsAsciiHexDigit);
-    private static bool Identity(ObjectTypeId? id, uint table) => id is not null && Hash(id.ContentHash)
+    internal static bool ReferenceIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => Identity(id, 0x02) || ArrayIdentity(id, objectBase);
+    private static bool ArrayIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => id?.ArrayElement is { } element
+        && id.ContentHash == objectBase.ContentHash && id.Token == objectBase.Token
+        && (element.Kind == ObjectArrayElementKind.Int32 ? element.Type is null
+            : element.Kind == ObjectArrayElementKind.Reference && Identity(element.Type, 0x02));
+    private static bool Identity(ObjectTypeId? id, uint table) => id is not null && id.ArrayElement is null && Hash(id.ContentHash)
         && id.ContentHash == id.ContentHash.ToLowerInvariant() && DefinitionToken(id.Token, table)
         && (id.Token & 0xffffff) != 1; // TypeDef row 1 is the module, not an instance class.
     private static bool DefinitionToken(int token, uint table) => (uint)token >> 24 == table && (token & 0xffffff) != 0;

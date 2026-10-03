@@ -517,6 +517,16 @@ Model static constructor ordering, failure caching and `beforefieldinit`;
 initialization state records the initializing thread for the later
 multithreaded profile.
 Strings contain UTF-16 code units; arrays retain element type and bounds.
+The detached array foundation is implemented
+([ADR 0043](decisions/0043-detached-array-contracts.md)): zero-based one-dimensional
+Int32/reference vector identities retain their element type separately from nominal
+class layouts and share the 256-type catalog limit. Reference vectors support
+nominal element covariance and widening to Object. Detached allocation, length,
+load and store operations validate exact types and explicit fault edges; array
+allocation uses the existing phase A root/safepoint contract. Runtime stores must
+check the actual allocation's element type after null/bounds checks. Array metadata
+and CIL lowering, native storage and dynamic element tracing remain planned;
+the native emitter explicitly rejects array-bearing catalogs until that work lands.
 Structs with references have generated tracing descriptions.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch

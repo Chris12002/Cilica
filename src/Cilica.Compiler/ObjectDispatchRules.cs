@@ -38,7 +38,7 @@ internal sealed class ObjectDispatchRules
                     || interfaces.Mapped(binding))
                 && (binding.Attributes & MethodAttributes.RTSpecialName) == 0 && !string.IsNullOrEmpty(binding.VirtualName),
                 "class virtual declarations require public instance methods or validated interface slots, with names.");
-            Require(slot.Method is not null && slot.Owner is not null && _layouts.ContainsKey(slot.Owner)
+            Require(slot.Method is not null && slot.Owner is { ArrayElement: null } && _layouts.ContainsKey(slot.Owner)
                 && slot.Method.ContentHash == slot.Owner.ContentHash && (uint)slot.Method.Token >> 24 == 0x06 && (slot.Method.Token & 0xffffff) != 0
                 && types.Assignable(IrType.Reference(binding.Owner), IrType.Reference(slot.Owner)), "invalid canonical virtual slot identity/owner.");
             if ((binding.Attributes & MethodAttributes.NewSlot) != 0)
@@ -67,7 +67,7 @@ internal sealed class ObjectDispatchRules
             Require(entries <= ObjectDispatchLimits.MaximumTargets, "aggregate dispatch target limit exceeded.");
             var receivers = new HashSet<ObjectTypeId>();
             foreach (var target in map.Targets)
-                Require(target?.Receiver is not null && _layouts.ContainsKey(target.Receiver) && receivers.Add(target.Receiver)
+                Require(target?.Receiver is { ArrayElement: null } && _layouts.ContainsKey(target.Receiver) && receivers.Add(target.Receiver)
                     && target.Implementation is not null && methods.ContainsKey(target.Implementation), "invalid/duplicate dispatch receiver or missing body.");
         }
     }
