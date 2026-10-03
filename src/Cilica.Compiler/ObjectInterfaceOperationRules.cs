@@ -69,7 +69,7 @@ internal sealed class ObjectInterfaceOperationRules
         return left.Types.All(t => classes.TryGetValue(ObjectTypeId.From(t.Source), out var other) && t.Attributes == other.Attributes
                 && t.BaseType == other.BaseType && t.Fields.SequenceEqual(other.Fields) && t.Interfaces.SequenceEqual(other.Interfaces))
             && left.Interfaces.All(t => interfaces.TryGetValue(ObjectTypeId.From(t.Source), out var other)
-                && t.Attributes == other.Attributes && t.Parents.SequenceEqual(other.Parents));
+                && t.Attributes == other.Attributes && t.ExternallyVisible == other.ExternallyVisible && t.Parents.SequenceEqual(other.Parents));
     }
     private static void Require(bool condition, string message)
     {

@@ -68,7 +68,8 @@ public static class ObjectModelValidator
                 && Hash(contract.Source.ContentHash), "invalid interface source.");
             var id = ObjectTypeId.From(contract.Source);
             Require(Identity(id, 0x02) && !types.ContainsKey(id) && interfaces.TryAdd(id, contract), "invalid or duplicate class/interface identity.");
-            Require(InterfaceAttributes(contract.Attributes) && Edges(contract.Parents), "invalid interface flags or parent identities.");
+            Require(InterfaceAttributes(contract.Attributes) && contract.ExternallyVisible && Edges(contract.Parents),
+                "interfaces require public visibility, public enclosing types and valid parent identities.");
         }
         bool Known(ObjectTypeId id) => types.ContainsKey(id) || interfaces.ContainsKey(id);
         Require(model.Roots.All(Known) && types.ContainsKey(model.ObjectBase), "roots/base are outside the model.");

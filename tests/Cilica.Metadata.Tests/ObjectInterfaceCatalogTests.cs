@@ -50,6 +50,22 @@ public sealed class ObjectInterfaceCatalogTests
     }
 
     [Fact]
+    public void Detached_nested_contracts_require_a_retained_visibility_assertion()
+    {
+        var nested = new ObjectInterface(Source(Read),
+            TypeAttributes.NestedPublic | TypeAttributes.Interface | TypeAttributes.Abstract, []);
+        var catalog = new ObjectTypeCatalog([Read], Object, [Layout(Object, null)]) { Interfaces = [nested] };
+        Assert.Throws<ArgumentException>(() => ObjectModelValidator.Validate(catalog));
+        catalog = catalog with { Interfaces = [nested with { ExternallyVisible = true }] };
+        ObjectModelValidator.Validate(catalog);
+        var restored = JsonSerializer.Deserialize<ObjectTypeCatalog>(JsonSerializer.Serialize(catalog))!;
+        Assert.True(Assert.Single(restored.Interfaces).ExternallyVisible);
+        ObjectModelValidator.Validate(restored);
+        Assert.Throws<ArgumentException>(() => ObjectModelValidator.Validate(restored with
+            { Interfaces = [restored.Interfaces[0] with { ExternallyVisible = false }] }));
+    }
+
+    [Fact]
     public void Every_assignment_pair_matches_dotnet_including_diamonds_and_inherited_contracts()
     {
         Type[] runtime = [typeof(object), typeof(IRead), typeof(ILeft), typeof(IRight), typeof(IDiamond),
@@ -170,6 +186,7 @@ public sealed class ObjectInterfaceCatalogTests
     [InlineData("cycle")]
     [InlineData("self")]
     [InlineData("private")]
+    [InlineData("invisible_owner")]
     [InlineData("sealed")]
     [InlineData("not_abstract")]
     [InlineData("null_source")]
@@ -192,6 +209,7 @@ public sealed class ObjectInterfaceCatalogTests
             case "cycle": contract = contract with { Parents = [Diamond] }; break;
             case "self": contract = contract with { Parents = [Read] }; break;
             case "private": contract = contract with { Attributes = TypeAttributes.Interface | TypeAttributes.Abstract }; break;
+            case "invisible_owner": contract = contract with { ExternallyVisible = false }; break;
             case "sealed": contract = contract with { Attributes = ContractFlags | TypeAttributes.Sealed }; break;
             case "not_abstract": contract = contract with { Attributes = TypeAttributes.Public | TypeAttributes.Interface }; break;
             case "null_source": contract = contract with { Source = null! }; break;

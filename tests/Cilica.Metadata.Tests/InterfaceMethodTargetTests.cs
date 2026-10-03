@@ -20,6 +20,32 @@ public sealed class InterfaceMethodTargetTests(ITestOutputHelper output)
     private static ResolutionAssemblyBuilder Builder() => new(new("InterfaceTargets", new Version(1, 0, 0, 0)));
     private static void Body(InstructionEncoder il) { il.LoadConstantI4(1); il.OpCode(ILOpCode.Ret); }
 
+    [Theory]
+    [InlineData(TypeAttributes.Public, TypeAttributes.NestedPublic, true)]
+    [InlineData(TypeAttributes.NotPublic, TypeAttributes.NestedPublic, false)]
+    [InlineData(TypeAttributes.Public, TypeAttributes.NestedPrivate, false)]
+    public void Nested_contract_dispatch_requires_public_enclosing_types(TypeAttributes outerFlags, TypeAttributes middleFlags, bool success)
+    {
+        var builder = Builder();
+        var outer = builder.Type("", "Outer", attributes: outerFlags);
+        var middle = builder.Type("", "Middle", parent: outer, attributes: middleFlags);
+        var contract = builder.Type("", "Contract", parent: middle,
+            attributes: TypeAttributes.NestedPublic | TypeAttributes.Interface | TypeAttributes.Abstract);
+        var declaration = builder.Method("Read", [0x20, 0, 8], attributes: Abstract);
+        var receiver = builder.Type("", "Receiver"); builder.Implements(receiver, contract);
+        var body = builder.Method("Read", [0x20, 0, 8], attributes: Virtual | MethodAttributes.NewSlot, emit: Body);
+        using var files = new ResolverFiles(); using var resolver = files.Open();
+        var image = resolver.OpenInput(files.Write("nested.dll", builder.Build())).Value!;
+        var result = resolver.ResolveInterfaceMethodTarget(image, declaration, resolver.ResolveType(image, receiver).Value!);
+        Assert.Equal(success, result.Success);
+        if (success) Assert.Equal(body, result.Value!.Implementation.Handle);
+        else
+        {
+            Assert.Null(result.Value);
+            Assert.Contains("public enclosing types", Assert.Single(result.Diagnostics).Message, StringComparison.Ordinal);
+        }
+    }
+
     [Fact]
     public void Exact_mappings_and_effective_bodies_match_authored_dotnet_interface_calls()
     {

@@ -751,6 +751,10 @@ nongeneric interface targets for `castclass` and `isinst`
 and transitive parents enter the shared bounded catalog. A cast needs no dispatch
 plan or executable interface body. Class/interface identity remains content-scoped;
 compatible classes include inherited implementations and parent/diamond contracts.
+Nested contracts require a public top-level owner and public visibility at every
+nested level. Cast/test-only targets receive the same check as dispatch contracts,
+including with null operands; inaccessible owner chains produce a build diagnostic.
+Detached nested contracts must retain an explicit external-visibility assertion.
 
 Native casts reuse exact descriptor membership after ownership checks. Successful
 operations preserve the original pointer; null stays null. A mismatch returns

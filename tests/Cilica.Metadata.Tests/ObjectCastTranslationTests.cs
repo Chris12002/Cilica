@@ -12,6 +12,50 @@ namespace Cilica.Metadata.Tests;
 public sealed class ObjectCastTranslationTests
 {
     [Theory]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    public void Nested_interface_targets_require_public_enclosing_types(bool cast, bool publicOuter, bool publicMiddle)
+    {
+        var builder = new ResolutionAssemblyBuilder(new("NestedInterfaceCasts", new Version(1, 0, 0, 0)));
+        var objectBase = builder.Type("System", "Object");
+        var outer = builder.Type("Example", "Outer", baseType: objectBase,
+            attributes: publicOuter ? TypeAttributes.Public : TypeAttributes.NotPublic);
+        var middle = builder.Type("", "Middle", parent: outer, baseType: objectBase,
+            attributes: publicMiddle ? TypeAttributes.NestedPublic : TypeAttributes.NestedPrivate);
+        var target = builder.Type("", "Contract", parent: middle,
+            attributes: TypeAttributes.NestedPublic | TypeAttributes.Interface | TypeAttributes.Abstract);
+        builder.Type("Example", "Driver", baseType: objectBase);
+        var entry = builder.Method("Run", [0, 0, 8], emit: il =>
+        {
+            il.OpCode(ILOpCode.Ldnull); il.OpCode(cast ? ILOpCode.Castclass : ILOpCode.Isinst); il.Token(target);
+            il.OpCode(ILOpCode.Ldnull); il.OpCode(ILOpCode.Ceq); il.OpCode(ILOpCode.Ret);
+        });
+        using var files = new ResolverFiles(); using var resolver = files.Open();
+        var image = resolver.OpenInput(files.Write("nested.dll", builder.Build())).Value!;
+        var snapshot = resolver.ReadTypeInput(image, target).Value!;
+        Assert.Equal(publicOuter && publicMiddle, snapshot.ExternallyVisible);
+        // Three declaring owners plus the existing type/module initializer scans.
+        Assert.Equal(5, snapshot.MetadataMembersRead);
+        var result = ObjectTranslator.Translate(resolver, image, entry, image);
+        Assert.Equal(publicOuter && publicMiddle, result.Success);
+        if (result.Success)
+        {
+            Assert.True(Assert.Single(result.Program!.Flow.Types.Interfaces).ExternallyVisible);
+            ObjectCppEmitter.EmitProgram(result.Program);
+        }
+        else
+        {
+            Assert.Null(result.Program);
+            Assert.Equal(DiagnosticIds.ExecutionUnsupported, Assert.Single(result.Diagnostics).Id);
+            Assert.Contains("public enclosing types", Assert.Single(result.Diagnostics).Message, StringComparison.Ordinal);
+        }
+    }
+
+    [Theory]
     [InlineData(false, "class")]
     [InlineData(true, "class")]
     [InlineData(false, "interface")]

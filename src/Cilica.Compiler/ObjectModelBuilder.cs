@@ -91,6 +91,9 @@ public static class ObjectModelBuilder
             if (id.Token == 0x02000001)
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, "The module definition is not an instance class.", input.Source.Name);
             bool isInterface = (input.Attributes & System.Reflection.TypeAttributes.Interface) != 0;
+            if (isInterface && !input.ExternallyVisible)
+                return Failed(id, DiagnosticIds.ExecutionUnsupported,
+                    "Interface contracts require public visibility and public enclosing types.", input.Source.Name);
             if (input.IsReferenceAssembly || input.OwnerGenericArity != 0
                 || input.PackingSize != 0 || input.ClassSize != 0 || input.HasTypeInitializer || input.HasModuleInitializer
                 || !(isInterface ? ObjectModelValidator.InterfaceAttributes(input.Attributes) : ObjectModelValidator.ClassAttributes(input.Attributes)))
@@ -111,7 +114,7 @@ public static class ObjectModelBuilder
             {
                 if (input.BaseType is not null || !input.Fields.IsEmpty)
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface contracts must be fieldless and have no class base.", input.Source.Name);
-                interfaces.Add(new(input.Source, input.Attributes, [.. contracts]));
+                interfaces.Add(new(input.Source, input.Attributes, [.. contracts]) { ExternallyVisible = input.ExternallyVisible });
                 continue;
             }
             ObjectTypeId? baseId = input.BaseType is TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } named

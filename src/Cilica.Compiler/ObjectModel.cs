@@ -13,7 +13,12 @@ public sealed record ObjectTypeId(string ContentHash, int Token)
 }
 
 /// <summary>A fieldless interface contract; it has no instance allocation layout.</summary>
-public sealed record ObjectInterface(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectTypeId> Parents);
+public sealed record ObjectInterface(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectTypeId> Parents)
+{
+    // Top-level visibility follows the flags. Nested contracts require an explicit
+    // assertion from the bounded owner walk; detached validation cannot reread metadata.
+    public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;
+}
 
 /// <summary>Field identity retains its declaring type, including its input image.</summary>
 public sealed record ObjectFieldId(ObjectTypeId Owner, int Token);

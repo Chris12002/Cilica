@@ -18,6 +18,7 @@ public sealed record TypeInput(TypeSource Source, TypeAttributes Attributes, int
     bool HasTypeInitializer, bool HasModuleInitializer, ImmutableArray<FieldInput> Fields, int MetadataMembersRead)
 {
     public ImmutableArray<TypeSignature> Interfaces { get; init; } = [];
+    public bool ExternallyVisible { get; init; }
 }
 
 public sealed record TypeReadLimits(int MaximumFields = 4096, int MaximumMembers = 65536, int MaximumOwnerDepth = 64,

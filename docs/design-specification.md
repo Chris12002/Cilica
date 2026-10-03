@@ -462,7 +462,9 @@ generic, array and TypeSpec targets still require later lowering.
 Interface `castclass` and `isinst` now use exact descriptor membership
 ([ADR 0040](decisions/0040-interface-casts-and-type-tests.md)). Named public
 nongeneric contracts enter the same bounded catalog even when used only as a
-target. Membership includes inherited implementations and transitive parent/diamond
+target. Nested contracts require public visibility through every enclosing type;
+the bounded metadata walk retains this fact for detached validation.
+Membership includes inherited implementations and transitive parent/diamond
 contracts; an empty table still accepts null. Both operations preserve the
 original reference on success and use the existing cast/type-test fault behavior,
 rooted arena slots and constructor restrictions. Ownership is established before

@@ -18,6 +18,15 @@ classes use the existing assignability rules; no interface dispatch plan or meth
 body is needed merely to test a contract. Generic, nonpublic, value-type, array
 and TypeSpec targets retain their diagnostics without partial IR.
 
+Review correction (2026-10-03): a nested-public interface is only externally
+visible when every enclosing type is public. The existing bounded owner walk
+now snapshots that complete visibility fact. Catalog construction rejects hidden
+owner chains, and detached interface records retain the assertion for validation
+after reader disposal or JSON roundtrip. Top-level public records derive their
+default visibility from their flags; nested records require an explicit assertion.
+Exact interface dispatch checks the same chain. This tightens the existing public
+contract boundary without adding broader access rules or a native ABI change.
+
 `object-frames-native-v7` reuses exact descriptor-address membership for interface
 `castclass` and `isinst`; class targets retain ancestry checks. Ownership is
 established before reading the object descriptor. Membership compares addresses
@@ -49,6 +58,15 @@ unreadable descriptor addresses cannot acquire membership. Raw fixtures keep
 same-name/equal-token contracts in different images distinct and verify null
 against target-only empty tables. Translation regressions reject malformed
 targets, retagged/forged IR, missing fault edges and unfinished constructors.
+The review's reduced null-cast fixture raised `TypeAccessException` on .NET but
+previously returned success natively when the target had a private enclosing
+type. Regressions cover both `castclass` and `isinst`, private intermediate and
+nonpublic top-level owners, fully public nesting, unchanged metadata work counts,
+exact dispatch rejection and retained detached visibility.
+The correction passes a warning-free solution build and 268 focused metadata,
+interface, reference-flow and native interface tests. Review checked the complete
+owner chain, conservative detached defaults, JSON retention and unchanged metadata
+work accounting. Native emission and storage behavior are unchanged.
 
 ASan/UBSan, the 2 KiB native-frame warning and uninstrumented static stack reports
 pass at O0/O2 on the recorded macOS ARM64 toolchain. Maximum reported stack sizes

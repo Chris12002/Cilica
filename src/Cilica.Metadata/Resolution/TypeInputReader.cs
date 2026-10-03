@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using Cilica.Metadata.Formatting;
@@ -36,6 +37,7 @@ public sealed partial class AssemblyResolver
             var reader = assembly.Image.Reader;
             var type = reader.GetTypeDefinition(handle);
             int work = 0, arity = 0;
+            bool externallyVisible = true;
             void Member()
             {
                 if (++work > limits.MaximumMembers)
@@ -51,6 +53,8 @@ public sealed partial class AssemblyResolver
                 var owner = reader.GetTypeDefinition(current);
                 arity = checked(arity + owner.GetGenericParameters().Count);
                 current = owner.GetDeclaringType();
+                externallyVisible &= (owner.Attributes & TypeAttributes.VisibilityMask) ==
+                    (current.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
             }
             if (type.GetFields().Count > limits.MaximumFields)
                 throw Failure(DiagnosticIds.TranslationLimit, "Type input exceeds the field limit.");
@@ -108,7 +112,8 @@ public sealed partial class AssemblyResolver
             bool typeInitializer = Initializer(type), moduleInitializer = Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1)));
             return new TypeInput(source, type.Attributes, arity, assembly.IsReferenceAssembly, baseType,
                 type.GetInterfaceImplementations().Count, layout.PackingSize, layout.Size,
-                typeInitializer, moduleInitializer, fields.ToImmutable(), work) { Interfaces = interfaces.ToImmutable() };
+                typeInitializer, moduleInitializer, fields.ToImmutable(), work)
+                { Interfaces = interfaces.ToImmutable(), ExternallyVisible = externallyVisible };
         });
     }
 }

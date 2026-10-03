@@ -172,6 +172,8 @@ public sealed partial class AssemblyResolver
             if (definition.GetGenericParameters().Count != 0)
                 throw new UnsupportedBindingException("Generic interface declaring owners require later lowering.");
             enclosing = definition.GetDeclaringType();
+            if ((definition.Attributes & TypeAttributes.VisibilityMask) != (enclosing.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic))
+                throw new UnsupportedBindingException("Interface dispatch requires public interfaces with public enclosing types.");
         }
         foreach (var field in type.GetFields())
         {
