@@ -58,6 +58,17 @@ public abstract record IrExpression
     public sealed record ArrayLength(int Array) : IrExpression;
     // ArrayType is the static view; access checks null before bounds.
     public sealed record LoadElement(ObjectTypeId ArrayType, int Array, int Index) : IrExpression;
+    // UTF-16 code units, including embedded zero and unpaired surrogates. Equal
+    // literal contents share instance-local identity; no host string encoding.
+    public sealed record StringLiteral(ImmutableArray<ushort> CodeUnits) : IrExpression;
+    public sealed record StringLength(int Operand) : IrExpression;
+    // Result is the zero-extended UTF-16 code unit, not a Unicode scalar value.
+    public sealed record StringCodeUnit(int Operand, int Index) : IrExpression;
+    // Ordinal content equality; null == null. Returns Int32 0 or 1.
+    public sealed record StringEquals(int Left, int Right) : IrExpression;
+    // Null is empty. Reuse the nonempty operand if the other is empty; otherwise
+    // return a new immutable string, or the canonical empty string if both empty.
+    public sealed record StringConcat(int Left, int Right) : IrExpression;
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
     public sealed record CastClass(ObjectTypeId Target, int Operand) : IrExpression;
     public sealed record IsInstance(ObjectTypeId Target, int Operand) : IrExpression;
@@ -137,7 +148,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 /// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
-    public const string Profile = "typed-reference-ir-v4";
+    public const string Profile = "typed-reference-ir-v5";
 }
 
 public static class ProgramLimits

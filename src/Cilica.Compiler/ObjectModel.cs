@@ -60,9 +60,11 @@ public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
 /// <summary>Detached base/field/interface/array-element closure. This is a storage/type contract, not executable IR.</summary>
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
-    public const string Profile = "object-layout-v4";
+    public const string Profile = "object-layout-v5";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
+    // Selected runtime identity, represented intrinsically rather than by mutable fields.
+    public ObjectTypeId? String { get; init; }
 }
 
 /// <summary>Explicit nominal/vector roots and their shared closure, including the selected object base.</summary>
@@ -71,6 +73,15 @@ public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, Objec
 {
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
+    // Selected runtime identity, represented intrinsically rather than by mutable fields.
+    public ObjectTypeId? String { get; init; }
+}
+
+public static class ObjectStringLimits
+{
+    public const int MaximumLiteralCodeUnits = 65536;
+    public const int MaximumTotalLiteralCodeUnits = 262144;
+    public const int MaximumDistinctLiterals = 256;
 }
 
 public static class ObjectModelLimits

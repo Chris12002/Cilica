@@ -22,6 +22,8 @@ public static class ObjectCppEmitter
         ArgumentNullException.ThrowIfNull(program.Flow);
         ArgumentNullException.ThrowIfNull(program.Flow.Types);
         var plans = ObjectRootAssignment.Assign(program).ToDictionary(p => p.Method);
+        if (program.Flow.Types.String is not null)
+            throw new NotSupportedException("Native string lowering is not implemented; string catalogs and operations support detached validation and root assignment only.");
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
         var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
         if (program.InterfaceDispatch is { } interfacePlan)

@@ -10,12 +10,12 @@ not establish native execution or platform compatibility.
 | `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
-| `object-layout-v4` | Bounded nominal metadata snapshots and detached class/interface/vector graphs | Int32/reference vectors have structural element identities and share the 256-type limit; SZARRAY fields/signatures are read; bounded native storage is described below |
-| `typed-reference-ir-v4` | Detached caller-constructed IR validation | Class/interface/array references/null, nominal ancestry, reference-vector covariance and typed locals/joins/direct calls/returns; array CIL/native execution is supported by the bounded object profile |
+| `object-layout-v5` | Bounded nominal/vector metadata snapshots and detached intrinsic String identity | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String metadata reading remains planned |
+| `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String support is detached only |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
-| `object-operations-ir-v7` | Bounded nominal/vector CIL translation and detached operation validation | Class/interface operations plus array allocation, Int32 length conversion and Int32/reference element access; native array lowering is implemented in v8 |
+| `object-operations-ir-v8` | Bounded nominal/vector CIL translation and detached string operation validation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; String CIL/native lowering remains planned |
 | `object-frames-native-v8` | C++20 emission and local native differential execution | Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, retained heap, phase A roots and typed branches/backedges; no collector |
-| Broader managed runtime and library | Planned | Array execution, strings, GC, exception handlers, library and embedding support are unimplemented |
+| Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, string execution, GC, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
 
@@ -884,3 +884,29 @@ exceptions or RTTI. Both static stack reports peak at 656 bytes, within the 2 Ki
 frame gate. Only the recorded macOS ARM64 target
 is evidenced. Collection, jagged static types, framework array interfaces, general
 native-sized integers, managed exception handlers and broader platforms remain gaps.
+
+
+## Detached immutable UTF-16 strings
+
+`object-layout-v5`, `typed-reference-ir-v5` and `object-operations-ir-v8` define a
+selected String reference identity outside mutable class layouts
+([ADR 0046](decisions/0046-detached-string-contracts.md)). It is sealed, widens to
+Object, supports null and composes with fields and reference vectors. No String
+framework interfaces or ordinary String method bodies are implied.
+
+Five operations validate typed earlier operands and explicit fault edges: UTF-16
+literal, code-unit length, indexed code-unit access returning Int32, ordinal content
+equality returning 0/1, and two-string concatenation. Numeric ushort literal payloads
+preserve zeros and lone surrogates in JSON. Literals are specified to share identity
+by content within an instance; concat treats null as empty and reuses a sole
+nonempty operand. Literals/concat receive allocation safepoints. No mutation or
+general Char storage is added.
+
+Limits are 65,536 units per literal, 262,144 units across all occurrences/methods,
+and 256 distinct ordinal contents; unit limits are checked before copying/hashing. The String
+identity counts toward the existing 256-type cap. Tests compare modeled assignment
+pairs with .NET and verify malformed identities, UTF-16 round trips, resource
+limits, fault edges and constructor/root rules. These are detached validation
+results. String metadata/CIL, exact intrinsic recognition, native immutable storage,
+literal interning and content-operation differential execution remain planned;
+string-bearing catalogs fail native emission explicitly. Native arrays remain supported.

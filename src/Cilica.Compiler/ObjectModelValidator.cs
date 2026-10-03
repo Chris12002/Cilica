@@ -15,7 +15,7 @@ public static class ObjectModelValidator
     public static void Validate(ObjectModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Interfaces = model.Interfaces, Arrays = model.Arrays });
+        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String });
     }
 
     public static void Validate(ObjectTypeCatalog model)
@@ -28,12 +28,15 @@ public static class ObjectModelValidator
         Require(Identity(model.ObjectBase, 0x02) && !model.Roots.IsDefault && model.Roots.Length is > 0 and <= ObjectModelLimits.MaximumTypes
             && model.Roots.All(r => ReferenceIdentity(r, model.ObjectBase)) && model.Roots.Distinct().Count() == model.Roots.Length,
             "roots/base need unique canonical nominal or array identities.");
+        Require(model.String is null || Identity(model.String, 0x02) && model.String != model.ObjectBase,
+            "selected String requires a canonical nominal identity distinct from Object.");
+        int stringCount = model.String is null ? 0 : 1;
         Require(!model.Types.IsDefault && model.Types.Length is > 0 and <= ObjectModelLimits.MaximumTypes, "invalid type count.");
         Require(!model.Interfaces.IsDefault && model.Interfaces.Length <= ObjectModelLimits.MaximumTypes
             && model.Types.Length + model.Interfaces.Length <= ObjectModelLimits.MaximumTypes, "combined class/interface type limit exceeded.");
         Require(!model.Arrays.IsDefault && model.Arrays.Length <= ObjectModelLimits.MaximumTypes
-            && model.Types.Length + model.Interfaces.Length + model.Arrays.Length <= ObjectModelLimits.MaximumTypes,
-            "combined class/interface/array type limit exceeded.");
+            && model.Types.Length + model.Interfaces.Length + model.Arrays.Length + stringCount <= ObjectModelLimits.MaximumTypes,
+            "combined class/interface/array/string type limit exceeded.");
         Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase)) && model.Arrays.Distinct().Count() == model.Arrays.Length,
             "array identities require a unique selected-Object anchor and Int32 or nominal reference elements.");
         var arrays = model.Arrays.ToHashSet();
@@ -77,9 +80,11 @@ public static class ObjectModelValidator
             Require(InterfaceAttributes(contract.Attributes) && contract.ExternallyVisible && Edges(contract.Parents),
                 "interfaces require public visibility, public enclosing types and valid parent identities.");
         }
-        bool Known(ObjectTypeId id) => types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id);
+        Require(model.String is null || !types.ContainsKey(model.String) && !interfaces.ContainsKey(model.String),
+            "selected String cannot also declare class fields or interface contracts.");
+        bool Known(ObjectTypeId id) => types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id) || id == model.String;
         foreach (var array in arrays)
-            Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element),
+            Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element) || element == model.String,
                 "array reference element is outside the nominal catalog.");
         Require(model.Roots.All(Known) && types.ContainsKey(model.ObjectBase), "roots/base are outside the model.");
         foreach (var type in model.Types)
@@ -100,7 +105,8 @@ public static class ObjectModelValidator
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
             {
-                if (arrays.Contains(id))
+                if (id == model.String) pending.Push(model.ObjectBase);
+                else if (arrays.Contains(id))
                 {
                     if (id.ArrayElement!.Type is { } element) pending.Push(element);
                 }
@@ -113,7 +119,7 @@ public static class ObjectModelValidator
                     foreach (var reference in types[id].Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>()) pending.Push(reference.Type);
                 }
             }
-        Require(visited.Count == types.Count + interfaces.Count + arrays.Count, "model contains unrelated types.");
+        Require(visited.Count == types.Count + interfaces.Count + arrays.Count + stringCount, "model contains unrelated types.");
     }
 
     internal static bool ClassAttributes(TypeAttributes attributes) =>

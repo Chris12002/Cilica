@@ -33,7 +33,8 @@ public static class ReferenceIrValidator
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
             {
-                if (arrays.Contains(id))
+                if (id == program.Types.String) pending.Push(program.Types.ObjectBase);
+                else if (arrays.Contains(id))
                 {
                     if (id.ArrayElement!.Type is { } element) pending.Push(element);
                 }
@@ -47,7 +48,7 @@ public static class ReferenceIrValidator
                         pending.Push(reference.Type);
                 }
             }
-        if (visited.Count != layouts.Count + interfaces.Count + arrays.Count)
+        if (visited.Count != layouts.Count + interfaces.Count + arrays.Count + (program.Types.String is null ? 0 : 1))
             throw new ArgumentException("Invalid reference program IR: catalog contains types unused by value flow or its field closure.", nameof(program));
     }
 }

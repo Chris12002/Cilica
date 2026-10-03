@@ -517,6 +517,15 @@ Model static constructor ordering, failure caching and `beforefieldinit`;
 initialization state records the initializing thread for the later
 multithreaded profile.
 Strings contain UTF-16 code units; arrays retain element type and bounds.
+The detached string contract is implemented
+([ADR 0046](decisions/0046-detached-string-contracts.md)): one selected intrinsic
+String identity is sealed, fieldless and assignable to Object, sharing the catalog
+limit with classes, interfaces and vectors. Numeric UTF-16 literal payloads preserve
+embedded zero and unpaired surrogates. Literal, length, code-unit access, ordinal
+equality and two-operand concat operations validate types and fault edges; literals
+and concat receive allocation safepoints. Program-wide literal budgets bound data
+and hashing work. String metadata/CIL and native storage/interning remain planned;
+the native emitter explicitly rejects string-bearing catalogs.
 The detached array foundation is implemented
 ([ADR 0043](decisions/0043-detached-array-contracts.md)): zero-based one-dimensional
 Int32/reference vector identities retain their element type separately from nominal

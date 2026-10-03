@@ -36,6 +36,8 @@ internal sealed class ObjectIrRules
     private readonly ObjectDispatchRules _dispatch;
     private readonly ObjectInterfaceOperationRules _interfaces;
     private readonly ObjectIrProgram _program;
+    private readonly HashSet<string> _literals = new(StringComparer.Ordinal);
+    private int _literalUnits;
 
     internal ObjectIrRules(ObjectIrProgram program)
     {
@@ -59,6 +61,7 @@ internal sealed class ObjectIrRules
                 && (uint)binding.Owner.Token >> 24 == 0x02 && (binding.Owner.Token & 0xffffff) > 1
                 && binding.Owner.ContentHash == binding.Method.ContentHash
                 && _methods.ContainsKey(binding.Method) && _bindings.TryAdd(binding.Method, binding), "invalid or duplicate method binding identity.");
+            Require(binding.Owner != flow.Types.String, "selected String methods require explicit intrinsic operations.");
             var method = _methods[binding.Method];
             Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
                 && method.Parameters.All(p => _types.Valid(p, true)) && (_types.Valid(method.ReturnType, true) || method.ReturnType == IrType.Void)
@@ -98,7 +101,7 @@ internal sealed class ObjectIrRules
 
     internal ObjectMethodBinding Binding(IrMethodId id) => _bindings[id];
     internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is { ArrayElement: null }
-        && (_contracts.Contains(target) || _layouts.TryGetValue(target, out var layout)
+        && (target == _program.Flow.Types.String || _contracts.Contains(target) || _layouts.TryGetValue(target, out var layout)
             && (Binding(IrMethodId.From(method.Source)).Owner == target
                 || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public));
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch
@@ -108,10 +111,32 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },
         IrStatement.StoreElement a => new[] { a.ArrayType },
+        IrStatement.Define { Value.Expression: IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit
+            or IrExpression.StringEquals or IrExpression.StringConcat } when _program.Flow.Types.String is { } text => new[] { text },
         IrStatement.Define { Value.Expression: IrExpression.Call c } when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         IrStatement.Invoke c when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         _ => Array.Empty<ObjectTypeId>(),
     });
+
+    internal IrType? StringType => _program.Flow.Types.String is { } text ? IrType.Reference(text) : null;
+
+    internal bool StringOperand(int operand, IReadOnlyList<IrType> values) => StringType is { } type
+        && operand >= 0 && operand < values.Count && _types.Assignable(values[operand], type);
+
+    internal bool StringLiteral(System.Collections.Immutable.ImmutableArray<ushort> units)
+    {
+        if (StringType is null || units.IsDefault || units.Length > ObjectStringLimits.MaximumLiteralCodeUnits
+            || units.Length > ObjectStringLimits.MaximumTotalLiteralCodeUnits - _literalUnits) return false;
+        _literalUnits += units.Length;
+        // The unit budget is checked before copying/hashing. Ordinal UTF-16 retains
+        // unpaired surrogates, unlike an encoder that might replace invalid scalars.
+        string content = string.Create(units.Length, units, static (target, source) =>
+        {
+            for (int i = 0; i < source.Length; i++) target[i] = (char)source[i];
+        });
+        _literals.Add(content);
+        return _literals.Count <= ObjectStringLimits.MaximumDistinctLiterals;
+    }
 
     internal IrType? ArrayElement(ObjectTypeId? array) => array is not null && _types.Valid(IrType.Reference(array), true) && _arrays.Contains(array)
         ? array.ArrayElement!.Type is { } element ? IrType.Reference(element) : IrType.Int32 : null;
@@ -234,6 +259,11 @@ internal sealed class ObjectIrRules
                             IrExpression.Compare c => !This(c.Left) && !This(c.Right),
                             IrExpression.Call c => c.Arguments.All(a => !This(a)),
                             IrExpression.NewObject n => n.Arguments.All(a => !This(a)),
+                            IrExpression.StringLiteral => true,
+                            IrExpression.StringLength s => !This(s.Operand),
+                            IrExpression.StringCodeUnit s => !This(s.Operand) && !This(s.Index),
+                            IrExpression.StringEquals s => !This(s.Left) && !This(s.Right),
+                            IrExpression.StringConcat s => !This(s.Left) && !This(s.Right),
                             IrExpression.NewArray a => !This(a.Length),
                             IrExpression.ArrayLength a => !This(a.Array),
                             IrExpression.LoadElement a => !This(a.Array) && !This(a.Index),

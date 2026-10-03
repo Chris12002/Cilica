@@ -141,6 +141,16 @@ internal static class IrValidator
                             IrExpression.Call c => Call(c, value.Type),
                             IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
+                            IrExpression.StringLiteral literal => objectRules is not null && value.Type == objectRules.StringType
+                                && objectRules.StringLiteral(literal.CodeUnits),
+                            IrExpression.StringLength text => objectRules is not null && value.Type == IrType.Int32
+                                && objectRules.StringOperand(text.Operand, valueTypes),
+                            IrExpression.StringCodeUnit text => objectRules is not null && value.Type == IrType.Int32
+                                && objectRules.StringOperand(text.Operand, valueTypes) && Earlier(text.Index) && valueTypes[text.Index] == IrType.Int32,
+                            IrExpression.StringEquals text => objectRules is not null && value.Type == IrType.Int32
+                                && objectRules.StringOperand(text.Left, valueTypes) && objectRules.StringOperand(text.Right, valueTypes),
+                            IrExpression.StringConcat text => objectRules is not null && value.Type == objectRules.StringType
+                                && objectRules.StringOperand(text.Left, valueTypes) && objectRules.StringOperand(text.Right, valueTypes),
                             IrExpression.NewArray a => objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType)
                                 && value.Type == IrType.Reference(a.ArrayType) && Earlier(a.Length) && valueTypes[a.Length] == IrType.Int32,
                             IrExpression.ArrayLength a => objectRules is not null && value.Type == IrType.Int32
@@ -154,6 +164,7 @@ internal static class IrValidator
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
+                            or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation);
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),

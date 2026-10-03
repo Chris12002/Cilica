@@ -41,7 +41,10 @@ establish a collector, class-library compatibility or the stable embedding API.
 | 3e-a | Detached vector identities, covariance, operations and root contracts | Complete for detached validation |
 | 3e-b | SZARRAY metadata/signatures and bounded array CIL translation | Complete for translation |
 | 3e-c | Native variable storage, checked stores and execution conformance | Complete for bounded retained-heap profile |
-| 3f | UTF-16 strings and an explicit bounded operation/literal profile | Planned |
+| 3f | UTF-16 strings and an explicit bounded operation/literal profile | In progress |
+| 3f-a | Detached immutable String identity, UTF-16 operations and root/resource contracts | Complete for detached validation |
+| 3f-b | Selected String metadata/signatures, literals and exact intrinsic CIL recognition | Planned |
+| 3f-c | Immutable native storage, literal identity and operation conformance | Planned |
 | 3g | Integration review, composed example and supported-boundary consolidation | Planned |
 
 These are reviewable boundaries, not schedule estimates. Split a slice when
@@ -606,9 +609,24 @@ passing. The array harness compares 155 .NET/native outcomes at each of O0/O2 un
 ASan/UBSan; both static frame reports have a 656-byte maximum for the generated code
 and driver. Local main remains an ancestor; no push, hosted runs or agents ran.
 
-The next slice is bounded UTF-16 strings and explicit literal/operation semantics
-(3f), followed by the composed example/review (3g). Collection remains a separate
-milestone.
+Slice 3f-a establishes the detached immutable String contract
+([ADR 0046](../decisions/0046-detached-string-contracts.md)). A selected nominal String
+identity is separate from mutable class layouts, shares the 256-type cap and composes
+with reference fields, null/Object flow and vectors. Numeric UTF-16 literal payloads
+preserve all code units. Literal, length, indexed code-unit access, ordinal equality
+and two-operand concat operations require exact types/fault edges; literal/concat
+allocation safepoints preserve phase A rooting. Shared literal limits bound unit
+counts and distinct contents before hashing/copying. String CIL and native emission
+remain explicit diagnostic boundaries; arrays remain executable.
+
+Review completed with a warning-free solution build, 744 selected local regression
+checks and a final 283-check focused run, all passing. The runs overlap. Coverage
+includes cross-method literal budgets, constructor roots and interface-plan String
+identity agreement. Local main remains an ancestor; no hosted work or agents ran.
+
+The next slice is selected String metadata/signatures, literal decoding and exact
+intrinsic CIL recognition (3f-b), followed by native string storage/conformance (3f-c)
+and the composed example/review (3g). Collection remains a separate milestone.
 
 Performance work from
 ADR 0029 is deferred until representative applications run and does not block

@@ -51,3 +51,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0043](0043-detached-array-contracts.md) | Detached vector identities and array operations | Accepted for catalogs, validation and root assignment |
 | [0044](0044-array-metadata-and-cil.md) | Array metadata and bounded CIL translation | Accepted for bounded SZARRAY signatures and operations |
 | [0045](0045-native-array-storage.md) | Native vector storage and checked element operations | Accepted for bounded retained-heap execution |
+| [0046](0046-detached-string-contracts.md) | Detached immutable UTF-16 string contracts | Accepted for detached identity, operations, resource limits and roots |
