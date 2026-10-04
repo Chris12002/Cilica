@@ -63,6 +63,15 @@ slice. No hosted CI, service, push or additional agent was used.
 
 ## Remaining completion evidence
 
+During slice 6b reference-profile inspection, the inspector incorrectly decoded
+locally defined `System.Type` attribute arguments as enums and printed null type
+arguments as `typeof()`. A reduced fixture reproduced both defects. The correction
+recognizes top-level local `System.Type` for attribute decoding and preserves null
+type values, without granting compiler trust. Five regressions and the existing
+inspection/CLI/corruption/no-execution checks pass (56 tests). The pinned .NET
+Standard 2.1 reference image now inspects with zero diagnostics, down from 107
+incorrect malformed-attribute reports. This changes inspection only.
+
 - Pin imported source commits, licenses, local patches, reference identities
   and oracle runtime; never trust a library solely by namespace or type name.
 - Differentially test each admitted member and semantic extension, including

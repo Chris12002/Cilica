@@ -28,7 +28,8 @@ internal sealed class AttributeFormatter : ICustomAttributeTypeProvider<Attribut
         string Name,
         EntityHandle Handle = default,
         PrimitiveTypeCode? Primitive = null,
-        bool IsSystemType = false);
+        bool IsSystemType = false,
+        bool IsNullType = false);
 
     private sealed class UnresolvedEnumException : Exception;
 
@@ -62,7 +63,7 @@ internal sealed class AttributeFormatter : ICustomAttributeTypeProvider<Attribut
             case ImmutableArray<CustomAttributeTypedArgument<ArgumentType>> elements:
                 return "[" + string.Join(", ", elements.Select(FormatArgument)) + "]";
             case ArgumentType type:
-                return "typeof(" + type.Name + ")";
+                return type.IsNullType ? "null" : "typeof(" + type.Name + ")";
         }
         bool isEnum = argument.Type.Primitive is null && !argument.Type.IsSystemType && value is not string;
         return isEnum
@@ -75,8 +76,16 @@ internal sealed class AttributeFormatter : ICustomAttributeTypeProvider<Attribut
     public ArgumentType GetPrimitiveType(PrimitiveTypeCode typeCode) =>
         new(NameFormatter.PrimitiveName(typeCode), Primitive: typeCode);
 
-    public ArgumentType GetTypeFromDefinition(MetadataReader reader, TypeDefinitionHandle handle, byte rawTypeKind) =>
-        new(_names.TypeDefinitionName(handle), handle);
+    public ArgumentType GetTypeFromDefinition(MetadataReader reader, TypeDefinitionHandle handle, byte rawTypeKind)
+    {
+        // Core/reference libraries can define System.Type locally instead of
+        // referring to it. This controls attribute decoding, never compiler trust.
+        TypeDefinition definition = reader.GetTypeDefinition(handle);
+        bool isSystemType = definition.GetDeclaringType().IsNil
+            && reader.StringComparer.Equals(definition.Namespace, "System")
+            && reader.StringComparer.Equals(definition.Name, "Type");
+        return new(_names.TypeDefinitionName(handle), handle, IsSystemType: isSystemType);
+    }
 
     public ArgumentType GetTypeFromReference(MetadataReader reader, TypeReferenceHandle handle, byte rawTypeKind)
     {
@@ -92,7 +101,8 @@ internal sealed class AttributeFormatter : ICustomAttributeTypeProvider<Attribut
 
     public bool IsSystemType(ArgumentType type) => type.IsSystemType;
 
-    public ArgumentType GetTypeFromSerializedName(string name) => new(name);
+    public ArgumentType GetTypeFromSerializedName(string name) =>
+        name is null ? new("", IsNullType: true) : new(name);
 
     public PrimitiveTypeCode GetUnderlyingEnumType(ArgumentType type)
     {
