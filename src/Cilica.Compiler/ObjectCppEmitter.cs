@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v14";
+    public const string Profile = "object-frames-native-v15";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -49,7 +49,7 @@ public static class ObjectCppEmitter
         var text = new StringBuilder();
         text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <atomic>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <limits>\n#include <type_traits>\n")
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
-            .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n');
+            .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
         foreach (var type in referenceTypes)
             text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
         foreach (var composed in native.Fields)
@@ -76,13 +76,17 @@ public static class ObjectCppEmitter
                     .Append("(Object* p) noexcept { return &reinterpret_cast<").Append(type).Append("*>(p)->")
                     .Append(Member(composed.Value[index])).Append("; }\n");
             text.Append("static constexpr std::array<FieldAccessor, ").Append(N(composed.Value.Length)).Append("> ").Append(type).Append("_accessors = {")
-                .Append(string.Join(", ", Enumerable.Range(0, composed.Value.Length).Select(i => type + "_field_" + N(i)))).Append("};\n")
+                .Append(string.Join(", ", Enumerable.Range(0, composed.Value.Length).Select(i => type + "_field_" + N(i)))).Append("};\n");
+            text.Append("static constexpr std::array<FieldStorage, ").Append(N(composed.Value.Length)).Append("> ").Append(type).Append("_storage = {{")
+                .Append(string.Join(", ", composed.Value.Select(field => "{" + (field.Storage is ObjectStorage.Int32 ? "StorageKind::integer" : "StorageKind::reference")
+                    + ", " + ((field.Attributes & System.Reflection.FieldAttributes.InitOnly) != 0 ? "true" : "false")
+                    + ", " + (field.Storage is ObjectStorage.Reference reference ? Predicate(reference.Type) : "nullptr") + "}"))).Append("}};\n")
                 .Append("[[maybe_unused]] static constexpr Descriptor ").Append(type).Append("_descriptor = { sizeof(").Append(type).Append("), ")
                 .Append("alignof(").Append(type).Append("), ").Append(type).Append("_references.data(), ").Append(N(references.Length))
                 .Append(", [](Object* p) noexcept { delete reinterpret_cast<").Append(type).Append("*>(p); }, ")
                 .Append(layout.BaseType is null ? "nullptr" : "&" + TypeSymbol(layout.BaseType) + "_descriptor")
                 .Append(", ").Append(type).Append("_fields.data(), ").Append(N(composed.Value.Length))
-                .Append(", ").Append(type).Append("_accessors.data(), field_by_offset };\n");
+                .Append(", ").Append(type).Append("_accessors.data(), field_by_offset, 0, nullptr, nullptr, nullptr, ").Append(type).Append("_storage.data() };\n");
         }
         if (program.Flow.Types.String is { } stringType)
         {

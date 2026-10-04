@@ -590,7 +590,17 @@ them through block joins is rejected pending further lifetime analysis. Loads co
 values; stores and initialization require writable storage and explicit fault
 edges. Phase A plans root each location's heap owner while frame locations borrow
 active backing storage. Existing native profiles still reject locations. Native
-carrier authentication, CIL translation and collection stress remain separate gates.
+location emission and CIL translation remain separate gates.
+
+Private native v15 helpers now authenticate scalar carriers
+([ADR 0060](decisions/0060-native-scalar-location-carriers.md)). Frame carriers use
+nonreused registration tokens and bounded slot indices; heap carriers retain an
+owner and exact field selector. Resolution checks active lifetime or ownership
+before typed access, including readonly and reference compatibility. Frame slots
+remain rooted by their lending frame, and heap owners require explicit roots.
+Local O0/O2 sanitizer probes cover frame reuse, nested borrows and collection through
+both origins. These runtime helpers do not yet emit location IR, whole-struct
+loads/stores or struct-return packets.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.

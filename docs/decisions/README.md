@@ -65,3 +65,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0057](0057-typed-value-copies.md) | Typed inline copies and root planning | Accepted for detached value flow and expanded phase A roots |
 | [0058](0058-scalar-value-lowering.md) | Scalar lowering of pure value copies | Accepted for bounded authored IR and local O0/O2 native conformance |
 | [0059](0059-managed-storage-locations.md) | Managed storage locations and synchronous borrows | Accepted for bounded detached IR and owner-root planning; native carriers/CIL remain planned |
+| [0060](0060-native-scalar-location-carriers.md) | Native scalar location carriers | Accepted for private checked frame/heap helpers; executable location IR remains planned |

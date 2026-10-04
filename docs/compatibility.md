@@ -20,7 +20,7 @@ the evidence and limits of earlier checkpoints; the native v14 table and milesto
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
 | `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated and executes in native v9 |
-| `object-frames-native-v14` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation, allocation retry, stress mode and private retained handles |
+| `object-frames-native-v15` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation, allocation retry, stress mode, private retained handles and private scalar location helpers (location IR emission remains planned) |
 | Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, advanced GC features, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -1118,3 +1118,22 @@ reject these operations. This establishes no executable byrefs or collection
 through mutable struct storage; native authentication, CIL value translation,
 array/boxed locations, ref returns, byref locals/joins and native return packets
 remain subsequent gates.
+
+## Private native scalar locations
+
+[ADR 0060](decisions/0060-native-scalar-location-carriers.md) adds checked runtime
+helpers in native v15. Frame locations authenticate a nonreused token in the current
+context and select a bounded typed slot; heap locations validate an owned receiver,
+exact descriptor and inherited field selector. Reference compatibility and readonly
+fields are checked before mutation. Failure preserves outputs and pending faults;
+marking callbacks cannot access borrowed storage. Frame retirement prevents address
+reuse from reviving an expired borrow. Tokens permanently exhaust rather than wrap.
+
+Local O0/O2 ASan/UBSan tests include the 2 KiB native stack-warning gate, exact
+registration bounds, nested borrows, stale/foreign/wrong-kind rejection and
+collection through rooted frame slots and heap owners. Owners must stay rooted
+across allocations: these carriers are synchronous borrows, not retained handles.
+Native scope nesting and backing buffers are trusted generated-runtime invariants.
+Existing public emitters still reject managed-location IR. CIL value translation,
+whole-struct mutation/returns, inline heap storage and broader milestone 5 semantics
+remain unimplemented.

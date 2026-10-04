@@ -25,6 +25,10 @@ internal static class ObjectCppRuntime
 
     internal const string Text = """
 struct Object;
+struct Descriptor;
+using ReferencePredicate = bool (*)(const Descriptor*) noexcept;
+enum class StorageKind { integer, reference };
+struct FieldStorage { StorageKind kind; bool read_only; ReferencePredicate accepts; };
 using FieldAccessor = void* (*)(Object*) noexcept;
 struct Descriptor {
     std::size_t size, alignment;
@@ -42,6 +46,7 @@ struct Descriptor {
     bool (*accepts_element)(const Descriptor*) noexcept = nullptr;
     std::size_t (*dynamic_reference_count)(Object*) noexcept = nullptr;
     Object** (*dynamic_references)(Object*) noexcept = nullptr;
+    const FieldStorage* storage = nullptr;
 };
 [[maybe_unused]] static bool known_type(const Descriptor*) noexcept;
 [[maybe_unused]] static bool string_type(const Descriptor*) noexcept;
@@ -142,10 +147,12 @@ struct Frame {
     Object** slots = nullptr;
     std::size_t count = 0;
 };
+struct BorrowFrame;
 struct Context {
     Instance& instance;
     Frame* top = nullptr;
     std::size_t depth = 0;
+    BorrowFrame* borrows = nullptr;
     const std::size_t execution_limit;
     std::byte* execution = nullptr;
     std::size_t used = 0, peak = 0;
@@ -160,6 +167,7 @@ struct Context {
     Context& operator=(const Context&) = delete;
     ~Context() noexcept { ::operator delete(execution); }
 };
+static void retire_borrows(Context&, const Frame&) noexcept;
 [[maybe_unused]] static void poison_storage(void* address, std::size_t bytes) noexcept {
 #if CILICA_ARENA_ASAN
     __asan_poison_memory_region(address, bytes);
@@ -215,7 +223,10 @@ struct RootScope {
     }
     RootScope(const RootScope&) = delete;
     RootScope& operator=(const RootScope&) = delete;
-    ~RootScope() noexcept { context.top = frame.previous; --context.depth; }
+    ~RootScope() noexcept {
+        if (context.borrows != nullptr) retire_borrows(context, frame);
+        context.top = frame.previous; --context.depth;
+    }
 };
 [[maybe_unused]] static bool valid_roots(const Context& context) noexcept {
     for (const Frame* f = context.top; f != nullptr; f = f->previous)

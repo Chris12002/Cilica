@@ -14,7 +14,9 @@ profiles continue to reject unsupported reachable semantics.
 | 5c.1 | Value copies, field operations, calls/joins and expanded roots in typed IR | Complete for detached contracts |
 | 5c.2 | Managed storage locations and lifetime checks | Complete for bounded detached synchronous borrows |
 | 5d.1 | Pure value copies lowered to the existing backend | Complete for authored IR, scalar returns and local native probes |
-| 5d.2 | CIL value translation, native managed locations/returns and live-reference collection stress | Planned |
+| 5d.2a | Private native scalar location carriers and rooted-storage stress | Complete for runtime helpers |
+| 5d.2b | Native location IR emission and value expansion | Planned |
+| 5d.2c | CIL value translation, native returns and composed live-value stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
@@ -104,3 +106,23 @@ and collection stress. All 47 final focused location checks pass (overlapping th
 broader run), including malformed deep types and exact/excess root/carrier budgets. The solution build has zero warnings
 and errors. Local main remains an ancestor; no push, hosted work, new service or
 additional agent ran. Native location execution remains explicitly gated.
+
+## Slice 5d.2a outcome
+
+ADR 0060 supplies private checked scalar carriers for active frame slots and owned
+heap fields. Frame tokens cannot revive on address reuse; exact field metadata
+enforces storage kind, readonly status and reference compatibility. Reference
+stores remain visible to precise collection through the original rooted storage.
+
+Review checked lifetime retirement, ownership-before-dereference, inherited field
+indices, failed-write atomicity, unchanged outputs/faults and trusted native scope
+boundaries. The initial O0 sanitizer stack warning was fixed by separating frame
+and heap validation helpers, retaining the 2 KiB gate. All 24 selected native tests
+pass, including O0/O2 carrier probes, collection/tracing, arrays/strings, inherited
+fields, arena/boundary budgets and pure value copies. Carrier probes include exact
+64-frame, 1,024-reference-slot and 65,536-integer-slot limits, collection stress and
+terminal token exhaustion. Local main remains an ancestor. No hosted work ran.
+
+This is a runtime-helper checkpoint. Managed-location IR emission, expanded mutable
+values, CIL translation and struct-return packets remain the next gates; milestone
+5 is still in progress.
