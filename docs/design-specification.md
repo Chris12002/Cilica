@@ -566,8 +566,10 @@ The first detached value-layout contract is implemented
 ([ADR 0055](decisions/0055-detached-value-layouts.md)). It distinguishes inline
 values from object references, rejects inline containment cycles, and derives
 nested scalar copy paths and embedded-reference paths within explicit expansion
-and depth limits. This is layout planning only; metadata discovery, executable
-struct operations and native tracing of struct storage remain milestone 5 work.
+and depth limits. Bounded metadata discovery now supplies these layouts through
+the exact selected ValueType identity and a shared metadata ledger
+([ADR 0056](decisions/0056-value-layout-metadata.md)). Executable struct operations
+and native tracing of struct storage remain milestone 5 work.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.

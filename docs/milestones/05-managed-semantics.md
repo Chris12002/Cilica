@@ -10,7 +10,7 @@ profiles continue to reject unsupported reachable semantics.
 | Slice | Outcome | Status |
 | --- | --- | --- |
 | 5a | Detached value layouts, nested field paths and precise embedded-reference maps | Complete for detached layout planning |
-| 5b | Bounded metadata discovery of value layouts | Planned |
+| 5b | Bounded metadata discovery of value layouts | Complete for metadata-backed catalogs |
 | 5c | Value copies and managed storage locations in typed IR | Planned |
 | 5d | Native struct operations, calls and collection stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
@@ -44,3 +44,11 @@ The slice review checked identity collisions, inline cycles, repeated/empty
 embeddings, aggregate expansion/path budgets and existing executable rejection.
 All 96 selected value/object-layout tests pass. This establishes no native struct
 semantics; the next slice supplies bounded metadata discovery. No hosted work ran.
+
+## Slice 5b outcome
+
+ADR 0056 connects value layouts to bounded metadata discovery with selected-runtime
+identity, a shared metadata ledger and existing reference storage. Review checked
+ownership, forwarding, signature kind mismatches, shared budgets and diagnostics.
+All 128 selected local tests pass. Inline fields in classes, executable values,
+boxing and other milestone 5 semantics remain subsequent work.
