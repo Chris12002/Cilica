@@ -79,6 +79,13 @@ public abstract record IrExpression
     public sealed record DefaultValue(ObjectTypeId Type) : IrExpression;
     public sealed record ValueField(ObjectFieldId Field, int Operand) : IrExpression;
     public sealed record WithValueField(ObjectFieldId Field, int Operand, int Value) : IrExpression;
+    // Named struct boxing: fresh object identity, copying the complete payload.
+    // The result has the selected Object view; no implicit value/reference conversion.
+    public sealed record BoxValue(ObjectTypeId Type, int Operand) : IrExpression;
+    // Both check null, then exact payload identity. Copy and mutable borrow differ:
+    // UnboxValue returns an independent value; UnboxLocation retains the box owner.
+    public sealed record UnboxValue(ObjectTypeId Type, int Operand) : IrExpression;
+    public sealed record UnboxLocation(ObjectTypeId Type, int Operand) : IrExpression;
     public sealed record AddressLocal(int Index) : IrExpression;
     public sealed record AddressParameter(int Index) : IrExpression;
     public sealed record AddressField(ObjectFieldId Field, int Receiver) : IrExpression;

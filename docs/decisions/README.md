@@ -75,3 +75,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0067](0067-value-array-cil-and-collection.md) | Value/vector CIL and live-reference collection | Accepted for Int32 vector CIL and local O0/O2 collection/borrow/return stress; class allocation composition remains planned |
 | [0068](0068-value-object-composition.md) | Value and class-construction IR composition | Accepted for authored IR using shared constructor/access rules and scalar lowering |
 | [0069](0069-value-object-cil-and-collection.md) | Value/class CIL and live-reference collection | Accepted for bounded class construction composed with static values and local O0/O2 collection/failure probes |
+| [0070](0070-detached-boxed-value-ir.md) | Detached boxed-value IR | Accepted for named-struct allocation/copy/borrow contracts, logical payload plans and source roots; native execution and CIL remain planned |

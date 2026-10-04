@@ -689,3 +689,13 @@ Clearing the last root reclaims the graph. Tests compare outputs and constructor
 division faults with .NET, preserve original IL offsets and unchanged packed output,
 check exact/one-byte-short heap and arena capacity, and reuse the context after
 nested allocation failure. All scopes unwind and the 2 KiB stack gate stays enabled.
+
+Detached boxing tests validate named-struct box allocation, exact unbox copies and
+payload borrows through the shared verifier (ADR 0070). They check nested payload
+reference paths, distinct copy/owner roots, allocation safepoints for empty boxes,
+exact root limits, synchronous allocating helpers and readonly field projection.
+Malformed operands, missing fault edges and escaping locations fail. Equal empty
+layouts from distinct TypeDefs or images retain distinct identities. Null and
+dynamically wrong box operands are accepted as faulting IR. Earlier profiles and
+native lowering remain closed to boxing. These tests do not execute boxes; native
+identity, copy isolation, fault order and collection need separate evidence.

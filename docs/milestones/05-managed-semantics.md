@@ -24,7 +24,9 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2c.3b | CIL value/vector allocation and composed live-reference stress | Complete for Int32 vector CIL |
 | 5d.2c.3c.1 | Value/class-construction IR composition | Complete for authored IR |
 | 5d.2c.3c.2 | CIL value/class construction and live-reference stress | Complete for the bounded compiler-library profile |
-| 5e | Boxing, unboxing and boxed identity/mutation | Planned |
+| 5e.1 | Named-struct boxing, exact unbox copies/borrows and payload/root contracts | Complete for authored IR |
+| 5e.2 | Native boxed storage, identity/mutation, fault order and collection | Planned |
+| 5e.3 | Bounded CIL boxing/unboxing and composed differential regressions | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
@@ -291,3 +293,20 @@ failure with context reuse. The 2 KiB stack gate remains enabled.
 Milestone 5 remains in progress. Boxing/unboxing is next (5e), followed by generics,
 delegates and managed exceptions. Existing CLI entry points remain unchanged.
 Local main remains an ancestor. No push, hosted work, service or additional agent ran.
+
+## Slice 5e.1 outcome
+
+ADR 0070 adds an opt-in authored boxing contract on the existing composed value
+flow. It distinguishes fresh box allocation, exact unbox copies and mutable
+payload borrows. Logical payload plans reuse bounded struct paths and embedded
+reference maps; phase A roots include every box and borrowed owner, including
+empty payloads. Earlier profiles and native lowering still reject boxing.
+
+Review checked exact payload identities, required fault exits, copied-reference
+roots, borrowed-owner roots, readonly projection and existing escape/resource
+limits. It added regressions for identical empty layouts with distinct TypeDef or
+image identities. No blocking findings remain. All 231 selected local verifier,
+layout and root-planning checks pass; the compiler builds without warnings/errors.
+Local main remains an ancestor. Native storage/execution and CIL boxing remain
+the next gates; milestone 5 is not complete. No push, hosted work, service or
+additional agent ran.

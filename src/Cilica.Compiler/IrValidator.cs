@@ -167,6 +167,12 @@ internal static class IrValidator
                             IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type),
                             IrExpression.IsInstance t => TypeTest(t.Target, t.Operand, value.Type),
                             IrExpression.DefaultValue d => valueRules is not null && value.Type == IrType.Value(d.Type),
+                            IrExpression.BoxValue b => valueRules is not null && Earlier(b.Operand)
+                                && valueRules.Box(b.Type, valueTypes[b.Operand], value.Type),
+                            IrExpression.UnboxValue u => valueRules is not null && Earlier(u.Operand)
+                                && valueRules.Unbox(u.Type, valueTypes[u.Operand], value.Type, borrow: false),
+                            IrExpression.UnboxLocation u => valueRules is not null && Earlier(u.Operand)
+                                && valueRules.Unbox(u.Type, valueTypes[u.Operand], value.Type, borrow: true),
                             IrExpression.ValueField f => valueRules is not null && Earlier(f.Operand)
                                 && valueRules.Field(valueTypes[f.Operand], f.Field) == value.Type,
                             IrExpression.WithValueField f => valueRules is not null && Earlier(f.Operand) && Earlier(f.Value)
@@ -192,7 +198,8 @@ internal static class IrValidator
                         bool throwing = value.Expression is IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
-                            or IrExpression.AddressField or IrExpression.LoadLocation ||
+                            or IrExpression.AddressField or IrExpression.LoadLocation
+                            or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation);
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
                             "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");

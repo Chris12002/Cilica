@@ -9,10 +9,10 @@ public static class ValueIrValidator
 {
     public static void Validate(ValueIrProgram program) => _ = ValidateAndPlan(program);
 
-    internal static ValueIrRules ValidateAndPlan(ValueIrProgram program, bool locations = false, ObjectIrRules? objects = null)
+    internal static ValueIrRules ValidateAndPlan(ValueIrProgram program, bool locations = false, ObjectIrRules? objects = null, bool boxing = false)
     {
         ArgumentNullException.ThrowIfNull(program);
-        var rules = new ValueIrRules(program.Types, locations);
+        var rules = new ValueIrRules(program.Types, locations, boxing);
         IrValidator.Validate(new(program.Entry, program.Methods), program.Types.References, objectRules: objects, valueRules: rules);
         // Every inline layout must be used directly or via another used layout.
         var pending = new Stack<ObjectTypeId>(program.Methods.SelectMany(m => m.Parameters.Concat(m.Locals).Append(m.ReturnType)
@@ -43,13 +43,24 @@ internal sealed class ValueIrRules
     internal System.Collections.Immutable.ImmutableArray<ValueTypePlan> Plans { get; }
     internal ManagedLocationRules? Locations { get; }
     private readonly Dictionary<ObjectFieldId, ObjectField> _fields;
-    internal ValueIrRules(ValueTypeCatalog catalog, bool locations = false)
+    private readonly HashSet<ObjectTypeId> _boxTypes;
+    internal ValueIrRules(ValueTypeCatalog catalog, bool locations = false, bool boxing = false)
     {
         Plans = ValueLayoutPlanner.Build(catalog);
         Catalog = catalog;
         _fields = catalog.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
+        _boxTypes = boxing ? Plans.Select(p => p.Type).ToHashSet() : [];
         if (locations) Locations = new(catalog, this);
     }
+
+    internal bool Box(ObjectTypeId? type, IrType operand, IrType result) => type is not null
+        && _boxTypes.Contains(type) && operand == IrType.Value(type)
+        && result == IrType.Reference(Catalog.References.ObjectBase);
+
+    internal bool Unbox(ObjectTypeId? type, IrType operand, IrType result, bool borrow) => type is not null
+        && _boxTypes.Contains(type) && operand.Kind is IrTypeKind.Reference or IrTypeKind.NullReference
+        && (borrow ? Locations is not null && ManagedLocationRules.Address(IrType.Value(type), result)
+            : result == IrType.Value(type));
 
     internal IrType? Field(IrType receiver, ObjectFieldId? id)
     {

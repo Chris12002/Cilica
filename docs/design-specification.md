@@ -686,8 +686,16 @@ sanitizer probes preserve live object graphs through nested struct copies, borro
 replacement and caller-owned returns, including allocation inside constructors,
 sole-root transfer and failure cleanup. Existing CLI profiles are unchanged.
 
-Planned boxing allocates a value copy inside an object. Unboxing and interface dispatch
-preserve the distinction between modifying boxed storage and copying its value.
+The detached `boxed-value-ir-v1` gate now distinguishes fresh box allocation,
+exact unbox copies and synchronous mutable payload borrows
+([ADR 0070](decisions/0070-detached-boxed-value-ir.md)). It reuses named-struct
+layout paths and embedded-reference maps. Boxes retain exact type/image identity,
+including empty payloads, and payload borrows retain an owner root. All operations
+have explicit fault exits; box operations are allocation safepoints. Shared
+readonly, escape and resource checks apply. This is authored IR validation and
+root planning only; native storage, executable copy/identity/fault semantics and
+CIL boxing remain planned. Boxed interface dispatch must preserve the distinction
+between modifying boxed storage and copying its value.
 
 ## 8. Garbage collection
 
