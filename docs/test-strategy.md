@@ -638,3 +638,8 @@ caller roots, invalid destinations fail before any write, and exact measured are
 capacity succeeds while one byte less fails cleanly. Empty returns and generated
 parameter/local/root limits have detached tests. CIL and allocating value source
 programs remain later gates.
+
+Value CIL discovery tests read real return/borrow fixtures as metadata and use
+reduced assemblies for private/hidden/enclosing-type access, private-scope fields,
+readonly writes, unsupported signature shapes and per-method read limits. They
+distinguish metadata discovery from executable stack validation (ADR 0064).

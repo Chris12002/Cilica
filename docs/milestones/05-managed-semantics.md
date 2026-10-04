@@ -18,7 +18,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2b.1 | Native scalar location IR emission with allocating callees | Complete for authored IR |
 | 5d.2b.2 | Mutable value expansion into scalar location IR | Complete for authored IR with scalar/void returns |
 | 5d.2c.1 | Caller-owned native struct-return packets | Complete for authored IR |
-| 5d.2c.2 | CIL value discovery and translation | Planned |
+| 5d.2c.2a | CIL value closure discovery | Complete for bounded metadata inputs |
+| 5d.2c.2b | CIL value body translation | Planned |
 | 5d.2c.3 | Allocating value source programs and composed live-value stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
@@ -196,3 +197,12 @@ CIL discovery/translation and composed allocating value source programs are next
 Inline heap values, boxing, generics, delegates and managed exceptions remain
 planned. Milestone 5 is not complete. Local main remains an ancestor; no push,
 hosted work, service or additional agent ran.
+
+## Slice 5d.2c.2a outcome
+
+ADR 0064 discovers static CIL closures with exact value/borrow signatures and
+operand identities, shared metadata budgets and checked member visibility. Review
+removed a quadratic scan and closed private-scope field access. All 83 selected
+discovery/layout checks pass. This is a metadata checkpoint; it does not execute
+CIL values or validate their evaluation stack. Body translation is the next slice.
+Local main remains an ancestor. No hosted work ran.

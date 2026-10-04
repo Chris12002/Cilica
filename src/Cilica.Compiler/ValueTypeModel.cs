@@ -6,7 +6,10 @@ using Cilica.Metadata.Resolution;
 namespace Cilica.Compiler;
 
 /// <summary>A nongeneric struct's declared inline fields; no object header or native offsets.</summary>
-public sealed record ValueTypeLayout(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectField> Fields);
+public sealed record ValueTypeLayout(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectField> Fields)
+{
+    public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;
+}
 
 /// <summary>Detached inline closure plus the existing, separately validated reference catalog.</summary>
 public sealed record ValueTypeCatalog(ImmutableArray<ObjectTypeId> Roots, ObjectTypeId ValueBase,

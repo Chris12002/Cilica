@@ -632,6 +632,13 @@ sanitizer probes cover chained/nested returns, live reference identity, ordered
 faults and exact/insufficient arena budgets. CIL translation and allocating value
 source programs remain separate gates.
 
+Bounded CIL value discovery now supplies static method snapshots and resolved
+operand identities ([ADR 0064](decisions/0064-value-cil-discovery.md)). Method and
+layout discovery share a metadata budget, and field/call visibility is checked
+against exact declaring owners and enclosing-type visibility. Int32/value signatures
+and synchronous byref parameters are admitted; this metadata result is not yet
+stack-verified or executable CIL.
+
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 

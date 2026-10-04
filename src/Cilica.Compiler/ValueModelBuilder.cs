@@ -14,21 +14,24 @@ namespace Cilica.Compiler;
 public static class ValueModelBuilder
 {
     public static ValueCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
-        ResolvedAssembly runtimeLibrary)
+        ResolvedAssembly runtimeLibrary) => BuildCatalog(resolver, roots, runtimeLibrary,
+            new MemberResolutionBudget(ObjectModelLimits.MaximumMetadataMembers));
+
+    internal static ValueCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
+        ResolvedAssembly runtimeLibrary, MemberResolutionBudget work)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
         if (roots.IsDefaultOrEmpty || roots.Length > ObjectModelLimits.MaximumTypes)
             throw new ArgumentException("Value catalog needs 1..256 explicit roots.", nameof(roots));
-        try { return Build(resolver, roots, runtimeLibrary); }
+        try { return Build(resolver, roots, runtimeLibrary, work); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
-        ResolvedAssembly library)
+        ResolvedAssembly library, MemberResolutionBudget work)
     {
-        var work = new MemberResolutionBudget(ObjectModelLimits.MaximumMetadataMembers);
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
         var identities = new HashSet<ObjectTypeId>();
@@ -124,7 +127,7 @@ public static class ValueModelBuilder
                 }
                 declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
             }
-            values.Add(new(input.Source, input.Attributes, [.. declared]));
+            values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible });
         }
         var referenceResult = ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values], library, Read, [.. arrays], strings);
         if (referenceResult.Catalog is null) return new(null, referenceResult.Diagnostics);

@@ -1193,3 +1193,13 @@ capabilities. Exact measured arena storage succeeds and one byte less fails with
 complete cleanup. This is authored IR support, not CIL translation or a public
 struct ABI. Allocating value source programs, inline heap values and the other
 planned milestone 5 capabilities remain separate work.
+
+## Bounded value CIL discovery
+
+`ValueProgramDiscovery.Read` supplies metadata inputs for direct static nongeneric
+closures, Int32/value signatures, void returns and Int32/value byref parameters.
+Fields, type operands and calls retain exact identities, access checks and shared
+budgets (ADR 0064). Embedded references keep the existing layout grammar. This
+API does not claim supported body opcodes or executable CIL. Standalone reference
+signatures, modifiers, byref locals/returns and generic/instance methods remain
+unsupported.
