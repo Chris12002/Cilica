@@ -776,3 +776,8 @@ identity rules, paired construction within a block and explicit unsupported patt
 Real C# O0/O2 sanitizer probes store captured delegates in boxed generic values,
 collect cyclic receivers and compare successful calls plus null/target faults with
 .NET. Null-only invocation covers an empty native target table.
+
+Managed exception input checks (ADR 0081) cover scoped catch identities, nested
+catch/finally/rethrow regions, general-filter rejection, exact metadata budgets and
+illegal handler entry. Reduced filters distinguish current-evaluation local writes
+from prior handler state, including branch joins and acyclic backward branches.

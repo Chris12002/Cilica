@@ -1348,3 +1348,11 @@ collection of captured cycles, null/target fault provenance and failure cleanup.
 Generic delegate declarations such as Func/Action, private compiler-generated closure
 visibility, virtual capture, multicast and variance remain diagnostic. No CLI or
 public native delegate ABI is added.
+
+## Managed exception metadata
+
+`ReadManagedExceptionMethodInput` retains validated regions and catch signatures,
+with 256 clauses per method and shared metadata work bounds (ADR 0081). Stage-A
+filters must be acyclic and read only locals assigned in the current evaluation;
+general filters remain diagnostic. This API does not establish native managed
+exception objects or handler execution.

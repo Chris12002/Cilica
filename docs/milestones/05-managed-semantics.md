@@ -35,7 +35,10 @@ profiles continue to reject unsupported reachable semantics.
 | 5g.1 | Delegate identities, captures, invocation and root contracts | Complete for authored single-target Int32/void IR |
 | 5g.2 | Native delegate storage, invocation and collection | Complete for authored single-target Int32/void IR |
 | 5g.3 | CIL delegate binding and composed differential probes | Complete for public named nongeneric single-target delegates |
-| 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
+| 5h.1 | Validated exception metadata and type-test filter admission | Complete for metadata inputs |
+| 5h.2 | Checked exception IR and rooted handler/cleanup contracts | Next |
+| 5h.3 | Native exception objects, propagation and cleanup | Planned |
+| 5h.4 | CIL exceptions and type-test filters with differential probes | Planned |
 | 5i | Composed differential regressions and final review | Planned |
 
 Split slices further when a separately testable semantic or ownership contract
@@ -469,3 +472,14 @@ its receiver cycle. Null capture, null invocation and callee faults keep their o
 and preserve packed output. Review checked bounds, declaration identity, branch
 boundaries, captures and cleanup. Managed exceptions/type-test filters are next (5h);
 milestone 5 remains in progress. No hosted work ran.
+
+## Slice 5h.1 outcome
+
+Managed exception inputs now retain validated catch/finally/fault/filter boundaries
+and scoped catch identities (ADR 0081). General filters remain diagnostics. Review
+found and fixed filter-local reads that could precede assignment during the current
+evaluation; classification now intersects assigned locals across incoming paths.
+Seventy distinct selected local checks pass, including reduced state/branch regressions,
+exact metadata budgets, protected-transfer rejection and real C# region snapshots.
+This is metadata support only. Checked IR, rooted native exception objects/cleanup
+and executable CIL handlers remain next; milestone 5 is not complete.

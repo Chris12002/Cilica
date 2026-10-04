@@ -594,7 +594,43 @@ internal sealed class ControlFlowAnalyzer
         }
         // A nonterminating filter prevents the unwind pass (and its finally side effects).
         // An opcode whitelist alone cannot justify moving it after unwinding.
-        return FilterHasCycle(first, end) ? "general" : "type-test";
+        return FilterHasCycle(first, end) || FilterReadsPriorState(first, end) ? "general" : "type-test";
+    }
+
+    // Even a filter-local can retain state from an earlier handler execution.
+    // Every local read must be dominated by a write during this filter evaluation.
+    private bool FilterReadsPriorState(int first, int end)
+    {
+        var assigned = new Dictionary<int, HashSet<int>> { [first] = [] };
+        var pending = new Queue<int>(); pending.Enqueue(first);
+        int work = 0;
+        while (pending.TryDequeue(out int index))
+        {
+            var state = new HashSet<int>(assigned[index]);
+            if ((work += state.Count + 1) > 65536) return true; // Conservative bounded classification.
+            var instruction = _instructions[index];
+            if (instruction.AccessesArgument == false)
+            {
+                if (instruction.Code.Name.StartsWith("stloc", StringComparison.Ordinal)) state.Add(instruction.VariableIndex);
+                else if (!state.Contains(instruction.VariableIndex)) return true;
+            }
+            var successors = instruction.Targets.Select(target => _indexOfOffset[target]).ToList();
+            if (FallsThrough(instruction.Code.Flow) && index + 1 < end) successors.Add(index + 1);
+            foreach (int successor in successors)
+            {
+                if ((work += state.Count + 1) > 65536) return true;
+                if (!assigned.TryGetValue(successor, out var known))
+                {
+                    assigned.Add(successor, new(state)); pending.Enqueue(successor);
+                }
+                else
+                {
+                    int count = known.Count; known.IntersectWith(state);
+                    if (count != known.Count) pending.Enqueue(successor);
+                }
+            }
+        }
+        return false;
     }
 
     private bool FilterHasCycle(int first, int end)

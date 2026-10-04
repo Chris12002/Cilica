@@ -792,6 +792,11 @@ same mechanism on native and WebAssembly targets and no C++ exceptions
 selection and finally execution are Cilica responsibilities. Root registrations
 must unwind correctly.
 
+Managed exception metadata now retains validated bounded region inputs and catch
+identities ([ADR 0081](decisions/0081-managed-exception-inputs.md)). Its type-test
+classifier requires acyclic flow and local assignment before every read on all paths.
+Executable managed handlers remain a subsequent gate.
+
 Exception filters are staged. Filters that only test the exception's type are
 supported with basic exceptions, because their evaluation order is
 unobservable; Alchemy uses them. General filters need full two-pass search and

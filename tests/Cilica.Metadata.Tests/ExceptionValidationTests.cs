@@ -9,6 +9,33 @@ namespace Cilica.Metadata.Tests;
 public sealed class ExceptionValidationTests
 {
     [Theory]
+    [InlineData(0, "general")]
+    [InlineData(1, "type-test")]
+    [InlineData(2, "general")]
+    public void Filter_local_reads_require_a_write_in_the_current_evaluation(int assignment, string expected)
+    {
+        var assembly = new ResolutionAssemblyBuilder(new("FilterState", new Version(1, 0, 0, 0)));
+        assembly.Type("Test", "Methods");
+        assembly.Method("Execute", [0, 0, 1], locals: [7, 1, 8], emit: il =>
+        {
+            var start = il.DefineLabel(); var filter = il.DefineLabel(); var handler = il.DefineLabel(); var done = il.DefineLabel();
+            il.MarkLabel(start); il.Branch(ILOpCode.Leave_s, done);
+            il.MarkLabel(filter); il.OpCode(ILOpCode.Pop);
+            var joined = il.DefineLabel();
+            if (assignment == 2) { il.LoadConstantI4(0); il.Branch(ILOpCode.Brtrue_s, joined); }
+            if (assignment != 0) { il.LoadConstantI4(1); il.StoreLocal(0); }
+            il.MarkLabel(joined);
+            il.LoadLocal(0); il.LoadConstantI4(1); il.StoreLocal(0); il.OpCode(ILOpCode.Endfilter);
+            il.MarkLabel(handler); il.OpCode(ILOpCode.Pop); il.LoadConstantI4(0); il.StoreLocal(0);
+            il.Branch(ILOpCode.Leave_s, done); il.MarkLabel(done); il.OpCode(ILOpCode.Ret);
+            il.ControlFlowBuilder!.AddFilterRegion(start, filter, handler, done, filter);
+        });
+        var report = MethodBodyInspector.Inspect(assembly.Build(), "filter-state.dll");
+        Assert.Empty(report.Diagnostics);
+        Assert.Equal(expected, Assert.Single(Assert.Single(report.Methods).Regions).FilterKind);
+    }
+
+    [Theory]
     [InlineData("self", "general")]
     [InlineData("cycle", "general")]
     [InlineData("backward-acyclic", "type-test")]
