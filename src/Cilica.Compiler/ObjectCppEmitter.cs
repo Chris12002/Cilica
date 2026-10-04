@@ -61,6 +61,13 @@ public static class ObjectCppEmitter
         return EmitValidated(program.Flow, plans, locations: true, exceptions: exceptions);
     }
 
+    public static CppArtifact EmitExceptions(ScalarManagedExceptionIrProgram program)
+    {
+        var plans = ObjectRootAssignment.AssignExceptions(program).ToDictionary(p => p.Method);
+        var boxes = program.Flow.Flow;
+        return EmitValidated(boxes.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(boxes.Values), program.Exceptions, handlers: true);
+    }
+
     public static CppArtifact EmitDelegates(ScalarDelegateIrProgram program)
     {
         var plans = ObjectRootAssignment.AssignDelegates(program).ToDictionary(p => p.Method);
@@ -68,7 +75,7 @@ public static class ObjectCppEmitter
     }
 
     private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations,
-        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null)
+        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null, bool handlers = false)
     {
         string argumentType = locations ? "LocationArgument" : "Argument";
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
@@ -102,7 +109,7 @@ public static class ObjectCppEmitter
         var literalIds = literals.Keys.Select((key, index) => (key, index)).ToDictionary(p => p.key, p => p.index, StringComparer.Ordinal);
         var referenceTypes = concrete.Concat(contracts).ToArray();
         string Predicate(ObjectTypeId type) => contracts.Contains(type) ? ContractSymbol(type) : TypeSymbol(type) + "_accepts";
-        var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key]));
+        var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key], exceptions?.Base));
         var entry = methods[program.Flow.Entry];
         string symbol = CppEmitter.Symbol(program.Flow.Entry) + "_objects_packed", scope = symbol + "_closure";
         var text = new StringBuilder();
@@ -110,6 +117,7 @@ public static class ObjectCppEmitter
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
             .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
         if (exceptions is not null) ObjectCppExceptions.AppendStorage(text);
+        if (handlers) text.Append(ObjectCppExceptionFlow.Storage);
         if (locations) text.Append("struct LocationArgument { std::uint32_t bits = 0; Object* reference = nullptr; Location location; };\n");
         foreach (var type in referenceTypes)
             text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
@@ -168,7 +176,7 @@ public static class ObjectCppEmitter
                 .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
                 .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : "1, nullptr, nullptr, nullptr").Append(" };\n");
         }
-        if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, TypeSymbol);
+        if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, program.Flow.Types, TypeSymbol);
         if (delegates is not null) ObjectCppDelegates.AppendStorage(text, delegateDeclarations, TypeSymbol, program.Flow.Types.ObjectBase);
         if (!boxedPayloads.IsEmpty)
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
@@ -207,6 +215,9 @@ public static class ObjectCppEmitter
             if (!boxedPayloads.IsEmpty) text.Append("    std::array<Argument, ").Append(N(layout.BoxArgumentCount))
                 .Append("> box_arguments{}; BoxResult box_result{};\n");
             if (delegates is not null) text.Append("    DelegateResult delegate_result{};\n");
+            if (handlers) text.Append("    std::uint32_t active_block = 0; bool exception_routed = false; ExceptionResult exception_result{};\n")
+                .Append("    std::array<ExceptionOrigin, ").Append(N(method.ExceptionRegions.Length * 2)).Append("> exception_origins{};\n")
+                .Append("    std::array<ExceptionContinuation, ").Append(N(method.ExceptionRegions.Length)).Append("> exception_continuations{};\n");
             foreach (var kind in layout.DispatchKinds.OrderBy(k => k))
                 text.Append("    ").Append(CType(new(kind))).Append(" (*dispatch_").Append(kind.ToString().ToLowerInvariant())
                     .Append(")(Context&, const ").Append(argumentType).Append("*) noexcept = nullptr;\n");
@@ -264,6 +275,7 @@ public static class ObjectCppEmitter
         {
             var layout = layouts[IrMethodId.From(method.Source)];
             int currentBlock = 0;
+            var exceptionRules = handlers ? new ManagedExceptionRules(exceptions!, program.Flow.Types) : null;
             var output = text;
             var code = new StringBuilder();
             var steps = new List<string>();
@@ -396,13 +408,14 @@ public static class ObjectCppEmitter
                 currentBlock = block.Id;
                 var values = block.Values.ToDictionary(v => v.Id);
                 Label("b" + N(block.Id));
+                if (handlers) code.Append("    f->active_block = ").Append(N(block.Id)).Append(";\n");
                 int statementsInStep = 0;
                 foreach (var statement in block.Statements)
                 {
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
                         or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
-                            or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
+                            or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
@@ -417,6 +430,15 @@ public static class ObjectCppEmitter
                             code.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                             switch (value.Expression)
                             {
+                                case IrExpression.NewException creation:
+                                    code.Append("    f->exception_result = make_exception(context, &").Append(TypeSymbol(creation.Type)).Append("_descriptor, ")
+                                        .Append(creation.Message is int messageValue ? Value(messageValue) : "nullptr").Append(creation.Message is null ? ", 1u);\n" : ", 0u);\n");
+                                    Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
+                                    expression = "f->exception_result.value"; break;
+                                case IrExpression.ExceptionMessage message:
+                                    code.Append("    f->exception_result = exception_message(context, ").Append(Value(message.Operand)).Append(");\n");
+                                    Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
+                                    expression = "f->exception_result.value"; break;
                                 case IrExpression.NewDelegate creation:
                                     code.Append("    f->delegate_result = make_delegate(context, ").Append(N(delegates!.Index(creation)))
                                         .Append(", ").Append(Value(creation.Receiver)).Append(");\n");
@@ -577,6 +599,19 @@ public static class ObjectCppEmitter
                 Flush();
                 switch (block.Terminator)
                 {
+                    case IrThrow thrown:
+                        code.Append("    (void)raise_exception(context, ").Append(Value(thrown.Value)).Append(", \"").Append(method.Source.ContentHash)
+                            .Append("\", ").Append(N(method.Source.Token)).Append("u, ").Append(N(thrown.ILOffset)).Append("u);\n");
+                        Guard("context.pending == 0u", "6u", thrown.ILOffset); code.Append("    return frame_done;\n"); Flush(terminal: true); break;
+                    case IrRethrow:
+                        code.Append("    rethrow_exception(context, f, ").Append(N(exceptionRules!.CatchAt(method, block.Id))).Append("u);\n    return frame_done;\n"); Flush(terminal: true); break;
+                    case IrLeave leave:
+                        code.Append("    return leave_exception_scope(context, f, ").Append(N(leave.Edge.Target)).Append("u);\n"); Flush(terminal: true); break;
+                    case IrEndFinally:
+                        code.Append("    return finish_exception_scope(context, f, ").Append(N(exceptionRules!.CleanupAt(method, block.Id))).Append("u, false);\n"); Flush(terminal: true); break;
+                    case IrEndFilter ended:
+                        code.Append("    return finish_exception_scope(context, f, ").Append(N(exceptionRules!.FilterAt(method, block.Id))).Append("u, ")
+                            .Append(Value(ended.Value)).Append(" != 0u);\n"); Flush(terminal: true); break;
                     case IrReturn returned:
                         code.Append(method.ReturnType.Kind == IrTypeKind.Int32 ? "    f->result.bits = " : "    f->result.reference = ")
                             .Append(Value(returned.Value)).Append(";\n    return frame_done;\n"); Flush(terminal: true); break;
@@ -594,6 +629,7 @@ public static class ObjectCppEmitter
             string stepScope = CppEmitter.Symbol(IrMethodId.From(method.Source)) + "_steps";
             code.Append("namespace ").Append(stepScope).Append(" {\n");
             foreach (var label in labels) code.Append("[[maybe_unused]] static constexpr std::uint32_t ").Append(label.Key).Append(" = ").Append(N(label.Value)).Append("u;\n");
+            if (handlers) ObjectCppExceptionFlow.Append(code, method, layout, FrameType(method), TypeSymbol);
             for (int i = 0; i < steps.Count; i++)
                 code.Append("[[gnu::noinline]] static std::uint32_t s").Append(N(i)).Append("([[maybe_unused]] Context& context, [[maybe_unused]] ")
                     .Append(FrameType(method)).Append("* f) noexcept {\n").Append(steps[i]).Append("}\n");
@@ -601,6 +637,13 @@ public static class ObjectCppEmitter
                 .Append(string.Join(", ", Enumerable.Range(0, steps.Count).Select(i => "s" + N(i)))).Append("};\n}\n");
             inStep = false;
             Header(method); code.Append(" {\n");
+            if (handlers)
+            {
+                code.Append("    if (context.pending != 0u) ").Append(Exit()).Append('\n');
+                Guard("context.exception != nullptr", "6u", method.Blocks[0].ILOffset);
+                code.Append("    if (context.depth == 0) {\n        const auto preparation = prepare_exceptions(context);\n");
+                Guard("preparation != 0u", "preparation", method.Blocks[0].ILOffset); code.Append("    }\n");
+            }
             Guard("context.depth >= 64u", "8u", method.Blocks[0].ILOffset);
             code.Append("    Storage<").Append(FrameType(method)).Append("> storage(context);\n");
             Guard("storage.value == nullptr", "9u", method.Blocks[0].ILOffset);
@@ -613,8 +656,10 @@ public static class ObjectCppEmitter
                 Guard("borrowed.status != LocationStatus::complete", "borrowed.status == LocationStatus::limit ? 9u : 6u", method.Blocks[0].ILOffset);
                 code.Append("    f->borrow_token = borrowed.frame.token;\n");
             }
-            code.Append("    std::uint32_t step = 0;\n    while (step != frame_done && context.pending == 0u) step = ").Append(stepScope).Append("::table[step](context, f);\n")
-                .Append("    ").Append(method.ReturnType.Kind switch
+            if (handlers) code.Append("    std::uint32_t step = 0;\n    while (step != frame_done) {\n        f->exception_routed = false;\n        step = ").Append(stepScope)
+                .Append("::table[step](context, f);\n        if (context.pending != 0u && !f->exception_routed) step = ").Append(stepScope).Append("::dispatch_exception(context, f);\n    }\n");
+            else code.Append("    std::uint32_t step = 0;\n    while (step != frame_done && context.pending == 0u) step = ").Append(stepScope).Append("::table[step](context, f);\n");
+            code.Append("    ").Append(method.ReturnType.Kind switch
                 {
                     IrTypeKind.Void => "return;",
                     IrTypeKind.Int32 => "return std::bit_cast<std::int32_t>(f->result.bits);",

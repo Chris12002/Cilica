@@ -11,6 +11,17 @@ public static class ValueScalarLowering
     public const string Profile = "value-scalars-v1";
     public const string LocationProfile = "value-location-scalars-v2";
 
+    public static ScalarManagedExceptionIrProgram LowerExceptions(ManagedExceptionIrProgram program)
+    {
+        _ = ValueRootAssignment.Assign(program);
+        var values = program.Flow.Flow.Flow;
+        var objects = new ObjectIrProgram(LowerCore(values, returnPackets: true), program.Flow.Bindings);
+        var scalar = new ScalarBoxedIrProgram(new(objects), values.Types);
+        var result = new ScalarManagedExceptionIrProgram(new(scalar), program.Exceptions);
+        _ = ObjectRootAssignment.AssignExceptions(result);
+        return result;
+    }
+
     public static ScalarDelegateIrProgram LowerDelegates(DelegateValueIrProgram program)
     {
         _ = ValueRootAssignment.Assign(program);
@@ -309,12 +320,18 @@ public static class ValueScalarLowering
                         default:
                             IrExpression expression = value.Expression switch
                             {
-                                IrExpression.Constant or IrExpression.Null => value.Expression,
+                                IrExpression.Constant or IrExpression.Null or IrExpression.StringLiteral => value.Expression,
                                 IrExpression.Binary binary => binary with { Left = One(binary.Left), Right = One(binary.Right) },
                                 IrExpression.Unary unary => unary with { Operand = One(unary.Operand) },
                                 IrExpression.Compare compare => compare with { Left = One(compare.Left), Right = One(compare.Right) },
                                 IrExpression.Call call => call with { Arguments = Arguments(call.Arguments, true) },
                                 IrExpression.AddressField field => field with { Receiver = One(field.Receiver) },
+                                IrExpression.NewException e => e with { Message = e.Message is int message ? One(message) : null },
+                                IrExpression.ExceptionMessage e => e with { Operand = One(e.Operand) },
+                                IrExpression.IsInstance e => e with { Operand = One(e.Operand) },
+                                IrExpression.CastClass e => e with { Operand = One(e.Operand) },
+                                IrExpression.StringLength e => e with { Operand = One(e.Operand) },
+                                IrExpression.StringEquals e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.NewDelegate d => d with { Receiver = One(d.Receiver) },
                                 IrExpression.CallDelegate d => d with { Delegate = One(d.Delegate), Arguments = Arguments(d.Arguments, true) },
                                 IrExpression.NewArray array => array with { Length = One(array.Length) },
@@ -339,7 +356,10 @@ public static class ValueScalarLowering
                 {
                     IrReturn returned when method.ReturnType.Kind == IrTypeKind.Value => new IrVoidReturn(returned.ILOffset),
                     IrReturn returned => returned with { Value = One(returned.Value) },
-                    IrVoidReturn => block.Terminator,
+                    IrVoidReturn or IrRethrow or IrEndFinally => block.Terminator,
+                    IrThrow thrown => thrown with { Value = One(thrown.Value) },
+                    IrEndFilter ended => ended with { Value = One(ended.Value) },
+                    IrLeave leave => leave with { Edge = Edge(leave.Edge) },
                     IrJump jump => jump with { Edge = Edge(jump.Edge) },
                     IrBranch branch => branch with { Left = One(branch.Left), Right = branch.Right is { } right ? One(right) : null,
                         Taken = Edge(branch.Taken), NotTaken = Edge(branch.NotTaken) },

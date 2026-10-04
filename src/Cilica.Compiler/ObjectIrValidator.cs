@@ -10,14 +10,14 @@ public static class ObjectIrValidator
 {
     public static void Validate(ObjectIrProgram program) => Validate(program, locations: false);
 
-    internal static void Validate(ObjectIrProgram program, bool locations, ScalarBoxingRules? boxes = null, bool delegates = false)
+    internal static void Validate(ObjectIrProgram program, bool locations, ScalarBoxingRules? boxes = null, bool delegates = false, ManagedExceptionRules? exceptions = null)
     {
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
         ObjectModelValidator.Validate(program.Flow.Types);
         _ = new ObjectNativeLayout(program.Flow.Types);
         var rules = new ObjectIrRules(program, locations, delegates: delegates);
-        ReferenceIrValidator.Validate(program.Flow, rules, locations ? new ManagedLocationRules(program.Flow.Types) : null, boxes);
+        ReferenceIrValidator.Validate(program.Flow, rules, locations ? new ManagedLocationRules(program.Flow.Types) : null, boxes, exceptions);
         rules.DispatchMaps();
         var entry = rules.Binding(program.Flow.Entry);
         var method = program.Flow.Methods.Single(m => IrMethodId.From(m.Source) == program.Flow.Entry);

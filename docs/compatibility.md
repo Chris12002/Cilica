@@ -1372,3 +1372,9 @@ references, rooted pending identity and saved-state restoration (ADR 0083). O0/O
 ASan/UBSan checks cover ownership, collection, exact heap capacity and emergency
 allocation fallback. The emergency object is charged to the normal instance quota.
 This helper gate does not execute handler IR or supply default/resource messages.
+
+The authored `scalar-managed-exceptions-ir-v1` profile now executes catch, pure type
+filters, throw/rethrow and leave/finally/fault through explicit native continuations
+([ADR 0084](decisions/0084-native-exception-dispatch.md)). Messages preserve supplied UTF-16
+and bounded invariant defaults; O0/O2 sanitizer checks cover rooted identity and
+cleanup. CIL exception translation and a public structured-error ABI remain separate.

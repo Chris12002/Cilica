@@ -18,7 +18,11 @@ public sealed class NativeExceptionRuntimeTests
     {
         var source = ManagedExceptionIrTests.Model(); var flow = source.Flow.Flow.Flow;
         var textType = source.Exceptions.Base with { Token = 0x0200000f };
-        var references = flow.Types.References with { String = textType, Roots = flow.Types.References.Roots.Add(textType) };
+        var exceptionTypes = new Type[] { typeof(Exception), typeof(DivideByZeroException), typeof(OverflowException), typeof(NullReferenceException),
+            typeof(OutOfMemoryException), typeof(InvalidCastException), typeof(IndexOutOfRangeException), typeof(ArrayTypeMismatchException), typeof(ArgumentException), typeof(Exception) };
+        var references = flow.Types.References with { String = textType, Roots = flow.Types.References.Roots.Add(textType),
+            Types = [.. flow.Types.References.Types.Select(t => { int i = source.Exceptions.Types.IndexOf(ObjectTypeId.From(t.Source));
+                return i < 0 ? t : t with { Source = t.Source with { Name = exceptionTypes[i].FullName! } }; })] };
         var method = flow.Methods[0] with
         {
             ExceptionRegions = [], Locals = [.. source.Exceptions.Types.Select(IrType.Reference), IrType.Reference(textType)],
@@ -29,8 +33,25 @@ public sealed class NativeExceptionRuntimeTests
         string stringDescriptor = "t_" + textType.ContentHash + "_" + textType.Token.ToString("x8", CultureInfo.InvariantCulture) + "_descriptor";
         string customDescriptor = "t_" + source.Exceptions.Types[^1].ContentHash + "_" + source.Exceptions.Types[^1].Token.ToString("x8", CultureInfo.InvariantCulture) + "_descriptor";
         string message = new Exception("A\0\ud800Z").Message;
+        var checks = new StringBuilder();
+        for (int i = 0; i < source.Exceptions.Types.Length; ++i)
+        for (int kind = 0; kind < 3; ++kind)
+        {
+            string expected = ((Exception)Activator.CreateInstance(exceptionTypes[i], kind == 0 ? new object?[] { null } : [])!).Message;
+            if (kind == 2 && exceptionTypes[i] == typeof(ArgumentException))
+            { try { _ = Cilica.Fixtures.Execution.DelegateProbe.NullCapture(0); }
+                catch (ArgumentException error) { expected = error.Message; } }
+            var type = source.Exceptions.Types[i];
+            checks.Append(CultureInfo.InvariantCulture, $$"""
+                {
+                    static constexpr std::uint16_t expected[] = { {{string.Join(", ", expected.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture)))}} };
+                    check_message(c, roots, &t_{{type.ContentHash}}_{{type.Token:x8}}_descriptor, {{kind}}, expected, {{expected.Length}});
+                }
+                """);
+        }
         var cpp = new StringBuilder(artifact.Text).Append(CultureInfo.InvariantCulture, $$"""
             #include <cassert>
+            #include <cstdio>
             using namespace {{artifact.EntryPoint[..^4]}}_closure;
             [[gnu::noinline]] static void roots_and_identity() {
                 Instance heap; heap.collect_before_allocation = true; Context c(heap);
@@ -109,7 +130,32 @@ public sealed class NativeExceptionRuntimeTests
                 assert(prepare_exceptions(c) == 5 && heap.count == 0 && heap.emergency_exception == nullptr && c.pending == 0);
                 heap.limit = sizeof(ExceptionObject); assert(prepare_exceptions(c) == 0 && heap.count == 1);
             }
-            int main() { roots_and_identity(); runtime_faults_and_emergency_capacity(); invalid_state_is_failure_atomic(); bootstrap_failure_is_bounded(); }
+            [[gnu::noinline]] static void check_message(Context& c, Object** roots, const Descriptor* type, std::uint32_t kind, const std::uint16_t* expected, std::uint32_t length) {
+                auto& heap = c.instance;
+                roots[0] = make_exception(c, type, nullptr, kind).value; assert(roots[0]);
+                heap.object_limit = heap.count;
+                const auto before = exception_origin(c);
+                assert(exception_message(c, roots[0]).status == 5);
+                assert(reinterpret_cast<ExceptionObject*>(roots[0])->message == nullptr && c.pending == before.status);
+                heap.object_limit = 100;
+                auto result = exception_message(c, roots[0]); assert(result.status == 0 && result.value);
+                if (string_length(result.value) != length) {
+                    std::fprintf(stderr, "kind %u: expected ", kind);
+                    for (std::uint32_t j = 0; j < length; ++j) std::fputc(expected[j], stderr);
+                    std::fprintf(stderr, " actual ");
+                    for (std::uint32_t j = 0; j < string_length(result.value); ++j) std::fputc(string_code_unit(result.value, j), stderr);
+                }
+                assert(string_length(result.value) == length);
+                for (std::uint32_t j = 0; j < length; ++j) assert(string_code_unit(result.value, j) == expected[j]);
+                assert(exception_message(c, roots[0]).value == result.value);
+                roots[0] = nullptr; assert(collect(c).status == MarkStatus::complete && heap.count == 1);
+            }
+            [[gnu::noinline]] static void default_messages() {
+                Instance heap; heap.collect_before_allocation = true; Context c(heap); assert(prepare_exceptions(c) == 0);
+                Object* roots[1]{}; Frame frame; RootScope scope(c, frame, roots, 1);
+                {{checks}}
+            }
+            int main() { default_messages(); roots_and_identity(); runtime_faults_and_emergency_capacity(); invalid_state_is_failure_atomic(); bootstrap_failure_is_bounded(); }
             """);
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("native-exceptions");
         string input = Path.Combine(directory, "exceptions.cpp"), executable = Path.Combine(directory, "exceptions");
@@ -119,6 +165,6 @@ public sealed class NativeExceptionRuntimeTests
                 "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", input, "-o", executable], directory);
         Assert.True(build.ExitCode == 0, build.Stderr);
         var run = await NativeProcess.Run(executable, [], directory);
-        Assert.True(run.ExitCode == 0, run.Stdout + run.Stderr); Assert.Empty(run.Stderr);
+        Assert.True(run.ExitCode == 0, run.Stdout + run.Stderr); Assert.True(run.Stderr.Length == 0, run.Stderr);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace Cilica.Compiler;
@@ -7,7 +8,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppExceptions
 {
     internal static void AppendStorage(StringBuilder text) => text.Append("""
-struct ExceptionObject { Object header; Object* message = nullptr; };
+struct ExceptionObject { Object header; Object* message = nullptr; std::uint32_t message_kind = 0; };
 static_assert(std::is_standard_layout_v<ExceptionObject> && std::is_trivially_destructible_v<ExceptionObject> && offsetof(ExceptionObject, header) == 0);
 static constexpr std::size_t exception_references[] = {offsetof(ExceptionObject, message)};
 [[gnu::noinline]] static void* exception_field(Object* value, [[maybe_unused]] std::size_t offset) noexcept {
@@ -28,14 +29,30 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         .Append("[](Object* p) noexcept { delete reinterpret_cast<ExceptionObject*>(p); }, &").Append(parent)
         .Append("_descriptor, nullptr, 0, nullptr, exception_field};\n");
 
-    internal static void AppendHelpers(StringBuilder text, ManagedExceptionTypes types, Func<ObjectTypeId, string> symbol)
+    internal static void AppendHelpers(StringBuilder text, ManagedExceptionTypes types, ObjectTypeCatalog catalog, Func<ObjectTypeId, string> symbol)
     {
         text.Append("[[gnu::noinline]] static bool known_exception(const Descriptor* type) noexcept {\n");
         foreach (var type in types.Types) text.Append("    if (type == &").Append(symbol(type)).Append("_descriptor) return true;\n");
         text.Append("    return false;\n}\n[[gnu::noinline]] static const Descriptor* runtime_exception(std::uint32_t status) noexcept {\n    switch (status) {\n");
         foreach (var binding in types.RuntimeFaults)
             text.Append("    case ").Append(binding.Status.ToString(CultureInfo.InvariantCulture)).Append(": return &").Append(symbol(binding.Type)).Append("_descriptor;\n");
-        text.Append("    default: return nullptr;\n    }\n}\n").Append(Helpers).Append('\n');
+        text.Append("    default: return nullptr;\n    }\n}\n");
+        var messages = ManagedExceptionMessages.Build(types, catalog);
+        var resources = messages.Values.Distinct(StringComparer.Ordinal).Select((message, index) => (message, index)).ToDictionary(p => p.message, p => p.index, StringComparer.Ordinal);
+        foreach (var resource in resources)
+            text.Append("static constexpr std::uint16_t exception_text_").Append(resource.Value.ToString(CultureInfo.InvariantCulture)).Append("[] = {")
+                .AppendJoin(", ", resource.Key.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture))).Append("};\n");
+        text.Append("struct ExceptionText { const std::uint16_t* units = nullptr; std::uint32_t length = 0; };\n")
+            .Append("struct ExceptionTextEntry { const Descriptor* type; std::uint32_t kind; ExceptionText text; };\nstatic constexpr ExceptionTextEntry exception_texts[] = {\n");
+        foreach (var pair in messages)
+            text.Append("    {&").Append(symbol(pair.Key.Type)).Append("_descriptor, ").Append(pair.Key.Kind.ToString(CultureInfo.InvariantCulture))
+                .Append("u, {exception_text_").Append(resources[pair.Value].ToString(CultureInfo.InvariantCulture)).Append(", ").Append(pair.Value.Length.ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
+        text.Append("};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_text(const Descriptor* type, std::uint32_t kind) noexcept {\n")
+            .Append("    for (const auto& entry : exception_texts) if (entry.type == type && entry.kind == kind) return entry.text;\n    return {};\n}\n");
+        text.Append("[[maybe_unused, gnu::noinline]] static Object* exception_message_string(Context& c, ExceptionText text) noexcept {\n");
+        if (catalog.String is { } stringType) text.Append("    return allocate_string(c, ").Append(symbol(stringType)).Append("_descriptor, text.units, text.length, nullptr, 0);\n");
+        else text.Append("    (void)c; (void)text; return nullptr;\n");
+        text.Append("}\n").Append(Helpers).Append('\n');
     }
 
     private const string Helpers = """
@@ -44,21 +61,22 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
 }
 // Failure leaves the previous pending exception and its provenance unchanged.
 // The caller publishes the message reference before a potentially collecting allocation.
-[[maybe_unused, gnu::noinline]] static ExceptionResult make_exception(Context& c, const Descriptor* type, Object* message) noexcept {
-    if (c.instance.marking || !known_exception(type) || !traceable_reference(c.instance, message)
+[[maybe_unused, gnu::noinline]] static ExceptionResult make_exception(Context& c, const Descriptor* type, Object* message, std::uint32_t message_kind = 0) noexcept {
+    if (c.instance.marking || message_kind > 2 || !known_exception(type) || !traceable_reference(c.instance, message)
         || (message != nullptr && !string_type(message->type))) return {6};
     const auto origin = exception_origin(c); c.pending = 0;
     Object* value = allocate<ExceptionObject>(c, *type);
     const auto failure = c.pending; set_exception_origin(c, origin);
     if (value == nullptr) return {failure == 0 ? 5u : failure};
     reinterpret_cast<ExceptionObject*>(value)->message = message;
+    reinterpret_cast<ExceptionObject*>(value)->message_kind = message_kind;
     return {0, value};
 }
 [[maybe_unused, gnu::noinline]] static std::uint32_t prepare_exceptions(Context& c) noexcept {
     if (c.instance.marking) return 6;
     if (c.instance.emergency_exception != nullptr)
         return valid_exception(c, c.instance.emergency_exception) && c.instance.emergency_exception->type == runtime_exception(5) ? 0u : 6u;
-    auto result = make_exception(c, runtime_exception(5), nullptr);
+    auto result = make_exception(c, runtime_exception(5), nullptr, 2);
     if (result.status == 0) c.instance.emergency_exception = result.value;
     return result.status;
 }
@@ -66,8 +84,19 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     if (c.instance.marking) return {6};
     if (value == nullptr) return {4};
     if (!valid_exception(c, value)) return {6};
-    Object* message = reinterpret_cast<ExceptionObject*>(value)->message;
+    auto* payload = reinterpret_cast<ExceptionObject*>(value);
+    if (payload->message_kind > 2) return {6};
+    Object* message = payload->message;
     if (!traceable_reference(c.instance, message) || (message != nullptr && !string_type(message->type))) return {6};
+    if (message == nullptr) {
+        const auto text = exception_text(value->type, payload->message_kind);
+        if (text.units == nullptr) return {6};
+        const auto origin = exception_origin(c); c.pending = 0;
+        message = exception_message_string(c, text);
+        const auto failure = c.pending; set_exception_origin(c, origin);
+        if (message == nullptr) return {failure == 0 ? 5u : failure};
+        payload->message = message;
+    }
     return {0, message};
 }
 // Turn a numeric runtime fault into a rooted managed identity before handler search.
@@ -81,7 +110,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         c.exception = nullptr; c.pending = 6; return 6;
     }
     if (type == nullptr) { c.pending = 6; return 6; }
-    ExceptionResult result = c.pending == 5 ? ExceptionResult{5} : make_exception(c, type, nullptr);
+    ExceptionResult result = c.pending == 5 ? ExceptionResult{5} : make_exception(c, type, nullptr, 2);
     if (result.status == 0) c.exception = result.value;
     else if (result.status == 5 && valid_exception(c, c.instance.emergency_exception)
         && c.instance.emergency_exception->type == runtime_exception(5)) {

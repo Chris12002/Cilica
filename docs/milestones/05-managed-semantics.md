@@ -38,8 +38,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5h.1 | Validated exception metadata and type-test filter admission | Complete for metadata inputs |
 | 5h.2 | Checked exception IR and rooted handler/cleanup contracts | Complete for detached authored IR |
 | 5h.3a | Private native exception storage and rooted pending/saved identity | Complete for helper probes |
-| 5h.3b | Native handler dispatch, cleanup and message semantics | Next |
-| 5h.4 | CIL exceptions and type-test filters with differential probes | Planned |
+| 5h.3b | Native handler dispatch, cleanup and message semantics | Complete for authored IR |
+| 5h.4 | CIL exceptions and type-test filters with differential probes | Next |
 | 5i | Composed differential regressions and final review | Planned |
 
 Split slices further when a separately testable semantic or ownership contract
@@ -506,3 +506,15 @@ existing collection/tracing/boxing/delegate tests and message/literal source saf
 Review checked forged/foreign/corrupt payloads, reentrancy, exact heap limits and
 bootstrap recovery. Handler dispatch, default message semantics and CIL handling are
 still next; milestone 5 remains in progress.
+
+## Slice 5h.3b outcome
+
+Authored exception IR now lowers into rooted native handler dispatch, ordered catch
+selection, pure type filters, leave/finally/fault continuations and rethrow (ADR 0084).
+Messages preserve supplied UTF-16 and lazily allocate invariant defaults, including
+runtime fault resources. Nineteen distinct selected checks pass at this checkpoint,
+including O0/O2 sanitizer probes and .NET comparisons for all selected message kinds.
+Review checked suspended roots, failure origins, allocation atomicity, bounded tables
+and cleanup. It corrected nested leave validation and the null-message resource rule;
+a dead-code-eliminated delegate oracle was replaced by an observable invocation.
+CIL exception execution and composed final validation remain next. No hosted work ran.

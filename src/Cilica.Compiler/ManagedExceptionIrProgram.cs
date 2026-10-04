@@ -72,6 +72,7 @@ internal sealed class ManagedExceptionRules
             && types.RuntimeFaults.Select(b => b.Status).Order().SequenceEqual(statuses)
             && types.RuntimeFaults.Select(b => b.Type).Distinct().Count() == statuses.Length,
             "runtime faults require distinct exact exception identities for statuses 1, 2, 4, 5, 7, 10, 11 and 12.");
+        _ = ManagedExceptionMessages.Build(types, catalog);
     }
     internal bool Throwable(IrType type) => type == IrType.NullReference || type.Kind == IrTypeKind.Reference && _types.Contains(type.Class!);
     internal bool Creation(IrExpression.NewException creation, IrType result, IReadOnlyList<IrType> values) =>
@@ -162,7 +163,7 @@ internal sealed class ManagedExceptionRules
                 case IrJump jump: Edge(jump.Edge, false); break;
                 case IrBranch branch: Edge(branch.Taken, false); Edge(branch.NotTaken, false); break;
                 case IrLeave leave:
-                    Require(!active.Any(s => s.Part == Part.Filter || s.Part == Part.Handler && method.ExceptionRegions[s.Region].Kind is IrExceptionClause.Finally or IrExceptionClause.Fault),
+                    Require(!active.Any(s => !Contains(s, leave.Edge.Target) && (s.Part == Part.Filter || s.Part == Part.Handler && method.ExceptionRegions[s.Region].Kind is IrExceptionClause.Finally or IrExceptionClause.Fault)),
                         "leave cannot exit a filter or cleanup handler.");
                     Edge(leave.Edge, true); break;
                 case IrEndFinally:

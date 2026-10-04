@@ -18,7 +18,7 @@ internal sealed class ObjectFrameLayout
     internal List<IrType> RootTypes { get; } = [];
     internal HashSet<IrTypeKind> DispatchKinds { get; } = [];
 
-    internal ObjectFrameLayout(IrMethod method, ObjectMethodRoots roots)
+    internal ObjectFrameLayout(IrMethod method, ObjectMethodRoots roots, ObjectTypeId? exceptionBase = null)
     {
         RootCount = roots.Slots.Length;
         var valueTypes = method.Blocks.SelectMany(b => b.Values.Select(v => (b.Id, v)))
@@ -29,6 +29,7 @@ internal sealed class ObjectFrameLayout
             _indices.Add((root.Kind, root.Block, root.Index), root.Slot);
             var type = root.Kind switch
             {
+                ObjectRootKind.Exception => IrType.Reference(exceptionBase!),
                 ObjectRootKind.Parameter => method.Parameters[root.Index],
                 ObjectRootKind.Local => method.Locals[root.Index],
                 ObjectRootKind.BlockInput => method.Blocks[root.Block].Inputs[root.Index],

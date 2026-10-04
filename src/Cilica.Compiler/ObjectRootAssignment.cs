@@ -38,7 +38,13 @@ public static class ObjectRootAssignment
         return AssignValidated(program.Flow.Flow.Flow, locations: true);
     }
 
-    private static ImmutableArray<ObjectMethodRoots> AssignValidated(ObjectIrProgram program, bool locations = false)
+    public static ImmutableArray<ObjectMethodRoots> AssignExceptions(ScalarManagedExceptionIrProgram program)
+    {
+        ScalarManagedExceptionIrValidator.Validate(program);
+        return AssignValidated(program.Flow.Flow.Flow.Flow, locations: true, exceptionBase: program.Exceptions.Base);
+    }
+
+    private static ImmutableArray<ObjectMethodRoots> AssignValidated(ObjectIrProgram program, bool locations = false, ObjectTypeId? exceptionBase = null)
     {
         var result = ImmutableArray.CreateBuilder<ObjectMethodRoots>();
         int expandedSlots = 0;
@@ -60,6 +66,8 @@ public static class ObjectRootAssignment
             }
             for (int i = 0; i < method.Parameters.Length; i++) Add(ObjectRootKind.Parameter, i, method.Parameters[i]);
             for (int i = 0; i < method.Locals.Length; i++) Add(ObjectRootKind.Local, i, method.Locals[i]);
+            for (int i = 0; i < method.ExceptionRegions.Length * 2; ++i)
+                Add(ObjectRootKind.Exception, i, IrType.Reference(exceptionBase!));
             var points = ImmutableArray.CreateBuilder<ObjectSafepoint>();
             foreach (var block in method.Blocks)
             {
@@ -70,7 +78,7 @@ public static class ObjectRootAssignment
                     if (statement is IrStatement.Define define)
                     {
                         Add(ObjectRootKind.Value, define.Value.Id, define.Value.Type, block.Id);
-                        if (define.Value.Expression is IrExpression.NewObject or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.StringConcat or IrExpression.BoxScalars or IrExpression.NewDelegate)
+                        if (define.Value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.NewObject or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.StringConcat or IrExpression.BoxScalars or IrExpression.NewDelegate)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Allocation, block.Id));
                         else if (define.Value.Expression is IrExpression.Call or IrExpression.CallDelegate)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Call, block.Id));
