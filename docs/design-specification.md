@@ -809,6 +809,14 @@ constructors, static initialization, virtual/interface dispatch, delegate
 targets, generic instantiations and preserved metadata until reaching a fixed
 point. New types can make new virtual implementations reachable.
 
+The compiler-library `closed-generic-values-cil-v1` gate now specializes
+unconstrained static methods on nongeneric owners in value-containing closures
+([ADR 0074](decisions/0074-closed-generic-method-specialization.md)). Closed caller
+environments substitute signatures, locals and operands before existing validation
+and lowering. Native symbols use an additional specialization key while faults
+retain original image/MethodDef/IL provenance. Closed generic layouts, constraint
+validation and broader generic operations remain later gates.
+
 Pathological generic expansion yields a diagnostic with an instantiation chain,
 not a compiler hang or omitted code. Generic sharing and runtime generic
 dictionaries are later optimisations.

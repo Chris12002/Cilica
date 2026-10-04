@@ -47,12 +47,16 @@ public static class ValueProgramDiscovery
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
         ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true);
 
+    public static ValueDiscoveryResult ReadGenerics(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
+        ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true);
+
     private static ValueDiscoveryResult ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
-        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays, classes, boxing).Read(assembly, entry), []); }
+        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays, classes, boxing, generics).Read(assembly, entry), []); }
         catch (Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
@@ -61,9 +65,9 @@ public static class ValueProgramDiscovery
         internal Diagnostic Diagnostic { get; } = diagnostic;
     }
 
-    private sealed class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays, bool classes, bool boxing)
+    private sealed class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays, bool classes, bool boxing, bool generics)
     {
-        private sealed record Work(ResolvedAssembly Assembly, MethodInput Input, ObjectMethodBinding Binding,
+        private sealed record Work(ResolvedAssembly Assembly, ResolvedMethod Resolved, MethodInput Input, ObjectMethodBinding Binding,
             ImmutableArray<IrType> Parameters, IrType ReturnType, ImmutableArray<IrType> Locals, Work? Parent, int Offset);
         private readonly MemberResolutionBudget _metadata = new(ObjectModelLimits.MaximumMetadataMembers);
         private readonly Dictionary<IrMethodId, Work> _methods = [];
@@ -117,12 +121,13 @@ public static class ValueProgramDiscovery
                     {
                         int token = Token(work, instruction, 0x06, 0x0a, 0x2b);
                         var key = (work.Assembly.ContentHash, token);
-                        if (!_calls.TryGetValue(key, out var target))
+                        if (generics || !_calls.TryGetValue(key, out _))
                         {
-                            target = Require(resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
-                            _calls.Add(key, target);
+                            _calls[key] = Require(generics
+                                ? resolver.ResolveClosedCall(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
+                                : resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
                         }
-                        var callee = Discover(target, work, offset);
+                        var callee = Discover(_calls[key], work, offset);
                         if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor))
                             Fail(work, "newobj requires an exact class constructor declaration.", offset);
                         if (work.Binding.Owner != callee.Binding.Owner
@@ -149,7 +154,15 @@ public static class ValueProgramDiscovery
                     else if (instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj"
                         || boxing && instruction.OpCode is ("box" or "unbox" or "unbox.any"))
                     {
-                        int token = Token(work, instruction, 0x01, 0x02);
+                        int token = generics ? Token(work, instruction, 0x01, 0x02, 0x1b) : Token(work, instruction, 0x01, 0x02);
+                        if (generics)
+                        {
+                            var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(token)), work, offset);
+                            if (signature is not TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown })
+                                Fail(work, "This closed generic type operand requires a named struct; primitive/reference operand lowering remains unsupported.", offset);
+                            types.Add(offset, Include(((TypeSignature.Named)signature).Definition, work, offset));
+                            continue;
+                        }
                         var key = (work.Assembly.ContentHash, token);
                         if (!_types.TryGetValue(key, out var type))
                         {
@@ -203,32 +216,40 @@ public static class ValueProgramDiscovery
                         Fail(work, "Value type use requires the same declaring owner or a fully externally visible type; other visibility rules require later lowering.", offset);
                 }
             }
-            return new(root.Binding.Method, [.. methods.OrderBy(m => m.Binding.Method.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Binding.Method.Token)], catalog);
+            return new(root.Binding.Method, [.. methods.OrderBy(m => m.Binding.Method.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Binding.Method.Token).ThenBy(m => m.Binding.Method.Specialization, StringComparer.Ordinal)], catalog);
         }
 
         private Work Discover(ResolvedMethod resolved, Work? parent, int offset)
         {
             var owner = resolved.DeclaringType.Definition;
-            var id = new IrMethodId(owner.Assembly.ContentHash, MetadataTokens.GetToken(resolved.Handle));
+            string specialization = "";
+            if (generics)
+            {
+                try { specialization = ClosedGenericKey.Create(resolved.DeclaringType.Arguments, resolved.MethodArguments); }
+                catch (ArgumentException error) { Fail(parent, error.Message, offset, DiagnosticIds.TranslationLimit); }
+            }
+            var id = new IrMethodId(owner.Assembly.ContentHash, MetadataTokens.GetToken(resolved.Handle), specialization);
             // Check instantiation before the definition-key cache: a generic call must never alias an ordinary one.
-            if (resolved.DeclaringType.Arguments.Count != 0 || resolved.MethodArguments.Count != 0)
+            if (resolved.DeclaringType.Arguments.Count != 0 || !generics && resolved.MethodArguments.Count != 0)
                 Fail(parent, "Generic method/type instantiations require later lowering.", offset);
             if (_methods.TryGetValue(id, out var known)) return known;
             if (_methods.Count >= ProgramLimits.MaximumMethods || _bytes >= ProgramLimits.MaximumBodyBytes
                 || _instructions >= ProgramLimits.MaximumInstructions || _metadata.Remaining == 0)
                 Fail(parent, "Aggregate method, IL or metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-            var input = Require(resolver.ReadMethodInput(owner.Assembly, resolved.Handle, limits with
+            var readLimits = limits with
             {
                 MaximumBodyBytes = Math.Min(limits.MaximumBodyBytes, ProgramLimits.MaximumBodyBytes - _bytes),
                 MaximumInstructions = Math.Min(limits.MaximumInstructions, ProgramLimits.MaximumInstructions - _instructions),
                 MaximumInitializerMembers = Math.Min(limits.MaximumInitializerMembers, _metadata.Remaining),
-            }), parent, offset);
+            };
+            var input = Require(generics ? resolver.ReadClosedMethodInput(resolved, readLimits)
+                : resolver.ReadMethodInput(owner.Assembly, resolved.Handle, readLimits), parent, offset);
             _bytes += input.CodeSize; _instructions += input.Instructions.Length;
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(parent, "Aggregate metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             bool constructor = classes && input.DeclaredName == ".ctor";
             var allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | (constructor ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
-            if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0 || input.Signature.Header != (constructor ? 0x20 : 0)
+            if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || !generics && input.Signature.GenericArity != 0 || input.Signature.Header != (constructor ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
                 || input.HasTypeInitializer || input.HasModuleInitializer || input.ExceptionRegionCount != 0
                 || !input.Locals.IsEmpty && !input.InitializeLocals
                 || ((input.Attributes & MethodAttributes.Static) != 0) == constructor
@@ -251,7 +272,7 @@ public static class ValueProgramDiscovery
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             var kind = !constructor ? ObjectMethodKind.Static : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
-            var work = new Work(owner.Assembly, input, binding,
+            var work = new Work(owner.Assembly, resolved, input, binding,
                 [.. (constructor ? new[] { IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
@@ -326,6 +347,7 @@ public static class ValueProgramDiscovery
             { Message = result.Diagnostics[0].Message + Path(work), Location = work is null ? result.Diagnostics[0].Location : Location(work, offset) });
         private static string Location(Work? work, int offset) => work is null ? "entry" :
             work.Input.Source.Name + " token 0x" + work.Input.Source.Token.ToString("x8", CultureInfo.InvariantCulture)
+            + (work.Input.Source.Specialization.Length == 0 ? "" : " specialization " + work.Input.Source.Specialization)
             + " IL_" + offset.ToString("x4", CultureInfo.InvariantCulture);
         private static string Path(Work? work)
         {

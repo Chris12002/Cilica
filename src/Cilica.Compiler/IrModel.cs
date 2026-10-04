@@ -162,10 +162,10 @@ public sealed record TranslationResult(IrMethod? Method, ImmutableArray<Diagnost
 }
 
 /// <summary>Content-scoped MethodDef identity, independent of display names and readers.</summary>
-public sealed record IrMethodId(string ContentHash, int Token)
+public sealed record IrMethodId(string ContentHash, int Token, string Specialization = "")
 {
     public static IrMethodId From(MethodSource source) =>
-        new(source.ContentHash.ToLowerInvariant(), source.Token);
+        new(source.ContentHash.ToLowerInvariant(), source.Token, source.Specialization);
 }
 
 /// <summary>One explicit entry and its complete reachable direct-call closure.</summary>

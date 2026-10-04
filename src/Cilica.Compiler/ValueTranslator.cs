@@ -36,7 +36,15 @@ public static class ValueTranslator
     public const string Profile = "value-cil-v1";
     public const string ArrayProfile = "value-arrays-cil-v1";
     public const string ObjectProfile = "value-objects-cil-v1";
+    public const string GenericProfile = "closed-generic-values-cil-v1";
     public const string BoxedProfile = "boxed-values-cil-v1";
+
+    public static BoxedValueTranslationResult TranslateGenerics(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
+    {
+        var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true);
+        return new(result.Program is null ? null : new(result.Program, result.Bindings), result.Diagnostics);
+    }
 
     public static BoxedValueTranslationResult TranslateBoxes(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
@@ -64,9 +72,10 @@ public static class ValueTranslator
         TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: false);
 
     private static ValueTranslationResult TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false)
     {
-        var discovered = boxing ? ValueProgramDiscovery.ReadBoxes(resolver, assembly, entry, runtimeLibrary, limits)
+        var discovered = generics ? ValueProgramDiscovery.ReadGenerics(resolver, assembly, entry, runtimeLibrary, limits)
+            : boxing ? ValueProgramDiscovery.ReadBoxes(resolver, assembly, entry, runtimeLibrary, limits)
             : classes ? ValueProgramDiscovery.ReadObjects(resolver, assembly, entry, runtimeLibrary, limits)
             : arrays ? ValueProgramDiscovery.ReadArrays(resolver, assembly, entry, runtimeLibrary, limits)
             : ValueProgramDiscovery.Read(resolver, assembly, entry, runtimeLibrary, limits);

@@ -733,3 +733,10 @@ the context after box allocation failure. Negative cases check visibility,
 readonly locations and operand/type shapes. Empty-struct metadata regressions
 accept the C# fieldless sequential one-byte marker while rejecting nonempty sizes,
 other sizes and packing. Earlier profiles still reject boxing.
+
+Closed generic method regressions distinguish native instances of one MethodDef,
+substitute nested calls and locals, deduplicate finite recursion and reject open,
+constrained or expanding signatures with diagnostics. O0/O2 sanitizer probes compare
+Int32/struct specializations with .NET, collect through live generic parameters,
+box generic structs and empty values, and check specialized fault provenance,
+unchanged failure output and full frame/root cleanup (ADR 0074).

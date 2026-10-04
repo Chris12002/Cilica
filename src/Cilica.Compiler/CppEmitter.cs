@@ -276,7 +276,8 @@ public static class CppEmitter
         };
         return first + " " + operation + " " + other;
     }
-    internal static string Symbol(IrMethodId id) => "cilica_m_" + id.ContentHash.ToLowerInvariant() + "_" + Hex(id.Token, "x8");
+    internal static string Symbol(IrMethodId id) => "cilica_m_" + id.ContentHash.ToLowerInvariant() + "_" + Hex(id.Token, "x8")
+        + (id.Specialization.Length == 0 ? "" : "_g_" + id.Specialization);
     private static string Input(int block, int index) => "s" + Number(block) + "_" + Number(index);
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
     private static string Hex(int value, string format) => value.ToString(format, CultureInfo.InvariantCulture);

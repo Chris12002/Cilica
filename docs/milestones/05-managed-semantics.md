@@ -28,7 +28,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5e.2a | Native boxed storage, identity/mutation, fault status and collection | Complete for private runtime helpers |
 | 5e.2b | Boxed IR scalar expansion, native emission and fault provenance | Complete for authored IR |
 | 5e.3 | Bounded CIL boxing/unboxing and composed differential regressions | Complete for named nongeneric structs |
-| 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
+| 5f.1 | Closed generic static method specialization and expansion diagnostics | Complete for unconstrained methods on nongeneric owners in value programs |
+| 5f.2 | Closed generic type layouts, member binding and constraint gates | Next |
 | 5g | Delegates, captured receivers and invocation | Planned |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
 | 5i | Composed differential regressions and final review | Planned |
@@ -371,3 +372,15 @@ Closed generics are next (5f). This boxing gate covers named nongeneric structs;
 primitive/enum/nullable boxing, ValueType views and boxed interfaces remain outside
 the profile. Milestone 5 is in progress. No push, hosted work, service or additional
 agent ran.
+
+## Slice 5f.1 outcome
+
+ADR 0074 specializes unconstrained static generic methods through the existing
+value/boxing pipeline. Distinct instances retain original metadata provenance and
+separate native symbols. Closed caller environments bind nested calls; finite
+recursion deduplicates while growing signature trees fail with inclusion chains.
+
+Review checked identity, substitution, resource bounds, rooted generic parameters
+and fault propagation. All 52 selected local checks passed, including O0/O2 native
+ASan/UBSan differential probes and the 2 KiB stack gate. Generic type layouts and
+constraint validation are next. Milestone 5 remains in progress; no hosted work ran.

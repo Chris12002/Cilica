@@ -69,6 +69,8 @@ internal static class IrValidator
         Require(method.Source is not null, "source is missing.");
         Require(method.Source.AssemblyIdentity is not null, "assembly identity is missing.");
         Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "source hash must be SHA-256 hexadecimal.");
+        Require(method.Source.Specialization is { } key && (key.Length == 0 || key.Length == 64 && key.All(c => char.IsAsciiDigit(c) || c is >= 'a' and <= 'f')),
+            "specialization key must be empty or lowercase SHA-256 hexadecimal.");
         Require((uint)method.Source.Token >> 24 == 0x06 && (method.Source.Token & 0xffffff) != 0, "source needs a non-nil MethodDef token.");
         Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters && method.Parameters.All(p => types.Valid(p, storage: true))
             && method.ReturnType?.Kind != IrTypeKind.ManagedLocation

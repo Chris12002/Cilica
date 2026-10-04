@@ -5,7 +5,11 @@ using Cilica.Metadata.Resolution;
 namespace Cilica.Metadata.IL;
 
 /// <summary>Scoped provenance; strings and tokens do not retain a metadata reader.</summary>
-public sealed record MethodSource(string AssemblyIdentity, string ContentHash, int Token, string Name);
+public sealed record MethodSource(string AssemblyIdentity, string ContentHash, int Token, string Name)
+{
+    // Separate from provenance: closed instantiations share the original image/token.
+    public string Specialization { get; init; } = "";
+}
 
 /// <summary>Decoded instruction snapshot. Integer operands include implicit argument indices.</summary>
 public sealed record MethodInstruction(int Offset, int Length, string OpCode, int? IntegerOperand,
