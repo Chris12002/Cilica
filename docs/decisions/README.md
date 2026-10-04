@@ -95,3 +95,8 @@ capability. It becomes accepted once its validation experiment has run.
 | [0087](0087-stage-five-completion.md) | Bounded milestone 5 completion | Accepted; 1,855 local checks pass, compiler-library scope and exclusions recorded |
 | [0088](0088-explicit-library-contract-inventory.md) | Explicit library boundaries for dependency inventories | Accepted for metadata planning; library implementation and filter closure remain unresolved |
 | [0089](0089-library-type-binding-foundation.md) | Explicit reference-to-implementation type correspondence | Accepted for metadata type plans and pinned baseline; member/compiler binding and intrinsic admission remain ahead |
+| [0090](0090-library-member-binding.md) | Structural library member correspondence | Accepted for exact projected declaration matching |
+| [0091](0091-library-compilation-views.md) | Explicit mapped compilation views | Accepted for pinned compiler binding without intrinsic admission |
+| [0092](0092-library-build-admission.md) | Independently approved library build attestations | Accepted for exact image and intrinsic grants; build producer remains ahead |
+| [0093](0093-int64-scalar-ir.md) | Int64 scalar IR and native arithmetic | Accepted for typed transfers and O0/O2 arithmetic conformance |
+| [0094](0094-integer-cil-closures.md) | Mixed-width integer CIL closures | Accepted for static scalar CIL and O0/O2 differential execution |

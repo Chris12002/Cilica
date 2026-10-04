@@ -875,8 +875,11 @@ Milestone 6's `integer-arithmetic-ir-v1` profile adds authored Int64 scalar IR
 and C++20 arithmetic with typed calls, locals and block edges
 ([ADR 0093](decisions/0093-int64-scalar-ir.md)). UInt64 storage, guarded signed
 operations and explicit widening/truncation preserve integer bits and faults.
-O0/O2 UBSan conformance matches .NET; Int64 CIL and heap/array integration remain
-pending. Existing Int32/object/value profile claims are unchanged.
+O0/O2 UBSan conformance matches .NET. `integer-arithmetic-cil-v1` now translates
+static mixed-width scalar closures with explicit conversions and checked stack
+widths ([ADR 0094](decisions/0094-integer-cil-closures.md)). Checked conversions
+and heap/array integration remain pending. Existing Int32/object/value profile
+claims are unchanged.
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential

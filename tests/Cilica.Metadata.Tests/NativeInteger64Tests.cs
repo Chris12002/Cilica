@@ -33,12 +33,20 @@ public sealed class NativeInteger64Tests
                 new IrStatement.Define(new(1, IrType.Int64, 1, new IrExpression.Parameter(1))),
                 new IrStatement.Define(new(2, IrType.Int64, 2, new IrExpression.Call(IrMethodId.From(helper.Source), [0, 1])), IrExceptionTarget.MethodExit)], new IrReturn(3, 2))], []);
         probes.Add(new(caller, (a, b) => Calculate(Int64Operation.AddCheckedSigned, a, b), [helper]));
-        var source = new StringBuilder(); var artifacts = probes.Select(p => CppEmitter.EmitIntegers(new(new(IrMethodId.From(p.Method.Source), [p.Method, .. p.Helpers ?? Array.Empty<IrMethod>()])))).ToArray();
+        var programs = probes.Select(p => new IntegerIrProgram(new(IrMethodId.From(p.Method.Source), [p.Method, .. p.Helpers ?? Array.Empty<IrMethod>()]))).ToArray();
+        await Verify(programs, probes.Select(p => p.Oracle).ToArray(), optimized);
+    }
+
+    internal static async Task Verify(IReadOnlyList<IntegerIrProgram> programs, IReadOnlyList<Func<ulong, ulong, ulong>> oracles, bool optimized)
+    {
+        Assert.Equal(programs.Count, oracles.Count);
+        var methods = programs.Select(p => p.Flow.Methods.Single(m => IrMethodId.From(m.Source) == p.Flow.Entry)).ToArray();
+        var source = new StringBuilder(); var artifacts = programs.Select(CppEmitter.EmitIntegers).ToArray();
         foreach (var artifact in artifacts) source.Append(artifact.Text);
         source.Append("\n#include <iostream>\nint main() { unsigned op; std::uint64_t a, b; while (std::cin >> op >> a >> b) { switch(op) {\n");
-        for (int i = 0; i < probes.Count; ++i)
+        for (int i = 0; i < programs.Count; ++i)
         {
-            var method = probes[i].Method; bool wide = method.ReturnType == IrType.Int64;
+            var method = methods[i]; bool wide = method.ReturnType == IrType.Int64;
             string signed = wide ? "std::int64_t" : "std::int32_t", unsigned = wide ? "std::uint64_t" : "std::uint32_t";
             string Argument(int index) => method.Parameters[index] == IrType.Int64 ? "std::bit_cast<std::int64_t>(" + (index == 0 ? "a" : "b") + ")"
                 : "std::bit_cast<std::int32_t>(static_cast<std::uint32_t>(" + (index == 0 ? "a" : "b") + "))";
@@ -57,11 +65,11 @@ public sealed class NativeInteger64Tests
         var random = new Random(20261005);
         for (int i = 0; i < 32; ++i) pairs.Add((unchecked((ulong)random.NextInt64()) ^ 0x8000000000000000, unchecked((ulong)random.NextInt64())));
         var input = new StringBuilder(); var expected = new List<string>();
-        for (int op = 0; op < probes.Count; ++op) foreach (var (a, b) in pairs)
+        for (int op = 0; op < programs.Count; ++op) foreach (var (a, b) in pairs)
         {
             input.Append(CultureInfo.InvariantCulture, $"{op} {a} {b}\n");
             uint status = 0; ulong result = 12345;
-            try { result = probes[op].Oracle(a, b); }
+            try { result = oracles[op](a, b); }
             catch (DivideByZeroException) { status = 1; }
             catch (OverflowException) { status = 2; }
             expected.Add(status.ToString(CultureInfo.InvariantCulture) + " " + result.ToString(CultureInfo.InvariantCulture));

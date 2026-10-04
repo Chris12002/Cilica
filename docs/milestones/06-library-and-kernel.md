@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a and 6b.1–6b.3 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.3 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -17,7 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1 preserves wide CIL operands; 6c.2 supplies tested scalar Int64 IR/native arithmetic; CIL and heap integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.3 supply wide operands, scalar IR/native arithmetic and CIL closures; checked conversions and heap/generic integration pending |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -184,6 +184,18 @@ Thirty-four native probes over 288 operand pairs match .NET at both O0/O2 UBSan
 (19,584 results); the focused run passes 46 tests. Review added wide transfer and
 transitive-fault probes. This is authored IR support, not Int64 CIL or heap/array
 support. See [ADR 0093](../decisions/0093-int64-scalar-ir.md).
+
+## Slice 6c.3 outcome
+
+The explicit integer CIL API now compiles static Int32/UInt32/Int64/UInt64
+closures through shared bounded control-flow lowering. Widths are checked at
+operations, locals, calls, returns and block joins; conversions remain explicit.
+Thirty-one authored methods match .NET over 288 operand pairs at O0/O2 UBSan
+(17,856 results). The focused regression run passes 243 tests; review added a
+separate invalid-call-width regression. See
+[ADR 0094](../decisions/0094-integer-cil-closures.md). The real kernel still needs
+checked/narrow conversions, wide and inline heap storage, generic dispatch and
+the ported library. This scalar gate does not establish native kernel equivalence.
 
 ## Remaining completion evidence
 

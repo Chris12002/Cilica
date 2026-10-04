@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -21,7 +22,30 @@ public static partial class Int32Translator
         catch (TranslationFailure failure) { return new(null, [failure.Diagnostic]); }
     }
 
-    private sealed class Closure(AssemblyResolver resolver, MethodReadLimits? limits)
+    internal static IntegerTranslationResult TranslateIntegerProgram(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle root, MethodReadLimits? limits)
+    {
+        ArgumentNullException.ThrowIfNull(resolver);
+        try
+        {
+            var flow = new Closure(resolver, limits, integers64: true).Run(assembly, root);
+            IrValidator.Validate(flow, integers64: true);
+            return new(new(flow), []);
+        }
+        catch (TranslationFailure failure) { return new(null, [failure.Diagnostic]); }
+    }
+
+    private sealed record ScalarCall(IrMethodId Target, ImmutableArray<IrType> Parameters, IrType ReturnType);
+
+    private static IrType? ScalarType(TypeSignature signature, bool integers64) => signature switch
+    {
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.UInt32 } when integers64 => IrType.Int32,
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 } when integers64 => IrType.Int64,
+        _ => null,
+    };
+
+    private sealed class Closure(AssemblyResolver resolver, MethodReadLimits? limits, bool integers64 = false)
     {
         private sealed record Work(ResolvedAssembly Assembly, MethodInput Input, Work? Parent, int CallOffset);
         private readonly Dictionary<IrMethodId, Work> _discovered = [];
@@ -37,7 +61,7 @@ public static partial class Int32Translator
             {
                 try
                 {
-                    IrMethod method = new Translation(work.Input, instruction => Resolve(work, instruction)).Run();
+                    IrMethod method = new Translation(work.Input, instruction => Resolve(work, instruction), integers64).Run();
                     if (!_resources.Add(method)) Fail(work, DiagnosticIds.TranslationLimit, "Aggregate program IR limit exceeded.", 0);
                     _methods.Add(method);
                 }
@@ -76,7 +100,7 @@ public static partial class Int32Translator
             _discovered.Add(key, work); _pending.Enqueue(work); return work;
         }
 
-        private (IrMethodId Target, int Arity) Resolve(Work caller, MethodInstruction instruction)
+        private ScalarCall Resolve(Work caller, MethodInstruction instruction)
         {
             int token = instruction.IntegerOperand ?? 0;
             if ((uint)token >> 24 is not (0x06 or 0x0a or 0x2b) || (token & 0xffffff) == 0)
@@ -85,10 +109,12 @@ public static partial class Int32Translator
             if (resolved.Value is not ResolvedMethod target)
                 throw new TranslationFailure(resolved.Diagnostics[0] with { Location = Location(caller, instruction.Offset) });
             if (target.MethodArguments.Count != 0 || target.DeclaringType.Arguments.Count != 0)
-                Fail(caller, DiagnosticIds.ExecutionSignatureUnsupported, "Generic call instantiations are outside " + IrProgram.Profile + ".", instruction.Offset);
-            if (target.Signature.Header != 0 || target.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }
-                || target.Signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }))
-                Fail(caller, DiagnosticIds.ExecutionSignatureUnsupported, "Direct calls require static default-convention Int32 parameters and return.", instruction.Offset);
+                Fail(caller, DiagnosticIds.ExecutionSignatureUnsupported, "Generic call instantiations are outside " + (integers64 ? IntegerTranslator.Profile : IrProgram.Profile) + ".", instruction.Offset);
+            if (target.Signature.Header != 0 || ScalarType(target.Signature.ReturnType, integers64) is null
+                || target.Signature.Parameters.Any(p => ScalarType(p, integers64) is null))
+                Fail(caller, DiagnosticIds.ExecutionSignatureUnsupported, integers64
+                    ? "Direct integer calls require static default-convention Int32/UInt32/Int64/UInt64 parameters and return."
+                    : "Direct calls require static default-convention Int32 parameters and return.", instruction.Offset);
             if (target.Signature.Parameters.Count > IrLimits.MaximumParameters)
                 Fail(caller, DiagnosticIds.TranslationLimit, "Call parameter limit exceeded.", instruction.Offset);
             _callArguments += target.Signature.Parameters.Count;
@@ -102,7 +128,7 @@ public static partial class Int32Translator
                 (access != MethodAttributes.Public || !callee.Input.OwnerExternallyVisible)))
                 Fail(caller, DiagnosticIds.ExecutionUnsupported,
                     "This call profile accepts members of the same declaring type, or public methods on externally visible types; other access rules require explicit lowering.", instruction.Offset);
-            return (IrMethodId.From(callee.Input.Source), target.Signature.Parameters.Count);
+            return new(IrMethodId.From(callee.Input.Source), [.. target.Signature.Parameters.Select(p => ScalarType(p, integers64)!)], ScalarType(target.Signature.ReturnType, integers64)!);
         }
 
         private static string Location(Work? work, int offset) => work is null ? "entry" :
