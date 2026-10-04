@@ -25,10 +25,10 @@ public static class ValueLayoutPlanner
         if (catalog.References.String is { } text) references.Add(text);
         Require(ObjectModelValidator.Identity(catalog.ValueBase, 0x02) && !references.Contains(catalog.ValueBase),
             "selected ValueType needs a distinct canonical nominal identity.");
-        Require(!catalog.Types.IsDefaultOrEmpty && catalog.Types.Length <= ObjectModelLimits.MaximumTypes
+        Require(!catalog.Types.IsDefault && catalog.Types.Length <= ObjectModelLimits.MaximumTypes
             && catalog.Types.Length + references.Count + 1 <= ObjectModelLimits.MaximumTypes,
             "combined type limit exceeded or value types missing.");
-        Require(!catalog.Roots.IsDefaultOrEmpty && catalog.Roots.Length <= ObjectModelLimits.MaximumTypes
+        Require(!catalog.Roots.IsDefault && catalog.Roots.Length <= ObjectModelLimits.MaximumTypes
             && catalog.Roots.All(id => ObjectModelValidator.Identity(id, 0x02))
             && catalog.Roots.Distinct().Count() == catalog.Roots.Length, "invalid or duplicate roots.");
         var types = new Dictionary<ObjectTypeId, ValueTypeLayout>();

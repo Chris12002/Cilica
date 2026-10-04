@@ -85,7 +85,7 @@ public static class ValueModelBuilder
             {
                 if (work.Remaining == 0) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
                 var readLimits = new TypeReadLimits(remainingFields, Math.Min(limits.MaximumMembers, work.Remaining), limits.MaximumOwnerDepth, limits.MaximumInterfaces);
-                input = Result(generics ? resolver.ReadClosedTypeInput(type, readLimits)
+                input = Result(generics ? resolver.ReadClosedTypeInput(type, library, readLimits)
                     : resolver.ReadTypeInput(type.Definition.Assembly, type.Definition.Handle, readLimits));
                 if (!work.TryConsume(input.MetadataMembersRead)) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
             }
@@ -186,7 +186,7 @@ public static class ValueModelBuilder
         try { _ = ValueLayoutPlanner.Build(catalog); }
         catch (ArgumentException exception)
         {
-            Fail(exception.Message, "value inclusion: " + paths[ClosedId(roots[0])]);
+            Fail(exception.Message, roots.IsEmpty ? "empty inline catalog" : "value inclusion: " + paths[ClosedId(roots[0])]);
         }
         return new(catalog, []);
     }

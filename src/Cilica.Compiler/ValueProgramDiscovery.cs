@@ -189,7 +189,7 @@ public static class ValueProgramDiscovery
                 methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
                     calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ArrayOperands = vectors.ToImmutable() });
             }
-            if (_values.Count == 0) Fail(root, "Value discovery requires an inline value; use the existing primitive/object translator for other programs.");
+            if (!generics && _values.Count == 0) Fail(root, "Value discovery requires an inline value; use the existing primitive/object translator for other programs.");
             var built = generics ? ValueModelBuilder.BuildClosedCatalog(resolver, [.. _values.Values], library, _metadata, _integerArray is not null,
                 [.. _references.Values], _snapshots) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                 [.. _references.Values], _snapshots);
@@ -259,7 +259,7 @@ public static class ValueProgramDiscovery
                 MaximumInstructions = Math.Min(limits.MaximumInstructions, ProgramLimits.MaximumInstructions - _instructions),
                 MaximumInitializerMembers = Math.Min(limits.MaximumInitializerMembers, _metadata.Remaining),
             };
-            var input = Require(generics ? resolver.ReadClosedMethodInput(resolved, readLimits)
+            var input = Require(generics ? resolver.ReadClosedMethodInput(resolved, library, readLimits)
                 : resolver.ReadMethodInput(owner.Assembly, resolved.Handle, readLimits), parent, offset);
             _bytes += input.CodeSize; _instructions += input.Instructions.Length;
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(parent, "Aggregate metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);

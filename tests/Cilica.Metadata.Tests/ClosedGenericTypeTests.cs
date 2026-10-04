@@ -70,9 +70,15 @@ public sealed class ClosedGenericTypeTests
         else Assert.Contains(result.Diagnostics, d => (d.Location ?? "").Contains("value inclusion:", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void Struct_constraint_is_validated_before_layout_admission()
+    {
+        var result = Translate("Constraint"); Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ScalarBoxedIrValidator.Validate(ValueScalarLowering.LowerBoxes(result.Program!));
+    }
+
     [Theory]
     [InlineData("Execute", false)]
-    [InlineData("Constraint", true)]
     public void Unselected_or_constraint_bearing_types_have_no_partial_program(string method, bool enabled)
     {
         var result = Translate(method, enabled);

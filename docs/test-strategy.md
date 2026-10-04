@@ -747,3 +747,9 @@ and box distinct instantiations. Native O0/O2 sanitizer runs check .NET parity,
 collection of embedded references and exact null/wrong-box fault origins. Reduced
 fixtures reject hidden arguments, recursive containment and expanding layouts with
 bounded inclusion diagnostics; older metadata-profile diagnostics remain covered.
+
+Generic constraint regressions (ADR 0076) validate class/struct/default-constructor
+requirements, nullable rejection, malformed flags, nested unused constrained
+arguments and exact metadata budgets. O0/O2 native probes execute scalar-only
+closures and constrained methods against .NET, checking collection and complete
+frame/root/borrow/arena cleanup without constructor execution during compilation.

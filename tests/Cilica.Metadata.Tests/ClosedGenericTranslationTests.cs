@@ -39,7 +39,16 @@ public sealed class ClosedGenericTranslationTests
     }
 
     [Theory]
-    [InlineData("Constraint", true, "constraints")]
+    [InlineData("Constraint")]
+    [InlineData("Primitive")]
+    public void Supported_constraints_and_scalar_only_closures_translate(string method)
+    {
+        var result = Translate(method); Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        if (method == "Primitive") Assert.Empty(result.Program!.Flow.Flow.Types.Types);
+        ScalarBoxedIrValidator.Validate(ValueScalarLowering.LowerBoxes(result.Program!));
+    }
+
+    [Theory]
     [InlineData("Expansion", true, "64")]
     [InlineData("Identity", true, "concrete")]
     [InlineData("Execute", false, "Generic")]

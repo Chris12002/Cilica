@@ -24,6 +24,7 @@ public static class ClosedGenericProbe
         return unchecked(roundTrip.Marker + integer + Recurse(4, copy) + roundTrip.Node.Number);
     }
 
+    public static int Primitive(int number) => unchecked(Relay(number) + Recurse(3, number));
     public static int Constraint(int number) => RequireStruct(ValueObjectProbe.Make(number, 1)).Marker;
     public static int Expansion(int number) => Expand<ValueObjectLeaf>(number);
 }

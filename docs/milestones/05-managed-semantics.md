@@ -30,7 +30,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5e.3 | Bounded CIL boxing/unboxing and composed differential regressions | Complete for named nongeneric structs |
 | 5f.1 | Closed generic static method specialization and expansion diagnostics | Complete for unconstrained methods on nongeneric owners in value programs |
 | 5f.2 | Closed generic struct layouts and member binding | Complete for unconstrained closed structs and static members |
-| 5f.3 | Primitive-only closures and bounded generic constraint validation | Next |
+| 5f.3 | Primitive-only closures and bounded generic constraint validation | Complete for class/struct/public default-constructor constraints |
+| 5f.4 | Closed generic reference layouts and construction | Next |
 | 5g | Delegates, captured receivers and invocation | Planned |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
 | 5i | Composed differential regressions and final review | Planned |
@@ -397,3 +398,15 @@ ASan/UBSan differential collection/fault probes with the 2 KiB stack gate.
 Primitive-only closures and bounded constraint validation are next. Generic class
 allocation and dispatch remain outside the current profile. Milestone 5 remains
 in progress; no hosted work ran.
+
+## Slice 5f.3 outcome
+
+ADR 0076 admits scalar/reference-only closures without inventing inline layouts.
+Metadata validation enforces the common special constraints, including nested unused
+arguments, selected Nullable exclusion and public constructor declarations. Review
+checked authority, malformed flags and exact metadata accounting. All 136 distinct
+selected local checks pass across the final suite and focused review rerun, including
+O0/O2 native scalar/constrained probes with ASan/UBSan and the 2 KiB stack gate.
+
+Closed generic reference layouts and construction are next; broader constraints
+and dispatch remain diagnostic. Milestone 5 remains in progress. No hosted work ran.
