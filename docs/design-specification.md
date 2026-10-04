@@ -579,8 +579,18 @@ native lowering have separate lifetime, copying and byte-budget obligations.
 Pure value copies now lower to the existing scalar/reference backend
 ([ADR 0058](decisions/0058-scalar-value-lowering.md)). Authored IR for copies,
 nested updates and scalar-returning calls/joins has local O0/O2 sanitizer evidence.
-This does not supply CIL value translation, struct-return packets, mutable managed
-locations or live embedded-reference collection stress.
+This does not supply CIL value translation, struct-return packets, native mutable
+managed locations or live embedded-reference collection stress.
+
+Detached managed locations now name frame locals/by-value parameters, object
+fields and nested inline fields ([ADR 0059](decisions/0059-managed-storage-locations.md)).
+They retain an invariant element type and readonly restriction. Calls can borrow
+and synchronously reborrow locations, but returning/storing locations or carrying
+them through block joins is rejected pending further lifetime analysis. Loads copy
+values; stores and initialization require writable storage and explicit fault
+edges. Phase A plans root each location's heap owner while frame locations borrow
+active backing storage. Existing native profiles still reject locations. Native
+carrier authentication, CIL translation and collection stress remain separate gates.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.

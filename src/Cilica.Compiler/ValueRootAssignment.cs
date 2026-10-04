@@ -5,7 +5,8 @@ using System.Linq;
 namespace Cilica.Compiler;
 
 /// <summary>Source storage and an optional nested field path, never a guessed native offset.</summary>
-public sealed record ValueRootSlot(int Slot, ObjectRootKind Kind, int Index, int Block, ImmutableArray<ObjectFieldId> Fields);
+public sealed record ValueRootSlot(int Slot, ObjectRootKind Kind, int Index, int Block, ImmutableArray<ObjectFieldId> Fields,
+    bool LocationOwner = false);
 public sealed record ValueMethodRoots(IrMethodId Method, ImmutableArray<ValueRootSlot> Slots,
     ImmutableArray<ObjectSafepoint> Safepoints, int ScalarSlots);
 
@@ -17,6 +18,17 @@ public static class ValueRootAssignment
     public static ImmutableArray<ValueMethodRoots> Assign(ValueIrProgram program)
     {
         var rules = ValueIrValidator.ValidateAndPlan(program);
+        return Assign(program, rules);
+    }
+
+    public static ImmutableArray<ValueMethodRoots> Assign(ManagedLocationIrProgram program)
+    {
+        var rules = ManagedLocationIrValidator.ValidateAndPlan(program);
+        return Assign(program.Flow, rules);
+    }
+
+    private static ImmutableArray<ValueMethodRoots> Assign(ValueIrProgram program, ValueIrRules rules)
+    {
         var layouts = rules.Plans.ToDictionary(p => p.Type);
         var result = ImmutableArray.CreateBuilder<ValueMethodRoots>();
         int total = 0;
@@ -25,19 +37,23 @@ public static class ValueRootAssignment
             var roots = ImmutableArray.CreateBuilder<ValueRootSlot>();
             var points = ImmutableArray.CreateBuilder<ObjectSafepoint>();
             int scalars = 0;
-            void Root(ObjectRootKind kind, int index, int block, ImmutableArray<ObjectFieldId> path)
+            void Root(ObjectRootKind kind, int index, int block, ImmutableArray<ObjectFieldId> path, bool locationOwner = false)
             {
                 if (roots.Count == ObjectRootAssignment.MaximumRootsPerMethod)
                     throw new ArgumentException("Value method exceeds the 1024 phase A root-slot limit. " + method.Source.Name, nameof(program));
-                roots.Add(new(roots.Count, kind, index, block, path));
+                roots.Add(new(roots.Count, kind, index, block, path, locationOwner));
             }
             void Add(ObjectRootKind kind, int index, IrType type, int block = -1)
             {
-                int count = type.Kind == IrTypeKind.Value ? layouts[type.Class!].Slots.Length : 1;
+                // A location needs an owner root plus a storage identity/address carrier.
+                // Native byte layout and frame lifetime authentication remain separate.
+                int count = type.Kind == IrTypeKind.Value ? layouts[type.Class!].Slots.Length
+                    : type.Kind == IrTypeKind.ManagedLocation ? 2 : 1;
                 if (count > MaximumScalarSlots - total)
                     throw new ArgumentException("Value program exceeds the expanded scalar-slot limit.", nameof(program));
                 total += count; scalars += count;
                 if (type.Kind is IrTypeKind.Reference or IrTypeKind.NullReference) Root(kind, index, block, []);
+                else if (type.Kind == IrTypeKind.ManagedLocation) Root(kind, index, block, [], locationOwner: true);
                 else if (type.Kind == IrTypeKind.Value)
                     foreach (var slot in layouts[type.Class!].Slots)
                         if (slot.Storage is ObjectStorage.Reference) Root(kind, index, block, slot.Fields);
@@ -54,6 +70,8 @@ public static class ValueRootAssignment
                         if (define.Value.Expression is IrExpression.Call)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Call, block.Id));
                     }
+                    else if (block.Statements[i] is IrStatement.Invoke invoke)
+                        points.Add(new(i, invoke.ILOffset, ObjectSafepointKind.Call, block.Id));
             }
             result.Add(new(IrMethodId.From(method.Source), roots.ToImmutable(), points.ToImmutable(), scalars));
         }

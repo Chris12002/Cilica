@@ -64,3 +64,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0056](0056-value-layout-metadata.md) | Metadata discovery of inline values | Accepted for bounded metadata-backed catalogs; no execution |
 | [0057](0057-typed-value-copies.md) | Typed inline copies and root planning | Accepted for detached value flow and expanded phase A roots |
 | [0058](0058-scalar-value-lowering.md) | Scalar lowering of pure value copies | Accepted for bounded authored IR and local O0/O2 native conformance |
+| [0059](0059-managed-storage-locations.md) | Managed storage locations and synchronous borrows | Accepted for bounded detached IR and owner-root planning; native carriers/CIL remain planned |

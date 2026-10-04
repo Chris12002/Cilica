@@ -12,7 +12,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5a | Detached value layouts, nested field paths and precise embedded-reference maps | Complete for detached layout planning |
 | 5b | Bounded metadata discovery of value layouts | Complete for metadata-backed catalogs |
 | 5c.1 | Value copies, field operations, calls/joins and expanded roots in typed IR | Complete for detached contracts |
-| 5c.2 | Managed storage locations and lifetime checks | Planned |
+| 5c.2 | Managed storage locations and lifetime checks | Complete for bounded detached synchronous borrows |
 | 5d.1 | Pure value copies lowered to the existing backend | Complete for authored IR, scalar returns and local native probes |
 | 5d.2 | CIL value translation, native managed locations/returns and live-reference collection stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
@@ -74,9 +74,33 @@ references and expanded work/argument limits. Three authored IR/native probes
 match C# at O0/O2 with ASan/UBSan; all 98 selected value checks pass. The probes
 allocate no managed objects and do not prove collection of live embedded roots.
 
-Milestone 5 is **not complete**. The next implementation gate is 5c.2: managed
-locations and lifetime checks, followed by CIL value translation and native return
-packets/live-reference stress. Boxing, generic specialization, delegates and managed
+Milestone 5 is **not complete**. At this checkpoint, the next implementation gate
+was 5c.2: managed locations and lifetime checks, followed by CIL value translation
+and native return packets/live-reference stress. Boxing, generic specialization, delegates and managed
 exceptions/type-test filters remain unimplemented. All completed slices were
 reviewed before local commits. Local main remains an ancestor; no push, hosted
 work, new service or additional agent ran.
+
+
+## Slice 5c.2 outcome
+
+ADR 0059 defines managed locations with checked storage origins, invariant element
+types and readonly propagation. Frame locals/parameters and heap fields can be
+borrowed by direct calls, with nested inline fields and void mutators supported.
+No location escapes through returns, locals/fields or joins; the entry cannot
+accept an unowned borrow. Loads copy values and mutation requires writable storage
+and fault edges. Root plans distinguish heap owners from interior storage and
+charge both carrier slots through existing limits.
+
+Native carriers, frame lifetime authentication, CIL value translation, struct return
+packets and collection stress through live mutable values remain the next 5d.2 gate.
+This detached slice does not execute byrefs or broaden existing native claims.
+Array/boxed locations, byref locals/joins and ref returns require further contracts.
+
+Review checked provenance restrictions, exact pointee identity, readonly lending,
+explicit fault edges, void-call reachability and owner/backing-root separation.
+All 972 selected local regressions passed, including O0/O2 native value copies
+and collection stress. All 47 final focused location checks pass (overlapping the
+broader run), including malformed deep types and exact/excess root/carrier budgets. The solution build has zero warnings
+and errors. Local main remains an ancestor; no push, hosted work, new service or
+additional agent ran. Native location execution remains explicitly gated.

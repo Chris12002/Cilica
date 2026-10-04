@@ -15,6 +15,7 @@ the evidence and limits of earlier checkpoints; the native v14 table and milesto
 | `object-layout-v5` | Bounded nominal/vector/String metadata and detached catalogs | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String uses an intrinsic shell, without framework layout or interfaces |
 | `value-layout-v1` | Metadata discovery, detached inline layouts and bounded copy/reference-path planning | Nongeneric sealed structs with Int32, included references and nested values; exact selected ValueType identity; executable copies use the separate scalar-lowering profile |
 | `typed-value-ir-v1` | Detached value copies, field operations, calls/joins and root plans | Exact struct identity; scalar/reference copy paths; 1,024 roots per method and 65,536 expanded scalar slots per program; no CIL translation or managed locations |
+| `managed-location-ir-v1` | Detached storage locations, synchronous borrowing and owner-root plans | Frame local/parameter and heap-field origins, nested fields, invariant element types, readonly propagation, loads/stores/init and direct void mutators; no escaping locations, byref locals/joins, native carriers or CIL value translation |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
@@ -1086,3 +1087,34 @@ instance. All 196 selected local regressions pass, including O0/O2 sanitizers;
 no additional platform compatibility is claimed. Public object embedding remains
 planned, along with phase B liveness, weak/finalizable objects, concurrent collection,
 named retention paths and per-type allocation statistics.
+
+
+## Detached managed storage locations
+
+[ADR 0059](decisions/0059-managed-storage-locations.md) adds a separate
+`ManagedLocationIrProgram` contract around value IR. Locations name frame
+local/by-value parameter storage or exact object fields. Nested inline fields
+retain FieldDef paths; no numeric native offset or raw pointer enters IR.
+The location's element is exactly Int32, an included reference or an inline
+value. Null, void and nested-location elements are rejected. Locations are
+invariant, with writable-to-readonly lending allowed and no reverse conversion.
+Readonly fields/parents retain readonly locations.
+
+Internal direct calls may synchronously borrow/reborrow locations, including
+through void mutators. Locations cannot be returned, passed into the entry without
+a caller, stored in locals/fields or carried through block joins. These explicit
+restrictions establish frame lifetime without inferring provenance. Location
+loads copy the element; stores and initialization require writable storage.
+Memory access and heap-field address creation require method-exit fault edges;
+frame address creation and nested field derivation are pure. Metadata access
+rights and constructor authorization remain separate from this detached contract.
+
+Root plans publish the heap owner of each location copy, never its interior
+address as an object root. Frame locations borrow an active frame whose backing
+reference slots remain rooted. Carriers count as two logical slots; expanded
+storage and root limits remain 65,536 per program and 1,024 per method. Calls retain
+safepoints and complete closure validation. Existing pure-copy/native profiles
+reject these operations. This establishes no executable byrefs or collection
+through mutable struct storage; native authentication, CIL value translation,
+array/boxed locations, ref returns, byref locals/joins and native return packets
+remain subsequent gates.

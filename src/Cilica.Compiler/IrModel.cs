@@ -5,16 +5,18 @@ using Cilica.Metadata.IL;
 
 namespace Cilica.Compiler;
 
-public enum IrTypeKind { Int32, Reference, NullReference, Void, Value }
+public enum IrTypeKind { Int32, Reference, NullReference, Void, Value, ManagedLocation }
 
 /// <summary>References and inline values retain distinct kinds and content-scoped identities; null is a stack value.</summary>
-public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null)
+public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null, IrType? Element = null, bool ReadOnly = false)
 {
     public static IrType Int32 { get; } = new(IrTypeKind.Int32);
     public static IrType NullReference { get; } = new(IrTypeKind.NullReference);
     public static IrType Void { get; } = new(IrTypeKind.Void);
     public static IrType Reference(ObjectTypeId type) => new(IrTypeKind.Reference, type);
     public static IrType Value(ObjectTypeId type) => new(IrTypeKind.Value, type);
+    // A borrowed storage location, never an object identity or unmanaged pointer.
+    public static IrType Location(IrType element, bool readOnly = false) => new(IrTypeKind.ManagedLocation, Element: element, ReadOnly: readOnly);
 }
 
 /// <summary>32-bit operations with explicit wrapping/checked arithmetic; shifts mask the count to five bits.</summary>
@@ -77,6 +79,11 @@ public abstract record IrExpression
     public sealed record DefaultValue(ObjectTypeId Type) : IrExpression;
     public sealed record ValueField(ObjectFieldId Field, int Operand) : IrExpression;
     public sealed record WithValueField(ObjectFieldId Field, int Operand, int Value) : IrExpression;
+    public sealed record AddressLocal(int Index) : IrExpression;
+    public sealed record AddressParameter(int Index) : IrExpression;
+    public sealed record AddressField(ObjectFieldId Field, int Receiver) : IrExpression;
+    public sealed record LocationField(ObjectFieldId Field, int Location) : IrExpression;
+    public sealed record LoadLocation(int Location) : IrExpression;
 }
 
 /// <summary>Block-local typed temporary; operands always refer to earlier values in that block.</summary>
@@ -93,6 +100,10 @@ public abstract record IrStatement
     // Reference stores additionally check the allocation's actual element type,
     // after null/bounds checks; static covariance never removes that obligation.
     public sealed record StoreElement(int ILOffset, ObjectTypeId ArrayType, int Array, int Index, int Value,
+        IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
+    public sealed record StoreLocation(int ILOffset, int Location, int Value,
+        IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
+    public sealed record InitializeLocation(int ILOffset, int Location,
         IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
 }
 
@@ -160,6 +171,12 @@ public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMetho
 public sealed record ValueIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ValueTypeCatalog Types)
 {
     public const string Profile = "typed-value-ir-v1";
+}
+
+/// <summary>Detached synchronous borrows, with checked frame/heap origins; not native addresses or CIL lowering.</summary>
+public sealed record ManagedLocationIrProgram(ValueIrProgram Flow)
+{
+    public const string Profile = "managed-location-ir-v1";
 }
 
 public static class ProgramLimits
