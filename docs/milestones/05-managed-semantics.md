@@ -19,7 +19,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2b.2 | Mutable value expansion into scalar location IR | Complete for authored IR with scalar/void returns |
 | 5d.2c.1 | Caller-owned native struct-return packets | Complete for authored IR |
 | 5d.2c.2a | CIL value closure discovery | Complete for bounded metadata inputs |
-| 5d.2c.2b | CIL value body translation | Planned |
+| 5d.2c.2b | CIL value body translation | Complete for the bounded static compiler-library profile |
 | 5d.2c.3 | Allocating value source programs and composed live-value stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
@@ -206,3 +206,23 @@ removed a quadratic scan and closed private-scope field access. All 83 selected
 discovery/layout checks pass. This is a metadata checkpoint; it does not execute
 CIL values or validate their evaluation stack. Body translation is the next slice.
 Local main remains an ancestor. No hosted work ran.
+
+## Slice 5d.2c.2b outcome
+
+ADR 0065 translates bounded static CIL values into the existing copy/borrow IR
+and native lowering. Local mutation, nested borrows, overlapping copies, exact
+stack joins, loops and struct returns now have source-level translation evidence.
+Review fixed hidden-type use through operands/signatures and made the loop oracle
+observe its computation. No blocking findings remain.
+
+All 174 selected discovery/layout/value/borrow verifier checks and 14 selected
+location/return-lowering checks pass. Eight local O0/O2 native configurations pass
+with ASan/UBSan and the 2 KiB stack gate; only the two branch configurations were
+repeated after strengthening that fixture. These are 196 distinct selected checks.
+The compiler build has zero warnings/errors. Local main remains an ancestor.
+No push, hosted work, new service or additional agent ran.
+
+Milestone 5 remains in progress. The next gate is allocating value source programs
+and composed live-reference stress (5d.2c.3); boxing, generics, delegates and
+managed exceptions/type-test filters remain planned. The new CIL API is currently
+a compiler-library entry point; existing CLI profiles are unchanged.

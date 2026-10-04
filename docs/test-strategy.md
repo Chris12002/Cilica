@@ -643,3 +643,13 @@ Value CIL discovery tests read real return/borrow fixtures as metadata and use
 reduced assemblies for private/hidden/enclosing-type access, private-scope fields,
 readonly writes, unsupported signature shapes and per-method read limits. They
 distinguish metadata discovery from executable stack validation (ADR 0064).
+
+Bounded value CIL tests now feed real C# return/borrow/loop bodies through metadata
+discovery, typed stack translation, mutable scalar expansion and native emission.
+O0/O2 ASan/UBSan probes compare outputs/faults with .NET, including original IL
+fault offsets and unchanged packed output on failure. Loop output observes loop
+work. Reduced `cpobj` IL checks self-aliasing, disjoint copy and clearing the source.
+Negative fixtures cover hidden type operands, readonly indirect mutation, exact
+field/token types, invalid stack joins/indices/depth, unsupported boxing, dead
+blocks and expanded statement limits. This evidence does not establish allocating
+CIL value programs or collection with their live embedded references (ADR 0065).

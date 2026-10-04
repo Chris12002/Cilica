@@ -134,6 +134,19 @@ public static class ValueProgramDiscovery
                     if ((field.Attributes & FieldAttributes.InitOnly) != 0
                         && writes.Contains(access.Key))
                         Fail(work, "Readonly value fields cannot be written by this static-method profile.", access.Key);
+                    if (field.Storage is ObjectStorage.Value inline) CheckType(inline.Type, access.Key);
+                }
+                foreach (var type in method.Parameters.Concat(method.Locals).Append(method.ReturnType))
+                {
+                    var element = type.Kind == IrTypeKind.ManagedLocation ? type.Element! : type;
+                    if (element.Kind == IrTypeKind.Value) CheckType(element.Class!, 0);
+                }
+                foreach (var operand in method.TypeOperands) CheckType(operand.Value, operand.Key);
+
+                void CheckType(ObjectTypeId type, int offset)
+                {
+                    if (type != method.Binding.Owner && !layouts[type].ExternallyVisible)
+                        Fail(work, "Value type use requires the same declaring owner or a fully externally visible type; other visibility rules require later lowering.", offset);
                 }
             }
             return new(root.Binding.Method, [.. methods.OrderBy(m => m.Binding.Method.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Binding.Method.Token)], catalog);

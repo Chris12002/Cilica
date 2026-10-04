@@ -639,6 +639,18 @@ against exact declaring owners and enclosing-type visibility. Int32/value signat
 and synchronous byref parameters are admitted; this metadata result is not yet
 stack-verified or executable CIL.
 
+The compiler-library `value-cil-v1` entry now translates bounded static value CIL
+into the tested copy/borrow IR and native lowering
+([ADR 0065](decisions/0065-bounded-value-cil-translation.md)). It supports local and
+by-value parameter mutation, nested fields, synchronous byref parameters, whole
+copies, exact stack joins, Int32 branches and struct returns. O0/O2 sanitizer
+probes compare real C# return/borrow/loop programs with .NET. Type access, readonly
+locations, original fault offsets and expanded IR budgets are checked. Borrowed
+locations across joins, instance struct methods, standalone reference signatures
+and allocations in value source programs remain outside this profile. Existing
+CLI profiles are unchanged; live-object allocation/collection composition for
+CIL values is the next gate. Earlier value paragraphs record the staged contracts.
+
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 

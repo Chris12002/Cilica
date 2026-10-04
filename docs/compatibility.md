@@ -14,10 +14,11 @@ at milestone 4, with later value/location capabilities documented separately.
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
 | `object-layout-v5` | Bounded nominal/vector/String metadata and detached catalogs | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String uses an intrinsic shell, without framework layout or interfaces |
 | `value-layout-v1` | Metadata discovery, detached inline layouts and bounded copy/reference-path planning | Nongeneric sealed structs with Int32, included references and nested values; exact selected ValueType identity; executable copies use the separate scalar-lowering profile |
-| `typed-value-ir-v1` | Detached value copies, field operations, calls/joins and root plans | Exact struct identity; scalar/reference copy paths; 1,024 roots per method and 65,536 expanded scalar slots per program; no CIL translation or managed locations |
-| `managed-location-ir-v1` | Detached storage locations, synchronous borrowing and owner-root plans | Frame local/parameter and heap-field origins, nested fields, invariant element types, readonly propagation, loads/stores/init and direct void mutators; no escaping locations, byref locals/joins, whole-value native emission or CIL value translation |
-| `scalar-location-ir-v1` | Authored Int32/reference borrows with existing native object operations | Explicit `EmitLocations` entry, synchronous direct static borrowers, readonly views, owner roots, checked carriers and O0/O2 allocation/collection stress; inline values require the separate expansion profile; no CIL byref translation |
-| `value-location-scalars-v2` | Mutable inline values and caller-owned struct returns expanded into native scalar borrows | Authored nested local/by-value parameter mutation, snapshots, readonly views, rooted return destinations and embedded reference slots; no allocating value source operations, CIL translation, inline heap fields or public struct ABI |
+| `typed-value-ir-v1` | Detached value copies, field operations, calls/joins and root plans | Exact struct identity; scalar/reference copy paths; 1,024 roots per method and 65,536 expanded scalar slots per program; managed locations and CIL use the separate wrapper/translator |
+| `managed-location-ir-v1` | Detached storage locations, synchronous borrowing and owner-root plans | Frame local/parameter and heap-field origins, nested fields, invariant element types, readonly propagation, loads/stores/init and direct void mutators; no escaping locations or byref locals/joins; value native emission and CIL use separate lowering/translation profiles |
+| `scalar-location-ir-v1` | Authored Int32/reference borrows with existing native object operations | Explicit `EmitLocations` entry, synchronous direct static borrowers, readonly views, owner roots, checked carriers and O0/O2 allocation/collection stress; inline values require the separate expansion profile; CIL byrefs use the separate value translator |
+| `value-location-scalars-v2` | Mutable inline values and caller-owned struct returns expanded into native scalar borrows | Authored nested local/by-value parameter mutation, snapshots, readonly views, rooted return destinations and embedded reference slots; authored IR and bounded value CIL; no allocating value source operations, inline heap fields or public struct ABI |
+| `value-cil-v1` | Static value CIL translated through existing value/location IR and native lowering | Compiler-library API; exact joins, synchronous Int32/value borrows, whole copies, field operations and struct returns; O0/O2 local sanitizer conformance; no allocating source value programs or CLI profile change |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
@@ -1203,3 +1204,21 @@ budgets (ADR 0064). Embedded references keep the existing layout grammar. This
 API does not claim supported body opcodes or executable CIL. Standalone reference
 signatures, modifiers, byref locals/returns and generic/instance methods remain
 unsupported.
+
+## Bounded value CIL execution
+
+`ValueTranslator.Translate` adds executable stack verification and lowering to
+ADR 0064 discovery (ADR 0065). It shares the native scalar location/return path.
+The bounded static signature grammar remains unchanged. Supported value bodies
+include locals, by-value argument addresses, nested fields, named-struct
+`initobj`/`ldobj`/`stobj`/`cpobj`, Int32/reference indirection, direct calls, returns,
+Int32 arithmetic/branches and exact stack joins. `conv.i4` only accepts Int32.
+Null and exact reference values can flow through fields, but reference comparisons
+and widening joins are unsupported. Borrowed locations cannot cross joins.
+
+Type/member access and readonly restrictions are checked. Unsupported reachable
+instructions and malformed stacks return diagnostics without partial IR. Local
+O0/O2 ASan/UBSan tests compare real C# return, borrow and loop fixtures with .NET;
+reduced whole-copy IL checks aliasing. This does not claim CIL allocation with live
+embedded references, instance struct methods, byref locals/returns, boxing,
+generics, exceptions or additional platforms. Existing CLI commands are unchanged.

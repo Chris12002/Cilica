@@ -63,7 +63,7 @@ public sealed class ValueDiscoveryTests
         var valueBase = b.Type("System", "ValueType", baseType: obj, attributes: TypeAttributes.Public | TypeAttributes.Abstract);
         var enclosing = kind == "hidden_enclosing" ? b.Type("Test", "Hidden", attributes: TypeAttributes.NotPublic) : default;
         var value = b.Type("Test", "Value", parent: enclosing, baseType: valueBase, attributes:
-            TypeAttributes.Sealed | TypeAttributes.SequentialLayout | (kind == "hidden_type" ? TypeAttributes.NotPublic
+            TypeAttributes.Sealed | TypeAttributes.SequentialLayout | (kind is "hidden_type" or "hidden_type_only" ? TypeAttributes.NotPublic
                 : kind == "hidden_enclosing" ? TypeAttributes.NestedPublic : TypeAttributes.Public));
         byte encoded = checked((byte)(MetadataTokens.GetRowNumber(value) << 2));
         var field = b.FieldWithAttributes("Number", kind == "private_scope_field" ? FieldAttributes.PrivateScope
@@ -78,6 +78,11 @@ public sealed class ValueDiscoveryTests
         if (kind is not ("same_owner" or "private_scope_field")) b.Type("Test", "Driver", baseType: obj);
         var entry = b.Method("Execute", [0, 0, 8], locals: kind == "byref_local" ? [7, 1, 0x10, 0x11, encoded] : [7, 1, 0x11, encoded], emit: il =>
         {
+            if (kind == "hidden_type_only")
+            {
+                il.LoadLocalAddress(0); il.OpCode(ILOpCode.Initobj); il.Token(value);
+                il.LoadConstantI4(0); il.OpCode(ILOpCode.Ret); return;
+            }
             if (kind is "private_method" or "reference_parameter" or "byref_return" or "nested_byref" or "modified_parameter") il.Call(helper);
             il.LoadLocalAddress(0);
             if (kind == "readonly_write") { il.LoadConstantI4(1); il.OpCode(ILOpCode.Stfld); il.Token(field); il.LoadConstantI4(0); }
@@ -99,6 +104,7 @@ public sealed class ValueDiscoveryTests
     [InlineData("private_field", "Fields require")]
     [InlineData("private_scope_field", "Fields require")]
     [InlineData("hidden_type", "Fields require")]
+    [InlineData("hidden_type_only", "Value type use requires")]
     [InlineData("hidden_enclosing", "Fields require")]
     [InlineData("readonly_write", "Readonly value fields")]
     [InlineData("private_method", "Calls require")]
