@@ -11,6 +11,15 @@ public static class ValueScalarLowering
     public const string Profile = "value-scalars-v1";
     public const string LocationProfile = "value-location-scalars-v2";
 
+    public static ScalarDelegateIrProgram LowerDelegates(DelegateValueIrProgram program)
+    {
+        _ = ValueRootAssignment.Assign(program);
+        var scalar = new ScalarBoxedIrProgram(new(new(LowerCore(program.Flow.Flow, returnPackets: true), program.Bindings)), program.Flow.Flow.Types);
+        var result = new ScalarDelegateIrProgram(scalar);
+        _ = ObjectRootAssignment.AssignDelegates(result);
+        return result;
+    }
+
     public static ScalarBoxedIrProgram LowerBoxes(BoxedValueIrProgram program)
     {
         _ = ValueRootAssignment.Assign(program);
@@ -182,6 +191,11 @@ public static class ValueScalarLowering
                             Emit(new IrStatement.StoreLocal(store.ILOffset, localSlots[store.Local] + i, values[store.Value][i]));
                         continue;
                     }
+                    if (statement is IrStatement.InvokeDelegate delegateCall)
+                    {
+                        _ = Arguments([delegateCall.Delegate], true);
+                        Emit(delegateCall with { Delegate = One(delegateCall.Delegate), Arguments = Arguments(delegateCall.Arguments, true) }); continue;
+                    }
                     if (statement is IrStatement.Invoke invoke)
                     {
                         Emit(invoke with { Arguments = Arguments(invoke.Arguments, true) }); continue;
@@ -210,6 +224,8 @@ public static class ValueScalarLowering
                         continue;
                     }
                     var definition = (IrStatement.Define)statement;
+                    if (definition.Value.Expression is IrExpression.NewDelegate capture) _ = Arguments([capture.Receiver], true);
+                    if (definition.Value.Expression is IrExpression.CallDelegate delegateCallExpression) _ = Arguments([delegateCallExpression.Delegate], true);
                     var value = definition.Value; var expanded = Expand(value.Type);
                     var ids = ImmutableArray.CreateBuilder<int>();
                     switch (value.Expression)
@@ -299,6 +315,8 @@ public static class ValueScalarLowering
                                 IrExpression.Compare compare => compare with { Left = One(compare.Left), Right = One(compare.Right) },
                                 IrExpression.Call call => call with { Arguments = Arguments(call.Arguments, true) },
                                 IrExpression.AddressField field => field with { Receiver = One(field.Receiver) },
+                                IrExpression.NewDelegate d => d with { Receiver = One(d.Receiver) },
+                                IrExpression.CallDelegate d => d with { Delegate = One(d.Delegate), Arguments = Arguments(d.Arguments, true) },
                                 IrExpression.NewArray array => array with { Length = One(array.Length) },
                                 IrExpression.NewObject allocated => allocated with { Arguments = Arguments(allocated.Arguments, true) },
                                 IrExpression.LoadField loaded => loaded with { Receiver = One(loaded.Receiver) },

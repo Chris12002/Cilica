@@ -33,7 +33,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5f.3 | Primitive-only closures and bounded generic constraint validation | Complete for class/struct/public default-constructor constraints |
 | 5f.4 | Closed generic reference layouts and construction | Complete for concrete classes with scalar/reference fields and exact constructors |
 | 5g.1 | Delegate identities, captures, invocation and root contracts | Complete for authored single-target Int32/void IR |
-| 5g.2 | Native delegate storage, invocation and collection | Next |
+| 5g.2 | Native delegate storage, invocation and collection | Complete for authored single-target Int32/void IR |
 | 5g.3 | CIL delegate binding and composed differential probes | Planned |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
 | 5i | Composed differential regressions and final review | Planned |
@@ -437,3 +437,19 @@ All 248 selected local verifier/catalog checks pass, including malformed targets
 and the root budget. Earlier native profiles reject this source-only contract.
 Native storage and invocation are next (5g.2). Milestone 5 remains in progress;
 no hosted work ran.
+
+## Slice 5g.2 outcome
+
+Authored delegates now lower into checked scalar packets and native storage
+(ADR 0079). Each allocation has fresh identity and a traced captured receiver;
+invocation authenticates ownership, exact signature and immutable target-table
+membership. Integer/void targets use bounded arena arguments, including the hidden
+receiver. Null capture/invocation and target faults preserve their distinct status
+and original method/IL provenance. Packed output remains unchanged on failure.
+
+Review checked payload access, root lifetimes across allocation/calls, operand
+remapping, argument accounting, exact signature pointers and failure cleanup.
+All 19 selected local tests pass, including O0/O2 ASan/UBSan .NET comparisons,
+sole captured receiver retention, corrupt/foreign payload rejection, independent
+identity, allocation recovery and exact/one-byte-short arena capacity. CIL delegate
+binding is next; milestone 5 remains in progress. No hosted work ran.

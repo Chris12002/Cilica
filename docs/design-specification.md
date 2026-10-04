@@ -803,8 +803,11 @@ The authored `delegate-values-ir-v1` contract now defines intrinsic single-targe
 delegate identities, exact static/instance captures and Int32/void invocation
 ([ADR 0078](decisions/0078-detached-delegate-ir.md)). Captured receivers remain
 managed references, target methods enter the reachable closure and allocation/call
-safepoints retain the necessary roots. Native execution and CIL delegate binding
-remain separate gates; multicast, variance and broader signatures are unsupported.
+safepoints retain the necessary roots. `LowerDelegates`/`EmitDelegates` now provide
+checked native storage and invocation ([ADR 0079](decisions/0079-native-delegate-execution.md)).
+O0/O2 sanitizer probes cover .NET parity, captured roots, ownership checks, bounded
+argument packets and fault cleanup. CIL delegate binding remains next; multicast,
+variance and broader signatures are unsupported.
 
 ## 10. Generics and reachability
 

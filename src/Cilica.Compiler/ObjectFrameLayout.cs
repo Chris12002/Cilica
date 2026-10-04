@@ -63,11 +63,14 @@ internal sealed class ObjectFrameLayout
                 {
                     IrExpression.Call call => call.Arguments.Length,
                     IrExpression.NewObject creation => creation.Arguments.Length + 1,
+                    IrExpression.CallDelegate call => call.Arguments.Length + 1,
                     _ => 0,
                 };
                 arguments = System.Math.Max(arguments, count);
                 if (value.Expression is IrExpression.BoxScalars boxed) BoxArgumentCount = System.Math.Max(BoxArgumentCount, boxed.Values.Length);
             }
+            foreach (var call in block.Statements.OfType<IrStatement.InvokeDelegate>())
+                arguments = System.Math.Max(arguments, call.Arguments.Length + 1);
             foreach (var call in block.Statements.OfType<IrStatement.Invoke>())
             {
                 arguments = System.Math.Max(arguments, call.Arguments.Length);

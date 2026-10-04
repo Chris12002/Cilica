@@ -14,7 +14,7 @@ public sealed record ScalarBoxedIrProgram(ScalarLocationIrProgram Flow, ValueTyp
 public static class ScalarBoxedIrValidator
 {
     public static void Validate(ScalarBoxedIrProgram program) => _ = ValidateAndPlan(program);
-    internal static ScalarBoxingRules ValidateAndPlan(ScalarBoxedIrProgram program)
+    internal static ScalarBoxingRules ValidateAndPlan(ScalarBoxedIrProgram program, bool delegates = false)
     {
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
@@ -23,7 +23,7 @@ public static class ScalarBoxedIrValidator
         var rules = new ScalarBoxingRules(program.Values);
         if (program.Values.References != program.Flow.Flow.Flow.Types)
             throw new ArgumentException("Scalar boxes must share the exact reference catalog.", nameof(program));
-        ObjectIrValidator.Validate(program.Flow.Flow, locations: true, rules);
+        ObjectIrValidator.Validate(program.Flow.Flow, locations: true, rules, delegates: delegates);
         return rules;
     }
 }

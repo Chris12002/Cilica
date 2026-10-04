@@ -765,3 +765,8 @@ private-target access, target-only reachability, captured receiver roots, void
 invocation, explicit fault exits and phase A root/argument bounds. Earlier native
 profiles must reject delegate catalogs until the native gate is implemented.
 These checks do not establish native delegate execution.
+
+Native delegate probes (ADR 0079) compare static and captured Int32/void calls with
+.NET at O0/O2 under ASan/UBSan, including null capture versus invocation, target
+fault origins, sole captured receiver retention, corrupt/foreign payload rejection,
+fresh identity, unchanged packed output, allocation recovery and exact arena limits.

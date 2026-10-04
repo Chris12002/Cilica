@@ -51,6 +51,12 @@ public static class ObjectCppEmitter
         return EmitValidated(program.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(program.Values));
     }
 
+    public static CppArtifact EmitDelegates(ScalarDelegateIrProgram program)
+    {
+        var plans = ObjectRootAssignment.AssignDelegates(program).ToDictionary(p => p.Method);
+        return EmitValidated(program.Flow.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(program.Flow.Values));
+    }
+
     private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations,
         ImmutableArray<ValueTypePlan> boxedPayloads = default)
     {
@@ -62,6 +68,8 @@ public static class ObjectCppEmitter
                 signatures.Add(IrMethodId.From(declaration.Source), (declaration.Parameters, declaration.ReturnType));
         var bindings = program.Bindings.ToDictionary(b => b.Method);
         var native = new ObjectNativeLayout(program.Flow.Types);
+        var delegateDeclarations = program.Flow.Types.Delegates;
+        var delegates = delegateDeclarations.IsEmpty ? null : new ObjectCppDelegates(program);
         if (boxedPayloads.IsDefault) boxedPayloads = [];
         int fieldSlots = native.Fields.Values.Sum(f => f.Length);
         foreach (var payload in boxedPayloads)
@@ -75,7 +83,7 @@ public static class ObjectCppEmitter
         var typeRules = new IrTypeRules(program.Flow.Types);
         var contracts = program.Flow.Types.Interfaces.Select(i => ObjectTypeId.From(i.Source)).ToHashSet();
         var arrays = program.Flow.Types.Arrays;
-        var concrete = types.Keys.Concat(arrays).Concat(program.Flow.Types.String is { } selectedString ? [selectedString] : Array.Empty<ObjectTypeId>()).ToArray();
+        var concrete = types.Keys.Concat(delegateDeclarations.Select(d => ObjectTypeId.From(d.Source))).Concat(arrays).Concat(program.Flow.Types.String is { } selectedString ? [selectedString] : Array.Empty<ObjectTypeId>()).ToArray();
         // Empty has a reserved identity even when produced only by Concat(null, null).
         var literals = new Dictionary<string, ImmutableArray<ushort>>(StringComparer.Ordinal) { [""] = [] };
         string LiteralKey(ImmutableArray<ushort> units) => new(units.Select(u => (char)u).ToArray());
@@ -145,6 +153,7 @@ public static class ObjectCppEmitter
                 .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
                 .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : "1, nullptr, nullptr, nullptr").Append(" };\n");
         }
+        if (delegates is not null) ObjectCppDelegates.AppendStorage(text, delegateDeclarations, TypeSymbol, program.Flow.Types.ObjectBase);
         if (!boxedPayloads.IsEmpty)
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
         // Exact membership compares untrusted descriptor addresses without dereferencing them.
@@ -181,6 +190,7 @@ public static class ObjectCppEmitter
                 .Append("    std::uint64_t borrow_token = 0; LocationResult location_result{};\n");
             if (!boxedPayloads.IsEmpty) text.Append("    std::array<Argument, ").Append(N(layout.BoxArgumentCount))
                 .Append("> box_arguments{}; BoxResult box_result{};\n");
+            if (delegates is not null) text.Append("    DelegateResult delegate_result{};\n");
             foreach (var kind in layout.DispatchKinds.OrderBy(k => k))
                 text.Append("    ").Append(CType(new(kind))).Append(" (*dispatch_").Append(kind.ToString().ToLowerInvariant())
                     .Append(")(Context&, const ").Append(argumentType).Append("*) noexcept = nullptr;\n");
@@ -190,6 +200,7 @@ public static class ObjectCppEmitter
                 .Append(string.Join(", ", layout.RootTypes.Select(t => Predicate(t.Kind == IrTypeKind.Reference ? t.Class! : program.Flow.Types.ObjectBase)))).Append("};\n");
             Header(method); text.Append(";\n");
         }
+        delegates?.AppendTargets(text, TypeSymbol, Predicate);
         var dispatch = program.Dispatch.Concat(program.InterfaceDispatch is { } prepared
             ? prepared.Dispatch.Select(m => new ObjectVirtualDispatch(m.Declaration,
                 [.. m.Targets.Select(t => new ObjectVirtualTarget(t.Receiver, t.Implementation))])) : []);
@@ -311,6 +322,21 @@ public static class ObjectCppEmitter
                 Flush();
                 return (dispatch ? DispatchPointer(signatures[target].ReturnType.Kind) : CppEmitter.Symbol(target)) + "(context, f->arguments.data())";
             }
+            string DelegateCall(ObjectTypeId type, int receiver, ImmutableArray<int> arguments, bool action, int offset)
+            {
+                code.Append("    f->delegate_result = prepare_delegate(context, ").Append(Value(receiver)).Append(", &")
+                    .Append(TypeSymbol(type)).Append("_descriptor);\n");
+                Guard("f->delegate_result.status != 0u", "f->delegate_result.status", offset); Flush();
+                code.Append("    f->arguments[0].reference = reinterpret_cast<DelegateObject*>(f->delegate_result.value)->receiver;\n");
+                for (int i = 0; i < arguments.Length; ++i)
+                {
+                    code.Append("    f->arguments[").Append(N(i + 1)).Append("].bits = ").Append(Value(arguments[i])).Append(";\n");
+                    if ((i + 1) % CopiesPerStep == 0) Flush();
+                }
+                Flush();
+                return "f->delegate_result.target->" + (action ? "action" : "integer")
+                    + "(context, f->arguments.data() + (f->delegate_result.target->receiver == nullptr ? 1 : 0))";
+            }
             string DispatchPointer(IrTypeKind kind) => "f->dispatch_" + kind.ToString().ToLowerInvariant();
             void SelectDispatch(IrMethodId target, ImmutableArray<int> arguments, int offset)
             {
@@ -360,10 +386,10 @@ public static class ObjectCppEmitter
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
                         or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
-                            or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot
+                            or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
-                        or IrStatement.Invoke { VirtualDispatch: true };
+                        or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
                     // Array/field access, type tests and virtual calls include ownership/type checks.
                     // Keep them in separate steps to retain the O0 sanitizer stack bound.
                     if (isolatedOperation) { Flush(); statementsInStep = 0; }
@@ -375,6 +401,14 @@ public static class ObjectCppEmitter
                             code.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                             switch (value.Expression)
                             {
+                                case IrExpression.NewDelegate creation:
+                                    code.Append("    f->delegate_result = make_delegate(context, ").Append(N(delegates!.Index(creation)))
+                                        .Append(", ").Append(Value(creation.Receiver)).Append(");\n");
+                                    Guard("f->delegate_result.status != 0u", "f->delegate_result.status", value.ILOffset);
+                                    expression = "f->delegate_result.value"; break;
+                                case IrExpression.CallDelegate call:
+                                    expression = "std::bit_cast<std::uint32_t>(" + DelegateCall(call.Type, call.Delegate, call.Arguments, false, value.ILOffset) + ")";
+                                    break;
                                 case IrExpression.BoxScalars boxed:
                                     for (int slot = 0; slot < boxed.Values.Length; ++slot)
                                     {
@@ -488,7 +522,7 @@ public static class ObjectCppEmitter
                             {
                                 Flush(); Check(Value(value.Id), value.Type.Class!, false, value.ILOffset);
                             }
-                            else if (value.Expression is IrExpression.Call) Pending();
+                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate) Pending();
                             break;
                         }
                         case IrStatement.StoreLocal store:
@@ -500,6 +534,9 @@ public static class ObjectCppEmitter
                             bool integer = values[initialize.Location].Type.Element!.Kind == IrTypeKind.Int32;
                             Guard("store_location_" + (integer ? "integer" : "reference") + "(context, " + Value(initialize.Location) + ", "
                                 + (integer ? "0u" : "nullptr") + ") != LocationStatus::complete", "6u", initialize.ILOffset); break;
+                        case IrStatement.InvokeDelegate invoke:
+                            string delegateInvocation = DelegateCall(invoke.Type, invoke.Delegate, invoke.Arguments, true, invoke.ILOffset);
+                            code.Append("    ").Append(delegateInvocation).Append(";\n"); Pending(); break;
                         case IrStatement.Invoke invoke:
                             if (invoke.VirtualDispatch) SelectDispatch(invoke.Target, invoke.Arguments, invoke.ILOffset);
                             else if (invoke.NullCheckReceiver) Guard(Value(invoke.Arguments[0]) + " == nullptr", "4u", invoke.ILOffset);
