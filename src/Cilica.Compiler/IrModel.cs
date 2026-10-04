@@ -54,6 +54,8 @@ public abstract record IrExpression
     public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
     public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false,
         bool VirtualDispatch = false) : IrExpression;
+    public sealed record NewException(ObjectTypeId Type, int? Message = null) : IrExpression;
+    public sealed record ExceptionMessage(int Operand) : IrExpression;
     public sealed record NewDelegate(ObjectTypeId Type, IrMethodId Target, int Receiver) : IrExpression;
     public sealed record CallDelegate(ObjectTypeId Type, int Delegate, ImmutableArray<int> Arguments) : IrExpression;
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
@@ -129,6 +131,11 @@ public sealed record IrEdge(int Target, ImmutableArray<int> Arguments);
 public abstract record IrTerminator(int ILOffset);
 public sealed record IrReturn(int ILOffset, int Value) : IrTerminator(ILOffset);
 public sealed record IrVoidReturn(int ILOffset) : IrTerminator(ILOffset);
+public sealed record IrThrow(int ILOffset, int Value) : IrTerminator(ILOffset);
+public sealed record IrRethrow(int ILOffset) : IrTerminator(ILOffset);
+public sealed record IrLeave(int ILOffset, IrEdge Edge) : IrTerminator(ILOffset);
+public sealed record IrEndFinally(int ILOffset) : IrTerminator(ILOffset);
+public sealed record IrEndFilter(int ILOffset, int Value) : IrTerminator(ILOffset);
 public sealed record IrJump(int ILOffset, IrEdge Edge) : IrTerminator(ILOffset);
 public sealed record IrBranch(int ILOffset, Int32Comparison Comparison, int Left, int? Right,
     IrEdge Taken, IrEdge NotTaken) : IrTerminator(ILOffset);
@@ -144,6 +151,7 @@ public sealed record IrBlock(int Id, int ILOffset, ImmutableArray<IrType> Inputs
 public sealed record IrMethod(MethodSource Source, ImmutableArray<IrType> Parameters,
     IrType ReturnType, ImmutableArray<IrBlock> Blocks, ImmutableArray<IrType> Locals)
 {
+    public ImmutableArray<IrExceptionRegion> ExceptionRegions { get; init; } = [];
     // Kept for existing Int32 translation callers; reference contracts use ReferenceIrProgram.Profile.
     public const string Profile = IrProgram.Profile;
 }

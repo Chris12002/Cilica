@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace Cilica.Compiler;
 
-public enum ObjectRootKind { Parameter, Local, Value, BlockInput }
+public enum ObjectRootKind { Parameter, Local, Value, BlockInput, Exception }
 public sealed record ObjectRootSlot(int Slot, ObjectRootKind Kind, int Index, int Block = -1, bool LocationOwner = false);
 public enum ObjectSafepointKind { Allocation, Call }
 public sealed record ObjectSafepoint(int Statement, int ILOffset, ObjectSafepointKind Kind, int Block = 0);

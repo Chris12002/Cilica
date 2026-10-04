@@ -795,6 +795,8 @@ must unwind correctly.
 Managed exception metadata now retains validated bounded region inputs and catch
 identities ([ADR 0081](decisions/0081-managed-exception-inputs.md)). Its type-test
 classifier requires acyclic flow and local assignment before every read on all paths.
+Detached exception IR now defines checked throw/rethrow/leave, handler/cleanup/filter
+regions and saved-identity roots ([ADR 0082](decisions/0082-managed-exception-ir.md)).
 Executable managed handlers remain a subsequent gate.
 
 Exception filters are staged. Filters that only test the exception's type are

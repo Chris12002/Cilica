@@ -21,7 +21,7 @@ public static class ValueArrayIrValidator
     }
 
     internal static ValueIrRules ValidateComposition(ManagedLocationIrProgram program,
-        ImmutableArray<ObjectMethodBinding> bindings, bool classes, bool boxing = false, bool delegates = false)
+        ImmutableArray<ObjectMethodBinding> bindings, bool classes, bool boxing = false, bool delegates = false, ManagedExceptionRules? exceptions = null)
     {
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
@@ -34,7 +34,7 @@ public static class ValueArrayIrValidator
             && !(classes && b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor)))
             throw new ArgumentException("Composed value methods require direct static bindings or explicitly supported class constructors.", nameof(program));
         var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings), locations: true, values: flow.Types, delegates: delegates);
-        var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing);
+        var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing, exceptions);
         foreach (var method in flow.Methods)
             if (objects.Binding(IrMethodId.From(method.Source)).Kind != ObjectMethodKind.Static
                 && method.Parameters.Concat(method.Locals).Concat(method.Blocks.SelectMany(b => b.Inputs))
@@ -58,6 +58,7 @@ public static class ValueArrayIrValidator
                     or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                     || classes && d.Value.Expression is (IrExpression.NewObject or IrExpression.LoadField)
                     || boxing && d.Value.Expression is (IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation)
+                    || exceptions is not null && d.Value.Expression is (IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.IsInstance or IrExpression.CastClass or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringEquals)
                     || delegates && d.Value.Expression is (IrExpression.NewDelegate or IrExpression.CallDelegate),
                 IrStatement.StoreLocal or IrStatement.Invoke or IrStatement.StoreLocation
                     or IrStatement.InitializeLocation or IrStatement.StoreElement => true,

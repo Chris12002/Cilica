@@ -36,7 +36,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5g.2 | Native delegate storage, invocation and collection | Complete for authored single-target Int32/void IR |
 | 5g.3 | CIL delegate binding and composed differential probes | Complete for public named nongeneric single-target delegates |
 | 5h.1 | Validated exception metadata and type-test filter admission | Complete for metadata inputs |
-| 5h.2 | Checked exception IR and rooted handler/cleanup contracts | Next |
+| 5h.2 | Checked exception IR and rooted handler/cleanup contracts | Complete for detached authored IR |
 | 5h.3 | Native exception objects, propagation and cleanup | Planned |
 | 5h.4 | CIL exceptions and type-test filters with differential probes | Planned |
 | 5i | Composed differential regressions and final review | Planned |
@@ -483,3 +483,13 @@ Seventy distinct selected local checks pass, including reduced state/branch regr
 exact metadata budgets, protected-transfer rejection and real C# region snapshots.
 This is metadata support only. Checked IR, rooted native exception objects/cleanup
 and executable CIL handlers remain next; milestone 5 is not complete.
+
+## Slice 5h.2 outcome
+
+The exception wrapper now validates nominal runtime exception identities, explicit
+throw/rethrow/leave/cleanup/filter operations and ordered protected regions (ADR 0082).
+Two saved-identity roots per clause count against phase A storage limits. Type-test
+filters retain bounded purity, acyclicity and current-evaluation local assignment.
+All 138 distinct selected local verifier tests pass. Review checked protected transfers,
+root expansion, intrinsic shell access/visibility, filter nesting and earlier-profile
+rejection. Native exception storage and dispatch are next; milestone 5 is not complete.

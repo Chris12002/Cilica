@@ -1356,3 +1356,11 @@ with 256 clauses per method and shared metadata work bounds (ADR 0081). Stage-A
 filters must be acyclic and read only locals assigned in the current evaluation;
 general filters remain diagnostic. This API does not establish native managed
 exception objects or handler execution.
+
+## Authored exception contracts
+
+`managed-exceptions-ir-v1` validates intrinsic exception identities, explicit throw/
+rethrow/leave/cleanup/filter terminators, region entry stacks and protected transfers
+(ADR 0082). Type-test filters are pure and acyclic; saved identities reserve bounded
+phase A roots. Earlier native profiles reject these operations. This checkpoint does
+not execute managed handlers or expose an exception ABI.

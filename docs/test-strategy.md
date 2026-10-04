@@ -781,3 +781,8 @@ Managed exception input checks (ADR 0081) cover scoped catch identities, nested
 catch/finally/rethrow regions, general-filter rejection, exact metadata budgets and
 illegal handler entry. Reduced filters distinguish current-evaluation local writes
 from prior handler state, including branch joins and acyclic backward branches.
+
+Authored exception IR tests (ADR 0082) check nested catches/finally, rethrow placement,
+handler entry stacks, protected exits, exact runtime type maps, type visibility,
+filter purity/cycles/prior state, and saved exception roots exceeding the 1024-slot
+limit. Existing value/object/delegate/location verifier regressions remain covered.

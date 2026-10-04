@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 internal static class IrValidator
 {
     internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null,
-        ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null, ScalarBoxingRules? boxedRules = null)
+        ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null, ScalarBoxingRules? boxedRules = null, ManagedExceptionRules? exceptions = null)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
@@ -29,7 +29,7 @@ internal static class IrValidator
         var types = new IrTypeRules(catalog, valueRules?.Catalog, locationRules is not null || valueRules?.Locations is not null);
         foreach (IrMethod method in program.Methods)
         {
-            Validate(method, methods, catalog, objectRules, types, valueRules, locationRules, boxedRules);
+            Validate(method, methods, catalog, objectRules, types, valueRules, locationRules, boxedRules, exceptions);
             Require(resources.Add(method), "aggregate program IR limit exceeded.");
         }
         var visited = new HashSet<IrMethodId>(); var pending = new Stack<IrMethodId>(); pending.Push(program.Entry);
@@ -55,7 +55,7 @@ internal static class IrValidator
 
     internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null,
         ObjectIrRules? objectRules = null, IrTypeRules? sharedTypes = null, ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null,
-        ScalarBoxingRules? boxedRules = null)
+        ScalarBoxingRules? boxedRules = null, ManagedExceptionRules? exceptions = null)
     {
         int locationOffset = 0;
         void Require([DoesNotReturnIf(false)] bool condition, string message)
@@ -91,6 +91,10 @@ internal static class IrValidator
             previousBlockOffset = block.ILOffset;
         }
         Require(method.Blocks[0].ILOffset == 0 && method.Blocks[0].Inputs.IsEmpty, "entry block starts at zero with an empty stack.");
+        Require(!method.ExceptionRegions.IsDefault && (exceptions is not null || method.ExceptionRegions.IsEmpty), "exception regions require the managed-exception profile.");
+        exceptions?.ValidateRegions(method);
+        if (exceptions is not null) foreach (var region in method.ExceptionRegions)
+            if (region.CatchType is { } caught) Require(objectRules?.TypeTest(method, caught) == true, "catch type is inaccessible.");
         var successors = new List<int>[method.Blocks.Length];
         foreach (IrBlock block in method.Blocks)
         {
@@ -131,6 +135,8 @@ internal static class IrValidator
                         Offset(value.ILOffset);
                         Require(value.Expression switch
                         {
+                            IrExpression.NewException creation => exceptions is not null && exceptions.Creation(creation, value.Type, valueTypes) && objectRules?.TypeTest(method, creation.Type) == true,
+                            IrExpression.ExceptionMessage message => exceptions is not null && exceptions.Message(message, value.Type, valueTypes),
                             IrExpression.Constant => value.Type == IrType.Int32,
                             IrExpression.Null => catalog is not null && value.Type == IrType.NullReference,
                             IrExpression.Parameter p => p.Index >= 0 && p.Index < method.Parameters.Length && value.Type == method.Parameters[p.Index],
@@ -204,7 +210,7 @@ internal static class IrValidator
                                 && ManagedLocationRules.Load(valueTypes[l.Location], value.Type),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
-                        bool throwing = value.Expression is IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
+                        bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.LoadLocation
@@ -275,6 +281,16 @@ internal static class IrValidator
             Require(block.Terminator is not null, "missing block terminator."); Offset(block.Terminator.ILOffset);
             switch (block.Terminator)
             {
+                case IrThrow thrown:
+                    Require(exceptions is not null && Earlier(thrown.Value) && exceptions.Throwable(valueTypes[thrown.Value]), "throw needs a managed exception reference or null."); break;
+                case IrRethrow:
+                    Require(exceptions is not null && exceptions.CatchAt(method, block.Id) >= 0, "rethrow requires an active catch handler."); break;
+                case IrLeave leave:
+                    Require(exceptions is not null && leave.Edge is not null && leave.Edge.Arguments.IsEmpty, "leave requires an empty-stack exceptional profile edge."); Edge(leave.Edge); break;
+                case IrEndFinally:
+                    Require(exceptions is not null && exceptions.CleanupAt(method, block.Id) >= 0, "endfinally requires an active cleanup handler."); break;
+                case IrEndFilter ended:
+                    Require(exceptions is not null && exceptions.FilterAt(method, block.Id) >= 0 && Earlier(ended.Value) && valueTypes[ended.Value] == IrType.Int32, "endfilter requires an Int32 result inside a filter."); break;
                 case IrReturn returned: Require(Earlier(returned.Value) && types.Assignable(valueTypes[returned.Value], method.ReturnType), "invalid returned value."); break;
                 case IrVoidReturn: Require((objectRules is not null || locations is not null) && method.ReturnType == IrType.Void, "invalid void return."); break;
                 case IrJump jump: Edge(jump.Edge); break;
@@ -295,9 +311,12 @@ internal static class IrValidator
             }
         }
         var visited = new HashSet<int>(); var pending = new Stack<int>(); pending.Push(0);
+        if (exceptions is not null) foreach (var region in method.ExceptionRegions)
+        { pending.Push(region.HandlerStart); if (region.FilterStart is int filter) pending.Push(filter); }
         while (pending.TryPop(out int id))
             if (visited.Add(id)) foreach (int target in successors[id]) pending.Push(target);
         Require(visited.Count == method.Blocks.Length, "all blocks must be reachable from entry.");
+        exceptions?.ValidateFlow(method);
         objectRules?.Method(method);
     }
 

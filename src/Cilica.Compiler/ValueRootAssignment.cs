@@ -51,6 +51,12 @@ public static class ValueRootAssignment
         return Assign(program.Flow.Flow, rules);
     }
 
+    public static ImmutableArray<ValueMethodRoots> Assign(ManagedExceptionIrProgram program)
+    {
+        var rules = ManagedExceptionIrValidator.ValidateAndPlan(program);
+        return Assign(program.Flow.Flow.Flow, rules);
+    }
+
     private static ImmutableArray<ValueMethodRoots> Assign(ValueIrProgram program, ValueIrRules rules)
     {
         var layouts = rules.Plans.ToDictionary(p => p.Type);
@@ -84,6 +90,8 @@ public static class ValueRootAssignment
             }
             for (int i = 0; i < method.Parameters.Length; i++) Add(ObjectRootKind.Parameter, i, method.Parameters[i]);
             for (int i = 0; i < method.Locals.Length; i++) Add(ObjectRootKind.Local, i, method.Locals[i]);
+            for (int i = 0; i < method.ExceptionRegions.Length * 2; ++i)
+                Add(ObjectRootKind.Exception, i, IrType.Reference(program.Types.References.ObjectBase));
             foreach (var block in method.Blocks)
             {
                 for (int i = 0; i < block.Inputs.Length; i++) Add(ObjectRootKind.BlockInput, i, block.Inputs[i], block.Id);
@@ -91,8 +99,8 @@ public static class ValueRootAssignment
                     if (block.Statements[i] is IrStatement.Define define)
                     {
                         Add(ObjectRootKind.Value, define.Value.Id, define.Value.Type, block.Id);
-                        if (define.Value.Expression is IrExpression.Call or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate or IrExpression.CallDelegate)
-                            points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate
+                        if (define.Value.Expression is IrExpression.NewException or IrExpression.Call or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate or IrExpression.CallDelegate)
+                            points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.NewException or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate
                                 ? ObjectSafepointKind.Allocation : ObjectSafepointKind.Call, block.Id));
                     }
                     else if (block.Statements[i] is IrStatement.InvokeDelegate delegateCall)

@@ -87,3 +87,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0079](0079-native-delegate-execution.md) | Checked native single-target delegates | Accepted for authored native execution and O0/O2 collection/ownership/fault probes |
 | [0080](0080-bounded-delegate-cil.md) | Bounded delegate CIL binding | Accepted for public named delegate construction and invocation composed with generic values and boxing |
 | [0081](0081-managed-exception-inputs.md) | Validated managed exception inputs | Accepted for bounded region snapshots and strengthened type-test filter classification; executable handlers remain next |
+| [0082](0082-managed-exception-ir.md) | Managed exception region and root contracts | Accepted for detached throw/handler/cleanup/filter IR and bounded saved-identity roots; native/CIL remain next |
