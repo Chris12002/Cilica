@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v16";
+    public const string Profile = "object-frames-native-v17";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -51,6 +51,16 @@ public static class ObjectCppEmitter
         return EmitValidated(program.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(program.Values));
     }
 
+    /// <summary>Private storage helpers only; this scalar program cannot contain managed handler IR.</summary>
+    public static CppArtifact EmitExceptionRuntime(ScalarLocationIrProgram program, ManagedExceptionTypes exceptions)
+    {
+        var plans = ObjectRootAssignment.AssignLocations(program).ToDictionary(p => p.Method);
+        _ = new ManagedExceptionRules(exceptions, program.Flow.Flow.Types);
+        if (program.Flow.Bindings.Any(b => exceptions.Types.Contains(b.Owner) && b.Kind != ObjectMethodKind.Static))
+            throw new ArgumentException("Intrinsic exception shells cannot have ordinary instance bodies.", nameof(program));
+        return EmitValidated(program.Flow, plans, locations: true, exceptions: exceptions);
+    }
+
     public static CppArtifact EmitDelegates(ScalarDelegateIrProgram program)
     {
         var plans = ObjectRootAssignment.AssignDelegates(program).ToDictionary(p => p.Method);
@@ -58,7 +68,7 @@ public static class ObjectCppEmitter
     }
 
     private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations,
-        ImmutableArray<ValueTypePlan> boxedPayloads = default)
+        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null)
     {
         string argumentType = locations ? "LocationArgument" : "Argument";
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
@@ -99,6 +109,7 @@ public static class ObjectCppEmitter
         text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <atomic>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <limits>\n#include <type_traits>\n")
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
             .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
+        if (exceptions is not null) ObjectCppExceptions.AppendStorage(text);
         if (locations) text.Append("struct LocationArgument { std::uint32_t bits = 0; Object* reference = nullptr; Location location; };\n");
         foreach (var type in referenceTypes)
             text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
@@ -106,6 +117,10 @@ public static class ObjectCppEmitter
         {
             var layout = types[composed.Key];
             string type = TypeSymbol(composed.Key);
+            if (exceptions?.Types.Contains(composed.Key) == true)
+            {
+                ObjectCppExceptions.AppendType(text, type, TypeSymbol(layout.BaseType!)); continue;
+            }
             string Member(ObjectField field) => field.Id.Owner == composed.Key ? FieldSymbol(field.Id)
                 : TypeSymbol(field.Id.Owner) + "_" + FieldSymbol(field.Id);
             string Offset(ObjectField field) => "offsetof(" + type + ", " + Member(field) + ")";
@@ -153,6 +168,7 @@ public static class ObjectCppEmitter
                 .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
                 .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : "1, nullptr, nullptr, nullptr").Append(" };\n");
         }
+        if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, TypeSymbol);
         if (delegates is not null) ObjectCppDelegates.AppendStorage(text, delegateDeclarations, TypeSymbol, program.Flow.Types.ObjectBase);
         if (!boxedPayloads.IsEmpty)
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);

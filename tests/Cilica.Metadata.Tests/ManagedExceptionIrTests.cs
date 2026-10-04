@@ -155,4 +155,22 @@ public sealed class ManagedExceptionIrTests
         Assert.Throws<ArgumentException>(() => ManagedExceptionIrValidator.Validate(program));
     }
 
+    [Fact]
+    public void Exception_messages_and_literals_are_allocation_safepoints()
+    {
+        var program = Model(); var flow = program.Flow.Flow.Flow;
+        var text = program.Exceptions.Base with { Token = 0x02000010 }; var custom = program.Exceptions.Types[^1];
+        var references = flow.Types.References with { String = text, Roots = flow.Types.References.Roots.Add(text) };
+        program = program with { Flow = program.Flow with { Flow = new(flow with { Types = flow.Types with { References = references } }) } };
+        program = Method(program, method => method with { Blocks = method.Blocks.SetItem(0, method.Blocks[0] with
+        {
+            Statements = [new IrStatement.Define(new(0, IrType.Reference(text), 0, new IrExpression.StringLiteral([65])), IrExceptionTarget.MethodExit),
+                new IrStatement.Define(new(1, IrType.Reference(custom), 0, new IrExpression.NewException(custom, 0)), IrExceptionTarget.MethodExit),
+                new IrStatement.Define(new(2, IrType.Reference(text), 0, new IrExpression.ExceptionMessage(1)), IrExceptionTarget.MethodExit)],
+            Terminator = new IrThrow(1, 1),
+        }) });
+        var roots = Assert.Single(ValueRootAssignment.Assign(program));
+        Assert.Equal(3, roots.Safepoints.Count(p => p.Kind == ObjectSafepointKind.Allocation));
+    }
+
 }

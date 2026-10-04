@@ -786,3 +786,9 @@ Authored exception IR tests (ADR 0082) check nested catches/finally, rethrow pla
 handler entry stacks, protected exits, exact runtime type maps, type visibility,
 filter purity/cycles/prior state, and saved exception roots exceeding the 1024-slot
 limit. Existing value/object/delegate/location verifier regressions remain covered.
+
+Native exception helper probes (ADR 0083) exercise pending/emergency root visitation,
+saved identity across allocation pressure, supplied UTF-16 messages, original fault
+provenance, forged/foreign/corrupt payload rejection, marking reentrancy and exact/
+short heap limits. Existing collector, boxing and delegate native probes cover the
+shared v17 runtime additions. Source checks reserve message/literal safepoints.

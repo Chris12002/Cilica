@@ -797,7 +797,10 @@ identities ([ADR 0081](decisions/0081-managed-exception-inputs.md)). Its type-te
 classifier requires acyclic flow and local assignment before every read on all paths.
 Detached exception IR now defines checked throw/rethrow/leave, handler/cleanup/filter
 regions and saved-identity roots ([ADR 0082](decisions/0082-managed-exception-ir.md)).
-Executable managed handlers remain a subsequent gate.
+Native v17 now traces pending and emergency exception roots, with checked private
+payload/message and suspend/restore helpers ([ADR 0083](decisions/0083-native-exception-storage.md)).
+An emergency allocation is reserved within the instance quota. Handler dispatch,
+default message materialization and executable CIL handling remain subsequent gates.
 
 Exception filters are staged. Filters that only test the exception's type are
 supported with basic exceptions, because their evaluation order is

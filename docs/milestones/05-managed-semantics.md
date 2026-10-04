@@ -37,7 +37,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5g.3 | CIL delegate binding and composed differential probes | Complete for public named nongeneric single-target delegates |
 | 5h.1 | Validated exception metadata and type-test filter admission | Complete for metadata inputs |
 | 5h.2 | Checked exception IR and rooted handler/cleanup contracts | Complete for detached authored IR |
-| 5h.3 | Native exception objects, propagation and cleanup | Planned |
+| 5h.3a | Private native exception storage and rooted pending/saved identity | Complete for helper probes |
+| 5h.3b | Native handler dispatch, cleanup and message semantics | Next |
 | 5h.4 | CIL exceptions and type-test filters with differential probes | Planned |
 | 5i | Composed differential regressions and final review | Planned |
 
@@ -493,3 +494,15 @@ filters retain bounded purity, acyclicity and current-evaluation local assignmen
 All 138 distinct selected local verifier tests pass. Review checked protected transfers,
 root expansion, intrinsic shell access/visibility, filter nesting and earlier-profile
 rejection. Native exception storage and dispatch are next; milestone 5 is not complete.
+
+## Slice 5h.3a outcome
+
+Private native helpers now allocate authenticated exception payloads, trace supplied
+messages and preserve pending/saved identity and fault origin (ADR 0083). Context and
+Instance provide pending and emergency roots. The emergency allocation remains within
+normal heap quotas and supports allocation-fault reporting without another allocation.
+Twenty-eight distinct selected local tests pass, including O0/O2 sanitizer probes,
+existing collection/tracing/boxing/delegate tests and message/literal source safepoints.
+Review checked forged/foreign/corrupt payloads, reentrancy, exact heap limits and
+bootstrap recovery. Handler dispatch, default message semantics and CIL handling are
+still next; milestone 5 remains in progress.

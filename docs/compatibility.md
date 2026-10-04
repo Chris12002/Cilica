@@ -1364,3 +1364,11 @@ rethrow/leave/cleanup/filter terminators, region entry stacks and protected tran
 (ADR 0082). Type-test filters are pure and acyclic; saved identities reserve bounded
 phase A roots. Earlier native profiles reject these operations. This checkpoint does
 not execute managed handlers or expose an exception ABI.
+
+## Private native exception storage
+
+`EmitExceptionRuntime` emits v17 helpers for exception allocation, supplied message
+references, rooted pending identity and saved-state restoration (ADR 0083). O0/O2
+ASan/UBSan checks cover ownership, collection, exact heap capacity and emergency
+allocation fallback. The emergency object is charged to the normal instance quota.
+This helper gate does not execute handler IR or supply default/resource messages.

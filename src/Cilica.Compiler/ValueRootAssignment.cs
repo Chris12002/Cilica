@@ -99,8 +99,8 @@ public static class ValueRootAssignment
                     if (block.Statements[i] is IrStatement.Define define)
                     {
                         Add(ObjectRootKind.Value, define.Value.Id, define.Value.Type, block.Id);
-                        if (define.Value.Expression is IrExpression.NewException or IrExpression.Call or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate or IrExpression.CallDelegate)
-                            points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.NewException or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate
+                        if (define.Value.Expression is IrExpression.StringLiteral or IrExpression.ExceptionMessage or IrExpression.NewException or IrExpression.Call or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate or IrExpression.CallDelegate)
+                            points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.StringLiteral or IrExpression.ExceptionMessage or IrExpression.NewException or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate
                                 ? ObjectSafepointKind.Allocation : ObjectSafepointKind.Call, block.Id));
                     }
                     else if (block.Statements[i] is IrStatement.InvokeDelegate delegateCall)

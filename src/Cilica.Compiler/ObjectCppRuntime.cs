@@ -121,6 +121,7 @@ struct Instance {
     HandleSlot* handles = nullptr;
     std::size_t handle_count = 0, handle_limit = handle_capacity;
     StringObject* literals = nullptr;
+    Object* emergency_exception = nullptr;
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;
     std::size_t limit = 1048576, object_limit = 4096;
@@ -157,6 +158,7 @@ struct Context {
     std::byte* execution = nullptr;
     std::size_t used = 0, peak = 0;
     std::uint32_t pending = 0;
+    Object* exception = nullptr;
     const char* image = nullptr;
     std::uint32_t method = 0, il = 0;
     // Private diagnostic observer, called at published allocation safepoints.
@@ -229,6 +231,7 @@ struct RootScope {
     }
 };
 [[maybe_unused]] static bool valid_roots(const Context& context) noexcept {
+    if (!context.instance.owns(context.exception) || !context.instance.owns(context.instance.emergency_exception)) return false;
     for (const Frame* f = context.top; f != nullptr; f = f->previous)
         for (std::size_t i = 0; i < f->count; ++i)
             if (!context.instance.owns(f->slots[i])) return false;

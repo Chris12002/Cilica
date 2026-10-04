@@ -88,3 +88,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0080](0080-bounded-delegate-cil.md) | Bounded delegate CIL binding | Accepted for public named delegate construction and invocation composed with generic values and boxing |
 | [0081](0081-managed-exception-inputs.md) | Validated managed exception inputs | Accepted for bounded region snapshots and strengthened type-test filter classification; executable handlers remain next |
 | [0082](0082-managed-exception-ir.md) | Managed exception region and root contracts | Accepted for detached throw/handler/cleanup/filter IR and bounded saved-identity roots; native/CIL remain next |
+| [0083](0083-native-exception-storage.md) | Private rooted native exception storage | Accepted for v17 pending/emergency roots, message storage and O0/O2 helper probes; handler dispatch remains next |
