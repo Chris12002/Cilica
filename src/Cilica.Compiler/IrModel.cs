@@ -5,15 +5,16 @@ using Cilica.Metadata.IL;
 
 namespace Cilica.Compiler;
 
-public enum IrTypeKind { Int32, Reference, NullReference, Void }
+public enum IrTypeKind { Int32, Reference, NullReference, Void, Value }
 
-/// <summary>A concrete reference retains its content-scoped class identity; null is a stack value, not storage.</summary>
+/// <summary>References and inline values retain distinct kinds and content-scoped identities; null is a stack value.</summary>
 public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null)
 {
     public static IrType Int32 { get; } = new(IrTypeKind.Int32);
     public static IrType NullReference { get; } = new(IrTypeKind.NullReference);
     public static IrType Void { get; } = new(IrTypeKind.Void);
     public static IrType Reference(ObjectTypeId type) => new(IrTypeKind.Reference, type);
+    public static IrType Value(ObjectTypeId type) => new(IrTypeKind.Value, type);
 }
 
 /// <summary>32-bit operations with explicit wrapping/checked arithmetic; shifts mask the count to five bits.</summary>
@@ -72,6 +73,10 @@ public abstract record IrExpression
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
     public sealed record CastClass(ObjectTypeId Target, int Operand) : IrExpression;
     public sealed record IsInstance(ObjectTypeId Target, int Operand) : IrExpression;
+    // Pure inline operations: copy the operand rather than alias mutable storage.
+    public sealed record DefaultValue(ObjectTypeId Type) : IrExpression;
+    public sealed record ValueField(ObjectFieldId Field, int Operand) : IrExpression;
+    public sealed record WithValueField(ObjectFieldId Field, int Operand, int Value) : IrExpression;
 }
 
 /// <summary>Block-local typed temporary; operands always refer to earlier values in that block.</summary>
@@ -149,6 +154,12 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
     public const string Profile = "typed-reference-ir-v5";
+}
+
+/// <summary>Detached copy semantics; no CIL access checks, mutable managed locations or object operations.</summary>
+public sealed record ValueIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ValueTypeCatalog Types)
+{
+    public const string Profile = "typed-value-ir-v1";
 }
 
 public static class ProgramLimits

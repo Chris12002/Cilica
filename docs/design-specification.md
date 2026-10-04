@@ -571,6 +571,12 @@ the exact selected ValueType identity and a shared metadata ledger
 ([ADR 0056](decisions/0056-value-layout-metadata.md)). Executable struct operations
 and native tracing of struct storage remain milestone 5 work.
 
+Detached value flow now validates exact-type copies, pure default/field
+operations, calls and joins using the shared IR verifier. Phase A planning
+enumerates every embedded reference path and bounds expanded scalar storage
+([ADR 0057](decisions/0057-typed-value-copies.md)). Mutable managed locations and
+native lowering have separate lifetime, copying and byte-budget obligations.
+
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 

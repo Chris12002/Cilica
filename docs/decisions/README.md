@@ -62,3 +62,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0054](0054-stage-four-completion.md) | Bounded collection and handles checkpoint | Milestone 4 complete for bounded native v14 |
 | [0055](0055-detached-value-layouts.md) | Detached inline value layouts | Accepted for bounded copy/reference-path planning; no execution |
 | [0056](0056-value-layout-metadata.md) | Metadata discovery of inline values | Accepted for bounded metadata-backed catalogs; no execution |
+| [0057](0057-typed-value-copies.md) | Typed inline copies and root planning | Accepted for detached value flow and expanded phase A roots |

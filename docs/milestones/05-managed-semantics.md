@@ -11,7 +11,8 @@ profiles continue to reject unsupported reachable semantics.
 | --- | --- | --- |
 | 5a | Detached value layouts, nested field paths and precise embedded-reference maps | Complete for detached layout planning |
 | 5b | Bounded metadata discovery of value layouts | Complete for metadata-backed catalogs |
-| 5c | Value copies and managed storage locations in typed IR | Planned |
+| 5c.1 | Value copies, field operations, calls/joins and expanded roots in typed IR | Complete for detached contracts |
+| 5c.2 | Managed storage locations and lifetime checks | Planned |
 | 5d | Native struct operations, calls and collection stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
@@ -52,3 +53,12 @@ identity, a shared metadata ledger and existing reference storage. Review checke
 ownership, forwarding, signature kind mismatches, shared budgets and diagnostics.
 All 128 selected local tests pass. Inline fields in classes, executable values,
 boxing and other milestone 5 semantics remain subsequent work.
+
+
+## Slice 5c.1 outcome
+
+ADR 0057 adds exact inline value flow and embedded-reference root plans. Review
+checked copies versus references, pure operations versus fault edges, field
+identity, call/edge assignment, complete type closure and expanded resource bounds.
+All 158 selected local checks pass, including the existing O0/O2 collection-stress
+regressions after the shared verifier change. Managed locations remain unimplemented.

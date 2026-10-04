@@ -7,7 +7,8 @@ namespace Cilica.Compiler;
 
 internal static class IrValidator
 {
-    internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null)
+    internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null,
+        ValueIrRules? valueRules = null)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
@@ -25,10 +26,10 @@ internal static class IrValidator
         }
         Require(methods.TryGetValue(program.Entry, out IrMethod? entry), "entry is outside the program.");
         var resources = new ProgramResources();
-        var types = new IrTypeRules(catalog);
+        var types = new IrTypeRules(catalog, valueRules?.Catalog);
         foreach (IrMethod method in program.Methods)
         {
-            Validate(method, methods, catalog, objectRules, types);
+            Validate(method, methods, catalog, objectRules, types, valueRules);
             Require(resources.Add(method), "aggregate program IR limit exceeded.");
         }
         var visited = new HashSet<IrMethodId>(); var pending = new Stack<IrMethodId>(); pending.Push(program.Entry);
@@ -52,7 +53,7 @@ internal static class IrValidator
     }
 
     internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null,
-        ObjectIrRules? objectRules = null, IrTypeRules? sharedTypes = null)
+        ObjectIrRules? objectRules = null, IrTypeRules? sharedTypes = null, ValueIrRules? valueRules = null)
     {
         int locationOffset = 0;
         void Require([DoesNotReturnIf(false)] bool condition, string message)
@@ -161,6 +162,12 @@ internal static class IrValidator
                                 && value.Type == storage,
                             IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type),
                             IrExpression.IsInstance t => TypeTest(t.Target, t.Operand, value.Type),
+                            IrExpression.DefaultValue d => valueRules is not null && value.Type == IrType.Value(d.Type),
+                            IrExpression.ValueField f => valueRules is not null && Earlier(f.Operand)
+                                && valueRules.Field(valueTypes[f.Operand], f.Field) == value.Type,
+                            IrExpression.WithValueField f => valueRules is not null && Earlier(f.Operand) && Earlier(f.Value)
+                                && value.Type == valueTypes[f.Operand] && valueRules.Field(value.Type, f.Field) is { } fieldType
+                                && types.Assignable(valueTypes[f.Value], fieldType),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
@@ -210,7 +217,7 @@ internal static class IrValidator
                 case IrJump jump: Edge(jump.Edge); break;
                 case IrBranch branch:
                     Require(Earlier(branch.Left) && (branch.Comparison is Int32Comparison.Zero or Int32Comparison.Nonzero
-                        ? branch.Right is null : BinaryComparison(branch.Comparison) && branch.Right is int right && Earlier(right) && types.Comparable(branch.Comparison, valueTypes[branch.Left], valueTypes[right])), "invalid branch condition.");
+                        ? branch.Right is null && IrTypeRules.TruthTest(valueTypes[branch.Left]) : BinaryComparison(branch.Comparison) && branch.Right is int right && Earlier(right) && types.Comparable(branch.Comparison, valueTypes[branch.Left], valueTypes[right])), "invalid branch condition.");
                     Edge(branch.Taken); Edge(branch.NotTaken); break;
                 default: Require(false, "unknown block terminator."); break;
             }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Cilica.Compiler;
@@ -15,40 +14,10 @@ public static class ReferenceIrValidator
         ObjectModelValidator.Validate(program.Types);
         IrValidator.Validate(new IrProgram(program.Entry, program.Methods), program.Types, objectRules);
 
-        // A catalog root cannot smuggle unrelated layouts into the program's resource/ownership contract.
-        var layouts = program.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
-        var interfaces = program.Types.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
-        var arrays = program.Types.Arrays.ToHashSet();
-        var pending = new Stack<ObjectTypeId>(); pending.Push(program.Types.ObjectBase);
-        foreach (var method in program.Methods)
-        {
-            if (objectRules is not null)
-                foreach (var type in objectRules.OperationTypes(method)) pending.Push(type);
-            foreach (var type in method.Parameters.Concat(method.Locals).Append(method.ReturnType)
-                .Concat(method.Blocks.SelectMany(b => b.Inputs))
-                .Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type)))
-                if (type.Class is not null) pending.Push(type.Class);
-        }
-        var visited = new HashSet<ObjectTypeId>();
-        while (pending.TryPop(out ObjectTypeId? id))
-            if (visited.Add(id))
-            {
-                if (id == program.Types.String) pending.Push(program.Types.ObjectBase);
-                else if (arrays.Contains(id))
-                {
-                    if (id.ArrayElement!.Type is { } element) pending.Push(element);
-                }
-                else if (interfaces.TryGetValue(id, out var contract))
-                    foreach (var parent in contract.Parents) pending.Push(parent);
-                else
-                {
-                    if (layouts[id].BaseType is { } parent) pending.Push(parent);
-                    foreach (var edge in layouts[id].Interfaces) pending.Push(edge);
-                    foreach (var reference in layouts[id].Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>())
-                        pending.Push(reference.Type);
-                }
-            }
-        if (visited.Count != layouts.Count + interfaces.Count + arrays.Count + (program.Types.String is null ? 0 : 1))
-            throw new ArgumentException("Invalid reference program IR: catalog contains types unused by value flow or its field closure.", nameof(program));
+        var roots = program.Methods.SelectMany(method => method.Parameters.Concat(method.Locals).Append(method.ReturnType)
+            .Concat(method.Blocks.SelectMany(b => b.Inputs)).Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type)))
+            .Where(type => type.Class is not null).Select(type => type.Class!);
+        if (objectRules is not null) roots = roots.Concat(program.Methods.SelectMany(objectRules.OperationTypes));
+        ObjectCatalogUsage.Validate(program.Types, roots);
     }
 }
