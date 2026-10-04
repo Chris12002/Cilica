@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v15";
+    public const string Profile = "object-frames-native-v16";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -22,6 +22,18 @@ public static class ObjectCppEmitter
         ArgumentNullException.ThrowIfNull(program.Flow);
         ArgumentNullException.ThrowIfNull(program.Flow.Types);
         var plans = ObjectRootAssignment.Assign(program).ToDictionary(p => p.Method);
+        return EmitValidated(program, plans, locations: false);
+    }
+
+    public static CppArtifact EmitLocations(ScalarLocationIrProgram program)
+    {
+        var plans = ObjectRootAssignment.AssignLocations(program).ToDictionary(p => p.Method);
+        return EmitValidated(program.Flow, plans, locations: true);
+    }
+
+    private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations)
+    {
+        string argumentType = locations ? "LocationArgument" : "Argument";
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
         var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
         if (program.InterfaceDispatch is { } interfacePlan)
@@ -50,6 +62,7 @@ public static class ObjectCppEmitter
         text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <atomic>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <limits>\n#include <type_traits>\n")
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
             .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
+        if (locations) text.Append("struct LocationArgument { std::uint32_t bits = 0; Object* reference = nullptr; Location location; };\n");
         foreach (var type in referenceTypes)
             text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
         foreach (var composed in native.Fields)
@@ -126,15 +139,20 @@ public static class ObjectCppEmitter
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
             var layout = layouts[IrMethodId.From(method.Source)];
-            text.Append("struct ").Append(FrameType(method)).Append(" {\n    Frame header;\n    const Argument* incoming = nullptr; Argument result;\n")
+            text.Append("struct ").Append(FrameType(method)).Append(" {\n    Frame header;\n    const ").Append(argumentType).Append("* incoming = nullptr; ").Append(argumentType).Append(" result;\n")
                 .Append("    std::array<Object*, ").Append(N(layout.RootCount)).Append("> roots{};\n")
                 .Append("    std::array<std::uint32_t, ").Append(N(layout.IntegerCount)).Append("> integers{};\n")
-                .Append("    std::array<Argument, ").Append(N(layout.CallArgumentCount)).Append("> arguments{};\n")
+                .Append("    std::array<").Append(argumentType).Append(", ").Append(N(layout.CallArgumentCount)).Append("> arguments{};\n")
                 .Append("    std::int64_t signed_scratch = 0; std::uint64_t unsigned_scratch = 0;\n");
+            if (locations) text.Append("    std::array<Location, ").Append(N(layout.LocationCount)).Append("> locations{};\n")
+                .Append("    std::uint64_t borrow_token = 0; LocationResult location_result{};\n");
             foreach (var kind in layout.DispatchKinds.OrderBy(k => k))
                 text.Append("    ").Append(CType(new(kind))).Append(" (*dispatch_").Append(kind.ToString().ToLowerInvariant())
-                    .Append(")(Context&, const Argument*) noexcept = nullptr;\n");
+                    .Append(")(Context&, const ").Append(argumentType).Append("*) noexcept = nullptr;\n");
             text.Append("};\n");
+            if (layout.BorrowsFrame) text.Append("static constexpr std::array<ReferencePredicate, ").Append(N(layout.RootCount)).Append("> ")
+                .Append(FrameType(method)).Append("_root_types = {")
+                .Append(string.Join(", ", layout.RootTypes.Select(t => Predicate(t.Kind == IrTypeKind.Reference ? t.Class! : program.Flow.Types.ObjectBase)))).Append("};\n");
             Header(method); text.Append(";\n");
         }
         var dispatch = program.Dispatch.Concat(program.InterfaceDispatch is { } prepared
@@ -144,7 +162,7 @@ public static class ObjectCppEmitter
         {
             string name = DispatchSymbol(map.Declaration);
             text.Append("using ").Append(name).Append("_body = ").Append(CType(signatures[map.Declaration].ReturnType))
-                .Append(" (*)(Context&, const Argument*) noexcept;\nstruct ").Append(name)
+                .Append(" (*)(Context&, const ").Append(argumentType).Append("*) noexcept;\nstruct ").Append(name)
                 .Append("_entry { const Descriptor* type; ").Append(name).Append("_body body; };\n")
                 .Append("static constexpr std::array<").Append(name).Append("_entry, ").Append(N(map.Targets.Length)).Append("> ")
                 .Append(name).Append("_table = {{\n");
@@ -164,7 +182,7 @@ public static class ObjectCppEmitter
             .Append("    if (result == nullptr || method == nullptr || il == nullptr || image == nullptr || count != ").Append(N(entry.Parameters.Length))
             .Append("u || (count != 0 && parameters == nullptr)) return 3u;\n    using namespace ")
             .Append(scope).Append(";\n    Instance heap;\n    Context context(heap);\n    std::int32_t value = 0;\n    {\n")
-            .Append("    Storage<std::array<Argument, ").Append(N(entry.Parameters.Length)).Append(">> arguments(context);\n")
+            .Append("    Storage<std::array<").Append(argumentType).Append(", ").Append(N(entry.Parameters.Length)).Append(">> arguments(context);\n")
             .Append("    if (arguments.value == nullptr) { context.pending = 9u; context.image = \"").Append(entry.Source.ContentHash.ToLowerInvariant())
             .Append("\"; context.method = ").Append(N(entry.Source.Token)).Append("u; context.il = ").Append(N(entry.Blocks[0].ILOffset)).Append("u; } else {\n");
         text.Append("    for (std::size_t i = 0; i < count; ++i) (*arguments.value)[i].bits = std::bit_cast<std::uint32_t>(parameters[i]);\n");
@@ -175,7 +193,7 @@ public static class ObjectCppEmitter
         void Header(IrMethod method)
         {
             text.Append("[[maybe_unused]] static ").Append(CType(method.ReturnType)).Append(' ').Append(CppEmitter.Symbol(IrMethodId.From(method.Source)))
-                .Append("([[maybe_unused]] Context& context, [[maybe_unused]] const Argument* arguments) noexcept");
+                .Append("([[maybe_unused]] Context& context, [[maybe_unused]] const ").Append(argumentType).Append("* arguments) noexcept");
         }
 
         string FrameType(IrMethod method) => CppEmitter.Symbol(IrMethodId.From(method.Source)) + "_storage";
@@ -197,6 +215,10 @@ public static class ObjectCppEmitter
             void Label(string label) { Flush(); labels.Add(label, steps.Count); }
             bool inStep = true;
             string Value(int id) => layout.Storage(ObjectRootKind.Value, id, currentBlock);
+            static string PacketMember(IrType type) => type.Kind switch
+            {
+                IrTypeKind.Int32 => "bits", IrTypeKind.ManagedLocation => "location", _ => "reference",
+            };
             string Exit() => inStep ? "return frame_done;" : method.ReturnType.Kind switch { IrTypeKind.Void => "return;", IrTypeKind.Reference => "return nullptr;", _ => "return 0;" };
             void Fault(string status, int offset)
             {
@@ -207,6 +229,14 @@ public static class ObjectCppEmitter
             void Guard(string condition, string status, int offset)
             {
                 code.Append("    if (").Append(condition).Append(") {\n"); Fault(status, offset); code.Append("    }\n");
+            }
+            void CheckLocationResult(int offset) => Guard("f->location_result.status != LocationStatus::complete",
+                "f->location_result.status == LocationStatus::null_reference ? 4u : 6u", offset);
+            void PublishLocation(ObjectRootKind kind, int index, IrType type, int block = -1)
+            {
+                string storage = layout.Storage(kind, index, block);
+                if (type.ReadOnly) code.Append("    ").Append(storage).Append(".read_only = true;\n");
+                code.Append("    ").Append(layout.Owner(kind, index, block)).Append(" = ").Append(storage).Append(".owner;\n");
             }
             string Matches(string value, ObjectTypeId type) => Predicate(type) + "(" + value + "->type)";
             void Check(string value, ObjectTypeId type, bool nullCheck, int offset)
@@ -236,7 +266,7 @@ public static class ObjectCppEmitter
                 if (receiver is not null) code.Append("    f->arguments[0].reference = ").Append(receiver).Append(";\n");
                 for (int i = 0; i < args.Length; i++)
                 {
-                    code.Append("    f->arguments[").Append(N(i + start)).Append(parameters[i + start].Kind == IrTypeKind.Int32 ? "].bits = " : "].reference = ")
+                    code.Append("    f->arguments[").Append(N(i + start)).Append("].").Append(PacketMember(parameters[i + start])).Append(" = ")
                         .Append(Value(args[i])).Append(";\n");
                     if ((i + 1) % CopiesPerStep == 0) Flush();
                 }
@@ -262,7 +292,8 @@ public static class ObjectCppEmitter
             for (int i = 0; i < method.Parameters.Length; i++)
             {
                 code.Append("    ").Append(layout.Storage(ObjectRootKind.Parameter, i)).Append(" = f->incoming[").Append(N(i))
-                    .Append(method.Parameters[i].Kind == IrTypeKind.Int32 ? "].bits;\n" : "].reference;\n");
+                    .Append("].").Append(PacketMember(method.Parameters[i])).Append(";\n");
+                if (method.Parameters[i].Kind == IrTypeKind.ManagedLocation) PublishLocation(ObjectRootKind.Parameter, i, method.Parameters[i]);
                 if ((i + 1) % CopiesPerStep == 0) Flush();
             }
             Flush();
@@ -270,6 +301,14 @@ public static class ObjectCppEmitter
                 if (method.Parameters[i].Kind == IrTypeKind.Reference)
                 {
                     Check(layout.Storage(ObjectRootKind.Parameter, i), method.Parameters[i].Class!, false, method.Blocks[0].ILOffset);
+                    Flush();
+                }
+                else if (method.Parameters[i].Kind == IrTypeKind.ManagedLocation)
+                {
+                    var type = method.Parameters[i]; string storage = layout.Storage(ObjectRootKind.Parameter, i);
+                    Guard("!valid_location_argument(context, " + storage + ", "
+                        + (type.Element!.Kind == IrTypeKind.Int32 ? "StorageKind::integer, nullptr" : "StorageKind::reference, " + Predicate(type.Element.Class!))
+                        + ", " + (type.ReadOnly ? "true" : "false") + ")", "6u", method.Blocks[0].ILOffset);
                     Flush();
                 }
             foreach (var block in method.Blocks)
@@ -280,8 +319,9 @@ public static class ObjectCppEmitter
                 int statementsInStep = 0;
                 foreach (var statement in block.Statements)
                 {
-                    bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement
+                    bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
                         or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
+                            or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.Invoke { VirtualDispatch: true };
@@ -296,6 +336,24 @@ public static class ObjectCppEmitter
                             code.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                             switch (value.Expression)
                             {
+                                case IrExpression.AddressLocal local:
+                                    code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")
+                                        .Append(value.Type.Element!.Kind == IrTypeKind.Int32 ? "frame_integer" : "frame_reference").Append(", ")
+                                        .Append(N(layout.Index(ObjectRootKind.Local, local.Index))).Append(");\n");
+                                    CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
+                                case IrExpression.AddressParameter parameter:
+                                    code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")
+                                        .Append(value.Type.Element!.Kind == IrTypeKind.Int32 ? "frame_integer" : "frame_reference").Append(", ")
+                                        .Append(N(layout.Index(ObjectRootKind.Parameter, parameter.Index))).Append(");\n");
+                                    CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
+                                case IrExpression.AddressField field:
+                                    code.Append("    f->location_result = heap_location(context, ").Append(Value(field.Receiver)).Append(", &")
+                                        .Append(TypeSymbol(field.Field.Owner)).Append("_descriptor, ").Append(N(native.Indices[field.Field])).Append(");\n");
+                                    CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
+                                case IrExpression.LoadLocation load:
+                                    Guard("load_location_" + (value.Type.Kind == IrTypeKind.Int32 ? "integer" : "reference") + "(context, "
+                                        + Value(load.Location) + ", " + Value(value.Id) + ") != LocationStatus::complete", "6u", value.ILOffset);
+                                    expression = Value(value.Id); break;
                                 case IrExpression.StringLiteral literal:
                                     int literalId = literalIds[LiteralKey(literal.CodeUnits)];
                                     expression = "string_literal(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + N(literalId)
@@ -353,6 +411,7 @@ public static class ObjectCppEmitter
                                         Value, signed => signed ? "f->signed_scratch" : "f->unsigned_scratch"); break;
                             }
                             code.Append("    ").Append(Value(value.Id)).Append(" = ").Append(expression).Append(";\n");
+                            if (value.Type.Kind == IrTypeKind.ManagedLocation) PublishLocation(ObjectRootKind.Value, value.Id, value.Type, block.Id);
                             if (value.Expression is IrExpression.NewObject created)
                             {
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
@@ -371,6 +430,13 @@ public static class ObjectCppEmitter
                         }
                         case IrStatement.StoreLocal store:
                             code.Append("    ").Append(layout.Storage(ObjectRootKind.Local, store.Local)).Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
+                        case IrStatement.StoreLocation store:
+                            Guard("store_location_" + (values[store.Location].Type.Element!.Kind == IrTypeKind.Int32 ? "integer" : "reference")
+                                + "(context, " + Value(store.Location) + ", " + Value(store.Value) + ") != LocationStatus::complete", "6u", store.ILOffset); break;
+                        case IrStatement.InitializeLocation initialize:
+                            bool integer = values[initialize.Location].Type.Element!.Kind == IrTypeKind.Int32;
+                            Guard("store_location_" + (integer ? "integer" : "reference") + "(context, " + Value(initialize.Location) + ", "
+                                + (integer ? "0u" : "nullptr") + ") != LocationStatus::complete", "6u", initialize.ILOffset); break;
                         case IrStatement.Invoke invoke:
                             if (invoke.VirtualDispatch) SelectDispatch(invoke.Target, invoke.Arguments, invoke.ILOffset);
                             else if (invoke.NullCheckReceiver) Guard(Value(invoke.Arguments[0]) + " == nullptr", "4u", invoke.ILOffset);
@@ -423,8 +489,15 @@ public static class ObjectCppEmitter
             code.Append("    Storage<").Append(FrameType(method)).Append("> storage(context);\n");
             Guard("storage.value == nullptr", "9u", method.Blocks[0].ILOffset);
             code.Append("    auto* f = storage.value; f->incoming = arguments;\n")
-                .Append("    RootScope roots(context, f->header, f->roots.data(), f->roots.size());\n")
-                .Append("    std::uint32_t step = 0;\n    while (step != frame_done && context.pending == 0u) step = ").Append(stepScope).Append("::table[step](context, f);\n")
+                .Append("    RootScope roots(context, f->header, f->roots.data(), f->roots.size());\n");
+            if (layout.BorrowsFrame)
+            {
+                code.Append("    BorrowScope borrowed(context, f->header, f->integers.data(), f->integers.size(), ")
+                    .Append(FrameType(method)).Append("_root_types.data());\n");
+                Guard("borrowed.status != LocationStatus::complete", "borrowed.status == LocationStatus::limit ? 9u : 6u", method.Blocks[0].ILOffset);
+                code.Append("    f->borrow_token = borrowed.frame.token;\n");
+            }
+            code.Append("    std::uint32_t step = 0;\n    while (step != frame_done && context.pending == 0u) step = ").Append(stepScope).Append("::table[step](context, f);\n")
                 .Append("    ").Append(method.ReturnType.Kind switch
                 {
                     IrTypeKind.Void => "return;",

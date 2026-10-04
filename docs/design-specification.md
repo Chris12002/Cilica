@@ -589,7 +589,7 @@ and synchronously reborrow locations, but returning/storing locations or carryin
 them through block joins is rejected pending further lifetime analysis. Loads copy
 values; stores and initialization require writable storage and explicit fault
 edges. Phase A plans root each location's heap owner while frame locations borrow
-active backing storage. Existing native profiles still reject locations. Native
+active backing storage. The original native entry points still reject locations. Native
 location emission and CIL translation remain separate gates.
 
 Private native v15 helpers now authenticate scalar carriers
@@ -601,6 +601,15 @@ remain rooted by their lending frame, and heap owners require explicit roots.
 Local O0/O2 sanitizer probes cover frame reuse, nested borrows and collection through
 both origins. These runtime helpers do not yet emit location IR, whole-struct
 loads/stores or struct-return packets.
+
+Native v16 adds an explicit scalar location wrapper and emitter path
+([ADR 0061](decisions/0061-native-scalar-location-ir.md)). Int32/reference locations
+compose with existing allocating object operations while retaining field visibility,
+readonly and synchronous lifetime rules. Carriers and argument packets live in
+budgeted frames; each carrier's owner is separately rooted. Only lending frames
+register borrow tokens. Local O0/O2 sanitizer tests compare authored borrow IR with
+C#, stress collection in allocating callees and check fault cleanup. Mutable inline
+value expansion, whole-struct returns and CIL translation remain separate work.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.

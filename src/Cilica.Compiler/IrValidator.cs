@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 internal static class IrValidator
 {
     internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null,
-        ValueIrRules? valueRules = null)
+        ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
@@ -26,10 +26,10 @@ internal static class IrValidator
         }
         Require(methods.TryGetValue(program.Entry, out IrMethod? entry), "entry is outside the program.");
         var resources = new ProgramResources();
-        var types = new IrTypeRules(catalog, valueRules?.Catalog, valueRules?.Locations is not null);
+        var types = new IrTypeRules(catalog, valueRules?.Catalog, locationRules is not null || valueRules?.Locations is not null);
         foreach (IrMethod method in program.Methods)
         {
-            Validate(method, methods, catalog, objectRules, types, valueRules);
+            Validate(method, methods, catalog, objectRules, types, valueRules, locationRules);
             Require(resources.Add(method), "aggregate program IR limit exceeded.");
         }
         var visited = new HashSet<IrMethodId>(); var pending = new Stack<IrMethodId>(); pending.Push(program.Entry);
@@ -53,7 +53,7 @@ internal static class IrValidator
     }
 
     internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null,
-        ObjectIrRules? objectRules = null, IrTypeRules? sharedTypes = null, ValueIrRules? valueRules = null)
+        ObjectIrRules? objectRules = null, IrTypeRules? sharedTypes = null, ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null)
     {
         int locationOffset = 0;
         void Require([DoesNotReturnIf(false)] bool condition, string message)
@@ -64,7 +64,7 @@ internal static class IrValidator
             if (!condition) throw new ArgumentException((catalog is null ? "Invalid Int32 IR: " : "Invalid reference IR: ") + message + origin, nameof(method));
         }
         var types = sharedTypes ?? new IrTypeRules(catalog);
-        var locations = valueRules?.Locations;
+        var locations = locationRules ?? valueRules?.Locations;
         Require(method.Source is not null, "source is missing.");
         Require(method.Source.AssemblyIdentity is not null, "assembly identity is missing.");
         Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "source hash must be SHA-256 hexadecimal.");
@@ -177,7 +177,8 @@ internal static class IrValidator
                             IrExpression.AddressParameter a => locations is not null && a.Index >= 0 && a.Index < method.Parameters.Length
                                 && ManagedLocationRules.Address(method.Parameters[a.Index], value.Type),
                             IrExpression.AddressField f => locations is not null && Earlier(f.Receiver)
-                                && locations.HeapField(valueTypes[f.Receiver], f.Field, value.Type),
+                                && locations.HeapField(valueTypes[f.Receiver], f.Field, value.Type)
+                                && (objectRules is null || objectRules.Field(method, f.Field, f.Receiver, valueTypes, out _)),
                             IrExpression.LocationField f => locations is not null && Earlier(f.Location)
                                 && locations.NestedField(valueTypes[f.Location], f.Field, value.Type),
                             IrExpression.LoadLocation l => locations is not null && Earlier(l.Location)

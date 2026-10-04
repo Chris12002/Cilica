@@ -613,3 +613,12 @@ when dead temporaries make room, while preserving below-budget failures and clea
 checks. Final milestone 4 validation passed 196 selected local checks; details and
 explicit evidence limits are in ADR 0054. The host is not deliberately exhausted to
 force an operating-system allocation failure.
+
+Milestone 5 scalar-location tests use authored IR with the existing object backend
+and a separate C# oracle. O0/O2 ASan/UBSan runs retain the 2 KiB stack gate and check
+local/argument/heap mutations, allocating synchronous borrowers and precise owner
+roots under collection before allocation. Runtime carrier probes test expired-frame
+and foreign-storage rejection separately. Native tests assert complete root/borrow/
+arena cleanup on success and faults; detached tests cover access rights, invariance,
+readonly/escape restrictions and exact resource bounds. This evidence does not
+establish CIL byref translation or whole-struct mutation/returns.

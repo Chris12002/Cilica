@@ -8,14 +8,16 @@ namespace Cilica.Compiler;
 
 public static class ObjectIrValidator
 {
-    public static void Validate(ObjectIrProgram program)
+    public static void Validate(ObjectIrProgram program) => Validate(program, locations: false);
+
+    internal static void Validate(ObjectIrProgram program, bool locations)
     {
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
         ObjectModelValidator.Validate(program.Flow.Types);
         _ = new ObjectNativeLayout(program.Flow.Types);
-        var rules = new ObjectIrRules(program);
-        ReferenceIrValidator.Validate(program.Flow, rules);
+        var rules = new ObjectIrRules(program, locations);
+        ReferenceIrValidator.Validate(program.Flow, rules, locations ? new ManagedLocationRules(program.Flow.Types) : null);
         rules.DispatchMaps();
         var entry = rules.Binding(program.Flow.Entry);
         var method = program.Flow.Methods.Single(m => IrMethodId.From(m.Source) == program.Flow.Entry);
@@ -39,11 +41,11 @@ internal sealed class ObjectIrRules
     private readonly HashSet<string> _literals = new(StringComparer.Ordinal);
     private int _literalUnits;
 
-    internal ObjectIrRules(ObjectIrProgram program)
+    internal ObjectIrRules(ObjectIrProgram program, bool locations = false)
     {
         _program = program;
         var flow = program.Flow;
-        _types = new(flow.Types);
+        _types = new(flow.Types, locations: locations);
         _layouts = flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         _contracts = flow.Types.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _arrays = flow.Types.Arrays.ToHashSet();
@@ -72,6 +74,9 @@ internal sealed class ObjectIrRules
                 && (binding.Attributes & MethodAttributes.MemberAccessMask) is > MethodAttributes.PrivateScope and <= MethodAttributes.Public,
                 "native, abstract and unsupported method flags require later lowering.");
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
+            Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
+                || isStatic && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0,
+                "scalar borrowed parameters currently require direct static methods.");
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
                 || (layout.Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic,
                 "owner visibility contradicts its layout attributes.");
@@ -107,6 +112,7 @@ internal sealed class ObjectIrRules
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch
     {
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
+        IrStatement.Define { Value.Expression: IrExpression.AddressField f } => new[] { f.Field.Owner },
         IrStatement.StoreField f => new[] { f.Field.Owner },
         IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },

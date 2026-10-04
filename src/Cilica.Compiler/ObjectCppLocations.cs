@@ -132,6 +132,11 @@ struct LocationStorage {
     const auto storage = location_storage(context, value, false);
     return storage.status == LocationStatus::complete ? LocationResult{storage.status, value} : LocationResult{storage.status};
 }
+[[maybe_unused, gnu::noinline]] static bool valid_location_argument(Context& context, const Location& location,
+    StorageKind kind, ReferencePredicate accepts, bool read_only) noexcept {
+    const auto storage = location_storage(context, location, !read_only);
+    return storage.status == LocationStatus::complete && storage.kind == kind && storage.accepts == accepts;
+}
 [[maybe_unused, gnu::noinline]] static LocationResult heap_location(Context& context, Object* owner,
     const Descriptor* declaring, std::size_t slot, bool read_only = false) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};

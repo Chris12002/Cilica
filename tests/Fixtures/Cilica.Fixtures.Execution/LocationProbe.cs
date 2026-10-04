@@ -24,5 +24,31 @@ namespace Cilica.Fixtures.Execution
             first.Any = second;
             return unchecked(first.Number + first.Next.Initial);
         }
+
+        public static int Execute(int number)
+        {
+            int copy = number;
+            Reborrow(ref number);
+            var value = new LocationNode(number);
+            Replace(ref value, number);
+            Mutate(ref value.Number);
+            return unchecked(copy + value.Number + Read(in value.Initial));
+        }
+
+        public static void Mutate(ref int number)
+        {
+            _ = new LocationNode(0);
+            number = unchecked(number + 1);
+        }
+
+        public static void Reborrow(ref int number) { Mutate(ref number); }
+
+        public static int Read(in int number) { return number; }
+
+        public static void Replace(ref LocationNode value, int number)
+        {
+            value = new LocationNode(unchecked(number + 7));
+            _ = new LocationNode(number);
+        }
     }
 }

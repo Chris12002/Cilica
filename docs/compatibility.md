@@ -2,8 +2,8 @@
 
 Updated 2026-10-04. Capabilities are stage-specific. A translated operation does
 not establish native execution or platform compatibility. Sections below preserve
-the evidence and limits of earlier checkpoints; the native v14 table and milestone
-4 completion section describe the current collector and handle behavior.
+the evidence and limits of earlier checkpoints; the current native profile retains the collector and handle behavior recorded
+at milestone 4, with later value/location capabilities documented separately.
 
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
@@ -15,12 +15,13 @@ the evidence and limits of earlier checkpoints; the native v14 table and milesto
 | `object-layout-v5` | Bounded nominal/vector/String metadata and detached catalogs | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String uses an intrinsic shell, without framework layout or interfaces |
 | `value-layout-v1` | Metadata discovery, detached inline layouts and bounded copy/reference-path planning | Nongeneric sealed structs with Int32, included references and nested values; exact selected ValueType identity; executable copies use the separate scalar-lowering profile |
 | `typed-value-ir-v1` | Detached value copies, field operations, calls/joins and root plans | Exact struct identity; scalar/reference copy paths; 1,024 roots per method and 65,536 expanded scalar slots per program; no CIL translation or managed locations |
-| `managed-location-ir-v1` | Detached storage locations, synchronous borrowing and owner-root plans | Frame local/parameter and heap-field origins, nested fields, invariant element types, readonly propagation, loads/stores/init and direct void mutators; no escaping locations, byref locals/joins, native carriers or CIL value translation |
+| `managed-location-ir-v1` | Detached storage locations, synchronous borrowing and owner-root plans | Frame local/parameter and heap-field origins, nested fields, invariant element types, readonly propagation, loads/stores/init and direct void mutators; no escaping locations, byref locals/joins, whole-value native emission or CIL value translation |
+| `scalar-location-ir-v1` | Authored Int32/reference borrows with existing native object operations | Explicit `EmitLocations` entry, synchronous direct static borrowers, owner roots, checked carriers and O0/O2 allocation/collection stress; no inline value expansion or CIL byref translation |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
 | `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated and executes in native v9 |
-| `object-frames-native-v15` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation, allocation retry, stress mode, private retained handles and private scalar location helpers (location IR emission remains planned) |
+| `object-frames-native-v16` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation, allocation retry, stress mode, private retained handles and authored scalar location IR with checked carriers and owner roots |
 | Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, advanced GC features, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -1137,3 +1138,22 @@ Native scope nesting and backing buffers are trusted generated-runtime invariant
 Existing public emitters still reject managed-location IR. CIL value translation,
 whole-struct mutation/returns, inline heap storage and broader milestone 5 semantics
 remain unimplemented.
+
+
+## Native scalar location IR
+
+[ADR 0061](decisions/0061-native-scalar-location-ir.md) adds an explicit
+`ScalarLocationIrProgram` / `ObjectCppEmitter.EmitLocations` path in native v16.
+Scalar local/parameter and heap-field borrows compose with existing object
+operations, including allocation. Field addresses retain access checks; direct
+static callees validate exact storage types and readonly capabilities. Each carrier
+copy publishes a distinct owner root. Lending frames register tokens, and all
+argument/carrier storage is charged to the execution arena. Existing object entry
+points still reject location IR.
+
+Local O0/O2 ASan/UBSan evidence compares authored IR against C# with collection
+before allocations and checks cleanup after invalid/readonly carriers, allocation
+failure and token exhaustion. Root/storage limits remain 1,024 per method and
+65,536 logical slots per program. This does not translate CIL byrefs or expand
+inline values. Whole-struct mutation/returns, array/boxed locations, byref locals/
+joins, ref returns and borrowed instance/virtual signatures remain unsupported.

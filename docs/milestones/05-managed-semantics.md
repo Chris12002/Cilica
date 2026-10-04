@@ -15,7 +15,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5c.2 | Managed storage locations and lifetime checks | Complete for bounded detached synchronous borrows |
 | 5d.1 | Pure value copies lowered to the existing backend | Complete for authored IR, scalar returns and local native probes |
 | 5d.2a | Private native scalar location carriers and rooted-storage stress | Complete for runtime helpers |
-| 5d.2b | Native location IR emission and value expansion | Planned |
+| 5d.2b.1 | Native scalar location IR emission with allocating callees | Complete for authored IR |
+| 5d.2b.2 | Mutable value expansion into scalar location IR | Planned |
 | 5d.2c | CIL value translation, native returns and composed live-value stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
@@ -126,3 +127,27 @@ terminal token exhaustion. Local main remains an ancestor. No hosted work ran.
 This is a runtime-helper checkpoint. Managed-location IR emission, expanded mutable
 values, CIL translation and struct-return packets remain the next gates; milestone
 5 is still in progress.
+
+## Slice 5d.2b.1 outcome
+
+ADR 0061 connects authored scalar location IR to the existing object emitter through
+an explicit wrapper and emission entry point. Local/argument slots and inherited
+heap fields can be lent to allocating direct static callees. Every carrier copy
+publishes its owner; only lending frames register tokens. Readonly/invariant
+parameters are checked before executing the body, and existing access, constructor,
+dispatch, arena and fault contracts remain in force.
+
+Review checked field visibility, exact reference predicates, readonly lending,
+publication before allocation, by-value parameter mutation, borrowed-frame lifetime,
+packet byte accounting and complete cleanup on faults. It also removed repeated
+linear value-type lookups from frame planning. No blocking findings remain. All
+1,453 selected non-native regressions and 32 selected native regressions pass.
+O0/O2 ASan/UBSan probes match C# for normal and extreme Int32 inputs, repeat collection
+before allocation, and verify cleanup after invalid/readonly carriers, allocation
+failure and token exhaustion. Exact/excess owner-root and expanded-storage budgets
+are covered. The 2 KiB native stack-warning gate remains enabled.
+
+The next gate is mutable value expansion into this scalar target, followed by
+CIL translation and struct returns. Boxing, generics, delegates and managed
+exceptions remain planned. Milestone 5 is not complete. Local main remains an
+ancestor; no push, hosted work, new service or additional agent ran.

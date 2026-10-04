@@ -22,10 +22,18 @@ public static class ManagedLocationIrValidator
     }
 }
 
-internal sealed class ManagedLocationRules(ValueTypeCatalog catalog, ValueIrRules values)
+internal sealed class ManagedLocationRules
 {
-    private readonly Dictionary<ObjectFieldId, ObjectField> _heapFields = catalog.References.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
-    private readonly IrTypeRules _types = new(catalog.References, catalog, locations: true);
+    private readonly Dictionary<ObjectFieldId, ObjectField> _heapFields;
+    private readonly IrTypeRules _types;
+    private readonly ValueIrRules? _values;
+
+    internal ManagedLocationRules(ValueTypeCatalog catalog, ValueIrRules values) : this(catalog.References, catalog, values) { }
+    internal ManagedLocationRules(ObjectTypeCatalog references, ValueTypeCatalog? catalog = null, ValueIrRules? values = null)
+    {
+        _heapFields = references.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
+        _types = new(references, catalog, locations: true); _values = values;
+    }
 
     internal static bool Address(IrType storage, IrType result, bool readOnly = false) =>
         storage.Kind is IrTypeKind.Int32 or IrTypeKind.Reference or IrTypeKind.Value
@@ -37,7 +45,7 @@ internal sealed class ManagedLocationRules(ValueTypeCatalog catalog, ValueIrRule
 
     internal bool NestedField(IrType parent, ObjectFieldId? id, IrType result) =>
         parent.Kind == IrTypeKind.ManagedLocation && parent.Element is { } element
-        && values.Field(element, id) is { } fieldType && Address(fieldType, result, parent.ReadOnly || values.ReadOnly(id!));
+        && _values?.Field(element, id) is { } fieldType && Address(fieldType, result, parent.ReadOnly || _values.ReadOnly(id!));
 
     internal static bool Load(IrType location, IrType result) => location.Kind == IrTypeKind.ManagedLocation && location.Element == result;
     internal bool Store(IrType location, IrType value) => Writable(location) && _types.Assignable(value, location.Element);

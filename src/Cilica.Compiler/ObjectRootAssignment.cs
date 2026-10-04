@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace Cilica.Compiler;
 
 public enum ObjectRootKind { Parameter, Local, Value, BlockInput }
-public sealed record ObjectRootSlot(int Slot, ObjectRootKind Kind, int Index, int Block = -1);
+public sealed record ObjectRootSlot(int Slot, ObjectRootKind Kind, int Index, int Block = -1, bool LocationOwner = false);
 public enum ObjectSafepointKind { Allocation, Call }
 public sealed record ObjectSafepoint(int Statement, int ILOffset, ObjectSafepointKind Kind, int Block = 0);
 public sealed record ObjectMethodRoots(IrMethodId Method, ImmutableArray<ObjectRootSlot> Slots,
@@ -17,16 +17,34 @@ public static class ObjectRootAssignment
     public static ImmutableArray<ObjectMethodRoots> Assign(ObjectIrProgram program)
     {
         ObjectIrValidator.Validate(program);
+        return AssignValidated(program);
+    }
+
+    public static ImmutableArray<ObjectMethodRoots> AssignLocations(ScalarLocationIrProgram program)
+    {
+        ScalarLocationIrValidator.Validate(program);
+        return AssignValidated(program.Flow, locations: true);
+    }
+
+    private static ImmutableArray<ObjectMethodRoots> AssignValidated(ObjectIrProgram program, bool locations = false)
+    {
         var result = ImmutableArray.CreateBuilder<ObjectMethodRoots>();
+        int expandedSlots = 0;
         foreach (var method in program.Flow.Methods)
         {
             var slots = ImmutableArray.CreateBuilder<ObjectRootSlot>();
             void Add(ObjectRootKind kind, int index, IrType type, int block = -1)
             {
-                if (type.Kind is not (IrTypeKind.Reference or IrTypeKind.NullReference)) return;
+                if (locations)
+                {
+                    expandedSlots += type.Kind == IrTypeKind.ManagedLocation ? 2 : 1;
+                    if (expandedSlots > ValueRootAssignment.MaximumScalarSlots)
+                        throw new System.ArgumentException("Scalar location program exceeds the expanded storage limit.", nameof(program));
+                }
+                if (type.Kind is not (IrTypeKind.Reference or IrTypeKind.NullReference or IrTypeKind.ManagedLocation)) return;
                 if (slots.Count == MaximumRootsPerMethod)
                     throw new System.ArgumentException("Native object method exceeds the 1024 phase A root-slot limit. " + method.Source.Name, nameof(program));
-                slots.Add(new(slots.Count, kind, index, block));
+                slots.Add(new(slots.Count, kind, index, block, type.Kind == IrTypeKind.ManagedLocation));
             }
             for (int i = 0; i < method.Parameters.Length; i++) Add(ObjectRootKind.Parameter, i, method.Parameters[i]);
             for (int i = 0; i < method.Locals.Length; i++) Add(ObjectRootKind.Local, i, method.Locals[i]);

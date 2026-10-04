@@ -7,21 +7,47 @@ namespace Cilica.Compiler;
 internal sealed class ObjectFrameLayout
 {
     private readonly Dictionary<(ObjectRootKind Kind, int Block, int Index), string> _storage = [];
+    private readonly Dictionary<(ObjectRootKind Kind, int Block, int Index), int> _indices = [];
+    private readonly Dictionary<(ObjectRootKind Kind, int Block, int Index), string> _owners = [];
     internal int IntegerCount { get; }
     internal int RootCount { get; }
     internal int CallArgumentCount { get; }
+    internal int LocationCount { get; }
+    internal bool BorrowsFrame { get; }
+    internal List<IrType> RootTypes { get; } = [];
     internal HashSet<IrTypeKind> DispatchKinds { get; } = [];
 
     internal ObjectFrameLayout(IrMethod method, ObjectMethodRoots roots)
     {
         RootCount = roots.Slots.Length;
+        var valueTypes = method.Blocks.SelectMany(b => b.Values.Select(v => (b.Id, v)))
+            .ToDictionary(p => (Block: p.Id, Value: p.v.Id), p => p.v.Type);
         foreach (var root in roots.Slots)
+        {
             _storage.Add((root.Kind, root.Block, root.Index), "f->roots[" + Number(root.Slot) + "]");
-        int integers = 0, arguments = 0;
+            _indices.Add((root.Kind, root.Block, root.Index), root.Slot);
+            var type = root.Kind switch
+            {
+                ObjectRootKind.Parameter => method.Parameters[root.Index],
+                ObjectRootKind.Local => method.Locals[root.Index],
+                ObjectRootKind.BlockInput => method.Blocks[root.Block].Inputs[root.Index],
+                _ => valueTypes[(root.Block, root.Index)],
+            };
+            RootTypes.Add(type);
+        }
+        int integers = 0, arguments = 0, locations = 0;
         void Add(ObjectRootKind kind, int index, IrType type, int block = -1)
         {
             if (type.Kind == IrTypeKind.Int32)
+            {
+                _indices.Add((kind, block, index), integers);
                 _storage.Add((kind, block, index), "f->integers[" + Number(integers++) + "]");
+            }
+            else if (type.Kind == IrTypeKind.ManagedLocation)
+            {
+                _owners.Add((kind, block, index), _storage[(kind, block, index)]);
+                _storage[(kind, block, index)] = "f->locations[" + Number(locations++) + "]";
+            }
         }
         for (int i = 0; i < method.Parameters.Length; i++) Add(ObjectRootKind.Parameter, i, method.Parameters[i]);
         for (int i = 0; i < method.Locals.Length; i++) Add(ObjectRootKind.Local, i, method.Locals[i]);
@@ -46,9 +72,12 @@ internal sealed class ObjectFrameLayout
                 if (call.VirtualDispatch) DispatchKinds.Add(IrTypeKind.Void);
             }
         }
-        IntegerCount = integers; CallArgumentCount = arguments;
+        IntegerCount = integers; CallArgumentCount = arguments; LocationCount = locations;
+        BorrowsFrame = method.Blocks.SelectMany(b => b.Values).Any(v => v.Expression is IrExpression.AddressLocal or IrExpression.AddressParameter);
     }
 
     internal string Storage(ObjectRootKind kind, int index, int block = -1) => _storage[(kind, block, index)];
+    internal string Owner(ObjectRootKind kind, int index, int block = -1) => _owners[(kind, block, index)];
+    internal int Index(ObjectRootKind kind, int index, int block = -1) => _indices[(kind, block, index)];
     private static string Number(int value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }
