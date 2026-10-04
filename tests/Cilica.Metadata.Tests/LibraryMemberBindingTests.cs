@@ -69,6 +69,9 @@ public sealed class LibraryMemberBindingTests
         Assert.Equal(new TypeSignature.Primitive(PrimitiveTypeCode.Int32), field.Implementation.Signature);
         Assert.Equal(f.Contract, Success(f.Resolver.ResolveDeclaredMethod(caller.Assembly, caller.Method)).DeclaringType.Definition.Assembly);
         Assert.Equal(f.Contract, Success(f.Resolver.ResolveDeclaredField(caller.Assembly, caller.Field)).DeclaringType.Definition.Assembly);
+        using var scope = f.Resolver.CreateLibraryCompilationScope(f.Plan);
+        Assert.Equal(method.Implementation, Success(scope.ResolveDeclaredMethod(caller.Assembly, caller.Method)));
+        Assert.Equal(field.Implementation, Success(scope.ResolveDeclaredField(caller.Assembly, caller.Field)));
     }
 
     [Fact]
@@ -86,6 +89,8 @@ public sealed class LibraryMemberBindingTests
         Assert.Equal(new TypeSignature.Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Int32)), mapped.Signature.Parameters[1]);
         Assert.Equal(mapped.Signature.Parameters[1], mapped.Signature.ReturnType);
         Assert.Equal(mapped.Signature.ReturnType, Assert.Single(mapped.MethodArguments));
+        using var scope = f.Resolver.CreateLibraryCompilationScope(f.Plan);
+        Assert.Equal(mapped, Success(scope.ResolveDeclaredMethod(input, spec)));
     }
 
     [Theory]
@@ -96,6 +101,29 @@ public sealed class LibraryMemberBindingTests
         using var f = new Fixture(Shape, b => b.Type("Example", "Box`1", arity: 1)); var caller = f.Caller();
         if (method) Error(f.Resolver.ResolveLibraryMethod(f.Plan, caller.Assembly, caller.Method), DiagnosticIds.MemberNotFound);
         else Error(f.Resolver.ResolveLibraryField(f.Plan, caller.Assembly, caller.Field), DiagnosticIds.MemberNotFound);
+    }
+
+    [Fact]
+    public void Compilation_view_substitutes_closed_caller_arguments_into_mapped_member_owners()
+    {
+        using var f = new Fixture(Shape);
+        var b = new ResolutionAssemblyBuilder(Id("GenericCaller"));
+        b.TypeReference("Example", "Box`1", b.Reference(Id("Contract")));
+        var box = b.Specification(0x15, 0x12, 5, 1, 0x1e, 0);
+        var method = b.Member(box, "M", 0, 1, 8, 0x13, 0);
+        var field = b.Member(box, "Value", 6, 0x13, 0);
+        b.Type("Example", "Program");
+        var run = b.Method("Run", [0x10, 1, 1, 8, 0x1e, 0], arity: 1);
+        var spec = b.Instantiate(run, 0x0a, 1, 8);
+        using var scope = f.Resolver.CreateLibraryCompilationScope(f.Plan);
+        var input = Success(scope.OpenInput(f.Files.Write("generic-caller.dll", b.Build(), "input")));
+        var caller = Success(scope.ResolveDeclaredMethod(input, spec));
+        var target = Success(scope.ResolveClosedCall(caller, method, new()));
+        var storage = Success(scope.ResolveClosedField(caller, field, new()));
+        Assert.Equal(f.Target, target.DeclaringType.Definition.Assembly);
+        Assert.Equal(new TypeSignature.Primitive(PrimitiveTypeCode.Int32), Assert.Single(target.DeclaringType.Arguments));
+        Assert.Equal(Assert.Single(target.DeclaringType.Arguments), storage.Signature);
+        Assert.Equal(storage.DeclaringType, target.DeclaringType);
     }
 
     [Theory]

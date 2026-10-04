@@ -41,6 +41,7 @@ public sealed partial class AssemblyResolver
         string location = $"token 0x{MetadataTokens.GetToken(handle):x8} in {assembly.Identity.DisplayName}";
         try
         {
+            if (_libraryPlan is not null) CheckLibraryImage(_libraryPlan, assembly);
             if (handle.IsNil) throw new BadImageFormatException("Nil metadata token.");
             return ResolutionResult<T>.Resolved(bind());
         }
@@ -57,6 +58,11 @@ public sealed partial class AssemblyResolver
 
     private ResolvedMethod Method(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null, bool declaredOnly = false, MemberResolutionBudget? budget = null)
     {
+        if (_librarySource is not null)
+        {
+            var mapped = _librarySource.ResolveLibraryMethodCore(_libraryPlan!, assembly, handle, context, budget);
+            return mapped.Value?.Implementation ?? throw new BindingFailureException(mapped.Diagnostics);
+        }
         InspectMember(budget);
         MetadataReader reader = assembly.Image.Reader;
         var decoder = new SignatureDecoder(this, assembly);
@@ -130,6 +136,11 @@ public sealed partial class AssemblyResolver
 
     private ResolvedField Field(ResolvedAssembly assembly, EntityHandle handle, BindingContext? context = null, bool declaredOnly = false, MemberResolutionBudget? budget = null)
     {
+        if (_librarySource is not null)
+        {
+            var mapped = _librarySource.ResolveLibraryFieldCore(_libraryPlan!, assembly, handle, context, budget);
+            return mapped.Value?.Implementation ?? throw new BindingFailureException(mapped.Diagnostics);
+        }
         InspectMember(budget);
         MetadataReader reader = assembly.Image.Reader;
         var decoder = new SignatureDecoder(this, assembly);

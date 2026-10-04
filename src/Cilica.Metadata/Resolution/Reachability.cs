@@ -24,6 +24,7 @@ public sealed partial class AssemblyResolver
     {
         CheckOwner(assembly);
         ArgumentNullException.ThrowIfNull(roots);
+        CheckStrictAnalysis();
         if (runtimeLibrary is not null) CheckOwner(runtimeLibrary);
         return new ReachabilityWalker(this, limits ?? new(), runtimeLibrary, ValidateContractAssemblies(assembly, contractAssemblies)).Run(assembly, roots, publicSurface: false);
     }
@@ -33,6 +34,7 @@ public sealed partial class AssemblyResolver
         IEnumerable<ResolvedAssembly>? contractAssemblies = null)
     {
         CheckOwner(assembly);
+        CheckStrictAnalysis();
         if (runtimeLibrary is not null) CheckOwner(runtimeLibrary);
         return new ReachabilityWalker(this, limits ?? new(), runtimeLibrary, ValidateContractAssemblies(assembly, contractAssemblies)).Run(assembly, [], publicSurface: true);
     }

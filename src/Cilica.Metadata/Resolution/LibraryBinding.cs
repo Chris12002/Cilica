@@ -18,7 +18,8 @@ public sealed partial class AssemblyResolver
     public ResolutionResult<LibraryBindingPlan> CreateLibraryBindingPlan(IEnumerable<LibraryTypeMapping> mappings,
         MemberResolutionBudget? budget = null)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        CheckAlive();
+        if (_librarySource is not null) throw new InvalidOperationException("Create binding plans on the strict source session.");
         ArgumentNullException.ThrowIfNull(mappings);
         budget ??= new();
         try
@@ -158,7 +159,7 @@ public sealed partial class AssemblyResolver
 
     private void CheckLibraryPlan(LibraryBindingPlan plan)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        CheckAlive();
         ArgumentNullException.ThrowIfNull(plan);
         if (!ReferenceEquals(plan.Owner, this)) throw new ArgumentException("The library binding plan belongs to a different resolver session.", nameof(plan));
     }

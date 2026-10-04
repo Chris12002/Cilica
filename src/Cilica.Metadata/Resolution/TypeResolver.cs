@@ -21,6 +21,8 @@ public sealed partial class AssemblyResolver
         ArgumentNullException.ThrowIfNull(names);
         if (names.Length == 0 || names.Any(string.IsNullOrEmpty))
             throw new ArgumentException("At least one nonempty type name is required.", nameof(names));
+        if (_librarySource is not null)
+            return MapLibraryScopeType(assembly, _librarySource.ResolveType(assembly, @namespace, names));
         if (names.Length > MaximumTypeResolutionDepth)
             return ResolutionResult<ResolvedType>.Failed(DiagnosticIds.TypeResolutionCycle,
                 "Type nesting exceeds the resolver limit of 256 levels.", assembly.Identity.DisplayName);
@@ -48,6 +50,8 @@ public sealed partial class AssemblyResolver
     public ResolutionResult<ResolvedType> ResolveType(ResolvedAssembly assembly, EntityHandle handle)
     {
         CheckOwner(assembly);
+        if (_librarySource is not null)
+            return MapLibraryScopeType(assembly, _librarySource.ResolveType(assembly, handle));
         try
         {
             if (handle.Kind == HandleKind.TypeDefinition)

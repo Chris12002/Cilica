@@ -899,7 +899,10 @@ types without changing ordinary member binding, audits or compilation. They gran
 no intrinsic privileges. Slice 6b.2 adds explicit method/field correspondence
 ([ADR 0090](decisions/0090-library-member-binding.md)), comparing structural
 declarations before generic substitution and retaining both source and target
-evidence. Ordinary compiler binding, provenance-backed admission and actual
+evidence. Slice 6b.2a provides an explicit compilation view over these pinned
+snapshots, leaving its source resolver strict
+([ADR 0091](decisions/0091-library-compilation-views.md)). A small native reference-
+call probe passes; mapped audit evidence, provenance-backed admission and actual
 shared library imports remain separate gates.
 
 Recognised framework types map to canonical runtime types. Resolve supported

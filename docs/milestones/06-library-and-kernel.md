@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1 and 6b.2 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1, 6b.2 and 6b.2a complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -15,6 +15,7 @@ fixtures and examples must be independent.
 | 6a | Explicit library-contract inventory, independent tests and private kernel dependency evidence | Complete; ADR 0088 |
 | 6b.1 | Pin the reference/source baseline and validate explicit type correspondence | Complete for metadata plans; ADR 0089; no library source imported |
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
+| 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Planned; mapping plans and input names/attributes grant no new privileges |
 | 6c | Extend compiler semantics needed by the first concrete kernel path: scalar/enum cases, values stored in classes, value instance calls and closed generic interface/instance calls | Planned; split into individually reviewed and differentially tested slices |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
@@ -105,6 +106,18 @@ Eighteen new cases and related regressions pass in a 112-test focused local run.
 The slice review found no remaining actionable issue. See
 [ADR 0090](../decisions/0090-library-member-binding.md). Compiler integration,
 provenance validation and actual library behavior remain required next gates.
+
+## Slice 6b.2a outcome
+
+An explicit disposable resolver view now applies the plan during compilation,
+including locals, fields and closed caller environments. It shares pinned images
+without changing strict inspection or granting new intrinsic permissions.
+An independent reference-call probe selects implementation IL and matches authored
+.NET arithmetic under native O0/O2 UBSan. The focused scope/resolution/generic/audit
+checks plus the closed caller regression pass (158 distinct tests). Review added
+an audit guard until mapped reports retain binding evidence. See
+[ADR 0091](../decisions/0091-library-compilation-views.md). Library imports,
+provenance-backed grants and the real kernel trace are still unimplemented.
 
 ## Remaining completion evidence
 

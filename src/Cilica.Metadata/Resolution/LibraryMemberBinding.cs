@@ -13,13 +13,17 @@ public sealed partial class AssemblyResolver
 {
     /// <summary>Matches declared members before generic substitution. Does not grant execution/intrinsic authority.</summary>
     public ResolutionResult<LibraryMethodBinding> ResolveLibraryMethod(LibraryBindingPlan plan,
-        ResolvedAssembly assembly, EntityHandle handle, MemberResolutionBudget? budget = null)
+        ResolvedAssembly assembly, EntityHandle handle, MemberResolutionBudget? budget = null) =>
+        ResolveLibraryMethodCore(plan, assembly, handle, null, budget);
+
+    private ResolutionResult<LibraryMethodBinding> ResolveLibraryMethodCore(LibraryBindingPlan plan,
+        ResolvedAssembly assembly, EntityHandle handle, BindingContext? context, MemberResolutionBudget? budget)
     {
         CheckLibraryPlan(plan); budget ??= new();
         return Bind(assembly, handle, () =>
         {
             CheckLibraryImage(plan, assembly);
-            var source = Method(assembly, handle, declaredOnly: true, budget: budget);
+            var source = Method(assembly, handle, context, declaredOnly: true, budget: budget);
             var owner = ProjectLibraryOwner(plan, source.DeclaringType, budget);
             var arguments = new SignatureList<TypeSignature>(source.MethodArguments.Select(a => ProjectLibrarySignature(plan, a, budget)));
             var sourceImage = source.DeclaringType.Definition.Assembly;
@@ -51,13 +55,17 @@ public sealed partial class AssemblyResolver
     }
 
     public ResolutionResult<LibraryFieldBinding> ResolveLibraryField(LibraryBindingPlan plan,
-        ResolvedAssembly assembly, EntityHandle handle, MemberResolutionBudget? budget = null)
+        ResolvedAssembly assembly, EntityHandle handle, MemberResolutionBudget? budget = null) =>
+        ResolveLibraryFieldCore(plan, assembly, handle, null, budget);
+
+    private ResolutionResult<LibraryFieldBinding> ResolveLibraryFieldCore(LibraryBindingPlan plan,
+        ResolvedAssembly assembly, EntityHandle handle, BindingContext? context, MemberResolutionBudget? budget)
     {
         CheckLibraryPlan(plan); budget ??= new();
         return Bind(assembly, handle, () =>
         {
             CheckLibraryImage(plan, assembly);
-            var source = Field(assembly, handle, declaredOnly: true, budget: budget);
+            var source = Field(assembly, handle, context, declaredOnly: true, budget: budget);
             var owner = ProjectLibraryOwner(plan, source.DeclaringType, budget);
             var sourceImage = source.DeclaringType.Definition.Assembly;
             var sourceDefinition = sourceImage.Image.Reader.GetFieldDefinition(source.Handle);

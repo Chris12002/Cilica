@@ -92,7 +92,8 @@ public sealed partial class AssemblyResolver : IDisposable
     /// </summary>
     public ResolutionResult<ResolvedAssembly> OpenInput(string path)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        CheckAlive();
+        if (_librarySource is not null) return _librarySource.OpenInput(path);
         ArgumentNullException.ThrowIfNull(path);
         string fullPath;
         try { fullPath = Path.GetFullPath(path); }
@@ -135,7 +136,7 @@ public sealed partial class AssemblyResolver : IDisposable
     /// </summary>
     public ResolutionResult<ResolvedAssembly> ResolveAssembly(AssemblyIdentity identity)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        CheckAlive();
         ArgumentNullException.ThrowIfNull(identity);
         if (!_candidates.TryGetValue(identity, out var matches))
         {
@@ -156,7 +157,7 @@ public sealed partial class AssemblyResolver : IDisposable
 
     private void CheckOwner(ResolvedAssembly assembly)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        CheckAlive();
         ArgumentNullException.ThrowIfNull(assembly);
         if (!_images.Values.Contains(assembly))
             throw new ArgumentException("The image belongs to a different resolver session.", nameof(assembly));
@@ -169,6 +170,7 @@ public sealed partial class AssemblyResolver : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        if (_librarySource is not null) return; // The strict source owns the shared snapshots.
         foreach (ResolvedAssembly image in _images.Values) image.Image.Dispose();
         _images.Clear();
         _candidates.Clear();
