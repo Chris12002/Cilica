@@ -11,10 +11,15 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
+public sealed record ManagedExceptionTranslationResult(ManagedExceptionIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)
+{
+    public bool Success => Program is not null;
+}
 public sealed record ValueTranslationResult(ManagedLocationIrProgram? Program,
     ImmutableArray<ObjectMethodBinding> Bindings, ImmutableArray<Diagnostic> Diagnostics)
 {
     public bool Success => Program is not null;
+    public ManagedExceptionTypes? Exceptions { get; init; }
 }
 
 public sealed record ValueArrayTranslationResult(ValueArrayIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)
@@ -38,6 +43,14 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
+    public const string ExceptionProfile = "managed-exceptions-cil-v1";
+    public static ManagedExceptionTranslationResult TranslateExceptions(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
+    {
+        var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true, exceptions: true);
+        return new(result.Program is null ? null : new(new(result.Program, result.Bindings), result.Exceptions!), result.Diagnostics);
+    }
+
     public const string Profile = "value-cil-v1";
     public const string ArrayProfile = "value-arrays-cil-v1";
     public const string ObjectProfile = "value-objects-cil-v1";
@@ -85,9 +98,10 @@ public static class ValueTranslator
         TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: false);
 
     private static ValueTranslationResult TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false, bool delegates = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false, bool delegates = false, bool exceptions = false)
     {
-        var discovered = delegates ? ValueProgramDiscovery.ReadDelegates(resolver, assembly, entry, runtimeLibrary, limits)
+        var discovered = exceptions ? ValueProgramDiscovery.ReadExceptions(resolver, assembly, entry, runtimeLibrary, limits)
+            : delegates ? ValueProgramDiscovery.ReadDelegates(resolver, assembly, entry, runtimeLibrary, limits)
             : generics ? ValueProgramDiscovery.ReadGenerics(resolver, assembly, entry, runtimeLibrary, limits)
             : boxing ? ValueProgramDiscovery.ReadBoxes(resolver, assembly, entry, runtimeLibrary, limits)
             : classes ? ValueProgramDiscovery.ReadObjects(resolver, assembly, entry, runtimeLibrary, limits)
@@ -104,7 +118,7 @@ public static class ValueTranslator
             foreach (var method in input.Methods)
             {
                 var body = new Body(method, methods, fields, arrays, classes, boxing, input.Types.References.Delegates.ToDictionary(d => ObjectTypeId.From(d.Source)), types, input.Types.References.ObjectBase,
-                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32)).Translate();
+                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32), input.Exceptions, input.Types.References.String).Translate();
                 if (!resources.Add(body)) Fail(method, 0, "Aggregate value IR resource limit exceeded.", DiagnosticIds.TranslationLimit);
                 translated.Add(body);
             }
@@ -112,14 +126,15 @@ public static class ValueTranslator
             ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
             try
             {
-                if (delegates) _ = ValueRootAssignment.Assign(new DelegateValueIrProgram(program, bindings));
+                if (exceptions) _ = ValueRootAssignment.Assign(new ManagedExceptionIrProgram(new(program, bindings), input.Exceptions!));
+                else if (delegates) _ = ValueRootAssignment.Assign(new DelegateValueIrProgram(program, bindings));
                 else if (boxing) _ = ValueRootAssignment.Assign(new BoxedValueIrProgram(program, bindings));
                 else if (classes) _ = ValueRootAssignment.Assign(new ValueObjectIrProgram(program, bindings));
                 else if (arrays) _ = ValueRootAssignment.Assign(new ValueArrayIrProgram(program, bindings));
                 else _ = ValueRootAssignment.Assign(program);
             }
             catch (ArgumentException error) { Fail(methods[input.Entry], 0, error.Message); }
-            return new(program, bindings, []);
+            return new(program, bindings, []) { Exceptions = input.Exceptions };
         }
         catch (Failure failure) { return new(null, [], [failure.Diagnostic]); }
     }
@@ -134,7 +149,7 @@ public static class ValueTranslator
             + " IL_" + offset.ToString("x4", CultureInfo.InvariantCulture)));
 
     private sealed class Body(ValueMethodInput method, Dictionary<IrMethodId, ValueMethodInput> methods,
-        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray)
+        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray, ManagedExceptionTypes? exceptions, ObjectTypeId? stringType)
     {
         private int _statements, _inputs, _edges;
         private void Error(int offset, string message, string code = DiagnosticIds.InconsistentStack) => Fail(method, offset, message, code);
@@ -142,15 +157,30 @@ public static class ValueTranslator
         {
             var input = method.Input;
             if (input.Instructions.IsEmpty) Error(0, "Method body is empty.");
-            var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code));
+            var boundaries = method.ExceptionRegions.SelectMany(r => new[] { r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd, r.FilterStart ?? r.HandlerStart });
+            var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code), boundaries, exceptions is not null);
+            int BlockAt(int offset) => offset == input.CodeSize ? partition.Ranges.Count : partition.BlockAt[offset];
+            var regions = method.ExceptionRegions.Select(r => r with { TryStart = BlockAt(r.TryStart), TryEnd = BlockAt(r.TryEnd),
+                HandlerStart = BlockAt(r.HandlerStart), HandlerEnd = BlockAt(r.HandlerEnd), FilterStart = r.FilterStart is int first ? BlockAt(first) : null }).ToImmutableArray();
             var incoming = new ImmutableArray<IrType>[partition.Ranges.Count];
             var blocks = new IrBlock[partition.Ranges.Count]; var pending = new Queue<int>();
             incoming[0] = []; pending.Enqueue(0);
+            foreach (var region in regions)
+            {
+                Seed(region.HandlerStart, region.Kind == IrExceptionClause.Catch ? [IrType.Reference(region.CatchType!)]
+                    : region.Kind == IrExceptionClause.Filter ? [IrType.Reference(exceptions!.Base)] : []);
+                if (region.FilterStart is int filter) Seed(filter, [IrType.Reference(exceptions!.Base)]);
+            }
+            void Seed(int id, ImmutableArray<IrType> types)
+            {
+                if (!incoming[id].IsDefault) { if (!incoming[id].SequenceEqual(types)) Error(0, "Conflicting exception entry stack."); return; }
+                incoming[id] = types; pending.Enqueue(id);
+            }
             while (pending.TryDequeue(out int id)) blocks[id] = Block(id);
             for (int id = 0; id < blocks.Length; id++)
                 if (blocks[id] is null) Error(input.Instructions[partition.Ranges[id].Start].Offset,
                     "Unreachable blocks require later analysis; remove dead IL before value translation.", DiagnosticIds.ExecutionUnsupported);
-            return new(input.Source, method.Parameters, method.ReturnType, [.. blocks], method.Locals);
+            return new(input.Source, method.Parameters, method.ReturnType, [.. blocks], method.Locals) { ExceptionRegions = regions };
 
             IrBlock Block(int id)
             {
@@ -171,6 +201,40 @@ public static class ValueTranslator
                     else switch (opcode)
                     {
                         case "nop": break;
+                        case "ldstr" when exceptions is not null:
+                            Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
+                        case "isinst" or "castclass" when exceptions is not null:
+                            int tested = Pop(offset); var testedType = method.TypeOperands[offset];
+                            if (!Reference(values[tested])) Error(offset, "Type tests require a reference operand.");
+                            Push(offset, IrType.Reference(testedType), opcode == "isinst" ? new IrExpression.IsInstance(testedType, tested)
+                                : new IrExpression.CastClass(testedType, tested), true); break;
+                        case "throw" when exceptions is not null:
+                            int thrown = Pop(offset, IrType.Reference(exceptions.Base));
+                            if (stack.Count != 0) Error(offset, "throw leaves a residual evaluation stack.");
+                            terminator = new IrThrow(offset, thrown); break;
+                        case "rethrow" when exceptions is not null:
+                            if (stack.Count != 0) Error(offset, "rethrow requires an empty evaluation stack.");
+                            terminator = new IrRethrow(offset); break;
+                        case "leave" or "leave.s" when exceptions is not null:
+                            stack.Clear(); terminator = new IrLeave(offset, Edge(instruction.Targets[0], offset)); break;
+                        case "endfinally" when exceptions is not null:
+                            if (stack.Count != 0) Error(offset, "endfinally requires an empty evaluation stack.");
+                            terminator = new IrEndFinally(offset); break;
+                        case "endfilter" when exceptions is not null:
+                            int accepted = Pop(offset, IrType.Int32);
+                            if (stack.Count != 0) Error(offset, "endfilter leaves a residual evaluation stack.");
+                            terminator = new IrEndFilter(offset, accepted); break;
+                        case "newobj" or "call" or "callvirt" when method.Intrinsics.ContainsKey(offset):
+                            var intrinsic = method.Intrinsics[offset];
+                            int rightText = intrinsic.Kind == ValueIntrinsic.StringEqual ? Pop(offset, IrType.Reference(stringType!)) : -1;
+                            int operand = intrinsic.Parameters == 0 ? -1 : Pop(offset, IrType.Reference(intrinsic.Kind == ValueIntrinsic.ExceptionMessage ? exceptions!.Base : stringType!));
+                            IrExpression expression = intrinsic.Kind switch {
+                                ValueIntrinsic.NewException => new IrExpression.NewException(intrinsic.Type, operand < 0 ? null : operand),
+                                ValueIntrinsic.ExceptionMessage => new IrExpression.ExceptionMessage(operand),
+                                ValueIntrinsic.StringLength => new IrExpression.StringLength(operand),
+                                _ => new IrExpression.StringEquals(operand, rightText) };
+                            Push(offset, intrinsic.Kind == ValueIntrinsic.NewException ? IrType.Reference(intrinsic.Type)
+                                : intrinsic.Kind == ValueIntrinsic.ExceptionMessage ? IrType.Reference(stringType!) : IrType.Int32, expression, true); break;
                         case "newarr" when arrays:
                             var arrayType = method.ArrayOperands[offset];
                             Push(offset, IrType.Reference(arrayType), new IrExpression.NewArray(arrayType, Pop(offset, IrType.Int32)), true); break;
@@ -379,11 +443,18 @@ public static class ValueTranslator
                 IrEdge Edge(int offset, int from)
                 {
                     if (!partition.BlockAt.TryGetValue(offset, out int target)) Error(from, "Control transfer falls outside this method.", DiagnosticIds.InvalidControlTransfer);
-                    var types = stack.Select(id => values[id]).ToImmutableArray();
-                    if (types.Any(t => t.Kind == IrTypeKind.ManagedLocation)) Error(from, "Managed locations cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
-                    if (!incoming[target].IsDefault && !incoming[target].SequenceEqual(types)) Error(from, "Block receives incompatible stack types or depths; reference widening requires later lowering.");
-                    if (incoming[target].IsDefault) { incoming[target] = types; pending.Enqueue(target); }
-                    _edges += types.Length;
+                    var stackTypes = stack.Select(id => values[id]).ToImmutableArray();
+                    if (stackTypes.Any(t => t.Kind == IrTypeKind.ManagedLocation)) Error(from, "Managed locations cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
+                    if (!incoming[target].IsDefault && !incoming[target].SequenceEqual(stackTypes))
+                    {
+                        if (exceptions is null || incoming[target].Length != stackTypes.Length) Error(from, "Block receives incompatible stack types or depths.");
+                        var joined = incoming[target].Select((prior, index) => types.Join(prior, stackTypes[index])).ToArray();
+                        if (joined.Any(t => t is null)) Error(from, "Reference join has no unique most-specific common type; use a typed local or explicit cast.");
+                        var widened = joined.Select(t => t!).ToImmutableArray();
+                        if (!incoming[target].SequenceEqual(widened)) { incoming[target] = widened; pending.Enqueue(target); }
+                    }
+                    if (incoming[target].IsDefault) { incoming[target] = stackTypes; pending.Enqueue(target); }
+                    _edges += stackTypes.Length;
                     if (_edges > IrLimits.MaximumEdgeArguments) Error(from, "Aggregate edge-argument limit exceeded.", DiagnosticIds.TranslationLimit);
                     return new(target, [.. stack]);
                 }

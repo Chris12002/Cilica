@@ -65,7 +65,7 @@ public static class ObjectCppEmitter
     {
         var plans = ObjectRootAssignment.AssignExceptions(program).ToDictionary(p => p.Method);
         var boxes = program.Flow.Flow;
-        return EmitValidated(boxes.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(boxes.Values), program.Exceptions, handlers: true);
+        return EmitValidated(boxes.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(boxes.Values), program.Exceptions, handlers: true, exceptionValues: boxes.Values.Types);
     }
 
     public static CppArtifact EmitDelegates(ScalarDelegateIrProgram program)
@@ -75,7 +75,7 @@ public static class ObjectCppEmitter
     }
 
     private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations,
-        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null, bool handlers = false)
+        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null, bool handlers = false, ImmutableArray<ValueTypeLayout> exceptionValues = default)
     {
         string argumentType = locations ? "LocationArgument" : "Argument";
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
@@ -176,10 +176,11 @@ public static class ObjectCppEmitter
                 .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
                 .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : "1, nullptr, nullptr, nullptr").Append(" };\n");
         }
-        if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, program.Flow.Types, TypeSymbol);
         if (delegates is not null) ObjectCppDelegates.AppendStorage(text, delegateDeclarations, TypeSymbol, program.Flow.Types.ObjectBase);
         if (!boxedPayloads.IsEmpty)
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
+        if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, program.Flow.Types, TypeSymbol,
+            ManagedExceptionCastMessages.Build(program.Flow.Methods, program.Flow.Types, exceptionValues.IsDefault ? [] : exceptionValues));
         // Exact membership compares untrusted descriptor addresses without dereferencing them.
         // This covers nominal/interface ancestry, vector covariance and widening to Object.
         foreach (var expected in referenceTypes)
@@ -306,6 +307,12 @@ public static class ObjectCppEmitter
             }
             void CheckLocationResult(int offset) => Guard("f->location_result.status != LocationStatus::complete",
                 "f->location_result.status == LocationStatus::null_reference ? 4u : 6u", offset);
+            void CastFault(string condition, string receiver, string target, int offset)
+            {
+                code.Append("    if (").Append(condition).Append(") {\n        raise_cast_exception(context, ").Append(receiver).Append(", &")
+                    .Append(target).Append("_descriptor, {7u, \"").Append(method.Source.ContentHash).Append("\", ")
+                    .Append(N(method.Source.Token)).Append("u, ").Append(N(offset)).Append("u});\n        ").Append(Exit()).Append("\n    }\n");
+            }
             void CheckBoxResult(int offset) => Guard("f->box_result.status != BoxStatus::complete",
                 "context.pending != 0u ? context.pending : f->box_result.status == BoxStatus::null_reference ? 4u : "
                     + "f->box_result.status == BoxStatus::wrong_type ? 7u : f->box_result.status == BoxStatus::allocation ? 5u : 6u", offset);
@@ -461,10 +468,12 @@ public static class ObjectCppEmitter
                                 case IrExpression.CheckBox boxed:
                                     code.Append("    f->box_result = unbox(context, ").Append(Value(boxed.Operand)).Append(", &")
                                         .Append(ObjectCppBoxing.Symbol(boxed.Type)).Append("_descriptor);\n");
+                                    if (handlers) CastFault("f->box_result.status == BoxStatus::wrong_type", Value(boxed.Operand), ObjectCppBoxing.Symbol(boxed.Type), value.ILOffset);
                                     CheckBoxResult(value.ILOffset); expression = "f->box_result.value"; break;
                                 case IrExpression.AddressBoxSlot slot:
                                     code.Append("    f->box_result = unbox(context, ").Append(Value(slot.Receiver)).Append(", &")
                                         .Append(ObjectCppBoxing.Symbol(slot.Type)).Append("_descriptor);\n");
+                                    if (handlers) CastFault("f->box_result.status == BoxStatus::wrong_type", Value(slot.Receiver), ObjectCppBoxing.Symbol(slot.Type), value.ILOffset);
                                     CheckBoxResult(value.ILOffset); Flush();
                                     code.Append("    f->location_result = heap_location(context, f->box_result.value, &")
                                         .Append(ObjectCppBoxing.Symbol(slot.Type)).Append("_descriptor, ").Append(N(slot.Slot)).Append(");\n");
@@ -525,7 +534,8 @@ public static class ObjectCppEmitter
                                     expression = Field(field.Field, field.Receiver); break;
                                 case IrExpression.CastClass cast:
                                     Guard("!context.instance.owns(" + Value(cast.Operand) + ")", "6u", value.ILOffset);
-                                    Guard(Value(cast.Operand) + " != nullptr && !" + Matches(Value(cast.Operand), cast.Target), "7u", value.ILOffset);
+                                    if (handlers) CastFault(Value(cast.Operand) + " != nullptr && !" + Matches(Value(cast.Operand), cast.Target), Value(cast.Operand), TypeSymbol(cast.Target), value.ILOffset);
+                                    else Guard(Value(cast.Operand) + " != nullptr && !" + Matches(Value(cast.Operand), cast.Target), "7u", value.ILOffset);
                                     expression = Value(cast.Operand); break;
                                 case IrExpression.IsInstance test:
                                     Guard("!context.instance.owns(" + Value(test.Operand) + ")", "6u", value.ILOffset);

@@ -39,8 +39,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5h.2 | Checked exception IR and rooted handler/cleanup contracts | Complete for detached authored IR |
 | 5h.3a | Private native exception storage and rooted pending/saved identity | Complete for helper probes |
 | 5h.3b | Native handler dispatch, cleanup and message semantics | Complete for authored IR |
-| 5h.4 | CIL exceptions and type-test filters with differential probes | Next |
-| 5i | Composed differential regressions and final review | Planned |
+| 5h.4 | CIL exceptions and type-test filters with differential probes | Complete for bounded CIL |
+| 5i | Composed differential regressions and final review | Next |
 
 Split slices further when a separately testable semantic or ownership contract
 requires it. Review each completed slice before committing. Keep resource limits
@@ -518,3 +518,19 @@ Review checked suspended roots, failure origins, allocation atomicity, bounded t
 and cleanup. It corrected nested leave validation and the null-message resource rule;
 a dead-code-eliminated delegate oracle was replaced by an observable invocation.
 CIL exception execution and composed final validation remain next. No hosted work ran.
+
+## Slice 5h.4 outcome
+
+CIL handlers and type-test filters now compose with closed generic values, boxing,
+delegates and allocation (ADR 0085). Verified forwarding constructors preserve
+custom exception behavior; unsupported behavior and Message overrides are diagnostic.
+Contextual cast/unbox messages retain actual source and target types, including closed
+generic display names. Review corrected reference joins, field-only type discovery,
+message fidelity and shared resource checks.
+
+The managed suite passed 1,685 checks before four added budget/profile checks; the
+final focused 49-check suite passes those additions and shared delegate/IR checks.
+O0/O2 sanitizer probes compare 12 C# entries over eight inputs, plus uncaught origin
+and emergency OOM recovery, with collection stress and exact/short arena limits.
+The next gate is the final composed review, including an explicit fault-clause probe.
+Milestone 5 is not yet complete. No hosted work ran.

@@ -35,8 +35,10 @@ public static class ManagedExceptionIrValidator
         var rules = new ManagedExceptionRules(program.Exceptions, flow.Types.References);
         if (!program.Flow.Bindings.IsDefault && program.Flow.Bindings.Any(b => b is not null && program.Exceptions.Types.Contains(b.Owner) && b.Kind != ObjectMethodKind.Static))
             throw new ArgumentException("Intrinsic exception shells cannot declare ordinary constructors or instance method bodies.", nameof(program));
-        return ValueArrayIrValidator.ValidateComposition(program.Flow.Flow, program.Flow.Bindings,
+        var validated = ValueArrayIrValidator.ValidateComposition(program.Flow.Flow, program.Flow.Bindings,
             classes: true, boxing: true, delegates: true, exceptions: rules);
+        _ = ManagedExceptionCastMessages.Build(flow.Methods, flow.Types.References, flow.Types.Types);
+        return validated;
     }
 }
 

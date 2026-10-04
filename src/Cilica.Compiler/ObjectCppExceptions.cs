@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 
@@ -8,7 +9,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppExceptions
 {
     internal static void AppendStorage(StringBuilder text) => text.Append("""
-struct ExceptionObject { Object header; Object* message = nullptr; std::uint32_t message_kind = 0; };
+struct ExceptionObject { Object header; Object* message = nullptr; std::uint32_t message_kind = 0; const Descriptor* cast_from = nullptr; const Descriptor* cast_to = nullptr; };
 static_assert(std::is_standard_layout_v<ExceptionObject> && std::is_trivially_destructible_v<ExceptionObject> && offsetof(ExceptionObject, header) == 0);
 static constexpr std::size_t exception_references[] = {offsetof(ExceptionObject, message)};
 [[gnu::noinline]] static void* exception_field(Object* value, [[maybe_unused]] std::size_t offset) noexcept {
@@ -29,7 +30,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         .Append("[](Object* p) noexcept { delete reinterpret_cast<ExceptionObject*>(p); }, &").Append(parent)
         .Append("_descriptor, nullptr, 0, nullptr, exception_field};\n");
 
-    internal static void AppendHelpers(StringBuilder text, ManagedExceptionTypes types, ObjectTypeCatalog catalog, Func<ObjectTypeId, string> symbol)
+    internal static void AppendHelpers(StringBuilder text, ManagedExceptionTypes types, ObjectTypeCatalog catalog, Func<ObjectTypeId, string> symbol, ImmutableArray<ExceptionCastText> casts)
     {
         text.Append("[[gnu::noinline]] static bool known_exception(const Descriptor* type) noexcept {\n");
         foreach (var type in types.Types) text.Append("    if (type == &").Append(symbol(type)).Append("_descriptor) return true;\n");
@@ -49,6 +50,20 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
                 .Append("u, {exception_text_").Append(resources[pair.Value].ToString(CultureInfo.InvariantCulture)).Append(", ").Append(pair.Value.Length.ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
         text.Append("};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_text(const Descriptor* type, std::uint32_t kind) noexcept {\n")
             .Append("    for (const auto& entry : exception_texts) if (entry.type == type && entry.kind == kind) return entry.text;\n    return {};\n}\n");
+        text.Append("struct ExceptionCastTextEntry { const Descriptor* from; const Descriptor* to; ExceptionText text; };\n");
+        for (int i = 0; i < casts.Length; ++i)
+            text.Append("static constexpr std::uint16_t cast_text_").Append(i.ToString(CultureInfo.InvariantCulture)).Append("[] = {")
+                .AppendJoin(", ", casts[i].Text.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture))).Append("};\n");
+        text.Append("static constexpr std::array<ExceptionCastTextEntry, ").Append(casts.Length.ToString(CultureInfo.InvariantCulture)).Append("> exception_cast_texts = {{\n");
+        for (int i = 0; i < casts.Length; ++i)
+        {
+            var cast = casts[i];
+            text.Append("{&").Append(cast.FromBox ? ObjectCppBoxing.Symbol(cast.From) : symbol(cast.From)).Append("_descriptor, &")
+                .Append(cast.ToBox ? ObjectCppBoxing.Symbol(cast.To) : symbol(cast.To)).Append("_descriptor, {cast_text_")
+                .Append(i.ToString(CultureInfo.InvariantCulture)).Append(", ").Append(cast.Text.Length.ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
+        }
+        text.Append("}};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_cast_text(const Descriptor* from, const Descriptor* to) noexcept {\n")
+            .Append("    for (const auto& entry : exception_cast_texts) if (entry.from == from && entry.to == to) return entry.text;\n    return {};\n}\n");
         text.Append("[[maybe_unused, gnu::noinline]] static Object* exception_message_string(Context& c, ExceptionText text) noexcept {\n");
         if (catalog.String is { } stringType) text.Append("    return allocate_string(c, ").Append(symbol(stringType)).Append("_descriptor, text.units, text.length, nullptr, 0);\n");
         else text.Append("    (void)c; (void)text; return nullptr;\n");
@@ -89,7 +104,8 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     Object* message = payload->message;
     if (!traceable_reference(c.instance, message) || (message != nullptr && !string_type(message->type))) return {6};
     if (message == nullptr) {
-        const auto text = exception_text(value->type, payload->message_kind);
+        const auto text = payload->cast_from == nullptr && payload->cast_to == nullptr ? exception_text(value->type, payload->message_kind)
+            : value->type == runtime_exception(7) ? exception_cast_text(payload->cast_from, payload->cast_to) : ExceptionText{};
         if (text.units == nullptr) return {6};
         const auto origin = exception_origin(c); c.pending = 0;
         message = exception_message_string(c, text);
@@ -118,6 +134,14 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     }
     else { c.exception = nullptr; c.pending = result.status == 5 ? 5u : 6u; }
     return c.pending;
+}
+[[maybe_unused, gnu::noinline]] static void raise_cast_exception(Context& c, Object* value, const Descriptor* target, ExceptionOrigin origin) noexcept {
+    set_exception_origin(c, origin);
+    (void)materialize_exception(c);
+    if (c.pending == 7 && c.exception != nullptr) {
+        auto* payload = reinterpret_cast<ExceptionObject*>(c.exception);
+        payload->cast_from = value->type; payload->cast_to = target;
+    }
 }
 [[maybe_unused, gnu::noinline]] static std::uint32_t raise_exception(Context& c, Object* value, const char* image, std::uint32_t method, std::uint32_t il) noexcept {
     if (c.instance.marking || c.pending != 0 || c.exception != nullptr || (value != nullptr && !valid_exception(c, value))) return 6;

@@ -6,6 +6,7 @@ namespace Cilica.Metadata.Resolution;
 public sealed record TypeSource(string AssemblyIdentity, string ContentHash, int Token, string Name)
 {
     public string Specialization { get; init; } = "";
+    public string? RuntimeName { get; init; }
 }
 
 /// <summary>A single TypeDef row's flags, without decoding fields or method bodies.</summary>

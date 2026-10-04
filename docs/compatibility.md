@@ -11,7 +11,7 @@ at milestone 4, with later value/location capabilities documented separately.
 | `class-virtual-target-v2` | Exact metadata target resolution | One public nongeneric class virtual slot/body per concrete receiver, with newslot/final checks and validated interface-only MethodImpl rows; executable calls use the separate object profile |
 | `interface-method-target-v1` | Exact metadata target resolution | Public nongeneric abstract interface declarations mapped to one concrete class body, including inherited/reimplemented/explicit mappings |
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
-| C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive pending-fault context; no managed exception objects/handlers; public IR is validated before emission |
+| C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive profiles retain numeric faults; managed exception objects/handlers use the opt-in exception profile; public IR is validated before emission |
 | `object-layout-v5` | Bounded nominal/vector/String metadata and detached catalogs | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String uses an intrinsic shell, without framework layout or interfaces |
 | `delegate-values-ir-v1` | Authored single-target delegate contracts and source root plans | Exact accessible static/instance targets, Int32 parameters and Int32/void returns; native storage/invocation available through the explicit scalar wrapper; CIL via explicit delegate wrapper; no multicast, variance, open-instance or closed-static binding |
 | `closed-generic-values-cil-v1` | Closed static methods, struct and concrete class layouts/constructors, native specialization and local O0/O2 execution | Scalar/reference/value closures; static closed owners; nested generic fields, struct TypeSpec operations and exact boxes; class/struct/default-constructor constraints; generic dispatch, broader constraints, inline heap struct fields and primitive boxing remain diagnostics |
@@ -33,8 +33,9 @@ at milestone 4, with later value/location capabilities documented separately.
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
 | `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated and executes in native v9 |
-| `object-frames-native-v16` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation, allocation retry, stress mode, private retained handles and authored scalar location IR with checked carriers and owner roots |
-| Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, advanced GC features, exception handlers, library and embedding support are unimplemented |
+| `object-frames-native-v17` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation, allocation retry, stress mode, private retained handles and authored scalar location IR with checked carriers and owner roots |
+| `managed-exceptions-cil-v1` | Bounded CIL catch/finally/fault, throw/rethrow, pure type-test filters and native execution | Selected exception shells, verified fieldless custom exceptions and forwarding constructors, messages/literals, runtime fault types and contextual class-cast/unbox messages; composes with closed generics/boxes/delegates; general filters, virtual exception APIs, localization and interface-target cast messages remain diagnostic |
+| Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, advanced GC features, general filters, broad library and public embedding support are unimplemented |
 
 ## Int32 pending-fault profile
 
@@ -1378,3 +1379,14 @@ filters, throw/rethrow and leave/finally/fault through explicit native continuat
 ([ADR 0084](decisions/0084-native-exception-dispatch.md)). Messages preserve supplied UTF-16
 and bounded invariant defaults; O0/O2 sanitizer checks cover rooted identity and
 cleanup. CIL exception translation and a public structured-error ABI remain separate.
+
+## Bounded exception CIL
+
+`ReadExceptions` → `TranslateExceptions` → `LowerExceptions` → `EmitExceptions`
+provides the compiler-library path described in ADR 0085 (translation performs its
+own discovery). Twelve C# entry probes plus uncaught/OOM cases match local .NET at
+O0/O2 with ASan/UBSan. Messages are invariant English; custom exceptions are public
+top-level nongeneric fieldless declarations with verified forwarding constructors.
+Only the selected Exception/8 runtime-fault parameterless and string constructors,
+Exception.Message, String.Length/equality and pure type-test filters are admitted.
+The packed boundary remains Int32/status/origin; CLI and public exception ABI are unchanged.

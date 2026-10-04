@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cilica.Compiler;
 
@@ -41,6 +42,16 @@ internal sealed class IrTypeRules
         || target.Kind == IrTypeKind.Reference && (source == IrType.NullReference ||
             source.Kind == IrTypeKind.Reference && source.Class is { } id && target.Class is { } targetId
                 && _ancestors.TryGetValue(id, out var ancestors) && ancestors.Contains(targetId)));
+
+    internal IrType? Join(IrType left, IrType right)
+    {
+        if (Assignable(left, right)) return right;
+        if (Assignable(right, left)) return left;
+        if (left.Kind != IrTypeKind.Reference || right.Kind != IrTypeKind.Reference) return null;
+        var common = _ancestors[left.Class!].Intersect(_ancestors[right.Class!]).ToArray();
+        var minimum = common.Where(t => _ancestors[t].Count == common.Length).ToArray();
+        return minimum.Length == 1 ? IrType.Reference(minimum[0]) : null;
+    }
 
     internal bool Comparable(Int32Comparison comparison, IrType left, IrType right) =>
         left == IrType.Int32 && right == IrType.Int32 ||

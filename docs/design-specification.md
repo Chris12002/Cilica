@@ -782,8 +782,8 @@ weak references and concurrent collection are separately staged features.
 
 The primitive profile currently propagates division/remainder and checked-arithmetic faults
 through a private context and returns status/origin at its native boundary
-(ADRs 0019–0021). Full managed
-exceptions below remain planned, including objects, messages and handler execution.
+(ADRs 0019–0021). The opt-in bounded managed exception profile now supplies
+rooted objects, messages and handler execution; the broader design below remains staged.
 
 First support try/catch/finally, throw and rethrow. Exceptions propagate
 explicitly through a pending-exception slot in the execution context, with the
@@ -799,8 +799,11 @@ Detached exception IR now defines checked throw/rethrow/leave, handler/cleanup/f
 regions and saved-identity roots ([ADR 0082](decisions/0082-managed-exception-ir.md)).
 Native v17 now traces pending and emergency exception roots, with checked private
 payload/message and suspend/restore helpers ([ADR 0083](decisions/0083-native-exception-storage.md)).
-An emergency allocation is reserved within the instance quota. Handler dispatch,
-default message materialization and executable CIL handling remain subsequent gates.
+An emergency allocation is reserved within the instance quota. Native dispatch and
+lazy invariant messages are implemented by ADR 0084. Bounded CIL translation now
+composes those handlers with values, generic boxes and delegates (ADR 0085), including
+verified forwarding constructors and contextual class-cast/unbox messages. General
+filters, broader exception APIs and the public structured-error boundary remain planned.
 
 Exception filters are staged. Filters that only test the exception's type are
 supported with basic exceptions, because their evaluation order is
@@ -1083,4 +1086,5 @@ The authored `scalar-managed-exceptions-ir-v1` profile now executes catch, pure 
 filters, throw/rethrow and leave/finally/fault through explicit native continuations
 ([ADR 0084](decisions/0084-native-exception-dispatch.md)). Messages preserve supplied UTF-16
 and bounded invariant defaults; O0/O2 sanitizer checks cover rooted identity and
-cleanup. CIL exception translation and a public structured-error ABI remain separate.
+cleanup. Bounded CIL exception translation is now supplied by ADR 0085; a public
+structured-error ABI remains separate.

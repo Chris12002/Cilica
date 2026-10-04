@@ -10,21 +10,28 @@ namespace Cilica.Compiler;
 internal static class CilControlFlow
 {
     internal sealed record Partitioned(List<(int Start, int End)> Ranges, Dictionary<int, int> BlockAt);
-    internal static Partitioned Partition(MethodInput input, Action<string, string, int> fail)
+    internal static Partitioned Partition(MethodInput input, Action<string, string, int> fail, IEnumerable<int>? boundaries = null, bool exceptions = false)
     {
         var indices = input.Instructions.Select((instruction, index) => (instruction.Offset, index)).ToDictionary(p => p.Offset, p => p.index);
         var leaders = new SortedSet<int> { 0 };
+        if (boundaries is not null)
+            foreach (int offset in boundaries)
+            {
+                if (offset == input.CodeSize) continue;
+                if (!indices.TryGetValue(offset, out int leader)) fail(DiagnosticIds.InvalidControlTransfer, "Exception boundary is not an instruction boundary.", offset);
+                else leaders.Add(leader);
+            }
         for (int index = 0; index < input.Instructions.Length; index++)
         {
             MethodInstruction instruction = input.Instructions[index];
-            bool branch = instruction.OpCode is "br" or "br.s" || BranchComparison(instruction.OpCode) is not null;
+            bool branch = instruction.OpCode is "br" or "br.s" || exceptions && instruction.OpCode is ("leave" or "leave.s") || BranchComparison(instruction.OpCode) is not null;
             if (branch)
             {
                 if (instruction.Targets.Length != 1 || !indices.TryGetValue(instruction.Targets[0], out int target))
                     fail(DiagnosticIds.InvalidControlTransfer, "Branch target must be an instruction boundary inside this method.", instruction.Offset);
                 else leaders.Add(target);
             }
-            if ((branch || instruction.OpCode == "ret") && index + 1 < input.Instructions.Length) leaders.Add(index + 1);
+            if ((branch || instruction.OpCode == "ret" || exceptions && instruction.OpCode is ("throw" or "rethrow" or "endfinally" or "endfilter")) && index + 1 < input.Instructions.Length) leaders.Add(index + 1);
             if (leaders.Count > IrLimits.MaximumBlocks) fail(DiagnosticIds.TranslationLimit, "Basic-block limit exceeded.", instruction.Offset);
         }
         int[] starts = [.. leaders]; var ranges = new List<(int, int)>(); var at = new Dictionary<int, int>();

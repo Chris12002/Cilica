@@ -91,3 +91,5 @@ capability. It becomes accepted once its validation experiment has run.
 | [0083](0083-native-exception-storage.md) | Private rooted native exception storage | Accepted for v17 pending/emergency roots, message storage and O0/O2 helper probes; handler dispatch remains next |
 
 - [0084: Rooted native exception dispatch](0084-native-exception-dispatch.md)
+
+- [0085: Bounded managed exception CIL](0085-managed-exception-cil.md)
