@@ -11,9 +11,12 @@ public sealed record MethodSource(string AssemblyIdentity, string ContentHash, i
     public string Specialization { get; init; } = "";
 }
 
-/// <summary>Decoded instruction snapshot. Integer operands include implicit argument indices.</summary>
+/// <summary>Decoded instruction snapshot. Int32 operands include implicit argument indices; Int64 constants retain all bits separately.</summary>
 public sealed record MethodInstruction(int Offset, int Length, string OpCode, int? IntegerOperand,
-    ImmutableArray<int> Targets);
+    ImmutableArray<int> Targets)
+{
+    public long? Int64Operand { get; init; }
+}
 
 /// <summary>
 /// Bounded input for translation. Signatures use resolver-owned type definitions;

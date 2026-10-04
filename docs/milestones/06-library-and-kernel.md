@@ -17,9 +17,9 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the first concrete kernel path: scalar/enum cases, values stored in classes, value instance calls and closed generic interface/instance calls | Planned; split into individually reviewed and differentially tested slices |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1 preserves wide CIL operands; execution extensions remain planned |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
-| 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | Planned; compare outputs, state, ordering and failures |
+| 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
 These slices are capability gates, not time estimates. Detailed requirements can
@@ -135,6 +135,44 @@ permission checks. Review added a signature-hash size bound. See
 [ADR 0092](../decisions/0092-library-build-admission.md). The next delivery work is
 the compiler/library behavior required by a concrete real kernel closure; no
 library import or kernel/native equivalence has yet been established.
+
+## Concrete kernel baseline and slice 6c.1
+
+The external kernel and primitives were freshly built from their unmodified
+component sources at revision `a8942127ee6d26545de6daa2259cc2793c13be8e`, using
+an artifacts directory inside this repository. Fourteen source/project hashes,
+build properties, output hashes and the command are recorded privately under
+`artifacts/milestone6-harness/evidence.json`. Other external checkout changes
+were outside these components and were left alone.
+
+A private adapter supplies concrete state/command/event/context types. Ten
+commands exercise boundary rejection, accepted immediate changes, adapter
+rejection, frame resolution, priority rotation/passes, terminal resolution,
+event ordering and input-state identity on rejection. The harness also observes
+the kernel's actual canonical writer output. Two complete .NET 10.0.11 runs
+match byte-for-byte; explicit scalar observations and canonical lengths pass.
+This is an oracle baseline, not native equivalence.
+
+The concrete root's contract inventory contains 650 nodes, 3,814 edges and 584
+issues without reaching configured limits. Remaining analysis gaps include array
+generic-interface helpers, variant interface conversion and unresolved dispatch.
+General-filter status remains unresolved. An attempted compiler-library
+translation correctly stops at a constructed array element operand. No game rules
+or kernel source were altered to get around that diagnostic.
+
+The concrete path confirms Int64 frame sequences and Guid-backed identifiers,
+in addition to Boolean/enums, generic collections, inline values, string/number
+formatting and canonical output. Slice 6c.1 now preserves `ldc.i8`'s complete
+64-bit operand in detached compiler input; previously the decoder retained it
+but the compiler-facing snapshot had only an Int32 operand slot. It does not yet
+admit Int64 execution. Seven edge-value regressions plus related input/Int32
+checks pass (61 tests). Review checked sign/width preservation, snapshot lifetime,
+unchanged bounds and continued rejection by the Int32 execution profile.
+
+Next scalar slices must establish Int64 IR/arithmetic/native storage and
+conversion semantics, then narrow scalar/enum storage. The kernel still requires
+generic instance/interface/array dispatch, values in heap objects and the trial
+ported library before its native transcript can run.
 
 ## Remaining completion evidence
 

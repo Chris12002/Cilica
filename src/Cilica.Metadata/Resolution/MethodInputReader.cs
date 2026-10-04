@@ -55,7 +55,8 @@ public sealed partial class AssemblyResolver
                 assembly.IsReferenceAssembly, Initializer(owner), Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1))),
                 locals, body.LocalVariablesInitialized, body.ExceptionRegions.Length, il.Length, body.MaxStack,
                 [.. instructions.Select(i => new MethodInstruction(i.Offset, i.Length, i.Code.Name,
-                    i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets]))],
+                    i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets])
+                    { Int64Operand = i.Operand as long? })],
                 MetadataTokens.GetToken(method.GetDeclaringType()), header.Visible)
             { DeclaredName = reader.GetString(method.Name), MetadataMembersRead = work };
         });
