@@ -33,9 +33,9 @@ public static class ValueModelBuilder
 
     internal static ValueCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null)
     {
-        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true); }
+        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
         catch (ArgumentException error) { return new(null, [new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, error.Message)]); }
@@ -45,7 +45,7 @@ public static class ValueModelBuilder
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -186,7 +186,7 @@ public static class ValueModelBuilder
             try { return new(ReadClosed(type, limits), []); }
             catch (Failure failure) { return new(null, failure.Diagnostics); }
         }
-        var referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings)
+        var referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings, delegates)
             : ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values.Select(t => t.Definition)], library, Read, [.. arrays], strings);
         if (referenceResult.Catalog is null) return new(null, referenceResult.Diagnostics);
         var catalog = new ValueTypeCatalog([.. roots.Select(ClosedId).Distinct()], Id(valueBase),

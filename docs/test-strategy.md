@@ -770,3 +770,9 @@ Native delegate probes (ADR 0079) compare static and captured Int32/void calls w
 .NET at O0/O2 under ASan/UBSan, including null capture versus invocation, target
 fault origins, sole captured receiver retention, corrupt/foreign payload rejection,
 fresh identity, unchanged packed output, allocation recovery and exact arena limits.
+
+Delegate CIL checks (ADR 0080) validate bodyless intrinsic declarations, signature and
+identity rules, paired construction within a block and explicit unsupported patterns.
+Real C# O0/O2 sanitizer probes store captured delegates in boxed generic values,
+collect cyclic receivers and compare successful calls plus null/target faults with
+.NET. Null-only invocation covers an empty native target table.

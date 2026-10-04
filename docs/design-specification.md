@@ -806,8 +806,11 @@ managed references, target methods enter the reachable closure and allocation/ca
 safepoints retain the necessary roots. `LowerDelegates`/`EmitDelegates` now provide
 checked native storage and invocation ([ADR 0079](decisions/0079-native-delegate-execution.md)).
 O0/O2 sanitizer probes cover .NET parity, captured roots, ownership checks, bounded
-argument packets and fault cleanup. CIL delegate binding remains next; multicast,
-variance and broader signatures are unsupported.
+argument packets and fault cleanup. The explicit CIL delegate profile now binds
+public named nongeneric declarations, adjacent ldftn/newobj and callvirt Invoke
+([ADR 0080](decisions/0080-bounded-delegate-cil.md)), including storage in boxed generic
+values and class fields. Generic delegates, private compiler-generated closures,
+virtual capture, multicast, variance and broader signatures remain unsupported.
 
 ## 10. Generics and reachability
 

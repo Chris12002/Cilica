@@ -30,6 +30,11 @@ public sealed record BoxedValueTranslationResult(BoxedValueIrProgram? Program, I
     public bool Success => Program is not null;
 }
 
+public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)
+{
+    public bool Success => Program is not null;
+}
+
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
@@ -37,7 +42,15 @@ public static class ValueTranslator
     public const string ArrayProfile = "value-arrays-cil-v1";
     public const string ObjectProfile = "value-objects-cil-v1";
     public const string GenericProfile = "closed-generic-values-cil-v1";
+    public const string DelegateProfile = "delegate-values-cil-v1";
     public const string BoxedProfile = "boxed-values-cil-v1";
+
+    public static DelegateValueTranslationResult TranslateDelegates(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
+    {
+        var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true);
+        return new(result.Program is null ? null : new(result.Program, result.Bindings), result.Diagnostics);
+    }
 
     public static BoxedValueTranslationResult TranslateGenerics(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
@@ -72,9 +85,10 @@ public static class ValueTranslator
         TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: false);
 
     private static ValueTranslationResult TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false, bool delegates = false)
     {
-        var discovered = generics ? ValueProgramDiscovery.ReadGenerics(resolver, assembly, entry, runtimeLibrary, limits)
+        var discovered = delegates ? ValueProgramDiscovery.ReadDelegates(resolver, assembly, entry, runtimeLibrary, limits)
+            : generics ? ValueProgramDiscovery.ReadGenerics(resolver, assembly, entry, runtimeLibrary, limits)
             : boxing ? ValueProgramDiscovery.ReadBoxes(resolver, assembly, entry, runtimeLibrary, limits)
             : classes ? ValueProgramDiscovery.ReadObjects(resolver, assembly, entry, runtimeLibrary, limits)
             : arrays ? ValueProgramDiscovery.ReadArrays(resolver, assembly, entry, runtimeLibrary, limits)
@@ -89,7 +103,7 @@ public static class ValueTranslator
             var resources = new ProgramResources(); var translated = new List<IrMethod>();
             foreach (var method in input.Methods)
             {
-                var body = new Body(method, methods, fields, arrays, classes, boxing, types, input.Types.References.ObjectBase,
+                var body = new Body(method, methods, fields, arrays, classes, boxing, input.Types.References.Delegates.ToDictionary(d => ObjectTypeId.From(d.Source)), types, input.Types.References.ObjectBase,
                     input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32)).Translate();
                 if (!resources.Add(body)) Fail(method, 0, "Aggregate value IR resource limit exceeded.", DiagnosticIds.TranslationLimit);
                 translated.Add(body);
@@ -98,7 +112,8 @@ public static class ValueTranslator
             ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
             try
             {
-                if (boxing) _ = ValueRootAssignment.Assign(new BoxedValueIrProgram(program, bindings));
+                if (delegates) _ = ValueRootAssignment.Assign(new DelegateValueIrProgram(program, bindings));
+                else if (boxing) _ = ValueRootAssignment.Assign(new BoxedValueIrProgram(program, bindings));
                 else if (classes) _ = ValueRootAssignment.Assign(new ValueObjectIrProgram(program, bindings));
                 else if (arrays) _ = ValueRootAssignment.Assign(new ValueArrayIrProgram(program, bindings));
                 else _ = ValueRootAssignment.Assign(program);
@@ -119,7 +134,7 @@ public static class ValueTranslator
             + " IL_" + offset.ToString("x4", CultureInfo.InvariantCulture)));
 
     private sealed class Body(ValueMethodInput method, Dictionary<IrMethodId, ValueMethodInput> methods,
-        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray)
+        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray)
     {
         private int _statements, _inputs, _edges;
         private void Error(int offset, string message, string code = DiagnosticIds.InconsistentStack) => Fail(method, offset, message, code);
@@ -209,6 +224,26 @@ public static class ValueTranslator
                                 compared = Int32Comparison.NotEqual;
                             Comparison(compared, comparedLeft, comparedRight, offset);
                             Push(offset, IrType.Int32, new IrExpression.Compare(compared, comparedLeft, comparedRight)); break;
+                        case "ldftn" when delegates.Count != 0:
+                            if (index + 1 >= end || input.Instructions[index + 1] is not { OpCode: "newobj" } next
+                                || !method.DelegateOperands.ContainsKey(next.Offset))
+                                Error(offset, "ldftn requires an adjacent delegate constructor in the same block; escaping method pointers and branch entries into construction are unsupported.", DiagnosticIds.ExecutionUnsupported);
+                            var construction = input.Instructions[++index];
+                            var callableType = method.DelegateOperands[construction.Offset];
+                            int capture = Pop(offset);
+                            if (!Reference(values[capture])) Error(offset, "Delegate capture requires a reference receiver or null.");
+                            Push(construction.Offset, IrType.Reference(callableType), new IrExpression.NewDelegate(callableType, method.Calls[offset], capture), true);
+                            break;
+                        case "callvirt" when method.DelegateOperands.ContainsKey(offset):
+                            var delegateId = method.DelegateOperands[offset]; var declaration = delegates[delegateId];
+                            var delegateArguments = new int[declaration.ParameterCount];
+                            for (int i = delegateArguments.Length - 1; i >= 0; --i) delegateArguments[i] = Pop(offset, IrType.Int32);
+                            int calledDelegate = Pop(offset, IrType.Reference(delegateId));
+                            if (declaration.ReturnsVoid) Add(new IrStatement.InvokeDelegate(offset, delegateId, calledDelegate, [.. delegateArguments]), offset);
+                            else Push(offset, IrType.Int32, new IrExpression.CallDelegate(delegateId, calledDelegate, [.. delegateArguments]), true);
+                            break;
+                        case "newobj" when method.DelegateOperands.ContainsKey(offset):
+                            Error(offset, "Delegate constructor requires a preceding adjacent ldftn in the same block.", DiagnosticIds.ExecutionUnsupported); break;
                         case "newobj" when classes:
                         case "call":
                             var target = methods[method.Calls[offset]]; int skip = opcode == "newobj" ? 1 : 0;

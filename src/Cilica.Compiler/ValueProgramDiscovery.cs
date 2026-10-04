@@ -18,6 +18,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     ImmutableDictionary<int, IrMethodId> Calls, ImmutableDictionary<int, ObjectFieldId> Fields,
     ImmutableDictionary<int, ObjectTypeId> TypeOperands)
 {
+    public ImmutableDictionary<int, ObjectTypeId> DelegateOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> ArrayOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
 }
 
@@ -29,7 +30,7 @@ public sealed record ValueDiscoveryResult(ValueProgramInput? Input, ImmutableArr
 }
 
 /// <summary>Discovers bounded CIL value closures with opt-in class constructors without executing assemblies.</summary>
-public static class ValueProgramDiscovery
+public static partial class ValueProgramDiscovery
 {
     public static ValueDiscoveryResult Read(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
@@ -51,12 +52,16 @@ public static class ValueProgramDiscovery
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
         ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true);
 
+    public static ValueDiscoveryResult ReadDelegates(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
+        ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true);
+
     private static ValueDiscoveryResult ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false, bool delegates = false)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
-        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays, classes, boxing, generics).Read(assembly, entry), []); }
+        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays, classes, boxing, generics, delegates).Read(assembly, entry), []); }
         catch (Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
@@ -65,7 +70,7 @@ public static class ValueProgramDiscovery
         internal Diagnostic Diagnostic { get; } = diagnostic;
     }
 
-    private sealed class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays, bool classes, bool boxing, bool generics)
+    private sealed partial class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays, bool classes, bool boxing, bool generics, bool delegates)
     {
         private sealed record Work(ResolvedAssembly Assembly, ResolvedMethod Resolved, MethodInput Input, ObjectMethodBinding Binding,
             ImmutableArray<IrType> Parameters, IrType ReturnType, ImmutableArray<IrType> Locals, Work? Parent, int Offset);
@@ -98,6 +103,7 @@ public static class ValueProgramDiscovery
                 var calls = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
                 var fields = ImmutableDictionary.CreateBuilder<int, ObjectFieldId>();
                 var types = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
+                var callable = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                 var vectors = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                 foreach (var instruction in work.Input.Instructions)
                 {
@@ -117,7 +123,7 @@ public static class ValueProgramDiscovery
                         vectors.Add(offset, IntegerArray());
                     }
                     else if (arrays && instruction.OpCode is ("ldelem.i4" or "stelem.i4" or "ldlen")) _ = IntegerArray();
-                    else if (instruction.OpCode == "call" || classes && instruction.OpCode == "newobj")
+                    else if (instruction.OpCode == "call" || classes && instruction.OpCode == "newobj" || delegates && instruction.OpCode is ("ldftn" or "callvirt"))
                     {
                         int token = Token(work, instruction, 0x06, 0x0a, 0x2b);
                         var key = (work.Assembly.ContentHash, token);
@@ -135,13 +141,25 @@ public static class ValueProgramDiscovery
                             foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
                                 CheckArgumentAccess(argument, work, offset);
                         }
+                        if (delegates && DelegateType(target.DeclaringType, work, offset) is { } declaration)
+                        {
+                            var facts = _delegateFacts[ObjectTypeId.From(declaration.Source)];
+                            if (!(instruction.OpCode == "newobj" && target.Handle == facts.Constructor
+                                || instruction.OpCode == "callvirt" && target.Handle == facts.Invoke))
+                                Fail(work, "Delegate members require paired ldftn/newobj construction or callvirt Invoke; multicast and other members are unsupported.", offset);
+                            _arguments += instruction.OpCode == "newobj" ? 1 : declaration.ParameterCount + 1;
+                            if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate delegate argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                            callable.Add(offset, IncludeReference(target.DeclaringType, work, offset));
+                            continue;
+                        }
+                        if (instruction.OpCode == "callvirt") Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
                         var callee = Discover(target, work, offset);
                         if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor))
                             Fail(work, "newobj requires an exact class constructor declaration.", offset);
                         if (work.Binding.Owner != callee.Binding.Owner
                             && ((callee.Binding.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || !callee.Binding.OwnerExternallyVisible))
                             Fail(work, "Calls require the same declaring owner or a public method on an externally visible owner.", offset);
-                        _arguments += callee.Parameters.Length - (instruction.OpCode == "newobj" ? 1 : 0);
+                        _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" ? 1 : 0);
                         if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                         calls.Add(offset, callee.Binding.Method);
                     }
@@ -187,11 +205,11 @@ public static class ValueProgramDiscovery
                     }
                 }
                 methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                    calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ArrayOperands = vectors.ToImmutable() });
+                    calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable() });
             }
             if (!generics && _values.Count == 0) Fail(root, "Value discovery requires an inline value; use the existing primitive/object translator for other programs.");
             var built = generics ? ValueModelBuilder.BuildClosedCatalog(resolver, [.. _values.Values], library, _metadata, _integerArray is not null,
-                [.. _references.Values], _snapshots) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
+                [.. _references.Values], _snapshots, delegates ? type => DelegateType(type, root, 0) : null) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                 [.. _references.Values.Select(t => t.Definition)], _snapshots);
             if (built.Catalog is not { } catalog) throw new Failure(built.Diagnostics[0]);
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
@@ -268,38 +286,39 @@ public static class ValueProgramDiscovery
             _bytes += input.CodeSize; _instructions += input.Instructions.Length;
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(parent, "Aggregate metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             bool constructor = classes && input.DeclaredName == ".ctor";
+            bool instance = constructor || delegates && (input.Attributes & MethodAttributes.Static) == 0;
             var allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | (constructor ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
-            if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != (constructor ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
+            if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != (instance ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
                 || input.HasTypeInitializer || input.HasModuleInitializer || input.ExceptionRegionCount != 0
                 || !input.Locals.IsEmpty && !input.InitializeLocals
-                || ((input.Attributes & MethodAttributes.Static) != 0) == constructor
+                || ((input.Attributes & MethodAttributes.Static) != 0) == instance
                 || (input.Attributes & ~allowed) != 0
                 || (input.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.PrivateScope
                 || (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL)
                 Fail(parent, classes
-                    ? "Value/object methods require ordinary static methods or exact class constructors, nongeneric managed IL, no type/module initializers, no exception regions and initialized locals."
+                    ? "Value/object methods require ordinary static methods, exact class constructors or selected delegate-profile instance methods, managed IL, supported closed signatures, no type/module initializers, no exception regions and initialized locals."
                     : "Value methods require static nongeneric ordinary managed IL without initialization, special names, exception regions or uninitialized locals.", offset);
             var ownerId = generics ? ClosedId(resolved.DeclaringType, parent, offset) : ObjectModelBuilder.Id(owner);
-            if (constructor)
+            if (instance)
             {
-                if ((input.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
-                    || Inline(owner, parent, offset) || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void })
+                if (Inline(owner, parent, offset) || constructor && ((input.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
+                    || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }))
                     Fail(parent, "Class constructors require exact constructor flags, a class receiver and void return.", offset);
                 IncludeReference(resolved.DeclaringType, parent, offset);
             }
-            _parameters += input.Signature.Parameters.Count + (constructor ? 1 : 0); _locals += input.Locals.Length;
+            _parameters += input.Signature.Parameters.Count + (instance ? 1 : 0); _locals += input.Locals.Length;
             if (_parameters > IrLimits.MaximumParameters || _locals > IrLimits.MaximumLocals)
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-            var kind = !constructor ? ObjectMethodKind.Static : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
+            var kind = !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
             var work = new Work(owner.Assembly, resolved, input, binding,
-                [.. (constructor ? new[] { IrType.Reference(ownerId) } : Array.Empty<IrType>()),
+                [.. (instance ? new[] { IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
                 [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);
-            if (constructor && work.Parameters.Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
-                Fail(parent, "Class constructors require scalar/reference parameters; values and borrows need later lowering.", offset);
+            if (instance && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
+                Fail(parent, "Class instance methods require scalar/reference parameters, locals and returns; values and borrows need later lowering.", offset);
             _methods.Add(id, work); _pending.Enqueue(work); return work;
         }
 
@@ -369,7 +388,7 @@ public static class ValueProgramDiscovery
             var id = ClosedId(type, work, offset);
             if (!_references.ContainsKey(id) && _values.Count + _references.Count >= ObjectModelLimits.MaximumTypes)
                 Fail(work, "Combined value/reference root limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-            _ = SnapshotClosed(type, work, offset);
+            if (!delegates || DelegateType(type, work, offset) is null) _ = SnapshotClosed(type, work, offset);
             _references.TryAdd(id, type); return id;
         }
 

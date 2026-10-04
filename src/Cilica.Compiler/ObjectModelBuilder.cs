@@ -40,12 +40,12 @@ public static class ObjectModelBuilder
 
     internal static ObjectCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, Func<ConstructedType, TypeReadLimits, TypeSnapshot> readType,
-        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings) =>
-        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true);
+        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null) =>
+        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates);
 
     private static ObjectCatalogResult BuildCatalogCore(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly runtimeLibrary, Func<ConstructedType, TypeReadLimits, TypeSnapshot>? readType, ImmutableArray<ObjectTypeId> arrayRoots,
-        ObjectStringType? strings, bool generics)
+        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null)
     {
         strings ??= new(resolver, runtimeLibrary, new(ObjectModelLimits.MaximumMetadataMembers));
         ObjectTypeId? stringType = null;
@@ -62,6 +62,7 @@ public static class ObjectModelBuilder
         ConstructedType Plain(ResolvedType type) => new(type, SignatureList<TypeSignature>.Empty);
         var layouts = new List<ObjectTypeLayout>();
         var interfaces = new List<ObjectInterface>();
+        var delegateTypes = new List<ObjectDelegateType>();
         int fields = 0, members = 0;
         string Path(ObjectTypeId id)
         {
@@ -107,6 +108,10 @@ public static class ObjectModelBuilder
                 if (members > ObjectModelLimits.MaximumMetadataMembers)
                     return Failed(id, DiagnosticIds.TranslationLimit, "Aggregate catalog metadata-member limit exceeded.");
                 continue;
+            }
+            if (delegates?.Invoke(type) is { } callable)
+            {
+                delegateTypes.Add(callable); continue;
             }
             var budget = new TypeReadLimits(ObjectModelLimits.MaximumFields - fields, ObjectModelLimits.MaximumMetadataMembers - members, ObjectModelLimits.MaximumOwnerDepth);
             TypeSnapshot read;
@@ -211,7 +216,7 @@ public static class ObjectModelBuilder
             members += strings.CheckInterfaces([.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members);
         var model = new ObjectTypeCatalog([.. roots.Select(ClosedId).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)])
-        { String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
+        { Delegates = [.. delegateTypes], String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
             Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
         // Metadata can form cycles or extend sealed classes. Surface those as
         // input diagnostics rather than leaking the detached API's exception.

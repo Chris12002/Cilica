@@ -34,7 +34,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5f.4 | Closed generic reference layouts and construction | Complete for concrete classes with scalar/reference fields and exact constructors |
 | 5g.1 | Delegate identities, captures, invocation and root contracts | Complete for authored single-target Int32/void IR |
 | 5g.2 | Native delegate storage, invocation and collection | Complete for authored single-target Int32/void IR |
-| 5g.3 | CIL delegate binding and composed differential probes | Planned |
+| 5g.3 | CIL delegate binding and composed differential probes | Complete for public named nongeneric single-target delegates |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
 | 5i | Composed differential regressions and final review | Planned |
 
@@ -453,3 +453,19 @@ All 19 selected local tests pass, including O0/O2 ASan/UBSan .NET comparisons,
 sole captured receiver retention, corrupt/foreign payload rejection, independent
 identity, allocation recovery and exact/one-byte-short arena capacity. CIL delegate
 binding is next; milestone 5 remains in progress. No hosted work ran.
+
+## Slice 5g.3 outcome
+
+The explicit delegate CIL profile now discovers exact runtime delegate declarations,
+combines adjacent ldftn/newobj without exposing method pointers, and lowers callvirt
+Invoke (ADR 0080). Public named delegates compose with class fields, closed generic
+structs and boxing. Generic delegate declarations, private compiler-generated closure
+visibility, virtual capture and multicast remain explicit exclusions.
+
+All 126 selected local review checks pass, including malformed metadata/pointer
+patterns and O0/O2 sanitizer comparisons with .NET. The composed probe retains a
+captured delegate through a boxed generic value and collection pressure, then reclaims
+its receiver cycle. Null capture, null invocation and callee faults keep their origin
+and preserve packed output. Review checked bounds, declaration identity, branch
+boundaries, captures and cleanup. Managed exceptions/type-test filters are next (5h);
+milestone 5 remains in progress. No hosted work ran.

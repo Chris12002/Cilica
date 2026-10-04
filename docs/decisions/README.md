@@ -86,3 +86,5 @@ capability. It becomes accepted once its validation experiment has run.
 | [0078](0078-detached-delegate-ir.md) | Detached single-target delegate IR | Accepted for intrinsic delegate types, checked static/instance captures, Int32/void invocation contracts and source roots; native/CIL remain next |
 
 - [0079: Checked native single-target delegates](0079-native-delegate-execution.md)
+
+- [0080: Bounded delegate CIL binding](0080-bounded-delegate-cil.md)
