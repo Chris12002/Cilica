@@ -25,7 +25,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2c.3c.1 | Value/class-construction IR composition | Complete for authored IR |
 | 5d.2c.3c.2 | CIL value/class construction and live-reference stress | Complete for the bounded compiler-library profile |
 | 5e.1 | Named-struct boxing, exact unbox copies/borrows and payload/root contracts | Complete for authored IR |
-| 5e.2 | Native boxed storage, identity/mutation, fault order and collection | Planned |
+| 5e.2a | Native boxed storage, identity/mutation, fault status and collection | Complete for private runtime helpers |
+| 5e.2b | Boxed IR scalar expansion, native emission and fault provenance | Planned |
 | 5e.3 | Bounded CIL boxing/unboxing and composed differential regressions | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
@@ -310,3 +311,27 @@ layout and root-planning checks pass; the compiler builds without warnings/error
 Local main remains an ancestor. Native storage/execution and CIL boxing remain
 the next gates; milestone 5 is not complete. No push, hosted work, service or
 additional agent ran.
+
+## Slice 5e.2a outcome
+
+ADR 0071 adds typed boxed-payload descriptors and checked private helpers to the
+existing allocator, tracing and location runtime. Boxes retain exact value/image
+identity, support full copies and mutable borrows, and enter the Object reference
+predicate. Whole copies validate the last reference before exposing any writes.
+Combined native class/box slot limits are enforced before source expansion.
+
+Review checked descriptor authentication, C++ member provenance, failure atomicity,
+allocation accounting and owner/source roots. It strengthened the catalog mismatch
+fixture to use two valid catalogs and added empty borrowed-owner collection stress.
+No blocking findings remain. Local O0/O2 sanitizer probes pass with the 2 KiB stack
+gate, including copy/mutation comparisons with .NET, cyclic graph tracing, invalid
+inputs, exact/insufficient heap capacity, object-count recovery and pending-fault
+preservation during collection callbacks.
+
+All 78 selected local checks pass, including six O0/O2 native configurations.
+The tightened catalog mismatch check also passed separately; no native probes
+were repeated for that assertion-only change. The compiler builds cleanly.
+
+This is a helper checkpoint. Boxed IR expansion/emission and generated fault
+provenance are next (5e.2b), followed by CIL boxing. Milestone 5 remains in progress.
+Local main remains an ancestor. No push, hosted work, service or additional agent ran.

@@ -23,6 +23,7 @@ at milestone 4, with later value/location capabilities documented separately.
 | `value-arrays-cil-v1` | Static struct programs composed with Int32 vector CIL allocation/access | Compiler-library opt-in; selected Int32 identity, exact array operands, live embedded roots through calls/borrows/returns, local O0/O2 collection stress and failure cleanup; no class allocation composition |
 | `value-objects-cil-v1` | Static struct programs composed with class construction and fields | Compiler-library opt-in; shared constructor/access rules, scalar/reference constructor bodies, inherited fields and scalar heap borrows; local O0/O2 live-graph collection/failure evidence |
 | `boxed-value-ir-v1` | Detached named-struct boxing and exact unbox copy/borrow contracts | Authored IR validation, logical payload paths and allocation/owner roots only; no native lowering or CIL boxing |
+| `boxed-payload-runtime-v1` | Private native boxed storage and checked copy/borrow helpers | O0/O2 identity, mutation, fault-status, collection and heap-budget probes; boxed IR lowering/emission and CIL remain unsupported |
 | `value-cil-v1` | Static value CIL translated through existing value/location IR and native lowering | Compiler-library API; exact joins, synchronous Int32/value borrows, whole copies, field operations and struct returns; O0/O2 local sanitizer conformance; no allocating source value programs or CLI profile change |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
@@ -1277,3 +1278,20 @@ box and borrow owner. This establishes authored contracts only. Native execution
 CIL translation, primitive/enum/nullable boxing, reference-form `unbox.any`, boxed
 interface dispatch and ValueType reference views remain unsupported. Earlier
 profiles and native lowerers reject the new operations.
+
+## Private native boxed payloads
+
+`ObjectCppEmitter.EmitBoxedRuntime` emits a scalar-location program plus boxed
+descriptors/helpers for a value catalog sharing its exact reference catalog
+(ADR 0071). It uses typed scalar members, existing allocation/collection, Object
+reference predicates and checked scalar heap locations. Box allocation copies;
+unboxing checks null/ownership/exact identity; whole-copy helpers validate all
+references before writing. Empty values retain fresh allocated identity and their
+borrowed owner still needs a root. Class and boxed native slots share one limit.
+
+Local O0/O2 ASan/UBSan probes cover copy isolation and mutation against .NET,
+foreign/incompatible/corrupt references, empty image-scoped identity, cyclic graph
+tracing, borrowed owners, final reclamation, exact/insufficient heap budgets and
+object-count recovery. This helper API does not lower boxing IR or translate CIL,
+and does not establish generated fault provenance, a public struct ABI, ValueType
+reference views, boxed interface dispatch or additional platform compatibility.

@@ -697,6 +697,17 @@ root planning only; native storage, executable copy/identity/fault semantics and
 CIL boxing remain planned. Boxed interface dispatch must preserve the distinction
 between modifying boxed storage and copying its value.
 
+Private native boxed-payload helpers now provide typed storage and exact descriptor
+checks ([ADR 0071](decisions/0071-native-boxed-payload-helpers.md)). Their allocator,
+reference tracing and scalar borrows reuse the existing runtime. Whole payload
+copies validate all reference slots before any write. Local O0/O2 sanitizer probes
+compare copy isolation and mutation with .NET and verify fresh empty identity,
+borrowed-owner collection roots, cyclic graphs, failure cleanup and heap budgets.
+`EmitBoxedRuntime` is a helper conformance entry point with a shared scalar/value
+reference catalog. It does not lower boxing IR. Connecting operations to these
+helpers, preserving empty borrowed owners during expansion and generated fault
+provenance remain planned; so do CIL boxing and ValueType/interface views.
+
 ## 8. Garbage collection
 
 The bounded baseline collector is implemented as precise, non-moving mark-and-sweep with one managed execution

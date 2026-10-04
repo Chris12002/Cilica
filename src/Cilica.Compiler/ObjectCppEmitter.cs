@@ -31,7 +31,22 @@ public static class ObjectCppEmitter
         return EmitValidated(program.Flow, plans, locations: true);
     }
 
-    private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations)
+    /// <summary>
+    /// Emits a scalar program with private boxed-payload runtime helpers for native
+    /// conformance probes. This does not lower or execute boxed-value IR operations.
+    /// The value catalog must share the program's exact detached reference catalog.
+    /// </summary>
+    public static CppArtifact EmitBoxedRuntime(ScalarLocationIrProgram program, ValueTypeCatalog values)
+    {
+        var payloads = ValueLayoutPlanner.Build(values);
+        var plans = ObjectRootAssignment.AssignLocations(program).ToDictionary(p => p.Method);
+        if (values.References != program.Flow.Flow.Types)
+            throw new ArgumentException("Boxed payloads must share the scalar program's reference catalog.", nameof(values));
+        return EmitValidated(program.Flow, plans, locations: true, payloads);
+    }
+
+    private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations,
+        ImmutableArray<ValueTypePlan> boxedPayloads = default)
     {
         string argumentType = locations ? "LocationArgument" : "Argument";
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
@@ -41,6 +56,14 @@ public static class ObjectCppEmitter
                 signatures.Add(IrMethodId.From(declaration.Source), (declaration.Parameters, declaration.ReturnType));
         var bindings = program.Bindings.ToDictionary(b => b.Method);
         var native = new ObjectNativeLayout(program.Flow.Types);
+        if (boxedPayloads.IsDefault) boxedPayloads = [];
+        int fieldSlots = native.Fields.Values.Sum(f => f.Length);
+        foreach (var payload in boxedPayloads)
+        {
+            if (payload.Slots.Length > ObjectNativeLimits.MaximumFieldSlots - fieldSlots)
+                throw new ArgumentException("Combined class/boxed native field-slot limit exceeded.", nameof(program));
+            fieldSlots += payload.Slots.Length;
+        }
         var types = program.Flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var fields = program.Flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         var typeRules = new IrTypeRules(program.Flow.Types);
@@ -116,14 +139,18 @@ public static class ObjectCppEmitter
                 .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
                 .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : "1, nullptr, nullptr, nullptr").Append(" };\n");
         }
+        if (!boxedPayloads.IsEmpty)
+            ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
         // Exact membership compares untrusted descriptor addresses without dereferencing them.
         // This covers nominal/interface ancestry, vector covariance and widening to Object.
         foreach (var expected in referenceTypes)
         {
             string name = Predicate(expected);
             var receivers = concrete.Where(t => typeRules.Assignable(IrType.Reference(t), IrType.Reference(expected))).ToArray();
-            text.Append("static constexpr std::array<const Descriptor*, ").Append(N(receivers.Length)).Append("> ")
-                .Append(name).Append("_types = {").Append(string.Join(", ", receivers.Select(t => "&" + TypeSymbol(t) + "_descriptor"))).Append("};\n")
+            var descriptors = receivers.Select(t => "&" + TypeSymbol(t) + "_descriptor").Concat(expected == program.Flow.Types.ObjectBase
+                ? boxedPayloads.Select(p => "&" + ObjectCppBoxing.Symbol(p.Type) + "_descriptor") : []).ToArray();
+            text.Append("static constexpr std::array<const Descriptor*, ").Append(N(descriptors.Length)).Append("> ")
+                .Append(name).Append("_types = {").Append(string.Join(", ", descriptors)).Append("};\n")
                 .Append("[[maybe_unused, gnu::noinline]] static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n")
                 .Append("    for (const auto* receiver : ").Append(name).Append("_types) if (receiver == type) return true;\n    return false;\n}\n");
         }

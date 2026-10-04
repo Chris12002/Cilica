@@ -699,3 +699,18 @@ layouts from distinct TypeDefs or images retain distinct identities. Null and
 dynamically wrong box operands are accepted as faulting IR. Earlier profiles and
 native lowering remain closed to boxing. These tests do not execute boxes; native
 identity, copy isolation, fault order and collection need separate evidence.
+
+Native boxed-payload helper probes now provide O0/O2 ASan/UBSan evidence (ADR 0071).
+A .NET oracle distinguishes boxed identity, unbox copies and mutable payload
+borrows. The native harness checks null-before-type status, exact descriptors,
+foreign/invalid pointers, readonly capability and validation of the final reference
+before any partial copy. Typed payload accessors use the same 2 KiB stack gate as
+existing native code; oversized test harness functions are split, not exempted.
+
+Collection stress keeps a cyclic boxed graph alive using only a borrowed owner,
+including empty payload owners, and verifies reclamation after removing edges or
+roots. Exact/one-byte-short heap budgets, object-count failure/recovery and busy
+collection callbacks preserve the expected state. Detached tests reject mismatched
+valid reference catalogs and combined class/box slot expansion above the native
+limit. These tests exercise helpers directly; boxed IR emission and generated
+fault-origin tests remain separate work.
