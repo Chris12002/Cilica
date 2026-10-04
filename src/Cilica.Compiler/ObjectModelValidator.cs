@@ -42,7 +42,7 @@ public static class ObjectModelValidator
         var arrays = model.Arrays.ToHashSet();
         var types = new Dictionary<ObjectTypeId, ObjectTypeLayout>();
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
-        var fieldIdentities = new HashSet<(string Hash, int Token)>();
+        var fieldIdentities = new HashSet<(string Hash, string Specialization, int Token)>();
         int fieldCount = 0;
         foreach (var type in model.Types)
         {
@@ -61,7 +61,7 @@ public static class ObjectModelValidator
             {
                 Require(field is not null && field.Id is not null && field.Id.Owner == id
                     && DefinitionToken(field.Id.Token, 0x04) && field.Id.Token > previous
-                    && fieldIdentities.Add((id.ContentHash, field.Id.Token)), "fields need their declaring owner and ordered unique image-scoped FieldDef tokens.");
+                    && fieldIdentities.Add((id.ContentHash, id.Specialization, field.Id.Token)), "fields need their declaring owner and ordered unique image-scoped FieldDef tokens.");
                 previous = field.Id.Token;
                 Require(field.Name is not null && FieldAttributesSupported(field.Attributes), "unsupported field attributes/name.");
                 Require(field.Storage is ObjectStorage.Int32 || field.Storage is ObjectStorage.Reference reference

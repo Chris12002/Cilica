@@ -753,3 +753,9 @@ requirements, nullable rejection, malformed flags, nested unused constrained
 arguments and exact metadata budgets. O0/O2 native probes execute scalar-only
 closures and constrained methods against .NET, checking collection and complete
 frame/root/borrow/arena cleanup without constructor execution during compilation.
+
+Closed generic reference probes (ADR 0077) combine two specialized class hierarchies,
+readonly constructor fields, cycles, generic struct returns/boxes and mutable field
+borrows. O0/O2 sanitizers check collection, arithmetic/fault parity, constructor
+allocation failure and context reuse. Reduced tests reject base cycles and growing
+reference layouts with bounded inclusion paths, retaining earlier catalog checks.

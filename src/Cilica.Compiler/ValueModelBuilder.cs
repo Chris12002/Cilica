@@ -26,14 +26,14 @@ public static class ValueModelBuilder
         if (roots.IsDefaultOrEmpty || roots.Length > ObjectModelLimits.MaximumTypes)
             throw new ArgumentException("Value catalog needs 1..256 explicit roots.", nameof(roots));
         foreach (var root in roots) ArgumentNullException.ThrowIfNull(root);
-        try { return Build(resolver, [.. roots.Select(t => new ConstructedType(t, SignatureList<TypeSignature>.Empty))], runtimeLibrary, work, includeInt32Vector, referenceRoots, snapshots, generics: false); }
+        try { return Build(resolver, [.. roots.Select(t => new ConstructedType(t, SignatureList<TypeSignature>.Empty))], runtimeLibrary, work, includeInt32Vector, referenceRoots.IsDefault ? default : [.. referenceRoots.Select(t => new ConstructedType(t, SignatureList<TypeSignature>.Empty))], snapshots, generics: false); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
     internal static ValueCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ResolvedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots)
     {
         try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
@@ -41,18 +41,17 @@ public static class ValueModelBuilder
         catch (ArgumentException error) { return new(null, [new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, error.Message)]); }
     }
 
-    internal static ObjectTypeId ClosedId(ConstructedType type) => ObjectModelBuilder.Id(type.Definition) with
-        { Specialization = ClosedGenericKey.Create(type.Arguments, SignatureList<TypeSignature>.Empty) };
+    private static ObjectTypeId ClosedId(ConstructedType type) => ObjectModelBuilder.Id(type);
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ResolvedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
         var identities = new HashSet<ObjectTypeId>();
         var paths = new Dictionary<ObjectTypeId, string>();
-        var references = new Dictionary<ObjectTypeId, ResolvedType>();
+        var references = new Dictionary<ObjectTypeId, ConstructedType>();
         var arrays = new HashSet<ObjectTypeId>();
         var pending = new Queue<ConstructedType>();
         var values = new List<ValueTypeLayout>();
@@ -101,9 +100,10 @@ public static class ValueModelBuilder
             IncludeId(id);
             if (paths.TryAdd(id, path)) pending.Enqueue(type);
         }
-        ObjectTypeId IncludeReference(ResolvedType type)
+        ObjectTypeId IncludeReference(ResolvedType type) => IncludeClosedReference(new(type, SignatureList<TypeSignature>.Empty));
+        ObjectTypeId IncludeClosedReference(ConstructedType type)
         {
-            IncludeId(Id(type)); references.TryAdd(Id(type), type); return Id(type);
+            var id = ClosedId(type); IncludeId(id); references.TryAdd(id, type); return id;
         }
 
         // Validate ownership for every explicit root before deduplicating identities.
@@ -118,8 +118,8 @@ public static class ValueModelBuilder
         if (!referenceRoots.IsDefault)
             foreach (var reference in referenceRoots)
             {
-                _ = Result(resolver.ResolveType(reference.Assembly, reference.Handle));
-                IncludeReference(reference);
+                _ = Result(resolver.ResolveType(reference.Definition.Assembly, reference.Definition.Handle));
+                IncludeClosedReference(reference);
             }
         if (includeInt32Vector)
         {
@@ -168,7 +168,9 @@ public static class ValueModelBuilder
                 }
                 else
                 {
-                    var converted = ObjectSignatureTypes.Convert(field.Signature, Id(objectBase), IncludeReference,
+                    var converted = generics && field.Signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } genericReference
+                        ? IrType.Reference(IncludeClosedReference(new(genericReference.Definition.Definition, genericReference.Arguments)))
+                        : ObjectSignatureTypes.Convert(field.Signature, Id(objectBase), IncludeReference,
                         array => { IncludeId(array); arrays.Add(array); return array; },
                         text: () => IncludeReference(strings.Require()));
                     if (converted is null)
@@ -179,7 +181,13 @@ public static class ValueModelBuilder
             }
             values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible });
         }
-        var referenceResult = ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values], library, Read, [.. arrays], strings);
+        ObjectModelBuilder.TypeSnapshot ReadClosedReference(ConstructedType type, TypeReadLimits limits)
+        {
+            try { return new(ReadClosed(type, limits), []); }
+            catch (Failure failure) { return new(null, failure.Diagnostics); }
+        }
+        var referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings)
+            : ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values.Select(t => t.Definition)], library, Read, [.. arrays], strings);
         if (referenceResult.Catalog is null) return new(null, referenceResult.Diagnostics);
         var catalog = new ValueTypeCatalog([.. roots.Select(ClosedId).Distinct()], Id(valueBase),
             [.. values.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)], referenceResult.Catalog);

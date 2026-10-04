@@ -31,7 +31,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5f.1 | Closed generic static method specialization and expansion diagnostics | Complete for unconstrained methods on nongeneric owners in value programs |
 | 5f.2 | Closed generic struct layouts and member binding | Complete for unconstrained closed structs and static members |
 | 5f.3 | Primitive-only closures and bounded generic constraint validation | Complete for class/struct/public default-constructor constraints |
-| 5f.4 | Closed generic reference layouts and construction | Next |
+| 5f.4 | Closed generic reference layouts and construction | Complete for concrete classes with scalar/reference fields and exact constructors |
 | 5g | Delegates, captured receivers and invocation | Planned |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
 | 5i | Composed differential regressions and final review | Planned |
@@ -410,3 +410,18 @@ O0/O2 native scalar/constrained probes with ASan/UBSan and the 2 KiB stack gate.
 
 Closed generic reference layouts and construction are next; broader constraints
 and dispatch remain diagnostic. Milestone 5 remains in progress. No hosted work ran.
+
+## Slice 5f.4 outcome
+
+ADR 0077 specializes concrete class layouts, base classes, fields and constructors
+through the existing object runtime. Review checked exact owners, readonly/base
+initialization, cyclic root maps, limits and diagnostics. The initial 43 and
+shared/native 116 checks passed; the final review selection passed 114 checks,
+followed by five inclusion-path checks (overlapping selections).
+
+O0/O2 ASan/UBSan probes compose generic class graphs with struct returns, boxes and
+borrows, compare arithmetic/faults to .NET and verify allocation failure recovery.
+The 2 KiB stack gate remains enabled. The bounded generic gate is complete;
+generic dispatch, broader constraints and inline struct fields in classes remain
+explicitly unsupported. Delegates are next (5g). Milestone 5 remains in progress;
+no hosted work ran.

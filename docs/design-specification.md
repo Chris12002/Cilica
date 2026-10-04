@@ -831,6 +831,13 @@ metadata validation and native differential evidence
 never executes constructors and does not implement generic activation helpers.
 Nominal base/interface/dependent constraints remain diagnostics.
 
+Concrete closed class hierarchies, scalar/reference fields and exact constructors
+now share the same specialization and runtime path
+([ADR 0077](decisions/0077-closed-generic-reference-layouts.md)). Their native probes
+compose cyclic generic objects with struct returns, boxing and borrowed fields.
+Inline struct fields in classes, generic interfaces/dispatch and broader generic
+constraints remain unsupported by this bounded gate.
+
 Pathological generic expansion yields a diagnostic with an instantiation chain,
 not a compiler hang or omitted code. Generic sharing and runtime generic
 dictionaries are later optimisations.
