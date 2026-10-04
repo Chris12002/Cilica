@@ -1,7 +1,7 @@
 # Milestone 4: Precise collection and handles
 
-Status: in progress; precise visitation and bounded marking are implemented.
-Reclamation and private instance-owned retained handles are implemented. Updated 2026-10-04.
+Status: complete for bounded native v14 on the locally tested macOS ARM64 target.
+The public embedding ABI and broader managed runtime remain planned. Updated 2026-10-04.
 
 The baseline remains single-threaded, non-moving mark-and-sweep, using the phase A
 shadow stack and exact reference maps from milestone 3. Retained allocations must
@@ -14,7 +14,7 @@ not be mistaken for roots. No managed reference crosses the packed Int32 boundar
 | 4c | Reclamation, exact heap accounting and allocation-triggered collection/retry | Complete for private native collection |
 | 4d | Collection-before-every-allocation stress and poisoned reclamation regressions | Complete for local O0/O2 sanitizer corpus |
 | 4e | Instance-owned retained handles with stale/foreign-handle rejection | Complete for private native helpers |
-| 4f | Composed integration review and supported-boundary consolidation | Planned |
+| 4f | Composed integration review and supported-boundary consolidation | Complete for the bounded native profile |
 
 These are capability boundaries, not a schedule. Split them further when review
 finds an independently testable ownership or failure contract. No phase B liveness
@@ -125,3 +125,28 @@ rejection, slot and instance-address reuse, capacity/edge budgets, token exhaust
 and retention across stress allocations are tested. Review found no remaining
 ownership or token-reuse issue. Local O0/O2 ASan/UBSan checks pass; no public handle
 ABI, wider platform claim, hosted work, push or additional agents are introduced.
+
+
+## Slice 4f outcome and completion boundary
+
+[ADR 0054](../decisions/0054-stage-four-completion.md) closes milestone 4 with the
+composed inventory example running both ordinary packed calls and a persistent
+private instance under collection stress. Results and fault origins match .NET;
+post-unwind collection verifies no unreachable allocations survive. Application
+rules are unchanged. Quota regressions now distinguish live-object requirements
+from cumulative allocation counts and still verify fault/frame cleanup and reuse.
+
+Final local regression run: **196 passed, zero failed/skipped**. O0/O2 ASan/UBSan
+checks include cycles, aliases, inherited fields, arrays, UTF-16 strings, dispatch,
+loops, nested calls, fault unwinding, poisoned reclamation and handle lifetimes.
+The tracing/collection/handle harness's measured static frames are 768/560 bytes,
+below 2 KiB. Solution build: zero warnings/errors. Each slice was reviewed before
+its commit; final review found no remaining issue in the supported scope.
+
+Milestone 4 implements non-moving collection and private handles for the existing
+bounded types, with phase A roots and a sole active context per instance. No claim
+is made for a public persistent ABI, mobile/web execution, finalizers, weak roots,
+concurrent/generational collection or phase B liveness. See ADR 0054 for remaining
+diagnostics and resource limits. Local main remains an ancestor; no push, hosted
+work, paid service or additional agents ran. The next milestone is 5: staged value
+types, boxing, generics, delegates and exception semantics.

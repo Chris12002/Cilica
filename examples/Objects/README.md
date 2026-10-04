@@ -37,7 +37,11 @@ it does not reference or execute the kernel. Cilica translates the 12-body closu
 then Clang compiles its generated C++ and the small driver. The driver checks that
 faults leave result storage unchanged and successes clear fault origins. Every
 native value, fault status, method/IL origin and image hash must match the oracle.
-Each call owns a fresh runtime instance; recovery is across calls, not managed catch.
+Each packed call owns a fresh runtime instance. The driver additionally repeats the
+same probes through private helpers in one persistent instance with collection
+before every eligible allocation. It compares values and fault origins, checks
+frame unwinding, and collects after each call. Recovery remains across calls, not
+managed catch; the private stress path does not define a public persistent ABI.
 
 Outputs are ignored under `out/objects`: generated C++, executable, expected/actual
 text, metadata input paths/token, and entry/case headers. They can be inspected or
@@ -56,5 +60,6 @@ uses existing outputs, and `--no-restore` builds with previously restored packag
 Recorded validation: .NET SDK 10.0.400/runtime 10.0.11 and Apple Clang 17.0.0 on
 macOS ARM64; Debug O0/O2 and Release O2 match .NET. Other targets remain untested.
 This demonstrates the [bounded native object profile](../../docs/compatibility.md),
-not a collector, general String/library support, persistent managed handles, a
-stable embedding API, browser/mobile support or the Alchemy application.
+including collection stress. General String/library support, a stable embedding
+API, browser/mobile support and the Alchemy application remain outside this example.
+Private retained handles are covered separately by the native runtime tests.

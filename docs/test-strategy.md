@@ -604,3 +604,12 @@ instance with collection before allocation, compares .NET values and ordinary
 native fault origins, and verifies post-unwind collection/accounting. NativeTracingTests
 also verifies reclaimed header/buffer poisoning and stale-root rejection. Native
 harness borrowers publish roots across pressure; raw locals are not GC roots.
+
+
+The composed Objects example also checks the same probes in a persistent private
+instance with collection before allocation. Allocation-budget regressions compare
+against the live set at each allocation, allowing a correct .NET-equivalent result
+when dead temporaries make room, while preserving below-budget failures and cleanup
+checks. Final milestone 4 validation passed 196 selected local checks; details and
+explicit evidence limits are in ADR 0054. The host is not deliberately exhausted to
+force an operating-system allocation failure.

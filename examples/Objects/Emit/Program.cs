@@ -22,6 +22,9 @@ var translated = ObjectTranslator.Translate(resolver, input.Value!, (MethodDefin
 if (!translated.Success) { Console.Error.WriteLine(string.Join("; ", translated.Diagnostics)); return 1; }
 var artifact = ObjectCppEmitter.EmitProgram(translated.Program!);
 File.WriteAllText(Path.Combine(directory, "generated.cpp"), artifact.Text, new UTF8Encoding(false));
-File.WriteAllText(Path.Combine(directory, "entry.hpp"), "#pragma once\n#include \"generated.cpp\"\n#define CILICA_DEMO_ENTRY " + artifact.EntryPoint + "\n", new UTF8Encoding(false));
+File.WriteAllText(Path.Combine(directory, "entry.hpp"), "#pragma once\n#include \"generated.cpp\"\n#define CILICA_DEMO_ENTRY " + artifact.EntryPoint
+    + "\n#define CILICA_DEMO_SCOPE " + artifact.EntryPoint[..^4] + "_closure"
+    + "\n#define CILICA_DEMO_METHOD cilica_m_" + translated.Program!.Flow.Entry.ContentHash + "_"
+    + translated.Program.Flow.Entry.Token.ToString("x8", CultureInfo.InvariantCulture) + "\n", new UTF8Encoding(false));
 Console.WriteLine("Emitted " + ObjectCppEmitter.Profile + ": " + translated.Program!.Flow.Methods.Length + " managed bodies.");
 return 0;

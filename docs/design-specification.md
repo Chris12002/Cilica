@@ -335,8 +335,9 @@ assignment pass allocates distinct slots for reference arguments, locals and
 temporaries before C++ emission. Generated frames publish references before
 allocation and allocating calls and pop on every explicit fault/normal return.
 C++ standard-layout checks provide native sizes, alignments and reference-field
-offsets. Each invocation owns a bounded heap retaining objects until teardown;
-there is no collector or persistent object embedding API yet. Native O0/O2
+offsets. Each packed invocation owns a bounded heap. The initial checkpoint retained
+objects until teardown; milestone 4 now collects it as described in section 8.
+The public persistent object embedding API remains planned. Native O0/O2
 ASan/UBSan differential probes cover construction, mutation, reference returns,
 allocating calls, null/arithmetic faults, ownership and frame/heap lifetime.
 The initial limits are 1,024 roots per method, 64 active calls, 1 MiB of object
@@ -355,8 +356,8 @@ rooted input storage, preserving parallel stack transfers on backedges. Inferenc
 has an aggregate 262,144-unit work budget in addition to existing IR/metadata
 bounds. Constructors remain straight-line; switches,
 argument stores and exception regions remain unsupported. Authored C# and raw
-stack-carrying IL match .NET under native sanitizers. The heap still retains
-objects until teardown, so actual collection remains unimplemented.
+stack-carrying IL match .NET under native sanitizers. The original control-flow checkpoint retained objects until teardown; section 8
+records the subsequent collector and its stress evidence.
 
 Object execution storage now uses a separate context-owned, non-moving arena
 ([ADR 0027](decisions/0027-budgeted-execution-frames.md)). The default 1 MiB
@@ -566,7 +567,7 @@ preserve the distinction between modifying boxed storage and copying its value.
 
 ## 8. Garbage collection
 
-The planned baseline collector is precise, non-moving mark-and-sweep with one managed execution
+The bounded baseline collector is implemented as precise, non-moving mark-and-sweep with one managed execution
 thread per runtime instance. The compiler identifies actual references; the
 collector does not guess from arbitrary memory. Before the multithreaded
 profile, parallelism uses independent runtime instances
@@ -588,7 +589,7 @@ elements ([ADR 0049](decisions/0049-precise-reference-visitation.md)). They retu
 borrowed provenance, validate contained reference ownership/descriptor identity,
 and distinguish complete, stopped and invalid walks without changing runtime state.
 They allocate no memory and do not recurse into child objects. Only complete walks
-can feed a future reclamation decision. The allocation list, integer storage and
+can feed a reclamation decision. The allocation list, integer storage and
 string code units are not roots. Native v11 adds bounded iterative marking using
 separate header scratch ([ADR 0050](decisions/0050-bounded-native-marking.md)). It
 validates the inventory, marks each discovered object once and reports reachability
@@ -596,8 +597,12 @@ only after a complete trace. Object/edge limits and scoped cleanup handle failur
 no marks remain valid across a return to managed execution. Larger headers consume
 the existing heap byte quota. Native v12 adds guarded sweeping, exact allocation charges and one collection/retry
 on allocation pressure ([ADR 0051](decisions/0051-native-reclamation.md)).
-Collection stress and handles remain subsequent gates; the [milestone 4 plan](milestones/04-collection-and-handles.md)
-records those separate gates. Multiple active contexts within one instance require
+Native v13 adds collection before allocation and poisoned reclamation checks
+([ADR 0052](decisions/0052-collection-stress.md)); v14 adds instance-owned strong
+handles with nonreused token generations ([ADR 0053](decisions/0053-instance-retained-handles.md)).
+Active handles join frame and literal roots, with at most 1,024 lazy native slots.
+The [milestone 4 record](milestones/04-collection-and-handles.md) consolidates the
+bounded completion evidence. Multiple active contexts within one instance require
 a future registration/coordination contract.
 
 Interior managed references retain their owner. Non-moving collection preserves
@@ -683,7 +688,8 @@ buffer_release(buffer)
 
 Specify widths, calling conventions, buffer lifetime/ownership, structured
 errors, handle validity, thread entry, version negotiation and capabilities.
-Retained objects use opaque handles with generation counters. Stale handles
+Private native v14 already uses opaque tokens with nonreused generation identities
+for retained objects; integrating them into this versioned public API remains planned. Stale handles
 must be rejected, not converted to dangling pointers.
 
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
@@ -805,8 +811,8 @@ complete for its explicitly bounded retained-heap profile, with a
 inheritance and dispatch through the compiler API. Its .NET oracle and metadata-only
 compiler run in separate processes. The [milestone 3 record](milestones/03-object-execution.md)
 consolidates the supported boundary; [milestone 4](milestones/04-collection-and-handles.md)
-has begun with precise visitation and bounded marking; reclamation and handles
-remain the next gates. The broader managed runtime, library and production embedding API remain planned.
+is complete for bounded non-moving collection, phase A stress and private retained
+handles on the locally tested macOS ARM64 target. The broader managed runtime, library and production embedding API remain planned.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

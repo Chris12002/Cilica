@@ -50,7 +50,10 @@ public sealed class NativeObjectInterfaceTests(ITestOutputHelper output)
             namespace {{Scope(3)}} {
             static Object* returned = nullptr;
             static unsigned observations = 0;
+            static std::size_t required_objects = 0;
             static void observe(Context& c) noexcept {
+                const auto live = mark_reachable(c); assert(live.status == MarkStatus::complete);
+                if (required_objects < live.reachable + 1) required_objects = live.reachable + 1;
                 assert(valid_roots(c) && c.top != nullptr);
                 Frame* entry = c.top; while (entry->previous != nullptr) entry = entry->previous;
                 if (c.instance.count == 3) returned = c.instance.head;
@@ -78,9 +81,12 @@ public sealed class NativeObjectInterfaceTests(ITestOutputHelper output)
                 assert(short_frame.method != 0 && short_frame.image != nullptr);
                 for (std::size_t limit = 0; limit < 5; ++limit) {
                     Instance limited; limited.object_limit = limit; Context fault(limited);
-                    (void){{Method(programs[3].Flow.Entry)}}(fault, 19);
-                    assert(fault.pending == 5 && fault.used == 0 && fault.top == nullptr && fault.depth == 0 && limited.count == limit);
-                    assert(fault.method != 0 && fault.image != nullptr);
+                    const auto value = {{Method(programs[3].Flow.Entry)}}(fault, 19);
+                    // Pressure is determined by live roots, not cumulative allocations.
+                    assert(fault.pending == (limit < required_objects ? 5u : 0u));
+                    if (fault.pending == 0) assert(value == {{InterfaceCallProbe.ReferenceFlow(19)}});
+                    assert(limited.count <= limit && fault.top == nullptr && fault.used == 0 && fault.depth == 0);
+                    if (fault.pending != 0) assert(fault.method != 0 && fault.image != nullptr);
                     limited.object_limit = 4096; fault.pending = 0; fault.method = 0; fault.il = 0; fault.image = nullptr;
                     assert({{Method(programs[3].Flow.Entry)}}(fault, 7) == {{InterfaceCallProbe.ReferenceFlow(7)}} && fault.pending == 0);
                     assert(fault.used == 0 && fault.top == nullptr && fault.depth == 0);

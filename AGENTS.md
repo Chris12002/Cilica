@@ -7,8 +7,8 @@ feedback before implementation. Explain consequential choices in plain language.
 ## Project boundaries
 
 - This repository has a metadata frontend, bounded Int32 native backend and
-  bounded native object control flow with a retained heap and phase A roots;
-  the collector and broader managed runtime are planned. Never describe planned features as
+  bounded native object control flow with phase A roots, bounded non-moving
+  collection and private retained handles; the broader managed runtime is planned. Never describe planned features as
   implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not
   substitute NativeAOT, Mono or Unity's IL2CPP for its advertised implementation.

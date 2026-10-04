@@ -37,7 +37,10 @@ public sealed class NativeObjectDispatchTests(ITestOutputHelper output)
             namespace {{Scope(2)}} {
             static Object* first_result = nullptr;
             static unsigned observations = 0;
+            static std::size_t required_objects = 0;
             static void observe(Context& c) noexcept {
+                const auto live = mark_reachable(c); assert(live.status == MarkStatus::complete);
+                if (required_objects < live.reachable + 1) required_objects = live.reachable + 1;
                 assert(valid_roots(c) && c.top != nullptr);
                 Frame* entry = c.top; while (entry->previous != nullptr) entry = entry->previous;
                 if (c.instance.count == 4) first_result = c.instance.head;
@@ -58,8 +61,11 @@ public sealed class NativeObjectDispatchTests(ITestOutputHelper output)
                 assert(short_frame.pending == 9 && short_frame.used == 0 && short_frame.top == nullptr && short_frame.depth == 0);
                 for (std::size_t limit = 0; limit < 8; ++limit) {
                     Instance limited; limited.object_limit = limit; Context fault(limited);
-                    (void){{Method(programs[2].Flow.Entry)}}(fault, 1, 19);
-                    assert(fault.pending == 5 && fault.used == 0 && fault.top == nullptr && fault.depth == 0 && limited.count == limit);
+                    const auto value = {{Method(programs[2].Flow.Entry)}}(fault, 1, 19);
+                    // Pressure is determined by live roots, not cumulative allocations.
+                    assert(fault.pending == (limit < required_objects ? 5u : 0u));
+                    if (fault.pending == 0) assert(value == {{ClassDispatchProbe.Allocating(1, 19)}});
+                    assert(limited.count <= limit && fault.top == nullptr && fault.used == 0 && fault.depth == 0);
                 }
             }
             [[gnu::noinline]] static void ownership_and_direct_calls() {

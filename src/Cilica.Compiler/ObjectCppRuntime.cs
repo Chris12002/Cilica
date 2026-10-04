@@ -318,12 +318,12 @@ template<class T> static Object* allocate(Context& context, const Descriptor& de
             if (descriptor.array_kind == 1) value->integers = new (std::nothrow) std::uint32_t[length]{};
             else value->references = new (std::nothrow) Object*[length]{};
             if (value->integers == nullptr && value->references == nullptr) { delete value; if (collect_for_allocation(context, attempted)) continue; return nullptr; }
-    }
-    value->length = length;
-    value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
-    value->header.allocation_bytes = charged;
-    heap.head = &value->header; heap.bytes += charged; ++heap.count;
-    return &value->header;
+        }
+        value->length = length;
+        value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
+        value->header.allocation_bytes = charged;
+        heap.head = &value->header; heap.bytes += charged; ++heap.count;
+        return &value->header;
     }
 }
 // Receivers have passed exact descriptor membership before these helpers run.

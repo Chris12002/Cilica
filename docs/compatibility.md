@@ -1,7 +1,9 @@
 # Compatibility manifest
 
 Updated 2026-10-04. Capabilities are stage-specific. A translated operation does
-not establish native execution or platform compatibility.
+not establish native execution or platform compatibility. Sections below preserve
+the evidence and limits of earlier checkpoints; the native v14 table and milestone
+4 completion section describe the current collector and handle behavior.
 
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
@@ -14,7 +16,7 @@ not establish native execution or platform compatibility.
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
 | `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated and executes in native v9 |
-| `object-frames-native-v14` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation and allocation retry |
+| `object-frames-native-v14` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation, allocation retry, stress mode and private retained handles |
 | Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, advanced GC features, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
@@ -530,7 +532,8 @@ all inherited fields. The execution arena, depth limit, root limit and packed
 export remain under their previous contracts. The derived receiver is published
 before constructor entry and remains rooted across every base invocation.
 Constructor faults unwind roots/arena reservations while partially initialized
-objects remain in the retained heap until teardown.
+objects become eligible for collection after their roots unwind (the original
+inheritance checkpoint retained them until teardown).
 
 Evidence: three independently authored C# entries supply 435 native/.NET result,
 fault-kind and exact-origin cases per O0/O2 configuration. They include a
@@ -769,9 +772,9 @@ distinct in native execution. ASan/UBSan and the 2 KiB native-frame warning rema
 enabled at O0/O2; uninstrumented stack reports and a 256..320 KiB recursion thread
 check the existing native-stack policy on the recorded macOS ARM64 toolchain.
 
-The heap remains retained. These checks do not implement a collector or prove
-roots under reclamation, and they do not establish compatibility with other
-platforms. Ambiguous inferred reference intersections, default/static/generic
+This original dispatch checkpoint used a retained heap. Its checks alone do not
+prove roots under reclamation; milestone 4 adds that evidence separately. Neither
+checkpoint establishes compatibility with other platforms. Ambiguous inferred reference intersections, default/static/generic
 interface semantics, abstract classes and class MethodImpl slot remapping remain
 unsupported. Performance optimization stays deferred.
 
@@ -982,10 +985,10 @@ input. Debug O0/O2 and Release O2 pass on the recorded macOS ARM64 target with
 ASan/UBSan and the 2 KiB frame warning. This is integration evidence, not an
 additional compiler profile or broader language/platform compatibility claim.
 
-The runtime retains allocations until each instance ends. Phase A roots and
-reference maps are implemented, but collection, reclamation stress, persistent
-managed handles, exception objects/handlers, generic execution, broader library
-APIs and mobile/browser execution remain separate gates. Object emission remains
+The original milestone 3 checkpoint retained allocations until instance teardown.
+Milestone 4 adds collection, stress and private retained handles below. Exception
+objects/handlers, generic execution, broader library APIs and mobile/browser
+execution remain separate gates. Object emission remains
 a compiler API; the example's dedicated metadata-only helper is not a new general
 CLI command or stable embedding API.
 
@@ -997,8 +1000,8 @@ Native v10 adds private, allocation-free root and object-edge visitors
 context's published frame slots and its instance's cached literals. Object children
 are flattened inherited reference fields and reference-array elements. Null and
 alias slots retain provenance; integers, string units, descriptor/owner links and
-the retained heap list are excluded. Marking is implemented separately below;
-reclamation remains unimplemented.
+the retained heap list are excluded. Marking, reclamation and handle roots were
+added in subsequent slices described below.
 
 Contained reference values require instance ownership and exact known descriptors
 before delivery. Callbacks receive borrowed frame/slot, literal-ID or owner/field/
@@ -1035,11 +1038,12 @@ failure; nested marking cannot alter an outer pass. Ordinary managed fields,
 root/storage state, synchronization and pending faults remain unchanged.
 
 A completed report is a snapshot, not a retained mark set or sweep authorization.
-No marking is automatically invoked by normal allocation, and no objects are freed.
+The v11 checkpoint did not invoke marking on allocation or free objects; v12 and
+later add those behaviors below.
 Local O0/O2 ASan/UBSan checks cover exact reachable sets, a 4,096-node cycle, budgets,
 callback stop/reentry, invalid input, retries and real allocation-observer frames.
-Reclamation/accounting, allocation retry, poisoned collection stress and retained
-handles remain later slices of milestone 4.
+The later milestone 4 slices below cover reclamation/accounting, allocation retry,
+poisoned collection stress and retained handles.
 
 
 ## Native reclamation and retry
@@ -1050,7 +1054,8 @@ non-moving mark/sweep with exact header/buffer accounting and at most one collec
 attempt per allocating operation on quota or native allocation failure. Incomplete
 marking frees nothing. Published frames and literal cache entries are roots; native
 locals alone are not. Single active context per instance remains required. The
-existing packed Int32 boundary is unchanged. Stress and retained handles follow.
+existing packed Int32 boundary is unchanged. Stress and retained handles are
+implemented by subsequent profiles below.
 
 
 Native v13 adds opt-in collection before eligible allocations
@@ -1066,3 +1071,15 @@ nonreused 64-bit token generations, duplicate/null roots, resolve/release and
 stale/foreign-instance rejection. The table uses separately bounded native memory;
 managed collection traces active slots. A resolved pointer is borrowed while its
 handle remains active. These helpers do not define a public cross-library ABI.
+
+
+## Milestone 4 completion
+
+[ADR 0054](decisions/0054-stage-four-completion.md) records the bounded native v14
+checkpoint: cycles are reclaimed, published roots and retained handles survive
+allocation stress, and incomplete marking cannot authorize sweep. The inventory
+example checks repeated execution and ordered faults in a persistent private
+instance. All 196 selected local regressions pass, including O0/O2 sanitizers;
+no additional platform compatibility is claimed. Public object embedding remains
+planned, along with phase B liveness, weak/finalizable objects, concurrent collection,
+named retention paths and per-type allocation statistics.

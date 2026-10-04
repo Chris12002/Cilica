@@ -12,9 +12,10 @@ branches and loops are also implemented. The compiler API now emits a bounded in
 heap and phase A root frames, including bounded Int32/reference vectors with checked
 element stores, immutable UTF-16 strings and class/interface dispatch, tested against
 .NET under native sanitizers.
-Private precise reference visitation and bounded reachability marking are implemented;
-allocations remain retained until instance teardown. Reclamation, managed exception
-objects/handlers, libraries and Expo integration remain planned.
+Bounded non-moving collection reclaims unreachable cycles, with exact heap accounting,
+allocation retry and private instance-owned retained handles. Phase A roots pass
+local O0/O2 collection stress checks. Managed exception objects/handlers, libraries,
+a public object embedding ABI and Expo integration remain planned.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.
@@ -37,7 +38,7 @@ bash examples/Objects/run.sh
 
 Its inventory simulation compares results and exact null/bounds/overflow fault
 origins with .NET. See the [object example instructions](examples/Objects/README.md)
-for the workload, O0/O2 options and retained-heap limitations.
+for the workload, O0/O2 options and bounded-runtime limitations.
 
 ## Intended pipeline
 
