@@ -9,7 +9,8 @@ namespace Cilica.Compiler;
 /// <summary>Private typed boxed payloads, using the existing allocator, tracer and scalar carriers.</summary>
 internal static class ObjectCppBoxing
 {
-    internal static string Symbol(ObjectTypeId type) => "box_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture);
+    internal static string Symbol(ObjectTypeId type) => "box_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture)
+        + (type.Specialization.Length == 0 ? "" : "_g_" + type.Specialization);
     private static string N(int value) => value.ToString(CultureInfo.InvariantCulture);
 
     internal static void Append(StringBuilder text, ImmutableArray<ValueTypePlan> plans, string objectSymbol, Func<ObjectTypeId, string> predicate)

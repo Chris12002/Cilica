@@ -583,6 +583,7 @@ public static class ObjectCppEmitter
     private static string CType(IrType type) => type.Kind switch { IrTypeKind.Int32 => "std::int32_t", IrTypeKind.Void => "void", _ => "Object*" };
     private static string N(int value) => value.ToString(CultureInfo.InvariantCulture);
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture)
+        + (type.Specialization.Length == 0 ? "" : "_g_" + type.Specialization)
         + (type.ArrayElement is null ? "" : type.ArrayElement.Kind == ObjectArrayElementKind.Int32 ? "_vector_i4"
             : "_vector_ref_" + TypeSymbol(type.ArrayElement.Type!));
     private static string DispatchSymbol(IrMethodId method) => CppEmitter.Symbol(method) + "_dispatch";

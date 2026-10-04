@@ -3,7 +3,10 @@ using System.Reflection;
 
 namespace Cilica.Metadata.Resolution;
 
-public sealed record TypeSource(string AssemblyIdentity, string ContentHash, int Token, string Name);
+public sealed record TypeSource(string AssemblyIdentity, string ContentHash, int Token, string Name)
+{
+    public string Specialization { get; init; } = "";
+}
 
 /// <summary>A single TypeDef row's flags, without decoding fields or method bodies.</summary>
 public sealed record TypeDefinitionFlags(TypeAttributes Attributes);

@@ -7,14 +7,14 @@ using Cilica.Metadata.Resolution;
 namespace Cilica.Compiler;
 
 /// <summary>Nominal TypeDef identity, or a vector identity anchored to the selected Object plus its element.</summary>
-public sealed record ObjectTypeId(string ContentHash, int Token, ObjectArrayElement? ArrayElement = null)
+public sealed record ObjectTypeId(string ContentHash, int Token, ObjectArrayElement? ArrayElement = null, string Specialization = "")
 {
-    public static ObjectTypeId From(TypeSource source) => new(source.ContentHash.ToLowerInvariant(), source.Token);
+    public static ObjectTypeId From(TypeSource source) => new(source.ContentHash.ToLowerInvariant(), source.Token, Specialization: source.Specialization);
     public static ObjectTypeId Vector(ObjectTypeId objectBase, ObjectArrayElement element)
     {
         System.ArgumentNullException.ThrowIfNull(objectBase);
         System.ArgumentNullException.ThrowIfNull(element);
-        if (objectBase.ArrayElement is not null) throw new System.ArgumentException("An array anchor must be a nominal Object identity.", nameof(objectBase));
+        if (objectBase.ArrayElement is not null || objectBase.Specialization.Length != 0) throw new System.ArgumentException("An array anchor must be a nominal Object identity.", nameof(objectBase));
         return new(objectBase.ContentHash, objectBase.Token, element);
     }
 }

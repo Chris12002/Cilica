@@ -143,11 +143,12 @@ public static class ObjectModelValidator
     private static bool Hash(string? hash) => hash is { Length: 64 } && hash.All(char.IsAsciiHexDigit);
     internal static bool ReferenceIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => Identity(id, 0x02) || ArrayIdentity(id, objectBase);
     private static bool ArrayIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => id?.ArrayElement is { } element
-        && id.ContentHash == objectBase.ContentHash && id.Token == objectBase.Token
+        && id.Specialization == "" && id.ContentHash == objectBase.ContentHash && id.Token == objectBase.Token
         && (element.Kind == ObjectArrayElementKind.Int32 ? element.Type is null
             : element.Kind == ObjectArrayElementKind.Reference && Identity(element.Type, 0x02));
     internal static bool Identity(ObjectTypeId? id, uint table) => id is not null && id.ArrayElement is null && Hash(id.ContentHash)
-        && id.ContentHash == id.ContentHash.ToLowerInvariant() && DefinitionToken(id.Token, table)
+        && id.ContentHash == id.ContentHash.ToLowerInvariant() && Specialization(id.Specialization) && DefinitionToken(id.Token, table)
         && (id.Token & 0xffffff) != 1; // TypeDef row 1 is the module, not an instance class.
+    internal static bool Specialization(string? key) => key is not null && (key.Length == 0 || key.Length == 64 && key.All(c => char.IsAsciiDigit(c) || c is >= 'a' and <= 'f'));
     private static bool DefinitionToken(int token, uint table) => (uint)token >> 24 == table && (token & 0xffffff) != 0;
 }

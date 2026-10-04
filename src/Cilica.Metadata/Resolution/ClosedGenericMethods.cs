@@ -32,6 +32,13 @@ public static class ClosedGenericKey
                     if (g.Arguments.Count == 0 || g.Arguments.Count != g.Definition.Definition.Assembly.Image.Reader
                         .GetTypeDefinition(g.Definition.Definition.Handle).GetGenericParameters().Count)
                         throw new ArgumentException("Closed type argument count does not match its generic declaration.");
+                    if (g.Arguments.Count > 4096 - nodes) throw new ArgumentException("Closed specialization exceeds 4096 signature nodes.");
+                    foreach (var handle in g.Definition.Definition.Assembly.Image.Reader.GetTypeDefinition(g.Definition.Definition.Handle).GetGenericParameters())
+                    {
+                        var parameter = g.Definition.Definition.Assembly.Image.Reader.GetGenericParameter(handle);
+                        if (parameter.Attributes != GenericParameterAttributes.None || parameter.GetConstraints().Count != 0)
+                            throw new ArgumentException("Generic type argument constraints require validated constraint lowering.");
+                    }
                     text.Append('g').Append(g.Arguments.Count).Append('['); Add(g.Definition, depth + 1, true);
                     foreach (var argument in g.Arguments) Add(argument, depth + 1);
                     text.Append(']'); break;
@@ -66,6 +73,50 @@ public sealed partial class AssemblyResolver
             new(caller.DeclaringType, caller.MethodArguments)));
     }
 
+    public ResolutionResult<ResolvedField> ResolveClosedField(ResolvedMethod caller, EntityHandle operand, MemberResolutionBudget budget)
+    {
+        var assembly = caller.DeclaringType.Definition.Assembly;
+        return Bind(assembly, operand, () => Field(assembly, operand,
+            new(caller.DeclaringType, caller.MethodArguments), declaredOnly: true, budget: budget));
+    }
+
+    public ResolutionResult<TypeInput> ReadClosedTypeInput(ConstructedType type, TypeReadLimits limits)
+    {
+        var assembly = type.Definition.Assembly;
+        var input = ReadTypeInput(assembly, type.Definition.Handle, limits);
+        if (input.Value is not { } value) return input;
+        return Bind(assembly, type.Definition.Handle, () =>
+        {
+            if (type.Arguments.Count != value.OwnerGenericArity)
+                throw new BadImageFormatException("Closed type argument count does not match its declaration.");
+            string key;
+            try { key = ClosedGenericKey.Create(type.Arguments, SignatureList<TypeSignature>.Empty); }
+            catch (ArgumentException error) { throw new UnsupportedBindingException(error.Message); }
+            int count = Unconstrained(assembly, assembly.Image.Reader.GetTypeDefinition(type.Definition.Handle).GetGenericParameters());
+            TypeSignature Sub(TypeSignature signature) => Substitute(signature, type.Arguments, SignatureList<TypeSignature>.Empty);
+            return value with
+            {
+                Source = value.Source with { Specialization = key },
+                BaseType = value.BaseType is null ? null : Sub(value.BaseType),
+                Fields = [.. value.Fields.Select(field => field with { Signature = Sub(field.Signature) })],
+                Interfaces = [.. value.Interfaces.Select(Sub)],
+                MetadataMembersRead = checked(value.MetadataMembersRead + count),
+            };
+        });
+    }
+
+    private static int Unconstrained(ResolvedAssembly assembly, GenericParameterHandleCollection parameters)
+    {
+        if (parameters.Count > 4096) throw new UnsupportedBindingException("Generic declaration exceeds 4096 parameters.");
+        foreach (var handle in parameters)
+        {
+            var parameter = assembly.Image.Reader.GetGenericParameter(handle);
+            if (parameter.Attributes != GenericParameterAttributes.None || parameter.GetConstraints().Count != 0)
+                throw new UnsupportedBindingException("Generic parameter constraints require validated constraint lowering; this gate accepts unconstrained declarations only.");
+        }
+        return parameters.Count;
+    }
+
     /// <summary>Read unconstrained closed method input. Bodies are snapshots, not permission to execute.</summary>
     public ResolutionResult<MethodInput> ReadClosedMethodInput(ResolvedMethod method, MethodReadLimits limits)
     {
@@ -74,17 +125,12 @@ public sealed partial class AssemblyResolver
         if (input.Value is not { } value) return input;
         return Bind(assembly, method.Handle, () =>
         {
-            if (method.DeclaringType.Arguments.Count != 0 || value.OwnerGenericArity != 0)
-                throw new UnsupportedBindingException("Generic declaring types require a later specialization gate.");
+            if (method.DeclaringType.Arguments.Count != value.OwnerGenericArity)
+                throw new BadImageFormatException("Closed owner argument count does not match its declaration.");
+            int ownerParameters = Unconstrained(assembly, assembly.Image.Reader.GetTypeDefinition(method.DeclaringType.Definition.Handle).GetGenericParameters());
             if (value.Signature.GenericArity != method.MethodArguments.Count)
                 throw new BadImageFormatException("Closed method argument count does not match its declaration.");
-            var parameters = assembly.Image.Reader.GetMethodDefinition(method.Handle).GetGenericParameters();
-            foreach (var handle in parameters)
-            {
-                var parameter = assembly.Image.Reader.GetGenericParameter(handle);
-                if (parameter.Attributes != GenericParameterAttributes.None || parameter.GetConstraints().Count != 0)
-                    throw new UnsupportedBindingException("Generic parameter constraints require validated constraint lowering; this gate accepts unconstrained methods only.");
-            }
+            int parameters = Unconstrained(assembly, assembly.Image.Reader.GetMethodDefinition(method.Handle).GetGenericParameters());
             string key;
             try { key = ClosedGenericKey.Create(method.DeclaringType.Arguments, method.MethodArguments); }
             catch (ArgumentException error) { throw new UnsupportedBindingException(error.Message); }
@@ -92,7 +138,7 @@ public sealed partial class AssemblyResolver
             {
                 Source = value.Source with { Specialization = key },
                 Signature = Substitute(value.Signature, method.DeclaringType.Arguments, method.MethodArguments),
-                MetadataMembersRead = checked(value.MetadataMembersRead + parameters.Count),
+                MetadataMembersRead = checked(value.MetadataMembersRead + parameters + ownerParameters),
                 Locals = [.. value.Locals.Select(t => Substitute(t, method.DeclaringType.Arguments, method.MethodArguments))],
             };
         });

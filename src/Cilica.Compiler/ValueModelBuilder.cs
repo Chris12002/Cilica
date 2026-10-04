@@ -25,14 +25,28 @@ public static class ValueModelBuilder
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
         if (roots.IsDefaultOrEmpty || roots.Length > ObjectModelLimits.MaximumTypes)
             throw new ArgumentException("Value catalog needs 1..256 explicit roots.", nameof(roots));
-        try { return Build(resolver, roots, runtimeLibrary, work, includeInt32Vector, referenceRoots, snapshots); }
+        foreach (var root in roots) ArgumentNullException.ThrowIfNull(root);
+        try { return Build(resolver, [.. roots.Select(t => new ConstructedType(t, SignatureList<TypeSignature>.Empty))], runtimeLibrary, work, includeInt32Vector, referenceRoots, snapshots, generics: false); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
-    private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
+    internal static ValueCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ResolvedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots)
+        ImmutableArray<ResolvedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots)
+    {
+        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true); }
+        catch (Failure failure) { return new(null, failure.Diagnostics); }
+        catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
+        catch (ArgumentException error) { return new(null, [new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, error.Message)]); }
+    }
+
+    internal static ObjectTypeId ClosedId(ConstructedType type) => ObjectModelBuilder.Id(type.Definition) with
+        { Specialization = ClosedGenericKey.Create(type.Arguments, SignatureList<TypeSignature>.Empty) };
+
+    private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
+        ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
+        ImmutableArray<ResolvedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -40,12 +54,12 @@ public static class ValueModelBuilder
         var paths = new Dictionary<ObjectTypeId, string>();
         var references = new Dictionary<ObjectTypeId, ResolvedType>();
         var arrays = new HashSet<ObjectTypeId>();
-        var pending = new Queue<ResolvedType>();
+        var pending = new Queue<ConstructedType>();
         var values = new List<ValueTypeLayout>();
         int fields = 0;
         static T Result<T>(ResolutionResult<T> result) where T : class => result.Value ?? throw new Failure(result.Diagnostics);
         static ObjectTypeId Id(ResolvedType type) => ObjectModelBuilder.Id(type);
-        static string Label(ResolvedType type) => Id(type).ContentHash + ":0x" + Id(type).Token.ToString("x8", CultureInfo.InvariantCulture);
+        static string Label(ConstructedType type) => ClosedId(type).ContentHash + ":0x" + ClosedId(type).Token.ToString("x8", CultureInfo.InvariantCulture) + ":" + ClosedId(type).Specialization;
         static void Fail(string message, string? location = null, string code = DiagnosticIds.ExecutionUnsupported) =>
             throw new Failure([new(code, DiagnosticSeverity.Error, message, location)]);
         void IncludeId(ObjectTypeId id)
@@ -53,13 +67,14 @@ public static class ValueModelBuilder
             if (identities.Add(id) && identities.Count > ObjectModelLimits.MaximumTypes)
                 Fail("Combined value/reference type limit exceeded.", code: DiagnosticIds.TranslationLimit);
         }
-        TypeInput Read(ResolvedType type, TypeReadLimits limits)
+        TypeInput ReadClosed(ConstructedType type, TypeReadLimits limits)
         {
-            IncludeId(Id(type));
-            if (inputs.TryGetValue(Id(type), out var cached)) return cached;
+            var id = ClosedId(type);
+            IncludeId(id);
+            if (inputs.TryGetValue(id, out var cached)) return cached;
             int remainingFields = Math.Min(limits.MaximumFields, ObjectModelLimits.MaximumFields - fields);
             TypeInput input;
-            if (snapshots is not null && snapshots.TryGetValue(Id(type), out var preloaded))
+            if (snapshots is not null && snapshots.TryGetValue(id, out var preloaded))
             {
                 // Discovery already charged this immutable snapshot to the same ledger.
                 input = preloaded;
@@ -69,17 +84,22 @@ public static class ValueModelBuilder
             else
             {
                 if (work.Remaining == 0) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
-                input = Result(resolver.ReadTypeInput(type.Assembly, type.Handle, new(
-                    remainingFields, Math.Min(limits.MaximumMembers, work.Remaining), limits.MaximumOwnerDepth, limits.MaximumInterfaces)));
+                var readLimits = new TypeReadLimits(remainingFields, Math.Min(limits.MaximumMembers, work.Remaining), limits.MaximumOwnerDepth, limits.MaximumInterfaces);
+                input = Result(generics ? resolver.ReadClosedTypeInput(type, readLimits)
+                    : resolver.ReadTypeInput(type.Definition.Assembly, type.Definition.Handle, readLimits));
                 if (!work.TryConsume(input.MetadataMembersRead)) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
             }
             fields += input.Fields.Length;
-            inputs.Add(Id(type), input); return input;
+            inputs.Add(id, input); return input;
         }
-        void IncludeValue(ResolvedType type, string path)
+        TypeInput Read(ResolvedType type, TypeReadLimits limits) => ReadClosed(new(type, SignatureList<TypeSignature>.Empty), limits);
+        void IncludeValue(ConstructedType type, string path)
         {
-            IncludeId(Id(type));
-            if (paths.TryAdd(Id(type), path)) pending.Enqueue(type);
+            ObjectTypeId id;
+            try { id = ClosedId(type); }
+            catch (ArgumentException error) { Fail(error.Message, "value inclusion: " + path, DiagnosticIds.TranslationLimit); return; }
+            IncludeId(id);
+            if (paths.TryAdd(id, path)) pending.Enqueue(type);
         }
         ObjectTypeId IncludeReference(ResolvedType type)
         {
@@ -90,7 +110,7 @@ public static class ValueModelBuilder
         foreach (var root in roots)
         {
             ArgumentNullException.ThrowIfNull(root);
-            _ = Result(resolver.ResolveType(root.Assembly, root.Handle));
+            _ = Result(resolver.ResolveType(root.Definition.Assembly, root.Definition.Handle));
             IncludeValue(root, Label(root));
         }
         var objectBase = Result(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object));
@@ -119,11 +139,11 @@ public static class ValueModelBuilder
 
         while (pending.TryDequeue(out var type))
         {
-            var id = Id(type);
+            var id = ClosedId(type);
             TypeInput input;
-            try { input = Read(type, new()); }
+            try { input = ReadClosed(type, new()); }
             catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
-            if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || input.HasTypeInitializer || input.HasModuleInitializer
+            if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || input.HasTypeInitializer || input.HasModuleInitializer
                 || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && input.Fields.IsEmpty
                     && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || input.InterfaceCount != 0
                 || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
@@ -139,7 +159,12 @@ public static class ValueModelBuilder
                 ObjectStorage storage;
                 if (field.Signature is TypeSignature.Named { Kind: SignatureTypeKind.ValueType } nested)
                 {
-                    IncludeValue(nested.Definition, location); storage = new ObjectStorage.Value(Id(nested.Definition));
+                    IncludeValue(new(nested.Definition, SignatureList<TypeSignature>.Empty), location); storage = new ObjectStorage.Value(Id(nested.Definition));
+                }
+                else if (generics && field.Signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic)
+                {
+                    var nestedType = new ConstructedType(generic.Definition.Definition, generic.Arguments);
+                    IncludeValue(nestedType, location); storage = new ObjectStorage.Value(ClosedId(nestedType));
                 }
                 else
                 {
@@ -156,12 +181,12 @@ public static class ValueModelBuilder
         }
         var referenceResult = ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values], library, Read, [.. arrays], strings);
         if (referenceResult.Catalog is null) return new(null, referenceResult.Diagnostics);
-        var catalog = new ValueTypeCatalog([.. roots.Select(Id).Distinct()], Id(valueBase),
-            [.. values.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)], referenceResult.Catalog);
+        var catalog = new ValueTypeCatalog([.. roots.Select(ClosedId).Distinct()], Id(valueBase),
+            [.. values.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)], referenceResult.Catalog);
         try { _ = ValueLayoutPlanner.Build(catalog); }
         catch (ArgumentException exception)
         {
-            Fail(exception.Message, "value inclusion: " + paths[Id(roots[0])]);
+            Fail(exception.Message, "value inclusion: " + paths[ClosedId(roots[0])]);
         }
         return new(catalog, []);
     }

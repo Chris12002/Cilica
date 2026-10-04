@@ -29,7 +29,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5e.2b | Boxed IR scalar expansion, native emission and fault provenance | Complete for authored IR |
 | 5e.3 | Bounded CIL boxing/unboxing and composed differential regressions | Complete for named nongeneric structs |
 | 5f.1 | Closed generic static method specialization and expansion diagnostics | Complete for unconstrained methods on nongeneric owners in value programs |
-| 5f.2 | Closed generic type layouts, member binding and constraint gates | Next |
+| 5f.2 | Closed generic struct layouts and member binding | Complete for unconstrained closed structs and static members |
+| 5f.3 | Primitive-only closures and bounded generic constraint validation | Next |
 | 5g | Delegates, captured receivers and invocation | Planned |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
 | 5i | Composed differential regressions and final review | Planned |
@@ -384,3 +385,15 @@ Review checked identity, substitution, resource bounds, rooted generic parameter
 and fault propagation. All 52 selected local checks passed, including O0/O2 native
 ASan/UBSan differential probes and the 2 KiB stack gate. Generic type layouts and
 constraint validation are next. Milestone 5 remains in progress; no hosted work ran.
+
+## Slice 5f.2 outcome
+
+ADR 0075 adds closed struct layouts, field identities, nested scalar/root expansion,
+static methods on closed owners and exact boxed specialization checks. Review
+preserved old-profile diagnostics and added hidden-argument and recursive/expanding
+layout regressions. All 105 selected local checks pass, including O0/O2 native
+ASan/UBSan differential collection/fault probes with the 2 KiB stack gate.
+
+Primitive-only closures and bounded constraint validation are next. Generic class
+allocation and dispatch remain outside the current profile. Milestone 5 remains
+in progress; no hosted work ran.

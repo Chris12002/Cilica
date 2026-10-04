@@ -80,3 +80,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0072](0072-native-boxed-ir-emission.md) | Native boxed IR expansion and emission | Accepted for authored boxing IR, checked scalar packets, empty borrowed-owner roots and local O0/O2 fault/collection probes |
 | [0073](0073-bounded-boxed-value-cil.md) | Bounded boxed-value CIL | Accepted for named-struct box/unbox/copy CIL, C# empty structs and local O0/O2 graph/mutation/fault probes |
 | [0074](0074-closed-generic-method-specialization.md) | Closed generic method specialization | Accepted for unconstrained static methods, closed context substitution, distinct native identities and O0/O2 differential probes |
+| [0075](0075-closed-generic-value-layouts.md) | Closed generic value layouts | Accepted for unconstrained struct specialization, closed static owners, exact boxed identities and O0/O2 collection/fault probes |

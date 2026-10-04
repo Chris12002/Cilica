@@ -740,3 +740,10 @@ constrained or expanding signatures with diagnostics. O0/O2 sanitizer probes com
 Int32/struct specializations with .NET, collect through live generic parameters,
 box generic structs and empty values, and check specialized fault provenance,
 unchanged failure output and full frame/root cleanup (ADR 0074).
+
+Closed generic layout probes (ADR 0075) swap scalar/reference type arguments,
+resolve fields and static methods on closed owners, nest layouts, borrow fields
+and box distinct instantiations. Native O0/O2 sanitizer runs check .NET parity,
+collection of embedded references and exact null/wrong-box fault origins. Reduced
+fixtures reject hidden arguments, recursive containment and expanding layouts with
+bounded inclusion diagnostics; older metadata-profile diagnostics remain covered.

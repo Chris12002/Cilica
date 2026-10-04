@@ -33,7 +33,7 @@ public static class ValueLayoutPlanner
             && catalog.Roots.Distinct().Count() == catalog.Roots.Length, "invalid or duplicate roots.");
         var types = new Dictionary<ObjectTypeId, ValueTypeLayout>();
         var fieldIds = catalog.References.Types.SelectMany(t => t.Fields)
-            .Select(f => (f.Id.Owner.ContentHash, f.Id.Token)).ToHashSet();
+            .Select(f => (f.Id.Owner.ContentHash, f.Id.Owner.Specialization, f.Id.Token)).ToHashSet();
         int fields = fieldIds.Count;
         foreach (var type in catalog.Types)
         {
@@ -51,7 +51,7 @@ public static class ValueLayoutPlanner
             {
                 Require(field?.Id is not null && field.Id.Owner == id && (uint)field.Id.Token >> 24 == 0x04
                     && (field.Id.Token & 0xffffff) != 0 && field.Id.Token > previous
-                    && fieldIds.Add((id.ContentHash, field.Id.Token)), "fields need ordered unique image-scoped FieldDef identities and their declaring owner.");
+                    && fieldIds.Add((id.ContentHash, id.Specialization, field.Id.Token)), "fields need ordered unique image-scoped FieldDef identities and their declaring owner.");
                 previous = field.Id.Token;
                 Require(field.Name is not null && ObjectModelValidator.FieldAttributesSupported(field.Attributes),
                     "unsupported field name/attributes.");

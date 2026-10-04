@@ -72,7 +72,7 @@ public static class ValueProgramDiscovery
         private readonly MemberResolutionBudget _metadata = new(ObjectModelLimits.MaximumMetadataMembers);
         private readonly Dictionary<IrMethodId, Work> _methods = [];
         private readonly Queue<Work> _pending = new();
-        private readonly Dictionary<ObjectTypeId, ResolvedType> _values = [];
+        private readonly Dictionary<ObjectTypeId, ConstructedType> _values = [];
         private readonly Dictionary<ObjectTypeId, ResolvedType> _references = [];
         private readonly Dictionary<ObjectTypeId, TypeInput> _snapshots = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedMethod> _calls = [];
@@ -127,7 +127,15 @@ public static class ValueProgramDiscovery
                                 ? resolver.ResolveClosedCall(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
                                 : resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
                         }
-                        var callee = Discover(_calls[key], work, offset);
+                        var target = _calls[key];
+                        if (generics)
+                        {
+                            try { _ = ClosedGenericKey.Create(target.DeclaringType.Arguments, target.MethodArguments); }
+                            catch (ArgumentException error) { Fail(work, error.Message, offset, DiagnosticIds.TranslationLimit); }
+                            foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
+                                CheckArgumentAccess(argument, work, offset);
+                        }
+                        var callee = Discover(target, work, offset);
                         if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor))
                             Fail(work, "newobj requires an exact class constructor declaration.", offset);
                         if (work.Binding.Owner != callee.Binding.Owner
@@ -141,15 +149,16 @@ public static class ValueProgramDiscovery
                     {
                         int token = Token(work, instruction, 0x04, 0x0a);
                         var key = (work.Assembly.ContentHash, token);
-                        if (!_fields.TryGetValue(key, out var field))
+                        if (generics || !_fields.TryGetValue(key, out _))
                         {
-                            field = Require(resolver.ResolveDeclaredField(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
-                            _fields.Add(key, field);
+                            _fields[key] = Require(generics ? resolver.ResolveClosedField(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
+                                : resolver.ResolveDeclaredField(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
                         }
-                        if (field.DeclaringType.Arguments.Count != 0) Fail(work, "Generic field owners require later lowering.", offset);
+                        var field = _fields[key];
+                        if (!generics && field.DeclaringType.Arguments.Count != 0) Fail(work, "Generic field owners require later lowering.", offset);
                         var owner = field.DeclaringType.Definition;
                         fields.Add(offset, new(classes && !Inline(owner, work, offset) ? IncludeReference(owner, work, offset)
-                            : Include(owner, work, offset), MetadataTokens.GetToken(field.Handle)));
+                            : Include(field.DeclaringType, work, offset), MetadataTokens.GetToken(field.Handle)));
                     }
                     else if (instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj"
                         || boxing && instruction.OpCode is ("box" or "unbox" or "unbox.any"))
@@ -158,9 +167,14 @@ public static class ValueProgramDiscovery
                         if (generics)
                         {
                             var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(token)), work, offset);
-                            if (signature is not TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown })
-                                Fail(work, "This closed generic type operand requires a named struct; primitive/reference operand lowering remains unsupported.", offset);
-                            types.Add(offset, Include(((TypeSignature.Named)signature).Definition, work, offset));
+                            var operandType = signature switch
+                            {
+                                TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
+                                TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                                _ => null,
+                            };
+                            if (operandType is null) Fail(work, "This closed generic type operand requires an inline struct; primitive/reference operand lowering remains unsupported.", offset);
+                            types.Add(offset, Include(operandType!, work, offset));
                             continue;
                         }
                         var key = (work.Assembly.ContentHash, token);
@@ -176,7 +190,8 @@ public static class ValueProgramDiscovery
                     calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ArrayOperands = vectors.ToImmutable() });
             }
             if (_values.Count == 0) Fail(root, "Value discovery requires an inline value; use the existing primitive/object translator for other programs.");
-            var built = ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values], library, _metadata, _integerArray is not null,
+            var built = generics ? ValueModelBuilder.BuildClosedCatalog(resolver, [.. _values.Values], library, _metadata, _integerArray is not null,
+                [.. _references.Values], _snapshots) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                 [.. _references.Values], _snapshots);
             if (built.Catalog is not { } catalog) throw new Failure(built.Diagnostics[0]);
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
@@ -212,6 +227,8 @@ public static class ValueProgramDiscovery
 
                 void CheckType(ObjectTypeId type, int offset)
                 {
+                    if (generics && _values.TryGetValue(type, out var constructed))
+                        foreach (var argument in constructed.Arguments) CheckArgumentAccess(argument, work, offset);
                     if (type != method.Binding.Owner && !layouts[type].ExternallyVisible)
                         Fail(work, "Value type use requires the same declaring owner or a fully externally visible type; other visibility rules require later lowering.", offset);
                 }
@@ -230,7 +247,7 @@ public static class ValueProgramDiscovery
             }
             var id = new IrMethodId(owner.Assembly.ContentHash, MetadataTokens.GetToken(resolved.Handle), specialization);
             // Check instantiation before the definition-key cache: a generic call must never alias an ordinary one.
-            if (resolved.DeclaringType.Arguments.Count != 0 || !generics && resolved.MethodArguments.Count != 0)
+            if (!generics && (resolved.DeclaringType.Arguments.Count != 0 || resolved.MethodArguments.Count != 0))
                 Fail(parent, "Generic method/type instantiations require later lowering.", offset);
             if (_methods.TryGetValue(id, out var known)) return known;
             if (_methods.Count >= ProgramLimits.MaximumMethods || _bytes >= ProgramLimits.MaximumBodyBytes
@@ -249,7 +266,7 @@ public static class ValueProgramDiscovery
             bool constructor = classes && input.DeclaredName == ".ctor";
             var allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | (constructor ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
-            if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || !generics && input.Signature.GenericArity != 0 || input.Signature.Header != (constructor ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
+            if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != (constructor ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
                 || input.HasTypeInitializer || input.HasModuleInitializer || input.ExceptionRegionCount != 0
                 || !input.Locals.IsEmpty && !input.InitializeLocals
                 || ((input.Attributes & MethodAttributes.Static) != 0) == constructor
@@ -259,7 +276,9 @@ public static class ValueProgramDiscovery
                 Fail(parent, classes
                     ? "Value/object methods require ordinary static methods or exact class constructors, nongeneric managed IL, no type/module initializers, no exception regions and initialized locals."
                     : "Value methods require static nongeneric ordinary managed IL without initialization, special names, exception regions or uninitialized locals.", offset);
-            var ownerId = ObjectModelBuilder.Id(owner);
+            var ownerId = generics ? ClosedId(resolved.DeclaringType, parent, offset) : ObjectModelBuilder.Id(owner);
+            if (resolved.DeclaringType.Arguments.Count != 0 && constructor)
+                Fail(parent, "Constructed class constructors require generic reference layouts; generic value instance constructors require later lowering.", offset);
             if (constructor)
             {
                 if ((input.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
@@ -286,6 +305,7 @@ public static class ValueProgramDiscovery
         {
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Void } when allowVoid => IrType.Void,
+            TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic when generics => IrType.Value(Include(new ConstructedType(generic.Definition.Definition, generic.Arguments), caller, offset)),
             TypeSignature.Named { Kind: SignatureTypeKind.ValueType } value => IrType.Value(Include(value.Definition, caller, offset)),
             TypeSignature.Named { Kind: SignatureTypeKind.Class } reference when classes => IrType.Reference(IncludeReference(reference.Definition, caller, offset)),
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Object } when classes => IrType.Reference(IncludeReference(
@@ -299,9 +319,41 @@ public static class ValueProgramDiscovery
                 + ", modifiers, byref locals/returns and generics require later lowering." + Path(caller), Location(caller, offset))),
         };
 
-        private ObjectTypeId Include(ResolvedType type, Work? work, int offset)
+        private void CheckArgumentAccess(TypeSignature signature, Work work, int offset)
         {
-            var id = ObjectModelBuilder.Id(type);
+            // The key validator bounds argument depth/nodes before this walk.
+            var pending = new Stack<TypeSignature>(); pending.Push(signature);
+            int count = 0;
+            while (pending.TryPop(out var item))
+            {
+                if (++count > 4096) Fail(work, "Generic argument access exceeds the signature-node limit.", offset, DiagnosticIds.TranslationLimit);
+                switch (item)
+                {
+                    case TypeSignature.Named named:
+                        var input = Snapshot(named.Definition, work, offset);
+                        if (!input.ExternallyVisible && (input.Source.ContentHash != work.Binding.Owner.ContentHash || input.Source.Token != work.Binding.Owner.Token))
+                            Fail(work, "Generic arguments require the same declaring owner or externally visible types.", offset);
+                        break;
+                    case TypeSignature.Generic generic:
+                        pending.Push(generic.Definition);
+                        foreach (var argument in generic.Arguments) pending.Push(argument);
+                        break;
+                    case TypeSignature.Vector vector: pending.Push(vector.Element); break;
+                }
+            }
+        }
+
+        private ObjectTypeId Include(ResolvedType type, Work? work, int offset) => Include(new ConstructedType(type, SignatureList<TypeSignature>.Empty), work, offset);
+
+        private ObjectTypeId ClosedId(ConstructedType type, Work? work, int offset)
+        {
+            try { return ValueModelBuilder.ClosedId(type); }
+            catch (ArgumentException error) { Fail(work, error.Message, offset, DiagnosticIds.TranslationLimit); return null!; }
+        }
+
+        private ObjectTypeId Include(ConstructedType type, Work? work, int offset)
+        {
+            var id = ClosedId(type, work, offset);
             if (!_values.ContainsKey(id) && _values.Count + _references.Count >= ObjectModelLimits.MaximumTypes)
                 Fail(work, "Value type root limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             _values.TryAdd(id, type); return id;

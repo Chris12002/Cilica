@@ -5,7 +5,7 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-/// <summary>A nongeneric struct's declared inline fields; no object header or native offsets.</summary>
+/// <summary>A closed struct's declared inline fields; no object header or native offsets.</summary>
 public sealed record ValueTypeLayout(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectField> Fields)
 {
     public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;

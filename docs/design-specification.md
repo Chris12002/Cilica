@@ -817,6 +817,13 @@ and lowering. Native symbols use an additional specialization key while faults
 retain original image/MethodDef/IL provenance. Closed generic layouts, constraint
 validation and broader generic operations remain later gates.
 
+The same opt-in generic profile now adds unconstrained closed struct layouts and
+static methods on closed owners ([ADR 0075](decisions/0075-closed-generic-value-layouts.md)).
+Field and box identities include the closed owner, and nested layouts retain the
+shared scalar/root and expansion limits. O0/O2 native probes establish generic
+struct copy/return/borrow/boxing behavior under collection. Constraints and generic
+class allocation/dispatch remain separate gates.
+
 Pathological generic expansion yields a diagnostic with an instantiation chain,
 not a compiler hang or omitted code. Generic sharing and runtime generic
 dictionaries are later optimisations.

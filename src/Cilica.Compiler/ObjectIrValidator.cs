@@ -59,7 +59,7 @@ internal sealed class ObjectIrRules
         }
         foreach (var binding in program.Bindings)
         {
-            Require(binding?.Method is not null && binding.Owner is not null && binding.Owner.ArrayElement is null && CanonicalHash(binding.Owner.ContentHash)
+            Require(binding?.Method is not null && binding.Owner is not null && binding.Owner.ArrayElement is null && ObjectModelValidator.Specialization(binding.Owner.Specialization) && CanonicalHash(binding.Owner.ContentHash)
                 && (uint)binding.Owner.Token >> 24 == 0x02 && (binding.Owner.Token & 0xffffff) > 1
                 && binding.Owner.ContentHash == binding.Method.ContentHash
                 && _methods.ContainsKey(binding.Method) && _bindings.TryAdd(binding.Method, binding), "invalid or duplicate method binding identity.");
