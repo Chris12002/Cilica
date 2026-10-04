@@ -792,3 +792,30 @@ saved identity across allocation pressure, supplied UTF-16 messages, original fa
 provenance, forged/foreign/corrupt payload rejection, marking reentrancy and exact/
 short heap limits. Existing collector, boxing and delegate native probes cover the
 shared v17 runtime additions. Source checks reserve message/literal safepoints.
+
+## Milestone 5 composed native conformance
+
+The value, boxing, closed-generic, delegate and exception suites exercise the full
+metadata → typed IR → scalar lowering → generated C++ path. Authored C# execution
+is confined to test oracles; the compiler never loads input assemblies. Exception
+probes cover nested finally/fault behavior, pure filters, rethrow/replacement identity,
+borrowed-struct mutation across throws, generic boxes with reference payloads,
+messages and reference identity, runtime fault origin, emergency OOM handling and
+resource-root corruption. Native O0/O2 builds use ASan/UBSan, disable C++ exceptions/
+RTTI and retain the 2 KiB stack-frame gate. Every allocation can trigger collection;
+heap and arena boundary checks preserve cleanup and outputs on failure.
+
+Focused entry points are `ManagedExceptionTranslationTests`,
+`NativeExceptionTranslationTests`, `NativeExceptionIrTests` and
+`NativeExceptionRuntimeTests`, alongside the prior value/generic/delegate suites.
+For a complete local milestone gate after building, serialize native compiler work:
+
+```sh
+dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll -noColor -parallel none
+```
+
+This command uses only local test-owned processes. Hosted CI remains unconfigured.
+A passing local run does not establish mobile/WebAssembly support or a public ABI.
+
+The 2026-10-05 milestone gate passed all 1,855 tests in 199.949 seconds, with no
+errors, failures, skips or unrun tests (ADR 0087). No hosted work was triggered.

@@ -568,8 +568,9 @@ values from object references, rejects inline containment cycles, and derives
 nested scalar copy paths and embedded-reference paths within explicit expansion
 and depth limits. Bounded metadata discovery now supplies these layouts through
 the exact selected ValueType identity and a shared metadata ledger
-([ADR 0056](decisions/0056-value-layout-metadata.md)). CIL struct translation and
-native inline value fields in heap objects remain milestone 5 work.
+([ADR 0056](decisions/0056-value-layout-metadata.md)). Later milestone 5 slices supply
+CIL struct translation. Inline value fields in heap objects remain a subsequent
+compatibility gate outside the bounded milestone 5 profile.
 
 Detached value flow now validates exact-type copies, pure default/field
 operations, calls and joins using the shared IR verifier. Phase A planning
@@ -1031,7 +1032,11 @@ inheritance and dispatch through the compiler API. Its .NET oracle and metadata-
 compiler run in separate processes. The [milestone 3 record](milestones/03-object-execution.md)
 consolidates the supported boundary; [milestone 4](milestones/04-collection-and-handles.md)
 is complete for bounded non-moving collection, phase A stress and private retained
-handles on the locally tested macOS ARM64 target. The broader managed runtime, library and production embedding API remain planned.
+handles on the locally tested macOS ARM64 target. [Milestone 5](milestones/05-managed-semantics.md)
+is complete for bounded compiler-library values, boxing, closed generics, single-target
+delegates and managed exceptions/type-test filters (ADR 0087), with 1,855 passing local
+checks. The broader runtime, required library, production embedding API and untested
+platforms remain planned.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

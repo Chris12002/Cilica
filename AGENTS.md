@@ -8,8 +8,11 @@ feedback before implementation. Explain consequential choices in plain language.
 
 - This repository has a metadata frontend, bounded Int32 native backend and
   bounded native object control flow with phase A roots, bounded non-moving
-  collection and private retained handles; the broader managed runtime is planned. Never describe planned features as
-  implemented or claim untested language/platform compatibility.
+  collection and private retained handles. Bounded compiler-library profiles also
+  implement values/borrows/returns, boxing, closed generics, single-target delegates
+  and managed exceptions/type-test filters; see `docs/milestones/05-managed-semantics.md`.
+  The broader runtime/library and public embedding ABI remain planned. Never describe
+  planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not
   substitute NativeAOT, Mono or Unity's IL2CPP for its advertised implementation.
 - Reuse existing compilers for C# input and native machine-code generation.

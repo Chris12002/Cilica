@@ -3,7 +3,7 @@
 An independent, open-source .NET IL-to-C++ compiler and managed runtime, designed
 for embedding C# libraries in native and browser applications.
 
-**Status: metadata frontend, bounded Int32 execution and native object control flow implemented.**
+**Status: bounded native compiler profiles for primitives, objects and managed semantics implemented.**
 The assembly explorer inspects IL and audits bounded dependencies without running
 input assemblies. The bounded integer profile now emits C++20 and passes local
 native differential tests, including division, remainder and checked-arithmetic faults.
@@ -14,7 +14,11 @@ element stores, immutable UTF-16 strings and class/interface dispatch, tested ag
 .NET under native sanitizers.
 Bounded non-moving collection reclaims unreachable cycles, with exact heap accounting,
 allocation retry and private instance-owned retained handles. Phase A roots pass
-local O0/O2 collection stress checks. Managed exception objects/handlers, libraries,
+local O0/O2 collection stress checks. Compiler-library profiles also support bounded
+struct copies/borrows/returns, named-struct boxing, closed generics, single-target
+delegates and managed exceptions with type-test filters. The
+[milestone 5 record](docs/milestones/05-managed-semantics.md) documents their exact
+boundaries and local .NET/sanitizer evidence. Broader libraries, general filters,
 a public object embedding ABI and Expo integration remain planned.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
@@ -154,7 +158,8 @@ programs expose only this status entry. Status is 0 success, 1 divide-by-zero,
 2 overflow, or 3 for null output pointers. Outputs require valid,
 disjoint storage; faults preserve the result output, and success clears origin
 outputs. The borrowed string lasts as long as the generated library. This is
-an experimental primitive ABI; managed exception objects/messages remain planned.
+an experimental primitive ABI; managed exception objects/messages use the separate
+compiler-library exception profile.
 A native caller can link the declared function; this command emits source and
 never starts a compiler or executes the input. Optional `--reference` directories use the existing explicit
 resolver. Unsupported operations write diagnostics to stderr, return code 1 and

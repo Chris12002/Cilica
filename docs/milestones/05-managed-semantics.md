@@ -1,6 +1,6 @@
 # Milestone 5: Values and managed semantics
 
-Status: in progress. Recorded 2026-10-04.
+Status: complete for the bounded compiler-library profile. Recorded 2026-10-05.
 
 The milestone covers structs, boxing, closed generics, delegates, exceptions and
 type-test filters. These are separate capability gates; completion of a layout
@@ -40,7 +40,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5h.3a | Private native exception storage and rooted pending/saved identity | Complete for helper probes |
 | 5h.3b | Native handler dispatch, cleanup and message semantics | Complete for authored IR |
 | 5h.4 | CIL exceptions and type-test filters with differential probes | Complete for bounded CIL |
-| 5i | Composed differential regressions and final review | Final validation in progress |
+| 5i | Composed differential regressions and final review | Complete; all 1,855 local tests pass |
 
 Split slices further when a separately testable semantic or ownership contract
 requires it. Review each completed slice before committing. Keep resource limits
@@ -59,6 +59,32 @@ General filters must remain diagnostics until full search-before-unwind ordering
 exists. Neither a pending numeric fault nor a metadata-only filter classification
 constitutes managed handler execution.
 
+
+## Completion boundary
+
+Milestone 5 is complete for the explicitly bounded native compiler-library profile
+([ADR 0087](../decisions/0087-stage-five-completion.md)). The final sequential local
+suite passed **1,855 tests**, with zero failures, errors, skips or unrun tests, in
+199.949 seconds. The tested environment is macOS ARM64, .NET SDK 10.0.400/runtime
+10.0.11 and Apple Clang 17.0.0. Native semantic probes use O0/O2, ASan/UBSan,
+collection stress and the 2 KiB stack-frame gate.
+
+The implemented path covers inline struct copies and synchronous borrows, rooted
+struct returns, exact named-struct boxes/unboxes, bounded closed generic methods/
+structs/classes and special constraints, public named single-target delegates,
+managed catch/finally/fault, throw/rethrow and pure type-test filters. Selected
+exception messages preserve text and reference identity. All completed slices were
+reviewed before local commits. Local main remains an ancestor of the working branch.
+No push, hosted CI, paid service or additional agent was used.
+
+This does not claim full CLR support. Inline struct fields in heap classes, primitive/
+enum/nullable boxing, generic dispatch and broader constraints, generic delegate
+declarations, private compiler-generated closures, multicast/variance, general
+filters, arbitrary exception APIs, localization, public structured-error/struct ABIs
+and additional platforms remain separate gates. Milestone 6 is not started here.
+
+The slice outcomes below are historical checkpoints: their references to remaining
+work describe that checkpoint, not the completion status above.
 
 ## Slice 5a outcome
 
@@ -545,3 +571,13 @@ with a separately rooted nine-resource cache. O0/O2 identity and collection chec
 pass, including forged/cyclic cache rejection. The resource visitor was split after
 the O0 stack gate reported an oversized helper; the gate remains 2 KiB.
 The final local regression gate is next; milestone 5 is not yet marked complete.
+
+## Slice 5i final outcome
+
+The final review and full local run close the bounded milestone (ADR 0087). Fifteen
+C# exception entry programs across eight inputs per O0/O2 configuration exercise
+composed generics, boxes, delegates, borrows, roots and handlers; additional probes
+cover uncaught origin, OOM reserve/recovery, authored fault clauses and all nine
+shared message resources. Earlier primitive, object, collection, handle and value
+regressions pass in the same 1,855-test suite. No unresolved review findings remain
+within the documented scope. Completion changes after this run are documentation only.

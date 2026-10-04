@@ -1,9 +1,10 @@
 # Compatibility manifest
 
-Updated 2026-10-04. Capabilities are stage-specific. A translated operation does
+Updated 2026-10-05. Capabilities are stage-specific. A translated operation does
 not establish native execution or platform compatibility. Sections below preserve
 the evidence and limits of earlier checkpoints; the current native profile retains the collector and handle behavior recorded
-at milestone 4, with later value/location capabilities documented separately.
+at milestone 4, with bounded value/generic/delegate/exception capabilities documented
+separately. Historical checkpoint sections retain their original stage-specific limits.
 
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
@@ -101,7 +102,8 @@ closure analysis propagates may-fault effects through recursive cycles and omits
 checks only for proven pure callees. Each native entry owns a fresh stack context;
 the first fault leaves immediately and retains the originating image hash,
 MethodDef and IL offset across callers. This context has primitive fault tags,
-not managed exception objects or messages; catch/filter/finally remain unimplemented.
+not managed exception objects or messages; catch/filter/finally require the separate
+managed-exception profile.
 Object identity/rooting are supplied only by the separate object profile below. The CoreLib/Alchemy filter gate is unresolved.
 
 [ADR 0020](decisions/0020-checked-int32-arithmetic.md) adds six checked arithmetic
@@ -1395,3 +1397,24 @@ Exception message identity is covered by ADR 0086: formatted type-name defaults 
 fresh per getter; fixed resources are shared within the instance, separately from
 user literals; supplied and contextual cast messages retain their references.
 Nine resource roots are bounded and charged to normal heap quotas.
+
+## Milestone 5 completion
+
+The bounded compiler-library milestone is complete (ADR 0087). The final sequential
+local suite passed 1,855 tests, with zero failures/errors/skips/unrun tests, on .NET
+10.0.11 and macOS ARM64/Apple Clang 17.0.0. Native O0/O2 sanitizer/collection probes
+retain the 2 KiB stack gate. See the milestone record for the complete supported
+boundary and deferred capabilities; this is not a full CLR or platform guarantee.
+
+The composed compiler API is:
+
+```csharp
+var translated = ValueTranslator.TranslateExceptions(resolver, assembly, entry, runtimeLibrary);
+// Inspect translated.Diagnostics and require translated.Success before lowering.
+var scalar = ValueScalarLowering.LowerExceptions(translated.Program!);
+var cpp = ObjectCppEmitter.EmitExceptions(scalar);
+```
+
+`entry` is the selected static Int32 MethodDef; `runtimeLibrary` is an explicitly
+resolved implementation assembly. Translation performs bounded discovery and validates
+the complete supported closure before emitting any native source.

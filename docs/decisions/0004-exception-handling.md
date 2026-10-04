@@ -12,6 +12,12 @@ handlers or GC roots. This does not accept the full design or clear either filte
 [ADR 0021](0021-int32-remainder.md) extends the same primitive path to remainder;
 it does not add managed handlers or change the filter gates.
 
+Implementation update (2026-10-05): ADRs 0081–0086 now implement a bounded native
+compiler-library profile with rooted exceptions, CIL catch/finally/fault, throw/
+rethrow, stage-A type-test filters and invariant messages/identity. The full ADR
+remains proposed for general two-pass filters, public structured-error exports,
+instance failure policy, platform conformance and comparative performance evidence.
+
 ## Context
 
 Managed exceptions must keep .NET's observable behaviour: exception identity,
@@ -78,9 +84,9 @@ point, not the IR or the managed semantics.
 
 ### 3. Protected regions and frames
 
-- A method's `try` regions become labelled blocks. `finally` and `fault`
-  blocks run on both normal and exceptional exits, following ECMA-335 rules for
-  `leave`.
+- A method's `try` regions become labelled blocks. `finally` blocks run on
+  normal and exceptional exits; `fault` blocks run only on exceptional exits.
+  Normal transfers follow the ECMA-335 rules for `leave`.
 - Shadow-stack frames (ADR 0002) are popped at the method's single exit, so no
   unwinding machinery is involved.
 - `throw` of a null reference raises `NullReferenceException`. `rethrow`
