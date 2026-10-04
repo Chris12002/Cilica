@@ -17,7 +17,9 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2a | Private native scalar location carriers and rooted-storage stress | Complete for runtime helpers |
 | 5d.2b.1 | Native scalar location IR emission with allocating callees | Complete for authored IR |
 | 5d.2b.2 | Mutable value expansion into scalar location IR | Complete for authored IR with scalar/void returns |
-| 5d.2c | CIL value translation, native returns and composed live-value stress | Planned |
+| 5d.2c.1 | Caller-owned native struct-return packets | Complete for authored IR |
+| 5d.2c.2 | CIL value discovery and translation | Planned |
+| 5d.2c.3 | Allocating value source programs and composed live-value stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
@@ -172,3 +174,25 @@ reject a malformed final leaf before changing destination fields.
 CIL translation, allocating value source programs, inline heap fields and struct
 returns remain separate gates. Milestone 5 is still in progress. Local main remains
 an ancestor; no push, hosted work, service or additional agent ran.
+
+## Slice 5d.2c.1 outcome
+
+ADR 0063 adds caller-owned struct-return packets through the location-lowering v2
+profile. Result slots are typed, rooted caller locals; returning callees receive
+checked output locations and return void after copying their snapshots. Nested
+returns cannot expose a finished frame, failed calls skip result loads, and empty
+results preserve calls without output storage.
+
+Review checked hidden signature/argument remapping, distinct result buffers,
+reference publication, full destination validation before body execution, ordered
+fault propagation and all generated resource charges. No blocking findings remain.
+All 83 selected value/location/native checks pass, including O0/O2 chained/nested
+return comparisons, divide-by-zero/overflow origins, unchanged packed output on
+failure and live embedded reference identity/reclamation. Final O0/O2 probes also
+verify exact measured arena capacity succeeds and one byte less fails with complete
+cleanup. The 2 KiB native stack-warning gate remains enabled.
+
+CIL discovery/translation and composed allocating value source programs are next.
+Inline heap values, boxing, generics, delegates and managed exceptions remain
+planned. Milestone 5 is not complete. Local main remains an ancestor; no push,
+hosted work, service or additional agent ran.

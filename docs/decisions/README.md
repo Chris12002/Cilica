@@ -68,3 +68,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0060](0060-native-scalar-location-carriers.md) | Native scalar location carriers | Accepted for private checked frame/heap helpers; executable location IR remains planned |
 | [0061](0061-native-scalar-location-ir.md) | Native scalar location IR | Accepted for authored scalar borrows composed with allocating object operations; struct expansion/CIL remain planned |
 | [0062](0062-mutable-value-scalar-expansion.md) | Mutable inline value expansion | Accepted for authored struct borrows, snapshots and scalar/void returns; CIL, allocating value source programs and struct returns remain planned |
+| [0063](0063-caller-owned-value-return-packets.md) | Caller-owned struct return packets | Accepted for authored IR with rooted scalar output destinations; CIL and allocating value source programs remain planned |

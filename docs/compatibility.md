@@ -17,7 +17,7 @@ at milestone 4, with later value/location capabilities documented separately.
 | `typed-value-ir-v1` | Detached value copies, field operations, calls/joins and root plans | Exact struct identity; scalar/reference copy paths; 1,024 roots per method and 65,536 expanded scalar slots per program; no CIL translation or managed locations |
 | `managed-location-ir-v1` | Detached storage locations, synchronous borrowing and owner-root plans | Frame local/parameter and heap-field origins, nested fields, invariant element types, readonly propagation, loads/stores/init and direct void mutators; no escaping locations, byref locals/joins, whole-value native emission or CIL value translation |
 | `scalar-location-ir-v1` | Authored Int32/reference borrows with existing native object operations | Explicit `EmitLocations` entry, synchronous direct static borrowers, readonly views, owner roots, checked carriers and O0/O2 allocation/collection stress; inline values require the separate expansion profile; no CIL byref translation |
-| `value-location-scalars-v1` | Mutable inline values expanded into native scalar borrows | Authored nested local/by-value parameter mutation, snapshots, readonly views, scalar/void calls and embedded reference slots; no allocating value source operations, CIL translation, inline heap fields or struct-return packets |
+| `value-location-scalars-v2` | Mutable inline values and caller-owned struct returns expanded into native scalar borrows | Authored nested local/by-value parameter mutation, snapshots, readonly views, rooted return destinations and embedded reference slots; no allocating value source operations, CIL translation, inline heap fields or public struct ABI |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
@@ -1176,3 +1176,20 @@ Source value IR contains no allocating object operations, so this does not prove
 collection inside allocating whole-value source programs. CIL translation, inline
 class/array fields and struct returns remain unsupported, along with the broader
 milestone 5 capabilities still marked planned.
+
+## Caller-owned struct returns
+
+[ADR 0063](decisions/0063-caller-owned-value-return-packets.md) extends the location
+lowering profile to v2. Each struct-returning call reserves typed caller locals and
+passes their checked locations as hidden outputs. The callee returns void after
+copying its snapshot; result loads run only after success. Reference destinations
+remain rooted, nested callees cannot expose finished frames, and empty results
+retain calls without output slots. Generated packet storage is included in all
+existing parameter/local, work, root and arena-byte limits.
+
+O0/O2 ASan/UBSan evidence covers nested/chained returns, C# arithmetic/fault parity,
+unchanged packed output on failure, live reference identity and invalid output
+capabilities. Exact measured arena storage succeeds and one byte less fails with
+complete cleanup. This is authored IR support, not CIL translation or a public
+struct ABI. Allocating value source programs, inline heap values and the other
+planned milestone 5 capabilities remain separate work.

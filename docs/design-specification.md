@@ -622,6 +622,16 @@ identity/rooting in a private harness. Source value IR still excludes allocating
 object operations; CIL translation, inline heap values and struct-return packets
 remain unimplemented.
 
+Authored value IR now supports caller-owned struct-return packets
+([ADR 0063](decisions/0063-caller-owned-value-return-packets.md)). The caller reserves
+typed result locals and lends their locations as hidden output arguments; the
+callee copies its result into those slots before its frame ends. Embedded references
+therefore have rooted destinations, and the caller snapshots the result only after
+a successful call. Empty returns preserve calls without output storage. O0/O2
+sanitizer probes cover chained/nested returns, live reference identity, ordered
+faults and exact/insufficient arena budgets. CIL translation and allocating value
+source programs remain separate gates.
+
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 

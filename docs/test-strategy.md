@@ -630,3 +630,11 @@ it separately injects an invalid final borrow to verify rejection before mutatio
 These authored value programs do not allocate managed objects themselves. Empty
 layouts, readonly views and expanded carrier/statement budgets have focused
 detached regressions. Struct returns and CIL translation remain separate gates.
+
+Caller-owned return-packet probes now compare nested/chained struct returns with
+C# at O0/O2, including divide-by-zero and signed-division overflow. They check the
+packed output stays unchanged on faults, live returned references survive through
+caller roots, invalid destinations fail before any write, and exact measured arena
+capacity succeeds while one byte less fails cleanly. Empty returns and generated
+parameter/local/root limits have detached tests. CIL and allocating value source
+programs remain later gates.

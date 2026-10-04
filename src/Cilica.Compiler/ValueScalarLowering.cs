@@ -9,7 +9,7 @@ namespace Cilica.Compiler;
 public static class ValueScalarLowering
 {
     public const string Profile = "value-scalars-v1";
-    public const string LocationProfile = "value-location-scalars-v1";
+    public const string LocationProfile = "value-location-scalars-v2";
 
     public static ReferenceIrProgram Lower(ValueIrProgram program)
     {
@@ -25,12 +25,12 @@ public static class ValueScalarLowering
         _ = ValueRootAssignment.Assign(program);
         if (bindings.IsDefault || bindings.Any(b => b is null || b.Kind != ObjectMethodKind.Static))
             throw new ArgumentException("Value location lowering requires direct static method bindings.", nameof(bindings));
-        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow), bindings));
+        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow, returnPackets: true), bindings));
         _ = ObjectRootAssignment.AssignLocations(result);
         return result;
     }
 
-    private static ReferenceIrProgram LowerCore(ValueIrProgram program)
+    private static ReferenceIrProgram LowerCore(ValueIrProgram program, bool returnPackets = false)
     {
         var plans = ValueLayoutPlanner.Build(program.Types).ToDictionary(p => p.Type);
         // A borrowed struct expands into one carrier/owner pair per leaf. Bound
@@ -75,8 +75,8 @@ public static class ValueScalarLowering
         var entry = program.Methods.Single(m => IrMethodId.From(m.Source) == program.Entry);
         Require(entry.ReturnType == IrType.Int32 && entry.Parameters.All(p => p == IrType.Int32),
             "the entry must retain the existing packed Int32 boundary.");
-        Require(program.Methods.All(m => m.ReturnType.Kind != IrTypeKind.Value),
-            "struct return packets require later lowering; only scalar-returning methods are currently supported.");
+        Require(returnPackets || program.Methods.All(m => m.ReturnType.Kind != IrTypeKind.Value),
+            "struct return packets require LowerLocations; the pure-copy entry point supports scalar returns only.");
         var lowered = ImmutableArray.CreateBuilder<IrMethod>();
         int statements = 0, arguments = 0, edges = 0;
         foreach (var method in program.Methods)
@@ -89,6 +89,10 @@ public static class ValueScalarLowering
                 Require(expanded.Length <= IrLimits.MaximumParameters - parameters.Count, "expanded parameter limit exceeded.");
                 parameters.AddRange(expanded);
             }
+            int returnStart = parameters.Count;
+            var returnSlots = method.ReturnType.Kind == IrTypeKind.Value ? Expand(method.ReturnType) : [];
+            Require(returnSlots.Length <= IrLimits.MaximumParameters - parameters.Count, "expanded return parameter limit exceeded.");
+            parameters.AddRange(returnSlots.Select(t => IrType.Location(t)));
             for (int i = 0; i < localSlots.Length; i++)
             {
                 localSlots[i] = locals.Count; var expanded = Expand(method.Locals[i]);
@@ -127,18 +131,23 @@ public static class ValueScalarLowering
                     int id = next++; Emit(new IrStatement.Define(new(id, type, offset, expression), exceptional)); return id;
                 }
                 int One(int value) => values[value].Single();
-                ImmutableArray<int> Arguments(ImmutableArray<int> source, bool call)
+                ImmutableArray<int> Arguments(ImmutableArray<int> source, bool call, ImmutableArray<int> tail = default)
                 {
-                    int count = 0;
+                    int count = tail.IsDefault ? 0 : tail.Length;
                     foreach (int argument in source)
                     {
                         int maximum = call ? ProgramLimits.MaximumCallArguments - arguments : IrLimits.MaximumEdgeArguments - edges;
                         Require(values[argument].Length <= maximum - count, "expanded call/edge argument limit exceeded.");
                         count += values[argument].Length;
                     }
-                    if (call) { Require(count <= IrLimits.MaximumParameters, "expanded call packet limit exceeded."); arguments += count; }
+                    if (call)
+                    {
+                        Require(count <= IrLimits.MaximumParameters, "expanded call packet limit exceeded.");
+                        Require(count <= ProgramLimits.MaximumCallArguments - arguments, "expanded call argument limit exceeded.");
+                        arguments += count;
+                    }
                     else edges += count;
-                    return [.. source.SelectMany(index => values[index])];
+                    return [.. source.SelectMany(index => values[index]), .. (tail.IsDefault ? ImmutableArray<int>.Empty : tail)];
                 }
                 IrEdge Edge(IrEdge edge) => new(edge.Target, Arguments(edge.Arguments, false));
                 foreach (var statement in block.Statements)
@@ -171,6 +180,18 @@ public static class ValueScalarLowering
                     var ids = ImmutableArray.CreateBuilder<int>();
                     switch (value.Expression)
                     {
+                        case IrExpression.Call call when value.Type.Kind == IrTypeKind.Value:
+                            // Caller-owned typed result slots are rooted before the
+                            // callee starts; no pointer into a popped frame returns.
+                            Require(expanded.Length <= IrLimits.MaximumLocals - locals.Count, "return packet local limit exceeded.");
+                            int resultStart = locals.Count; locals.AddRange(expanded);
+                            var destinations = ImmutableArray.CreateBuilder<int>();
+                            for (int i = 0; i < expanded.Length; ++i)
+                                destinations.Add(Define(IrType.Location(expanded[i]), value.ILOffset, new IrExpression.AddressLocal(resultStart + i)));
+                            Emit(new IrStatement.Invoke(value.ILOffset, call.Target, Arguments(call.Arguments, true, destinations.ToImmutable())));
+                            for (int i = 0; i < expanded.Length; ++i)
+                                ids.Add(Define(expanded[i], value.ILOffset, new IrExpression.LoadLocation(destinations[i]), IrExceptionTarget.MethodExit));
+                            break;
                         case IrExpression.AddressLocal address:
                             for (int i = 0; i < expanded.Length; ++i) ids.Add(Define(expanded[i], value.ILOffset,
                                 new IrExpression.AddressLocal(localSlots[address.Index] + i)));
@@ -232,8 +253,15 @@ public static class ValueScalarLowering
                     }
                     values.Add(ids.ToImmutable());
                 }
+                if (block.Terminator is IrReturn wholeReturn && method.ReturnType.Kind == IrTypeKind.Value)
+                    for (int i = 0; i < returnSlots.Length; ++i)
+                    {
+                        int destination = Define(IrType.Location(returnSlots[i]), wholeReturn.ILOffset, new IrExpression.Parameter(returnStart + i));
+                        Emit(new IrStatement.StoreLocation(wholeReturn.ILOffset, destination, values[wholeReturn.Value][i]));
+                    }
                 IrTerminator terminator = block.Terminator switch
                 {
+                    IrReturn returned when method.ReturnType.Kind == IrTypeKind.Value => new IrVoidReturn(returned.ILOffset),
                     IrReturn returned => returned with { Value = One(returned.Value) },
                     IrVoidReturn => block.Terminator,
                     IrJump jump => jump with { Edge = Edge(jump.Edge) },
@@ -243,7 +271,8 @@ public static class ValueScalarLowering
                 };
                 blocks.Add(new(block.Id, block.ILOffset, [.. inputs[block.Id].SelectMany(types => types)], output.ToImmutable(), terminator));
             }
-            lowered.Add(method with { Parameters = parameters.ToImmutable(), Locals = locals.ToImmutable(), Blocks = blocks.ToImmutable() });
+            lowered.Add(method with { Parameters = parameters.ToImmutable(), Locals = locals.ToImmutable(), Blocks = blocks.ToImmutable(),
+                ReturnType = method.ReturnType.Kind == IrTypeKind.Value ? IrType.Void : method.ReturnType });
         }
         return new(program.Entry, lowered.ToImmutable(), program.Types.References);
     }
