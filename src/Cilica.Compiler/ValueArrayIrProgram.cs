@@ -33,11 +33,13 @@ public static class ValueArrayIrValidator
             && !(classes && b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor)))
             throw new ArgumentException("Composed value methods require direct static bindings or explicitly supported class constructors.", nameof(program));
         var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings), locations: true, values: flow.Types);
+        var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects);
         foreach (var method in flow.Methods)
             if (objects.Binding(IrMethodId.From(method.Source)).Kind != ObjectMethodKind.Static
-                && method.Parameters.Any(p => p.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
-                throw new ArgumentException("Class constructors require scalar/reference parameters; values and borrows need later constructor lowering.", nameof(program));
-        var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects);
+                && method.Parameters.Concat(method.Locals).Concat(method.Blocks.SelectMany(b => b.Inputs))
+                    .Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type))
+                    .Any(p => p.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
+                throw new ArgumentException("Class constructor value/borrow flow needs later lowering; constructor bodies require scalar/reference operations.", nameof(program));
         objects.DispatchMaps();
         var entry = flow.Methods.Single(m => IrMethodId.From(m.Source) == flow.Entry);
         if (objects.Binding(flow.Entry).Kind != ObjectMethodKind.Static || entry.ReturnType != IrType.Int32 || entry.Parameters.Any(p => p != IrType.Int32))
@@ -59,7 +61,9 @@ public static class ValueArrayIrValidator
                 IrStatement.StoreField when classes => true,
                 _ => false,
             };
-            if (!supported) throw new ArgumentException("Value array IR does not yet compose class/string allocation or other object operations.", nameof(program));
+            if (!supported) throw new ArgumentException(classes
+                ? "Value object IR does not yet compose string intrinsics, dispatch or other object operations."
+                : "Value array IR does not yet compose class/string allocation or other object operations.", nameof(program));
         }
         return rules;
     }

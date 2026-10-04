@@ -673,3 +673,19 @@ Value/object IR composition reuses translated class constructors inside authored
 struct returns. Regression tests ensure missing/repeated base calls, readonly writes
 outside constructors and malformed allocations fail before expansion. Earlier
 profiles remain closed to class allocation (ADR 0068).
+
+Value/class CIL probes now translate base/derived constructors, inherited fields,
+readonly initialization and scalar heap borrows alongside static struct methods
+(ADR 0069). Reduced assemblies reject malformed/missing/repeated base calls,
+uninitialized receiver access, inaccessible constructors/fields/types, readonly
+mutation, ordinary instance calls, inline heap values and constructor value flow.
+A combined cached-class/value-field regression checks the shared catalog budget.
+
+O0/O2 ASan/UBSan tests collect before every allocation, including allocations inside
+constructors. Nested copies, borrowed replacement and struct returns preserve a
+six-object graph; a composed success performs 33 allocations under a 16-object cap.
+A sole callee-parameter root transfers to checked caller-owned output locations.
+Clearing the last root reclaims the graph. Tests compare outputs and constructor
+division faults with .NET, preserve original IL offsets and unchanged packed output,
+check exact/one-byte-short heap and arena capacity, and reuse the context after
+nested allocation failure. All scopes unwind and the 2 KiB stack gate stays enabled.

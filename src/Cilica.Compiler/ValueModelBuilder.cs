@@ -18,19 +18,21 @@ public static class ValueModelBuilder
             new MemberResolutionBudget(ObjectModelLimits.MaximumMetadataMembers));
 
     internal static ValueCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
-        ResolvedAssembly runtimeLibrary, MemberResolutionBudget work, bool includeInt32Vector = false)
+        ResolvedAssembly runtimeLibrary, MemberResolutionBudget work, bool includeInt32Vector = false,
+        ImmutableArray<ResolvedType> referenceRoots = default, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots = null)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
         if (roots.IsDefaultOrEmpty || roots.Length > ObjectModelLimits.MaximumTypes)
             throw new ArgumentException("Value catalog needs 1..256 explicit roots.", nameof(roots));
-        try { return Build(resolver, roots, runtimeLibrary, work, includeInt32Vector); }
+        try { return Build(resolver, roots, runtimeLibrary, work, includeInt32Vector, referenceRoots, snapshots); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
-        ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector)
+        ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
+        ImmutableArray<ResolvedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -55,11 +57,22 @@ public static class ValueModelBuilder
         {
             IncludeId(Id(type));
             if (inputs.TryGetValue(Id(type), out var cached)) return cached;
-            if (work.Remaining == 0) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
-            var input = Result(resolver.ReadTypeInput(type.Assembly, type.Handle, new(
-                Math.Min(limits.MaximumFields, ObjectModelLimits.MaximumFields - fields),
-                Math.Min(limits.MaximumMembers, work.Remaining), limits.MaximumOwnerDepth, limits.MaximumInterfaces)));
-            if (!work.TryConsume(input.MetadataMembersRead)) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
+            int remainingFields = Math.Min(limits.MaximumFields, ObjectModelLimits.MaximumFields - fields);
+            TypeInput input;
+            if (snapshots is not null && snapshots.TryGetValue(Id(type), out var preloaded))
+            {
+                // Discovery already charged this immutable snapshot to the same ledger.
+                input = preloaded;
+                if (input.Fields.Length > remainingFields || input.InterfaceCount > limits.MaximumInterfaces)
+                    Fail("Cached type exceeds the remaining field/interface budget.", code: DiagnosticIds.TranslationLimit);
+            }
+            else
+            {
+                if (work.Remaining == 0) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
+                input = Result(resolver.ReadTypeInput(type.Assembly, type.Handle, new(
+                    remainingFields, Math.Min(limits.MaximumMembers, work.Remaining), limits.MaximumOwnerDepth, limits.MaximumInterfaces)));
+                if (!work.TryConsume(input.MetadataMembersRead)) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
+            }
             fields += input.Fields.Length;
             inputs.Add(Id(type), input); return input;
         }
@@ -82,6 +95,12 @@ public static class ValueModelBuilder
         }
         var objectBase = Result(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object));
         IncludeReference(objectBase);
+        if (!referenceRoots.IsDefault)
+            foreach (var reference in referenceRoots)
+            {
+                _ = Result(resolver.ResolveType(reference.Assembly, reference.Handle));
+                IncludeReference(reference);
+            }
         if (includeInt32Vector)
         {
             var vector = ObjectTypeId.Vector(Id(objectBase), ObjectArrayElement.Int32);

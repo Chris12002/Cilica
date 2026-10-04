@@ -21,6 +21,7 @@ at milestone 4, with later value/location capabilities documented separately.
 | `value-arrays-ir-v1` | Inline copies/borrows and vector operations composed before scalar lowering | Authored IR validation, allocation-root planning and rooted return packets; direct static methods only; class/string allocation excluded |
 | `value-objects-ir-v1` | Authored value/class-construction composition | Shared constructor/access/readonly verification, allocation roots and scalar lowering; static value methods and scalar/reference class constructors only |
 | `value-arrays-cil-v1` | Static struct programs composed with Int32 vector CIL allocation/access | Compiler-library opt-in; selected Int32 identity, exact array operands, live embedded roots through calls/borrows/returns, local O0/O2 collection stress and failure cleanup; no class allocation composition |
+| `value-objects-cil-v1` | Static struct programs composed with class construction and fields | Compiler-library opt-in; shared constructor/access rules, scalar/reference constructor bodies, inherited fields and scalar heap borrows; local O0/O2 live-graph collection/failure evidence |
 | `value-cil-v1` | Static value CIL translated through existing value/location IR and native lowering | Compiler-library API; exact joins, synchronous Int32/value borrows, whole copies, field operations and struct returns; O0/O2 local sanitizer conformance; no allocating source value programs or CLI profile change |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
@@ -1239,3 +1240,23 @@ struct copies, borrowed replacement, sole parameter roots and caller-owned retur
 plus final reclamation, fault provenance and exact/insufficient heap/arena budgets.
 CIL reference/value array allocation, element-address borrows and class allocation/
 constructors composed with structs remain unsupported. The CLI is unchanged.
+
+## Allocating value/class CIL
+
+`ValueTranslator.TranslateObjects` opts into ADR 0069. It adds nominal class/Object
+signatures, class `newobj`, direct base-constructor calls and inherited
+scalar/reference field operations to the value/vector profile. Static value methods
+can borrow scalar heap fields with existing checked locations. Shared verification
+enforces constructor initialization, member/type access and readonly receiver rules.
+Metadata classification and catalogs share bounded read work and field limits.
+
+Constructors require scalar/reference operations throughout their bodies; value
+and borrowed parameters, locals, stack inputs and results are rejected. Ordinary
+instance methods, dispatch, string intrinsics, inline heap values, boxing, generics
+and managed handlers remain outside this profile. Existing CLI commands and older
+value profiles are unchanged.
+
+Local O0/O2 ASan/UBSan evidence includes allocation inside base/derived constructors,
+live object graphs retained through struct copies, borrowed replacement and returns,
+sole parameter-root transfer, final reclamation, division fault provenance, nested
+allocation failure/context reuse and exact/insufficient heap/arena budgets.

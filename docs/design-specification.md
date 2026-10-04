@@ -675,7 +675,18 @@ roots and preserves constructor bindings through scalar expansion. Instance
 methods and value/byref constructor arguments remain gated; CIL object/value
 composition and native live-reference evidence follow this IR checkpoint.
 
-Boxing allocates a value copy inside an object. Unboxing and interface dispatch
+The compiler-library `value-objects-cil-v1` gate now supplies class/value CIL
+composition ([ADR 0069](decisions/0069-value-object-cil-and-collection.md)). Static
+value methods can allocate class hierarchies, access inherited scalar/reference
+fields and borrow checked scalar heap fields. Shared source and target validation
+checks base initialization, access and readonly writes. Constructor bodies require
+scalar/reference operations throughout; their value/borrow flow remains gated.
+Discovery shares bounded metadata snapshots with layout construction. Local O0/O2
+sanitizer probes preserve live object graphs through nested struct copies, borrowed
+replacement and caller-owned returns, including allocation inside constructors,
+sole-root transfer and failure cleanup. Existing CLI profiles are unchanged.
+
+Planned boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 
 ## 8. Garbage collection

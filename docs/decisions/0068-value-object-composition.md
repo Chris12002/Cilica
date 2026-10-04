@@ -20,3 +20,6 @@ selected local checks pass, including reduced missing/repeated-base and invalid
 readonly/allocation cases. Earlier value/vector profiles still reject class
 allocation. CIL discovery and live object-reference stress are the next slice;
 this authored-IR checkpoint does not establish them.
+
+ADR 0069 supplies that CIL/native evidence and tightens the constructor boundary
+to scalar/reference operations throughout the body, including locals and results.

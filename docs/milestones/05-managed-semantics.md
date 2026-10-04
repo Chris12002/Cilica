@@ -23,7 +23,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2c.3a | Values composed with allocating vector IR | Complete for authored IR |
 | 5d.2c.3b | CIL value/vector allocation and composed live-reference stress | Complete for Int32 vector CIL |
 | 5d.2c.3c.1 | Value/class-construction IR composition | Complete for authored IR |
-| 5d.2c.3c.2 | CIL value/class construction and live-reference stress | Planned |
+| 5d.2c.3c.2 | CIL value/class construction and live-reference stress | Complete for the bounded compiler-library profile |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
@@ -267,3 +267,27 @@ shared constructor/access verification. Source allocation roots and scalar opera
 mapping preserve return packets and constructor receivers. All 80 selected local
 checks pass; manual review found no blocking issues. CIL class construction and
 live object-reference stress remain next. No hosted work ran.
+
+## Slice 5d.2c.3c.2 outcome
+
+ADR 0069 connects class construction and inherited scalar/reference fields to
+static CIL struct programs. Existing source/target verification enforces access,
+readonly receiver rules and base initialization. Discovery shares bounded metadata
+snapshots with value/reference catalog construction.
+
+Review found that a struct-returning call in a constructor could require hidden
+borrowed storage before base initialization. This gate now rejects value/borrow
+flow throughout constructor bodies, with a reduced regression. A cached-snapshot
+regression also verifies that combined field limits cannot be bypassed. No blocking
+findings remain.
+
+The final focused suite passed 256 checks, following 66 initial CIL checks and two
+O0/O2 native configurations; these groups overlap. Native ASan/UBSan probes retain
+six-object graphs through struct copies, heap-field borrows and sole-root returns,
+including allocation inside base/derived constructors. They verify arithmetic/fault
+parity, final reclamation, exact/insufficient heap/arena limits and nested allocation
+failure with context reuse. The 2 KiB stack gate remains enabled.
+
+Milestone 5 remains in progress. Boxing/unboxing is next (5e), followed by generics,
+delegates and managed exceptions. Existing CLI entry points remain unchanged.
+Local main remains an ancestor. No push, hosted work, service or additional agent ran.
