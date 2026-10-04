@@ -60,3 +60,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0052](0052-collection-stress.md) | Collection stress and poisoned reclamation checks | Accepted |
 | [0053](0053-instance-retained-handles.md) | Instance-owned retained handles | Accepted for private native helpers |
 | [0054](0054-stage-four-completion.md) | Bounded collection and handles checkpoint | Milestone 4 complete for bounded native v14 |
+| [0055](0055-detached-value-layouts.md) | Detached inline value layouts | Accepted for bounded copy/reference-path planning; no execution |

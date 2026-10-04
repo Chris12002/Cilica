@@ -562,6 +562,13 @@ callbacks support inspection/future tracing. Phase A roots cover arrays and load
 references across allocations; actual collection remains planned.
 Structs with references have generated tracing descriptions.
 
+The first detached value-layout contract is implemented
+([ADR 0055](decisions/0055-detached-value-layouts.md)). It distinguishes inline
+values from object references, rejects inline containment cycles, and derives
+nested scalar copy paths and embedded-reference paths within explicit expansion
+and depth limits. This is layout planning only; metadata discovery, executable
+struct operations and native tracing of struct storage remain milestone 5 work.
+
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 

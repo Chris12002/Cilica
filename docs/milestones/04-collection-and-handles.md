@@ -150,3 +150,15 @@ concurrent/generational collection or phase B liveness. See ADR 0054 for remaini
 diagnostics and resource limits. Local main remains an ancestor; no push, hosted
 work, paid service or additional agents ran. The next milestone is 5: staged value
 types, boxing, generics, delegates and exception semantics.
+
+
+## Follow-up review before milestone 5
+
+Reviewed the milestone 4 diff from `59df625` through `440385d`: tracing and mark
+limits, atomic mark/sweep, allocation partial-failure cleanup/retry, precise roots
+and retained-handle ownership/generation lifetime. No blocking defect found in
+its supported single-context private runtime. Six focused local tests passed,
+covering tracing/handles, collection stress and the composed example at O0/O2
+with ASan/UBSan. This is targeted confirmation, not a new full-suite/platform claim.
+Local main remains an ancestor; the remote currently advertises no main branch.
+No push, hosted run or additional agent was used.

@@ -146,7 +146,7 @@ public static class ObjectModelValidator
         && id.ContentHash == objectBase.ContentHash && id.Token == objectBase.Token
         && (element.Kind == ObjectArrayElementKind.Int32 ? element.Type is null
             : element.Kind == ObjectArrayElementKind.Reference && Identity(element.Type, 0x02));
-    private static bool Identity(ObjectTypeId? id, uint table) => id is not null && id.ArrayElement is null && Hash(id.ContentHash)
+    internal static bool Identity(ObjectTypeId? id, uint table) => id is not null && id.ArrayElement is null && Hash(id.ContentHash)
         && id.ContentHash == id.ContentHash.ToLowerInvariant() && DefinitionToken(id.Token, table)
         && (id.Token & 0xffffff) != 1; // TypeDef row 1 is the module, not an instance class.
     private static bool DefinitionToken(int token, uint table) => (uint)token >> 24 == table && (token & 0xffffff) != 0;

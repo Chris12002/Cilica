@@ -43,6 +43,9 @@ public abstract record ObjectStorage
 {
     public sealed record Int32 : ObjectStorage;
     public sealed record Reference(ObjectTypeId Type) : ObjectStorage;
+    // Inline storage, accepted only by the value-layout contract until executable
+    // value lowering is available. It is never an implicit boxed reference.
+    public sealed record Value(ObjectTypeId Type) : ObjectStorage;
 }
 
 public sealed record ObjectField(ObjectFieldId Id, string Name, FieldAttributes Attributes, ObjectStorage Storage);
