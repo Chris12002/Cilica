@@ -81,6 +81,7 @@ internal sealed class ResolutionAssemblyBuilder
 
     internal void TypeLayout(TypeDefinitionHandle type, ushort packing, uint size) => _metadata.AddTypeLayout(type, packing, size);
     internal void FieldOffset(FieldDefinitionHandle field, int offset) => _metadata.AddFieldLayout(field, offset);
+    internal void Constant(EntityHandle owner, object? value) => _metadata.AddConstant(owner, value);
 
     internal void Implements(TypeDefinitionHandle owner, EntityHandle @interface) => _metadata.AddInterfaceImplementation(owner, @interface);
 

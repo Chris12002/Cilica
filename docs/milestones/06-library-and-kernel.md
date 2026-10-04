@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a and 6b.1 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1 and 6b.2 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -14,7 +14,7 @@ fixtures and examples must be independent.
 | --- | --- | --- |
 | 6a | Explicit library-contract inventory, independent tests and private kernel dependency evidence | Complete; ADR 0088 |
 | 6b.1 | Pin the reference/source baseline and validate explicit type correspondence | Complete for metadata plans; ADR 0089; no library source imported |
-| 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Next; ordinary compiler binding is unchanged |
+| 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Planned; mapping plans and input names/attributes grant no new privileges |
 | 6c | Extend compiler semantics needed by the first concrete kernel path: scalar/enum cases, values stored in classes, value instance calls and closed generic interface/instance calls | Planned; split into individually reviewed and differentially tested slices |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
@@ -91,9 +91,20 @@ checks pass. A local metadata-only probe also maps three real reference types to
 independent implementation-shaped declarations. Review added changed-target-hash
 coverage. No native output changed or hosted work ran.
 
-Next, slice 6b.2 must bind member owners and signatures consistently through this
-plan, diagnose missing/incompatible members, and retain both source and target
-evidence before compiler integration. See [ADR 0089](../decisions/0089-library-type-binding-foundation.md).
+See [ADR 0089](../decisions/0089-library-type-binding-foundation.md).
+
+## Slice 6b.2 outcome
+
+Explicit method/field binding now resolves the reference declaration first, maps
+its owner and structural signature, and finds one compatible implementation.
+Generic overloads are matched before substitution. Results retain original and
+implementation identities and constructed signatures; missing or ambiguous
+members, changed access/storage/dispatch flags and changed literal values fail.
+Ordinary compiler binding remains unchanged; no intrinsic permission is granted.
+Eighteen new cases and related regressions pass in a 112-test focused local run.
+The slice review found no remaining actionable issue. See
+[ADR 0090](../decisions/0090-library-member-binding.md). Compiler integration,
+provenance validation and actual library behavior remain required next gates.
 
 ## Remaining completion evidence
 
