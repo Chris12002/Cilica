@@ -30,6 +30,7 @@ internal sealed class ObjectTypeRelations
             Add(ObjectTypeId.From(type.Source), type.BaseType is null ? type.Interfaces : type.Interfaces.Prepend(type.BaseType));
         foreach (var contract in catalog.Interfaces)
             Add(ObjectTypeId.From(contract.Source), contract.Parents.Append(catalog.ObjectBase));
+        foreach (var declaration in catalog.Delegates) Add(ObjectTypeId.From(declaration.Source), [catalog.ObjectBase]);
         if (catalog.String is { } text) Add(text, [catalog.ObjectBase]);
         int completed = 0;
         while (ready.TryDequeue(out var parent))

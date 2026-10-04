@@ -45,6 +45,12 @@ public static class ValueRootAssignment
         return Assign(program.Flow.Flow, rules);
     }
 
+    public static ImmutableArray<ValueMethodRoots> Assign(DelegateValueIrProgram program)
+    {
+        var rules = DelegateValueIrValidator.ValidateAndPlan(program);
+        return Assign(program.Flow.Flow, rules);
+    }
+
     private static ImmutableArray<ValueMethodRoots> Assign(ValueIrProgram program, ValueIrRules rules)
     {
         var layouts = rules.Plans.ToDictionary(p => p.Type);
@@ -85,10 +91,12 @@ public static class ValueRootAssignment
                     if (block.Statements[i] is IrStatement.Define define)
                     {
                         Add(ObjectRootKind.Value, define.Value.Id, define.Value.Type, block.Id);
-                        if (define.Value.Expression is IrExpression.Call or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue)
-                            points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue
+                        if (define.Value.Expression is IrExpression.Call or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate or IrExpression.CallDelegate)
+                            points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate
                                 ? ObjectSafepointKind.Allocation : ObjectSafepointKind.Call, block.Id));
                     }
+                    else if (block.Statements[i] is IrStatement.InvokeDelegate delegateCall)
+                        points.Add(new(i, delegateCall.ILOffset, ObjectSafepointKind.Call, block.Id));
                     else if (block.Statements[i] is IrStatement.Invoke invoke)
                         points.Add(new(i, invoke.ILOffset, ObjectSafepointKind.Call, block.Id));
             }

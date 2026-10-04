@@ -83,3 +83,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0075](0075-closed-generic-value-layouts.md) | Closed generic value layouts | Accepted for unconstrained struct specialization, closed static owners, exact boxed identities and O0/O2 collection/fault probes |
 | [0076](0076-generic-special-constraints.md) | Scalar generic closures and special constraints | Accepted for empty inline catalogs, class/struct/default-constructor constraint admission, bounded metadata work and O0/O2 native probes |
 | [0077](0077-closed-generic-reference-layouts.md) | Closed generic reference layouts and construction | Accepted for concrete closed class hierarchies, scalar/reference fields, constructors and O0/O2 collection/failure probes |
+| [0078](0078-detached-delegate-ir.md) | Detached single-target delegate IR | Accepted for intrinsic delegate types, checked static/instance captures, Int32/void invocation contracts and source roots; native/CIL remain next |

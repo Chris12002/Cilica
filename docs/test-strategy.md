@@ -759,3 +759,9 @@ readonly constructor fields, cycles, generic struct returns/boxes and mutable fi
 borrows. O0/O2 sanitizers check collection, arithmetic/fault parity, constructor
 allocation failure and context reuse. Reduced tests reject base cycles and growing
 reference layouts with bounded inclusion paths, retaining earlier catalog checks.
+
+Delegate IR contract checks (ADR 0078) verify exact signatures and type identities,
+private-target access, target-only reachability, captured receiver roots, void
+invocation, explicit fault exits and phase A root/argument bounds. Earlier native
+profiles must reject delegate catalogs until the native gate is implemented.
+These checks do not establish native delegate execution.

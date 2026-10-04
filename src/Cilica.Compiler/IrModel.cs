@@ -54,6 +54,8 @@ public abstract record IrExpression
     public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
     public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false,
         bool VirtualDispatch = false) : IrExpression;
+    public sealed record NewDelegate(ObjectTypeId Type, IrMethodId Target, int Receiver) : IrExpression;
+    public sealed record CallDelegate(ObjectTypeId Type, int Delegate, ImmutableArray<int> Arguments) : IrExpression;
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
     // Vector lengths/indices use bounded Int32 values. Allocation zero-initializes
     // elements; negative length and allocation failure leave via the fault edge.
@@ -103,6 +105,8 @@ public abstract record IrExpression
 public sealed record IrValue(int Id, IrType Type, int ILOffset, IrExpression Expression);
 public abstract record IrStatement
 {
+    public sealed record InvokeDelegate(int ILOffset, ObjectTypeId Type, int Delegate, ImmutableArray<int> Arguments,
+        IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
     public sealed record Define(IrValue Value, IrExceptionTarget? Exceptional = null) : IrStatement;
     public sealed record StoreLocal(int ILOffset, int Local, int Value) : IrStatement;
     public sealed record Invoke(int ILOffset, IrMethodId Target, ImmutableArray<int> Arguments,

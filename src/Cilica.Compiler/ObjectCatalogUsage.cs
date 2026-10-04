@@ -12,12 +12,13 @@ internal static class ObjectCatalogUsage
         var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var interfaces = catalog.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
         var arrays = catalog.Arrays.ToHashSet();
+        var delegates = catalog.Delegates.Select(d => ObjectTypeId.From(d.Source)).ToHashSet();
         var pending = new Stack<ObjectTypeId>(roots); pending.Push(catalog.ObjectBase);
         var visited = new HashSet<ObjectTypeId>();
         while (pending.TryPop(out var id))
             if (visited.Add(id))
             {
-                if (id == catalog.String) pending.Push(catalog.ObjectBase);
+                if (id == catalog.String || delegates.Contains(id)) pending.Push(catalog.ObjectBase);
                 else if (arrays.Contains(id))
                 {
                     if (id.ArrayElement!.Type is { } element) pending.Push(element);
@@ -31,7 +32,7 @@ internal static class ObjectCatalogUsage
                     foreach (var reference in layouts[id].Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>()) pending.Push(reference.Type);
                 }
             }
-        if (visited.Count != layouts.Count + interfaces.Count + arrays.Count + (catalog.String is null ? 0 : 1))
+        if (visited.Count != layouts.Count + interfaces.Count + arrays.Count + (catalog.String is null ? 0 : 1) + delegates.Count)
             throw new ArgumentException("Invalid reference program IR: catalog contains types unused by value flow or its field closure.", nameof(catalog));
     }
 }

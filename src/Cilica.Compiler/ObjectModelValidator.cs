@@ -15,7 +15,7 @@ public static class ObjectModelValidator
     public static void Validate(ObjectModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String });
+        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String, Delegates = model.Delegates });
     }
 
     public static void Validate(ObjectTypeCatalog model)
@@ -37,6 +37,20 @@ public static class ObjectModelValidator
         Require(!model.Arrays.IsDefault && model.Arrays.Length <= ObjectModelLimits.MaximumTypes
             && model.Types.Length + model.Interfaces.Length + model.Arrays.Length + stringCount <= ObjectModelLimits.MaximumTypes,
             "combined class/interface/array/string type limit exceeded.");
+        Require(!model.Delegates.IsDefault && model.Delegates.Length <= ObjectModelLimits.MaximumTypes
+            && model.Types.Length + model.Interfaces.Length + model.Arrays.Length + stringCount + model.Delegates.Length <= ObjectModelLimits.MaximumTypes,
+            "combined delegate/type limit exceeded.");
+        var delegates = new HashSet<ObjectTypeId>();
+        int delegateParameters = 0;
+        foreach (var declaration in model.Delegates)
+        {
+            Require(declaration?.Source is not null && declaration.Source.Name is not null
+                && declaration.Source.AssemblyIdentity is not null && Hash(declaration.Source.ContentHash), "invalid delegate source.");
+            Require(Identity(ObjectTypeId.From(declaration.Source), 0x02) && delegates.Add(ObjectTypeId.From(declaration.Source))
+                && declaration.ParameterCount is >= 0 and < IrLimits.MaximumParameters, "invalid delegate identity or signature.");
+            delegateParameters += declaration.ParameterCount;
+            Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
+        }
         Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase)) && model.Arrays.Distinct().Count() == model.Arrays.Length,
             "array identities require a unique selected-Object anchor and Int32 or nominal reference elements.");
         var arrays = model.Arrays.ToHashSet();
@@ -82,9 +96,11 @@ public static class ObjectModelValidator
         }
         Require(model.String is null || !types.ContainsKey(model.String) && !interfaces.ContainsKey(model.String),
             "selected String cannot also declare class fields or interface contracts.");
-        bool Known(ObjectTypeId id) => types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id) || id == model.String;
+        Require(delegates.All(id => !types.ContainsKey(id) && !interfaces.ContainsKey(id) && id != model.String),
+            "delegate identity collides with another storage kind.");
+        bool Known(ObjectTypeId id) => delegates.Contains(id) || types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id) || id == model.String;
         foreach (var array in arrays)
-            Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element) || element == model.String,
+            Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element) || element == model.String || delegates.Contains(element),
                 "array reference element is outside the nominal catalog.");
         Require(model.Roots.All(Known) && types.ContainsKey(model.ObjectBase), "roots/base are outside the model.");
         foreach (var type in model.Types)
@@ -105,7 +121,7 @@ public static class ObjectModelValidator
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
             {
-                if (id == model.String) pending.Push(model.ObjectBase);
+                if (id == model.String || delegates.Contains(id)) pending.Push(model.ObjectBase);
                 else if (arrays.Contains(id))
                 {
                     if (id.ArrayElement!.Type is { } element) pending.Push(element);
@@ -119,7 +135,7 @@ public static class ObjectModelValidator
                     foreach (var reference in types[id].Fields.Select(f => f.Storage).OfType<ObjectStorage.Reference>()) pending.Push(reference.Type);
                 }
             }
-        Require(visited.Count == types.Count + interfaces.Count + arrays.Count + stringCount, "model contains unrelated types.");
+        Require(visited.Count == types.Count + interfaces.Count + arrays.Count + stringCount + delegates.Count, "model contains unrelated types.");
     }
 
     internal static bool ClassAttributes(TypeAttributes attributes) =>

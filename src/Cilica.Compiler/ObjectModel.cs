@@ -35,6 +35,12 @@ public sealed record ObjectInterface(TypeSource Source, TypeAttributes Attribute
     public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;
 }
 
+/// <summary>Intrinsic single-target delegate shape; the receiver is private traced runtime storage.</summary>
+public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, bool ReturnsVoid)
+{
+    public bool ExternallyVisible { get; init; } = true;
+}
+
 /// <summary>Field identity retains its declaring type, including its input image.</summary>
 public sealed record ObjectFieldId(ObjectTypeId Owner, int Token);
 
@@ -66,6 +72,7 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
     public const string Profile = "object-layout-v5";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
+    public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];
     // Selected runtime identity, represented intrinsically rather than by mutable fields.
     public ObjectTypeId? String { get; init; }
 }
@@ -76,6 +83,7 @@ public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, Objec
 {
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
+    public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];
     // Selected runtime identity, represented intrinsically rather than by mutable fields.
     public ObjectTypeId? String { get; init; }
 }

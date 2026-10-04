@@ -38,13 +38,18 @@ internal sealed class ObjectIrRules
     private readonly ObjectDispatchRules _dispatch;
     private readonly ObjectInterfaceOperationRules _interfaces;
     private readonly ObjectIrProgram _program;
+    private readonly bool _allowDelegates;
+    private readonly Dictionary<ObjectTypeId, ObjectDelegateType> _delegates;
     private readonly HashSet<string> _literals = new(StringComparer.Ordinal);
     private int _literalUnits;
 
-    internal ObjectIrRules(ObjectIrProgram program, bool locations = false, ValueTypeCatalog? values = null)
+    internal ObjectIrRules(ObjectIrProgram program, bool locations = false, ValueTypeCatalog? values = null, bool delegates = false)
     {
         _program = program;
         var flow = program.Flow;
+        _allowDelegates = delegates;
+        Require(delegates || flow.Types.Delegates.IsEmpty, "delegate catalogs require the explicit delegate IR profile.");
+        _delegates = flow.Types.Delegates.ToDictionary(d => ObjectTypeId.From(d.Source));
         _types = new(flow.Types, values, locations);
         _layouts = flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         _contracts = flow.Types.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
@@ -63,7 +68,7 @@ internal sealed class ObjectIrRules
                 && (uint)binding.Owner.Token >> 24 == 0x02 && (binding.Owner.Token & 0xffffff) > 1
                 && binding.Owner.ContentHash == binding.Method.ContentHash
                 && _methods.ContainsKey(binding.Method) && _bindings.TryAdd(binding.Method, binding), "invalid or duplicate method binding identity.");
-            Require(binding.Owner != flow.Types.String, "selected String methods require explicit intrinsic operations.");
+            Require(binding.Owner != flow.Types.String && !_delegates.ContainsKey(binding.Owner), "selected String methods require explicit intrinsic operations.");
             var method = _methods[binding.Method];
             Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
                 && method.Parameters.All(p => _types.Valid(p, true)) && (_types.Valid(method.ReturnType, true) || method.ReturnType == IrType.Void)
@@ -114,6 +119,9 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
         IrStatement.Define { Value.Expression: IrExpression.AddressField f } => new[] { f.Field.Owner },
         IrStatement.StoreField f => new[] { f.Field.Owner },
+        IrStatement.Define { Value.Expression: IrExpression.NewDelegate d } => new[] { d.Type },
+        IrStatement.Define { Value.Expression: IrExpression.CallDelegate d } => new[] { d.Type },
+        IrStatement.InvokeDelegate d => new[] { d.Type },
         IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },
         IrStatement.StoreElement a => new[] { a.ArrayType },
@@ -123,6 +131,34 @@ internal sealed class ObjectIrRules
         IrStatement.Invoke c when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         _ => Array.Empty<ObjectTypeId>(),
     });
+
+    internal IrType? DelegateReturn(ObjectTypeId? type) => type is not null && _delegates.TryGetValue(type, out var declaration)
+        ? declaration.ReturnsVoid ? IrType.Void : IrType.Int32 : null;
+
+    internal bool DelegateCapture(IrMethod caller, IrExpression.NewDelegate capture, IrType result, IReadOnlyList<IrType> values)
+    {
+        if (!_allowDelegates || capture.Type is null || capture.Target is null || !_delegates.TryGetValue(capture.Type, out var declaration)
+            || result != IrType.Reference(capture.Type) || capture.Receiver < 0 || capture.Receiver >= values.Count
+            || !_bindings.TryGetValue(capture.Target, out var target) || target.Kind is not (ObjectMethodKind.Static or ObjectMethodKind.Instance)
+            || (target.Attributes & MethodAttributes.Virtual) != 0 || target.VirtualSlot is not null
+            || !Access(Binding(IrMethodId.From(caller.Source)), target)
+            || !declaration.ExternallyVisible && Binding(IrMethodId.From(caller.Source)).Owner != capture.Type) return false;
+        var body = _methods[capture.Target];
+        int skip = target.Kind == ObjectMethodKind.Instance ? 1 : 0;
+        return body.ReturnType == DelegateReturn(capture.Type) && body.Parameters.Length == declaration.ParameterCount + skip
+            && body.Parameters.Skip(skip).All(p => p == IrType.Int32)
+            && (skip == 0 ? values[capture.Receiver] == IrType.NullReference
+                : _types.Assignable(values[capture.Receiver], IrType.Reference(target.Owner)));
+    }
+
+    internal bool DelegateCall(IrMethod caller, ObjectTypeId? type, int receiver,
+        System.Collections.Immutable.ImmutableArray<int> arguments, IrType result, IReadOnlyList<IrType> values) =>
+        _allowDelegates && type is not null && _delegates.TryGetValue(type, out var declaration)
+        && (declaration.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == type)
+        && result == DelegateReturn(type) && receiver >= 0 && receiver < values.Count
+        && _types.Assignable(values[receiver], IrType.Reference(type)) && !arguments.IsDefault
+        && arguments.Length == declaration.ParameterCount
+        && arguments.All(a => a >= 0 && a < values.Count && values[a] == IrType.Int32);
 
     internal IrType? StringType => _program.Flow.Types.String is { } text ? IrType.Reference(text) : null;
 

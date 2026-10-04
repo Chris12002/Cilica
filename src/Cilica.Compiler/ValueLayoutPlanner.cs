@@ -21,7 +21,7 @@ public static class ValueLayoutPlanner
         ObjectModelValidator.Validate(catalog.References);
         var references = catalog.References.Types.Select(t => ObjectTypeId.From(t.Source))
             .Concat(catalog.References.Interfaces.Select(t => ObjectTypeId.From(t.Source)))
-            .Concat(catalog.References.Arrays).ToHashSet();
+            .Concat(catalog.References.Arrays).Concat(catalog.References.Delegates.Select(d => ObjectTypeId.From(d.Source))).ToHashSet();
         if (catalog.References.String is { } text) references.Add(text);
         Require(ObjectModelValidator.Identity(catalog.ValueBase, 0x02) && !references.Contains(catalog.ValueBase),
             "selected ValueType needs a distinct canonical nominal identity.");

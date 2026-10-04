@@ -799,6 +799,13 @@ unwind ordering and are required for the first public release. Until then they
 produce diagnostics. Catch managed exceptions at every exported boundary;
 return structured errors rather than unwinding into Swift/Kotlin/JavaScript.
 
+The authored `delegate-values-ir-v1` contract now defines intrinsic single-target
+delegate identities, exact static/instance captures and Int32/void invocation
+([ADR 0078](decisions/0078-detached-delegate-ir.md)). Captured receivers remain
+managed references, target methods enter the reachable closure and allocation/call
+safepoints retain the necessary roots. Native execution and CIL delegate binding
+remain separate gates; multicast, variance and broader signatures are unsupported.
+
 ## 10. Generics and reachability
 
 Initially specialise each reachable closed generic type and method. Distinct

@@ -43,6 +43,7 @@ internal static class IrValidator
                             if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
                             break;
                         case IrStatement.Define { Value.Expression: IrExpression.NewObject allocated }: pending.Push(allocated.Constructor); break;
+                        case IrStatement.Define { Value.Expression: IrExpression.NewDelegate capture }: pending.Push(capture.Target); break;
                         case IrStatement.Invoke call:
                             if (objectRules is null || !objectRules.Interface(call.Target)) pending.Push(call.Target);
                             if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
@@ -147,6 +148,8 @@ internal static class IrValidator
                             IrExpression.Compare c => value.Type == IrType.Int32 && BinaryComparison(c.Comparison) && Earlier(c.Left) && Earlier(c.Right)
                                 && types.Comparable(c.Comparison, valueTypes[c.Left], valueTypes[c.Right]),
                             IrExpression.Call c => Call(c, value.Type),
+                            IrExpression.NewDelegate d => objectRules is not null && objectRules.DelegateCapture(method, d, value.Type, valueTypes),
+                            IrExpression.CallDelegate d => objectRules is not null && objectRules.DelegateCall(method, d.Type, d.Delegate, d.Arguments, value.Type, valueTypes),
                             IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
                             IrExpression.StringLiteral literal => objectRules is not null && value.Type == objectRules.StringType
@@ -201,7 +204,7 @@ internal static class IrValidator
                                 && ManagedLocationRules.Load(valueTypes[l.Location], value.Type),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
-                        bool throwing = value.Expression is IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
+                        bool throwing = value.Expression is IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.LoadLocation
@@ -219,6 +222,11 @@ internal static class IrValidator
                         {
                             callArguments += allocated.Arguments.Length;
                             Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded.");
+                        }
+                        if (value.Expression is IrExpression.NewDelegate or IrExpression.CallDelegate)
+                        {
+                            callArguments += value.Expression is IrExpression.CallDelegate invoked ? invoked.Arguments.Length + 1 : 1;
+                            Require(callArguments <= ProgramLimits.MaximumCallArguments, "delegate argument limit exceeded.");
                         }
                         if (value.Expression is IrExpression.BoxScalars boxed)
                         {
@@ -239,6 +247,12 @@ internal static class IrValidator
                                 || objectRules is not null && objectRules.BaseCall(method, invoke, valueTypes, expressions)), "invalid void call or base initialization.");
                         callArguments += invoke.Arguments.Length;
                         Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded."); break;
+                    case IrStatement.InvokeDelegate invoke:
+                        Offset(invoke.ILOffset);
+                        Require(invoke.Exceptional == IrExceptionTarget.MethodExit && objectRules is not null
+                            && objectRules.DelegateCall(method, invoke.Type, invoke.Delegate, invoke.Arguments, IrType.Void, valueTypes), "invalid void delegate invocation.");
+                        callArguments += invoke.Arguments.Length + 1;
+                        Require(callArguments <= ProgramLimits.MaximumCallArguments, "delegate argument limit exceeded."); break;
                     case IrStatement.StoreField store:
                         Offset(store.ILOffset);
                         Require(objectRules is not null && objectRules.Store(method, store, valueTypes, expressions), "invalid field store, access or readonly receiver."); break;

@@ -20,7 +20,7 @@ public static class ObjectModelBuilder
         ArgumentNullException.ThrowIfNull(root);
         var result = BuildCatalog(resolver, [root], runtimeLibrary);
         return new(result.Catalog is null ? null : new ObjectModel(Id(root), result.Catalog.ObjectBase, result.Catalog.Types)
-            { Interfaces = result.Catalog.Interfaces, Arrays = result.Catalog.Arrays, String = result.Catalog.String }, result.Diagnostics);
+            { Interfaces = result.Catalog.Interfaces, Arrays = result.Catalog.Arrays, String = result.Catalog.String, Delegates = result.Catalog.Delegates }, result.Diagnostics);
     }
 
     public static ObjectCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,

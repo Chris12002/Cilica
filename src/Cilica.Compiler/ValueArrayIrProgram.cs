@@ -21,7 +21,7 @@ public static class ValueArrayIrValidator
     }
 
     internal static ValueIrRules ValidateComposition(ManagedLocationIrProgram program,
-        ImmutableArray<ObjectMethodBinding> bindings, bool classes, bool boxing = false)
+        ImmutableArray<ObjectMethodBinding> bindings, bool classes, bool boxing = false, bool delegates = false)
     {
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
@@ -30,9 +30,10 @@ public static class ValueArrayIrValidator
         // checked on the value signatures before hidden scalar parameters exist.
         _ = ValueLayoutPlanner.Build(flow.Types);
         if (bindings.IsDefault || bindings.Any(b => b is null || b.Kind != ObjectMethodKind.Static
+            && !(delegates && b.Kind == ObjectMethodKind.Instance)
             && !(classes && b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor)))
             throw new ArgumentException("Composed value methods require direct static bindings or explicitly supported class constructors.", nameof(program));
-        var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings), locations: true, values: flow.Types);
+        var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings), locations: true, values: flow.Types, delegates: delegates);
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing);
         foreach (var method in flow.Methods)
             if (objects.Binding(IrMethodId.From(method.Source)).Kind != ObjectMethodKind.Static
@@ -56,10 +57,12 @@ public static class ValueArrayIrValidator
                     or IrExpression.LocationField or IrExpression.ReadOnlyLocation or IrExpression.LoadLocation
                     or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                     || classes && d.Value.Expression is (IrExpression.NewObject or IrExpression.LoadField)
-                    || boxing && d.Value.Expression is (IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation),
+                    || boxing && d.Value.Expression is (IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation)
+                    || delegates && d.Value.Expression is (IrExpression.NewDelegate or IrExpression.CallDelegate),
                 IrStatement.StoreLocal or IrStatement.Invoke or IrStatement.StoreLocation
                     or IrStatement.InitializeLocation or IrStatement.StoreElement => true,
                 IrStatement.StoreField when classes => true,
+                IrStatement.InvokeDelegate when delegates => true,
                 _ => false,
             };
             if (!supported) throw new ArgumentException(classes

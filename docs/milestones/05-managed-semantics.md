@@ -32,7 +32,9 @@ profiles continue to reject unsupported reachable semantics.
 | 5f.2 | Closed generic struct layouts and member binding | Complete for unconstrained closed structs and static members |
 | 5f.3 | Primitive-only closures and bounded generic constraint validation | Complete for class/struct/public default-constructor constraints |
 | 5f.4 | Closed generic reference layouts and construction | Complete for concrete classes with scalar/reference fields and exact constructors |
-| 5g | Delegates, captured receivers and invocation | Planned |
+| 5g.1 | Delegate identities, captures, invocation and root contracts | Complete for authored single-target Int32/void IR |
+| 5g.2 | Native delegate storage, invocation and collection | Next |
+| 5g.3 | CIL delegate binding and composed differential probes | Planned |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
 | 5i | Composed differential regressions and final review | Planned |
 
@@ -424,4 +426,14 @@ borrows, compare arithmetic/faults to .NET and verify allocation failure recover
 The 2 KiB stack gate remains enabled. The bounded generic gate is complete;
 generic dispatch, broader constraints and inline struct fields in classes remain
 explicitly unsupported. Delegates are next (5g). Milestone 5 remains in progress;
+no hosted work ran.
+
+## Slice 5g.1 outcome
+
+ADR 0078 defines exact single-target delegate identities, checked static/instance
+captures and Int32/void invocation through the existing value flow. Review checked
+access, closure reachability, fault exits, signatures and captured/delegate roots.
+All 248 selected local verifier/catalog checks pass, including malformed targets
+and the root budget. Earlier native profiles reject this source-only contract.
+Native storage and invocation are next (5g.2). Milestone 5 remains in progress;
 no hosted work ran.
