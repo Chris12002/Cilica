@@ -18,7 +18,7 @@ public sealed class BoxedValueIrTests
     private static IrStatement.Define D(int id, IrType type, IrExpression expression, bool fault = false) =>
         new(new(id, type, 0, expression), fault ? IrExceptionTarget.MethodExit : null);
 
-    private static BoxedValueIrProgram Model(bool nested = false, bool empty = false)
+    internal static BoxedValueIrProgram Model(bool nested = false, bool empty = false)
     {
         var leaf = new ValueTypeLayout(new("fixture", Hash, Leaf.Token, "Leaf"), TypeAttributes.Public | TypeAttributes.Sealed,
             empty ? [] : [new(Number, "Number", FieldAttributes.Public, new ObjectStorage.Int32()),

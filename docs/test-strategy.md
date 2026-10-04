@@ -714,3 +714,13 @@ collection callbacks preserve the expected state. Detached tests reject mismatch
 valid reference catalogs and combined class/box slot expansion above the native
 limit. These tests exercise helpers directly; boxed IR emission and generated
 fault-origin tests remain separate work.
+
+Authored boxing IR now runs through scalar expansion and native emission (ADR 0072).
+Verifier regressions reject malformed packet types/lengths, bad slot identities,
+missing fault edges and old-profile access. Empty unbox checks retain owner roots;
+an expansion regression enforces the target root limit even for zero-slot payloads.
+O0/O2 sanitizer probes compare copying/mutation with .NET, preserve embedded
+reference identity under allocation-time collection, forward empty borrows through
+allocating static calls and check exact null/type fault origins. Packed output
+stays unchanged on failure. Allocation failure and one-byte-short arena capacity
+unwind all frames/borrows/roots; exact capacity and context reuse succeed.

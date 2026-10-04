@@ -77,3 +77,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0069](0069-value-object-cil-and-collection.md) | Value/class CIL and live-reference collection | Accepted for bounded class construction composed with static values and local O0/O2 collection/failure probes |
 | [0070](0070-detached-boxed-value-ir.md) | Detached boxed-value IR | Accepted for named-struct allocation/copy/borrow contracts, logical payload plans and source roots; native execution and CIL remain planned |
 | [0071](0071-native-boxed-payload-helpers.md) | Native boxed-payload helpers | Accepted for private typed payload storage, copy/borrow helpers and local O0/O2 collection probes; boxed IR emission and CIL remain planned |
+| [0072](0072-native-boxed-ir-emission.md) | Native boxed IR expansion and emission | Accepted for authored boxing IR, checked scalar packets, empty borrowed-owner roots and local O0/O2 fault/collection probes |

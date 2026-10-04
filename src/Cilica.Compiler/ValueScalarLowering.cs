@@ -5,11 +5,19 @@ using System.Linq;
 
 namespace Cilica.Compiler;
 
-/// <summary>Expands inline copies into scalar/reference IR, preserving opted-in vector operations without boxing.</summary>
+/// <summary>Expands inline copies into scalar/reference IR with explicitly selected object and boxing operations.</summary>
 public static class ValueScalarLowering
 {
     public const string Profile = "value-scalars-v1";
     public const string LocationProfile = "value-location-scalars-v2";
+
+    public static ScalarBoxedIrProgram LowerBoxes(BoxedValueIrProgram program)
+    {
+        _ = ValueRootAssignment.Assign(program);
+        var result = new ScalarBoxedIrProgram(new(new(LowerCore(program.Flow.Flow, returnPackets: true), program.Bindings)), program.Flow.Flow.Types);
+        _ = ObjectRootAssignment.AssignBoxes(result);
+        return result;
+    }
 
     public static ScalarLocationIrProgram LowerArrays(ValueArrayIrProgram program)
     {
@@ -206,6 +214,25 @@ public static class ValueScalarLowering
                     var ids = ImmutableArray.CreateBuilder<int>();
                     switch (value.Expression)
                     {
+                        case IrExpression.BoxValue boxed:
+                            ids.Add(Define(value.Type, value.ILOffset, new IrExpression.BoxScalars(boxed.Type,
+                                Arguments([boxed.Operand], true)), definition.Exceptional));
+                            break;
+                        case IrExpression.UnboxValue or IrExpression.UnboxLocation:
+                            bool borrow = value.Expression is IrExpression.UnboxLocation;
+                            var boxType = value.Expression is IrExpression.UnboxValue copied ? copied.Type : ((IrExpression.UnboxLocation)value.Expression).Type;
+                            int boxOperand = value.Expression is IrExpression.UnboxValue copy ? copy.Operand : ((IrExpression.UnboxLocation)value.Expression).Operand;
+                            // Keep a rooted checked receiver even when expansion has zero
+                            // leaves. Its owning frame stays live across synchronous calls.
+                            int owner = Define(IrType.Reference(program.Types.References.ObjectBase), value.ILOffset,
+                                new IrExpression.CheckBox(boxType, One(boxOperand)), definition.Exceptional);
+                            for (int i = 0; i < expanded.Length; ++i)
+                            {
+                                int location = Define(borrow ? expanded[i] : IrType.Location(expanded[i]), value.ILOffset,
+                                    new IrExpression.AddressBoxSlot(boxType, owner, i), definition.Exceptional);
+                                ids.Add(borrow ? location : Define(expanded[i], value.ILOffset, new IrExpression.LoadLocation(location), definition.Exceptional));
+                            }
+                            break;
                         case IrExpression.Call call when value.Type.Kind == IrTypeKind.Value:
                             // Caller-owned typed result slots are rooted before the
                             // callee starts; no pointer into a popped frame returns.

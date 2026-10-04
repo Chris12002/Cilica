@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 internal static class IrValidator
 {
     internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null,
-        ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null)
+        ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null, ScalarBoxingRules? boxedRules = null)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
@@ -29,7 +29,7 @@ internal static class IrValidator
         var types = new IrTypeRules(catalog, valueRules?.Catalog, locationRules is not null || valueRules?.Locations is not null);
         foreach (IrMethod method in program.Methods)
         {
-            Validate(method, methods, catalog, objectRules, types, valueRules, locationRules);
+            Validate(method, methods, catalog, objectRules, types, valueRules, locationRules, boxedRules);
             Require(resources.Add(method), "aggregate program IR limit exceeded.");
         }
         var visited = new HashSet<IrMethodId>(); var pending = new Stack<IrMethodId>(); pending.Push(program.Entry);
@@ -53,7 +53,8 @@ internal static class IrValidator
     }
 
     internal static void Validate(IrMethod method, IReadOnlyDictionary<IrMethodId, IrMethod>? methods = null, ObjectTypeCatalog? catalog = null,
-        ObjectIrRules? objectRules = null, IrTypeRules? sharedTypes = null, ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null)
+        ObjectIrRules? objectRules = null, IrTypeRules? sharedTypes = null, ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null,
+        ScalarBoxingRules? boxedRules = null)
     {
         int locationOffset = 0;
         void Require([DoesNotReturnIf(false)] bool condition, string message)
@@ -169,6 +170,9 @@ internal static class IrValidator
                             IrExpression.DefaultValue d => valueRules is not null && value.Type == IrType.Value(d.Type),
                             IrExpression.BoxValue b => valueRules is not null && Earlier(b.Operand)
                                 && valueRules.Box(b.Type, valueTypes[b.Operand], value.Type),
+                            IrExpression.BoxScalars b => boxedRules is not null && boxedRules.Box(b, value.Type, valueTypes),
+                            IrExpression.CheckBox b => boxedRules is not null && boxedRules.Check(b.Type, b.Operand, value.Type, valueTypes),
+                            IrExpression.AddressBoxSlot b => boxedRules is not null && boxedRules.Slot(b, value.Type, valueTypes),
                             IrExpression.UnboxValue u => valueRules is not null && Earlier(u.Operand)
                                 && valueRules.Unbox(u.Type, valueTypes[u.Operand], value.Type, borrow: false),
                             IrExpression.UnboxLocation u => valueRules is not null && Earlier(u.Operand)
@@ -199,7 +203,8 @@ internal static class IrValidator
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.LoadLocation
-                            or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation ||
+                            or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation
+                            or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation);
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
                             "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");
@@ -212,6 +217,11 @@ internal static class IrValidator
                         {
                             callArguments += allocated.Arguments.Length;
                             Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded.");
+                        }
+                        if (value.Expression is IrExpression.BoxScalars boxed)
+                        {
+                            callArguments += boxed.Values.Length;
+                            Require(callArguments <= ProgramLimits.MaximumCallArguments, "boxed packet argument limit exceeded.");
                         }
                         valueTypes.Add(value.Type); expressions.Add(value.Expression); values++;
                         break;

@@ -8,11 +8,11 @@ public static class ReferenceIrValidator
 {
     public static void Validate(ReferenceIrProgram program) => Validate(program, null);
 
-    internal static void Validate(ReferenceIrProgram program, ObjectIrRules? objectRules, ManagedLocationRules? locations = null)
+    internal static void Validate(ReferenceIrProgram program, ObjectIrRules? objectRules, ManagedLocationRules? locations = null, ScalarBoxingRules? boxes = null)
     {
         ArgumentNullException.ThrowIfNull(program);
         ObjectModelValidator.Validate(program.Types);
-        IrValidator.Validate(new IrProgram(program.Entry, program.Methods), program.Types, objectRules, locationRules: locations);
+        IrValidator.Validate(new IrProgram(program.Entry, program.Methods), program.Types, objectRules, locationRules: locations, boxedRules: boxes);
 
         var roots = program.Methods.SelectMany(method => method.Parameters.Concat(method.Locals).Append(method.ReturnType)
             .Concat(method.Blocks.SelectMany(b => b.Inputs)).Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type)))

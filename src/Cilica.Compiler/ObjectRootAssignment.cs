@@ -26,6 +26,12 @@ public static class ObjectRootAssignment
         return AssignValidated(program.Flow, locations: true);
     }
 
+    public static ImmutableArray<ObjectMethodRoots> AssignBoxes(ScalarBoxedIrProgram program)
+    {
+        ScalarBoxedIrValidator.Validate(program);
+        return AssignValidated(program.Flow.Flow, locations: true);
+    }
+
     private static ImmutableArray<ObjectMethodRoots> AssignValidated(ObjectIrProgram program, bool locations = false)
     {
         var result = ImmutableArray.CreateBuilder<ObjectMethodRoots>();
@@ -58,7 +64,7 @@ public static class ObjectRootAssignment
                     if (statement is IrStatement.Define define)
                     {
                         Add(ObjectRootKind.Value, define.Value.Id, define.Value.Type, block.Id);
-                        if (define.Value.Expression is IrExpression.NewObject or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.StringConcat)
+                        if (define.Value.Expression is IrExpression.NewObject or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.StringConcat or IrExpression.BoxScalars)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Allocation, block.Id));
                         else if (define.Value.Expression is IrExpression.Call)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Call, block.Id));

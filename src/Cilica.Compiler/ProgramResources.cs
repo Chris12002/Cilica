@@ -19,6 +19,7 @@ internal sealed class ProgramResources
                 {
                     case IrExpression.Call call: _arguments += call.Arguments.Length; break;
                     case IrExpression.NewObject allocated: _arguments += allocated.Arguments.Length; break;
+                    case IrExpression.BoxScalars boxed: _arguments += boxed.Values.Length; break;
                 }
             foreach (IrStatement.Invoke call in block.Statements.OfType<IrStatement.Invoke>()) _arguments += call.Arguments.Length;
             switch (block.Terminator)

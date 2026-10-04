@@ -12,6 +12,7 @@ internal sealed class ObjectFrameLayout
     internal int IntegerCount { get; }
     internal int RootCount { get; }
     internal int CallArgumentCount { get; }
+    internal int BoxArgumentCount { get; }
     internal int LocationCount { get; }
     internal bool BorrowsFrame { get; }
     internal List<IrType> RootTypes { get; } = [];
@@ -65,6 +66,7 @@ internal sealed class ObjectFrameLayout
                     _ => 0,
                 };
                 arguments = System.Math.Max(arguments, count);
+                if (value.Expression is IrExpression.BoxScalars boxed) BoxArgumentCount = System.Math.Max(BoxArgumentCount, boxed.Values.Length);
             }
             foreach (var call in block.Statements.OfType<IrStatement.Invoke>())
             {

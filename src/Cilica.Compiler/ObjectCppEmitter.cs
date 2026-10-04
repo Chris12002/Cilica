@@ -45,6 +45,12 @@ public static class ObjectCppEmitter
         return EmitValidated(program.Flow, plans, locations: true, payloads);
     }
 
+    public static CppArtifact EmitBoxes(ScalarBoxedIrProgram program)
+    {
+        var plans = ObjectRootAssignment.AssignBoxes(program).ToDictionary(p => p.Method);
+        return EmitValidated(program.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(program.Values));
+    }
+
     private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations,
         ImmutableArray<ValueTypePlan> boxedPayloads = default)
     {
@@ -173,6 +179,8 @@ public static class ObjectCppEmitter
                 .Append("    std::int64_t signed_scratch = 0; std::uint64_t unsigned_scratch = 0;\n");
             if (locations) text.Append("    std::array<Location, ").Append(N(layout.LocationCount)).Append("> locations{};\n")
                 .Append("    std::uint64_t borrow_token = 0; LocationResult location_result{};\n");
+            if (!boxedPayloads.IsEmpty) text.Append("    std::array<Argument, ").Append(N(layout.BoxArgumentCount))
+                .Append("> box_arguments{}; BoxResult box_result{};\n");
             foreach (var kind in layout.DispatchKinds.OrderBy(k => k))
                 text.Append("    ").Append(CType(new(kind))).Append(" (*dispatch_").Append(kind.ToString().ToLowerInvariant())
                     .Append(")(Context&, const ").Append(argumentType).Append("*) noexcept = nullptr;\n");
@@ -259,6 +267,9 @@ public static class ObjectCppEmitter
             }
             void CheckLocationResult(int offset) => Guard("f->location_result.status != LocationStatus::complete",
                 "f->location_result.status == LocationStatus::null_reference ? 4u : 6u", offset);
+            void CheckBoxResult(int offset) => Guard("f->box_result.status != BoxStatus::complete",
+                "context.pending != 0u ? context.pending : f->box_result.status == BoxStatus::null_reference ? 4u : "
+                    + "f->box_result.status == BoxStatus::wrong_type ? 7u : f->box_result.status == BoxStatus::allocation ? 5u : 6u", offset);
             void PublishLocation(ObjectRootKind kind, int index, IrType type, int block = -1)
             {
                 string storage = layout.Storage(kind, index, block);
@@ -349,6 +360,7 @@ public static class ObjectCppEmitter
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
                         or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
+                            or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.Invoke { VirtualDispatch: true };
@@ -363,6 +375,28 @@ public static class ObjectCppEmitter
                             code.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                             switch (value.Expression)
                             {
+                                case IrExpression.BoxScalars boxed:
+                                    for (int slot = 0; slot < boxed.Values.Length; ++slot)
+                                    {
+                                        code.Append("    f->box_arguments[").Append(N(slot)).Append("].")
+                                            .Append(PacketMember(values[boxed.Values[slot]].Type)).Append(" = ").Append(Value(boxed.Values[slot])).Append(";\n");
+                                        if ((slot + 1) % CopiesPerStep == 0) Flush();
+                                    }
+                                    Flush();
+                                    code.Append("    f->box_result = box_value(context, &").Append(ObjectCppBoxing.Symbol(boxed.Type))
+                                        .Append("_descriptor, f->box_arguments.data(), ").Append(N(boxed.Values.Length)).Append(");\n");
+                                    CheckBoxResult(value.ILOffset); expression = "f->box_result.value"; break;
+                                case IrExpression.CheckBox boxed:
+                                    code.Append("    f->box_result = unbox(context, ").Append(Value(boxed.Operand)).Append(", &")
+                                        .Append(ObjectCppBoxing.Symbol(boxed.Type)).Append("_descriptor);\n");
+                                    CheckBoxResult(value.ILOffset); expression = "f->box_result.value"; break;
+                                case IrExpression.AddressBoxSlot slot:
+                                    code.Append("    f->box_result = unbox(context, ").Append(Value(slot.Receiver)).Append(", &")
+                                        .Append(ObjectCppBoxing.Symbol(slot.Type)).Append("_descriptor);\n");
+                                    CheckBoxResult(value.ILOffset); Flush();
+                                    code.Append("    f->location_result = heap_location(context, f->box_result.value, &")
+                                        .Append(ObjectCppBoxing.Symbol(slot.Type)).Append("_descriptor, ").Append(N(slot.Slot)).Append(");\n");
+                                    CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.AddressLocal local:
                                     code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")
                                         .Append(value.Type.Element!.Kind == IrTypeKind.Int32 ? "frame_integer" : "frame_reference").Append(", ")

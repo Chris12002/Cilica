@@ -708,6 +708,16 @@ reference catalog. It does not lower boxing IR. Connecting operations to these
 helpers, preserving empty borrowed owners during expansion and generated fault
 provenance remain planned; so do CIL boxing and ValueType/interface views.
 
+Authored boxed IR now lowers through `LowerBoxes` and executes through `EmitBoxes`
+([ADR 0072](decisions/0072-native-boxed-ir-emission.md)). Exact scalar packets and
+typed payload locations use the private helpers. Every unbox retains a rooted
+checked owner, including empty payloads forwarded through allocating calls.
+Expanded storage/root budgets are rechecked, packets use execution-arena storage,
+and generated faults preserve original method/IR offsets. Local O0/O2 sanitizer
+evidence covers copy/mutation parity with .NET, embedded reference identity,
+null/type faults, allocation recovery and exact/insufficient arena capacity.
+CIL boxing, ValueType reference views and boxed interface dispatch remain planned.
+
 ## 8. Garbage collection
 
 The bounded baseline collector is implemented as precise, non-moving mark-and-sweep with one managed execution
