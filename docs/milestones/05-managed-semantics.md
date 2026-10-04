@@ -16,7 +16,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.1 | Pure value copies lowered to the existing backend | Complete for authored IR, scalar returns and local native probes |
 | 5d.2a | Private native scalar location carriers and rooted-storage stress | Complete for runtime helpers |
 | 5d.2b.1 | Native scalar location IR emission with allocating callees | Complete for authored IR |
-| 5d.2b.2 | Mutable value expansion into scalar location IR | Planned |
+| 5d.2b.2 | Mutable value expansion into scalar location IR | Complete for authored IR with scalar/void returns |
 | 5d.2c | CIL value translation, native returns and composed live-value stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
@@ -151,3 +151,24 @@ The next gate is mutable value expansion into this scalar target, followed by
 CIL translation and struct returns. Boxing, generics, delegates and managed
 exceptions remain planned. Milestone 5 is not complete. Local main remains an
 ancestor; no push, hosted work, new service or additional agent ran.
+
+## Slice 5d.2b.2 outcome
+
+ADR 0062 expands mutable inline locals, by-value parameters and synchronous struct
+borrows into the validated scalar target. Nested field paths, explicit readonly
+views, whole snapshots, stores/init and void mutators reuse the existing layout
+and native frame/root contracts. Empty values erase their storage while preserving
+calls and their faults.
+
+Review checked overlapping copies, whole replacement versus readonly field writes,
+parameter isolation, owner/backing roots, output revalidation and bounded expansion
+before creating carrier arrays. No blocking findings remain. All 171 distinct
+selected checks pass: 76 focused checks including O0/O2 native differential and
+borrow probes, 94 layout/metadata/value/native-planning checks, and one additional
+empty-borrow call regression in the final 10-test lowering run. The 2 KiB sanitizer
+stack gate remains enabled. Native probes preserve live reference identities and
+reject a malformed final leaf before changing destination fields.
+
+CIL translation, allocating value source programs, inline heap fields and struct
+returns remain separate gates. Milestone 5 is still in progress. Local main remains
+an ancestor; no push, hosted work, service or additional agent ran.

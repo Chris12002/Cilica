@@ -16,7 +16,8 @@ at milestone 4, with later value/location capabilities documented separately.
 | `value-layout-v1` | Metadata discovery, detached inline layouts and bounded copy/reference-path planning | Nongeneric sealed structs with Int32, included references and nested values; exact selected ValueType identity; executable copies use the separate scalar-lowering profile |
 | `typed-value-ir-v1` | Detached value copies, field operations, calls/joins and root plans | Exact struct identity; scalar/reference copy paths; 1,024 roots per method and 65,536 expanded scalar slots per program; no CIL translation or managed locations |
 | `managed-location-ir-v1` | Detached storage locations, synchronous borrowing and owner-root plans | Frame local/parameter and heap-field origins, nested fields, invariant element types, readonly propagation, loads/stores/init and direct void mutators; no escaping locations, byref locals/joins, whole-value native emission or CIL value translation |
-| `scalar-location-ir-v1` | Authored Int32/reference borrows with existing native object operations | Explicit `EmitLocations` entry, synchronous direct static borrowers, owner roots, checked carriers and O0/O2 allocation/collection stress; no inline value expansion or CIL byref translation |
+| `scalar-location-ir-v1` | Authored Int32/reference borrows with existing native object operations | Explicit `EmitLocations` entry, synchronous direct static borrowers, readonly views, owner roots, checked carriers and O0/O2 allocation/collection stress; inline values require the separate expansion profile; no CIL byref translation |
+| `value-location-scalars-v1` | Mutable inline values expanded into native scalar borrows | Authored nested local/by-value parameter mutation, snapshots, readonly views, scalar/void calls and embedded reference slots; no allocating value source operations, CIL translation, inline heap fields or struct-return packets |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
@@ -1157,3 +1158,21 @@ failure and token exhaustion. Root/storage limits remain 1,024 per method and
 65,536 logical slots per program. This does not translate CIL byrefs or expand
 inline values. Whole-struct mutation/returns, array/boxed locations, byref locals/
 joins, ref returns and borrowed instance/virtual signatures remain unsupported.
+
+## Mutable inline value expansion
+
+[ADR 0062](decisions/0062-mutable-value-scalar-expansion.md) adds
+`ValueScalarLowering.LowerLocations`, returning validated scalar-location IR from
+authored managed value/borrow IR and explicit static bindings. Struct copies and
+locations expand according to the same field-path layout. Whole loads snapshot
+before mutation, and nested readonly fields produce explicit readonly views.
+Empty values have no scalar slots while retaining their calls. Bounds are checked
+before carrier-array expansion and again on the output root/storage plan.
+
+O0/O2 ASan/UBSan probes match C# for nested mutations, by-value isolation, swaps and
+self-aliasing. A private harness verifies identity and collection of live embedded
+reference slots and rejects an invalid final borrowed leaf before any mutation.
+Source value IR contains no allocating object operations, so this does not prove
+collection inside allocating whole-value source programs. CIL translation, inline
+class/array fields and struct returns remain unsupported, along with the broader
+milestone 5 capabilities still marked planned.

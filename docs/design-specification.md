@@ -569,7 +569,7 @@ nested scalar copy paths and embedded-reference paths within explicit expansion
 and depth limits. Bounded metadata discovery now supplies these layouts through
 the exact selected ValueType identity and a shared metadata ledger
 ([ADR 0056](decisions/0056-value-layout-metadata.md)). CIL struct translation and
-native tracing of mutable struct storage remain milestone 5 work.
+native inline value fields in heap objects remain milestone 5 work.
 
 Detached value flow now validates exact-type copies, pure default/field
 operations, calls and joins using the shared IR verifier. Phase A planning
@@ -610,6 +610,17 @@ budgeted frames; each carrier's owner is separately rooted. Only lending frames
 register borrow tokens. Local O0/O2 sanitizer tests compare authored borrow IR with
 C#, stress collection in allocating callees and check fault cleanup. Mutable inline
 value expansion, whole-struct returns and CIL translation remain separate work.
+
+Mutable value expansion now uses the same scalar backend
+([ADR 0062](decisions/0062-mutable-value-scalar-expansion.md)). Nested locals and
+by-value parameters expand into typed slots; struct borrows expand into checked
+leaf carriers. Whole loads capture snapshots before stores, preserving overlapping
+copies. Explicit readonly views retain restrictions through nested field selection.
+Expansion and output validation both enforce resource limits. O0/O2 sanitizer
+probes compare authored mutations with C# and verify live embedded reference
+identity/rooting in a private harness. Source value IR still excludes allocating
+object operations; CIL translation, inline heap values and struct-return packets
+remain unimplemented.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.

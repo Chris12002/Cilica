@@ -354,6 +354,8 @@ public static class ObjectCppEmitter
                                     Guard("load_location_" + (value.Type.Kind == IrTypeKind.Int32 ? "integer" : "reference") + "(context, "
                                         + Value(load.Location) + ", " + Value(value.Id) + ") != LocationStatus::complete", "6u", value.ILOffset);
                                     expression = Value(value.Id); break;
+                                case IrExpression.ReadOnlyLocation view:
+                                    expression = Value(view.Location); break;
                                 case IrExpression.StringLiteral literal:
                                     int literalId = literalIds[LiteralKey(literal.CodeUnits)];
                                     expression = "string_literal(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + N(literalId)

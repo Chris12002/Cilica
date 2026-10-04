@@ -622,3 +622,11 @@ and foreign-storage rejection separately. Native tests assert complete root/borr
 arena cleanup on success and faults; detached tests cover access rights, invariance,
 readonly/escape restrictions and exact resource bounds. This evidence does not
 establish CIL byref translation or whole-struct mutation/returns.
+
+Mutable value expansion adds O0/O2 oracle checks for nested struct mutation,
+by-value isolation, snapshot swaps and self-aliasing. The native reference harness
+supplies live objects, swaps embedded slots and checks reachability/reclamation;
+it separately injects an invalid final borrow to verify rejection before mutation.
+These authored value programs do not allocate managed objects themselves. Empty
+layouts, readonly views and expanded carrier/statement budgets have focused
+detached regressions. Struct returns and CIL translation remain separate gates.

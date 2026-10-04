@@ -83,6 +83,7 @@ public abstract record IrExpression
     public sealed record AddressParameter(int Index) : IrExpression;
     public sealed record AddressField(ObjectFieldId Field, int Receiver) : IrExpression;
     public sealed record LocationField(ObjectFieldId Field, int Location) : IrExpression;
+    public sealed record ReadOnlyLocation(int Location) : IrExpression;
     public sealed record LoadLocation(int Location) : IrExpression;
 }
 

@@ -181,6 +181,10 @@ internal static class IrValidator
                                 && (objectRules is null || objectRules.Field(method, f.Field, f.Receiver, valueTypes, out _)),
                             IrExpression.LocationField f => locations is not null && Earlier(f.Location)
                                 && locations.NestedField(valueTypes[f.Location], f.Field, value.Type),
+                            IrExpression.ReadOnlyLocation view => locations is not null && Earlier(view.Location)
+                                && value.Type.Kind == IrTypeKind.ManagedLocation && value.Type.ReadOnly
+                                && valueTypes[view.Location].Kind == IrTypeKind.ManagedLocation
+                                && valueTypes[view.Location].Element == value.Type.Element,
                             IrExpression.LoadLocation l => locations is not null && Earlier(l.Location)
                                 && ManagedLocationRules.Load(valueTypes[l.Location], value.Type),
                             _ => false,

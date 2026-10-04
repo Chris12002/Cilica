@@ -9,12 +9,42 @@ namespace Cilica.Compiler;
 public static class ValueScalarLowering
 {
     public const string Profile = "value-scalars-v1";
+    public const string LocationProfile = "value-location-scalars-v1";
 
     public static ReferenceIrProgram Lower(ValueIrProgram program)
     {
         // Bound expanded storage before creating lowered temporaries and packets.
         _ = ValueRootAssignment.Assign(program);
+        var result = LowerCore(program);
+        ReferenceIrValidator.Validate(result);
+        return result;
+    }
+
+    public static ScalarLocationIrProgram LowerLocations(ManagedLocationIrProgram program, ImmutableArray<ObjectMethodBinding> bindings)
+    {
+        _ = ValueRootAssignment.Assign(program);
+        if (bindings.IsDefault || bindings.Any(b => b is null || b.Kind != ObjectMethodKind.Static))
+            throw new ArgumentException("Value location lowering requires direct static method bindings.", nameof(bindings));
+        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow), bindings));
+        _ = ObjectRootAssignment.AssignLocations(result);
+        return result;
+    }
+
+    private static ReferenceIrProgram LowerCore(ValueIrProgram program)
+    {
         var plans = ValueLayoutPlanner.Build(program.Types).ToDictionary(p => p.Type);
+        // A borrowed struct expands into one carrier/owner pair per leaf. Bound
+        // this before constructing any expanded arrays, including field aliases.
+        int slots = 0;
+        foreach (var type in program.Methods.SelectMany(m => m.Parameters.Concat(m.Locals)
+            .Concat(m.Blocks.SelectMany(b => b.Inputs)).Concat(m.Blocks.SelectMany(b => b.Values).Select(v => v.Type))))
+        {
+            var element = type.Kind == IrTypeKind.ManagedLocation ? type.Element! : type;
+            int count = (element.Kind == IrTypeKind.Value ? plans[element.Class!].Slots.Length : 1)
+                * (type.Kind == IrTypeKind.ManagedLocation ? 2 : 1);
+            Require(count <= ValueRootAssignment.MaximumScalarSlots - slots, "expanded location storage limit exceeded.");
+            slots += count;
+        }
         var ranges = new Dictionary<ObjectFieldId, (int Start, int Count)>();
         foreach (var type in program.Types.Types)
         {
@@ -31,8 +61,13 @@ public static class ValueScalarLowering
             ObjectStorage.Reference reference => IrType.Reference(reference.Type),
             _ => throw new InvalidOperationException("Validated layout has a non-scalar leaf."),
         };
-        ImmutableArray<IrType> Expand(IrType type) => type.Kind == IrTypeKind.Value
-            ? [.. plans[type.Class!].Slots.Select(slot => Scalar(slot.Storage))] : [type];
+        ImmutableArray<IrType> Expand(IrType type) => type.Kind switch
+        {
+            IrTypeKind.Value => [.. plans[type.Class!].Slots.Select(slot => Scalar(slot.Storage))],
+            IrTypeKind.ManagedLocation when type.Element!.Kind == IrTypeKind.Value =>
+                [.. plans[type.Element.Class!].Slots.Select(slot => IrType.Location(Scalar(slot.Storage), type.ReadOnly))],
+            _ => [type],
+        };
         static void Require(bool condition, string message)
         {
             if (!condition) throw new ArgumentException("Value scalar lowering: " + message, nameof(program));
@@ -114,11 +149,52 @@ public static class ValueScalarLowering
                             Emit(new IrStatement.StoreLocal(store.ILOffset, localSlots[store.Local] + i, values[store.Value][i]));
                         continue;
                     }
+                    if (statement is IrStatement.Invoke invoke)
+                    {
+                        Emit(invoke with { Arguments = Arguments(invoke.Arguments, true) }); continue;
+                    }
+                    if (statement is IrStatement.StoreLocation write)
+                    {
+                        // All RHS leaves already denote snapshots, including when
+                        // source and destination borrow overlapping frame storage.
+                        for (int i = 0; i < values[write.Location].Length; ++i)
+                            Emit(write with { Location = values[write.Location][i], Value = values[write.Value][i] });
+                        continue;
+                    }
+                    if (statement is IrStatement.InitializeLocation initialize)
+                    {
+                        foreach (int location in values[initialize.Location]) Emit(initialize with { Location = location });
+                        continue;
+                    }
                     var definition = (IrStatement.Define)statement;
                     var value = definition.Value; var expanded = Expand(value.Type);
                     var ids = ImmutableArray.CreateBuilder<int>();
                     switch (value.Expression)
                     {
+                        case IrExpression.AddressLocal address:
+                            for (int i = 0; i < expanded.Length; ++i) ids.Add(Define(expanded[i], value.ILOffset,
+                                new IrExpression.AddressLocal(localSlots[address.Index] + i)));
+                            break;
+                        case IrExpression.AddressParameter address:
+                            for (int i = 0; i < expanded.Length; ++i) ids.Add(Define(expanded[i], value.ILOffset,
+                                new IrExpression.AddressParameter(parameterSlots[address.Index] + i)));
+                            break;
+                        case IrExpression.LoadLocation load:
+                            for (int i = 0; i < expanded.Length; ++i) ids.Add(Define(expanded[i], value.ILOffset,
+                                new IrExpression.LoadLocation(values[load.Location][i]), definition.Exceptional));
+                            break;
+                        case IrExpression.ReadOnlyLocation view:
+                            for (int i = 0; i < expanded.Length; ++i) ids.Add(Define(expanded[i], value.ILOffset,
+                                new IrExpression.ReadOnlyLocation(values[view.Location][i])));
+                            break;
+                        case IrExpression.LocationField field:
+                            var selected = ranges[field.Field];
+                            for (int i = 0; i < selected.Count; ++i)
+                            {
+                                int leaf = values[field.Location][selected.Start + i];
+                                ids.Add(value.Type.ReadOnly ? Define(expanded[i], value.ILOffset, new IrExpression.ReadOnlyLocation(leaf)) : leaf);
+                            }
+                            break;
                         case IrExpression.Parameter parameter:
                             for (int i = 0; i < expanded.Length; i++) ids.Add(Define(expanded[i], value.ILOffset, new IrExpression.Parameter(parameterSlots[parameter.Index] + i)));
                             break;
@@ -148,6 +224,7 @@ public static class ValueScalarLowering
                                 IrExpression.Unary unary => unary with { Operand = One(unary.Operand) },
                                 IrExpression.Compare compare => compare with { Left = One(compare.Left), Right = One(compare.Right) },
                                 IrExpression.Call call => call with { Arguments = Arguments(call.Arguments, true) },
+                                IrExpression.AddressField field => field with { Receiver = One(field.Receiver) },
                                 _ => throw new InvalidOperationException("Unsupported validated value expression."),
                             };
                             ids.Add(Define(value.Type, value.ILOffset, expression, definition.Exceptional));
@@ -158,6 +235,7 @@ public static class ValueScalarLowering
                 IrTerminator terminator = block.Terminator switch
                 {
                     IrReturn returned => returned with { Value = One(returned.Value) },
+                    IrVoidReturn => block.Terminator,
                     IrJump jump => jump with { Edge = Edge(jump.Edge) },
                     IrBranch branch => branch with { Left = One(branch.Left), Right = branch.Right is { } right ? One(right) : null,
                         Taken = Edge(branch.Taken), NotTaken = Edge(branch.NotTaken) },
@@ -167,8 +245,6 @@ public static class ValueScalarLowering
             }
             lowered.Add(method with { Parameters = parameters.ToImmutable(), Locals = locals.ToImmutable(), Blocks = blocks.ToImmutable() });
         }
-        var result = new ReferenceIrProgram(program.Entry, lowered.ToImmutable(), program.Types.References);
-        ReferenceIrValidator.Validate(result);
-        return result;
+        return new(program.Entry, lowered.ToImmutable(), program.Types.References);
     }
 }
