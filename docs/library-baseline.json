@@ -1,0 +1,37 @@
+{
+  "format": "cilica.library-baseline",
+  "formatVersion": 1,
+  "status": "planning-baseline-no-imported-library",
+  "referenceProfile": {
+    "package": "NETStandard.Library.Ref",
+    "version": "2.1.0",
+    "targetFramework": "netstandard2.1",
+    "scope": "Pinned declaration image only; no blanket API or facade compatibility claim.",
+    "images": [
+      {
+        "file": "netstandard.dll",
+        "identity": "netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51",
+        "sha256": "79a49049c360a3ff282e747c311fcd567834efde564a96689872564164756e84"
+      }
+    ]
+  },
+  "upstream": {
+    "repository": "https://github.com/dotnet/runtime",
+    "tag": "v10.0.11",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "license": "MIT",
+    "licenseSource": "https://raw.githubusercontent.com/dotnet/runtime/79d0c463f1b55624c874a11585f7e47731e8d675/LICENSE.TXT"
+  },
+  "oracle": {
+    "framework": "Microsoft.NETCore.App",
+    "version": "10.0.11",
+    "observedRid": "osx-arm64",
+    "vmrCommit": "e2f47b0110ed922f21a1522da67279133ce28f32",
+    "sourceManifest": "https://raw.githubusercontent.com/dotnet/dotnet/e2f47b0110ed922f21a1522da67279133ce28f32/src/source-manifest.json",
+    "observedCoreLibSha256": "9ed74c2e2efeee87f1f2d7ffe1736b7e9164ce248516ea39402a725eedc87af6",
+    "scope": "Local oracle evidence, never a Cilica implementation or trusted-library artifact. Other platform images need their own evidence."
+  },
+  "importedSources": [],
+  "trustedImplementationArtifacts": [],
+  "intrinsicGrants": []
+}

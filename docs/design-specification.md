@@ -891,6 +891,14 @@ It selects full identities and hashes, without granting intrinsic trust or
 implementation compatibility. The separate inventory profile never clears
 general-filter absence; the trial ported implementation closure remains required.
 
+Slice 6b.1 adds explicit type-correspondence plans and a pinned
+[reference/source baseline](library-baseline.json)
+([ADR 0089](decisions/0089-library-type-binding-foundation.md)). Plans validate
+exact image/type identities, headers and immediate bases, and project structural
+types without changing ordinary member binding, audits or compilation. They grant
+no intrinsic privileges. Member binding, provenance-backed admission and actual
+shared library imports remain separate gates.
+
 Recognised framework types map to canonical runtime types. Resolve supported
 facades and type forwarders deliberately. User types retain assembly-qualified
 identity; never match solely by a short type name.

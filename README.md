@@ -22,7 +22,10 @@ boundaries and local .NET/sanitizer evidence. Broader libraries, general filters
 a public object embedding ABI and Expo integration remain planned.
 Milestone 6 has started with an explicit library dependency inventory;
 the [library and kernel plan](docs/milestones/06-library-and-kernel.md) records
-the remaining implementation and deterministic-trace gates.
+the remaining implementation and deterministic-trace gates. The metadata API also
+provides explicit, validated reference-to-implementation type plans, with a
+[pinned baseline](docs/library-baseline.json); member binding and library execution
+remain separate gates.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

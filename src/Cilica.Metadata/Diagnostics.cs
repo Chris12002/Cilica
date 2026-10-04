@@ -49,6 +49,8 @@ public static class DiagnosticIds
     public const string MemberConflict = "CIL3011";
     public const string ReachabilityIncomplete = "CIL3012";
     public const string ReachabilityLimit = "CIL3013";
+    public const string LibraryBindingInvalid = "CIL3014";
+    public const string LibraryTypeUnmapped = "CIL3015";
 }
 
 internal static class MalformedInput

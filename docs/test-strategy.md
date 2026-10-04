@@ -161,9 +161,34 @@ dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll \
 The slice 6a run passed all 203 checks (15 new boundary cases) in 14.652 seconds
 on .NET 10.0.11. A separate `-class '*CommandTests'` run passed another 19 CLI
 checks in 0.105 seconds, giving 222 distinct checks. Native output is unchanged,
-so no native compiler/sanitizer suite
-was repeated. Subsequent library implementation slices require differential
+so no native compiler/sanitizer suite was repeated. Subsequent library implementation slices require differential
 execution against the pinned oracle and composed allocation/collection checks.
+
+## Milestone 6 library type bindings
+
+Milestone 6b.1 uses `LibraryBindingTests` for explicit type/header/base plans and
+structural signature projection. Negative cases exercise wrong image roles,
+altered hashes on both sides, conflicting targets/catalogues, missing mappings,
+different scopes/versions, nested owners, nominal constraints, foreign/disposed
+sessions and short work budgets. Positive cases retain generic arguments,
+array rank/bounds, modifiers and byrefs/function pointers; none implies executable
+support. Ordinary resolution must give the same result before and after a plan.
+Detached evidence stays deterministic across duplicate/alias selections and culture.
+
+After building, the slice 6b.1 focused run is:
+
+```sh
+dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll \
+  -noColor -parallel none -class '*LibraryBindingTests' -class '*AssemblyResolutionTests' \
+  -class '*TypeResolutionTests' -class '*MemberResolutionTests' -class '*CompiledMemberResolutionTests' \
+  -class '*RuntimeTypeMappingTests' -class '*LibraryContractTests' -class '*AuditTests'
+```
+
+It passed 173 checks in 0.917 seconds, including 22 new binding cases. A separate
+56-check run covers `LocalSystemTypeAttributeTests`, `InspectionTests`,
+`MalformedInputTests`, `CommandTests` and `NoAssemblyExecutionTests`. Local/null
+`System.Type` attribute regressions were reproduced before correction; the pinned
+reference image then inspected without diagnostics. No native output changed.
 
 ## Initial Int32 IR translation
 

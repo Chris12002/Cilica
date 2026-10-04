@@ -94,3 +94,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0086](0086-exception-message-identity.md) | Exception message identity and final semantic probes | Accepted for fresh formatted defaults, shared resources and composed edge cases |
 | [0087](0087-stage-five-completion.md) | Bounded milestone 5 completion | Accepted; 1,855 local checks pass, compiler-library scope and exclusions recorded |
 | [0088](0088-explicit-library-contract-inventory.md) | Explicit library boundaries for dependency inventories | Accepted for metadata planning; library implementation and filter closure remain unresolved |
+| [0089](0089-library-type-binding-foundation.md) | Explicit reference-to-implementation type correspondence | Accepted for metadata type plans and pinned baseline; member/compiler binding and intrinsic admission remain ahead |

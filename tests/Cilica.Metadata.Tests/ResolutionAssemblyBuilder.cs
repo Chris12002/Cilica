@@ -92,6 +92,9 @@ internal sealed class ResolutionAssemblyBuilder
     internal void CustomAttribute(EntityHandle owner, EntityHandle constructor, params byte[] value) =>
         _metadata.AddCustomAttribute(owner, constructor, _metadata.GetOrAddBlob(value));
 
+    internal void GenericConstraint(GenericParameterHandle parameter, EntityHandle type) =>
+        _metadata.AddGenericParameterConstraint(parameter, type);
+
     internal TypeSpecificationHandle Specification(params byte[] signature) =>
         _metadata.AddTypeSpecification(_metadata.GetOrAddBlob(signature));
 

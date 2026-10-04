@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slice 6a complete. Recorded 2026-10-05.
+Status: in progress; slices 6a and 6b.1 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -13,7 +13,9 @@ fixtures and examples must be independent.
 | Slice | Deliverable and gate | Status |
 | --- | --- | --- |
 | 6a | Explicit library-contract inventory, independent tests and private kernel dependency evidence | Complete; ADR 0088 |
-| 6b | Pin the reference/source profile; define exact framework-to-Cilica identity mapping, trusted intrinsic admission and source provenance | Next; no library source has been imported |
+| 6b.1 | Pin the reference/source baseline and validate explicit type correspondence | Complete for metadata plans; ADR 0089; no library source imported |
+| 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Next; ordinary compiler binding is unchanged |
+| 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Planned; mapping plans and input names/attributes grant no new privileges |
 | 6c | Extend compiler semantics needed by the first concrete kernel path: scalar/enum cases, values stored in classes, value instance calls and closed generic interface/instance calls | Planned; split into individually reviewed and differentially tested slices |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | Planned; compare outputs, state, ordering and failures |
@@ -61,7 +63,7 @@ application calls/signatures, deferred implementation uncertainty, partial-repor
 bounds and unchanged ordinary reports. No actionable findings remain in this
 slice. No hosted CI, service, push or additional agent was used.
 
-## Remaining completion evidence
+## Reference-profile inspection correction
 
 During slice 6b reference-profile inspection, the inspector incorrectly decoded
 locally defined `System.Type` attribute arguments as enums and printed null type
@@ -71,6 +73,29 @@ type values, without granting compiler trust. Five regressions and the existing
 inspection/CLI/corruption/no-execution checks pass (56 tests). The pinned .NET
 Standard 2.1 reference image now inspects with zero diagnostics, down from 107
 incorrect malformed-attribute reports. This changes inspection only.
+
+## Slice 6b.1 outcome
+
+The compiler-library metadata API now validates an explicit reference-to-
+implementation type plan and projects TypeDef/TypeRef/TypeSpec identities through
+it. It retains exact image hashes, names/nesting, generic arguments and structural
+signature wrappers; unmapped selected types, changed image bytes and incompatible
+headers/base types are diagnostic. Ordinary resolution and compiler behavior
+remain unchanged. The plan grants no intrinsic permissions.
+
+The [baseline record](../library-baseline.json) pins .NET Standard 2.1 declarations
+and the .NET 10.0.11 source/oracle relationship. Imported-source and trusted-artifact
+lists are empty. Twenty-two independent plan cases pass in a 173-test focused
+binding/resolution/audit run; combined with the inspection correction, 229 distinct
+checks pass. A local metadata-only probe also maps three real reference types to
+independent implementation-shaped declarations. Review added changed-target-hash
+coverage. No native output changed or hosted work ran.
+
+Next, slice 6b.2 must bind member owners and signatures consistently through this
+plan, diagnose missing/incompatible members, and retain both source and target
+evidence before compiler integration. See [ADR 0089](../decisions/0089-library-type-binding-foundation.md).
+
+## Remaining completion evidence
 
 - Pin imported source commits, licenses, local patches, reference identities
   and oracle runtime; never trust a library solely by namespace or type name.
