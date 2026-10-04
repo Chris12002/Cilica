@@ -90,6 +90,17 @@ public static partial class ObjectTranslator
             if (intrinsic == StringIntrinsic.None || instruction.OpCode != (receiver ? "callvirt" : "call"))
                 Fail(caller, "Unsupported String member or call form: " + input.DeclaredName
                     + ". Supported: callvirt Length/Chars; call Equals(string,string), op_Equality, op_Inequality and Concat(string,string).", instruction.Offset);
+            var capability = intrinsic switch
+            {
+                StringIntrinsic.Length => LibraryIntrinsicCapability.StringLength,
+                StringIntrinsic.CodeUnit => LibraryIntrinsicCapability.StringCodeUnit,
+                StringIntrinsic.Equal => LibraryIntrinsicCapability.StringEqual,
+                StringIntrinsic.NotEqual => LibraryIntrinsicCapability.StringNotEqual,
+                StringIntrinsic.Concat => LibraryIntrinsicCapability.StringConcat,
+                _ => throw new InvalidOperationException("Unvalidated string intrinsic."),
+            };
+            var permission = resolver.AuthorizeLibraryIntrinsic(owner.Assembly, target.Handle, capability);
+            if (!permission.Success) throw new Failure(permission.Diagnostics[0] with { Location = Location(caller, instruction.Offset) });
             ImmutableArray<IrType> parameters = intrinsic switch
             {
                 StringIntrinsic.Length => [textType], StringIntrinsic.CodeUnit => [textType, IrType.Int32], _ => [textType, textType],

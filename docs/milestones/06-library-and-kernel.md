@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1, 6b.2 and 6b.2a complete. Recorded 2026-10-05.
+Status: in progress; slices 6a and 6b.1–6b.3 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -16,7 +16,7 @@ fixtures and examples must be independent.
 | 6b.1 | Pin the reference/source baseline and validate explicit type correspondence | Complete for metadata plans; ADR 0089; no library source imported |
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
-| 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Planned; mapping plans and input names/attributes grant no new privileges |
+| 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6c | Extend compiler semantics needed by the first concrete kernel path: scalar/enum cases, values stored in classes, value instance calls and closed generic interface/instance calls | Planned; split into individually reviewed and differentially tested slices |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | Planned; compare outputs, state, ordering and failures |
@@ -118,6 +118,23 @@ checks plus the closed caller regression pass (158 distinct tests). Review added
 an audit guard until mapped reports retain binding evidence. See
 [ADR 0091](../decisions/0091-library-compilation-views.md). Library imports,
 provenance-backed grants and the real kernel trace are still unimplemented.
+
+## Slice 6b.3 outcome
+
+The compiler boundary now validates independently approved build attestations
+against exact selected implementation images. Records include effective compiler
+arguments, source/compiler/reference/options hashes and precise intrinsic grants.
+Mapped string and exception substitutions require the applicable type/member
+capability; a mapping or assembly name grants nothing. This validates an approved
+attestation, not a proof that arbitrary source produced a binary. The actual build
+producer and source provenance remain part of the first trial library import.
+
+Thirty-five new admission cases and related regressions pass (137 local checks),
+including native O0/O2 UBSan string execution and compiler-level missing exception
+permission checks. Review added a signature-hash size bound. See
+[ADR 0092](../decisions/0092-library-build-admission.md). The next delivery work is
+the compiler/library behavior required by a concrete real kernel closure; no
+library import or kernel/native equivalence has yet been established.
 
 ## Remaining completion evidence
 

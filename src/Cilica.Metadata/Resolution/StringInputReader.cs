@@ -77,6 +77,8 @@ public sealed partial class AssemblyResolver
         if (objectResult.Value is not { } objectType) return objectResult;
         return Bind(text.Assembly, text.Handle, () =>
         {
+            var permission = AuthorizeLibraryIntrinsic(text.Assembly, text.Handle, LibraryIntrinsicCapability.StringLayout);
+            if (!permission.Success) throw new BindingFailureException(permission.Diagnostics);
             InspectMember(budget);
             var definition = text.Assembly.Image.Reader.GetTypeDefinition(text.Handle);
             if (text.Assembly.IsReferenceAssembly || !definition.GetDeclaringType().IsNil

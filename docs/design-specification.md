@@ -902,8 +902,11 @@ declarations before generic substitution and retaining both source and target
 evidence. Slice 6b.2a provides an explicit compilation view over these pinned
 snapshots, leaving its source resolver strict
 ([ADR 0091](decisions/0091-library-compilation-views.md)). A small native reference-
-call probe passes; mapped audit evidence, provenance-backed admission and actual
-shared library imports remain separate gates.
+call probe passes. Slice 6b.3 validates independently approved build attestations
+and exact string/exception intrinsic grants at the compiler boundary
+([ADR 0092](decisions/0092-library-build-admission.md)). The host must pin the
+manifest digest independently of compiler input. Mapped audit evidence, an actual
+trusted build producer and shared library imports remain separate gates.
 
 Recognised framework types map to canonical runtime types. Resolve supported
 facades and type forwarders deliberately. User types retain assembly-qualified

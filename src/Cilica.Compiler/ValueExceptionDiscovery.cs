@@ -31,6 +31,7 @@ public static partial class ValueProgramDiscovery
             for (int i = 0; i < names.Length; ++i)
             {
                 var type = Require(resolver.ResolveType(library, "System", names[i])); var id = ObjectModelBuilder.Id(type);
+                _ = Require(resolver.AuthorizeLibraryIntrinsic(type.Assembly, type.Handle, LibraryIntrinsicCapability.ExceptionLayout));
                 var input = Snapshot(type, null, 0);
                 if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || !input.ExternallyVisible)
                     Fail(null, "Intrinsic exceptions require concrete selected-runtime nongeneric public definitions.");
@@ -123,17 +124,19 @@ public static partial class ValueProgramDiscovery
                 }
                 if (instruction.OpCode == "callvirt" && owner == _exceptionBase && input.DeclaredName == "get_Message"
                     && signature.Header == 0x20 && signature.Parameters.Count == 0 && Primitive(signature.ReturnType, PrimitiveTypeCode.String))
-                { _ = IncludeString(work, offset); return new(ValueIntrinsic.ExceptionMessage, owner, 1); }
+                { Authorize(LibraryIntrinsicCapability.ExceptionMessage); _ = IncludeString(work, offset); return new(ValueIntrinsic.ExceptionMessage, owner, 1); }
                 Fail(work, "Only verified exception constructors and selected Exception.Message are supported; other members or overrides need explicit lowering.", offset);
             }
             var text = IncludeString(work, offset);
             if (instruction.OpCode == "callvirt" && input.DeclaredName == "get_Length" && signature.Header == 0x20
                 && signature.Parameters.Count == 0 && Primitive(signature.ReturnType, PrimitiveTypeCode.Int32))
-                return new(ValueIntrinsic.StringLength, text, 1);
+            { Authorize(LibraryIntrinsicCapability.StringLength); return new(ValueIntrinsic.StringLength, text, 1); }
             if (instruction.OpCode == "call" && input.DeclaredName is "op_Equality" or "Equals" && signature.Header == 0
                 && signature.Parameters.Count == 2 && signature.Parameters.All(p => Primitive(p, PrimitiveTypeCode.String)) && Primitive(signature.ReturnType, PrimitiveTypeCode.Boolean))
-                return new(ValueIntrinsic.StringEqual, text, 2);
+            { Authorize(LibraryIntrinsicCapability.StringEqual); return new(ValueIntrinsic.StringEqual, text, 2); }
             Fail(work, "This exception profile supports String.Length and static string equality only.", offset); return null;
+            void Authorize(LibraryIntrinsicCapability capability) =>
+                _ = Require(resolver.AuthorizeLibraryIntrinsic(target.DeclaringType.Definition.Assembly, target.Handle, capability), work, offset);
         }
         private void ValidateExceptionConstructor(ResolvedMethod target, Work work, int offset, int depth)
         {
@@ -148,6 +151,8 @@ public static partial class ValueProgramDiscovery
                 Fail(work, "Exception construction requires an exact public parameterless or single-string constructor.", offset);
             if (_frameworkExceptions.Contains(owner))
             {
+                _ = Require(resolver.AuthorizeLibraryIntrinsic(target.DeclaringType.Definition.Assembly, target.Handle,
+                    LibraryIntrinsicCapability.ExceptionConstructor), work, offset);
                 if (owner != _exceptionBase && !_runtimeFaults.Any(b => b.Type == owner))
                     Fail(work, "This framework exception constructor has no selected message resource lowering.", offset);
                 _constructors.Add(id); return;
