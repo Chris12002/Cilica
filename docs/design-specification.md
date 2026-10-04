@@ -658,6 +658,16 @@ array operations and static calls against value signatures; allocation points
 retain embedded roots. This authored-IR checkpoint precedes CIL allocation and
 native live-reference stress. Class allocation/constructors remain separate.
 
+The compiler-library `value-arrays-cil-v1` gate now adds Int32 vector allocation,
+access and signatures to static value programs
+([ADR 0067](decisions/0067-value-array-cil-and-collection.md)). It authenticates
+allocation element identity against the selected runtime and checks exact array
+operands, fault edges and paired length conversion. O0/O2 sanitizer probes collect
+before each allocation while nested struct copies, borrows, parameters and return
+packets retain live arrays. Sole-root transfer, final reclamation, insufficient
+heap/arena capacity and nested allocation failure/recovery have local evidence.
+Class allocation/constructors composed with values remain a separate gate.
+
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 

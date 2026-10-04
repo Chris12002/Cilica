@@ -21,7 +21,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2c.2a | CIL value closure discovery | Complete for bounded metadata inputs |
 | 5d.2c.2b | CIL value body translation | Complete for the bounded static compiler-library profile |
 | 5d.2c.3a | Values composed with allocating vector IR | Complete for authored IR |
-| 5d.2c.3b | CIL value/vector allocation and composed live-reference stress | Planned |
+| 5d.2c.3b | CIL value/vector allocation and composed live-reference stress | Complete for Int32 vector CIL |
 | 5d.2c.3c | Value programs composed with class allocation/constructors | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
@@ -236,3 +236,25 @@ allocation safepoints with embedded roots. Scalar lowering preserves vector
 operands and rooted return packets. Manual review found no blocking issues;
 all 104 selected value/location/composition checks pass. CIL allocation and native
 live-reference stress remain the next slice. No hosted work ran.
+
+## Slice 5d.2c.3b outcome
+
+ADR 0067 connects bounded Int32 array allocation/access to CIL struct programs.
+The selected runtime element identity, exact array types and paired length
+conversion are checked. Collection-before-every-allocation probes preserve
+embedded identity through nested copies, borrowed replacement and struct returns.
+A sole callee-parameter root transfers into caller-owned return storage, and
+clearing the final root permits reclamation. Exact/insufficient heap and arena
+budgets, nested allocation failure, fault provenance and context reuse pass.
+
+Manual review found no blocking issues. This slice passed 254 distinct targeted
+checks (49 initial CIL checks plus 217 shared/native checks with 12 overlapping).
+Together with the preceding 104-check IR slice, 358 distinct checks passed. Native
+O0/O2 ASan/UBSan probes retain the 2 KiB stack gate; their only repeat added the
+nested allocation failure/recovery assertion. Local main remains an ancestor.
+The compiler builds without warnings/errors; no push, hosted work, service or
+additional agent ran.
+
+Milestone 5 remains in progress. Class allocation/constructors composed with
+values are next (5d.2c.3c), followed by boxing, generics, delegates and managed
+exceptions. Existing CLI entry points remain unchanged.

@@ -18,19 +18,19 @@ public static class ValueModelBuilder
             new MemberResolutionBudget(ObjectModelLimits.MaximumMetadataMembers));
 
     internal static ValueCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
-        ResolvedAssembly runtimeLibrary, MemberResolutionBudget work)
+        ResolvedAssembly runtimeLibrary, MemberResolutionBudget work, bool includeInt32Vector = false)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
         if (roots.IsDefaultOrEmpty || roots.Length > ObjectModelLimits.MaximumTypes)
             throw new ArgumentException("Value catalog needs 1..256 explicit roots.", nameof(roots));
-        try { return Build(resolver, roots, runtimeLibrary, work); }
+        try { return Build(resolver, roots, runtimeLibrary, work, includeInt32Vector); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
-        ResolvedAssembly library, MemberResolutionBudget work)
+        ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -82,6 +82,11 @@ public static class ValueModelBuilder
         }
         var objectBase = Result(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object));
         IncludeReference(objectBase);
+        if (includeInt32Vector)
+        {
+            var vector = ObjectTypeId.Vector(Id(objectBase), ObjectArrayElement.Int32);
+            IncludeId(vector); arrays.Add(vector);
+        }
         var valueBase = Result(resolver.ResolveType(library, "System", "ValueType"));
         var baseInput = Read(valueBase, new());
         if (baseInput.IsReferenceAssembly || baseInput.OwnerGenericArity != 0 || baseInput.HasTypeInitializer

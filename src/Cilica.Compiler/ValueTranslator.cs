@@ -17,15 +17,33 @@ public sealed record ValueTranslationResult(ManagedLocationIrProgram? Program,
     public bool Success => Program is not null;
 }
 
+public sealed record ValueArrayTranslationResult(ValueArrayIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)
+{
+    public bool Success => Program is not null;
+}
+
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
     public const string Profile = "value-cil-v1";
+    public const string ArrayProfile = "value-arrays-cil-v1";
 
-    public static ValueTranslationResult Translate(AssemblyResolver resolver, ResolvedAssembly assembly,
+    public static ValueArrayTranslationResult TranslateArrays(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
-        var discovered = ValueProgramDiscovery.Read(resolver, assembly, entry, runtimeLibrary, limits);
+        var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true);
+        return new(result.Program is null ? null : new(result.Program, result.Bindings), result.Diagnostics);
+    }
+
+    public static ValueTranslationResult Translate(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
+        TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: false);
+
+    private static ValueTranslationResult TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays)
+    {
+        var discovered = arrays ? ValueProgramDiscovery.ReadArrays(resolver, assembly, entry, runtimeLibrary, limits)
+            : ValueProgramDiscovery.Read(resolver, assembly, entry, runtimeLibrary, limits);
         if (discovered.Input is not { } input) return new(null, [], discovered.Diagnostics);
         try
         {
@@ -34,14 +52,20 @@ public static class ValueTranslator
             var resources = new ProgramResources(); var translated = new List<IrMethod>();
             foreach (var method in input.Methods)
             {
-                var body = new Body(method, methods, fields).Translate();
+                var body = new Body(method, methods, fields, arrays,
+                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32)).Translate();
                 if (!resources.Add(body)) Fail(method, 0, "Aggregate value IR resource limit exceeded.", DiagnosticIds.TranslationLimit);
                 translated.Add(body);
             }
             var program = new ManagedLocationIrProgram(new(input.Entry, [.. translated], input.Types));
-            try { _ = ValueRootAssignment.Assign(program); }
+            ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
+            try
+            {
+                if (arrays) _ = ValueRootAssignment.Assign(new ValueArrayIrProgram(program, bindings));
+                else _ = ValueRootAssignment.Assign(program);
+            }
             catch (ArgumentException error) { Fail(methods[input.Entry], 0, error.Message); }
-            return new(program, [.. input.Methods.Select(m => m.Binding)], []);
+            return new(program, bindings, []);
         }
         catch (Failure failure) { return new(null, [], [failure.Diagnostic]); }
     }
@@ -56,7 +80,7 @@ public static class ValueTranslator
             + " IL_" + offset.ToString("x4", CultureInfo.InvariantCulture)));
 
     private sealed class Body(ValueMethodInput method, Dictionary<IrMethodId, ValueMethodInput> methods,
-        Dictionary<ObjectFieldId, ObjectField> fields)
+        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, ObjectTypeId? integerArray)
     {
         private int _statements, _inputs, _edges;
         private void Error(int offset, string message, string code = DiagnosticIds.InconsistentStack) => Fail(method, offset, message, code);
@@ -93,6 +117,20 @@ public static class ValueTranslator
                     else switch (opcode)
                     {
                         case "nop": break;
+                        case "newarr" when arrays:
+                            var arrayType = method.ArrayOperands[offset];
+                            Push(offset, IrType.Reference(arrayType), new IrExpression.NewArray(arrayType, Pop(offset, IrType.Int32)), true); break;
+                        case "ldlen" when arrays:
+                            if (index + 1 >= end || input.Instructions[index + 1].OpCode != "conv.i4")
+                                Error(offset, "Array length requires an adjacent conv.i4 in the same block; native integer flow requires later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            int lengthArray = PopArray(offset); ++index;
+                            Push(offset, IrType.Int32, new IrExpression.ArrayLength(lengthArray), true); break;
+                        case "ldelem.i4" when arrays:
+                            int loadIndex = Pop(offset, IrType.Int32), loadArray = PopArray(offset);
+                            Push(offset, IrType.Int32, new IrExpression.LoadElement(integerArray!, loadArray, loadIndex), true); break;
+                        case "stelem.i4" when arrays:
+                            int elementValue = Pop(offset, IrType.Int32), storeIndex = Pop(offset, IrType.Int32), storeArray = PopArray(offset);
+                            Add(new IrStatement.StoreElement(offset, integerArray!, storeArray, storeIndex, elementValue), offset); break;
                         case "ldnull": Push(offset, IrType.NullReference, new IrExpression.Null()); break;
                         case "ldarg.0" or "ldarg.1" or "ldarg.2" or "ldarg.3" or "ldarg.s" or "ldarg":
                             int argument = Variable(instruction, method.Parameters.Length);
@@ -122,12 +160,16 @@ public static class ValueTranslator
                             Push(offset, IrType.Int32, new IrExpression.Binary(Int32Operation.SubtractWrapping, zero, negated)); break;
                         case "conv.i4": int unchanged = Pop(offset, IrType.Int32); stack.Add(unchanged); break;
                         case "ceq" or "clt" or "clt.un" or "cgt" or "cgt.un":
-                            int comparedRight = Pop(offset, IrType.Int32), comparedLeft = Pop(offset, IrType.Int32);
-                            Push(offset, IrType.Int32, new IrExpression.Compare(opcode switch
+                            int comparedRight = Pop(offset), comparedLeft = Pop(offset);
+                            var compared = opcode switch
                             {
                                 "ceq" => Int32Comparison.Equal, "clt" => Int32Comparison.LessSigned, "clt.un" => Int32Comparison.LessUnsigned,
                                 "cgt" => Int32Comparison.GreaterSigned, _ => Int32Comparison.GreaterUnsigned,
-                            }, comparedLeft, comparedRight)); break;
+                            };
+                            if (arrays && opcode == "cgt.un" && Reference(values[comparedLeft]) && values[comparedRight] == IrType.NullReference)
+                                compared = Int32Comparison.NotEqual;
+                            Comparison(compared, comparedLeft, comparedRight, offset);
+                            Push(offset, IrType.Int32, new IrExpression.Compare(compared, comparedLeft, comparedRight)); break;
                         case "call":
                             var target = methods[method.Calls[offset]]; var arguments = new int[target.Parameters.Length];
                             for (int i = arguments.Length - 1; i >= 0; i--) arguments[i] = Pop(offset, target.Parameters[i]);
@@ -186,11 +228,13 @@ public static class ValueTranslator
                         default:
                             if (CilControlFlow.BranchComparison(opcode) is { } comparison)
                             {
-                                int? right = comparison is Int32Comparison.Zero or Int32Comparison.Nonzero ? null : Pop(offset, IrType.Int32);
-                                int left = Pop(offset, IrType.Int32);
+                                int? right = comparison is Int32Comparison.Zero or Int32Comparison.Nonzero ? null : Pop(offset);
+                                int left = Pop(offset);
+                                if (right is { } comparedRightId) Comparison(comparison, left, comparedRightId, offset);
+                                else if (values[left] != IrType.Int32 && !(arrays && Reference(values[left]))) Error(offset, "Branch requires Int32 or reference truth value.");
                                 terminator = new IrBranch(offset, comparison, left, right, Edge(instruction.Targets[0], offset), Edge(offset + instruction.Length, offset));
                             }
-                            else Error(offset, "Instruction '" + opcode + "' is outside " + Profile + "; add a supported lowering before execution.", DiagnosticIds.ExecutionUnsupported);
+                            else Error(offset, "Instruction '" + opcode + "' is outside " + (arrays ? ArrayProfile : Profile) + "; add a supported lowering before execution.", DiagnosticIds.ExecutionUnsupported);
                             break;
                     }
                     if (stack.Count > input.MaxStack) Error(offset, "Evaluation stack exceeds the declared maximum.");
@@ -227,6 +271,19 @@ public static class ValueTranslator
                 {
                     if (values[id].ReadOnly) Error(offset, "Readonly managed storage cannot be mutated.");
                 }
+                int PopArray(int offset)
+                {
+                    int array = Pop(offset);
+                    if (integerArray is null || values[array] != IrType.NullReference && values[array] != IrType.Reference(integerArray))
+                        Error(offset, "Array operation requires an Int32 vector or null.");
+                    return array;
+                }
+                void Comparison(Int32Comparison comparison, int left, int right, int offset)
+                {
+                    if (values[left] == IrType.Int32 && values[right] == IrType.Int32) return;
+                    if (arrays && comparison is (Int32Comparison.Equal or Int32Comparison.NotEqual) && Reference(values[left]) && Reference(values[right])) return;
+                    Error(offset, "Comparison requires Int32 operands or supported reference identity equality.");
+                }
                 IrEdge Edge(int offset, int from)
                 {
                     if (!partition.BlockAt.TryGetValue(offset, out int target)) Error(from, "Control transfer falls outside this method.", DiagnosticIds.InvalidControlTransfer);
@@ -245,6 +302,7 @@ public static class ValueTranslator
             if (actual != expected && !(actual == IrType.NullReference && expected.Kind == IrTypeKind.Reference))
                 Error(offset, "Stack operand does not match its required exact storage type.");
         }
+        private static bool Reference(IrType type) => type.Kind is IrTypeKind.Reference or IrTypeKind.NullReference;
         private int Variable(MethodInstruction instruction, int count)
         {
             if (instruction.IntegerOperand is not int index || index < 0 || index >= count)

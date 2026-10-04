@@ -16,7 +16,10 @@ namespace Cilica.Compiler;
 public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Binding,
     ImmutableArray<IrType> Parameters, IrType ReturnType, ImmutableArray<IrType> Locals,
     ImmutableDictionary<int, IrMethodId> Calls, ImmutableDictionary<int, ObjectFieldId> Fields,
-    ImmutableDictionary<int, ObjectTypeId> TypeOperands);
+    ImmutableDictionary<int, ObjectTypeId> TypeOperands)
+{
+    public ImmutableDictionary<int, ObjectTypeId> ArrayOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
+}
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
 public sealed record ValueProgramInput(IrMethodId Entry, ImmutableArray<ValueMethodInput> Methods, ValueTypeCatalog Types);
@@ -29,11 +32,19 @@ public sealed record ValueDiscoveryResult(ValueProgramInput? Input, ImmutableArr
 public static class ValueProgramDiscovery
 {
     public static ValueDiscoveryResult Read(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
+        ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: false);
+
+    public static ValueDiscoveryResult ReadArrays(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
+        ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true);
+
+    private static ValueDiscoveryResult ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
-        try { return new(new Session(resolver, runtimeLibrary, limits ?? new()).Read(assembly, entry), []); }
+        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays).Read(assembly, entry), []); }
         catch (Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
@@ -42,7 +53,7 @@ public static class ValueProgramDiscovery
         internal Diagnostic Diagnostic { get; } = diagnostic;
     }
 
-    private sealed class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits)
+    private sealed class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays)
     {
         private sealed record Work(ResolvedAssembly Assembly, MethodInput Input, ObjectMethodBinding Binding,
             ImmutableArray<IrType> Parameters, IrType ReturnType, ImmutableArray<IrType> Locals, Work? Parent, int Offset);
@@ -54,6 +65,10 @@ public static class ValueProgramDiscovery
         private readonly Dictionary<(string Hash, int Token), ResolvedField> _fields = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedType> _types = [];
         private int _bytes, _instructions, _parameters, _locals, _arguments;
+        private ObjectTypeId? _integerArray, _integer;
+
+        private ObjectTypeId IntegerArray() => _integerArray ??= ObjectTypeId.Vector(
+            ObjectModelBuilder.Id(Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object))), ObjectArrayElement.Int32);
 
         internal ValueProgramInput Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
         {
@@ -67,10 +82,26 @@ public static class ValueProgramDiscovery
                 var calls = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
                 var fields = ImmutableDictionary.CreateBuilder<int, ObjectFieldId>();
                 var types = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
+                var vectors = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                 foreach (var instruction in work.Input.Instructions)
                 {
                     var offset = instruction.Offset;
-                    if (instruction.OpCode == "call")
+                    if (arrays && instruction.OpCode == "newarr")
+                    {
+                        int token = Token(work, instruction, 0x01, 0x02);
+                        var key = (work.Assembly.ContentHash, token);
+                        if (!_types.TryGetValue(key, out var element))
+                        {
+                            element = Require(resolver.ResolveType(work.Assembly, MetadataTokens.EntityHandle(token)), work, offset);
+                            _types.Add(key, element);
+                        }
+                        _integer ??= ObjectModelBuilder.Id(Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), work, offset));
+                        if (ObjectModelBuilder.Id(element) != _integer)
+                            Fail(work, "Value CIL array allocation requires the selected runtime's Int32 element; reference/value arrays require later translation.", offset);
+                        vectors.Add(offset, IntegerArray());
+                    }
+                    else if (arrays && instruction.OpCode is ("ldelem.i4" or "stelem.i4" or "ldlen")) _ = IntegerArray();
+                    else if (instruction.OpCode == "call")
                     {
                         int token = Token(work, instruction, 0x06, 0x0a, 0x2b);
                         var key = (work.Assembly.ContentHash, token);
@@ -112,10 +143,10 @@ public static class ValueProgramDiscovery
                     }
                 }
                 methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                    calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()));
+                    calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ArrayOperands = vectors.ToImmutable() });
             }
             if (_values.Count == 0) Fail(root, "Value discovery requires an inline value; use the existing primitive/object translator for other programs.");
-            var built = ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values], library, _metadata);
+            var built = ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values], library, _metadata, _integerArray is not null);
             if (built.Catalog is not { } catalog) throw new Failure(built.Diagnostics[0]);
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
             var declarations = catalog.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
@@ -195,9 +226,12 @@ public static class ValueProgramDiscovery
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Void } when allowVoid => IrType.Void,
             TypeSignature.Named { Kind: SignatureTypeKind.ValueType } value => IrType.Value(Include(value.Definition, caller, offset)),
+            TypeSignature.Vector { Element: TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } } when arrays => IrType.Reference(IntegerArray()),
             TypeSignature.ByReference reference when borrow => IrType.Location(Storage(reference.Element, caller, offset)),
             _ => throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
-                "Initial value CIL signatures require Int32 or named nongeneric structs, void returns, and synchronous byref parameters. Reference signatures, modifiers, byref locals/returns and generics require later lowering." + Path(caller), Location(caller, offset))),
+                "Initial value CIL signatures require Int32 or named nongeneric structs, void returns, and synchronous byref parameters. "
+                + (arrays ? "The array profile additionally accepts Int32 vectors; other reference signatures" : "Reference signatures")
+                + ", modifiers, byref locals/returns and generics require later lowering." + Path(caller), Location(caller, offset))),
         };
 
         private ObjectTypeId Include(ResolvedType type, Work? work, int offset)

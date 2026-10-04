@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Cilica.Compiler;
 
-/// <summary>Eliminates inline copies into existing scalar/reference IR; no boxing or managed allocation.</summary>
+/// <summary>Expands inline copies into scalar/reference IR, preserving opted-in vector operations without boxing.</summary>
 public static class ValueScalarLowering
 {
     public const string Profile = "value-scalars-v1";

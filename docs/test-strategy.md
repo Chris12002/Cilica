@@ -657,3 +657,14 @@ CIL value programs or collection with their live embedded references (ADR 0065).
 Value/vector composition tests check allocation safepoints, embedded return roots,
 scalar operand mapping, old-profile rejection and malformed allocation/call
 contracts before expansion (ADR 0066). CIL/native stress remains separate evidence.
+
+Value/vector CIL stress now translates actual C# struct programs with Int32 array
+allocation into native code (ADR 0067). O0/O2 ASan/UBSan tests collect before every
+allocation under an eight-object cap, compare normal/overflow/bounds outcomes with
+.NET and verify original IL fault locations. A private caller removes its input
+root before an allocating callee, verifies the sole parameter root transfers into
+a rooted return destination, then checks final reclamation. Exact and one-byte-
+short heap/arena budgets and a nested allocation failure check full scope cleanup
+and context reuse. Negative CIL tests cover fake element identities, invalid
+array/index/element types, unsupported element addresses and unpaired length
+conversion; operation-only vector catalog roots are tested independently.

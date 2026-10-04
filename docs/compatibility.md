@@ -19,6 +19,7 @@ at milestone 4, with later value/location capabilities documented separately.
 | `scalar-location-ir-v1` | Authored Int32/reference borrows with existing native object operations | Explicit `EmitLocations` entry, synchronous direct static borrowers, readonly views, owner roots, checked carriers and O0/O2 allocation/collection stress; inline values require the separate expansion profile; CIL byrefs use the separate value translator |
 | `value-location-scalars-v2` | Mutable inline values and caller-owned struct returns expanded into native scalar borrows | Authored nested local/by-value parameter mutation, snapshots, readonly views, rooted return destinations and embedded reference slots; authored IR and bounded value CIL; no allocating value source operations, inline heap fields or public struct ABI |
 | `value-arrays-ir-v1` | Inline copies/borrows and vector operations composed before scalar lowering | Authored IR validation, allocation-root planning and rooted return packets; direct static methods only; class/string allocation excluded |
+| `value-arrays-cil-v1` | Static struct programs composed with Int32 vector CIL allocation/access | Compiler-library opt-in; selected Int32 identity, exact array operands, live embedded roots through calls/borrows/returns, local O0/O2 collection stress and failure cleanup; no class allocation composition |
 | `value-cil-v1` | Static value CIL translated through existing value/location IR and native lowering | Compiler-library API; exact joins, synchronous Int32/value borrows, whole copies, field operations and struct returns; O0/O2 local sanitizer conformance; no allocating source value programs or CLI profile change |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
@@ -1223,3 +1224,17 @@ O0/O2 ASan/UBSan tests compare real C# return, borrow and loop fixtures with .NE
 reduced whole-copy IL checks aliasing. This does not claim CIL allocation with live
 embedded references, instance struct methods, byref locals/returns, boxing,
 generics, exceptions or additional platforms. Existing CLI commands are unchanged.
+
+## Allocating value/vector CIL
+
+`ValueTranslator.TranslateArrays` opts into ADR 0067. It adds Int32 vector
+signatures, `newarr` of the selected runtime Int32, `ldelem.i4`, `stelem.i4`, and
+adjacent same-block `ldlen; conv.i4`. Reference identity comparisons and truth
+branches are supported; widening joins and ordered reference comparisons remain
+unsupported. The original `value-cil-v1` API retains its allocation rejection.
+
+Local native evidence includes collection before every allocation through nested
+struct copies, borrowed replacement, sole parameter roots and caller-owned returns,
+plus final reclamation, fault provenance and exact/insufficient heap/arena budgets.
+CIL reference/value array allocation, element-address borrows and class allocation/
+constructors composed with structs remain unsupported. The CLI is unchanged.
