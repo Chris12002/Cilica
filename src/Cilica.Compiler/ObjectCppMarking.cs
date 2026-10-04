@@ -1,6 +1,6 @@
 namespace Cilica.Compiler;
 
-/// <summary>Bounded allocation-free marking and scoped reachability diagnostics; no sweep.</summary>
+/// <summary>Bounded allocation-free marking and scoped reachability diagnostics and atomic mark/sweep.</summary>
 internal static class ObjectCppMarking
 {
     internal const string Text = """
@@ -47,21 +47,21 @@ struct MarkState {
     }
     return true;
 }
-[[maybe_unused, gnu::noinline]] static MarkReport mark_reachable(Context& context, MarkLimits limits = {},
-    ReachabilityVisitor visitor = nullptr, void* opaque = nullptr) noexcept {
+[[gnu::noinline]] static MarkReport mark_graph(Context& context, MarkLimits limits, MarkState& state) noexcept {
     Instance& heap = context.instance;
-    if (heap.marking) return {MarkStatus::busy};
-    MarkState state(heap, limits.edges);
     if (heap.count > limits.objects) return {MarkStatus::limit};
     // Validate the entire allocation inventory, including unreachable headers,
     // before touching scratch state or trusting it for reachability reporting.
-    std::size_t count = 0;
+    std::size_t count = 0, bytes = 0;
     for (Object* value = heap.head; value != nullptr; value = value->next) {
         if (count == heap.count || count == limits.objects) return {MarkStatus::invalid};
         ++count;
         if (value->owner != &heap || !known_type(value->type)) return {MarkStatus::invalid};
+        if (bytes > heap.bytes || value->allocation_bytes > heap.bytes - bytes ||
+            value->allocation_bytes < value->type->size) return {MarkStatus::invalid};
+        bytes += value->allocation_bytes;
     }
-    if (count != heap.count) return {MarkStatus::invalid};
+    if (count != heap.count || bytes != heap.bytes) return {MarkStatus::invalid};
     state.prepared = true;
     for (Object* value = heap.head; value != nullptr; value = value->next) {
         value->marked = false; value->mark_next = nullptr;
@@ -73,9 +73,49 @@ struct MarkState {
         result = visit_object_references(heap, value, mark_edge, &state);
         if (result != TraceResult::complete) return {result == TraceResult::invalid ? MarkStatus::invalid : MarkStatus::limit};
     }
-    if (visitor != nullptr) for (Object* value = heap.head; value != nullptr; value = value->next)
-        if (!visitor(opaque, value, value->marked)) return {MarkStatus::stopped};
     return {MarkStatus::complete, state.reachable, count - state.reachable, state.edges};
+}
+[[maybe_unused, gnu::noinline]] static MarkReport mark_reachable(Context& context, MarkLimits limits = {},
+    ReachabilityVisitor visitor = nullptr, void* opaque = nullptr) noexcept {
+    if (context.instance.marking) return {MarkStatus::busy};
+    MarkState state(context.instance, limits.edges);
+    auto report = mark_graph(context, limits, state);
+    if (report.status != MarkStatus::complete) return report;
+    if (visitor != nullptr) for (Object* value = context.instance.head; value != nullptr; value = value->next)
+        if (!visitor(opaque, value, value->marked)) return {MarkStatus::stopped};
+    return report;
+}
+// No user callback or managed execution may intervene between marking and sweep.
+[[maybe_unused, gnu::noinline]] static MarkReport collect(Context& context, MarkLimits limits = {}) noexcept {
+    Instance& heap = context.instance;
+    if (heap.marking) return {MarkStatus::busy};
+    MarkState state(heap, limits.edges);
+    auto report = mark_graph(context, limits, state);
+    if (report.status != MarkStatus::complete) return report;
+    Object** link = &heap.head;
+    while (*link != nullptr) {
+        Object* value = *link;
+        if (value->marked) { link = &value->next; continue; }
+        *link = value->next;
+        heap.bytes -= value->allocation_bytes; --heap.count;
+        value->type->destroy(value);
+    }
+    return report;
+}
+[[gnu::noinline]] static bool collect_for_allocation(Context& context, bool& attempted) noexcept {
+    if (attempted) return false;
+    attempted = true;
+    const auto report = collect(context);
+    if (report.status == MarkStatus::complete) return true;
+    if (context.pending == 0 && (report.status == MarkStatus::invalid || report.status == MarkStatus::busy)) context.pending = 6u;
+    return false;
+}
+[[gnu::noinline]] static bool allocation_room(Context& context, std::size_t bytes, bool& attempted) noexcept {
+    Instance& heap = context.instance;
+    if (heap.marking) { if (context.pending == 0) context.pending = 6u; return false; }
+    const auto fits = [&]() noexcept { return heap.bytes <= heap.limit && bytes <= heap.limit - heap.bytes && heap.count < heap.object_limit; };
+    if (fits()) return true;
+    return collect_for_allocation(context, attempted) && fits();
 }
 """;
 }

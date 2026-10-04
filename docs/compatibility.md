@@ -14,8 +14,8 @@ not establish native execution or platform compatibility.
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
 | `object-operations-ir-v8` | Bounded nominal/vector/String CIL translation | Arrays execute natively; String literals, length, code-unit access, ordinal equality and concat validate with roots/resource bounds; exact String intrinsic CIL is translated and executes in native v9 |
-| `object-frames-native-v11` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, retained heap, phase A roots and typed branches/backedges, private precise visitors and bounded marking diagnostics; no reclamation |
-| Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, GC, exception handlers, library and embedding support are unimplemented |
+| `object-frames-native-v12` | C++20 emission and local native differential execution | Immutable UTF-16 strings with instance-local literals and checked operations, Int32/reference vectors with checked stores and dynamic reference maps, class/interface dispatch and casts/type tests, inherited fields, budgeted execution arena, packed Int32 boundary, phase A roots and typed branches/backedges, precise visitors, bounded marking, synchronous reclamation and allocation retry |
+| Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, advanced GC features, exception handlers, library and embedding support are unimplemented |
 
 ## Int32 pending-fault profile
 
@@ -444,7 +444,7 @@ for convergence, ambiguity and shared-work-budget boundaries.
 
 ## Budgeted object execution frames
 
-`object-frames-native-v11` retains the budgeted frames that superseded the object control-flow and earlier emission
+`object-frames-native-v12` retains the budgeted frames that superseded the object control-flow and earlier emission
 profiles ([ADR 0027](decisions/0027-budgeted-execution-frames.md),
 [ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md),
 [ADR 0031](decisions/0031-native-inherited-fields-and-constructors.md)). It has a 1 MiB
@@ -860,7 +860,7 @@ evidence. The native checkpoint below provides separate execution evidence.
 
 ## Native vector execution
 
-`object-frames-native-v11` emits bounded Int32/reference arrays
+`object-frames-native-v12` emits bounded Int32/reference arrays
 ([ADR 0045](decisions/0045-native-array-storage.md)). A fixed header owns a separate
 zero-initialized typed element buffer. Heap accounting includes header and payload;
 failed allocation leaves counters/list unchanged, and instance cleanup frees both.
@@ -938,7 +938,7 @@ separately below; collection remains unimplemented.
 
 ## Native immutable UTF-16 strings
 
-`object-frames-native-v11` executes the five bounded String operations
+`object-frames-native-v12` executes the five bounded String operations
 ([ADR 0048](decisions/0048-native-string-storage.md)). Each string owns an immutable
 numeric UTF-16 buffer. Its header and buffer consume the retained instance heap's
 byte/object limits; failed allocation leaves the heap and literal cache unchanged.
@@ -1040,3 +1040,14 @@ Local O0/O2 ASan/UBSan checks cover exact reachable sets, a 4,096-node cycle, bu
 callback stop/reentry, invalid input, retries and real allocation-observer frames.
 Reclamation/accounting, allocation retry, poisoned collection stress and retained
 handles remain later slices of milestone 4.
+
+
+## Native reclamation and retry
+
+Native v12 supersedes the retained-until-teardown allocation behavior described in
+older checkpoints. [ADR 0051](decisions/0051-native-reclamation.md) adds synchronous,
+non-moving mark/sweep with exact header/buffer accounting and at most one collection
+attempt per allocating operation on quota or native allocation failure. Incomplete
+marking frees nothing. Published frames and literal cache entries are roots; native
+locals alone are not. Single active context per instance remains required. The
+existing packed Int32 boundary is unchanged. Stress and retained handles follow.

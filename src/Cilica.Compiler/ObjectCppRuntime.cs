@@ -54,6 +54,7 @@ struct Object {
     // Collector scratch is separate from identity/lock state and ownership links.
     Object* mark_next = nullptr;
     bool marked = false;
+    std::size_t allocation_bytes = 0;
 };
 struct ArrayObject {
     Object header;
@@ -144,7 +145,7 @@ struct Context {
     std::uint32_t pending = 0;
     const char* image = nullptr;
     std::uint32_t method = 0, il = 0;
-    // Private diagnostic observer, called before each object allocation. It cannot collect yet.
+    // Private diagnostic observer, called at published allocation safepoints.
     void (*observe)(Context&) noexcept = nullptr;
     explicit Context(Instance& heap, std::size_t bytes = 1048576) noexcept
         : instance(heap), execution_limit(bytes) {}
@@ -215,6 +216,8 @@ struct RootScope {
             if (!context.instance.owns(f->slots[i])) return false;
     return true;
 }
+[[maybe_unused]] static bool collect_for_allocation(Context&, bool&) noexcept;
+[[maybe_unused]] static bool allocation_room(Context&, std::size_t, bool&) noexcept;
 // Buffers are filled before publication and exposed only through const units.
 // Callers validate the owned, exact String descriptors before reading operands.
 [[maybe_unused, gnu::noinline]] static Object* allocate_string(Context& context, const Descriptor& descriptor,
@@ -224,20 +227,23 @@ struct RootScope {
     Instance& heap = context.instance;
     if (first > 0x7fffffffu || second > 0x7fffffffu - first) return nullptr;
     const std::uint32_t length = first + second;
-    if (heap.bytes > heap.limit || sizeof(StringObject) > heap.limit - heap.bytes || heap.count >= heap.object_limit)
-        return nullptr;
-    const std::size_t available = heap.limit - heap.bytes - sizeof(StringObject);
-    if (length > available / sizeof(std::uint16_t)) return nullptr;
-    auto* value = new (std::nothrow) StringObject{};
-    if (value == nullptr) return nullptr;
-    auto* units = length == 0 ? nullptr : new (std::nothrow) std::uint16_t[length];
-    if (length != 0 && units == nullptr) { delete value; return nullptr; }
-    for (std::uint32_t i = 0; i < first; ++i) units[i] = left[i];
-    for (std::uint32_t i = 0; i < second; ++i) units[first + i] = right[i];
-    value->length = length; value->units = units;
-    value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
-    heap.head = &value->header; heap.bytes += sizeof(StringObject) + length * sizeof(std::uint16_t); ++heap.count;
-    return &value->header;
+    if (std::size_t{length} > (std::numeric_limits<std::size_t>::max() - sizeof(StringObject)) / sizeof(std::uint16_t)) return nullptr;
+    const std::size_t charged = sizeof(StringObject) + std::size_t{length} * sizeof(std::uint16_t);
+    bool attempted = false;
+    for (;;) {
+        if (!allocation_room(context, charged, attempted)) return nullptr;
+        auto* value = new (std::nothrow) StringObject{};
+        if (value == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
+        auto* units = length == 0 ? nullptr : new (std::nothrow) std::uint16_t[length];
+        if (length != 0 && units == nullptr) { delete value; if (collect_for_allocation(context, attempted)) continue; return nullptr; }
+        for (std::uint32_t i = 0; i < first; ++i) units[i] = left[i];
+        for (std::uint32_t i = 0; i < second; ++i) units[first + i] = right[i];
+        value->length = length; value->units = units;
+        value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
+        value->header.allocation_bytes = charged;
+        heap.head = &value->header; heap.bytes += charged; ++heap.count;
+        return &value->header;
+    }
 }
 [[maybe_unused, gnu::noinline]] static Object* string_literal(Context& context, const Descriptor& descriptor,
     std::size_t id, const std::uint16_t* units, std::uint32_t length) noexcept {
@@ -277,13 +283,16 @@ template<class T> static Object* allocate(Context& context, const Descriptor& de
     if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
     if (context.observe != nullptr) context.observe(context);
     Instance& heap = context.instance;
-    if (heap.bytes > heap.limit || sizeof(T) > heap.limit - heap.bytes || heap.count >= heap.object_limit)
-        return nullptr;
-    T* value = new (std::nothrow) T{};
-    if (value == nullptr) return nullptr;
-    value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
-    heap.head = &value->header; heap.bytes += sizeof(T); ++heap.count;
-    return &value->header;
+    bool attempted = false;
+    for (;;) {
+        if (!allocation_room(context, sizeof(T), attempted)) return nullptr;
+        T* value = new (std::nothrow) T{};
+        if (value == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
+        value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
+        value->header.allocation_bytes = sizeof(T);
+        heap.head = &value->header; heap.bytes += sizeof(T); ++heap.count;
+        return &value->header;
+    }
 }
 [[maybe_unused, gnu::noinline]] static Object* allocate_array(Context& context, const Descriptor& descriptor, std::uint32_t length) noexcept {
     if (length > 0x7fffffffu) { context.pending = 2u; return nullptr; }
@@ -291,21 +300,24 @@ template<class T> static Object* allocate(Context& context, const Descriptor& de
     if (context.observe != nullptr) context.observe(context);
     Instance& heap = context.instance;
     const std::size_t stride = descriptor.array_kind == 1 ? sizeof(std::uint32_t) : sizeof(Object*);
-    if (heap.bytes > heap.limit || sizeof(ArrayObject) > heap.limit - heap.bytes || heap.count >= heap.object_limit)
-        return nullptr;
-    const std::size_t available = heap.limit - heap.bytes - sizeof(ArrayObject);
-    if (length > available / stride) return nullptr;
-    auto* value = new (std::nothrow) ArrayObject;
-    if (value == nullptr) return nullptr;
-    if (length != 0) {
-        if (descriptor.array_kind == 1) value->integers = new (std::nothrow) std::uint32_t[length]{};
-        else value->references = new (std::nothrow) Object*[length]{};
-        if (value->integers == nullptr && value->references == nullptr) { delete value; return nullptr; }
+    if (std::size_t{length} > (std::numeric_limits<std::size_t>::max() - sizeof(ArrayObject)) / stride) return nullptr;
+    const std::size_t charged = sizeof(ArrayObject) + std::size_t{length} * stride;
+    bool attempted = false;
+    for (;;) {
+        if (!allocation_room(context, charged, attempted)) return nullptr;
+        auto* value = new (std::nothrow) ArrayObject;
+        if (value == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
+        if (length != 0) {
+            if (descriptor.array_kind == 1) value->integers = new (std::nothrow) std::uint32_t[length]{};
+            else value->references = new (std::nothrow) Object*[length]{};
+            if (value->integers == nullptr && value->references == nullptr) { delete value; if (collect_for_allocation(context, attempted)) continue; return nullptr; }
     }
     value->length = length;
     value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
-    heap.head = &value->header; heap.bytes += sizeof(ArrayObject) + std::size_t{length} * stride; ++heap.count;
+    value->header.allocation_bytes = charged;
+    heap.head = &value->header; heap.bytes += charged; ++heap.count;
     return &value->header;
+    }
 }
 // Receivers have passed exact descriptor membership before these helpers run.
 // Keep pointer arithmetic on actual new[] elements, never a fabricated flexible member.

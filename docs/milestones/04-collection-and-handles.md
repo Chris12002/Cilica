@@ -1,7 +1,7 @@
 # Milestone 4: Precise collection and handles
 
 Status: in progress; precise visitation and bounded marking are implemented.
-Reclamation and persistent managed handles are not. Updated 2026-10-04.
+Reclamation is implemented; persistent managed handles are not. Updated 2026-10-04.
 
 The baseline remains single-threaded, non-moving mark-and-sweep, using the phase A
 shadow stack and exact reference maps from milestone 3. Retained allocations must
@@ -11,7 +11,7 @@ not be mistaken for roots. No managed reference crosses the packed Int32 boundar
 | --- | --- | --- |
 | 4a | Precise root and object-edge visitation with provenance and bounded failure | Complete for private native enumeration |
 | 4b | Bounded marking, cycle/alias handling, reachable-set diagnostics and failure semantics | Complete for private native marking |
-| 4c | Reclamation, exact heap accounting and allocation-triggered collection/retry | Planned |
+| 4c | Reclamation, exact heap accounting and allocation-triggered collection/retry | Complete for private native collection |
 | 4d | Collection-before-every-allocation stress and poisoned reclamation regressions | Planned |
 | 4e | Instance-owned retained handles with stale/foreign-handle rejection | Planned |
 | 4f | Composed integration review and supported-boundary consolidation | Planned |
@@ -91,3 +91,15 @@ final solution build has zero warnings/errors. Focused O0/O2 ASan/UBSan checks p
 maximum measured static frames are 688/496 bytes, below 2 KiB. Review found no
 remaining issue within this scope. Local main remains an ancestor. No push, hosted
 work or additional agents ran.
+
+
+## Slice 4c outcome
+
+[ADR 0051](../decisions/0051-native-reclamation.md) joins marking and sweeping under
+one guard. Incomplete traces free nothing; successful passes reclaim unreachable
+cycles, arrays and strings using typed destructors and exact recorded byte charges.
+Allocation retries after at most one collection on quota/native allocation failure.
+Direct native borrowers must publish roots across allocations. Focused O0/O2
+tracing, array and string sanitizer regressions pass; static frame limits remain
+2 KiB. Review corrected the array harness's formerly unrooted native borrower.
+Local main remains an ancestor; no hosted work or push ran.

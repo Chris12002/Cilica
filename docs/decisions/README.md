@@ -56,3 +56,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0048](0048-native-string-storage.md) | Native immutable UTF-16 strings | Accepted for retained storage, instance-local literals and bounded native operations |
 | [0049](0049-precise-reference-visitation.md) | Precise reference visitation | Accepted for private root/object-edge enumeration before marking and reclamation |
 | [0050](0050-bounded-native-marking.md) | Bounded native marking | Accepted for allocation-free marking and scoped reachability diagnostics; no reclamation |
+| [0051](0051-native-reclamation.md) | Native reclamation and bounded allocation retry | Accepted |

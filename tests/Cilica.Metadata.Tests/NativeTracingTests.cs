@@ -320,6 +320,43 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                 const auto dead = mark_reachable(c, {4096, 1});
                 assert(dead.status == MarkStatus::complete && dead.reachable == 0 && dead.unreachable == 4096 && dead.edges == 1); clean_marks(heap);
             }
+            [[gnu::noinline]] static void reclamation_checks(Graph& g) {
+                const auto bytes = g.heap.bytes;
+                const auto dead_bytes = g.garbage->allocation_bytes + g.empty_array->allocation_bytes;
+                // An incomplete trace must not reclaim even already-discovered garbage.
+                assert(collect(g.c, {8, 1}).status == MarkStatus::limit);
+                assert(g.heap.count == 8 && g.heap.bytes == bytes); clean_marks(g.heap);
+                ++g.heap.bytes;
+                assert(collect(g.c).status == MarkStatus::invalid && g.heap.count == 8);
+                --g.heap.bytes;
+                field(g.b, 0) = reinterpret_cast<Object*>(std::uintptr_t{1});
+                assert(collect(g.c).status == MarkStatus::invalid && g.heap.bytes == bytes);
+                field(g.b, 0) = g.a;
+                g.c.pending = 2; g.c.method = 19; g.c.il = 23; g.c.image = "collection-origin";
+                const auto report = collect(g.c);
+                assert(report.status == MarkStatus::complete && report.unreachable == 2 && report.reachable == 6);
+                assert(g.heap.count == 6 && g.heap.bytes == bytes - dead_bytes);
+                assert(field(g.a, 0) == g.b && field(g.b, 0) == g.a && load_integer_element(g.numbers, 0) == 0xffffffffu);
+                assert(g.c.pending == 2 && g.c.method == 19 && g.c.il == 23); clean_marks(g.heap);
+            }
+            [[gnu::noinline]] static void reclamation_and_retry() {
+                auto graph = std::make_unique<Graph>(); auto& g = *graph;
+                Object* slots[] = {g.a, g.numbers}; Frame frame; RootScope roots(g.c, frame, slots, 2);
+                reclamation_checks(g);
+                slots[0] = nullptr; slots[1] = nullptr;
+                assert(collect(g.c).unreachable == 4 && g.heap.count == 2);
+                assert(g.heap.bytes == g.empty->allocation_bytes + g.literal->allocation_bytes);
+                assert(string_code_unit(g.literal, 1) == 0xd800u);
+                g.c.pending = 0;
+                g.heap.limit = g.heap.bytes + sizeof({{node}}); g.heap.object_limit = 3;
+                assert(allocate<{{node}}>(g.c, {{node}}_descriptor) != nullptr && g.heap.count == 3);
+                // The first unrooted object is reclaimed to make room for this one.
+                slots[0] = allocate<{{node}}>(g.c, {{node}}_descriptor);
+                assert(slots[0] != nullptr && g.heap.count == 3 && g.heap.bytes == g.heap.limit);
+                assert(allocate<{{node}}>(g.c, {{node}}_descriptor) == nullptr && g.heap.count == 3);
+                slots[0] = nullptr;
+                assert(collect(g.c).unreachable == 1 && g.heap.count == 2);
+            }
             static unsigned observations = 0;
             static bool nested = false;
             static void observe(Context& c) noexcept {
@@ -347,7 +384,7 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                     assert(failed.pending == pending && failed.method == method && failed.il == il && failed.image == image);
                 }
             }
-            int main() { exact_edges(); exact_roots_and_cycles(); invalid_edges_and_stop(); invalid_roots(); frame_limits(); literal_limits(); marking_graph_and_budgets(); invalid_marking_and_retry(); deep_marking_and_empty_heap(); real_generated_frames(); }
+            int main() { exact_edges(); exact_roots_and_cycles(); invalid_edges_and_stop(); invalid_roots(); frame_limits(); literal_limits(); marking_graph_and_budgets(); invalid_marking_and_retry(); deep_marking_and_empty_heap(); reclamation_and_retry(); real_generated_frames(); }
             """);
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("native-tracing");
         string cpp = Path.Combine(directory, "tracing.cpp"), executable = Path.Combine(directory, "tracing");

@@ -61,6 +61,7 @@ public sealed class NativeArrayTests(ITestOutputHelper output)
                 using namespace {{Scope(boundary)}}; Instance heap; Context c(heap);
                 Object* array = allocate_array(c, {{Vector(boundary, "Cilica.Fixtures.Execution.ArrayEcho")}}_descriptor, 2);
                 assert(heap.bytes == sizeof(ArrayObject) + 2 * sizeof(Object*));
+                { Frame retained_frame; RootScope retained(c, retained_frame, &array, 1);
                 const auto bytes = heap.bytes;
                 heap.limit = bytes + sizeof(ArrayObject) + sizeof(Object*) - 1;
                 assert(allocate_array(c, {{Vector(boundary, "Cilica.Fixtures.Execution.ArrayEcho")}}_descriptor, 1) == nullptr);
@@ -68,7 +69,7 @@ public sealed class NativeArrayTests(ITestOutputHelper output)
                 ++heap.limit;
                 Object* extra = allocate_array(c, {{Vector(boundary, "Cilica.Fixtures.Execution.ArrayEcho")}}_descriptor, 1);
                 assert(extra != nullptr && heap.bytes == heap.limit && heap.count == 2);
-                assert(extra->type->dynamic_references(extra)[0] == nullptr);
+                assert(extra->type->dynamic_references(extra)[0] == nullptr); }
                 heap.limit = 1048576;
                 Object* valid = allocate<{{Layout(boundary, typeof(ArrayEcho))}}>(c, {{Layout(boundary, typeof(ArrayEcho))}}_descriptor);
                 Object* wrong = allocate<{{Layout(boundary, typeof(object))}}>(c, {{Layout(boundary, typeof(object))}}_descriptor);
@@ -127,8 +128,10 @@ public sealed class NativeArrayTests(ITestOutputHelper output)
                 Instance short_heap; Context short_c(short_heap, c.peak - 1); (void){{Root(rooted)}}(short_c, 3, 19);
                 assert(short_c.pending == 9 && short_c.used == 0 && short_c.top == nullptr && short_c.depth == 0);
                 for (std::size_t count = 0; count < heap.count; ++count) {
-                    Instance limited; limited.object_limit = count; Context failed(limited); (void){{Root(rooted)}}(failed, 3, 19);
-                    assert(failed.pending == 5 && limited.count == count && failed.used == 0 && failed.top == nullptr && failed.depth == 0);
+                    Instance limited; limited.object_limit = count; Context failed(limited); const auto result = {{Root(rooted)}}(failed, 3, 19);
+                    // Five slots suffice once dead loop temporaries can be reclaimed.
+                    assert(count < 5 ? failed.pending == 5 : failed.pending == 0 && result == {{ArrayProbe.Rooted(3, 19)}});
+                    assert(limited.count <= count && failed.used == 0 && failed.top == nullptr && failed.depth == 0);
                     failed.pending = 0; limited.object_limit = 4096;
                     assert({{Root(rooted)}}(failed, 2, 7) == {{ArrayProbe.Rooted(2, 7)}} && failed.pending == 0);
                 }

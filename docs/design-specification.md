@@ -594,8 +594,9 @@ separate header scratch ([ADR 0050](decisions/0050-bounded-native-marking.md)). 
 validates the inventory, marks each discovered object once and reports reachability
 only after a complete trace. Object/edge limits and scoped cleanup handle failure;
 no marks remain valid across a return to managed execution. Larger headers consume
-the existing heap byte quota. Sweeping, allocation retry and collection stress
-remain planned; the [milestone 4 plan](milestones/04-collection-and-handles.md)
+the existing heap byte quota. Native v12 adds guarded sweeping, exact allocation charges and one collection/retry
+on allocation pressure ([ADR 0051](decisions/0051-native-reclamation.md)).
+Collection stress and handles remain subsequent gates; the [milestone 4 plan](milestones/04-collection-and-handles.md)
 records those separate gates. Multiple active contexts within one instance require
 a future registration/coordination contract.
 
