@@ -107,9 +107,14 @@ static_assert(std::is_standard_layout_v<StringObject> && offsetof(StringObject, 
     auto* text = reinterpret_cast<StringObject*>(value);
     delete[] text->units; delete text;
 }
+struct Handle { std::uint64_t token = 0; };
+struct HandleSlot { Object* value = nullptr; std::uint64_t token = 0; };
+static constexpr std::size_t handle_capacity = 1024;
 struct Instance {
     bool marking = false;
     bool collect_before_allocation = false;
+    HandleSlot* handles = nullptr;
+    std::size_t handle_count = 0, handle_limit = handle_capacity;
     StringObject* literals = nullptr;
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;
@@ -124,6 +129,7 @@ struct Instance {
         return false;
     }
     ~Instance() noexcept {
+        delete[] handles;
         while (head != nullptr) { Object* p = head; head = p->next; p->type->destroy(p); }
     }
 };

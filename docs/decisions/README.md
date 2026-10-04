@@ -58,3 +58,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0050](0050-bounded-native-marking.md) | Bounded native marking | Accepted for allocation-free marking and scoped reachability diagnostics; no reclamation |
 | [0051](0051-native-reclamation.md) | Native reclamation and bounded allocation retry | Accepted |
 | [0052](0052-collection-stress.md) | Collection stress and poisoned reclamation checks | Accepted |
+| [0053](0053-instance-retained-handles.md) | Instance-owned retained handles | Accepted for private native helpers |

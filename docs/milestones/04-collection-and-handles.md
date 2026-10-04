@@ -1,7 +1,7 @@
 # Milestone 4: Precise collection and handles
 
 Status: in progress; precise visitation and bounded marking are implemented.
-Reclamation is implemented; persistent managed handles are not. Updated 2026-10-04.
+Reclamation and private instance-owned retained handles are implemented. Updated 2026-10-04.
 
 The baseline remains single-threaded, non-moving mark-and-sweep, using the phase A
 shadow stack and exact reference maps from milestone 3. Retained allocations must
@@ -13,7 +13,7 @@ not be mistaken for roots. No managed reference crosses the packed Int32 boundar
 | 4b | Bounded marking, cycle/alias handling, reachable-set diagnostics and failure semantics | Complete for private native marking |
 | 4c | Reclamation, exact heap accounting and allocation-triggered collection/retry | Complete for private native collection |
 | 4d | Collection-before-every-allocation stress and poisoned reclamation regressions | Complete for local O0/O2 sanitizer corpus |
-| 4e | Instance-owned retained handles with stale/foreign-handle rejection | Planned |
+| 4e | Instance-owned retained handles with stale/foreign-handle rejection | Complete for private native helpers |
 | 4f | Composed integration review and supported-boundary consolidation | Planned |
 
 These are capability boundaries, not a schedule. Split them further when review
@@ -114,3 +114,14 @@ strings and dispatch. Reclaimed headers/buffers are confirmed ASan-poisoned; sta
 roots are rejected before dereference. All four focused O0/O2 sanitizer checks pass
 with the 2 KiB frame cap. Review found no rooting defect in this corpus. No hosted
 work, push or extra agents ran.
+
+
+## Slice 4e outcome
+
+[ADR 0053](../decisions/0053-instance-retained-handles.md) adds a bounded lazy table
+of strong roots with nonreused opaque token generations. Resolve borrows a value;
+release removes only that handle's root. Duplicate/null handles, foreign/stale
+rejection, slot and instance-address reuse, capacity/edge budgets, token exhaustion,
+and retention across stress allocations are tested. Review found no remaining
+ownership or token-reuse issue. Local O0/O2 ASan/UBSan checks pass; no public handle
+ABI, wider platform claim, hosted work, push or additional agents are introduced.

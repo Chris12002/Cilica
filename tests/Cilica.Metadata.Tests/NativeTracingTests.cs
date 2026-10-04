@@ -240,6 +240,9 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                 report.delivered.push_back(value);
                 const auto nested_mark = mark_reachable(report.context);
                 assert(nested_mark.status == MarkStatus::busy && nested_mark.reachable == 0 && nested_mark.unreachable == 0 && nested_mark.edges == 0);
+                assert(retain_handle(report.context.instance, nullptr).status == HandleStatus::busy);
+                assert(resolve_handle(report.context.instance, {}).status == HandleStatus::busy);
+                assert(release_handle(report.context.instance, {}) == HandleStatus::busy);
                 return report.delivered.size() < report.stop;
             }
             static void failed_mark(Context& c, MarkStatus status, MarkLimits limits = {}) {
@@ -372,6 +375,80 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                 Object* stale = reinterpret_cast<Object*>(header); Frame frame; RootScope roots(c, frame, &stale, 1);
                 assert(collect(c).status == MarkStatus::invalid && heap.count == 0);
             }
+            [[gnu::noinline]] static void retained_under_stress(Graph& g, Handle handle) {
+                g.heap.collect_before_allocation = true;
+                for (unsigned i = 0; i < 16; ++i) {
+                    assert(allocate<{{node}}>(g.c, {{node}}_descriptor) != nullptr);
+                    assert(resolve_handle(g.heap, handle).value == g.a && field(g.b, 0) == g.a);
+                }
+                assert(collect(g.c).unreachable == 1 && g.heap.count == 5);
+            }
+            [[gnu::noinline]] static void retained_handle_roots() {
+                auto graph = std::make_unique<Graph>(); auto& g = *graph;
+                const auto first = retain_handle(g.heap, g.a), alias = retain_handle(g.heap, g.a);
+                const auto null = retain_handle(g.heap, nullptr);
+                assert(first.status == HandleStatus::complete && alias.status == HandleStatus::complete && null.status == HandleStatus::complete);
+                assert(first.handle.token != alias.handle.token && g.heap.handle_count == 3);
+                Records records; assert(visit_roots(g.c, record, &records) == TraceResult::complete);
+                assert(records.edges.size() == 5 && records.edges[2].kind == ReferenceKind::handle && records.edges[2].value == g.a);
+                assert(collect(g.c).unreachable == 3 && g.heap.count == 5);
+                assert(resolve_handle(g.heap, first.handle).value == g.a && field(g.b, 0) == g.a);
+                assert(resolve_handle(g.heap, null.handle).status == HandleStatus::complete && resolve_handle(g.heap, null.handle).value == nullptr);
+                retained_under_stress(g, first.handle);
+                assert(release_handle(g.heap, first.handle) == HandleStatus::complete);
+                assert(resolve_handle(g.heap, first.handle).status == HandleStatus::invalid);
+                assert(release_handle(g.heap, first.handle) == HandleStatus::invalid);
+                assert(collect(g.c).unreachable == 0);
+                assert(release_handle(g.heap, alias.handle) == HandleStatus::complete);
+                assert(collect(g.c).unreachable == 3 && g.heap.count == 2);
+                assert(release_handle(g.heap, null.handle) == HandleStatus::complete && g.heap.handle_count == 0);
+            }
+            [[gnu::noinline]] static void handle_budgets_and_foreign() {
+                Instance heap, other; Context c(heap);
+                heap.handle_limit = 0;
+                assert(retain_handle(heap, nullptr).status == HandleStatus::limit && heap.handles == nullptr);
+                heap.handle_limit = handle_capacity + 1;
+                assert(retain_handle(heap, reinterpret_cast<Object*>(std::uintptr_t{1})).status == HandleStatus::invalid);
+                const auto foreign = retain_handle(other, nullptr);
+                Handle first;
+                for (std::size_t i = 0; i < handle_capacity; ++i) {
+                    const auto value = retain_handle(heap, nullptr); assert(value.status == HandleStatus::complete);
+                    if (i == 0) first = value.handle;
+                }
+                assert(retain_handle(heap, nullptr).status == HandleStatus::limit && heap.handle_count == handle_capacity);
+                assert(resolve_handle(heap, foreign.handle).status == HandleStatus::invalid);
+                assert(release_handle(heap, foreign.handle) == HandleStatus::invalid);
+                assert(resolve_handle(other, first).status == HandleStatus::invalid);
+                assert(resolve_handle(heap, {}).status == HandleStatus::invalid);
+                assert(collect(c, {0, handle_capacity - 1}).status == MarkStatus::limit);
+                assert(collect(c, {0, handle_capacity}).status == MarkStatus::complete);
+                assert(release_handle(heap, first) == HandleStatus::complete);
+                const auto reused = retain_handle(heap, nullptr);
+                assert(reused.status == HandleStatus::complete && reused.handle.token != first.token);
+                assert(resolve_handle(heap, first).status == HandleStatus::invalid);
+                // Corrupt contained references, not native table storage: fail before sweep.
+                heap.handles[0].value = reinterpret_cast<Object*>(std::uintptr_t{1});
+                assert(collect(c).status == MarkStatus::invalid); heap.handles[0].value = nullptr;
+                ++heap.handle_count; assert(collect(c).status == MarkStatus::invalid); --heap.handle_count;
+                assert(collect(c).status == MarkStatus::complete);
+            }
+            [[gnu::noinline]] static void handle_lifetimes_and_exhaustion() {
+                alignas(Instance) std::byte storage[sizeof(Instance)];
+                Instance* first = ::new (storage) Instance;
+                const auto stale = retain_handle(*first, nullptr); first->~Instance();
+                Instance* next = ::new (storage) Instance;
+                const auto fresh = retain_handle(*next, nullptr);
+                assert(fresh.handle.token != stale.handle.token && resolve_handle(*next, stale.handle).status == HandleStatus::invalid);
+                next->~Instance();
+                // Test-only terminal exhaustion; do not reset the issuer or issue later tokens.
+                next_handle_token.store(std::numeric_limits<std::uint64_t>::max() - 1);
+                Instance heap;
+                const auto last = retain_handle(heap, nullptr);
+                assert(last.status == HandleStatus::complete && last.handle.token == std::numeric_limits<std::uint64_t>::max() - 1);
+                assert(retain_handle(heap, nullptr).status == HandleStatus::limit && heap.handle_count == 1);
+                assert(release_handle(heap, last.handle) == HandleStatus::complete);
+                assert(retain_handle(heap, nullptr).status == HandleStatus::limit && heap.handle_count == 0);
+            }
             static unsigned observations = 0;
             static bool nested = false;
             static void observe(Context& c) noexcept {
@@ -399,7 +476,7 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                     assert(failed.pending == pending && failed.method == method && failed.il == il && failed.image == image);
                 }
             }
-            int main() { exact_edges(); exact_roots_and_cycles(); invalid_edges_and_stop(); invalid_roots(); frame_limits(); literal_limits(); marking_graph_and_budgets(); invalid_marking_and_retry(); deep_marking_and_empty_heap(); reclamation_and_retry(); poisoned_reclamation(); real_generated_frames(); }
+            int main() { exact_edges(); exact_roots_and_cycles(); invalid_edges_and_stop(); invalid_roots(); frame_limits(); literal_limits(); marking_graph_and_budgets(); invalid_marking_and_retry(); deep_marking_and_empty_heap(); reclamation_and_retry(); poisoned_reclamation(); real_generated_frames(); retained_handle_roots(); handle_budgets_and_foreign(); handle_lifetimes_and_exhaustion(); }
             """);
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("native-tracing");
         string cpp = Path.Combine(directory, "tracing.cpp"), executable = Path.Combine(directory, "tracing");

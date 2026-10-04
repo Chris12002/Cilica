@@ -4,7 +4,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppTracing
 {
     internal const string Text = """
-enum class ReferenceKind { frame, literal, field, element };
+enum class ReferenceKind { frame, literal, handle, field, element };
 enum class TraceResult { complete, stopped, invalid };
 struct ReferenceEdge {
     ReferenceKind kind;
@@ -48,6 +48,17 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
         const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::literal, value, nullptr, nullptr, literal->literal_id});
         if (result != TraceResult::complete) return result;
     }
+    std::size_t active = 0;
+    const Instance& heap = context.instance;
+    if (heap.handle_count > handle_capacity || (heap.handle_count != 0 && heap.handles == nullptr)) return TraceResult::invalid;
+    if (heap.handles != nullptr) for (std::size_t i = 0; i < handle_capacity; ++i) {
+        const HandleSlot& slot = heap.handles[i];
+        if (slot.token == 0) { if (slot.value != nullptr) return TraceResult::invalid; continue; }
+        ++active;
+        const auto result = visit_edge(heap, visitor, state, {ReferenceKind::handle, slot.value, nullptr, nullptr, i});
+        if (result != TraceResult::complete) return result;
+    }
+    if (active != heap.handle_count) return TraceResult::invalid;
     return TraceResult::complete;
 }
 [[maybe_unused, gnu::noinline]] static TraceResult visit_object_references(const Instance& heap, Object* value,
