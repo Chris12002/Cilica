@@ -43,11 +43,12 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         foreach (var resource in resources)
             text.Append("static constexpr std::uint16_t exception_text_").Append(resource.Value.ToString(CultureInfo.InvariantCulture)).Append("[] = {")
                 .AppendJoin(", ", resource.Key.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture))).Append("};\n");
-        text.Append("struct ExceptionText { const std::uint16_t* units = nullptr; std::uint32_t length = 0; };\n")
+        text.Append("struct ExceptionText { const std::uint16_t* units = nullptr; std::uint32_t length = 0; std::size_t cache_id = 0; };\n")
             .Append("struct ExceptionTextEntry { const Descriptor* type; std::uint32_t kind; ExceptionText text; };\nstatic constexpr ExceptionTextEntry exception_texts[] = {\n");
         foreach (var pair in messages)
             text.Append("    {&").Append(symbol(pair.Key.Type)).Append("_descriptor, ").Append(pair.Key.Kind.ToString(CultureInfo.InvariantCulture))
-                .Append("u, {exception_text_").Append(resources[pair.Value].ToString(CultureInfo.InvariantCulture)).Append(", ").Append(pair.Value.Length.ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
+                .Append("u, {exception_text_").Append(resources[pair.Value].ToString(CultureInfo.InvariantCulture)).Append(", ").Append(pair.Value.Length.ToString(CultureInfo.InvariantCulture)).Append("u, ")
+                .Append((pair.Value.StartsWith("Exception of type '", StringComparison.Ordinal) ? 0 : resources[pair.Value] + 1).ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
         text.Append("};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_text(const Descriptor* type, std::uint32_t kind) noexcept {\n")
             .Append("    for (const auto& entry : exception_texts) if (entry.type == type && entry.kind == kind) return entry.text;\n    return {};\n}\n");
         text.Append("struct ExceptionCastTextEntry { const Descriptor* from; const Descriptor* to; ExceptionText text; };\n");
@@ -64,11 +65,30 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         }
         text.Append("}};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_cast_text(const Descriptor* from, const Descriptor* to) noexcept {\n")
             .Append("    for (const auto& entry : exception_cast_texts) if (entry.from == from && entry.to == to) return entry.text;\n    return {};\n}\n");
+        text.Append(ResourceHelper);
         text.Append("[[maybe_unused, gnu::noinline]] static Object* exception_message_string(Context& c, ExceptionText text) noexcept {\n");
-        if (catalog.String is { } stringType) text.Append("    return allocate_string(c, ").Append(symbol(stringType)).Append("_descriptor, text.units, text.length, nullptr, 0);\n");
+        if (catalog.String is { } stringType) text.Append("    return exception_resource(c, ").Append(symbol(stringType)).Append("_descriptor, text);\n");
         else text.Append("    (void)c; (void)text; return nullptr;\n");
         text.Append("}\n").Append(Helpers).Append('\n');
     }
+
+    private const string ResourceHelper = """
+[[maybe_unused, gnu::noinline]] static Object* exception_resource(Context& c, const Descriptor& type, ExceptionText text) noexcept {
+    if (text.cache_id == 0) return allocate_string(c, type, text.units, text.length, nullptr, 0);
+    std::size_t count = 0;
+    for (auto* value = c.instance.exception_resources; value != nullptr; value = value->literal_next) {
+        if (++count > 9 || !traceable_reference(c.instance, reinterpret_cast<Object*>(value)) || value->header.type != &type) { c.pending = 6; return nullptr; }
+        if (value->literal_id == text.cache_id) return &value->header;
+    }
+    if (count == 9) { c.pending = 6; return nullptr; }
+    auto* result = allocate_string(c, type, text.units, text.length, nullptr, 0);
+    if (result == nullptr) return nullptr;
+    auto* value = reinterpret_cast<StringObject*>(result);
+    value->literal_id = text.cache_id; value->literal_next = c.instance.exception_resources; c.instance.exception_resources = value;
+    return result;
+}
+
+""";
 
     private const string Helpers = """
 [[maybe_unused, gnu::noinline]] static bool valid_exception(const Context& c, Object* value) noexcept {
@@ -111,7 +131,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         message = exception_message_string(c, text);
         const auto failure = c.pending; set_exception_origin(c, origin);
         if (message == nullptr) return {failure == 0 ? 5u : failure};
-        payload->message = message;
+        if (text.cache_id != 0 || payload->cast_from != nullptr) payload->message = message;
     }
     return {0, message};
 }

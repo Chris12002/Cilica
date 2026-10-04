@@ -37,6 +37,24 @@ public sealed class ManagedExceptionIrTests
         return new(new(new(new(id, [method], new([], Id(14), [], references))),
             [new(id, Id(13), ObjectMethodKind.Static, MethodAttributes.Public | MethodAttributes.Static, true)]), exceptions);
     }
+    internal static ManagedExceptionIrProgram FaultModel(bool rethrow)
+    {
+        var program = Model();
+        return Method(program, method => method with
+        {
+            Blocks = method.Blocks.SetItem(1, method.Blocks[1] with { Terminator = rethrow ? new IrRethrow(3) : new IrLeave(3, new(4, [])) })
+                .SetItem(3, new(3, 6, [IrType.Reference(program.Exceptions.Base)],
+                    [new IrStatement.Define(new(0, IrType.Reference(program.Exceptions.Base), 6, new IrExpression.StackInput(0)))], new IrLeave(7, new(4, []))))
+                .Add(new(4, 8, [], [new IrStatement.Define(new(0, IrType.Int32, 8, new IrExpression.Local(1)))], new IrReturn(9, 0))),
+            ExceptionRegions = method.ExceptionRegions.SetItem(1, method.ExceptionRegions[1] with { Kind = IrExceptionClause.Fault })
+                .Add(new(0, 3, 3, 4, IrExceptionClause.Catch, program.Exceptions.Base)),
+        });
+    }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Fault_cleanup_is_valid_on_both_normal_and_rethrow_paths(bool rethrow) => ManagedExceptionIrValidator.Validate(FaultModel(rethrow));
+
     private static ManagedExceptionIrProgram Method(ManagedExceptionIrProgram program, Func<IrMethod, IrMethod> change)
     {
         var flow = program.Flow.Flow.Flow;

@@ -31,6 +31,8 @@ public sealed class ManagedExceptionTranslationTests
     [InlineData("Message")]
     [InlineData("OrderedCatches")]
     [InlineData("RuntimeFaults")]
+    [InlineData("RethrowIdentity")]
+    [InlineData("BorrowedThrow")]
     [InlineData("GenericCastMessage")]
     [InlineData("AllocationFailure")]
     [InlineData("Unhandled")]

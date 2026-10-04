@@ -121,6 +121,7 @@ struct Instance {
     HandleSlot* handles = nullptr;
     std::size_t handle_count = 0, handle_limit = handle_capacity;
     StringObject* literals = nullptr;
+    StringObject* exception_resources = nullptr;
     Object* emergency_exception = nullptr;
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;

@@ -37,7 +37,9 @@ public sealed class NativeExceptionRuntimeTests
         for (int i = 0; i < source.Exceptions.Types.Length; ++i)
         for (int kind = 0; kind < 3; ++kind)
         {
-            string expected = ((Exception)Activator.CreateInstance(exceptionTypes[i], kind == 0 ? new object?[] { null } : [])!).Message;
+            var oracle = (Exception)Activator.CreateInstance(exceptionTypes[i], kind == 0 ? new object?[] { null } : [])!;
+            string expected = oracle.Message;
+            bool cached = ReferenceEquals(oracle.Message, oracle.Message);
             if (kind == 2 && exceptionTypes[i] == typeof(ArgumentException))
             { try { _ = Cilica.Fixtures.Execution.DelegateProbe.NullCapture(0); }
                 catch (ArgumentException error) { expected = error.Message; } }
@@ -45,7 +47,7 @@ public sealed class NativeExceptionRuntimeTests
             checks.Append(CultureInfo.InvariantCulture, $$"""
                 {
                     static constexpr std::uint16_t expected[] = { {{string.Join(", ", expected.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture)))}} };
-                    check_message(c, roots, &t_{{type.ContentHash}}_{{type.Token:x8}}_descriptor, {{kind}}, expected, {{expected.Length}});
+                    check_message(&t_{{type.ContentHash}}_{{type.Token:x8}}_descriptor, {{kind}}, expected, {{expected.Length}}, {{(cached ? "true" : "false")}});
                 }
                 """);
         }
@@ -130,8 +132,9 @@ public sealed class NativeExceptionRuntimeTests
                 assert(prepare_exceptions(c) == 5 && heap.count == 0 && heap.emergency_exception == nullptr && c.pending == 0);
                 heap.limit = sizeof(ExceptionObject); assert(prepare_exceptions(c) == 0 && heap.count == 1);
             }
-            [[gnu::noinline]] static void check_message(Context& c, Object** roots, const Descriptor* type, std::uint32_t kind, const std::uint16_t* expected, std::uint32_t length) {
-                auto& heap = c.instance;
+            [[gnu::noinline]] static void check_message(const Descriptor* type, std::uint32_t kind, const std::uint16_t* expected, std::uint32_t length, bool cached) {
+                Instance heap; heap.collect_before_allocation = true; Context c(heap); assert(prepare_exceptions(c) == 0);
+                Object* roots[2]{}; Frame frame; RootScope scope(c, frame, roots, 2);
                 roots[0] = make_exception(c, type, nullptr, kind).value; assert(roots[0]);
                 heap.object_limit = heap.count;
                 const auto before = exception_origin(c);
@@ -147,15 +150,35 @@ public sealed class NativeExceptionRuntimeTests
                 }
                 assert(string_length(result.value) == length);
                 for (std::uint32_t j = 0; j < length; ++j) assert(string_code_unit(result.value, j) == expected[j]);
-                assert(exception_message(c, roots[0]).value == result.value);
-                roots[0] = nullptr; assert(collect(c).status == MarkStatus::complete && heap.count == 1);
+                roots[1] = result.value;
+                assert((exception_message(c, roots[0]).value == result.value) == cached);
+                roots[0] = roots[1] = nullptr;
+                assert(collect(c).status == MarkStatus::complete && heap.count == (cached ? 2u : 1u));
             }
-            [[gnu::noinline]] static void default_messages() {
+            [[gnu::noinline]] static void shared_resources_survive_and_reject_corruption() {
                 Instance heap; heap.collect_before_allocation = true; Context c(heap); assert(prepare_exceptions(c) == 0);
                 Object* roots[1]{}; Frame frame; RootScope scope(c, frame, roots, 1);
+                for (auto status : {1u, 2u, 4u, 5u, 7u, 10u, 11u, 12u}) {
+                    roots[0] = make_exception(c, runtime_exception(status), nullptr, 2).value;
+                    assert(roots[0] && exception_message(c, roots[0]).status == 0);
+                    roots[0] = nullptr;
+                }
+                roots[0] = make_exception(c, runtime_exception(12), nullptr, 1).value;
+                assert(roots[0] && exception_message(c, roots[0]).status == 0); roots[0] = nullptr;
+                assert(collect(c).status == MarkStatus::complete && heap.count == 10);
+                auto* saved = heap.exception_resources;
+                heap.exception_resources = reinterpret_cast<StringObject*>(std::uintptr_t{1});
+                assert(collect(c).status == MarkStatus::invalid && heap.count == 10);
+                heap.exception_resources = saved;
+                auto* next = saved->literal_next; saved->literal_next = saved;
+                assert(collect(c).status == MarkStatus::invalid && heap.count == 10);
+                saved->literal_next = next;
+                assert(collect(c).status == MarkStatus::complete && heap.count == 10);
+            }
+            [[gnu::noinline]] static void default_messages() {
                 {{checks}}
             }
-            int main() { default_messages(); roots_and_identity(); runtime_faults_and_emergency_capacity(); invalid_state_is_failure_atomic(); bootstrap_failure_is_bounded(); }
+            int main() { shared_resources_survive_and_reject_corruption(); default_messages(); roots_and_identity(); runtime_faults_and_emergency_capacity(); invalid_state_is_failure_atomic(); bootstrap_failure_is_bounded(); }
             """);
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("native-exceptions");
         string input = Path.Combine(directory, "exceptions.cpp"), executable = Path.Combine(directory, "exceptions");

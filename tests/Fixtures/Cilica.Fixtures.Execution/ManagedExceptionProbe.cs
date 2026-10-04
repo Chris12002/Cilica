@@ -116,6 +116,47 @@ namespace Cilica.Fixtures.Execution
             catch (Exception) { return 4; }
             return -1;
         }
+        public static int MessageIdentity(int number)
+        {
+            Exception first, second;
+            if (number == 0) { first = new ProbeException(); second = new ProbeException(); }
+            else if (number == 1) { first = new DivideByZeroException(); second = new DivideByZeroException(); }
+            else if (number == 2) { first = new ProbeException("shared"); second = new ProbeException("shared"); }
+            else if (number == 3) { first = new DivideByZeroException(); second = new DivideByZeroException("Attempted to divide by zero."); }
+            else { first = new ProbeException(null); second = new ProbeException(null); }
+            int result = (object)first.Message == (object)first.Message ? 1 : 0;
+            if ((object)first.Message == (object)second.Message) result += 2;
+            return result;
+        }
+        public static int RethrowIdentity(int number)
+        {
+            var original = new ProbeException("rethrow");
+            try
+            {
+                try { Throw(original); }
+                catch (ProbeException) { ValueObjectProbe.Pressure(6); throw; }
+            }
+            catch (ProbeException received) { return received == original ? received.Message.Length : -1; }
+            return -2;
+        }
+        public static void MutateAndThrow(ref GenericPair<int, Exception> pair, int number)
+        {
+            pair.First = unchecked(number + 1);
+            ValueObjectProbe.Pressure(6);
+            Throw(pair.Second);
+        }
+        public static int BorrowedThrow(int number)
+        {
+            var original = new ProbeException("borrow");
+            var pair = GenericPair<int, Exception>.Create(number, original);
+            try { MutateAndThrow(ref pair, number); }
+            catch (ProbeException received)
+            {
+                ValueObjectProbe.Pressure(6);
+                return received == pair.Second ? unchecked(pair.First + received.Message.Length) : -1;
+            }
+            return -2;
+        }
         public static int RuntimeFaults(int number)
         {
             try

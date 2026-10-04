@@ -93,3 +93,5 @@ capability. It becomes accepted once its validation experiment has run.
 - [0084: Rooted native exception dispatch](0084-native-exception-dispatch.md)
 
 - [0085: Bounded managed exception CIL](0085-managed-exception-cil.md)
+
+- [0086: Exception message identity and final semantic probes](0086-exception-message-identity.md)

@@ -23,7 +23,8 @@ public sealed class NativeExceptionTranslationTests
             ("NestedCleanup", ManagedExceptionProbe.NestedCleanup), ("Replacement", ManagedExceptionProbe.Replacement),
             ("Composed", ManagedExceptionProbe.Composed), ("Message", ManagedExceptionProbe.Message),
             ("OrderedCatches", ManagedExceptionProbe.OrderedCatches), ("RuntimeFaults", ManagedExceptionProbe.RuntimeFaults),
-            ("AllocationFailure", ManagedExceptionProbe.AllocationFailure), ("GenericCastMessage", ManagedExceptionProbe.GenericCastMessage)];
+            ("AllocationFailure", ManagedExceptionProbe.AllocationFailure), ("GenericCastMessage", ManagedExceptionProbe.GenericCastMessage), ("RethrowIdentity", ManagedExceptionProbe.RethrowIdentity),
+            ("BorrowedThrow", ManagedExceptionProbe.BorrowedThrow), ("MessageIdentity", ManagedExceptionProbe.MessageIdentity)];
         var source = new StringBuilder(); var calls = new StringBuilder();
         foreach (var (name, oracle) in probes)
         {
@@ -47,6 +48,7 @@ public sealed class NativeExceptionTranslationTests
                         assert(collect(c).status == MarkStatus::complete);
                         std::size_t permanent = 1;
                         for (auto* literal = heap.literals; literal; literal = literal->literal_next) ++permanent;
+                        for (auto* resource = heap.exception_resources; resource; resource = resource->literal_next) ++permanent;
                         assert(heap.count == permanent);
                     }
                     const auto peak = c.peak;

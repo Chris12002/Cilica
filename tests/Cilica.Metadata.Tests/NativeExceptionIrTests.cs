@@ -16,9 +16,9 @@ public sealed class NativeExceptionIrTests
     public async Task Authored_catches_filters_finally_and_rethrow_keep_identity_and_cleanup(bool optimized)
     {
         var source = new StringBuilder(); var calls = new StringBuilder();
-        for (int kind = 0; kind < 5; ++kind)
+        for (int kind = 0; kind < 7; ++kind)
         {
-            var program = kind is 1 or 2 ? ManagedExceptionIrTests.FilterModel() : ManagedExceptionIrTests.Model();
+            var program = kind >= 5 ? ManagedExceptionIrTests.FaultModel(kind == 6) : kind is 1 or 2 ? ManagedExceptionIrTests.FilterModel() : ManagedExceptionIrTests.Model();
             var flow = program.Flow.Flow.Flow; var method = flow.Methods[0];
             if (kind == 2)
             {
@@ -36,7 +36,7 @@ public sealed class NativeExceptionIrTests
             var scalar = ValueScalarLowering.LowerExceptions(program);
             var artifact = ObjectCppEmitter.EmitExceptions(scalar);
             string symbol = "cilica_m_" + entry.ContentHash + "_" + entry.Token.ToString("x8", CultureInfo.InvariantCulture) + "_g_" + entry.Specialization;
-            uint status = kind is 2 or 4 ? 13u : 0u;
+            uint status = kind is 2 or 4 ? 13u : 0u; int expected = kind == 5 ? 0 : 5;
             source.Append(artifact.Text).Append(CultureInfo.InvariantCulture, $$"""
                 #include <cassert>
                 [[gnu::noinline]] static void run_{{kind}}() {
@@ -44,7 +44,7 @@ public sealed class NativeExceptionIrTests
                     Instance heap; heap.collect_before_allocation = true; Context c(heap);
                     for (int repeat = 0; repeat < 3; ++repeat) {
                         auto result = {{symbol}}(c, nullptr);
-                        assert(c.pending == {{status}}u && ({{status}}u != 0 || result == 5));
+                        assert(c.pending == {{status}}u && ({{status}}u != 0 || result == {{expected}}));
                         if ({{status}}u != 0) assert(c.exception != nullptr && c.method == {{entry.Token}}u && c.il == 1);
                         else assert(c.exception == nullptr);
                         assert(c.top == nullptr && c.depth == 0 && c.borrows == nullptr && c.used == 0);
@@ -53,7 +53,7 @@ public sealed class NativeExceptionIrTests
                     }
                     std::int32_t result = 123; std::uint32_t token = 0, offset = 0; const char* image = nullptr;
                     assert({{artifact.EntryPoint}}(&result, &token, &offset, &image, nullptr, 0) == {{status}}u);
-                    assert(result == ({{status}}u == 0 ? 5 : 123));
+                    assert(result == ({{status}}u == 0 ? {{expected}} : 123));
                     if ({{status}}u != 0) assert(token == {{entry.Token}}u && offset == 1);
                 }
                 """);

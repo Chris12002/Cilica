@@ -4,7 +4,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppTracing
 {
     internal const string Text = """
-enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception };
+enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource };
 enum class TraceResult { complete, stopped, invalid };
 struct ReferenceEdge {
     ReferenceKind kind;
@@ -28,6 +28,17 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
 // Frames, slot buffers, allocation headers and descriptor tables are runtime-owned
 // storage. Validate contained managed pointers, not arbitrary native memory blocks.
 // Incomplete walks can have delivered a prefix; they must never authorize sweeping.
+[[maybe_unused, gnu::noinline]] static TraceResult visit_exception_resources(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
+    std::size_t count = 0;
+    for (const StringObject* resource = context.instance.exception_resources; resource != nullptr; resource = resource->literal_next) {
+        auto* value = reinterpret_cast<Object*>(const_cast<StringObject*>(resource));
+        if (++count > 9 || count > context.instance.count || !traceable_reference(context.instance, value)
+            || !string_type(value->type)) return TraceResult::invalid;
+        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::exception_resource, value, nullptr, nullptr, resource->literal_id});
+        if (result != TraceResult::complete) return result;
+    }
+    return TraceResult::complete;
+}
 [[maybe_unused, gnu::noinline]] static TraceResult visit_roots(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
     if (visitor == nullptr) return TraceResult::invalid;
     std::size_t depth = 0;
@@ -56,6 +67,8 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
         const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::literal, value, nullptr, nullptr, literal->literal_id});
         if (result != TraceResult::complete) return result;
     }
+    const auto resources = visit_exception_resources(context, visitor, state);
+    if (resources != TraceResult::complete) return resources;
     std::size_t active = 0;
     const Instance& heap = context.instance;
     if (heap.handle_count > handle_capacity || (heap.handle_count != 0 && heap.handles == nullptr)) return TraceResult::invalid;

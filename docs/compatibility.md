@@ -1390,3 +1390,8 @@ top-level nongeneric fieldless declarations with verified forwarding constructor
 Only the selected Exception/8 runtime-fault parameterless and string constructors,
 Exception.Message, String.Length/equality and pure type-test filters are admitted.
 The packed boundary remains Int32/status/origin; CLI and public exception ABI are unchanged.
+
+Exception message identity is covered by ADR 0086: formatted type-name defaults are
+fresh per getter; fixed resources are shared within the instance, separately from
+user literals; supplied and contextual cast messages retain their references.
+Nine resource roots are bounded and charged to normal heap quotas.

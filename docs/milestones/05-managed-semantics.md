@@ -40,7 +40,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5h.3a | Private native exception storage and rooted pending/saved identity | Complete for helper probes |
 | 5h.3b | Native handler dispatch, cleanup and message semantics | Complete for authored IR |
 | 5h.4 | CIL exceptions and type-test filters with differential probes | Complete for bounded CIL |
-| 5i | Composed differential regressions and final review | Next |
+| 5i | Composed differential regressions and final review | Final validation in progress |
 
 Split slices further when a separately testable semantic or ownership contract
 requires it. Review each completed slice before committing. Keep resource limits
@@ -534,3 +534,14 @@ O0/O2 sanitizer probes compare 12 C# entries over eight inputs, plus uncaught or
 and emergency OOM recovery, with collection stress and exact/short arena limits.
 The next gate is the final composed review, including an explicit fault-clause probe.
 Milestone 5 is not yet complete. No hosted work ran.
+
+## Slice 5i review correction
+
+The final semantic review added exceptional-only fault cleanup, rethrow identity and
+borrowed-struct mutation/root probes. Forty-five selected exception checks passed.
+A subsequent string-identity differential probe exposed unconditional default-message
+caching. ADR 0086 corrects fresh formatted defaults versus shared fixed resources,
+with a separately rooted nine-resource cache. O0/O2 identity and collection checks
+pass, including forged/cyclic cache rejection. The resource visitor was split after
+the O0 stack gate reported an oversized helper; the gate remains 2 KiB.
+The final local regression gate is next; milestone 5 is not yet marked complete.

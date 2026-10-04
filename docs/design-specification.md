@@ -1088,3 +1088,7 @@ filters, throw/rethrow and leave/finally/fault through explicit native continuat
 and bounded invariant defaults; O0/O2 sanitizer checks cover rooted identity and
 cleanup. Bounded CIL exception translation is now supplied by ADR 0085; a public
 structured-error ABI remains separate.
+
+Final exception identity review (ADR 0086) distinguishes fresh formatted defaults,
+shared fixed resource strings and supplied/contextual cast messages. A separate
+bounded instance resource-root list preserves collection and identity semantics.
