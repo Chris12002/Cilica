@@ -70,6 +70,33 @@ public sealed class ValueMetadataTests
         Assert.Equal(2, ValueLayoutPlanner.Build(result.Catalog).Single(p => p.Type == result.Catalog.Roots[0]).References.Length);
     }
 
+    [Fact]
+    public void CSharp_empty_struct_size_marker_keeps_an_empty_logical_payload()
+    {
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        var input = resolver.OpenInput(typeof(EmptyBoxValue).Assembly.Location).Value!;
+        var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
+        var handle = (TypeDefinitionHandle)MetadataTokens.EntityHandle(typeof(EmptyBoxValue).MetadataToken);
+        Assert.Equal(1, resolver.ReadTypeInput(input, handle).Value!.ClassSize);
+        var result = ValueModelBuilder.BuildCatalog(resolver, [resolver.ResolveType(input, handle).Value!], library);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        Assert.Empty(Assert.Single(ValueLayoutPlanner.Build(result.Catalog!)).Slots);
+    }
+
+    [Theory]
+    [InlineData(1, false, 0, true)]
+    [InlineData(1, true, 0, false)]
+    [InlineData(2, false, 0, false)]
+    [InlineData(1, false, 1, false)]
+    public void Empty_size_exception_does_not_admit_custom_nonempty_layouts(int size, bool field, int packing, bool success)
+    {
+        var builder = Builder(); var valueBase = Bases(builder);
+        var root = builder.Type("Example", "EmptySized", baseType: valueBase, attributes: Struct);
+        builder.TypeLayout(root, (ushort)packing, (uint)size);
+        if (field) builder.Field("Number", 6, 8);
+        Assert.Equal(success, Build(builder, root).Success);
+    }
+
     [Theory]
     [InlineData("class_base")]
     [InlineData("enum")]

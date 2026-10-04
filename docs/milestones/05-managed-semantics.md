@@ -27,7 +27,7 @@ profiles continue to reject unsupported reachable semantics.
 | 5e.1 | Named-struct boxing, exact unbox copies/borrows and payload/root contracts | Complete for authored IR |
 | 5e.2a | Native boxed storage, identity/mutation, fault status and collection | Complete for private runtime helpers |
 | 5e.2b | Boxed IR scalar expansion, native emission and fault provenance | Complete for authored IR |
-| 5e.3 | Bounded CIL boxing/unboxing and composed differential regressions | Planned |
+| 5e.3 | Bounded CIL boxing/unboxing and composed differential regressions | Complete for named nongeneric structs |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
 | 5h | Managed exception objects, handlers, cleanup and type-test filters | Planned |
@@ -353,3 +353,21 @@ gate remains enabled and the compiler builds cleanly.
 
 CIL boxing is next (5e.3); milestone 5 remains in progress. Local main remains an
 ancestor. No push, hosted work, service or additional agent ran.
+
+## Slice 5e.3 outcome
+
+ADR 0073 translates named-struct box/unbox/copy CIL through the shared checked
+pipeline. Real C# graph/copy/return programs agree with .NET under allocation-time
+collection, and reduced `unbox` CIL mutates a payload through an allocating helper.
+Null/type and allocation failures retain original method/IL locations, preserve
+packed output and allow clean context reuse.
+
+Review fixed the catalog's rejection of the standard C# empty-struct one-byte size
+record, with reduced guards against broader sized/packed layouts. No blocking
+findings remain. All 113 selected discovery/translation/metadata/native checks pass,
+including O0/O2 ASan/UBSan with the 2 KiB stack gate. The compiler builds cleanly.
+
+Closed generics are next (5f). This boxing gate covers named nongeneric structs;
+primitive/enum/nullable boxing, ValueType views and boxed interfaces remain outside
+the profile. Milestone 5 is in progress. No push, hosted work, service or additional
+agent ran.

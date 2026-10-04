@@ -25,6 +25,7 @@ at milestone 4, with later value/location capabilities documented separately.
 | `boxed-value-ir-v1` | Detached named-struct boxing and exact unbox copy/borrow contracts | Authored IR validation, logical payload paths and allocation/owner roots only; no native lowering or CIL boxing |
 | `boxed-payload-runtime-v1` | Private native boxed storage and checked copy/borrow helpers | O0/O2 identity, mutation, fault-status, collection and heap-budget probes; boxed IR lowering/emission and CIL remain unsupported |
 | `scalar-boxed-ir-v1` | Authored boxing IR expanded into checked scalar packets and payload locations | Explicit `LowerBoxes`/`EmitBoxes`; O0/O2 copy/mutation, empty borrowed-owner, collection, fault-origin and arena-bound probes; no CIL boxing |
+| `boxed-values-cil-v1` | Named nongeneric struct box/unbox/copy CIL | Compiler-library opt-in; exact types/access, synchronous mutable payload borrows, C# empty structs, local O0/O2 graph/copy/fault evidence |
 | `value-cil-v1` | Static value CIL translated through existing value/location IR and native lowering | Compiler-library API; exact joins, synchronous Int32/value borrows, whole copies, field operations and struct returns; O0/O2 local sanitizer conformance; no allocating source value programs or CLI profile change |
 | `value-scalars-v1` | Pure inline copies lowered to the existing scalar/reference backend | Local O0/O2 sanitizer comparisons for authored IR copies, nested updates and scalar-returning calls/joins; packed Int32 entry; no struct return packets, CIL value translation, boxing or live embedded-reference collection evidence |
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
@@ -1311,3 +1312,18 @@ identity with .NET and verifies collection stress, original fault origins,
 unchanged packed output on failure, allocation recovery and exact/one-byte-short
 arena capacity. This supports named-struct authored IR. CIL boxing, primitive/enum/
 nullable boxing, boxed interfaces and ValueType views remain unsupported.
+
+## Bounded boxed-value CIL
+
+`ValueTranslator.TranslateBoxes` opts into named-struct `box`, `unbox` and value-
+form `unbox.any` (ADR 0073). Type identities and visibility are checked before stack
+translation; copy and borrowed results remain distinct. Empty C# structs with a
+fieldless sequential one-byte size marker now retain zero logical payload slots.
+Other sized or packed layouts are still rejected.
+
+Real C# and reduced CIL probes at O0/O2 cover allocated class graphs inside boxed
+structs, independent box identities, copied markers, shared reference targets,
+return packets and allocating mutable-borrow helpers. Null/type faults preserve
+callee/IL origins and packed output; allocation failure cleans up and allows reuse.
+Primitive/enum/nullable boxing, reference-form `unbox.any`, generic TypeSpec operands,
+boxed interfaces and ValueType views remain unsupported. The CLI is unchanged.

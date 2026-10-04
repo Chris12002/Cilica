@@ -724,3 +724,12 @@ reference identity under allocation-time collection, forward empty borrows throu
 allocating static calls and check exact null/type fault origins. Packed output
 stays unchanged on failure. Allocation failure and one-byte-short arena capacity
 unwind all frames/borrows/roots; exact capacity and context reuse succeed.
+
+Boxed-value CIL tests now translate real C# class graphs inside struct boxes and
+reduced `unbox` mutation through an allocating static helper (ADR 0073). O0/O2
+ASan/UBSan probes compare normal/null/type outcomes with .NET, verify callee/IL
+origins and unchanged packed output, force collection during allocation and reuse
+the context after box allocation failure. Negative cases check visibility,
+readonly locations and operand/type shapes. Empty-struct metadata regressions
+accept the C# fieldless sequential one-byte marker while rejecting nonempty sizes,
+other sizes and packing. Earlier profiles still reject boxing.

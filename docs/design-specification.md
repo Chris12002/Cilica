@@ -718,6 +718,17 @@ evidence covers copy/mutation parity with .NET, embedded reference identity,
 null/type faults, allocation recovery and exact/insufficient arena capacity.
 CIL boxing, ValueType reference views and boxed interface dispatch remain planned.
 
+The compiler-library `boxed-values-cil-v1` gate now translates named nongeneric
+struct `box`, `unbox` and value-form `unbox.any`
+([ADR 0073](decisions/0073-bounded-boxed-value-cil.md)). Exact type operands and
+access checks feed the same copy/borrow IR and native path. Fieldless sequential
+C# structs with the standard one-byte size record map to empty logical payloads;
+custom sized or packed layouts remain rejected. Local O0/O2 sanitizer probes
+verify graph lifetime, copy/return semantics, borrowed mutation, fault provenance
+and allocation recovery. Primitive/enum/nullable boxing, reference-form unboxing,
+generic TypeSpec operands, ValueType views and boxed interface dispatch remain
+unsupported. Existing CLI profiles are unchanged.
+
 ## 8. Garbage collection
 
 The bounded baseline collector is implemented as precise, non-moving mark-and-sweep with one managed execution

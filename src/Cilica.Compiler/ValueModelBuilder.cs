@@ -124,7 +124,8 @@ public static class ValueModelBuilder
             try { input = Read(type, new()); }
             catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
             if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || input.HasTypeInitializer || input.HasModuleInitializer
-                || input.PackingSize != 0 || input.ClassSize != 0 || input.InterfaceCount != 0
+                || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && input.Fields.IsEmpty
+                    && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || input.InterfaceCount != 0
                 || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
                 || input.BaseType is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } declaredBase
                 || Id(declaredBase.Definition) != Id(valueBase))

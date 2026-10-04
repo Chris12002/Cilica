@@ -25,6 +25,10 @@ public sealed record ValueObjectTranslationResult(ValueObjectIrProgram? Program,
 {
     public bool Success => Program is not null;
 }
+public sealed record BoxedValueTranslationResult(BoxedValueIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)
+{
+    public bool Success => Program is not null;
+}
 
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
@@ -32,6 +36,14 @@ public static class ValueTranslator
     public const string Profile = "value-cil-v1";
     public const string ArrayProfile = "value-arrays-cil-v1";
     public const string ObjectProfile = "value-objects-cil-v1";
+    public const string BoxedProfile = "boxed-values-cil-v1";
+
+    public static BoxedValueTranslationResult TranslateBoxes(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
+    {
+        var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true);
+        return new(result.Program is null ? null : new(result.Program, result.Bindings), result.Diagnostics);
+    }
 
     public static ValueObjectTranslationResult TranslateObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
@@ -52,9 +64,10 @@ public static class ValueTranslator
         TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: false);
 
     private static ValueTranslationResult TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false)
     {
-        var discovered = classes ? ValueProgramDiscovery.ReadObjects(resolver, assembly, entry, runtimeLibrary, limits)
+        var discovered = boxing ? ValueProgramDiscovery.ReadBoxes(resolver, assembly, entry, runtimeLibrary, limits)
+            : classes ? ValueProgramDiscovery.ReadObjects(resolver, assembly, entry, runtimeLibrary, limits)
             : arrays ? ValueProgramDiscovery.ReadArrays(resolver, assembly, entry, runtimeLibrary, limits)
             : ValueProgramDiscovery.Read(resolver, assembly, entry, runtimeLibrary, limits);
         if (discovered.Input is not { } input) return new(null, [], discovered.Diagnostics);
@@ -67,7 +80,7 @@ public static class ValueTranslator
             var resources = new ProgramResources(); var translated = new List<IrMethod>();
             foreach (var method in input.Methods)
             {
-                var body = new Body(method, methods, fields, arrays, classes, types,
+                var body = new Body(method, methods, fields, arrays, classes, boxing, types, input.Types.References.ObjectBase,
                     input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32)).Translate();
                 if (!resources.Add(body)) Fail(method, 0, "Aggregate value IR resource limit exceeded.", DiagnosticIds.TranslationLimit);
                 translated.Add(body);
@@ -76,7 +89,8 @@ public static class ValueTranslator
             ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
             try
             {
-                if (classes) _ = ValueRootAssignment.Assign(new ValueObjectIrProgram(program, bindings));
+                if (boxing) _ = ValueRootAssignment.Assign(new BoxedValueIrProgram(program, bindings));
+                else if (classes) _ = ValueRootAssignment.Assign(new ValueObjectIrProgram(program, bindings));
                 else if (arrays) _ = ValueRootAssignment.Assign(new ValueArrayIrProgram(program, bindings));
                 else _ = ValueRootAssignment.Assign(program);
             }
@@ -96,7 +110,7 @@ public static class ValueTranslator
             + " IL_" + offset.ToString("x4", CultureInfo.InvariantCulture)));
 
     private sealed class Body(ValueMethodInput method, Dictionary<IrMethodId, ValueMethodInput> methods,
-        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, IrTypeRules types, ObjectTypeId? integerArray)
+        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray)
     {
         private int _statements, _inputs, _edges;
         private void Error(int offset, string message, string code = DiagnosticIds.InconsistentStack) => Fail(method, offset, message, code);
@@ -219,6 +233,14 @@ public static class ValueTranslator
                                 else { Writable(address, offset); Add(new IrStatement.StoreLocation(offset, address, fieldValue), offset); }
                             }
                             break;
+                        case "box" or "unbox" or "unbox.any" when boxing:
+                            var boxedType = method.TypeOperands[offset];
+                            int boxedOperand = opcode == "box" ? Pop(offset, IrType.Value(boxedType)) : Pop(offset);
+                            if (opcode != "box" && !Reference(values[boxedOperand])) Error(offset, "Unboxing requires an object reference or null.");
+                            if (opcode == "box") Push(offset, IrType.Reference(objectBase), new IrExpression.BoxValue(boxedType, boxedOperand), true);
+                            else if (opcode == "unbox") Push(offset, IrType.Location(IrType.Value(boxedType)), new IrExpression.UnboxLocation(boxedType, boxedOperand), true);
+                            else Push(offset, IrType.Value(boxedType), new IrExpression.UnboxValue(boxedType, boxedOperand), true);
+                            break;
                         case "initobj" or "ldobj" or "stobj" or "cpobj":
                             var valueType = IrType.Value(method.TypeOperands[offset]);
                             int stored = opcode == "stobj" ? Pop(offset, valueType) : -1;
@@ -260,7 +282,7 @@ public static class ValueTranslator
                                 else if (values[left] != IrType.Int32 && !(arrays && Reference(values[left]))) Error(offset, "Branch requires Int32 or reference truth value.");
                                 terminator = new IrBranch(offset, comparison, left, right, Edge(instruction.Targets[0], offset), Edge(offset + instruction.Length, offset));
                             }
-                            else Error(offset, "Instruction '" + opcode + "' is outside " + (classes ? ObjectProfile : arrays ? ArrayProfile : Profile) + "; add a supported lowering before execution.", DiagnosticIds.ExecutionUnsupported);
+                            else Error(offset, "Instruction '" + opcode + "' is outside " + (boxing ? BoxedProfile : classes ? ObjectProfile : arrays ? ArrayProfile : Profile) + "; add a supported lowering before execution.", DiagnosticIds.ExecutionUnsupported);
                             break;
                     }
                     if (stack.Count > input.MaxStack) Error(offset, "Evaluation stack exceeds the declared maximum.");

@@ -43,12 +43,16 @@ public static class ValueProgramDiscovery
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
         ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true);
 
+    public static ValueDiscoveryResult ReadBoxes(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
+        ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true);
+
     private static ValueDiscoveryResult ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
-        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays, classes).Read(assembly, entry), []); }
+        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays, classes, boxing).Read(assembly, entry), []); }
         catch (Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
@@ -57,7 +61,7 @@ public static class ValueProgramDiscovery
         internal Diagnostic Diagnostic { get; } = diagnostic;
     }
 
-    private sealed class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays, bool classes)
+    private sealed class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays, bool classes, bool boxing)
     {
         private sealed record Work(ResolvedAssembly Assembly, MethodInput Input, ObjectMethodBinding Binding,
             ImmutableArray<IrType> Parameters, IrType ReturnType, ImmutableArray<IrType> Locals, Work? Parent, int Offset);
@@ -142,7 +146,8 @@ public static class ValueProgramDiscovery
                         fields.Add(offset, new(classes && !Inline(owner, work, offset) ? IncludeReference(owner, work, offset)
                             : Include(owner, work, offset), MetadataTokens.GetToken(field.Handle)));
                     }
-                    else if (instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj")
+                    else if (instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj"
+                        || boxing && instruction.OpCode is ("box" or "unbox" or "unbox.any"))
                     {
                         int token = Token(work, instruction, 0x01, 0x02);
                         var key = (work.Assembly.ContentHash, token);

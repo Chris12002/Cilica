@@ -78,3 +78,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0070](0070-detached-boxed-value-ir.md) | Detached boxed-value IR | Accepted for named-struct allocation/copy/borrow contracts, logical payload plans and source roots; native execution and CIL remain planned |
 | [0071](0071-native-boxed-payload-helpers.md) | Native boxed-payload helpers | Accepted for private typed payload storage, copy/borrow helpers and local O0/O2 collection probes; boxed IR emission and CIL remain planned |
 | [0072](0072-native-boxed-ir-emission.md) | Native boxed IR expansion and emission | Accepted for authored boxing IR, checked scalar packets, empty borrowed-owner roots and local O0/O2 fault/collection probes |
+| [0073](0073-bounded-boxed-value-cil.md) | Bounded boxed-value CIL | Accepted for named-struct box/unbox/copy CIL, C# empty structs and local O0/O2 graph/mutation/fault probes |
