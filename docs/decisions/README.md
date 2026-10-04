@@ -63,3 +63,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0055](0055-detached-value-layouts.md) | Detached inline value layouts | Accepted for bounded copy/reference-path planning; no execution |
 | [0056](0056-value-layout-metadata.md) | Metadata discovery of inline values | Accepted for bounded metadata-backed catalogs; no execution |
 | [0057](0057-typed-value-copies.md) | Typed inline copies and root planning | Accepted for detached value flow and expanded phase A roots |
+| [0058](0058-scalar-value-lowering.md) | Scalar lowering of pure value copies | Accepted for bounded authored IR and local O0/O2 native conformance |

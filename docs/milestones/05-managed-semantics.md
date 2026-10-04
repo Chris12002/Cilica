@@ -13,7 +13,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5b | Bounded metadata discovery of value layouts | Complete for metadata-backed catalogs |
 | 5c.1 | Value copies, field operations, calls/joins and expanded roots in typed IR | Complete for detached contracts |
 | 5c.2 | Managed storage locations and lifetime checks | Planned |
-| 5d | Native struct operations, calls and collection stress | Planned |
+| 5d.1 | Pure value copies lowered to the existing backend | Complete for authored IR, scalar returns and local native probes |
+| 5d.2 | CIL value translation, native managed locations/returns and live-reference collection stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
@@ -62,3 +63,20 @@ checked copies versus references, pure operations versus fault edges, field
 identity, call/edge assignment, complete type closure and expanded resource bounds.
 All 158 selected local checks pass, including the existing O0/O2 collection-stress
 regressions after the shared verifier change. Managed locations remain unimplemented.
+
+
+## Slice 5d.1 outcome
+
+ADR 0058 lowers immutable value copies to the existing scalar/reference backend.
+This slice can precede managed locations because it exposes no mutable address.
+Review checked copy independence, nested ranges, parallel backedges, typed default
+references and expanded work/argument limits. Three authored IR/native probes
+match C# at O0/O2 with ASan/UBSan; all 98 selected value checks pass. The probes
+allocate no managed objects and do not prove collection of live embedded roots.
+
+Milestone 5 is **not complete**. The next implementation gate is 5c.2: managed
+locations and lifetime checks, followed by CIL value translation and native return
+packets/live-reference stress. Boxing, generic specialization, delegates and managed
+exceptions/type-test filters remain unimplemented. All completed slices were
+reviewed before local commits. Local main remains an ancestor; no push, hosted
+work, new service or additional agent ran.

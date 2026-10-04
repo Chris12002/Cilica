@@ -568,14 +568,19 @@ values from object references, rejects inline containment cycles, and derives
 nested scalar copy paths and embedded-reference paths within explicit expansion
 and depth limits. Bounded metadata discovery now supplies these layouts through
 the exact selected ValueType identity and a shared metadata ledger
-([ADR 0056](decisions/0056-value-layout-metadata.md)). Executable struct operations
-and native tracing of struct storage remain milestone 5 work.
+([ADR 0056](decisions/0056-value-layout-metadata.md)). CIL struct translation and
+native tracing of mutable struct storage remain milestone 5 work.
 
 Detached value flow now validates exact-type copies, pure default/field
 operations, calls and joins using the shared IR verifier. Phase A planning
 enumerates every embedded reference path and bounds expanded scalar storage
 ([ADR 0057](decisions/0057-typed-value-copies.md)). Mutable managed locations and
 native lowering have separate lifetime, copying and byte-budget obligations.
+Pure value copies now lower to the existing scalar/reference backend
+([ADR 0058](decisions/0058-scalar-value-lowering.md)). Authored IR for copies,
+nested updates and scalar-returning calls/joins has local O0/O2 sanitizer evidence.
+This does not supply CIL value translation, struct-return packets, mutable managed
+locations or live embedded-reference collection stress.
 
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
