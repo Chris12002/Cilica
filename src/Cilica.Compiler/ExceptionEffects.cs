@@ -18,6 +18,7 @@ internal static class ExceptionEffects
                 {
                     case IrExpression.Call call: callers[call.Target].Add(id); break;
                     case IrExpression.Binary binary when Int32Operations.MayFault(binary.Operation):
+                    case IrExpression.Binary64 wide when Int64Operations.MayFault(wide.Operation):
                         if (throwing.Add(id)) pending.Enqueue(id); break;
                 }
         }

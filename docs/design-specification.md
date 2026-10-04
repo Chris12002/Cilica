@@ -871,6 +871,13 @@ dictionaries are later optimisations.
 
 ## 11. Class library and assembly identity
 
+Milestone 6's `integer-arithmetic-ir-v1` profile adds authored Int64 scalar IR
+and C++20 arithmetic with typed calls, locals and block edges
+([ADR 0093](decisions/0093-int64-scalar-ir.md)). UInt64 storage, guarded signed
+operations and explicit widening/truncation preserve integer bits and faults.
+O0/O2 UBSan conformance matches .NET; Int64 CIL and heap/array integration remain
+pending. Existing Int32/object/value profile claims are unchanged.
+
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential
 operations use explicit compiler intrinsics. Shared library source is ported

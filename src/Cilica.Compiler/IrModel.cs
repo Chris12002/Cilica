@@ -5,12 +5,13 @@ using Cilica.Metadata.IL;
 
 namespace Cilica.Compiler;
 
-public enum IrTypeKind { Int32, Reference, NullReference, Void, Value, ManagedLocation }
+public enum IrTypeKind { Int32, Reference, NullReference, Void, Value, ManagedLocation, Int64 }
 
 /// <summary>References and inline values retain distinct kinds and content-scoped identities; null is a stack value.</summary>
 public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null, IrType? Element = null, bool ReadOnly = false)
 {
     public static IrType Int32 { get; } = new(IrTypeKind.Int32);
+    public static IrType Int64 { get; } = new(IrTypeKind.Int64);
     public static IrType NullReference { get; } = new(IrTypeKind.NullReference);
     public static IrType Void { get; } = new(IrTypeKind.Void);
     public static IrType Reference(ObjectTypeId type) => new(IrTypeKind.Reference, type);
@@ -45,6 +46,10 @@ public enum Int32Comparison
 public abstract record IrExpression
 {
     public sealed record Constant(int Value) : IrExpression;
+    public sealed record Constant64(long Value) : IrExpression;
+    public sealed record Binary64(Int64Operation Operation, int Left, int Right) : IrExpression;
+    public sealed record Not64(int Operand) : IrExpression;
+    public sealed record ConvertInteger(IntegerConversion Conversion, int Operand) : IrExpression;
     public sealed record Null : IrExpression;
     public sealed record Parameter(int Index) : IrExpression;
     public sealed record Local(int Index) : IrExpression;

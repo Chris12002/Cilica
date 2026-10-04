@@ -17,7 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1 preserves wide CIL operands; execution extensions remain planned |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1 preserves wide CIL operands; 6c.2 supplies tested scalar Int64 IR/native arithmetic; CIL and heap integration pending |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -169,10 +169,21 @@ admit Int64 execution. Seven edge-value regressions plus related input/Int32
 checks pass (61 tests). Review checked sign/width preservation, snapshot lifetime,
 unchanged bounds and continued rejection by the Int32 execution profile.
 
-Next scalar slices must establish Int64 IR/arithmetic/native storage and
+Next scalar slices must establish Int64 CIL/native heap storage and checked
 conversion semantics, then narrow scalar/enum storage. The kernel still requires
 generic instance/interface/array dispatch, values in heap objects and the trial
 ported library before its native transcript can run.
+
+## Slice 6c.2 outcome
+
+The explicit `integer-arithmetic-ir-v1` profile adds Int64 scalar operations,
+width conversions and typed calls/locals/block edges using the existing IR,
+validator and emitter. Native unsigned bit storage and guarded signed operations
+avoid C++ overflow undefined behavior. The existing Int32 profiles remain bounded.
+Thirty-four native probes over 288 operand pairs match .NET at both O0/O2 UBSan
+(19,584 results); the focused run passes 46 tests. Review added wide transfer and
+transitive-fault probes. This is authored IR support, not Int64 CIL or heap/array
+support. See [ADR 0093](../decisions/0093-int64-scalar-ir.md).
 
 ## Remaining completion evidence
 

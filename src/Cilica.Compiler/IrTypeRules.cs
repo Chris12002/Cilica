@@ -10,10 +10,12 @@ internal sealed class IrTypeRules
     private readonly ObjectTypeId? _object;
     private readonly HashSet<ObjectTypeId> _values = [];
     private readonly bool _locations;
+    private readonly bool _integers64;
 
-    internal IrTypeRules(ObjectTypeCatalog? catalog, ValueTypeCatalog? values = null, bool locations = false)
+    internal IrTypeRules(ObjectTypeCatalog? catalog, ValueTypeCatalog? values = null, bool locations = false, bool integers64 = false)
     {
         _locations = locations;
+        _integers64 = integers64;
         if (catalog is null) return;
         _object = catalog.ObjectBase;
         _ancestors = new ObjectTypeRelations(catalog).Ancestors;
@@ -26,6 +28,7 @@ internal sealed class IrTypeRules
         : type.Element is null && !type.ReadOnly && (type.Kind switch
     {
         IrTypeKind.Int32 => type.Class is null,
+        IrTypeKind.Int64 => _integers64 && type.Class is null,
         IrTypeKind.Reference => _object is not null && ObjectModelValidator.ReferenceIdentity(type.Class, _object)
             && _ancestors.ContainsKey(type.Class!),
         IrTypeKind.NullReference => _ancestors.Count != 0 && !storage && type.Class is null,
@@ -55,9 +58,10 @@ internal sealed class IrTypeRules
 
     internal bool Comparable(Int32Comparison comparison, IrType left, IrType right) =>
         left == IrType.Int32 && right == IrType.Int32 ||
+        _integers64 && left == IrType.Int64 && right == IrType.Int64 ||
         comparison is Int32Comparison.Equal or Int32Comparison.NotEqual &&
         left.Kind is IrTypeKind.Reference or IrTypeKind.NullReference &&
         right.Kind is IrTypeKind.Reference or IrTypeKind.NullReference;
 
-    internal static bool TruthTest(IrType type) => type.Kind is IrTypeKind.Int32 or IrTypeKind.Reference or IrTypeKind.NullReference;
+    internal static bool TruthTest(IrType type) => type.Kind is IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.NullReference;
 }

@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 internal static class IrValidator
 {
     internal static IrMethod Validate(IrProgram program, ObjectTypeCatalog? catalog = null, ObjectIrRules? objectRules = null,
-        ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null, ScalarBoxingRules? boxedRules = null, ManagedExceptionRules? exceptions = null)
+        ValueIrRules? valueRules = null, ManagedLocationRules? locationRules = null, ScalarBoxingRules? boxedRules = null, ManagedExceptionRules? exceptions = null, bool integers64 = false)
     {
         void Require([DoesNotReturnIf(false)] bool condition, string message)
         {
@@ -26,7 +26,7 @@ internal static class IrValidator
         }
         Require(methods.TryGetValue(program.Entry, out IrMethod? entry), "entry is outside the program.");
         var resources = new ProgramResources();
-        var types = new IrTypeRules(catalog, valueRules?.Catalog, locationRules is not null || valueRules?.Locations is not null);
+        var types = new IrTypeRules(catalog, valueRules?.Catalog, locationRules is not null || valueRules?.Locations is not null, integers64);
         foreach (IrMethod method in program.Methods)
         {
             Validate(method, methods, catalog, objectRules, types, valueRules, locationRules, boxedRules, exceptions);
@@ -138,6 +138,12 @@ internal static class IrValidator
                             IrExpression.NewException creation => exceptions is not null && exceptions.Creation(creation, value.Type, valueTypes) && objectRules?.TypeTest(method, creation.Type) == true,
                             IrExpression.ExceptionMessage message => exceptions is not null && exceptions.Message(message, value.Type, valueTypes),
                             IrExpression.Constant => value.Type == IrType.Int32,
+                            IrExpression.Constant64 => value.Type == IrType.Int64,
+                            IrExpression.Binary64 b => value.Type == IrType.Int64 && Enum.IsDefined(b.Operation)
+                                && Earlier(b.Left) && Earlier(b.Right) && valueTypes[b.Left] == IrType.Int64
+                                && valueTypes[b.Right] == (Int64Operations.Shift(b.Operation) ? IrType.Int32 : IrType.Int64),
+                            IrExpression.Not64 n => value.Type == IrType.Int64 && Earlier(n.Operand) && valueTypes[n.Operand] == IrType.Int64,
+                            IrExpression.ConvertInteger c => Earlier(c.Operand) && Int64Operations.Convert(c.Conversion, valueTypes[c.Operand], value.Type),
                             IrExpression.Null => catalog is not null && value.Type == IrType.NullReference,
                             IrExpression.Parameter p => p.Index >= 0 && p.Index < method.Parameters.Length && value.Type == method.Parameters[p.Index],
                             IrExpression.Local l => Local(l.Index) && value.Type == method.Locals[l.Index],
@@ -216,7 +222,8 @@ internal static class IrValidator
                             or IrExpression.AddressField or IrExpression.LoadLocation
                             or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation
                             or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot ||
-                            value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation);
+                            value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation)
+                            || value.Expression is IrExpression.Binary64 wide && Int64Operations.MayFault(wide.Operation);
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
                             "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");
                         if (value.Expression is IrExpression.Call call)
