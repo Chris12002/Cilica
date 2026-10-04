@@ -357,6 +357,21 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                 slots[0] = nullptr;
                 assert(collect(g.c).unreachable == 1 && g.heap.count == 2);
             }
+            [[gnu::noinline]] static void poisoned_reclamation() {
+                Instance heap; Context c(heap);
+                Object* array = allocate_array(c, {{integers}}_descriptor, 4);
+                const auto header = reinterpret_cast<std::uintptr_t>(array);
+                const auto buffer = reinterpret_cast<std::uintptr_t>(reinterpret_cast<ArrayObject*>(array)->integers);
+                assert(collect(c).unreachable == 1 && heap.count == 0 && heap.bytes == 0);
+            #if CILICA_ARENA_ASAN
+                assert(__asan_address_is_poisoned(reinterpret_cast<void*>(header)));
+                assert(__asan_address_is_poisoned(reinterpret_cast<void*>(buffer)));
+            #else
+                (void)buffer;
+            #endif
+                Object* stale = reinterpret_cast<Object*>(header); Frame frame; RootScope roots(c, frame, &stale, 1);
+                assert(collect(c).status == MarkStatus::invalid && heap.count == 0);
+            }
             static unsigned observations = 0;
             static bool nested = false;
             static void observe(Context& c) noexcept {
@@ -384,7 +399,7 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
                     assert(failed.pending == pending && failed.method == method && failed.il == il && failed.image == image);
                 }
             }
-            int main() { exact_edges(); exact_roots_and_cycles(); invalid_edges_and_stop(); invalid_roots(); frame_limits(); literal_limits(); marking_graph_and_budgets(); invalid_marking_and_retry(); deep_marking_and_empty_heap(); reclamation_and_retry(); real_generated_frames(); }
+            int main() { exact_edges(); exact_roots_and_cycles(); invalid_edges_and_stop(); invalid_roots(); frame_limits(); literal_limits(); marking_graph_and_budgets(); invalid_marking_and_retry(); deep_marking_and_empty_heap(); reclamation_and_retry(); poisoned_reclamation(); real_generated_frames(); }
             """);
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("native-tracing");
         string cpp = Path.Combine(directory, "tracing.cpp"), executable = Path.Combine(directory, "tracing");

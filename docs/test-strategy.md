@@ -596,3 +596,11 @@ Run marking at real allocation observers in the authored .NET/native graph fixtu
 including partially initialized objects, nested calls, strings and forced allocation
 failures. O0/O2 sanitizer and frame checks plus native/example regressions cover
 the header-size change. These tests exercise marking, not sweep or collection stress.
+
+
+Milestone 4 collection checks use real reclamation under O0/O2 ASan/UBSan. The
+NativeCollectionTests corpus runs ten authored programs twenty times in one
+instance with collection before allocation, compares .NET values and ordinary
+native fault origins, and verifies post-unwind collection/accounting. NativeTracingTests
+also verifies reclaimed header/buffer poisoning and stale-root rejection. Native
+harness borrowers publish roots across pressure; raw locals are not GC roots.

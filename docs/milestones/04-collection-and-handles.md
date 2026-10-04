@@ -12,7 +12,7 @@ not be mistaken for roots. No managed reference crosses the packed Int32 boundar
 | 4a | Precise root and object-edge visitation with provenance and bounded failure | Complete for private native enumeration |
 | 4b | Bounded marking, cycle/alias handling, reachable-set diagnostics and failure semantics | Complete for private native marking |
 | 4c | Reclamation, exact heap accounting and allocation-triggered collection/retry | Complete for private native collection |
-| 4d | Collection-before-every-allocation stress and poisoned reclamation regressions | Planned |
+| 4d | Collection-before-every-allocation stress and poisoned reclamation regressions | Complete for local O0/O2 sanitizer corpus |
 | 4e | Instance-owned retained handles with stale/foreign-handle rejection | Planned |
 | 4f | Composed integration review and supported-boundary consolidation | Planned |
 
@@ -103,3 +103,14 @@ Direct native borrowers must publish roots across allocations. Focused O0/O2
 tracing, array and string sanitizer regressions pass; static frame limits remain
 2 KiB. Review corrected the array harness's formerly unrooted native borrower.
 Local main remains an ancestor; no hosted work or push ran.
+
+
+## Slice 4d outcome
+
+[ADR 0052](../decisions/0052-collection-stress.md) adds opt-in collection before
+allocation. Ten workloads run twenty times per instance, comparing .NET values and
+ordinary native fault origins while exercising cycles, loops, nested calls, arrays,
+strings and dispatch. Reclaimed headers/buffers are confirmed ASan-poisoned; stale
+roots are rejected before dereference. All four focused O0/O2 sanitizer checks pass
+with the 2 KiB frame cap. Review found no rooting defect in this corpus. No hosted
+work, push or extra agents ran.

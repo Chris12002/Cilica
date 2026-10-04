@@ -113,6 +113,7 @@ struct MarkState {
 [[gnu::noinline]] static bool allocation_room(Context& context, std::size_t bytes, bool& attempted) noexcept {
     Instance& heap = context.instance;
     if (heap.marking) { if (context.pending == 0) context.pending = 6u; return false; }
+    if (heap.collect_before_allocation && !attempted && !collect_for_allocation(context, attempted)) return false;
     const auto fits = [&]() noexcept { return heap.bytes <= heap.limit && bytes <= heap.limit - heap.bytes && heap.count < heap.object_limit; };
     if (fits()) return true;
     return collect_for_allocation(context, attempted) && fits();

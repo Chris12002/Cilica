@@ -109,6 +109,7 @@ static_assert(std::is_standard_layout_v<StringObject> && offsetof(StringObject, 
 }
 struct Instance {
     bool marking = false;
+    bool collect_before_allocation = false;
     StringObject* literals = nullptr;
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;
