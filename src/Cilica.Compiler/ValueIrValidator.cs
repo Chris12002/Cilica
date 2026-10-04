@@ -9,11 +9,11 @@ public static class ValueIrValidator
 {
     public static void Validate(ValueIrProgram program) => _ = ValidateAndPlan(program);
 
-    internal static ValueIrRules ValidateAndPlan(ValueIrProgram program, bool locations = false)
+    internal static ValueIrRules ValidateAndPlan(ValueIrProgram program, bool locations = false, ObjectIrRules? objects = null)
     {
         ArgumentNullException.ThrowIfNull(program);
         var rules = new ValueIrRules(program.Types, locations);
-        IrValidator.Validate(new(program.Entry, program.Methods), program.Types.References, valueRules: rules);
+        IrValidator.Validate(new(program.Entry, program.Methods), program.Types.References, objectRules: objects, valueRules: rules);
         // Every inline layout must be used directly or via another used layout.
         var pending = new Stack<ObjectTypeId>(program.Methods.SelectMany(m => m.Parameters.Concat(m.Locals).Append(m.ReturnType)
             .Concat(m.Blocks.SelectMany(b => b.Inputs)).Concat(m.Blocks.SelectMany(b => b.Values).Select(v => v.Type)))
@@ -31,6 +31,7 @@ public static class ValueIrValidator
             .Select(t => t.Kind == IrTypeKind.ManagedLocation ? t.Element! : t)
             .Where(t => t.Kind == IrTypeKind.Reference).Select(t => t.Class!)
             .Concat(layouts.Values.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Reference>().Select(r => r.Type));
+        if (objects is not null) references = references.Concat(program.Methods.SelectMany(objects.OperationTypes));
         ObjectCatalogUsage.Validate(program.Types.References, references);
         return rules;
     }

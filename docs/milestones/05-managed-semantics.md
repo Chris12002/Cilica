@@ -20,7 +20,9 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2c.1 | Caller-owned native struct-return packets | Complete for authored IR |
 | 5d.2c.2a | CIL value closure discovery | Complete for bounded metadata inputs |
 | 5d.2c.2b | CIL value body translation | Complete for the bounded static compiler-library profile |
-| 5d.2c.3 | Allocating value source programs and composed live-value stress | Planned |
+| 5d.2c.3a | Values composed with allocating vector IR | Complete for authored IR |
+| 5d.2c.3b | CIL value/vector allocation and composed live-reference stress | Planned |
+| 5d.2c.3c | Value programs composed with class allocation/constructors | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
@@ -226,3 +228,11 @@ Milestone 5 remains in progress. The next gate is allocating value source progra
 and composed live-reference stress (5d.2c.3); boxing, generics, delegates and
 managed exceptions/type-test filters remain planned. The new CIL API is currently
 a compiler-library entry point; existing CLI profiles are unchanged.
+
+## Slice 5d.2c.3a outcome
+
+ADR 0066 adds opt-in value/vector IR composition, shared operation validation and
+allocation safepoints with embedded roots. Scalar lowering preserves vector
+operands and rooted return packets. Manual review found no blocking issues;
+all 104 selected value/location/composition checks pass. CIL allocation and native
+live-reference stress remain the next slice. No hosted work ran.

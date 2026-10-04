@@ -71,3 +71,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0063](0063-caller-owned-value-return-packets.md) | Caller-owned struct return packets | Accepted for authored IR with rooted scalar output destinations; CIL and allocating value source programs remain planned |
 | [0064](0064-value-cil-discovery.md) | Bounded value CIL discovery | Accepted for static closure signatures, operand identities and access checks; body translation remains separate |
 | [0065](0065-bounded-value-cil-translation.md) | Bounded static value CIL translation | Accepted for compiler-library translation and local O0/O2 native conformance; allocating value source programs remain planned |
+| [0066](0066-value-array-composition.md) | Value and vector operation composition | Accepted for authored IR validation, roots and scalar lowering; CIL/native composition evidence follows |

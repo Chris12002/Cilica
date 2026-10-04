@@ -11,6 +11,14 @@ public static class ValueScalarLowering
     public const string Profile = "value-scalars-v1";
     public const string LocationProfile = "value-location-scalars-v2";
 
+    public static ScalarLocationIrProgram LowerArrays(ValueArrayIrProgram program)
+    {
+        _ = ValueRootAssignment.Assign(program);
+        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow.Flow, returnPackets: true), program.Bindings));
+        _ = ObjectRootAssignment.AssignLocations(result);
+        return result;
+    }
+
     public static ReferenceIrProgram Lower(ValueIrProgram program)
     {
         // Bound expanded storage before creating lowered temporaries and packets.
@@ -175,6 +183,11 @@ public static class ValueScalarLowering
                         foreach (int location in values[initialize.Location]) Emit(initialize with { Location = location });
                         continue;
                     }
+                    if (statement is IrStatement.StoreElement element)
+                    {
+                        Emit(element with { Array = One(element.Array), Index = One(element.Index), Value = One(element.Value) });
+                        continue;
+                    }
                     var definition = (IrStatement.Define)statement;
                     var value = definition.Value; var expanded = Expand(value.Type);
                     var ids = ImmutableArray.CreateBuilder<int>();
@@ -246,6 +259,9 @@ public static class ValueScalarLowering
                                 IrExpression.Compare compare => compare with { Left = One(compare.Left), Right = One(compare.Right) },
                                 IrExpression.Call call => call with { Arguments = Arguments(call.Arguments, true) },
                                 IrExpression.AddressField field => field with { Receiver = One(field.Receiver) },
+                                IrExpression.NewArray array => array with { Length = One(array.Length) },
+                                IrExpression.ArrayLength length => length with { Array = One(length.Array) },
+                                IrExpression.LoadElement loadElement => loadElement with { Array = One(loadElement.Array), Index = One(loadElement.Index) },
                                 _ => throw new InvalidOperationException("Unsupported validated value expression."),
                             };
                             ids.Add(Define(value.Type, value.ILOffset, expression, definition.Exceptional));

@@ -651,6 +651,13 @@ and allocations in value source programs remain outside this profile. Existing
 CLI profiles are unchanged; live-object allocation/collection composition for
 CIL values is the next gate. Earlier value paragraphs record the staged contracts.
 
+An opt-in value/vector IR wrapper now composes existing array operations with
+inline copies, borrows and rooted return packets
+([ADR 0066](decisions/0066-value-array-composition.md)). Shared object rules validate
+array operations and static calls against value signatures; allocation points
+retain embedded roots. This authored-IR checkpoint precedes CIL allocation and
+native live-reference stress. Class allocation/constructors remain separate.
+
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 

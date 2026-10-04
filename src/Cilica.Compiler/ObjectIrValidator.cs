@@ -41,11 +41,11 @@ internal sealed class ObjectIrRules
     private readonly HashSet<string> _literals = new(StringComparer.Ordinal);
     private int _literalUnits;
 
-    internal ObjectIrRules(ObjectIrProgram program, bool locations = false)
+    internal ObjectIrRules(ObjectIrProgram program, bool locations = false, ValueTypeCatalog? values = null)
     {
         _program = program;
         var flow = program.Flow;
-        _types = new(flow.Types, locations: locations);
+        _types = new(flow.Types, values, locations);
         _layouts = flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         _contracts = flow.Types.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _arrays = flow.Types.Arrays.ToHashSet();

@@ -653,3 +653,7 @@ Negative fixtures cover hidden type operands, readonly indirect mutation, exact
 field/token types, invalid stack joins/indices/depth, unsupported boxing, dead
 blocks and expanded statement limits. This evidence does not establish allocating
 CIL value programs or collection with their live embedded references (ADR 0065).
+
+Value/vector composition tests check allocation safepoints, embedded return roots,
+scalar operand mapping, old-profile rejection and malformed allocation/call
+contracts before expansion (ADR 0066). CIL/native stress remains separate evidence.
