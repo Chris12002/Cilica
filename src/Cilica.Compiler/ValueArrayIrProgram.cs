@@ -17,19 +17,30 @@ public static class ValueArrayIrValidator
     internal static ValueIrRules ValidateAndPlan(ValueArrayIrProgram program)
     {
         ArgumentNullException.ThrowIfNull(program);
+        return ValidateComposition(program.Flow, program.Bindings, classes: false);
+    }
+
+    internal static ValueIrRules ValidateComposition(ManagedLocationIrProgram program,
+        ImmutableArray<ObjectMethodBinding> bindings, bool classes)
+    {
+        ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
-        ArgumentNullException.ThrowIfNull(program.Flow.Flow);
-        var flow = program.Flow.Flow;
+        var flow = program.Flow;
         // Validate layouts before constructing rule lookup tables. Bindings are
         // checked on the value signatures before hidden scalar parameters exist.
         _ = ValueLayoutPlanner.Build(flow.Types);
-        if (program.Bindings.IsDefault || program.Bindings.Any(b => b is null || b.Kind != ObjectMethodKind.Static))
-            throw new ArgumentException("Value array methods require direct static bindings.", nameof(program));
-        var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), program.Bindings), locations: true, values: flow.Types);
+        if (bindings.IsDefault || bindings.Any(b => b is null || b.Kind != ObjectMethodKind.Static
+            && !(classes && b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor)))
+            throw new ArgumentException("Composed value methods require direct static bindings or explicitly supported class constructors.", nameof(program));
+        var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings), locations: true, values: flow.Types);
+        foreach (var method in flow.Methods)
+            if (objects.Binding(IrMethodId.From(method.Source)).Kind != ObjectMethodKind.Static
+                && method.Parameters.Any(p => p.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
+                throw new ArgumentException("Class constructors require scalar/reference parameters; values and borrows need later constructor lowering.", nameof(program));
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects);
         objects.DispatchMaps();
         var entry = flow.Methods.Single(m => IrMethodId.From(m.Source) == flow.Entry);
-        if (entry.ReturnType != IrType.Int32 || entry.Parameters.Any(p => p != IrType.Int32))
+        if (objects.Binding(flow.Entry).Kind != ObjectMethodKind.Static || entry.ReturnType != IrType.Int32 || entry.Parameters.Any(p => p != IrType.Int32))
             throw new ArgumentException("Value array entry requires an Int32 boundary.", nameof(program));
         foreach (var statement in flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Statements))
         {
@@ -41,9 +52,11 @@ public static class ValueArrayIrValidator
                     or IrExpression.DefaultValue or IrExpression.ValueField or IrExpression.WithValueField
                     or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField
                     or IrExpression.LocationField or IrExpression.ReadOnlyLocation or IrExpression.LoadLocation
-                    or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement,
+                    or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
+                    || classes && d.Value.Expression is (IrExpression.NewObject or IrExpression.LoadField),
                 IrStatement.StoreLocal or IrStatement.Invoke or IrStatement.StoreLocation
                     or IrStatement.InitializeLocation or IrStatement.StoreElement => true,
+                IrStatement.StoreField when classes => true,
                 _ => false,
             };
             if (!supported) throw new ArgumentException("Value array IR does not yet compose class/string allocation or other object operations.", nameof(program));

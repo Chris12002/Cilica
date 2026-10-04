@@ -668,6 +668,13 @@ packets retain live arrays. Sole-root transfer, final reclamation, insufficient
 heap/arena capacity and nested allocation failure/recovery have local evidence.
 Class allocation/constructors composed with values remain a separate gate.
 
+An explicit value/object IR profile now composes class construction and fields
+with static value methods ([ADR 0068](decisions/0068-value-object-composition.md)).
+It reuses base-initialization, readonly and access checks, plans receiver/embedded
+roots and preserves constructor bindings through scalar expansion. Instance
+methods and value/byref constructor arguments remain gated; CIL object/value
+composition and native live-reference evidence follow this IR checkpoint.
+
 Boxing allocates a value copy inside an object. Unboxing and interface dispatch
 preserve the distinction between modifying boxed storage and copying its value.
 

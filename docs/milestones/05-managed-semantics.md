@@ -22,7 +22,8 @@ profiles continue to reject unsupported reachable semantics.
 | 5d.2c.2b | CIL value body translation | Complete for the bounded static compiler-library profile |
 | 5d.2c.3a | Values composed with allocating vector IR | Complete for authored IR |
 | 5d.2c.3b | CIL value/vector allocation and composed live-reference stress | Complete for Int32 vector CIL |
-| 5d.2c.3c | Value programs composed with class allocation/constructors | Planned |
+| 5d.2c.3c.1 | Value/class-construction IR composition | Complete for authored IR |
+| 5d.2c.3c.2 | CIL value/class construction and live-reference stress | Planned |
 | 5e | Boxing, unboxing and boxed identity/mutation | Planned |
 | 5f | Bounded closed generic specialization and expansion diagnostics | Planned |
 | 5g | Delegates, captured receivers and invocation | Planned |
@@ -258,3 +259,11 @@ additional agent ran.
 Milestone 5 remains in progress. Class allocation/constructors composed with
 values are next (5d.2c.3c), followed by boxing, generics, delegates and managed
 exceptions. Existing CLI entry points remain unchanged.
+
+## Slice 5d.2c.3c.1 outcome
+
+ADR 0068 composes static value methods with class construction and fields through
+shared constructor/access verification. Source allocation roots and scalar operand
+mapping preserve return packets and constructor receivers. All 80 selected local
+checks pass; manual review found no blocking issues. CIL class construction and
+live object-reference stress remain next. No hosted work ran.

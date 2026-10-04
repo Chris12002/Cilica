@@ -668,3 +668,8 @@ short heap/arena budgets and a nested allocation failure check full scope cleanu
 and context reuse. Negative CIL tests cover fake element identities, invalid
 array/index/element types, unsupported element addresses and unpaired length
 conversion; operation-only vector catalog roots are tested independently.
+
+Value/object IR composition reuses translated class constructors inside authored
+struct returns. Regression tests ensure missing/repeated base calls, readonly writes
+outside constructors and malformed allocations fail before expansion. Earlier
+profiles remain closed to class allocation (ADR 0068).

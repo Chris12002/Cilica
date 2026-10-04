@@ -73,3 +73,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0065](0065-bounded-value-cil-translation.md) | Bounded static value CIL translation | Accepted for compiler-library translation and local O0/O2 native conformance; allocating value source programs remain planned |
 | [0066](0066-value-array-composition.md) | Value and vector operation composition | Accepted for authored IR validation, roots and scalar lowering; CIL/native composition evidence follows |
 | [0067](0067-value-array-cil-and-collection.md) | Value/vector CIL and live-reference collection | Accepted for Int32 vector CIL and local O0/O2 collection/borrow/return stress; class allocation composition remains planned |
+| [0068](0068-value-object-composition.md) | Value and class-construction IR composition | Accepted for authored IR using shared constructor/access rules and scalar lowering |

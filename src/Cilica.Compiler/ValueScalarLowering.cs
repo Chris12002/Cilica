@@ -19,6 +19,14 @@ public static class ValueScalarLowering
         return result;
     }
 
+    public static ScalarLocationIrProgram LowerObjects(ValueObjectIrProgram program)
+    {
+        _ = ValueRootAssignment.Assign(program);
+        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow.Flow, returnPackets: true), program.Bindings));
+        _ = ObjectRootAssignment.AssignLocations(result);
+        return result;
+    }
+
     public static ReferenceIrProgram Lower(ValueIrProgram program)
     {
         // Bound expanded storage before creating lowered temporaries and packets.
@@ -188,6 +196,11 @@ public static class ValueScalarLowering
                         Emit(element with { Array = One(element.Array), Index = One(element.Index), Value = One(element.Value) });
                         continue;
                     }
+                    if (statement is IrStatement.StoreField fieldStore)
+                    {
+                        Emit(fieldStore with { Receiver = One(fieldStore.Receiver), Value = One(fieldStore.Value) });
+                        continue;
+                    }
                     var definition = (IrStatement.Define)statement;
                     var value = definition.Value; var expanded = Expand(value.Type);
                     var ids = ImmutableArray.CreateBuilder<int>();
@@ -260,6 +273,8 @@ public static class ValueScalarLowering
                                 IrExpression.Call call => call with { Arguments = Arguments(call.Arguments, true) },
                                 IrExpression.AddressField field => field with { Receiver = One(field.Receiver) },
                                 IrExpression.NewArray array => array with { Length = One(array.Length) },
+                                IrExpression.NewObject allocated => allocated with { Arguments = Arguments(allocated.Arguments, true) },
+                                IrExpression.LoadField loaded => loaded with { Receiver = One(loaded.Receiver) },
                                 IrExpression.ArrayLength length => length with { Array = One(length.Array) },
                                 IrExpression.LoadElement loadElement => loadElement with { Array = One(loadElement.Array), Index = One(loadElement.Index) },
                                 _ => throw new InvalidOperationException("Unsupported validated value expression."),
