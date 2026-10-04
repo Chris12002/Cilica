@@ -23,7 +23,7 @@ public static partial class CilicaCommand
         "  cilica il <assembly> [--method <name>] [--format text|json] [--output <file>]\n" +
         "  cilica audit <assembly> [--reference <directory>]... [--runtime-library <assembly>]\n" +
         "    (--public-surface | --root <hex-token>... | --root-type <metadata-name>...)\n" +
-        "    [--format text|json] [--output <file>]\n" +
+        "    [--contract-only <assembly>]... [--format text|json] [--output <file>]\n" +
         "  cilica emit-cpp <assembly> --root <MethodDef hex-token>\n" +
         "    [--reference <directory>]... [--output <file>]\n" +
         "  cilica --help\n" +
@@ -38,6 +38,8 @@ public static partial class CilicaCommand
         "            --root and --root-type may be combined; nested types use '/'.\n" +
         "            Reference directories are explicit; no runtime probing occurs.\n" +
         "            --runtime-library selects primitive/string receiver mappings.\n" +
+        "            --contract-only inventories declarations while deferring library internals;\n" +
+        "            its reports do not establish an implementation closure or compatibility.\n" +
         "  emit-cpp  Emit a supported Int32 static-call closure as C++20; never compile or run it.\n" +
         "\n" +
         "Exit codes: 0 success, 1 errors reported, 2 usage error, 3 internal error.\n";

@@ -138,6 +138,33 @@ against the trial library build. General filters in the required ported closure
 make ADR 0004 stage B a prerequisite for milestone 6; incomplete analysis leaves
 the question open rather than clearing the gate.
 
+## Milestone 6 library-contract inventory
+
+`LibraryContractTests` uses independent metadata fixtures to verify explicit
+identity/hash boundaries, retained signatures and closed instantiations, deferred
+bodies/layout/initializers, direct field access, application interface dispatch,
+missing dependencies and resolver ownership. Reference-only declarations and
+unreached selected boundaries must never imply implementation/filter closure.
+Budgets retain valid partial node/edge IDs. Text/JSON must survive disposal and
+remain identical across input paths, duplicate selections and cultures; ordinary
+audit snapshots stay unchanged. Selecting an image does not add a reference path.
+
+After building, the focused local command is:
+
+```sh
+dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll \
+  -noColor -parallel none -class '*LibraryContractTests' -class '*AuditTests' \
+  -class '*ReachabilityTests' -class '*DispatchTests' -class '*DispatchSchedulingTests' \
+  -class '*ConstrainedDispatchTests' -class '*RuntimeTypeMappingTests' -class '*ArrayReceiverTests'
+```
+
+The slice 6a run passed all 203 checks (15 new boundary cases) in 14.652 seconds
+on .NET 10.0.11. A separate `-class '*CommandTests'` run passed another 19 CLI
+checks in 0.105 seconds, giving 222 distinct checks. Native output is unchanged,
+so no native compiler/sanitizer suite
+was repeated. Subsequent library implementation slices require differential
+execution against the pinned oracle and composed allocation/collection checks.
+
 ## Initial Int32 IR translation
 
 Slice 2a independently tests ordered typed values and source provenance, constant

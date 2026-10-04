@@ -20,6 +20,7 @@ public static partial class CilicaCommand
         string format = "text";
         bool publicSurface = false;
         var references = new List<string>();
+        var contracts = new List<string>();
         var roots = new List<EntityHandle>();
         var types = new List<string>();
         for (int index = 1; index < args.Count; index++)
@@ -29,13 +30,16 @@ public static partial class CilicaCommand
             {
                 case "--help" or "-h": stdout.Write(Usage); return Success;
                 case "--public-surface": publicSurface = true; break;
-                case "--reference" or "--root" or "--root-type" or "--format" or "--output" or "--runtime-library":
+                case "--reference" or "--root" or "--root-type" or "--format" or "--output" or "--runtime-library" or "--contract-only":
                     if (++index >= args.Count || args[index].StartsWith("--", StringComparison.Ordinal))
                         return Fail(stderr, $"option '{argument}' needs a value.");
                     string value = args[index];
                     switch (argument)
                     {
                         case "--reference": references.Add(value); break;
+                        case "--contract-only":
+                            if (contracts.Count == 256) return Fail(stderr, "at most 256 --contract-only selections are supported.");
+                            contracts.Add(value); break;
                         case "--runtime-library":
                             if (runtimeLibraryPath is not null) return Fail(stderr, "--runtime-library may be supplied only once.");
                             runtimeLibraryPath = value;
@@ -92,7 +96,17 @@ public static partial class CilicaCommand
                 if (selected.Value is null) return Failure(selected.Diagnostics);
                 runtimeLibrary = selected.Value;
             }
-            return resolver.Audit(assembly, roots, types, publicSurface, runtimeLibrary: runtimeLibrary);
+            var libraries = new List<ResolvedAssembly>();
+            foreach (string path in contracts)
+            {
+                var selected = resolver.OpenInput(path);
+                if (selected.Value is not { } library) return Failure(selected.Diagnostics);
+                if (library.Identity.Equals(assembly.Identity) && library.ContentHash == assembly.ContentHash)
+                    return Failure([new(DiagnosticIds.ResolutionUnsupported, DiagnosticSeverity.Error,
+                        "The input assembly cannot be a library contract boundary.")]);
+                libraries.Add(library);
+            }
+            return resolver.Audit(assembly, roots, types, publicSurface, runtimeLibrary: runtimeLibrary, contractAssemblies: libraries);
         }
 
         AuditReport Failure(IEnumerable<Diagnostic> diagnostics) => new(Path.GetFileName(input),

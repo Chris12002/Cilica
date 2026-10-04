@@ -14,9 +14,11 @@ public sealed partial class AssemblyResolver
     /// <summary>
     /// Audits explicit definition tokens/types, or the public surface. Type names use
     /// metadata spelling (namespace.Type/Nested`arity). No implicit entry-point selection.
+    /// Selecting contract images produces an inventory, not implementation-closure evidence.
     /// </summary>
     public AuditReport Audit(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots,
-        IEnumerable<string> rootTypes, bool publicSurface = false, ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null)
+        IEnumerable<string> rootTypes, bool publicSurface = false, ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null,
+        IEnumerable<ResolvedAssembly>? contractAssemblies = null)
     {
         CheckOwner(assembly);
         ArgumentNullException.ThrowIfNull(roots);
@@ -52,7 +54,8 @@ public sealed partial class AssemblyResolver
                     DiagnosticSeverity.Error, "Root type must match exactly one input TypeDef: " + type)));
             }
         }
-        ReachabilityReport graph = publicSurface ? AnalyzePublicSurface(assembly, limits, runtimeLibrary) : AnalyzeReachability(assembly, selected, limits, runtimeLibrary);
+        ReachabilityReport graph = publicSurface ? AnalyzePublicSurface(assembly, limits, runtimeLibrary, contractAssemblies)
+            : AnalyzeReachability(assembly, selected, limits, runtimeLibrary, contractAssemblies);
         issues.AddRange(graph.Issues);
         // Include the complete explicit catalogue, including facades that have no graph
         // nodes. This records the binding environment without retaining filesystem paths.
@@ -114,6 +117,8 @@ public sealed partial class AssemblyResolver
                 a.Identity.Equals(assembly.Identity) && a.ContentHash == assembly.ContentHash))],
             [.. nodes], graph.Roots, graph.Edges, graph.Features, [.. issues])
         {
+            ContractAssemblies = [.. graph.ContractAssemblies.Select(ImageId).Order()],
+            DeferredNodes = graph.DeferredNodes,
             RuntimeLibrary = runtimeLibrary is null ? null : ImageId(runtimeLibrary),
             RuntimeMappings = [.. graph.RuntimeMappings.Select(m => new AuditRuntimeType(m.Primitive.ToString(), ImageId(m.Definition.Assembly), Token(m.Definition.Handle)))],
         };

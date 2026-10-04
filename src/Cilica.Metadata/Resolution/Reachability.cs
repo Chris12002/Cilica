@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -15,22 +16,25 @@ public sealed partial class AssemblyResolver
     /// Follows explicit MethodDef/FieldDef roots. A TypeDef root selects all its declared
     /// methods and fields. Roots are sorted and deduplicated; ordinary FIFO expansion
     /// alternates with dispatch pairs within the configured limits.
+    /// Explicit contract images defer implementation expansion and always leave
+    /// HasUnresolvedDependencies true; they do not add reference directories.
     /// </summary>
     public ReachabilityReport AnalyzeReachability(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots,
-        ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null)
+        ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null, IEnumerable<ResolvedAssembly>? contractAssemblies = null)
     {
         CheckOwner(assembly);
         ArgumentNullException.ThrowIfNull(roots);
         if (runtimeLibrary is not null) CheckOwner(runtimeLibrary);
-        return new ReachabilityWalker(this, limits ?? new(), runtimeLibrary).Run(assembly, roots, publicSurface: false);
+        return new ReachabilityWalker(this, limits ?? new(), runtimeLibrary, ValidateContractAssemblies(assembly, contractAssemblies)).Run(assembly, roots, publicSurface: false);
     }
 
     /// <summary>Selects externally visible types and public/protected members as roots.</summary>
-    public ReachabilityReport AnalyzePublicSurface(ResolvedAssembly assembly, ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null)
+    public ReachabilityReport AnalyzePublicSurface(ResolvedAssembly assembly, ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null,
+        IEnumerable<ResolvedAssembly>? contractAssemblies = null)
     {
         CheckOwner(assembly);
         if (runtimeLibrary is not null) CheckOwner(runtimeLibrary);
-        return new ReachabilityWalker(this, limits ?? new(), runtimeLibrary).Run(assembly, [], publicSurface: true);
+        return new ReachabilityWalker(this, limits ?? new(), runtimeLibrary, ValidateContractAssemblies(assembly, contractAssemblies)).Run(assembly, [], publicSurface: true);
     }
 
     private sealed partial class ReachabilityWalker
@@ -54,7 +58,8 @@ public sealed partial class AssemblyResolver
         private bool _stopped;
         private long _bodyBytes;
 
-        internal ReachabilityWalker(AssemblyResolver resolver, ReachabilityLimits limits, ResolvedAssembly? runtimeLibrary)
+        internal ReachabilityWalker(AssemblyResolver resolver, ReachabilityLimits limits, ResolvedAssembly? runtimeLibrary,
+            ImmutableArray<ResolvedAssembly> contracts)
         {
             if (limits.MaximumNodes <= 0 || limits.MaximumEdges <= 0 || limits.MaximumMethodInstances <= 0
                 || limits.MaximumBodyBytes <= 0 || limits.MaximumTotalBodyBytes <= 0 || limits.MaximumDispatchPairs <= 0)
@@ -62,6 +67,8 @@ public sealed partial class AssemblyResolver
             _resolver = resolver;
             _limits = limits;
             _runtimeLibrary = runtimeLibrary;
+            _contractAssemblies = contracts;
+            _contractImages = contracts.Select(a => (a.Identity, a.ContentHash)).ToHashSet();
         }
 
         internal ReachabilityReport Run(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots, bool publicSurface)
@@ -114,6 +121,8 @@ public sealed partial class AssemblyResolver
             }
             return new([.. _nodes], [.. _roots.Distinct()], [.. _edges], [.. _issues])
             {
+                ContractAssemblies = _contractAssemblies,
+                DeferredNodes = [.. _deferredNodes],
                 RuntimeMappings = [.. _runtimeTypes.Where(p => p.Value.Success).OrderBy(p => p.Key)
                     .Select(p => new RuntimeTypeMapping(p.Key, p.Value.Value!))],
                 Features = [.. _features.OrderBy(f => f.Node).ThenBy(f => f.ILOffset)
@@ -194,6 +203,7 @@ public sealed partial class AssemblyResolver
             }
             // Register only after the incoming edge succeeds: rolled-back nodes
             // must never become receiver evidence.
+            if (!exists && IsContract(entity)) _deferredNodes.Add(id);
             if (!exists && entity is ReachableEntity.Type or ReachableEntity.ArrayReceiver) RegisterReceiver(id);
             if (entity is ReachableEntity.Method required && kind != DependencyKind.DispatchDeclaration && _bodyRequired.Add(id)
                 && exists && _processed.Contains(id) && (MethodDefinition(required.Definition).Attributes & MethodAttributes.Abstract) != 0)
@@ -229,6 +239,9 @@ public sealed partial class AssemblyResolver
             foreach (InterfaceImplementationHandle handle in definition.GetInterfaceImplementations())
                 Guard(id, null, () => TypeOperand(id, assembly, reader.GetInterfaceImplementation(handle).Interface, context, DependencyKind.Interface));
             Constraints(id, assembly, definition.GetGenericParameters(), context);
+            // Retain the declaration's ancestry and substituted signature types,
+            // but do not infer required library internals from Microsoft's layout.
+            if (IsContract(assembly)) return;
             // Layout and initialization are conservative: include every field's type and
             // the initializer of every included type, even when execution may not trigger it.
             foreach (FieldDefinitionHandle field in definition.GetFields())
@@ -267,6 +280,7 @@ public sealed partial class AssemblyResolver
             foreach (TypeSignature parameter in method.Signature.Parameters) Signature(id, parameter, DependencyKind.Signature);
             foreach (TypeSignature argument in method.MethodArguments) Signature(id, argument, DependencyKind.Signature);
             Constraints(id, assembly, definition.GetGenericParameters(), context);
+            if (IsContract(assembly)) return;
             ModuleInitializer(id, assembly);
             if ((definition.Attributes & MethodAttributes.Abstract) != 0 && !_bodyRequired.Contains(id)) return;
             if (assembly.IsReferenceAssembly || definition.RelativeVirtualAddress == 0

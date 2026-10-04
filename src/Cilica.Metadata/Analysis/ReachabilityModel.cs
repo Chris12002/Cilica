@@ -40,7 +40,10 @@ public sealed record ReachabilityReport(ImmutableArray<ReachabilityNode> Nodes,
     ImmutableArray<int> Roots, ImmutableArray<ReachabilityEdge> Edges, ImmutableArray<ReachabilityIssue> Issues)
 {
     public ImmutableArray<RuntimeTypeMapping> RuntimeMappings { get; init; } = [];
-    public bool HasUnresolvedDependencies => !Issues.IsEmpty;
+    public ImmutableArray<ResolvedAssembly> ContractAssemblies { get; init; } = [];
+    /// <summary>Declarations whose implementation/layout expansion was explicitly deferred.</summary>
+    public ImmutableArray<int> DeferredNodes { get; init; } = [];
+    public bool HasUnresolvedDependencies => !Issues.IsEmpty || !ContractAssemblies.IsEmpty;
     public ImmutableArray<FeatureObservation> Features { get; init; } = [];
 }
 

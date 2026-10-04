@@ -883,6 +883,14 @@ An initial audit determines members needed by the kernel and Alchemy. Inspection
 of the existing game showed dictionaries, sets, delegates, type-based dispatch,
 enum validation and custom equality. This is not a complete dependency audit.
 
+Milestone 6a adds explicit library boundaries for planning
+([ADR 0088](decisions/0088-explicit-library-contract-inventory.md)).
+`audit --contract-only` retains declarations, signatures, ancestry and dependency
+reasons while deferring selected images' bodies, layout fields and initializers.
+It selects full identities and hashes, without granting intrinsic trust or
+implementation compatibility. The separate inventory profile never clears
+general-filter absence; the trial ported implementation closure remains required.
+
 Recognised framework types map to canonical runtime types. Resolve supported
 facades and type forwarders deliberately. User types retain assembly-qualified
 identity; never match solely by a short type name.
@@ -1035,8 +1043,10 @@ is complete for bounded non-moving collection, phase A stress and private retain
 handles on the locally tested macOS ARM64 target. [Milestone 5](milestones/05-managed-semantics.md)
 is complete for bounded compiler-library values, boxing, closed generics, single-target
 delegates and managed exceptions/type-test filters (ADR 0087), with 1,855 passing local
-checks. The broader runtime, required library, production embedding API and untested
-platforms remain planned.
+checks. [Milestone 6](milestones/06-library-and-kernel.md) has started with the
+reviewed library-contract inventory slice; library implementation and equivalent
+kernel traces remain ahead. The broader runtime, production embedding API and
+untested platforms remain planned.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

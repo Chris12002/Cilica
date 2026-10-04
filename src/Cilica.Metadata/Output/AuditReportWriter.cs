@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -17,33 +18,43 @@ public static class AuditReportWriter
         Converters = { new JsonStringEnumConverter() },
     };
 
-    public static string Json(AuditReport report) => JsonSerializer.Serialize(new
+    public static string Json(AuditReport report)
     {
-        format = "cilica.audit",
-        formatVersion = 1,
-        profile = AuditReport.Profile,
-        scope = AuditReport.Scope,
-        report.Input,
-        report.Selection,
-        report.Status,
-        report.GeneralFilterStatus,
-        report.Limits,
-        report.Assemblies,
-        report.RuntimeLibrary,
-        report.RuntimeMappings,
-        report.Nodes,
-        report.Roots,
-        report.Edges,
-        report.Features,
-        report.Issues,
-    }, JsonOptions) + "\n";
+        var document = new
+        {
+            format = "cilica.audit",
+            formatVersion = 1,
+            profile = report.AnalysisProfile,
+            scope = report.AnalysisScope,
+            report.Input,
+            report.Selection,
+            report.Status,
+            report.GeneralFilterStatus,
+            report.Limits,
+            report.Assemblies,
+            report.RuntimeLibrary,
+            report.RuntimeMappings,
+            report.Nodes,
+            report.Roots,
+            report.Edges,
+            report.Features,
+            report.Issues,
+        };
+        // Preserve the ordinary v1 report byte-for-byte. Inventory evidence is
+        // additive and always accompanied by its distinct profile and scope.
+        if (!report.IsContractInventory) return JsonSerializer.Serialize(document, JsonOptions) + "\n";
+        var inventory = JsonSerializer.SerializeToNode(document, JsonOptions)!;
+        inventory["contractAssemblies"] = JsonSerializer.SerializeToNode(report.ContractAssemblies, JsonOptions);
+        inventory["deferredNodes"] = JsonSerializer.SerializeToNode(report.DeferredNodes, JsonOptions);
+        return inventory.ToJsonString(JsonOptions) + "\n";
+    }
 
     public static string Text(AuditReport report)
     {
         var text = new StringBuilder();
         text.Append("cilica.audit v1: ").Append(Q(report.Input)).Append('\n')
-            .Append("profile: ").Append(AuditReport.Profile).Append('\n')
-            .Append("scope: ").Append(AuditReport.Scope).Append('\n')
+            .Append("profile: ").Append(report.AnalysisProfile).Append('\n')
+            .Append("scope: ").Append(report.AnalysisScope).Append('\n')
             .Append("status: ").Append(report.Status).Append('\n')
             .Append("general filters: ").Append(report.GeneralFilterStatus).Append('\n')
             .Append("selection: ").AppendJoin(", ", System.Linq.Enumerable.Select(report.Selection, Q)).Append('\n')
@@ -56,11 +67,15 @@ public static class AuditReportWriter
         foreach (AuditRuntimeType mapping in report.RuntimeMappings)
             text.Append("runtime type ").Append(mapping.Primitive).Append(" -> A").Append(N(mapping.Assembly))
                 .Append(' ').Append(mapping.Token).Append('\n');
+        if (report.IsContractInventory)
+            text.Append("contract assemblies: ").AppendJoin(", ", report.ContractAssemblies.Select(id => "A" + N(id))).Append('\n');
+        var deferred = report.DeferredNodes.ToHashSet();
         foreach (AuditNode node in report.Nodes)
         {
             text.Append("node ").Append(N(node.Id)).Append(" A").Append(N(node.Assembly)).Append(' ').Append(node.Kind)
                 .Append(' ').Append(node.Token).Append(' ').Append(Q(node.Name)).Append(' ').Append(Q(node.Instantiation))
                 .Append(node.IsExternalMember ? " external-member" : "");
+            if (deferred.Contains(node.Id)) text.Append(" implementation-deferred");
             if (node.FirstReason is int reason) text.Append(" via edge ").Append(N(reason));
             else text.Append(" root");
             text.Append('\n');

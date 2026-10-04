@@ -20,6 +20,9 @@ delegates and managed exceptions with type-test filters. The
 [milestone 5 record](docs/milestones/05-managed-semantics.md) documents their exact
 boundaries and local .NET/sanitizer evidence. Broader libraries, general filters,
 a public object embedding ABI and Expo integration remain planned.
+Milestone 6 has started with an explicit library dependency inventory;
+the [library and kernel plan](docs/milestones/06-library-and-kernel.md) records
+the remaining implementation and deterministic-trace gates.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.
@@ -134,6 +137,24 @@ observations and why each node was included through its first incoming edge.
 An incomplete audit exits with code 1 and preserves its evidence. Even a bounded
 graph without issues does not establish runtime compatibility or clear the
 ported-library exception-filter gate; see [ADR 0009](docs/decisions/0009-audit-evidence-contract.md).
+
+To inventory application dependencies before implementing a library, explicitly
+select each library image whose internals should be deferred:
+
+```bash
+dotnet run --project src/Cilica.Cli -- audit path/to/Assembly.dll \
+  --reference path/to/dependencies --root-type Example.Entry \
+  --contract-only path/to/dependencies/CoreLibrary.dll --format json
+```
+
+`--contract-only` is repeatable and selects exact assembly identities and hashes.
+Supply the implementation image when declarations are forwarded through a facade.
+It does not add reference directories or grant compiler intrinsic trust. The
+`explicit-library-contracts-v1` report retains signatures and dependency reasons,
+marks `deferredNodes`, and uses `contract-inventory` for a no-issue result (exit 0).
+Analysis issues still produce `incomplete` and exit 1. Library callbacks and
+implementation dependencies remain unresolved; this mode cannot establish that
+general filters are absent. See [ADR 0088](docs/decisions/0088-explicit-library-contract-inventory.md).
 
 Golden-file tests compare output with reviewed files in
 `tests/Cilica.Metadata.Tests/Golden`. After an intended output change, rerun the
