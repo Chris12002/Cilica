@@ -68,6 +68,11 @@ Read the [design specification](docs/design-specification.md) for architecture,
 compatibility boundaries, memory management, the embedding API, validation and
 milestone exit criteria.
 
+The [benchmarking and improvement plan](docs/benchmarking-and-improvement-plan.md)
+describes proposed NativeAOT and IL2CPP comparisons, generated-code inspection
+and correctness-preserving optimization experiments. It builds on the existing
+local execution-frame microbenchmarks; cross-backend results remain future work.
+
 The first milestone is an assembly explorer: inspect metadata, dependencies and
 IL without executing input assemblies, and produce stable diagnostics. Its plan
 and progress are in [docs/milestones](docs/milestones/01-assembly-explorer.md).

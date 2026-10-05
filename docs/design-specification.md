@@ -1090,6 +1090,13 @@ build duration and bridge overhead separately. Record inputs, hardware and
 toolchain versions. Set performance targets after baselines; do not invent
 speedup claims.
 
+The proposed [benchmarking and improvement plan](benchmarking-and-improvement-plan.md)
+extends the existing local execution-frame harness with NativeAOT and Unity
+IL2CPP adapters, artifact inspection and measured optimization experiments.
+It separates library execution from host costs and treats standalone IL2CPP
+extraction as an optional feasibility investigation. These comparisons and their
+resulting improvements remain planned, not measured capabilities.
+
 Performance priorities follow the primary use: embedded engines in Expo apps on
 iOS and Android. In order, optimise:
 
