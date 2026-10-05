@@ -1467,3 +1467,43 @@ Milestone 6 is complete. Milestone 7 begins the separate public C ABI and mobile
 library/device lifecycle gate. General filters, arbitrary library members,
 primitive-width/enum/nested arrays, escaping managed locations, general boxed
 interface dispatch and untested platforms are not implied by this completion.
+
+## Follow-on saved-game baseline (2026-10-06)
+
+The first full-application replay slice establishes a .NET oracle, not native
+compatibility. A private frozen source/content archive was recovered and checked
+against its byte count, SHA-256, source archive and extracted-file manifests.
+The source snapshot was rebuilt unchanged with .NET SDK 10.0.400 on macOS ARM64.
+Build properties explicitly pin its source revision and disable inherited
+analyzers for this private build; this is not an application analyzer-clean claim.
+The compiler probe uses baseline `31a0e21` and the existing reviewed 6d.23 core.
+
+Three saved games cover a selected-seat win, a selected-seat loss and a natural
+round-limit stop. Their 81, 614 and 2,532 accepted command envelopes (3,227 total)
+all restore to their archived final state hashes under .NET 10.0.11. Recorded
+scenario, seed, match identity, command payloads, expected versions, origins and
+ordering are retained. The traced replay also matches the application's existing
+full restore. Two independent process runs produce byte-identical traces with
+initial/per-command state hashes and ordered event type/text observations. The
+event text is not a complete payload serialization or a native equivalence gate.
+A fresh command ID with a stale expected version is rejected without changing
+the final state or emitting events; previously accepted IDs use host idempotency.
+
+The metadata-only constructor/step probe is deliberately not a runnable saved-game
+adapter: it supplies null inputs solely to select the real engine dependency path.
+Translation stops at `CIL3015`, an unmapped `System.Type` required by application
+command dispatch. This is the first observed compiler/library gap, not the only
+missing capability. No application rules were changed and no mapping was invented
+to bypass the diagnostic. The broader explicit-library-contract inventory is
+incomplete: 6,218 nodes, 32,596 edges, 1,587 deferred nodes and 3,553 analysis
+issues, including the default 100,000 dispatch-pair limit. Repeated analysis
+issues are not a count of distinct compiler features to implement. Library/filter
+closure and full-game native execution remain unverified.
+
+Private source, adapters, raw saves, traces, inventories, review and hash evidence
+live under ignored `artifacts/alchemy-replay-baseline/`. From that directory,
+`python3 run_baseline.py` verifies saved evidence and unchanged source/content;
+`python3 run_baseline.py --run` repeats the bounded local build/oracle/probe recipe
+using its pinned local dependency paths. Python 3.11 was used for archive recovery
+and this recipe. No training, services, hosted jobs or pushes ran. This follow-on
+does not broaden milestone 6's completed kernel scope or milestone 7's ABI scope.

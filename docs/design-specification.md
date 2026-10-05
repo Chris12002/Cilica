@@ -1617,3 +1617,12 @@ pass. The full build has no warnings/errors. General-filter stage B is not neede
 by this concrete closure, whose 287 source definitions have no exception regions.
 The conservative metadata inventory remains incomplete and is not the evidence
 used to assert compiled closure. Milestone 7 is the separate public ABI/device gate.
+
+The follow-on private saved-game baseline restores three full-application games
+on .NET with 3,227 accepted envelopes, exact archived final state hashes and
+repeatable per-command state/event-text traces. This does not establish native
+full-game support: the real engine constructor/step probe stops at an unmapped
+`System.Type` dependency, and its conservative inventory exhausts the default
+dispatch-pair budget. See the milestone 6 follow-on record for scope, evidence
+and the bounded local reproduction recipe. JSON/gzip decoding and reflection in
+the authored oracle host are outside the advertised native compiler profile.
