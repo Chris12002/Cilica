@@ -1500,3 +1500,11 @@ Metadata shape and selected Enum ancestry are validated; closed generic signatur
 retain nominal identity. Two native probes provide 588 repeated O0/O2 comparisons.
 Other widths, enum boxing/arrays and general Enum APIs remain diagnostic. The
 concrete kernel next needs Boolean field storage; native transcripts remain pending.
+
+
+Narrow Boolean/Char/byte/short fields now have explicit read/write casts in the
+integer-object profile (ADR 0164). Private Int32 slots preserve managed truncation,
+sign extension and copy/zero semantics without a public layout claim. Thirteen
+probes supply 1,662 repeated O0/O2 native comparisons, including stores without IL
+conversions. Narrow addresses and arrays remain diagnostic. The kernel has reached
+another metadata work bound; native transcript equivalence remains pending.

@@ -391,9 +391,10 @@ public static class ValueTranslator
                                 : defaultStatic == IrType.Int64 ? new IrExpression.Constant64(0) : new IrExpression.DefaultValue(defaultStatic.Class!));
                             break;
                         case "ldsfld" when method.StaticFields.TryGetValue(offset, out var readStatic):
-                            Push(offset, readStatic.Type, new IrExpression.LoadStatic(readStatic.Id), true); break;
+                            Push(offset, readStatic.Type, new IrExpression.LoadStatic(readStatic.Id), true);
+                            stack[^1] = NormalizeField(stack[^1], offset); break;
                         case "stsfld" when method.StaticFields.TryGetValue(offset, out var writeStatic):
-                            Add(new IrStatement.StoreStatic(offset, writeStatic.Id, Pop(offset, writeStatic.Type)), offset); break;
+                            Add(new IrStatement.StoreStatic(offset, writeStatic.Id, NormalizeField(Pop(offset, writeStatic.Type), offset)), offset); break;
                         case "ldnull": Push(offset, IrType.NullReference, new IrExpression.Null()); break;
                         case "ldarg.0" or "ldarg.1" or "ldarg.2" or "ldarg.3" or "ldarg.s" or "ldarg":
                             int argument = Variable(instruction, method.Parameters.Length);
@@ -527,7 +528,7 @@ public static class ValueTranslator
                             break;
                         case "ldfld" or "ldflda" or "stfld":
                             var field = fields[method.Fields[offset]]; var fieldType = Storage(field.Storage);
-                            int fieldValue = opcode == "stfld" ? Pop(offset, fieldType) : -1;
+                            int fieldValue = opcode == "stfld" ? NormalizeField(Pop(offset, fieldType), offset) : -1;
                             int receiver = Pop(offset); var receiverType = values[receiver];
                             if (classes && types.Valid(IrType.Reference(field.Id.Owner), storage: true))
                             {
@@ -555,6 +556,7 @@ public static class ValueTranslator
                                 else if (opcode == "ldfld") Push(offset, fieldType, new IrExpression.LoadLocation(address), true);
                                 else { Writable(address, offset); Add(new IrStatement.StoreLocation(offset, address, fieldValue), offset); }
                             }
+                            if (opcode == "ldfld") stack[^1] = NormalizeField(stack[^1], offset);
                             break;
                         case "box" or "unbox.any" when boxing && method.ReferenceBoxOperands.TryGetValue(offset, out var referenceBox):
                             int referenceOperand = Pop(offset, opcode == "box" ? referenceBox : null);
@@ -640,6 +642,8 @@ public static class ValueTranslator
                 }
                 int Normalize(int operand, TypeSignature? signature, int offset) => types.IntegerCasts && signature is not null
                     && IntegerCasts.NarrowStorage(signature) is { } target
+                    ? Define(offset, IrType.Int32, new IrExpression.IntegerCast(target, operand, false, false)) : operand;
+                int NormalizeField(int operand, int offset) => method.NarrowFields.TryGetValue(offset, out var target)
                     ? Define(offset, IrType.Int32, new IrExpression.IntegerCast(target, operand, false, false)) : operand;
                 int Pop(int offset, IrType? expected = null)
                 {

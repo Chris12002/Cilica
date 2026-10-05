@@ -28,6 +28,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, IrMethodId> Initializers { get; init; } = ImmutableDictionary<int, IrMethodId>.Empty;
     public ImmutableDictionary<int, ObjectStaticField> StaticFields { get; init; } = ImmutableDictionary<int, ObjectStaticField>.Empty;
     public ImmutableDictionary<int, IrType> DefaultStatics { get; init; } = ImmutableDictionary<int, IrType>.Empty;
+    public ImmutableDictionary<int, IntegerCastTarget> NarrowFields { get; init; } = ImmutableDictionary<int, IntegerCastTarget>.Empty;
     public ImmutableDictionary<int, IrType> ReferenceBoxOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
     public ImmutableDictionary<int, ClosedKeyIntrinsic> KeyOperations { get; init; } = ImmutableDictionary<int, ClosedKeyIntrinsic>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> BoxedRenderCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
@@ -157,6 +158,7 @@ public static partial class ValueProgramDiscovery
                     var defaultStatics = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var initializers = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
                     var staticFields = ImmutableDictionary.CreateBuilder<int, ObjectStaticField>();
+                    var narrowFields = ImmutableDictionary.CreateBuilder<int, IntegerCastTarget>();
                     var referenceBoxes = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var constrained = ConstrainedPrefixes(work);
                     var constrainedCalls = ImmutableDictionary.CreateBuilder<int, ConstrainedValueCall>();
@@ -292,6 +294,7 @@ public static partial class ValueProgramDiscovery
                         {
                             int token = Token(work, instruction, 0x04, 0x0a);
                             var field = BoundField(work, token, offset);
+                            if (IntegerCasts.NarrowStorage(field.Signature) is { } staticWidth) narrowFields.Add(offset, staticWidth);
                             var owner = SnapshotClosed(field.DeclaringType, work, offset);
                             var declaration = owner.Fields.Single(f => f.Token == MetadataTokens.GetToken(field.Handle));
                             if (EmptyStringField(work, instruction, field, owner, declaration))
@@ -312,6 +315,11 @@ public static partial class ValueProgramDiscovery
                         {
                             int token = Token(work, instruction, 0x04, 0x0a);
                             var field = BoundField(work, token, offset);
+                            if (integers64 && IntegerCasts.NarrowStorage(field.Signature) is { } fieldWidth)
+                            {
+                                if (instruction.OpCode == "ldflda") Fail(work, "Narrow field addresses require storage-width-aware locations before execution.", offset);
+                                narrowFields.Add(offset, fieldWidth);
+                            }
                             if (!generics && field.DeclaringType.Arguments.Count != 0) Fail(work, "Generic field owners require later lowering.", offset);
                             var owner = field.DeclaringType.Definition;
                             fields.Add(offset, new(classes && !Inline(owner, work, offset) ? IncludeReference(field.DeclaringType, work, offset)
@@ -369,7 +377,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {

@@ -33,6 +33,7 @@ internal static class ObjectSignatureTypes
     {
         TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
         TypeSignature.Primitive { Code: PrimitiveTypeCode.UInt32 } when integers64 => IrType.Int32,
+        TypeSignature.Primitive primitive when integers64 && IntegerCasts.NarrowStorage(primitive) is not null => IrType.Int32,
         TypeSignature.Primitive { Code: PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 } when integers64 => IrType.Int64,
         TypeSignature.Primitive { Code: PrimitiveTypeCode.Object } => IrType.Reference(objectBase),
         TypeSignature.Primitive { Code: PrimitiveTypeCode.String } when text is not null => IrType.Reference(text()),
