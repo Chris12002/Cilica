@@ -474,5 +474,26 @@
     "Member": ".ctor",
     "ParameterCount": 1,
     "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "KeyOperations`1",
+    "Member": "Equal",
+    "ParameterCount": 2,
+    "Capability": "ClosedKeyEqual"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "KeyOperations`1",
+    "Member": "Hash",
+    "ParameterCount": 1,
+    "Capability": "ClosedKeyHash"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "KeyOperations`1",
+    "Member": "IsNull",
+    "ParameterCount": 1,
+    "Capability": "ClosedKeyIsNull"
   }
 ]

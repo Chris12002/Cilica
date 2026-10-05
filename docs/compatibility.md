@@ -1478,3 +1478,11 @@ checked borrows. Scalar components preserve declaring field identity and trace
 embedded references without boxing. Direct struct-return call results assigned
 to heap fields remain diagnostic pending destination/exception-order lowering;
 ordinary value copies and explicit byref assignments are tested.
+
+
+The direct-core dictionary trial (ADR 0141) adapts pinned bucket-chain lookup,
+insertion, overwrite and resize into Cilica.Library.TrialDictionary. Five probes
+cover closed integer and IEquatable struct keys, including mutable callbacks and
+exceptions. Exact private helper grants select managed key bodies. System.Dictionary
+reference mapping and collection/array interfaces remain pending; the trial's own
+name prevents a partial collection contract from being advertised as compatible.

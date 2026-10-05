@@ -17,6 +17,7 @@ public enum LibraryIntrinsicCapability
     StringLayout, ExceptionLayout, StringLength, StringCodeUnit, StringEqual, StringNotEqual, StringConcat,
     ExceptionConstructor, ExceptionMessage, ExceptionParameterName,
     CultureInfoLayout, InvariantCulture, InvariantIntegerFormatting, IntegerTextCacheFind, IntegerTextCachePublish,
+    ClosedKeyEqual, ClosedKeyHash, ClosedKeyIsNull,
 }
 
 public sealed record LibraryBuildInput(string Role, string Path, string Sha256);

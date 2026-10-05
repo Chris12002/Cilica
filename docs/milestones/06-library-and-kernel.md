@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.37 and 6d.1–6d.11 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.37 and 6d.1–6d.12 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.37 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.11 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; library collection storage, StringBuilder and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.12 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; library collection storage, StringBuilder and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -761,6 +761,22 @@ This fixes a rejection of optimized Roslyn output found in dictionary callbacks.
 A reduced scalar/reference-stack regression passes 294 repeated native checks;
 the composed dictionary/throw/exception run passes 26 checks. Review found no
 remaining actionable issue. See [ADR 0140](../decisions/0140-throw-discards-evaluation-stack.md).
+
+## Slice 6d.12 outcome
+
+The pinned dictionary lookup/insertion/resize and prime algorithms now execute
+as Cilica.Library.TrialDictionary. Private exact grants select closed integer
+and IEquatable struct equality/hash bodies, retaining mutable-key receiver copies
+and callback failure order. Five probes provide 1,470 repeated native O0/O2
+sanitizer comparisons. The full build and 64 distinct focused checks pass;
+review found no remaining issue in the admitted trial. See
+[ADR 0141](../decisions/0141-dictionary-storage-and-closed-key-trial.md).
+
+The actual core image records 207 inputs and 71 requested grants. Public
+System.Dictionary mapping remains pending its collection/array interface
+contracts, so the real kernel's Dictionary gate has not yet cleared. Reference
+keys, enumeration/removal, broader collections and native kernel equivalence
+remain pending.
 
 ## Remaining completion evidence
 

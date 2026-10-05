@@ -58,6 +58,34 @@ public static class ClosedGenericKey
 
 public sealed partial class AssemblyResolver
 {
+    /// <summary>Select one declared closed method by exact name and nongeneric parameter count.</summary>
+    public ResolutionResult<ResolvedMethod> ResolveClosedDeclaration(ConstructedType owner, string name, int parameterCount, MemberResolutionBudget budget)
+    {
+        ArgumentNullException.ThrowIfNull(owner); ArgumentNullException.ThrowIfNull(budget);
+        CheckOwner(owner.Definition.Assembly);
+        return Bind(owner.Definition.Assembly, owner.Definition.Handle, () =>
+        {
+            if (string.IsNullOrEmpty(name) || name.Length > 1024 || parameterCount is < 0 or > 4096)
+                throw new ArgumentException("Closed declaration selector exceeds its bounds.");
+            InspectMember(budget);
+            var reader = owner.Definition.Assembly.Image.Reader;
+            if (reader.GetTypeDefinition(owner.Definition.Handle).GetGenericParameters().Count != owner.Arguments.Count)
+                throw new BadImageFormatException("Closed declaration owner argument count does not match its definition.");
+            _ = ClosedGenericKey.Create(owner.Arguments, SignatureList<TypeSignature>.Empty);
+            ResolvedMethod? selected = null;
+            foreach (var handle in reader.GetTypeDefinition(owner.Definition.Handle).GetMethods())
+            {
+                InspectMember(budget);
+                if (!reader.StringComparer.Equals(reader.GetMethodDefinition(handle).Name, name)) continue;
+                var signature = MethodDefinitionSignature(owner.Definition.Assembly, handle);
+                if (signature.GenericArity != 0 || signature.Parameters.Count != parameterCount) continue;
+                if (selected is not null) throw new UnsupportedBindingException("Closed declaration selector is ambiguous: " + name);
+                selected = Method(owner.Definition.Assembly, handle, new(owner, SignatureList<TypeSignature>.Empty), declaredOnly: true, budget: budget);
+            }
+            return selected ?? throw Failure(DiagnosticIds.MemberNotFound, "Closed declaration was not found: " + name);
+        });
+    }
+
     /// <summary>Bind a call using the caller's closed environment, retaining declaration matching rules.</summary>
     public ResolutionResult<ResolvedMethod> ResolveClosedCall(ResolvedMethod caller, EntityHandle operand, MemberResolutionBudget budget)
     {

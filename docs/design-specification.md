@@ -1323,3 +1323,11 @@ reference fields with derived component identities. This reuses existing native
 field ownership and GC tracing without extra allocations. Empty fields retain a
 checked receiver operation. Compound stores directly from struct-return calls
 remain diagnostic until destination/exception ordering is explicitly lowered.
+
+
+The direct-core dictionary trial (ADR 0141) adapts pinned bucket-chain lookup,
+insertion, overwrite and resize into Cilica.Library.TrialDictionary. Five probes
+cover closed integer and IEquatable struct keys, including mutable callbacks and
+exceptions. Exact private helper grants select managed key bodies. System.Dictionary
+reference mapping and collection/array interfaces remain pending; the trial's own
+name prevents a partial collection contract from being advertised as compatible.

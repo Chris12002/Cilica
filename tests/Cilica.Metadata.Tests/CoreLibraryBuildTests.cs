@@ -24,12 +24,12 @@ public sealed class CoreLibraryBuildTests
         Assert.NotNull(root); return Path.Combine(root.FullName, "library", "Cilica.Core", name);
     }
 
-    internal static async Task<(LibraryBuildResult Built, LibraryBuildRequest Request, AssemblyResolver Resolver, ResolvedAssembly Implementation, LibraryBindingPlan Plan)> BuildAndMap(ResolverFiles files)
+    internal static async Task<(LibraryBuildResult Built, LibraryBuildRequest Request, AssemblyResolver Resolver, ResolvedAssembly Implementation, LibraryBindingPlan Plan)> BuildAndMap(ResolverFiles files, params string[] additionalSources)
     {
         var requests = LibraryIntrinsicRequests.Read(CorePath("intrinsic-requests.json"));
         var request = LibraryBuildProducerTests.Request(files, CorePath("CoreTypes.cs"));
         string reference = request.References.Single();
-        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), CorePath("DelegateContracts.cs"), CorePath("Guid.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs"))], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
+        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), CorePath("DelegateContracts.cs"), CorePath("Guid.cs"), CorePath("KeyOperations.cs"), CorePath("TrialDictionary.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs")), .. additionalSources], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
         var built = await LibraryBuilder.Build(request);
         var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!, Path.GetDirectoryName(built.AssemblyPath)!,
             Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;

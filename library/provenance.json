@@ -42,6 +42,16 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ArithmeticException.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/ArithmeticException.cs",
       "sha256": "d1a6304efa7d092e443f3d7bf5888cd9c958da23f5312df1d820858f472c4026"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs",
+      "sha256": "2def38d1ef1896bfc830e4dd3c369cad11b0bedfafaef9b3c45dbe202901fefa"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/HashHelpers.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/HashHelpers.cs",
+      "sha256": "498f12bd53366f09d1babab8f95af01088643ef941d23cdea31e6178a59773f4"
     }
   ],
   "adaptations": [
@@ -74,6 +84,24 @@
         "Omit parsing, byte/span APIs, random generation and other unimplemented members."
       ],
       "scope": "Owned-core managed numeric constructors, Empty, typed equality/hash/comparison and standard formatting. Boxed object overloads remain blocked by value type-test lowering; hash evidence is the pinned local little-endian oracle."
+    },
+    {
+      "path": "library/Cilica.Core/TrialDictionary.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs",
+      "algorithms": [
+        "FindValue bucket-chain lookup",
+        "TryInsert duplicate/overwrite/new-entry behavior",
+        "Resize entry order and bucket chain rebuilding",
+        "Prime capacities from System/Collections/HashHelpers.cs"
+      ],
+      "changes": [
+        "Expose Cilica.Library.TrialDictionary pending the System.Dictionary interface/array contract gate.",
+        "Replace inline entry arrays and unsafe/ref helpers with managed reference-entry vectors and checked indexing; entries remain private to collection operations.",
+        "Use exact compiler-selected closed integer/value key operations instead of runtime reflection and EqualityComparer factory selection.",
+        "Retain distinct value-key hash receiver semantics in FindValue and TryInsert.",
+        "Omit removal, enumeration, comparer/capacity constructors, read indexers and unimplemented members."
+      ],
+      "scope": "Direct-core trial for 32/64-bit integer and exact IEquatable struct keys. Count, TryAdd, TryGetValue and overwrite are locally compared; reference/string keys and public System.Dictionary mappings remain unsupported."
     }
   ],
   "ownedAdapters": [
@@ -94,6 +122,15 @@
         "ArithmeticException and FormatException use their selected fixed resources for default and explicit null messages."
       ],
       "scope": "Selected exact framework identities and bounded invariant English resources; full localization and arbitrary framework exceptions remain unsupported."
+    },
+    {
+      "path": "library/Cilica.Core/KeyOperations.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs",
+      "contracts": [
+        "Exact private granted helpers select ordinary closed value equality/hash bodies or integer equality.",
+        "Managed wrappers preserve the pinned caller-specific receiver copies; unsupported reference fallbacks remain diagnostics."
+      ],
+      "scope": "Compile-time key operations for the managed dictionary trial; no public EqualityComparer.Default or shared singleton identity claim."
     }
   ]
 }

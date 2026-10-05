@@ -284,6 +284,25 @@ public static class ValueTranslator
                             int accepted = Pop(offset, IrType.Int32);
                             if (stack.Count != 0) Error(offset, "endfilter leaves a residual evaluation stack.");
                             terminator = new IrEndFilter(offset, accepted); break;
+                        case "call" when method.KeyOperations.TryGetValue(offset, out var keyOperation):
+                            if (keyOperation.Operation == ClosedKeyOperation.IsNull)
+                            {
+                                int key = Pop(offset, keyOperation.Storage);
+                                if (keyOperation.Storage.Kind == IrTypeKind.Reference)
+                                {
+                                    int nullKey = Define(offset, IrType.NullReference, new IrExpression.Null());
+                                    Push(offset, IrType.Int32, new IrExpression.Compare(Int32Comparison.Equal, key, nullKey));
+                                }
+                                else Push(offset, IrType.Int32, new IrExpression.Constant(0));
+                            }
+                            else
+                            {
+                                int rightKey = Pop(offset, keyOperation.Storage);
+                                int leftAddress = Pop(offset, IrType.Location(keyOperation.Storage));
+                                int leftKey = Define(offset, keyOperation.Storage, new IrExpression.LoadLocation(leftAddress), true);
+                                Push(offset, IrType.Int32, new IrExpression.Compare(Int32Comparison.Equal, leftKey, rightKey));
+                            }
+                            break;
                         case "newobj" when method.Intrinsics.TryGetValue(offset, out var constructorIntrinsic) && constructorIntrinsic.Kind == ValueIntrinsic.NewException:
                             var constructorArguments = new int[constructorIntrinsic.Parameters];
                             for (int i = constructorArguments.Length - 1; i >= 0; --i) constructorArguments[i] = Pop(offset, IrType.Reference(stringType!));

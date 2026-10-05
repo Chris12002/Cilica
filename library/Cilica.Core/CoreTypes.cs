@@ -13,6 +13,13 @@ namespace System
         [MethodImpl(MethodImplOptions.InternalCall)] public virtual extern string ToString();
     }
     public abstract class ValueType { protected ValueType() { } }
+    public abstract class Array
+    {
+        protected Array() { }
+        // Roslyn emits ldlen for vector.Length. Other Array APIs and interface
+        // relationships require separate admitted runtime implementations.
+        public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }
+    }
     public abstract class Enum : ValueType { protected Enum() { } }
     public abstract class Delegate { protected Delegate() { } }
     public abstract class MulticastDelegate : Delegate { protected MulticastDelegate() { } }
