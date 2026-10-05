@@ -142,6 +142,7 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
     if (visitor == nullptr || !traceable_reference(heap, value)) return TraceResult::invalid;
     if (value == nullptr) return TraceResult::complete;
     const Descriptor& type = *value->type;
+    if (type.array_kind != 0 && !valid_array_storage(value)) return TraceResult::invalid;
     // Flattened maps already include inherited fields exactly once. Typed field
     // accessors preserve C++ subobject provenance; offsets are selectors only.
     for (std::size_t i = 0; i < type.reference_count; ++i) {

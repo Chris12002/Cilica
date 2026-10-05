@@ -15,7 +15,7 @@ public static class ObjectModelValidator
     public static void Validate(ObjectModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Statics = model.Statics, Integer64 = model.Integer64, Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String, Delegates = model.Delegates });
+        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Statics = model.Statics, Integer64 = model.Integer64, Interfaces = model.Interfaces, Arrays = model.Arrays, ValueArrays = model.ValueArrays, String = model.String, Delegates = model.Delegates });
     }
 
     public static void Validate(ObjectTypeCatalog model) => Validate(model, inlineFields: false);
@@ -57,7 +57,7 @@ public static class ObjectModelValidator
             Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
         }
         Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase)) && model.Arrays.Distinct().Count() == model.Arrays.Length,
-            "array identities require a unique selected-Object anchor and Int32 or nominal reference elements.");
+            "array identities require a unique selected-Object anchor and Int32, nominal reference or closed value elements.");
         var arrays = model.Arrays.ToHashSet();
         var types = new Dictionary<ObjectTypeId, ObjectTypeLayout>();
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
@@ -168,7 +168,23 @@ public static class ObjectModelValidator
                     && ReferenceIdentity(field.Type.Class, model.ObjectBase) && Known(field.Type.Class!)), "invalid static field identity, flags or storage.");
         ObjectLexicalAccess.Consistent(model.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners))
             .Concat(model.Statics.Select(f => (f.Id.Owner, f.LexicalOwners))));
-        foreach (var array in arrays)
+        Require(!model.ValueArrays.IsDefault && model.ValueArrays.Length <= ObjectModelLimits.MaximumTypes
+            && (model.Integer64 || model.ValueArrays.IsEmpty), "invalid value-array layouts/profile.");
+        var valueArrays = new Dictionary<ObjectTypeId, ObjectValueArrayLayout>();
+        int arraySlots = 0;
+        foreach (var layout in model.ValueArrays)
+        {
+            Require(layout is not null && Identity(layout.Type, 0x02) && !Known(layout.Type)
+                && valueArrays.TryAdd(layout.Type, layout) && !layout.Slots.IsDefaultOrEmpty
+                && layout.Slots.Length <= ObjectModelLimits.MaximumFields - arraySlots,
+                "invalid, duplicate or excessive value-array scalar layout.");
+            arraySlots += layout.Slots.Length;
+            Require(layout.Slots.All(s => s is ObjectStorage.Int32 or ObjectStorage.Int64
+                || s is ObjectStorage.Reference r && Known(r.Type)), "value-array leaves require known scalar storage.");
+        }
+        Require(arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).Select(a => a.ArrayElement!.Type!)
+            .ToHashSet().SetEquals(valueArrays.Keys), "value-array identities and scalar layouts disagree.");
+        foreach (var array in arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Reference))
             Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element) || element == model.String || delegates.Contains(element),
                 "array reference element is outside the nominal catalog.");
         Require(model.Roots.All(Known) && types.ContainsKey(model.ObjectBase), "roots/base are outside the model.");
@@ -202,7 +218,9 @@ public static class ObjectModelValidator
                 }
                 else if (arrays.Contains(id))
                 {
-                    if (id.ArrayElement!.Type is { } element) pending.Push(element);
+                    if (id.ArrayElement!.Kind == ObjectArrayElementKind.Reference) pending.Push(id.ArrayElement.Type!);
+                    if (id.ArrayElement.Kind == ObjectArrayElementKind.Value)
+                        foreach (var slot in valueArrays[id.ArrayElement.Type!].Slots.OfType<ObjectStorage.Reference>()) pending.Push(slot.Type);
                 }
                 else if (interfaces.TryGetValue(id, out var contract))
                 {
@@ -242,7 +260,7 @@ public static class ObjectModelValidator
     private static bool ArrayIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => id?.ArrayElement is { } element
         && id.Specialization == "" && id.ContentHash == objectBase.ContentHash && id.Token == objectBase.Token
         && (element.Kind == ObjectArrayElementKind.Int32 ? element.Type is null
-            : element.Kind == ObjectArrayElementKind.Reference && Identity(element.Type, 0x02));
+            : element.Kind is ObjectArrayElementKind.Reference or ObjectArrayElementKind.Value && Identity(element.Type, 0x02));
     internal static bool Identity(ObjectTypeId? id, uint table) => id is not null && id.ArrayElement is null && Hash(id.ContentHash)
         && id.ContentHash == id.ContentHash.ToLowerInvariant() && Specialization(id.Specialization) && DefinitionToken(id.Token, table)
         && (id.Token & 0xffffff) != 1; // TypeDef row 1 is the module, not an instance class.

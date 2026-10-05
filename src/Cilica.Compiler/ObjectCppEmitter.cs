@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v33";
+    public const string Profile = "object-frames-native-v34";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -178,9 +178,14 @@ public static class ObjectCppEmitter
         foreach (var array in arrays)
         {
             bool reference = array.ArrayElement!.Kind == ObjectArrayElementKind.Reference;
+            var slots = array.ArrayElement.Kind == ObjectArrayElementKind.Value
+                ? program.Flow.Types.ValueArrays.Single(v => v.Type == array.ArrayElement.Type).Slots : [];
+            string valueStorage = "3, nullptr, array_reference_count, array_references, nullptr, "
+                + N(slots.Count(s => s is ObjectStorage.Int32)) + ", " + N(slots.Count(s => s is ObjectStorage.Int64))
+                + ", " + N(slots.Count(s => s is ObjectStorage.Reference));
             text.Append("[[maybe_unused]] static constexpr Descriptor ").Append(TypeSymbol(array)).Append("_descriptor = { sizeof(ArrayObject), alignof(ArrayObject), nullptr, 0, destroy_array, &")
                 .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
-                .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : "1, nullptr, nullptr, nullptr").Append(" };\n");
+                .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : array.ArrayElement.Kind == ObjectArrayElementKind.Value ? valueStorage : "1, nullptr, nullptr, nullptr").Append(" };\n");
         }
         if (delegates is not null) ObjectCppDelegates.AppendStorage(text, delegateDeclarations, TypeSymbol, program.Flow.Types.ObjectBase);
         // Interface identities are only cast-message keys, never concrete heap
@@ -767,7 +772,7 @@ public static class ObjectCppEmitter
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture)
         + (type.Specialization.Length == 0 ? "" : "_g_" + type.Specialization)
         + (type.ArrayElement is null ? "" : type.ArrayElement.Kind == ObjectArrayElementKind.Int32 ? "_vector_i4"
-            : "_vector_ref_" + TypeSymbol(type.ArrayElement.Type!));
+            : (type.ArrayElement.Kind == ObjectArrayElementKind.Value ? "_vector_value_" : "_vector_ref_") + TypeSymbol(type.ArrayElement.Type!));
     private static string DispatchSymbol(IrMethodId method) => CppEmitter.Symbol(method) + "_dispatch";
     private static string ContractSymbol(ObjectTypeId type) => TypeSymbol(type) + "_implements";
     private static string FieldSymbol(ObjectFieldId field) => "f_" + field.Token.ToString("x8", CultureInfo.InvariantCulture) + (field.Component < 0 ? "" : "_c" + N(field.Component));

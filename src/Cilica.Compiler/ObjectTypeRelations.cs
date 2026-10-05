@@ -53,9 +53,9 @@ internal sealed class ObjectTypeRelations
         foreach (var array in catalog.Arrays)
         {
             var ancestors = new HashSet<ObjectTypeId> { array, catalog.ObjectBase };
-            if (array.ArrayElement!.Type is { } element)
+            if (array.ArrayElement is { Kind: ObjectArrayElementKind.Reference, Type: { } element })
                 foreach (var target in catalog.Arrays)
-                    if (target.ArrayElement!.Type is { } targetElement && Ancestors[element].Contains(targetElement))
+                    if (target.ArrayElement is { Kind: ObjectArrayElementKind.Reference, Type: { } targetElement } && Ancestors[element].Contains(targetElement))
                         ancestors.Add(target);
             Ancestors.Add(array, ancestors);
         }
@@ -99,11 +99,11 @@ internal sealed class ObjectTypeRelations
                 if (!from.Contains(to) && Compatible(source, target)) changed |= from.Add(to);
             }
             foreach (var array in catalog.Arrays)
-                if (array.ArrayElement!.Type is { } element)
+                if (array.ArrayElement is { Kind: ObjectArrayElementKind.Reference, Type: { } element })
                     foreach (var target in catalog.Arrays)
                     {
                         Step();
-                        if (target.ArrayElement!.Type is { } targetElement && Ancestors[element].Contains(targetElement))
+                        if (target.ArrayElement is { Kind: ObjectArrayElementKind.Reference, Type: { } targetElement } && Ancestors[element].Contains(targetElement))
                             changed |= Ancestors[array].Add(target);
                     }
             foreach (var array in catalog.Arrays)
@@ -114,9 +114,9 @@ internal sealed class ObjectTypeRelations
                     if (!compatible)
                     {
                         var argument = contract.Arguments[0];
-                        compatible = array.ArrayElement!.Type is { } element
+                        compatible = array.ArrayElement is { Kind: ObjectArrayElementKind.Reference, Type: { } element }
                             ? argument.Reference is { } reference && Ancestors[element].Contains(reference)
-                            : argument.Identity == integerArgument || argument.Identity == unsignedArgument;
+                            : array.ArrayElement!.Kind == ObjectArrayElementKind.Int32 && (argument.Identity == integerArgument || argument.Identity == unsignedArgument);
                     }
                     if (compatible) changed |= Ancestors[array].Add(ObjectTypeId.From(contract.Source));
                 }

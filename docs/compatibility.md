@@ -1648,3 +1648,11 @@ sign extension and copy/zero semantics without a public layout claim. Thirteen
 probes supply 1,662 repeated O0/O2 native comparisons, including stores without IL
 conversions. Narrow addresses and arrays remain diagnostic. The kernel has reached
 another metadata work bound; native transcript equivalence remains pending.
+
+
+Closed value-vector storage now has invariant nominal element identity and an
+explicit bounded scalar shape (ADR 0166; object layout v12/native v34). Typed
+Int32/Int64/reference buffers preserve zeroing, exact heap quotas, per-instance
+empty identity and collection of every element reference. O0/O2 sanitizer probes
+cover storage and reclamation. Value element operations and CIL/library discovery
+remain pending; this does not yet compile the kernel's `PlayerId[]` path.

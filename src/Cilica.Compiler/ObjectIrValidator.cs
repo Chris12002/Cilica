@@ -282,11 +282,11 @@ internal sealed class ObjectIrRules
         return _literals.Count <= ObjectStringLimits.MaximumDistinctLiterals;
     }
 
-    internal IrType? ArrayElement(ObjectTypeId? array) => array is not null && _types.Valid(IrType.Reference(array), true) && _arrays.Contains(array)
+    internal IrType? ArrayElement(ObjectTypeId? array) => array is not null && _types.Valid(IrType.Reference(array), true) && _arrays.Contains(array) && array.ArrayElement!.Kind != ObjectArrayElementKind.Value
         ? array.ArrayElement!.Type is { } element ? IrType.Reference(element) : IrType.Int32 : null;
 
-    internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array) => ArrayElement(array) is not null
-        && (array!.ArrayElement!.Type is not { } element || TypeTest(caller, element));
+    internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array) => array is not null && _arrays.Contains(array)
+        && (array.ArrayElement!.Kind != ObjectArrayElementKind.Reference || TypeTest(caller, array.ArrayElement.Type!));
 
     internal bool ArrayLength(int array, IReadOnlyList<IrType> values) => array >= 0 && array < values.Count
         && (values[array] == IrType.NullReference || values[array].Class is { } type && _arrays.Contains(type));

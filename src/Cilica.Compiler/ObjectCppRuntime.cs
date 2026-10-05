@@ -40,13 +40,14 @@ struct Descriptor {
     std::size_t field_count;
     const FieldAccessor* accessors;
     void* (*field_address)(Object*, std::size_t) noexcept;
-    // 0 nominal, 1 Int32 vector, 2 reference vector. Dynamic slots complement
+    // 0 nominal, 1 Int32 vector, 2 reference vector, 3 scalarized value vector. Dynamic slots complement
     // fixed reference-field offsets; neither is a collector implementation.
     unsigned array_kind = 0;
     bool (*accepts_element)(const Descriptor*) noexcept = nullptr;
     std::size_t (*dynamic_reference_count)(Object*) noexcept = nullptr;
     Object** (*dynamic_references)(Object*) noexcept = nullptr;
     const FieldStorage* storage = nullptr;
+    std::size_t array_int32_count = 0, array_int64_count = 0, array_reference_slots = 0;
 };
 [[maybe_unused]] static bool known_type(const Descriptor*) noexcept;
 [[maybe_unused]] static bool string_type(const Descriptor*) noexcept;
@@ -65,19 +66,44 @@ struct ArrayObject {
     Object header;
     std::uint32_t length = 0;
     std::uint32_t* integers = nullptr;
+    std::uint64_t* wide_integers = nullptr;
     Object** references = nullptr;
     ArrayObject* empty_next = nullptr;
 };
 static_assert(std::is_standard_layout_v<ArrayObject> && offsetof(ArrayObject, header) == 0);
 [[maybe_unused]] static void destroy_array(Object* value) noexcept {
     auto* array = reinterpret_cast<ArrayObject*>(value);
-    delete[] array->integers; delete[] array->references; delete array;
+    delete[] array->integers; delete[] array->wide_integers; delete[] array->references; delete array;
 }
 [[maybe_unused]] static std::size_t array_reference_count(Object* value) noexcept {
-    return reinterpret_cast<ArrayObject*>(value)->length;
+    return std::size_t{reinterpret_cast<ArrayObject*>(value)->length} * (value->type->array_kind == 3 ? value->type->array_reference_slots : 1);
 }
 [[maybe_unused]] static Object** array_references(Object* value) noexcept {
     return reinterpret_cast<ArrayObject*>(value)->references;
+}
+// Counts come from bounded, compiler-owned descriptors. Buffers use their true
+// scalar types so later borrowed addresses retain C++ object provenance.
+[[maybe_unused]] static std::size_t array_int32_count(const Descriptor& type) noexcept {
+    return type.array_kind == 1 ? 1 : type.array_int32_count;
+}
+[[maybe_unused]] static std::size_t array_reference_slots(const Descriptor& type) noexcept {
+    return type.array_kind == 2 ? 1 : type.array_reference_slots;
+}
+[[maybe_unused]] static std::size_t array_stride(const Descriptor& type) noexcept {
+    return array_int32_count(type) * sizeof(std::uint32_t) + type.array_int64_count * sizeof(std::uint64_t)
+        + array_reference_slots(type) * sizeof(Object*);
+}
+[[maybe_unused]] static bool valid_array_storage(Object* value) noexcept {
+    if (value->allocation_bytes < sizeof(ArrayObject)) return false;
+    const auto& type = *value->type;
+    const auto* array = reinterpret_cast<ArrayObject*>(value);
+    const auto stride = array_stride(type);
+    if (stride == 0 || array->length > 0x7fffffffu
+        || std::size_t{array->length} > (std::numeric_limits<std::size_t>::max() - sizeof(ArrayObject)) / stride
+        || value->allocation_bytes != sizeof(ArrayObject) + std::size_t{array->length} * stride) return false;
+    return (array->integers != nullptr) == (array->length != 0 && array_int32_count(type) != 0)
+        && (array->wide_integers != nullptr) == (array->length != 0 && type.array_int64_count != 0)
+        && (array->references != nullptr) == (array->length != 0 && array_reference_slots(type) != 0);
 }
 [[maybe_unused]] static bool derives_from(const Descriptor* actual, const Descriptor* expected) noexcept {
     for (const Descriptor* type = actual; type != nullptr; type = type->base)
@@ -385,11 +411,12 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
     return value;
 }
 [[maybe_unused, gnu::noinline]] static Object* allocate_array(Context& context, const Descriptor& descriptor, std::uint32_t length) noexcept {
+    if (!known_type(&descriptor) || descriptor.array_kind == 0) { context.pending = 6u; return nullptr; }
     if (length > 0x7fffffffu) { context.pending = 2u; return nullptr; }
     if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
     if (context.observe != nullptr) context.observe(context);
     Instance& heap = context.instance;
-    const std::size_t stride = descriptor.array_kind == 1 ? sizeof(std::uint32_t) : sizeof(Object*);
+    const std::size_t stride = array_stride(descriptor);
     if (std::size_t{length} > (std::numeric_limits<std::size_t>::max() - sizeof(ArrayObject)) / stride) return nullptr;
     const std::size_t charged = sizeof(ArrayObject) + std::size_t{length} * stride;
     bool attempted = false;
@@ -398,9 +425,18 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
         auto* value = new (std::nothrow) ArrayObject;
         if (value == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
         if (length != 0) {
-            if (descriptor.array_kind == 1) value->integers = new (std::nothrow) std::uint32_t[length]{};
-            else value->references = new (std::nothrow) Object*[length]{};
-            if (value->integers == nullptr && value->references == nullptr) { delete value; if (collect_for_allocation(context, attempted)) continue; return nullptr; }
+            const auto integers = std::size_t{length} * array_int32_count(descriptor);
+            const auto wide = std::size_t{length} * descriptor.array_int64_count;
+            const auto references = std::size_t{length} * array_reference_slots(descriptor);
+            if (integers != 0) value->integers = new (std::nothrow) std::uint32_t[integers]{};
+            if (wide != 0) value->wide_integers = new (std::nothrow) std::uint64_t[wide]{};
+            if (references != 0) value->references = new (std::nothrow) Object*[references]{};
+            if ((integers != 0 && value->integers == nullptr) || (wide != 0 && value->wide_integers == nullptr)
+                || (references != 0 && value->references == nullptr)) {
+                destroy_array(&value->header);
+                if (collect_for_allocation(context, attempted)) continue;
+                return nullptr;
+            }
         }
         value->length = length;
         value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;

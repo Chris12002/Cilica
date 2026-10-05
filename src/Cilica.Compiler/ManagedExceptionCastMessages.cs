@@ -31,11 +31,18 @@ internal static class ManagedExceptionCastMessages
             .Concat(catalog.Delegates.Select(t => (ObjectTypeId.From(t.Source), Name: Name(t.Source))))
             .Concat(catalog.Interfaces.Select(t => (ObjectTypeId.From(t.Source), Name: Name(t.Source)))).ToDictionary(p => p.Item1, p => p.Name);
         if (catalog.String is { } text) names.Add(text, "System.String");
-        foreach (var array in catalog.Arrays) names.Add(array, array.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? "System.Int32[]" : names[array.ArrayElement.Type!] + "[]");
+        var boxes = values.ToDictionary(t => ObjectTypeId.From(t.Source), t => Name(t.Source));
+        foreach (var array in catalog.Arrays)
+        {
+            string elementName;
+            if (array.ArrayElement!.Kind == ObjectArrayElementKind.Int32) elementName = "System.Int32";
+            else if (!(array.ArrayElement.Kind == ObjectArrayElementKind.Value ? boxes : names).TryGetValue(array.ArrayElement.Type!, out elementName!))
+                throw new ArgumentException("Array cast messages require the exact element's runtime type display name.");
+            names.Add(array, elementName + "[]");
+        }
         var interfaces = catalog.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         if (!catalog.Integer64 && targets.Any(t => !t.Item2 && interfaces.Contains(t.Item1)))
             throw new ArgumentException("Managed exception cast messages currently require class targets; interface cast messages need a supported lowering.");
-        var boxes = values.ToDictionary(t => ObjectTypeId.From(t.Source), t => Name(t.Source));
         var sources = names.Where(p => !interfaces.Contains(p.Key)).Select(p => (p.Key, Box: false, p.Value)).Concat(boxes.Select(p => (p.Key, Box: true, p.Value)));
         var result = ImmutableArray.CreateBuilder<ExceptionCastText>(); int units = 0;
         foreach (var (target, boxed) in targets)

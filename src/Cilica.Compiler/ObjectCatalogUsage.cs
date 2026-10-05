@@ -26,7 +26,9 @@ internal static class ObjectCatalogUsage
                 }
                 else if (arrays.Contains(id))
                 {
-                    if (id.ArrayElement!.Type is { } element) pending.Push(element);
+                    if (id.ArrayElement!.Kind == ObjectArrayElementKind.Reference) pending.Push(id.ArrayElement.Type!);
+                    if (id.ArrayElement.Kind == ObjectArrayElementKind.Value)
+                        foreach (var slot in catalog.ValueArrays.Single(v => v.Type == id.ArrayElement.Type).Slots.OfType<ObjectStorage.Reference>()) pending.Push(slot.Type);
                 }
                 else if (interfaces.TryGetValue(id, out var contract))
                 {

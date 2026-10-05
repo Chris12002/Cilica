@@ -19,13 +19,17 @@ public sealed record ObjectTypeId(string ContentHash, int Token, ObjectArrayElem
     }
 }
 
-public enum ObjectArrayElementKind { Int32, Reference }
-/// <summary>One-dimensional zero-based arrays of Int32 or a nominal class/interface reference; no nested vectors.</summary>
+public enum ObjectArrayElementKind { Int32, Reference, Value }
+/// <summary>One-dimensional zero-based arrays of Int32, a nominal reference, or a closed inline value; no nested vectors.</summary>
 public sealed record ObjectArrayElement(ObjectArrayElementKind Kind, ObjectTypeId? Type = null)
 {
     public static ObjectArrayElement Int32 { get; } = new(ObjectArrayElementKind.Int32);
+    public static ObjectArrayElement Value(ObjectTypeId type) => new(ObjectArrayElementKind.Value, type);
     public static ObjectArrayElement Reference(ObjectTypeId type) => new(ObjectArrayElementKind.Reference, type);
 }
+
+/// <summary>Ordered scalar leaves of a closed value-array element, including private empty-value storage.</summary>
+public sealed record ObjectValueArrayLayout(ObjectTypeId Type, ImmutableArray<ObjectStorage> Slots);
 
 /// <summary>A fieldless interface contract; it has no instance allocation layout.</summary>
 public enum ObjectArrayInterfaceKind { None, Enumerable, GenericEnumerable, Collection, List, ReadOnlyCollection, ReadOnlyList, NonGenericCollection, NonGenericList }
@@ -88,9 +92,10 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 {
     public bool Integer64 { get; init; }
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
-    public const string Profile = "object-layout-v11";
+    public const string Profile = "object-layout-v12";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
+    public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];
     // Selected runtime identity, represented intrinsically rather than by mutable fields.
     public ObjectTypeId? String { get; init; }
@@ -105,6 +110,7 @@ public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, Objec
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
+    public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];
     // Selected runtime identity, represented intrinsically rather than by mutable fields.
     public ObjectTypeId? String { get; init; }
