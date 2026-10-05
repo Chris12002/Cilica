@@ -6,6 +6,7 @@ internal static class ObjectMethodAccess
 {
     internal static bool Allowed(ObjectMethodBinding caller, ObjectMethodBinding target, bool sameAssemblyCalls)
     {
+        if (target.TypeInitializerName is not null) return false;
         if (caller.Owner == target.Owner) return true;
         var access = target.Attributes & MethodAttributes.MemberAccessMask;
         return access == MethodAttributes.Public && target.OwnerExternallyVisible

@@ -65,6 +65,8 @@ internal sealed class ObjectIrRules
             Require(method?.Source is not null && method.Source.ContentHash is { Length: 64 } && CanonicalHash(method.Source.ContentHash.ToLowerInvariant()), "invalid method source.");
             Require(_methods.TryAdd(IrMethodId.From(method.Source), method), "duplicate method identity.");
         }
+        var initializerOwners = new HashSet<ObjectTypeId>();
+        var initializerNameUnits = 0;
         var primitiveCodes = new Dictionary<PrimitiveTypeCode, ObjectTypeId>();
         var primitiveOwners = new Dictionary<ObjectTypeId, PrimitiveReceiver>();
         foreach (var binding in program.Bindings)
@@ -84,6 +86,13 @@ internal sealed class ObjectIrRules
                 && (binding.Attributes & MethodAttributes.MemberAccessMask) is > MethodAttributes.PrivateScope and <= MethodAttributes.Public,
                 "native, abstract and unsupported method flags require later lowering.");
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
+            if (binding.TypeInitializerName is { } initializerName)
+                Require(flow.Types.Integer64 && initializerName.Length is > 0 and <= ObjectStringLimits.MaximumLiteralCodeUnits
+                    && (initializerNameUnits += initializerName.Length) <= ObjectStringLimits.MaximumTotalLiteralCodeUnits
+                    && initializerOwners.Add(binding.Owner) && initializerOwners.Count <= ObjectModelLimits.MaximumTypes
+                    && binding.Method != flow.Entry && isStatic && method.Parameters.IsEmpty && method.ReturnType == IrType.Void
+                    && binding.Attributes == (MethodAttributes.Private | MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName),
+                    "type initializers require distinct closed owners, bounded names and exact private static void signatures/flags.");
             bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
             bool valueInstance = binding.Kind == ObjectMethodKind.ValueInstance;
             bool primitiveInstance = binding.Kind == ObjectMethodKind.PrimitiveInstance;
@@ -178,6 +187,7 @@ internal sealed class ObjectIrRules
                 || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public));
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch
     {
+        IrStatement.InitializeType when _program.Flow.Types.String is { } initializationString => new[] { initializationString },
         IrStatement.Define { Value.Expression: IrExpression.LoadStatic f } when _statics.TryGetValue(f.Field, out var slot) && slot.Type.Class is { } type => new[] { type },
         IrStatement.StoreStatic f when _statics.TryGetValue(f.Field, out var slot) && slot.Type.Class is { } type => new[] { type },
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
@@ -323,10 +333,15 @@ internal sealed class ObjectIrRules
     internal IrType? AllocationType(IrMethodId? constructor) => constructor is not null && _bindings.TryGetValue(constructor, out var target)
         && Constructor(target) ? IrType.Reference(target.Owner) : null;
 
+    internal bool TypeInitialization(IrMethodId? target) => target is not null && _bindings.TryGetValue(target, out var binding)
+        && binding.TypeInitializerName is not null;
+
     internal bool StaticField(IrMethod method, ObjectFieldId? id, bool write, out IrType? storage)
     {
         storage = null;
-        if (id is null || !_statics.TryGetValue(id, out var field) || write && (field.Attributes & FieldAttributes.InitOnly) != 0) return false;
+        if (id is null || !_statics.TryGetValue(id, out var field)) return false;
+        var caller = Binding(IrMethodId.From(method.Source));
+        if (write && (field.Attributes & FieldAttributes.InitOnly) != 0 && (caller.Owner != id.Owner || caller.TypeInitializerName is null)) return false;
         var access = field.Attributes & FieldAttributes.FieldAccessMask;
         if (access == FieldAttributes.PrivateScope || Binding(IrMethodId.From(method.Source)).Owner != id.Owner
             && (access != FieldAttributes.Public || !field.OwnerExternallyVisible)) return false;
@@ -430,6 +445,7 @@ internal sealed class ObjectIrRules
                         IrStatement.StoreLocal s => !This(s.Value),
                         IrStatement.StoreLocation s when _program.Flow.Types.Integer64 => !This(s.Location) && !This(s.Value),
                         IrStatement.InitializeLocation s when _program.Flow.Types.Integer64 => !This(s.Location),
+                        IrStatement.InitializeType when _program.Flow.Types.Integer64 => true,
                         IrStatement.Invoke c => c.Arguments.All(a => !This(a)),
                         IrStatement.StoreStatic s => !This(s.Value),
                         IrStatement.StoreField s => !This(s.Value) && (!This(s.Receiver) || s.Field.Owner == binding.Owner),

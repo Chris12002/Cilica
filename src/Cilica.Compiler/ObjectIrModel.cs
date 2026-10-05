@@ -12,6 +12,7 @@ public enum ObjectMethodKind { Static, Instance, Constructor, ObjectBaseConstruc
 public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, ObjectMethodKind Kind,
     MethodAttributes Attributes, bool OwnerExternallyVisible)
 {
+    public string? TypeInitializerName { get; init; }
     public bool InvariantProviderOnly { get; init; }
     public PrimitiveReceiver? Primitive { get; init; }
     public ObjectVirtualSlot? VirtualSlot { get; init; }
@@ -36,7 +37,7 @@ public static class ObjectDispatchLimits
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v10";
+    public const string Profile = "object-operations-ir-v11";
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
 }

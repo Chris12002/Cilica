@@ -1544,3 +1544,12 @@ payload; null names read as canonical empty strings. Managed/scalar exception IR
 v3, typed reference IR v9 and native v31 encode this addition. Initializer execution,
 failure caching, serialization and general Exception constructor overloads remain
 outside this slice. Local O0/O2 sanitizer comparisons cover payloads and failures.
+
+
+Authored integer-object IR can now request bounded per-instance initialization
+(ADR 0151). Exact private initializer bindings, dedicated call/fault safepoints,
+reentrant checks and retained managed/fatal outcomes use typed reference IR v10,
+object operations IR v11 and native v32. Wrapper preparation precedes user IL;
+preparation failure can retry, while started initializers never repeat side effects.
+Native O0/O2 sanitizer tests cover roots, failure identity and quota/corruption.
+CIL trigger insertion and initialized metadata admission remain pending.

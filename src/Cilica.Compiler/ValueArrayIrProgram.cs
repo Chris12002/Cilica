@@ -70,6 +70,7 @@ public static class ValueArrayIrValidator
                     || exceptions is not null && d.Value.Expression is (IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.IsInstance or IrExpression.CastClass or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringEquals)
                     || exceptions is not null && flow.Types.References.Integer64 && d.Value.Expression is (IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.StringCodeUnit or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.InvariantCulture or IrExpression.IntegerTextFind or IrExpression.IntegerTextPublish)
                     || delegates && d.Value.Expression is (IrExpression.NewDelegate or IrExpression.CallDelegate),
+                IrStatement.InitializeType when exceptions is not null && flow.Types.References.Integer64 => true,
                 IrStatement.StoreLocal or IrStatement.Invoke or IrStatement.StoreLocation
                     or IrStatement.InitializeLocation or IrStatement.StoreElement => true,
                 IrStatement.StoreField when classes => true,

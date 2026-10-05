@@ -52,7 +52,8 @@ struct MarkState {
     if (heap.count > limits.objects) return {MarkStatus::limit};
     // Validate the entire allocation inventory, including unreachable headers,
     // before touching scratch state or trusting it for reachability reporting.
-    std::size_t count = 0, bytes = heap.statics == nullptr ? 0 : static_field_count * sizeof(StaticSlot);
+    std::size_t count = 0, bytes = (heap.statics == nullptr ? 0 : static_field_count * sizeof(StaticSlot))
+        + (heap.initializers == nullptr ? 0 : type_initializer_count * sizeof(InitializationSlot));
     for (Object* value = heap.head; value != nullptr; value = value->next) {
         if (count == heap.count || count == limits.objects) return {MarkStatus::invalid};
         ++count;

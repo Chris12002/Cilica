@@ -103,6 +103,8 @@ public static class ValueRootAssignment
                             points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.ExceptionTypeName or IrExpression.ExceptionMessage or IrExpression.NewException or IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate
                                 ? ObjectSafepointKind.Allocation : ObjectSafepointKind.Call, block.Id));
                     }
+                    else if (block.Statements[i] is IrStatement.InitializeType initializer)
+                        points.Add(new(i, initializer.ILOffset, ObjectSafepointKind.Call, block.Id));
                     else if (block.Statements[i] is IrStatement.StoreStatic staticStore)
                         points.Add(new(i, staticStore.ILOffset, ObjectSafepointKind.Allocation, block.Id));
                     else if (block.Statements[i] is IrStatement.InvokeDelegate delegateCall)

@@ -44,6 +44,7 @@ internal static class IrValidator
                             break;
                         case IrStatement.Define { Value.Expression: IrExpression.NewObject allocated }: pending.Push(allocated.Constructor); break;
                         case IrStatement.Define { Value.Expression: IrExpression.NewDelegate capture }: pending.Push(capture.Target); break;
+                        case IrStatement.InitializeType initializer: pending.Push(initializer.Target); break;
                         case IrStatement.Invoke call:
                             if (objectRules is null || !objectRules.Interface(call.Target)) pending.Push(call.Target);
                             if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
@@ -269,6 +270,10 @@ internal static class IrValidator
                     case IrStatement.StoreLocal store:
                         Offset(store.ILOffset);
                         Require(Local(store.Local) && Earlier(store.Value) && types.Assignable(valueTypes[store.Value], method.Locals[store.Local]), "invalid local store."); break;
+                    case IrStatement.InitializeType initializer:
+                        Offset(initializer.ILOffset);
+                        Require(initializer.Exceptional == IrExceptionTarget.MethodExit && exceptions?.Types.TypeInitialization is not null
+                            && catalog?.String is not null && objectRules?.TypeInitialization(initializer.Target) == true, "invalid type initialization operation."); break;
                     case IrStatement.Invoke invoke:
                         Offset(invoke.ILOffset);
                         Require(invoke.Exceptional == IrExceptionTarget.MethodExit

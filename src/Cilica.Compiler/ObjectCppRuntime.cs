@@ -117,7 +117,13 @@ struct Handle { std::uint64_t token = 0; };
 struct HandleSlot { Object* value = nullptr; std::uint64_t token = 0; };
 static constexpr std::size_t handle_capacity = 1024;
 struct StaticSlot { std::uint32_t bits = 0; Object* reference = nullptr; };
+struct InitializationSlot { std::uint32_t state = 0, fatal = 0; Object* failure = nullptr; };
+[[maybe_unused]] static bool initialization_shape(const InitializationSlot& slot) noexcept {
+    return slot.state <= 4 && ((slot.state == 1 || slot.state == 3) == (slot.failure != nullptr))
+        && (slot.state == 4 ? slot.fatal == 6 || slot.fatal == 8 || slot.fatal == 9 : slot.fatal == 0);
+}
 struct Instance {
+    InitializationSlot* initializers = nullptr;
     StaticSlot* statics = nullptr;
     bool marking = false;
     bool collect_before_allocation = false;
@@ -142,6 +148,7 @@ struct Instance {
         return false;
     }
     ~Instance() noexcept {
+        delete[] initializers;
         delete[] statics;
         delete[] handles;
         while (head != nullptr) { Object* p = head; head = p->next; p->type->destroy(p); }
@@ -415,6 +422,21 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
         auto* slots = new (std::nothrow) StaticSlot[static_field_count]{};
         if (slots == nullptr) { if (collect_for_allocation(context, attempted)) continue; return false; }
         context.instance.statics = slots; context.instance.bytes += charged;
+        return true;
+    }
+}
+[[maybe_unused, gnu::noinline]] static bool ensure_initialization_storage(Context& context) noexcept {
+    if (context.instance.marking) { context.pending = 6; return false; }
+    if (context.instance.initializers != nullptr) return true;
+    if (!valid_roots(context)) { context.pending = 6; return false; }
+    if (context.observe != nullptr) context.observe(context);
+    constexpr auto charged = type_initializer_count * sizeof(InitializationSlot);
+    bool attempted = false;
+    for (;;) {
+        if (!allocation_room(context, charged, attempted)) return false;
+        auto* slots = new (std::nothrow) InitializationSlot[type_initializer_count]{};
+        if (slots == nullptr) { if (collect_for_allocation(context, attempted)) continue; return false; }
+        context.instance.initializers = slots; context.instance.bytes += charged;
         return true;
     }
 }

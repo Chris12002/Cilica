@@ -19,7 +19,7 @@ public static class ScalarManagedExceptionIrValidator
         var rules = new ManagedExceptionRules(program.Exceptions, boxes.Values.References);
         _ = ScalarBoxedIrValidator.ValidateAndPlan(boxes, delegates: true, exceptions: rules);
         _ = ManagedExceptionCastMessages.Build(boxes.Flow.Flow.Flow.Methods, boxes.Values.References, boxes.Values.Types);
-        if (boxes.Flow.Flow.Bindings.Any(b => program.Exceptions.Types.Contains(b.Owner) && b.Kind != ObjectMethodKind.Static))
+        if (boxes.Flow.Flow.Bindings.Any(b => program.Exceptions.Types.Contains(b.Owner) && (b.Kind != ObjectMethodKind.Static || b.TypeInitializerName is not null)))
             throw new ArgumentException("Intrinsic exception shells cannot have ordinary instance bodies.", nameof(program));
     }
 }

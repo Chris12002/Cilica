@@ -241,6 +241,7 @@ public static class ValueScalarLowering
                 IrEdge Edge(IrEdge edge) => new(edge.Target, Arguments(edge.Arguments, false));
                 foreach (var statement in block.Statements)
                 {
+                    if (statement is IrStatement.InitializeType) { Emit(statement); continue; }
                     if (statement is IrStatement.StoreLocal store)
                     {
                         for (int i = 0; i < values[store.Value].Length; i++)

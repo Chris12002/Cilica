@@ -126,6 +126,7 @@ public abstract record IrExpression
 public sealed record IrValue(int Id, IrType Type, int ILOffset, IrExpression Expression);
 public abstract record IrStatement
 {
+    public sealed record InitializeType(int ILOffset, IrMethodId Target, IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
     public sealed record InvokeDelegate(int ILOffset, ObjectTypeId Type, int Delegate, ImmutableArray<int> Arguments,
         IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
     public sealed record Define(IrValue Value, IrExceptionTarget? Exceptional = null) : IrStatement;
@@ -210,7 +211,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 /// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
-    public const string Profile = "typed-reference-ir-v9";
+    public const string Profile = "typed-reference-ir-v10";
 }
 
 /// <summary>Detached copy semantics; no CIL access checks, mutable managed locations or object operations.</summary>

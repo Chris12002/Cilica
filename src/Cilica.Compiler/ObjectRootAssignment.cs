@@ -83,6 +83,8 @@ public static class ObjectRootAssignment
                         else if (define.Value.Expression is IrExpression.Call or IrExpression.CallDelegate)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Call, block.Id));
                     }
+                    else if (statement is IrStatement.InitializeType initializer)
+                        points.Add(new(i, initializer.ILOffset, ObjectSafepointKind.Call, block.Id));
                     else if (statement is IrStatement.StoreStatic staticStore)
                         points.Add(new(i, staticStore.ILOffset, ObjectSafepointKind.Allocation, block.Id));
                     else if (statement is IrStatement.InvokeDelegate delegateCall)
