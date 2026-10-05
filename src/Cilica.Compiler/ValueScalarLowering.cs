@@ -275,7 +275,8 @@ public static class ValueScalarLowering
                             var destinations = ImmutableArray.CreateBuilder<int>();
                             for (int i = 0; i < expanded.Length; ++i)
                                 destinations.Add(Define(IrType.Location(expanded[i]), value.ILOffset, new IrExpression.AddressLocal(resultStart + i)));
-                            Emit(new IrStatement.Invoke(value.ILOffset, call.Target, Arguments(call.Arguments, true, destinations.ToImmutable())));
+                            Emit(new IrStatement.Invoke(value.ILOffset, call.Target, Arguments(call.Arguments, true, destinations.ToImmutable()),
+                                NullCheckReceiver: call.NullCheckReceiver, VirtualDispatch: call.VirtualDispatch));
                             for (int i = 0; i < expanded.Length; ++i)
                                 ids.Add(Define(expanded[i], value.ILOffset, new IrExpression.LoadLocation(destinations[i]), IrExceptionTarget.MethodExit));
                             break;

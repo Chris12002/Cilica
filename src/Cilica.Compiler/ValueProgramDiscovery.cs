@@ -202,8 +202,10 @@ public static partial class ValueProgramDiscovery
                             callable.Add(offset, IncludeReference(target.DeclaringType, work, offset));
                             continue;
                         }
-                        if (instruction.OpCode == "callvirt") Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
+                        if (instruction.OpCode == "callvirt" && !integers64) Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
                         var callee = Discover(target, work, offset);
+                        if (instruction.OpCode == "callvirt" && callee.Binding.Kind != ObjectMethodKind.Instance)
+                            Fail(work, "Direct callvirt requires a nonvirtual class instance method.", offset);
                         if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
                             Fail(work, "newobj requires an exact supported constructor declaration.", offset);
                         if (work.Binding.Owner != callee.Binding.Owner
@@ -344,6 +346,7 @@ public static partial class ValueProgramDiscovery
             bool constructor = classes && input.DeclaredName == ".ctor";
             bool instance = constructor || delegates && (input.Attributes & MethodAttributes.Static) == 0;
             var allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
+                | (integers64 ? MethodAttributes.SpecialName : 0)
                 | (constructor ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
             if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != (instance ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
                 || input.HasTypeInitializer || input.HasModuleInitializer || !exceptions && input.ExceptionRegionCount != 0
@@ -375,7 +378,7 @@ public static partial class ValueProgramDiscovery
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
                 [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);
-            if (instance && !inlineConstructor && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
+            if (instance && !inlineConstructor && (!integers64 || constructor) && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
                 Fail(parent, "Class instance methods require scalar/reference parameters, locals and returns; values and borrows need later lowering.", offset);
             if (protectedInput is not null) work = work with { Regions = [.. protectedInput.Regions.Select(r => new IrExceptionRegion(r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd,
                 r.Kind switch { ExceptionRegionKind.Catch => IrExceptionClause.Catch, ExceptionRegionKind.Filter => IrExceptionClause.Filter, ExceptionRegionKind.Finally => IrExceptionClause.Finally, _ => IrExceptionClause.Fault },

@@ -903,7 +903,9 @@ are limited to the declaring constructor before private scalar-call lowering
 parameters, locals and returns also normalize in the composed profile, with
 direct constructor receiver reloads across conditional branches
 ([ADR 0103](decisions/0103-composed-narrow-scalar-boundaries.md)). Narrow
-heap/borrow storage remains separate.
+heap/borrow storage remains separate. Nonvirtual class instance calls compose
+value/borrow signatures and caller-owned returns while preserving `callvirt`
+null checks ([ADR 0104](decisions/0104-composed-class-instance-calls.md)).
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential

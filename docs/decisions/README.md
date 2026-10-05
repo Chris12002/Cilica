@@ -109,3 +109,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0101](0101-closed-interface-variance-declarations.md) | Closed interface variance declarations | Accepted for metadata snapshots; executable variance remains pending |
 | [0102](0102-inline-value-constructors.md) | Inline value constructors | Accepted for checked receiver initialization and native constructor calls |
 | [0103](0103-composed-narrow-scalar-boundaries.md) | Composed narrow scalar boundaries | Accepted for narrow calls/locals/returns and direct constructor receiver reloads |
+| [0104](0104-composed-class-instance-calls.md) | Composed direct class instance calls | Accepted for nonvirtual value/borrow signatures and preserved callvirt checks |

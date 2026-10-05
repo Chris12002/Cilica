@@ -383,6 +383,7 @@ public static class ValueTranslator
                         case "newobj" when method.DelegateOperands.ContainsKey(offset):
                             Error(offset, "Delegate constructor requires a preceding adjacent ldftn in the same block.", DiagnosticIds.ExecutionUnsupported); break;
                         case "newobj" when classes:
+                        case "callvirt" when types.IntegerCasts:
                         case "call":
                             var target = methods[method.Calls[offset]]; int skip = opcode == "newobj" ? 1 : 0;
                             var arguments = new int[target.Parameters.Length - skip];
@@ -401,8 +402,8 @@ public static class ValueTranslator
                                 Push(offset, constructed, new IrExpression.LoadLocation(address), true);
                             }
                             else if (skip != 0) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
-                            else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments]), offset);
-                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments]), true);
+                            else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: opcode == "callvirt"), offset);
+                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: opcode == "callvirt"), true);
                             break;
                         case "ldfld" or "ldflda" or "stfld":
                             var field = fields[method.Fields[offset]]; var fieldType = Storage(field.Storage);
