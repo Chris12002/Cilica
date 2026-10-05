@@ -110,8 +110,9 @@ internal sealed class ObjectIrRules
         ? _interfaces.Declaration(id).ReturnType : _methods.TryGetValue(id, out var method) ? method.ReturnType : null;
 
     internal ObjectMethodBinding Binding(IrMethodId id) => _bindings[id];
-    internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is { ArrayElement: null }
-        && (target == _program.Flow.Types.String || _contracts.Contains(target) || _layouts.TryGetValue(target, out var layout)
+    internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is { ArrayElement: not null }
+        ? _program.Flow.Types.Integer64 && ArrayAllocation(method, target)
+        : target is not null && (target == _program.Flow.Types.String || _contracts.Contains(target) || _layouts.TryGetValue(target, out var layout)
             && (Binding(IrMethodId.From(method.Source)).Owner == target
                 || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public));
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch

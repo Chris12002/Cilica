@@ -33,9 +33,9 @@ public static class ValueModelBuilder
 
     internal static ValueCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default)
     {
-        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64); }
+        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
         catch (ArgumentException error) { return new(null, [new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, error.Message)]); }
@@ -45,7 +45,7 @@ public static class ValueModelBuilder
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -126,6 +126,8 @@ public static class ValueModelBuilder
             var vector = ObjectTypeId.Vector(Id(objectBase), ObjectArrayElement.Int32);
             IncludeId(vector); arrays.Add(vector);
         }
+        if (!vectorRoots.IsDefault)
+            foreach (var vector in vectorRoots) { IncludeId(vector); arrays.Add(vector); }
         var valueBase = Result(resolver.ResolveType(library, "System", "ValueType"));
         var baseInput = Read(valueBase, new());
         if (baseInput.IsReferenceAssembly || baseInput.OwnerGenericArity != 0 || baseInput.HasTypeInitializer
@@ -172,7 +174,8 @@ public static class ValueModelBuilder
                         ? IrType.Reference(IncludeClosedReference(new(genericReference.Definition.Definition, genericReference.Arguments)))
                         : ObjectSignatureTypes.Convert(field.Signature, Id(objectBase), IncludeReference,
                         array => { IncludeId(array); arrays.Add(array); return array; },
-                        text: () => IncludeReference(strings.Require()), integers64: integers64);
+                        text: () => IncludeReference(strings.Require()), integers64: integers64,
+                        closedReference: integers64 ? generic => IncludeClosedReference(new(generic.Definition.Definition, generic.Arguments)) : null);
                     if (converted is null)
                         Fail("Value fields require Int32, supported object references/vectors, or named nongeneric inline structs. Byrefs, pointers, other primitives, generic values and value arrays require later lowering.", location, DiagnosticIds.ExecutionSignatureUnsupported);
                     storage = converted == IrType.Int32 ? new ObjectStorage.Int32() : converted == IrType.Int64

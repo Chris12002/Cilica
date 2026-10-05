@@ -53,6 +53,7 @@ public static partial class ValueProgramDiscovery
         }
         private ObjectTypeId ReferenceOperand(TypeSignature signature, Work work, int offset) => signature switch
         {
+            TypeSignature.Vector vector when integers64 => Vector(vector.Element, work, offset),
             TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.Unknown } type => IncludeReference(type.Definition, work, offset),
             TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } type => IncludeReference(new ConstructedType(type.Definition.Definition, type.Arguments), work, offset),
             _ => throw new Failure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error,

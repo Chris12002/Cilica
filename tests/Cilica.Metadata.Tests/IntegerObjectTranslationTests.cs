@@ -15,12 +15,13 @@ namespace Cilica.Metadata.Tests;
 
 public sealed class IntegerObjectTranslationTests
 {
-    private static ManagedExceptionTranslationResult Translate(string name, bool enabled = true)
+    internal static ManagedExceptionTranslationResult Translate(string name, bool enabled = true, Type? fixture = null)
     {
+        fixture ??= typeof(WideObjects);
         using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
-        var input = resolver.OpenInput(typeof(WideObjects).Assembly.Location).Value!;
+        var input = resolver.OpenInput(fixture.Assembly.Location).Value!;
         var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
-        var root = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(WideObjects).GetMethod(name)!.MetadataToken);
+        var root = (MethodDefinitionHandle)MetadataTokens.EntityHandle(fixture.GetMethod(name)!.MetadataToken);
         return enabled ? ValueTranslator.TranslateIntegerObjects(resolver, input, root, library)
             : ValueTranslator.TranslateExceptions(resolver, input, root, library);
     }
@@ -42,10 +43,15 @@ public sealed class IntegerObjectTranslationTests
         (string Name, Func<int, int, int> Oracle)[] probes = [
             (nameof(WideObjects.Heap), WideObjects.Heap), (nameof(WideObjects.Values), WideObjects.Values),
             (nameof(WideObjects.Exceptions), WideObjects.Exceptions), (nameof(WideObjects.Unsigned), WideObjects.Unsigned)];
+        await Verify(optimized, probes, typeof(WideObjects));
+    }
+
+    internal static async Task Verify(bool optimized, (string Name, Func<int, int, int> Oracle)[] probes, Type fixture)
+    {
         var source = new StringBuilder(); var calls = new StringBuilder();
         foreach (var (name, oracle) in probes)
         {
-            var translated = Translate(name); Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
+            var translated = Translate(name, fixture: fixture); Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
             var flow = translated.Program!.Flow.Flow.Flow;
             var artifact = ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(translated.Program));
             string symbol = "cilica_m_" + flow.Entry.ContentHash + "_" + flow.Entry.Token.ToString("x8", CultureInfo.InvariantCulture);

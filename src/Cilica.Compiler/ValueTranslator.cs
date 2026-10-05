@@ -132,6 +132,7 @@ public static class ValueTranslator
                 translated.Add(body);
             }
             var program = new ManagedLocationIrProgram(new(input.Entry, [.. translated], input.Types));
+            if (integers64) program = RetainUsedVectors(program);
             ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
             try
             {
@@ -146,6 +147,33 @@ public static class ValueTranslator
             return new(program, bindings, []) { Exceptions = input.Exceptions };
         }
         catch (Failure failure) { return new(null, [], [failure.Diagnostic]); }
+    }
+
+    private static ManagedLocationIrProgram RetainUsedVectors(ManagedLocationIrProgram program)
+    {
+        // Discovery includes fallback views for untyped null element operations.
+        // Keep only views actually used after stack translation; nominal types
+        // and every declared field remain subject to the normal closure check.
+        var flow = program.Flow;
+        var used = new HashSet<ObjectTypeId>();
+        void Include(ObjectTypeId? type) { if (type?.ArrayElement is not null) used.Add(type); }
+        foreach (var method in flow.Methods)
+        {
+            foreach (var type in method.Parameters.Concat(method.Locals).Append(method.ReturnType)
+                .Concat(method.Blocks.SelectMany(b => b.Inputs)).Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type)))
+                Include(type.Kind == IrTypeKind.ManagedLocation ? type.Element?.Class : type.Class);
+            foreach (var statement in method.Blocks.SelectMany(b => b.Statements))
+                switch (statement)
+                {
+                    case IrStatement.Define { Value.Expression: IrExpression.LoadElement load }: Include(load.ArrayType); break;
+                    case IrStatement.StoreElement store: Include(store.ArrayType); break;
+                }
+        }
+        foreach (var field in flow.Types.Types.SelectMany(t => t.Fields).Concat(flow.Types.References.Types.SelectMany(t => t.Fields)))
+            if (field.Storage is ObjectStorage.Reference reference) Include(reference.Type);
+        var catalog = flow.Types.References;
+        return program with { Flow = flow with { Types = flow.Types with { References = catalog with {
+            Arrays = [.. catalog.Arrays.Where(used.Contains)], Roots = [.. catalog.Roots.Where(t => t.ArrayElement is null || used.Contains(t))] } } } };
     }
 
     private sealed class Failure(Diagnostic diagnostic) : Exception(diagnostic.Message)
@@ -263,12 +291,18 @@ public static class ValueTranslator
                                 Error(offset, "Array length requires an adjacent conv.i4 in the same block; native integer flow requires later lowering.", DiagnosticIds.ExecutionUnsupported);
                             int lengthArray = PopArray(offset); ++index;
                             Push(offset, IrType.Int32, new IrExpression.ArrayLength(lengthArray), true); break;
+                        case "ldelem.ref" or "ldelem" when types.IntegerCasts:
                         case "ldelem.i4" when arrays:
                             int loadIndex = Pop(offset, IrType.Int32), loadArray = PopArray(offset);
-                            Push(offset, IrType.Int32, new IrExpression.LoadElement(integerArray!, loadArray, loadIndex), true); break;
+                            var loadView = ArrayView(loadArray, opcode, offset);
+                            Push(offset, loadView.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? IrType.Int32 : IrType.Reference(loadView.ArrayElement.Type!),
+                                new IrExpression.LoadElement(loadView, loadArray, loadIndex), true); break;
+                        case "stelem.ref" or "stelem" when types.IntegerCasts:
                         case "stelem.i4" when arrays:
-                            int elementValue = Pop(offset, IrType.Int32), storeIndex = Pop(offset, IrType.Int32), storeArray = PopArray(offset);
-                            Add(new IrStatement.StoreElement(offset, integerArray!, storeArray, storeIndex, elementValue), offset); break;
+                            int elementValue = Pop(offset), storeIndex = Pop(offset, IrType.Int32), storeArray = PopArray(offset);
+                            var storeView = ArrayView(storeArray, opcode, offset);
+                            Compatible(values[elementValue], storeView.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? IrType.Int32 : IrType.Reference(storeView.ArrayElement.Type!), offset);
+                            Add(new IrStatement.StoreElement(offset, storeView, storeArray, storeIndex, elementValue), offset); break;
                         case "ldnull": Push(offset, IrType.NullReference, new IrExpression.Null()); break;
                         case "ldarg.0" or "ldarg.1" or "ldarg.2" or "ldarg.3" or "ldarg.s" or "ldarg":
                             int argument = Variable(instruction, method.Parameters.Length);
@@ -461,9 +495,28 @@ public static class ValueTranslator
                 int PopArray(int offset)
                 {
                     int array = Pop(offset);
-                    if (integerArray is null || values[array] != IrType.NullReference && values[array] != IrType.Reference(integerArray))
+                    if (types.IntegerCasts)
+                    {
+                        if (values[array] != IrType.NullReference && values[array].Class?.ArrayElement is null)
+                            Error(offset, "Array operation requires a known vector or null.");
+                    }
+                    else if (integerArray is null || values[array] != IrType.NullReference && values[array] != IrType.Reference(integerArray))
                         Error(offset, "Array operation requires an Int32 vector or null.");
                     return array;
+                }
+                ObjectTypeId ArrayView(int receiver, string opcode, int offset)
+                {
+                    if (method.ArrayOperands.TryGetValue(offset, out var declared))
+                    {
+                        Compatible(values[receiver], IrType.Reference(declared), offset); return declared;
+                    }
+                    bool reference = opcode.EndsWith(".ref", StringComparison.Ordinal);
+                    var view = values[receiver] == IrType.NullReference
+                        ? reference ? ObjectTypeId.Vector(objectBase, ObjectArrayElement.Reference(objectBase)) : integerArray!
+                        : values[receiver].Class!;
+                    if (view.ArrayElement!.Kind != (reference ? ObjectArrayElementKind.Reference : ObjectArrayElementKind.Int32))
+                        Error(offset, "Array element opcode does not match its storage width/kind.");
+                    return view;
                 }
                 void Comparison(Int32Comparison comparison, int left, int right, int offset)
                 {

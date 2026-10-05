@@ -11,12 +11,13 @@ internal static class ObjectSignatureTypes
 
     internal static IrType? Convert(TypeSignature signature, ObjectTypeId objectBase,
         Func<ResolvedType, ObjectTypeId> include, Func<ObjectTypeId, ObjectTypeId> array, bool allowVoid = false,
-        Func<ObjectTypeId>? text = null, bool integers64 = false)
+        Func<ObjectTypeId>? text = null, bool integers64 = false, Func<TypeSignature.Generic, ObjectTypeId>? closedReference = null)
     {
         if (signature is TypeSignature.Vector vector)
         {
             // Deliberately nonrecursive: nested vectors are outside this profile.
-            var element = Scalar(vector.Element, objectBase, include, text);
+            var element = vector.Element is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } generic && closedReference is not null
+                ? IrType.Reference(closedReference(generic)) : Scalar(vector.Element, objectBase, include, text);
             if (element is null) return null;
             return IrType.Reference(array(ObjectTypeId.Vector(objectBase, element == IrType.Int32
                 ? ObjectArrayElement.Int32 : ObjectArrayElement.Reference(element.Class!))));

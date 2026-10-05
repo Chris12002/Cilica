@@ -197,7 +197,7 @@ public static class ObjectModelBuilder
                     var text = strings.Require(ObjectModelLimits.MaximumMetadataMembers - members);
                     if (!Include(Plain(text), id, field.Token)) exceeded = true;
                     return Id(text);
-                }, integers64: integers64);
+                }, integers64: integers64, closedReference: integers64 ? generic => GenericReference(generic).Class! : null);
                 IrType GenericReference(TypeSignature.Generic generic)
                 {
                     var closed = new ConstructedType(generic.Definition.Definition, generic.Arguments);

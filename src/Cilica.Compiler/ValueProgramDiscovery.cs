@@ -95,6 +95,7 @@ public static partial class ValueProgramDiscovery
         private readonly Queue<Work> _pending = new();
         private readonly Dictionary<ObjectTypeId, ConstructedType> _values = [];
         private readonly Dictionary<ObjectTypeId, ConstructedType> _references = [];
+        private readonly HashSet<ObjectTypeId> _vectors = [];
         private readonly Dictionary<ObjectTypeId, TypeInput> _snapshots = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedMethod> _calls = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedField> _fields = [];
@@ -142,6 +143,11 @@ public static partial class ValueProgramDiscovery
                     }
                     else if (arrays && instruction.OpCode == "newarr")
                     {
+                        if (integers64)
+                        {
+                            var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
+                            vectors.Add(offset, Vector(signature, work, offset)); continue;
+                        }
                         int token = Token(work, instruction, 0x01, 0x02);
                         var key = (work.Assembly.ContentHash, token);
                         if (!_types.TryGetValue(key, out var element))
@@ -154,7 +160,13 @@ public static partial class ValueProgramDiscovery
                             Fail(work, "Value CIL array allocation requires the selected runtime's Int32 element; reference/value arrays require later translation.", offset);
                         vectors.Add(offset, IntegerArray());
                     }
-                    else if (arrays && instruction.OpCode is ("ldelem.i4" or "stelem.i4" or "ldlen")) _ = IntegerArray();
+                    else if (arrays && (instruction.OpCode is ("ldelem.i4" or "stelem.i4") || !integers64 && instruction.OpCode == "ldlen")) _ = IntegerArray();
+                    else if (integers64 && instruction.OpCode is ("ldelem.ref" or "stelem.ref")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Object), work, offset);
+                    else if (integers64 && instruction.OpCode is ("ldelem" or "stelem"))
+                    {
+                        var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
+                        vectors.Add(offset, Vector(signature, work, offset));
+                    }
                     else if (instruction.OpCode == "call" || classes && instruction.OpCode == "newobj" || delegates && instruction.OpCode is ("ldftn" or "callvirt"))
                     {
                         int token = Token(work, instruction, 0x06, 0x0a, 0x2b);
@@ -250,7 +262,7 @@ public static partial class ValueProgramDiscovery
                 [.. _references.Values], _snapshots, delegates ? type => {
                     if (exceptions) IncludeExceptionHierarchy(type, root, 0);
                     return DelegateType(type, root, 0);
-                } : null, integers64) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
+                } : null, integers64, [.. _vectors]) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                 [.. _references.Values.Select(t => t.Definition)], _snapshots);
             if (built.Catalog is not { } catalog) throw new Failure(built.Diagnostics[0]);
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
@@ -383,6 +395,7 @@ public static partial class ValueProgramDiscovery
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Object } when classes => IrType.Reference(IncludeReference(
                 Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object), caller, offset), caller, offset)),
             TypeSignature.Vector { Element: TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } } when arrays => IrType.Reference(IntegerArray()),
+            TypeSignature.Vector vector when integers64 => IrType.Reference(Vector(vector.Element, caller, offset)),
             TypeSignature.ByReference reference when borrow => IrType.Location(Storage(reference.Element, caller, offset)),
             _ => throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
                 "Initial value CIL signatures require Int32 or named nongeneric structs, void returns, and synchronous byref parameters. "
@@ -390,6 +403,36 @@ public static partial class ValueProgramDiscovery
                     : arrays ? "The array profile additionally accepts Int32 vectors; other reference signatures" : "Reference signatures")
                 + ", modifiers, byref locals/returns and generics require later lowering." + Path(caller), Location(caller, offset))),
         };
+
+        private ObjectTypeId Vector(TypeSignature signature, Work? caller, int offset)
+        {
+            if (signature is TypeSignature.Named named)
+            {
+                var definition = named.Definition;
+                if (definition == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), caller, offset)) return IntegerArray();
+                if (definition == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String), caller, offset))
+                    signature = new TypeSignature.Primitive(PrimitiveTypeCode.String);
+                else if (named.Kind == SignatureTypeKind.Unknown && !Inline(definition, caller, offset))
+                    signature = named with { Kind = SignatureTypeKind.Class };
+            }
+            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }) return IntegerArray();
+            if (signature is TypeSignature.Vector or TypeSignature.ByReference)
+                Fail(caller, "Nested vectors and byref array elements require later lowering.", offset);
+            if (signature is TypeSignature.Generic generic && caller is not null)
+            {
+                try { _ = ClosedGenericKey.Create(generic.Arguments, SignatureList<TypeSignature>.Empty); }
+                catch (ArgumentException error) { Fail(caller, error.Message, offset, DiagnosticIds.TranslationLimit); }
+                CheckArgumentAccess(signature, caller, offset);
+            }
+            var element = Storage(signature, caller, offset);
+            if (element.Kind != IrTypeKind.Reference || element.Class!.ArrayElement is not null)
+                Fail(caller, "Composed vector elements require Int32 or an admitted nominal reference; value and other integer arrays require later lowering.", offset);
+            var vector = ObjectTypeId.Vector(ObjectBase(), ObjectArrayElement.Reference(element.Class!));
+            _vectors.Add(vector);
+            if (_vectors.Count + _values.Count + _references.Count > ObjectModelLimits.MaximumTypes)
+                Fail(caller, "Combined vector/value/reference type limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+            return vector;
+        }
 
         private void CheckArgumentAccess(TypeSignature signature, Work work, int offset)
         {

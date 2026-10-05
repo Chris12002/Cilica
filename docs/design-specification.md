@@ -891,7 +891,9 @@ without that capability retain their existing admission rules. The explicit
 `integer-managed-objects-cil-v1` API composes those capabilities with wide CIL,
 closed generic scalar fields and managed exceptions
 ([ADR 0099](decisions/0099-wide-managed-object-cil.md)); wide arrays and narrow
-heap storage remain pending.
+heap storage remain pending. Closed nominal reference vectors now compose with
+generic fields, value flow, managed faults and array casts in that explicit profile
+([ADR 0100](decisions/0100-composed-reference-array-cil.md)).
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential
