@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.58 and 6d.1–6d.23 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.59 and 6d.1–6d.23 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -18,7 +18,7 @@ fixtures and examples must be independent.
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit API added in 6d.3 |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.58 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; closed value arrays and Int32 enum storage now admitted; value-array interfaces now admitted; primitive-width arrays, switch and broader integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.59 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; closed value arrays and Int32 enum storage now admitted; value-array interfaces now admitted; switch also admitted; constructor receiver provenance and broader integration pending |
 | 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.23 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -1343,3 +1343,19 @@ interface-chain regression without raising limits.
 
 The real kernel now reaches unsupported switch at ResolutionKernel.Step IL_003c;
 see gate-mapped-6c58.json. Native transcripts and the final closure review remain.
+
+
+## Slice 6c.59 outcome
+
+Integer managed-object CIL v2 now lowers bounded switch tables to existing branch
+IR (ADR 0174). Additional comparison blocks remain in source/exception-region order,
+within the switch operand span. Selectors are consumed once; duplicate cases,
+defaults, residual stack transfers, loops and catch/finally unwind preserve .NET
+behavior. Three C# and two authored IL probes supply 1,488 repeated O0/O2 native
+outcomes with sanitizers and forced collection. Invalid selectors/operand targets
+and the exact 4,096 expanded block accept/reject boundary are checked.
+
+The unmodified kernel reaches complete body translation, then fails detached IR
+validation at ResolutionRejection::.ctor IL_002d: direct readonly constructor
+receiver provenance is lost across a null-coalescing branch. Evidence:
+gate-mapped-6c59.json. Native transcripts remain pending.

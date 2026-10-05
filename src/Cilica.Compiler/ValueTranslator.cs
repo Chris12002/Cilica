@@ -45,7 +45,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v1";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v2";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -206,7 +206,7 @@ public static class ValueTranslator
             var constrainedPrefixes = method.ConstrainedCalls.Values.Select(c => c.PrefixOffset).ToHashSet();
             if (input.Instructions.IsEmpty) Error(0, "Method body is empty.");
             var boundaries = method.ExceptionRegions.SelectMany(r => new[] { r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd, r.FilterStart ?? r.HandlerStart });
-            var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code), boundaries, exceptions is not null);
+            var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code), boundaries, exceptions is not null, switches: types.IntegerCasts);
             int BlockAt(int offset) => offset == input.CodeSize ? partition.Ranges.Count : partition.BlockAt[offset];
             var regions = method.ExceptionRegions.Select(r => r with { TryStart = BlockAt(r.TryStart), TryEnd = BlockAt(r.TryEnd),
                 HandlerStart = BlockAt(r.HandlerStart), HandlerEnd = BlockAt(r.HandlerEnd), FilterStart = r.FilterStart is int first ? BlockAt(first) : null }).ToImmutableArray();
@@ -234,6 +234,8 @@ public static class ValueTranslator
             IrBlock Block(int id)
             {
                 var (start, end) = partition.Ranges[id]; int blockOffset = input.Instructions[start].Offset;
+                int switchCase = partition.SwitchCases.GetValueOrDefault(id);
+                if (switchCase > 0) blockOffset += 5 + 4 * (switchCase - 1);
                 _inputs += incoming[id].Length;
                 if (_inputs > IrLimits.MaximumInputs) Error(blockOffset, "Aggregate block-input limit exceeded.", DiagnosticIds.TranslationLimit);
                 var statements = new List<IrStatement>(); var values = new List<IrType>(); var valueExpressions = new List<IrExpression>(); var stack = new List<int>();
@@ -243,7 +245,7 @@ public static class ValueTranslator
                     Push(blockOffset, incoming[id][i], incomingThis[id][i] ? new IrExpression.Parameter(0) : new IrExpression.StackInput(transferred++));
                 for (int index = start; index < end; index++)
                 {
-                    var instruction = input.Instructions[index]; int offset = instruction.Offset; string opcode = instruction.OpCode;
+                    var instruction = input.Instructions[index]; int offset = switchCase > 0 ? blockOffset : instruction.Offset; string opcode = instruction.OpCode;
                     if (method.Initializers.TryGetValue(offset, out var initializerTarget)) Add(new IrStatement.InitializeType(offset, initializerTarget), offset);
                     if (Int32Operations.FromOpcode(opcode) is { } operation)
                     {
@@ -608,6 +610,24 @@ public static class ValueTranslator
                             if (opcode == "stind.ref" && values[write].Element!.Kind != IrTypeKind.Reference) Error(offset, "stind.ref requires reference storage.");
                             Compatible(values[writeValue], values[write].Element!, offset); Writable(write, offset);
                             Add(new IrStatement.StoreLocation(offset, write, writeValue), offset); break;
+                        case "switch" when types.IntegerCasts:
+                            int selector = Pop(offset, IrType.Int32);
+                            if (instruction.Targets.IsEmpty)
+                                terminator = new IrJump(offset, Edge(instruction.Offset + instruction.Length, offset));
+                            else
+                            {
+                                int selected = Define(offset, IrType.Int32, new IrExpression.Constant(switchCase));
+                                var match = Edge(instruction.Targets[switchCase], offset);
+                                IrEdge nextCase;
+                                if (switchCase + 1 == instruction.Targets.Length)
+                                    nextCase = Edge(instruction.Offset + instruction.Length, offset);
+                                else
+                                {
+                                    stack.Add(selector); nextCase = EdgeToBlock(id + 1, offset); stack.RemoveAt(stack.Count - 1);
+                                }
+                                terminator = new IrBranch(offset, Int32Comparison.Equal, selector, selected, match, nextCase);
+                            }
+                            break;
                         case "br" or "br.s": terminator = new IrJump(offset, Edge(instruction.Targets[0], offset)); break;
                         case "ret":
                             int returned = method.ReturnType == IrType.Void ? -1 : Pop(offset, method.ReturnType);
@@ -715,6 +735,10 @@ public static class ValueTranslator
                 IrEdge Edge(int offset, int from)
                 {
                     if (!partition.BlockAt.TryGetValue(offset, out int target)) Error(from, "Control transfer falls outside this method.", DiagnosticIds.InvalidControlTransfer);
+                    return EdgeToBlock(target, from);
+                }
+                IrEdge EdgeToBlock(int target, int from)
+                {
                     var stackTypes = stack.Select(id => values[id]).ToImmutableArray();
                     var receiverSlots = stack.Select(value => method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
                         && valueExpressions[value] is IrExpression.Parameter { Index: 0 }).ToImmutableArray();

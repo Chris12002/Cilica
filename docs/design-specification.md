@@ -1559,3 +1559,13 @@ forced collection, nested reference-bearing structs, fixed-size faults and live
 List/read-only views. Unrelated value/reference interface casts remain false.
 The concrete kernel now reaches switch in ResolutionKernel.Step; native transcript
 equivalence remains pending.
+
+
+The integer managed-object CIL v2 profile lowers bounded switch tables to existing
+comparison branches (ADR 0174). Selector consumption, remaining stack values,
+duplicate/default targets and exception-region ordering are preserved; synthetic
+comparison offsets occupy only the existing table operand span. Five probes add
+1,488 repeated O0/O2 native outcomes with sanitizers, forced GC and unwind checks.
+Malformed targets, non-Int32 selectors and expanded block overflows are diagnostic.
+The kernel now reaches readonly constructor receiver validation; full native
+transcript equivalence remains pending.
