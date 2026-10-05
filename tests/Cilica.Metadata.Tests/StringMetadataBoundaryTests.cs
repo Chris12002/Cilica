@@ -108,8 +108,8 @@ public sealed class StringMetadataBoundaryTests
     }
 
     [Theory]
-    [InlineData(254, true)]
-    [InlineData(255, false)]
+    [InlineData(ProgramLimits.MaximumMethods - 2, true)]
+    [InlineData(ProgramLimits.MaximumMethods - 1, false)]
     public void Intrinsic_declarations_share_the_executable_method_limit(int helpers, bool valid)
     {
         var (b, _) = Core("StringMethodBudget");

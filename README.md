@@ -20,12 +20,14 @@ delegates and managed exceptions with type-test filters. The
 [milestone 5 record](docs/milestones/05-managed-semantics.md) documents their exact
 boundaries and local .NET/sanitizer evidence. Broader libraries, general filters,
 a public object embedding ABI and Expo integration remain planned.
-Milestone 6 has started with an explicit library dependency inventory;
-the [library and kernel plan](docs/milestones/06-library-and-kernel.md) records
-the remaining implementation and deterministic-trace gates. The metadata API also
-provides explicit, validated reference-to-implementation type plans, with a
-[pinned baseline](docs/library-baseline.json); member binding and library execution
-remain separate gates.
+[Milestone 6](docs/milestones/06-library-and-kernel.md) is complete for the bounded
+required-library and real-kernel profile on macOS ARM64. The owned core library,
+explicit reference mappings and exact intrinsic grants compile the unchanged
+private turn kernel. Its ten-step .NET transcript matches native O0/O2 execution,
+including forced collection and complete canonical state text (10,752 comparisons).
+The [pinned baseline](docs/library-baseline.json) and milestone record define the
+library subset, provenance and filter-closure evidence. Public C ABI and mobile
+device lifecycle work are the next milestone.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

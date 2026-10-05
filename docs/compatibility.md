@@ -1,10 +1,21 @@
 # Compatibility manifest
 
-Updated 2026-10-05. Capabilities are stage-specific. A translated operation does
+Updated 2026-10-06. Capabilities are stage-specific. A translated operation does
 not establish native execution or platform compatibility. Sections below preserve
 the evidence and limits of earlier checkpoints; the current native profile retains the collector and handle behavior recorded
 at milestone 4, with bounded value/generic/delegate/exception capabilities documented
 separately. Historical checkpoint sections retain their original stage-specific limits.
+
+Current milestone 6 composition uses `integer-managed-objects-cil-v2`,
+`object-layout-v13`, `object-operations-ir-v14`, `scalar-location-ir-v2`,
+`value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v3`,
+`scalar-boxed-ir-v4` and `object-frames-native-v35`. The bounded owned core and
+unchanged private kernel pass 10,752 .NET/native transcript comparisons on macOS
+ARM64, with O0/O2 sanitizers and forced collection. The exact compiled/source-body
+closure has no filters; the broader metadata audit retains its unresolved status.
+[ADR 0177](decisions/0177-stage-six-completion.md) records final validation and
+exclusions. The table below retains earlier checkpoint profiles and their limits;
+it does not replace the current composed evidence above and at the end of this file.
 
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
@@ -1732,3 +1743,12 @@ against native O0/O2 builds, normally and with collection before every allocatio
 All 10,752 scalar/canonical UTF-16 observations pass under ASan/UBSan, with stable
 retained roots across repeats. Evidence is pinned to the source build and selected
 6d.23 library; final implementation/filter closure and composed review remain.
+
+
+Milestone 6 is complete for the bounded required-library/kernel profile (ADR 0177).
+The public composition regression adds 294 repeated O0/O2 results combining
+value-bearing collections, formatting, type-test filters, finally and forced GC.
+The final 2,632-test scope is covered by the full local run and passing targeted
+reruns after three stale boundary expectations were corrected; no production
+limits were increased. Public ABI/mobile/browser, general filters and broader
+library/language compatibility remain outside this completion.

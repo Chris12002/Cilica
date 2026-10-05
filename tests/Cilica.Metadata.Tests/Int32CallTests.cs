@@ -128,8 +128,8 @@ public sealed class Int32CallTests
     }
 
     [Theory]
-    [InlineData(256, true)]
-    [InlineData(257, false)]
+    [InlineData(ProgramLimits.MaximumMethods, true)]
+    [InlineData(ProgramLimits.MaximumMethods + 1, false)]
     public void Method_limit_is_exact_and_graph_walk_is_iterative(int count, bool success)
     {
         using var files = new ResolverFiles(); var builder = Builder();

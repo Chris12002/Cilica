@@ -18,6 +18,15 @@ rethrow, stage-A type-test filters and invariant messages/identity. The full ADR
 remains proposed for general two-pass filters, public structured-error exports,
 instance failure policy, platform conformance and comparative performance evidence.
 
+Milestone 6 update (2026-10-06): the exact compiled kernel closure has 358 closed
+methods from 287 hash-pinned managed source definitions (77 selected-library
+definitions). None contains an exception region or filter. Stage B is therefore
+not required by this milestone's concrete root; this is not an absence claim for
+the whole ported library or application. A composed type-test filter/finally/GC
+regression remains tested. The broader metadata walker still reports unresolved
+intrinsic/array dispatch cases, so its inventory is not used as closure proof.
+See [ADR 0177](0177-stage-six-completion.md).
+
 ## Context
 
 Managed exceptions must keep .NET's observable behaviour: exception identity,

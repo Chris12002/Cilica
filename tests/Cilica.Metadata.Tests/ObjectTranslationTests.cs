@@ -280,8 +280,8 @@ public sealed class ObjectTranslationTests
     }
 
     [Theory]
-    [InlineData(3, false)]
-    [InlineData(4, true)]
+    [InlineData(5, false)]
+    [InlineData(6, true)]
     public void Memberref_candidate_scans_obey_the_exact_shared_work_budget(int maximum, bool accepted)
     {
         var b = new ResolutionAssemblyBuilder(new("BindingBudget", new Version(1, 0, 0, 0)));
@@ -289,6 +289,7 @@ public sealed class ObjectTranslationTests
         var member = b.Member(type, "Run", 0, 0, 8);
         using var files = new ResolverFiles(); using var resolver = files.Open();
         var image = resolver.OpenInput(files.Write("probe.dll", b.Build())).Value!;
+        // Member + owner + index header + two name rows + selected signature.
         var budget = new MemberResolutionBudget(maximum);
         var result = resolver.ResolveDeclaredMethod(image, member, budget);
         Assert.Equal(accepted, result.Success); Assert.Equal(0, budget.Remaining);

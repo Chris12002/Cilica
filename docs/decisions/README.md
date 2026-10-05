@@ -110,3 +110,13 @@ capability. It becomes accepted once its validation experiment has run.
 | [0102](0102-inline-value-constructors.md) | Inline value constructors | Accepted for checked receiver initialization and native constructor calls |
 | [0103](0103-composed-narrow-scalar-boundaries.md) | Composed narrow scalar boundaries | Accepted for narrow calls/locals/returns and direct constructor receiver reloads |
 | [0104](0104-composed-class-instance-calls.md) | Composed direct class instance calls | Accepted for nonvirtual value/borrow signatures and preserved callvirt checks |
+
+## Milestone 6 completion records
+
+| ADR | Title | Status |
+| --- | --- | --- |
+| [0173](0173-value-array-interface-dispatch.md) | Invariant value-array interface dispatch | Accepted; exact value helpers and native conformance |
+| [0174](0174-bounded-switch-cil.md) | Bounded CIL switch lowering | Accepted; source-order branches, unwind and budget checks |
+| [0175](0175-constructor-entry-prefix-flow.md) | Constructor body control flow | Accepted; stable receivers and validated base initialization |
+| [0176](0176-generated-cast-type-names.md) | Generated cast type names | Accepted; complete native/.NET message comparison |
+| [0177](0177-stage-six-completion.md) | Bounded milestone 6 completion | Accepted; real native transcripts, compiled closure and final regression review |

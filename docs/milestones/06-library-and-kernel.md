@@ -1,6 +1,8 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.61 6d.1–6d.23 and 6e complete. Recorded 2026-10-06.
+Status: complete for the bounded macOS ARM64 compiler-library profile; slices 6a,
+6b.1–6b.4, 6c.1–6c.61, 6d.1–6d.23, 6e and 6f complete. Recorded 2026-10-06.
+See [ADR 0177](../decisions/0177-stage-six-completion.md) for the reviewed exit evidence.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -18,10 +20,10 @@ fixtures and examples must be independent.
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit API added in 6d.3 |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.61 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; closed value arrays and Int32 enum storage now admitted; value-array interfaces now admitted; switch also admitted; constructor entry-prefix flow also admitted; remaining integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.23 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
+| 6c | Compiler semantics required by the concrete kernel path | Complete for this closure; wide/narrow scalars, Int32 enums, closed values/classes/interfaces, invariant value vectors, switch and constructor body branches are tested; broader CLI semantics remain diagnostic |
+| 6d | Required library members and runtime prerequisites | Complete for this closure; pinned owned core includes bounded formatting/Guid, collections and read-only views, array helpers, StringBuilder, exceptions and initialized delegate caches; broader library APIs remain outside this milestone |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | Complete; 10,752 exact O0/O2 normal/forced-GC comparisons, with sanitizers |
-| 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
+| 6f | Implementation/filter closure, composed stress and final review | Complete; exact compiled/source-body audit, composed filter/finally/collection test, full local regression review and targeted repairs |
 
 These slices are capability gates, not time estimates. Detailed requirements can
 change when a concrete adapter supplies generic arguments and implementations.
@@ -1414,3 +1416,54 @@ Private evidence is `artifacts/milestone6-harness/evidence-6e.json`, the four
 6d.23 trial core/digest remains selected. No application game rules were changed,
 no hosted jobs ran, and no public ABI/platform compatibility is claimed. The
 implementation/filter closure audit and final composed review remain for 6f.
+
+## Slice 6f closure audit
+
+The successful executable closure contains 358 closed methods from 287 distinct
+source definitions, including 148 selected-library instances from 77 library
+definitions. Every source definition was checked in its hash-pinned PE image:
+all have managed bodies, and none has an exception region or filter. The compiler
+independently validates calls, closed dispatch targets, selected intrinsic grants,
+logical IR and scalar IR. No required executable body is deferred. For this exact
+root, ADR 0004 stage B is not required; general filters remain unsupported outside
+this bounded closure.
+
+The independent conservative metadata audit remains `incomplete`: it reports 34
+body/intrinsic declarations, 950 array-helper cases, 78 variant-interface cases and
+8 unresolved receiver sites. That walker does not apply the compiler's exact
+closed receiver/helper/intrinsic lowering, and can visit fallback declarations
+which are absent from the compiled program. Its output has not been relabelled as
+successful. The milestone filter decision uses the validated executable closure
+and its source-body audit, rather than treating that broader metadata inventory
+as proof. Private evidence: `closure-6f-compiled.json`,
+`closure-6f-source-bodies.json`, `closure-6f-metadata.json` and the hashed review
+`closure-6f-reviewed.json` under `artifacts/milestone6-harness`.
+
+The public composition regression combines value-bearing List/Dictionary storage,
+live read-only views, boxed formatting, type-test filters, allocations in catch
+paths and finally updates. Its two native builds provide 294 repeated .NET
+comparisons with collection before every allocation, ASan/UBSan, exact/short
+execution-frame checks and cleanup. Both filter and finally regions are explicitly
+asserted to remain in the translated program.
+
+Final validation: the full local run executed 2,630 checks in 611 seconds. It found
+three stale boundary expectations from earlier method-limit/name-index changes.
+Those tests now check the exact 512-method and six-unit cold lookup boundaries;
+production limits and semantics were unchanged. A subsequent 163-check run,
+including all affected classes and the new composition regression, passed. The
+final two composition checks passed again after adding region-presence assertions.
+This covers the final 2,632-check suite across the full run and targeted reruns;
+the expensive full suite was not repeated after test-only corrections. Full solution
+build: zero warnings/errors. Logs remain under `artifacts/milestone6-harness`.
+
+Final review found no unresolved defect in the admitted milestone scope. Reviewed
+areas include C++ defined arithmetic and source-order control flow, exact value
+array layouts/interface signatures, constructor receiver ownership, rooting across
+allocation/unwind, repeated heap cleanup, intrinsic/assembly provenance and filter
+absence in the actual kernel closure. Local main `48ecf14` is an ancestor of this
+branch; no remote history, hosted CI, publishing or application source was changed.
+
+Milestone 6 is complete. Milestone 7 begins the separate public C ABI and mobile
+library/device lifecycle gate. General filters, arbitrary library members,
+primitive-width/enum/nested arrays, escaping managed locations, general boxed
+interface dispatch and untested platforms are not implied by this completion.

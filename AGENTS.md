@@ -11,6 +11,8 @@ feedback before implementation. Explain consequential choices in plain language.
   collection and private retained handles. Bounded compiler-library profiles also
   implement values/borrows/returns, boxing, closed generics, single-target delegates
   and managed exceptions/type-test filters; see `docs/milestones/05-managed-semantics.md`.
+  Milestone 6 adds the bounded owned core and verified real-kernel native transcripts;
+  see `docs/milestones/06-library-and-kernel.md` for exact scope and evidence.
   The broader runtime/library and public embedding ABI remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

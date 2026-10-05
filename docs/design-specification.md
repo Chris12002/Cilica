@@ -1240,10 +1240,12 @@ is complete for bounded non-moving collection, phase A stress and private retain
 handles on the locally tested macOS ARM64 target. [Milestone 5](milestones/05-managed-semantics.md)
 is complete for bounded compiler-library values, boxing, closed generics, single-target
 delegates and managed exceptions/type-test filters (ADR 0087), with 1,855 passing local
-checks. [Milestone 6](milestones/06-library-and-kernel.md) has started with the
-reviewed library-contract inventory slice; library implementation and equivalent
-kernel traces remain ahead. The broader runtime, production embedding API and
-untested platforms remain planned.
+checks. [Milestone 6](milestones/06-library-and-kernel.md) is complete for its bounded
+owned-library and real-kernel closure on macOS ARM64: 10,752 exact native/.NET
+transcript observations pass at O0/O2, with normal and forced collection under
+sanitizers. The exact compiled/source-body audit resolves the filter gate for that
+root; general filters remain unsupported. The broader runtime, public embedding
+API and untested platforms remain planned.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,
@@ -1592,3 +1594,13 @@ against native O0/O2 builds, normally and with collection before every allocatio
 All 10,752 scalar/canonical UTF-16 observations pass under ASan/UBSan, with stable
 retained roots across repeats. Evidence is pinned to the source build and selected
 6d.23 library; final implementation/filter closure and composed review remain.
+
+
+Milestone 6 completion (ADR 0177) includes the required implementation closure,
+real native kernel transcripts and composed collection/exception stress. The final
+2,632-test scope is covered by a full run plus targeted reruns correcting three
+stale budget expectations; the 163-check follow-up and final composition checks
+pass. The full build has no warnings/errors. General-filter stage B is not needed
+by this concrete closure, whose 287 source definitions have no exception regions.
+The conservative metadata inventory remains incomplete and is not the evidence
+used to assert compiled closure. Milestone 7 is the separate public ABI/device gate.
