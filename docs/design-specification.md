@@ -876,6 +876,10 @@ validation ([ADR 0105](decisions/0105-closed-interface-assignments.md)). Value
 arguments remain exact. An opt-in metadata resolver selects exact closed
 interface mappings and class slots ([ADR 0106](decisions/0106-exact-closed-interface-targets.md));
 executable composition, variance-only targets and array helpers remain pending.
+Closed scalar/reference dispatch plans now preserve those mappings and signatures
+through the shared preparation session
+([ADR 0108](decisions/0108-closed-interface-plans.md)); automatic CIL body discovery
+remains separate from metadata planning.
 
 ## 11. Class library and assembly identity
 

@@ -27,6 +27,19 @@ public static class ObjectInterfacePlanBuilder
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
+    public static ObjectInterfacePlanResult BuildClosed(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
+        ImmutableArray<ResolvedMethod> declarations, ResolvedAssembly runtimeLibrary, MemberResolutionBudget? budget = null)
+    {
+        ArgumentNullException.ThrowIfNull(resolver);
+        if (roots.IsDefaultOrEmpty || roots.Length > ObjectModelLimits.MaximumTypes || declarations.IsDefaultOrEmpty
+            || declarations.Length > ProgramLimits.MaximumMethods)
+            throw new ArgumentException("Closed interface plans need 1..256 explicit roots and declarations.");
+        budget ??= new();
+        try { return new(new Session(resolver, runtimeLibrary, budget, closed: true).RunClosed(roots, declarations), []); }
+        catch (PlanFailure failure) { return new(null, [failure.Diagnostic]); }
+        catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
+    }
+
     internal sealed class PlanFailure(Diagnostic diagnostic, IrMethodId? declaration = null) : Exception(diagnostic.Message)
     {
         internal Diagnostic Diagnostic { get; } = diagnostic;
@@ -34,21 +47,25 @@ public static class ObjectInterfacePlanBuilder
     }
     // A monotonic translation closure: Run receives the complete declaration set on each pass.
     internal sealed class Session(AssemblyResolver resolver, ResolvedAssembly runtimeLibrary, MemberResolutionBudget budget,
-        Func<ResolvedType, TypeReadLimits, TypeInput>? readType = null)
+        Func<ResolvedType, TypeReadLimits, TypeInput>? readType = null, bool closed = false)
     {
         private readonly ObjectStringType _strings = new(resolver, runtimeLibrary, budget);
-        private readonly Dictionary<ObjectTypeId, ResolvedType> _roots = [], _knownTypes = [];
+        private readonly Dictionary<ObjectTypeId, ConstructedType> _roots = [], _knownTypes = [];
         private readonly HashSet<ObjectTypeId> _arrays = [];
         private readonly Dictionary<IrMethodId, MethodDeclarationInput> _inputs = [];
         private readonly Dictionary<IrMethodId, ObjectDispatchMethod> _methods = [];
         private readonly Dictionary<IrMethodId, ObjectInterfaceDeclaration> _declarations = [];
         private readonly Dictionary<IrMethodId, ResolvedMethod> _resolved = [];
         private readonly Dictionary<ObjectTypeId, TypeInput> _typeInputs = [];
-        private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), InterfaceMethodTarget> _choices = [];
+        private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ClosedInterfaceMethodTarget> _choices = [];
         private ObjectTypeId _object = null!;
         private int _parameters;
 
         internal ObjectInterfaceDispatchPlan Run(ImmutableArray<ResolvedType> roots, ImmutableArray<ResolvedMethod> declarations,
+            ImmutableArray<ObjectTypeId> arrays = default)
+            => RunClosed([.. roots.Select(t => new ConstructedType(t, SignatureList<TypeSignature>.Empty))], declarations, arrays);
+
+        internal ObjectInterfaceDispatchPlan RunClosed(ImmutableArray<ConstructedType> roots, ImmutableArray<ResolvedMethod> declarations,
             ImmutableArray<ObjectTypeId> arrays = default)
         {
             Initialize();
@@ -60,14 +77,21 @@ public static class ObjectInterfacePlanBuilder
                 var declaration = Declare(resolved);
                 if (!requested.Add(IrMethodId.From(declaration.Source))) Fail("Duplicate interface declaration requested.", declaration.Source.Name);
             }
-            var catalog = Value(ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values], runtimeLibrary, (type, limits) =>
+            TypeInput Snapshot(ConstructedType type, TypeReadLimits limits)
             {
-                _knownTypes.TryAdd(ObjectModelBuilder.Id(type), type);
-                if (readType is not null) return readType(type, limits);
-                if (_typeInputs.TryGetValue(ObjectModelBuilder.Id(type), out var cached)) return cached;
-                var read = resolver.ReadTypeInput(type.Assembly, type.Handle, limits with { MaximumMembers = Remaining() });
-                var input = Value(read); Consume(input.MetadataMembersRead); _typeInputs.Add(ObjectModelBuilder.Id(type), input); return input;
-            }, [.. _arrays], _strings));
+                var id = ObjectModelBuilder.Id(type); _knownTypes.TryAdd(id, type);
+                if (readType is not null) return readType(type.Definition, limits);
+                if (_typeInputs.TryGetValue(id, out var cached)) return cached;
+                var bounded = limits with { MaximumMembers = Math.Min(limits.MaximumMembers, Remaining()) };
+                var read = closed ? resolver.ReadClosedTypeInput(type, runtimeLibrary, bounded)
+                    : resolver.ReadTypeInput(type.Definition.Assembly, type.Definition.Handle, bounded);
+                var input = Value(read); Consume(input.MetadataMembersRead); _typeInputs.Add(id, input); return input;
+            }
+            var catalog = Value(closed
+                ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. _roots.Values], runtimeLibrary,
+                    (type, limits) => new(Snapshot(type, limits), []), [.. _arrays], _strings, integers64: true)
+                : ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values.Select(t => t.Definition)], runtimeLibrary,
+                    (type, limits) => Snapshot(new(type, SignatureList<TypeSignature>.Empty), limits), [.. _arrays], _strings));
             var types = new IrTypeRules(catalog); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
             foreach (var resolved in declarations)
             {
@@ -79,15 +103,23 @@ public static class ObjectInterfacePlanBuilder
                     if (++targetCount > ObjectDispatchLimits.MaximumTargets) Fail("Interface dispatch target limit exceeded.", limit: true);
                     if (!_choices.TryGetValue((id, receiver), out var exact))
                     {
-                        try { exact = Value(resolver.ResolveInterfaceMethodTarget(resolved.DeclaringType.Definition.Assembly,
-                            resolved.Handle, _knownTypes[receiver], budget)); }
+                        try
+                        {
+                            if (closed) exact = Value(resolver.ResolveClosedInterfaceMethodTarget(resolved, _knownTypes[receiver], runtimeLibrary, budget));
+                            else
+                            {
+                                var legacy = Value(resolver.ResolveInterfaceMethodTarget(resolved.DeclaringType.Definition.Assembly,
+                                    resolved.Handle, _knownTypes[receiver].Definition, budget));
+                                exact = new(legacy.Declaration, _knownTypes[receiver], legacy.Mapping, legacy.Slot, legacy.Implementation, legacy.IsExplicit);
+                            }
+                        }
                         catch (PlanFailure failure) { throw new PlanFailure(failure.Diagnostic, id); }
                         _choices.Add((id, receiver), exact);
                     }
                     ObjectVirtualSlot? slot = null;
                     if (exact.Slot is { } introduction)
                     {
-                        slot = new(Id(introduction), ObjectModelBuilder.Id(introduction.DeclaringType.Definition));
+                        slot = new(Id(introduction), ObjectModelBuilder.Id(introduction.DeclaringType));
                         Method(introduction, slot, catalog);
                     }
                     Method(exact.Mapping, slot, catalog); Method(exact.Implementation, slot, catalog);
@@ -96,9 +128,9 @@ public static class ObjectInterfacePlanBuilder
                 maps.Add(new(id, [.. targets]));
             }
             var plan = new ObjectInterfaceDispatchPlan(catalog,
-                [.. _declarations.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).Select(p => p.Value)],
-                [.. _methods.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).Select(p => p.Value)],
-                [.. maps.OrderBy(m => m.Declaration.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Declaration.Token)]);
+                [.. _declarations.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).ThenBy(p => p.Key.Specialization, StringComparer.Ordinal).Select(p => p.Value)],
+                [.. _methods.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).ThenBy(p => p.Key.Specialization, StringComparer.Ordinal).Select(p => p.Value)],
+                [.. maps.OrderBy(m => m.Declaration.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Declaration.Token).ThenBy(m => m.Declaration.Specialization, StringComparer.Ordinal)]);
             try { ObjectInterfacePlanValidator.Validate(plan); }
             catch (ArgumentException exception) { Fail(exception.Message); }
             return plan;
@@ -108,7 +140,7 @@ public static class ObjectInterfacePlanBuilder
         {
             Initialize(); var input = Read(method); var id = IrMethodId.From(input.Source);
             if (_declarations.TryGetValue(id, out var cached)) return cached;
-            var owner = Include(method.DeclaringType.Definition);
+            var owner = Include(method.DeclaringType);
             const MethodAttributes required = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract;
             const MethodAttributes allowed = required | MethodAttributes.NewSlot | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
             if ((input.OwnerAttributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
@@ -126,11 +158,14 @@ public static class ObjectInterfacePlanBuilder
             if (_object is null) _object = Include(Value(resolver.ResolveRuntimeType(runtimeLibrary, PrimitiveTypeCode.Object)));
         }
 
-        private ObjectTypeId Include(ResolvedType type)
+        private ObjectTypeId Include(ResolvedType type) => Include(new ConstructedType(type, SignatureList<TypeSignature>.Empty));
+        private ObjectTypeId Include(ConstructedType type)
         {
             ArgumentNullException.ThrowIfNull(type);
-            Value(resolver.ResolveType(type.Assembly, type.Handle)); // Check ownership before identity deduplication.
-            var id = ObjectModelBuilder.Id(type);
+            Value(resolver.ResolveType(type.Definition.Assembly, type.Definition.Handle)); // Check ownership before identity deduplication.
+            ObjectTypeId id;
+            try { id = ObjectModelBuilder.Id(type); }
+            catch (ArgumentException error) { throw new PlanFailure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error, error.Message)); }
             if (!_roots.ContainsKey(id) && _roots.Count + _arrays.Count >= ObjectModelLimits.MaximumTypes) Fail("Interface catalog root limit exceeded.", limit: true);
             _roots.TryAdd(id, type); return id;
         }
@@ -139,21 +174,27 @@ public static class ObjectInterfacePlanBuilder
             ArgumentNullException.ThrowIfNull(method);
             var owner = method.DeclaringType.Definition;
             Value(resolver.ResolveType(owner.Assembly, owner.Handle));
-            if (method.DeclaringType.Arguments.Count != 0 || method.MethodArguments.Count != 0) Fail("Constructed generic dispatch requires later lowering.");
+            if (!closed && method.DeclaringType.Arguments.Count != 0 || method.MethodArguments.Count != 0) Fail("Constructed generic dispatch requires later lowering.");
             var id = Id(method);
             if (_inputs.TryGetValue(id, out var cached)) return cached;
             if (_inputs.Count >= ProgramLimits.MaximumMethods) Fail("Interface declarations/class facts share the method limit.", limit: true);
             var input = Value(resolver.ReadMethodDeclarationInput(owner.Assembly, method.Handle, new(MaximumMembers: Remaining())));
             Consume(input.MetadataMembersRead);
             if (input.OwnerToken != MetadataTokens.GetToken(owner.Handle)) Fail("Resolved method owner contradicts its declaration.", input.Source.Name);
-            if (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0 || input.Signature.Header != 0x20
+            if (input.OwnerGenericArity != method.DeclaringType.Arguments.Count || input.Signature.GenericArity != 0 || input.Signature.Header != 0x20
                 || input.IsReferenceAssembly || input.HasTypeInitializer || input.HasModuleInitializer)
-                Fail("Interface dispatch preparation requires nongeneric instance implementation metadata without initialization.", input.Source.Name);
+                Fail("Interface dispatch preparation requires exact admitted instance owners without generic method parameters or initialization.", input.Source.Name);
+            if (closed)
+            {
+                var authenticated = Value(resolver.ResolveClosedCall(method, method.Handle, budget));
+                if (authenticated != method) Fail("Closed dispatch signature contradicts its metadata declaration.", input.Source.Name);
+                input = input with { Source = input.Source with { Specialization = id.Specialization }, Signature = method.Signature };
+            }
             _inputs.Add(id, input); _resolved.Add(id, method); return input;
         }
         private void Method(ResolvedMethod method, ObjectVirtualSlot? slot, ObjectTypeCatalog catalog)
         {
-            var input = Read(method); var id = Id(method); var owner = ObjectModelBuilder.Id(method.DeclaringType.Definition);
+            var input = Read(method); var id = Id(method); var owner = ObjectModelBuilder.Id(method.DeclaringType);
             if (!input.HasBody || (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask
                 | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL)
                 Fail("Selected class method requires an ordinary managed IL body; its instructions still need translation.", input.Source.Name);
@@ -182,12 +223,18 @@ public static class ObjectInterfacePlanBuilder
             _arrays.Add(array); return array;
         }
         private IrType Type(TypeSignature signature, bool allowVoid = false) =>
-            ObjectSignatureTypes.Convert(signature, _object, Include, IncludeArray, allowVoid, () => Include(_strings.Require()))
+            ObjectSignatureTypes.Convert(signature, _object, Include, IncludeArray, allowVoid, () => Include(_strings.Require()), integers64: closed,
+                closedReference: closed ? generic => Include(new ConstructedType(generic.Definition.Definition, generic.Arguments)) : null)
             ?? throw new PlanFailure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error, ObjectSignatureTypes.Unsupported));
         private void Count(int count) { _parameters += count; if (_parameters > ProgramLimits.MaximumCallArguments) Fail("Aggregate dispatch parameter limit exceeded.", limit: true); }
         private int Remaining() { if (budget.Remaining == 0) Fail("Interface preparation metadata budget exhausted.", limit: true); return budget.Remaining; }
         private void Consume(int work) { if (!budget.TryConsume(work)) Fail("Interface preparation metadata budget exhausted.", limit: true); }
-        private static IrMethodId Id(ResolvedMethod method) => new(method.DeclaringType.Definition.Assembly.ContentHash, MetadataTokens.GetToken(method.Handle));
+        private static IrMethodId Id(ResolvedMethod method)
+        {
+            try { return new(method.DeclaringType.Definition.Assembly.ContentHash, MetadataTokens.GetToken(method.Handle),
+                ClosedGenericKey.Create(method.DeclaringType.Arguments, method.MethodArguments)); }
+            catch (ArgumentException error) { throw new PlanFailure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error, error.Message)); }
+        }
         private static T Value<T>(ResolutionResult<T> result) where T : class => result.Value ?? throw new PlanFailure(result.Diagnostics[0]);
         private static ObjectTypeCatalog Value(ObjectCatalogResult result) => result.Catalog ?? throw new PlanFailure(result.Diagnostics[0]);
         private static void Fail(string message, string? location = null, bool limit = false) =>

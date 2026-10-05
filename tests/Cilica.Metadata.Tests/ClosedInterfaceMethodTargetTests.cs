@@ -16,11 +16,12 @@ public sealed class ClosedInterfaceMethodTargetTests
     private static TypeSignature Signature(AssemblyResolver resolver, ResolvedAssembly input, Type type) => type == typeof(long)
         ? new TypeSignature.Primitive(PrimitiveTypeCode.Int64) : type == typeof(int)
         ? new TypeSignature.Primitive(PrimitiveTypeCode.Int32) : type == typeof(string)
-        ? new TypeSignature.Primitive(PrimitiveTypeCode.String) : throw new InvalidOperationException(type.ToString());
-    private static ConstructedType Closed(AssemblyResolver resolver, ResolvedAssembly input, Type type) =>
+        ? new TypeSignature.Primitive(PrimitiveTypeCode.String) : type == typeof(uint)
+        ? new TypeSignature.Primitive(PrimitiveTypeCode.UInt32) : throw new InvalidOperationException(type.ToString());
+    internal static ConstructedType Closed(AssemblyResolver resolver, ResolvedAssembly input, Type type) =>
         new(resolver.ResolveType(input, MetadataTokens.TypeDefinitionHandle(type.MetadataToken & 0xffffff)).Value!,
             new(type.GenericTypeArguments.Select(t => Signature(resolver, input, t))));
-    private static ResolvedMethod Declaration(AssemblyResolver resolver, ResolvedAssembly input, Type type, MethodInfo member)
+    internal static ResolvedMethod Declaration(AssemblyResolver resolver, ResolvedAssembly input, Type type, MethodInfo member)
     {
         var open = resolver.ResolveMethod(input, MetadataTokens.MethodDefinitionHandle(member.MetadataToken & 0xffffff)).Value!;
         var owner = Closed(resolver, input, type);

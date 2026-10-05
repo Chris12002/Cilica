@@ -368,6 +368,18 @@ bounded and charged to the shared ledger. All 124 focused checks pass. The fix
 also covers the earlier nongeneric interface path; no native array-interface
 compatibility is claimed.
 
+## Slice 6c.17 outcome
+
+`ObjectInterfacePlanBuilder.BuildClosed` now prepares scalar/reference dispatch
+plans with exact closed owners, method signatures, mappings and slots. It reuses
+the existing preparation session and shared bounded ledger. Forty-two mappings
+match .NET interface maps; tests also cover same-width Int32/UInt32 identities,
+JSON round trips, exact/short budgets and forged/open inputs. All 77 distinct
+focused checks pass, including legacy native interface regressions. Review found
+no remaining actionable issue; local main remains an ancestor. See
+[ADR 0108](../decisions/0108-closed-interface-plans.md). CIL body discovery and
+native closed-call conformance remain pending.
+
 ## Remaining completion evidence
 
 - Pin imported source commits, licenses, local patches, reference identities
