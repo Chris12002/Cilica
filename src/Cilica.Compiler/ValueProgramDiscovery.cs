@@ -204,8 +204,8 @@ public static partial class ValueProgramDiscovery
                         }
                         if (instruction.OpCode == "callvirt") Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
                         var callee = Discover(target, work, offset);
-                        if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor))
-                            Fail(work, "newobj requires an exact class constructor declaration.", offset);
+                        if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
+                            Fail(work, "newobj requires an exact supported constructor declaration.", offset);
                         if (work.Binding.Owner != callee.Binding.Owner
                             && ((callee.Binding.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || !callee.Binding.OwnerExternallyVisible))
                             Fail(work, "Calls require the same declaring owner or a public method on an externally visible owner.", offset);
@@ -281,7 +281,7 @@ public static partial class ValueProgramDiscovery
                         Fail(work, "Fields require the same declaring owner or a public member on an externally visible type.", access.Key);
                     // Taking an address retains readonly capability in body translation.
                     if ((field.Attributes & FieldAttributes.InitOnly) != 0
-                        && writes.Contains(access.Key) && !(method.Binding.Kind == ObjectMethodKind.Constructor && method.Binding.Owner == field.Id.Owner))
+                        && writes.Contains(access.Key) && !(method.Binding.Kind is (ObjectMethodKind.Constructor or ObjectMethodKind.ValueConstructor) && method.Binding.Owner == field.Id.Owner))
                         Fail(work, classes ? "Readonly fields require the declaring class constructor and its checked receiver."
                             : "Readonly value fields cannot be written by this static-method profile.", access.Key);
                     if (field.Storage is ObjectStorage.Value inline) CheckType(inline.Type, access.Key);
@@ -356,24 +356,26 @@ public static partial class ValueProgramDiscovery
                     ? "Value/object methods require ordinary static methods, exact class constructors or selected delegate-profile instance methods, managed IL, supported closed signatures, no type/module initializers, no exception regions and initialized locals."
                     : "Value methods require static nongeneric ordinary managed IL without initialization, special names, exception regions or uninitialized locals.", offset);
             var ownerId = generics ? ClosedId(resolved.DeclaringType, parent, offset) : ObjectModelBuilder.Id(owner);
+            bool inlineConstructor = integers64 && constructor && Inline(owner, parent, offset);
             if (instance)
             {
-                if (Inline(owner, parent, offset) || constructor && ((input.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
+                if (!inlineConstructor && Inline(owner, parent, offset) || constructor && ((input.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
                     || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }))
                     Fail(parent, "Class constructors require exact constructor flags, a class receiver and void return.", offset);
-                IncludeReference(resolved.DeclaringType, parent, offset);
+                if (inlineConstructor) Include(resolved.DeclaringType, parent, offset);
+                else IncludeReference(resolved.DeclaringType, parent, offset);
             }
             _parameters += input.Signature.Parameters.Count + (instance ? 1 : 0); _locals += input.Locals.Length;
             if (_parameters > IrLimits.MaximumParameters || _locals > IrLimits.MaximumLocals)
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-            var kind = !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
+            var kind = inlineConstructor ? ObjectMethodKind.ValueConstructor : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
             var work = new Work(owner.Assembly, resolved, input, binding,
-                [.. (instance ? new[] { IrType.Reference(ownerId) } : Array.Empty<IrType>()),
+                [.. (instance ? new[] { inlineConstructor ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
                 [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);
-            if (instance && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
+            if (instance && !inlineConstructor && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
                 Fail(parent, "Class instance methods require scalar/reference parameters, locals and returns; values and borrows need later lowering.", offset);
             if (protectedInput is not null) work = work with { Regions = [.. protectedInput.Regions.Select(r => new IrExceptionRegion(r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd,
                 r.Kind switch { ExceptionRegionKind.Catch => IrExceptionClause.Catch, ExceptionRegionKind.Filter => IrExceptionClause.Filter, ExceptionRegionKind.Finally => IrExceptionClause.Finally, _ => IrExceptionClause.Fault },

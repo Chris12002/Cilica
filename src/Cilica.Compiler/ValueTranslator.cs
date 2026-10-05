@@ -193,6 +193,7 @@ public static class ValueTranslator
         internal IrMethod Translate()
         {
             var input = method.Input;
+            var locals = method.Locals.ToBuilder();
             if (input.Instructions.IsEmpty) Error(0, "Method body is empty.");
             var boundaries = method.ExceptionRegions.SelectMany(r => new[] { r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd, r.FilterStart ?? r.HandlerStart });
             var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code), boundaries, exceptions is not null);
@@ -217,14 +218,14 @@ public static class ValueTranslator
             for (int id = 0; id < blocks.Length; id++)
                 if (blocks[id] is null) Error(input.Instructions[partition.Ranges[id].Start].Offset,
                     "Unreachable blocks require later analysis; remove dead IL before value translation.", DiagnosticIds.ExecutionUnsupported);
-            return new(input.Source, method.Parameters, method.ReturnType, [.. blocks], method.Locals) { ExceptionRegions = regions };
+            return new(input.Source, method.Parameters, method.ReturnType, [.. blocks], locals.ToImmutable()) { ExceptionRegions = regions };
 
             IrBlock Block(int id)
             {
                 var (start, end) = partition.Ranges[id]; int blockOffset = input.Instructions[start].Offset;
                 _inputs += incoming[id].Length;
                 if (_inputs > IrLimits.MaximumInputs) Error(blockOffset, "Aggregate block-input limit exceeded.", DiagnosticIds.TranslationLimit);
-                var statements = new List<IrStatement>(); var values = new List<IrType>(); var stack = new List<int>();
+                var statements = new List<IrStatement>(); var values = new List<IrType>(); var valueExpressions = new List<IrExpression>(); var stack = new List<int>();
                 IrTerminator? terminator = null;
                 for (int i = 0; i < incoming[id].Length; i++) Push(blockOffset, incoming[id][i], new IrExpression.StackInput(i));
                 for (int index = start; index < end; index++)
@@ -376,7 +377,16 @@ public static class ValueTranslator
                             var target = methods[method.Calls[offset]]; int skip = opcode == "newobj" ? 1 : 0;
                             var arguments = new int[target.Parameters.Length - skip];
                             for (int i = arguments.Length - 1; i >= 0; i--) arguments[i] = Pop(offset, target.Parameters[i + skip]);
-                            if (skip != 0) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
+                            if (skip != 0 && target.Binding.Kind == ObjectMethodKind.ValueConstructor)
+                            {
+                                if (locals.Count >= IrLimits.MaximumLocals) Error(offset, "Value constructor temporary local limit exceeded.", DiagnosticIds.TranslationLimit);
+                                int temporary = locals.Count; var constructed = IrType.Value(target.Binding.Owner); locals.Add(constructed);
+                                int address = Define(offset, IrType.Location(constructed), new IrExpression.AddressLocal(temporary));
+                                Add(new IrStatement.InitializeLocation(offset, address), offset);
+                                Add(new IrStatement.Invoke(offset, target.Binding.Method, [address, .. arguments]), offset);
+                                Push(offset, constructed, new IrExpression.LoadLocation(address), true);
+                            }
+                            else if (skip != 0) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
                             else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments]), offset);
                             else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments]), true);
                             break;
@@ -397,7 +407,9 @@ public static class ValueTranslator
                             {
                                 if (receiverType.Kind != IrTypeKind.ManagedLocation || receiverType.Element != IrType.Value(field.Id.Owner))
                                     Error(offset, "Value field operation requires the exact inline receiver or its managed location.");
-                                var locationType = IrType.Location(fieldType, receiverType.ReadOnly || (field.Attributes & FieldAttributes.InitOnly) != 0);
+                                bool initializes = method.Binding.Kind == ObjectMethodKind.ValueConstructor && method.Binding.Owner == field.Id.Owner
+                                    && valueExpressions[receiver] is IrExpression.Parameter { Index: 0 };
+                                var locationType = IrType.Location(fieldType, receiverType.ReadOnly || !initializes && (field.Attributes & FieldAttributes.InitOnly) != 0);
                                 int address = Define(offset, locationType, new IrExpression.LocationField(field.Id, receiver));
                                 if (opcode == "ldflda") stack.Add(address);
                                 else if (opcode == "ldfld") Push(offset, fieldType, new IrExpression.LoadLocation(address), true);
@@ -471,7 +483,7 @@ public static class ValueTranslator
                 }
                 int Define(int offset, IrType type, IrExpression expression, bool fault = false)
                 {
-                    int id = values.Count; values.Add(type);
+                    int id = values.Count; values.Add(type); valueExpressions.Add(expression);
                     Add(new IrStatement.Define(new(id, type, offset, expression), fault ? IrExceptionTarget.MethodExit : null), offset); return id;
                 }
                 void Push(int offset, IrType type, IrExpression expression, bool fault = false) => stack.Add(Define(offset, type, expression, fault));

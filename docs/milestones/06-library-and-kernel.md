@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.10 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.11 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -17,7 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.10 supply integer scalar, composed wide object/value and reference-vector CIL plus closed interface variance metadata; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.11 supply integer scalar, composed wide object/value, struct-constructor and reference-vector CIL plus closed interface variance metadata; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -279,6 +279,20 @@ All 84 focused checks pass; review found no remaining actionable issue. The
 private kernel now reaches a value constructor (CIL2001 at IL_006b) before
 translation stops. This is metadata admission, not native interface assignment
 or dispatch support.
+
+## Slice 6c.11 outcome
+
+Exact struct constructors now use writable checked receivers in the explicit
+integer-object CIL profile. `newobj` initializes bounded temporary inline storage;
+direct constructor calls preserve supplied storage. Readonly field initialization
+is restricted to the declaring constructor's direct receiver before lowering to
+private static calls. Five C# probes match .NET in 1,470 repeated O0/O2 ASan/UBSan
+results, including generic/nested values, allocation, exceptions, empty structs
+and borrowed arguments. See [ADR 0102](../decisions/0102-inline-value-constructors.md).
+All 141 distinct focused checks pass; review found no remaining actionable issue.
+The private kernel now passes constructor-kind admission and stops on a
+constructor storage signature (CIL2002). General value instance calls, narrow/enum
+storage and library integration remain subsequent gates.
 
 ## Remaining completion evidence
 

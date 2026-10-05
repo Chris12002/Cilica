@@ -4,7 +4,7 @@ using Cilica.Metadata;
 
 namespace Cilica.Compiler;
 
-public enum ObjectMethodKind { Static, Instance, Constructor, ObjectBaseConstructor }
+public enum ObjectMethodKind { Static, Instance, Constructor, ObjectBaseConstructor, ValueConstructor }
 
 /// <summary>Detached declaration facts; instance signatures include the explicit receiver at parameter zero.</summary>
 public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, ObjectMethodKind Kind,

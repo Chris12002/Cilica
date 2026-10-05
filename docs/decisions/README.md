@@ -107,3 +107,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0099](0099-wide-managed-object-cil.md) | Wide managed object CIL | Accepted for explicit integer-object composition |
 | [0100](0100-composed-reference-array-cil.md) | Composed reference-array CIL | Accepted for closed reference vectors, covariance and array casts |
 | [0101](0101-closed-interface-variance-declarations.md) | Closed interface variance declarations | Accepted for metadata snapshots; executable variance remains pending |
+| [0102](0102-inline-value-constructors.md) | Inline value constructors | Accepted for checked receiver initialization and native constructor calls |

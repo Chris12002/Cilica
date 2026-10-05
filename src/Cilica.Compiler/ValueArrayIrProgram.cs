@@ -30,13 +30,14 @@ public static class ValueArrayIrValidator
         // checked on the value signatures before hidden scalar parameters exist.
         _ = ValueLayoutPlanner.Build(flow.Types);
         if (bindings.IsDefault || bindings.Any(b => b is null || b.Kind != ObjectMethodKind.Static
+            && !(flow.Types.References.Integer64 && b.Kind == ObjectMethodKind.ValueConstructor)
             && !(delegates && b.Kind == ObjectMethodKind.Instance)
             && !(classes && b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor)))
             throw new ArgumentException("Composed value methods require direct static bindings or explicitly supported class constructors.", nameof(program));
         var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings), locations: true, values: flow.Types, delegates: delegates);
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing, exceptions);
         foreach (var method in flow.Methods)
-            if (objects.Binding(IrMethodId.From(method.Source)).Kind != ObjectMethodKind.Static
+            if (objects.Binding(IrMethodId.From(method.Source)).Kind is not (ObjectMethodKind.Static or ObjectMethodKind.ValueConstructor)
                 && method.Parameters.Concat(method.Locals).Concat(method.Blocks.SelectMany(b => b.Inputs))
                     .Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type))
                     .Any(p => p.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))

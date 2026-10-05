@@ -43,9 +43,9 @@ internal sealed class ManagedLocationRules
         && _heapFields.TryGetValue(id, out var field) && _types.Assignable(receiver, IrType.Reference(id.Owner))
         && Storage(field.Storage) is { } element && Address(element, result, (field.Attributes & FieldAttributes.InitOnly) != 0);
 
-    internal bool NestedField(IrType parent, ObjectFieldId? id, IrType result) =>
+    internal bool NestedField(IrType parent, ObjectFieldId? id, IrType result, bool initializing = false) =>
         parent.Kind == IrTypeKind.ManagedLocation && parent.Element is { } element
-        && _values?.Field(element, id) is { } fieldType && Address(fieldType, result, parent.ReadOnly || _values.ReadOnly(id!));
+        && _values?.Field(element, id) is { } fieldType && Address(fieldType, result, parent.ReadOnly || !initializing && _values.ReadOnly(id!));
 
     internal static bool Load(IrType location, IrType result) => location.Kind == IrTypeKind.ManagedLocation && location.Element == result;
     internal bool Store(IrType location, IrType value) => Writable(location) && _types.Assignable(value, location.Element);

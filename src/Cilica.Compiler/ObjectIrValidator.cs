@@ -73,20 +73,28 @@ internal sealed class ObjectIrRules
             Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
                 && method.Parameters.All(p => _types.Valid(p, true)) && (_types.Valid(method.ReturnType, true) || method.ReturnType == IrType.Void)
                 && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
-                or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor, "invalid bound signature/kind.");
+                or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor, "invalid bound signature/kind.");
             Require((binding.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0
                 && (binding.Attributes & MethodAttributes.MemberAccessMask) is > MethodAttributes.PrivateScope and <= MethodAttributes.Public,
                 "native, abstract and unsupported method flags require later lowering.");
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
+            bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
             Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
-                || isStatic && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0,
+                || (isStatic || valueConstructor) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0,
                 "scalar borrowed parameters currently require direct static methods.");
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
                 || (layout.Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic,
                 "owner visibility contradicts its layout attributes.");
             Require(((binding.Attributes & MethodAttributes.Static) != 0) == isStatic, "static attribute/kind mismatch.");
-            if (!isStatic)
+            if (valueConstructor)
+                Require(values is not null && flow.Types.Integer64 && values.Types.Any(t => ObjectTypeId.From(t.Source) == binding.Owner
+                        && (!binding.OwnerExternallyVisible || t.ExternallyVisible))
+                    && method.Parameters.Length > 0 && method.Parameters[0] == IrType.Location(IrType.Value(binding.Owner))
+                    && method.ReturnType == IrType.Void && binding.VirtualSlot is null
+                    && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final))
+                        == (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName), "value constructor requires an exact writable inline receiver, void and constructor flags.");
+            else if (!isStatic)
                 Require(_layouts.ContainsKey(binding.Owner) && method.Parameters.Length > 0
                     && method.Parameters[0] == IrType.Reference(binding.Owner), "instance receiver must have the exact declaring class type.");
             if (Constructor(binding))
@@ -110,6 +118,9 @@ internal sealed class ObjectIrRules
         ? _interfaces.Declaration(id).ReturnType : _methods.TryGetValue(id, out var method) ? method.ReturnType : null;
 
     internal ObjectMethodBinding Binding(IrMethodId id) => _bindings[id];
+    internal bool InitializesValueField(IrMethod method, ObjectFieldId? field, IrExpression receiver) =>
+        field is not null && Binding(IrMethodId.From(method.Source)) is { Kind: ObjectMethodKind.ValueConstructor } binding
+        && binding.Owner == field.Owner && receiver is IrExpression.Parameter { Index: 0 };
     internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is { ArrayElement: not null }
         ? _program.Flow.Types.Integer64 && ArrayAllocation(method, target)
         : target is not null && (target == _program.Flow.Types.String || _contracts.Contains(target) || _layouts.TryGetValue(target, out var layout)

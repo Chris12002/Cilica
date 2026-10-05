@@ -15,17 +15,23 @@ public static class ValueScalarLowering
     {
         _ = ValueRootAssignment.Assign(program);
         var values = program.Flow.Flow.Flow;
-        var objects = new ObjectIrProgram(LowerCore(values, returnPackets: true), program.Flow.Bindings);
+        var objects = new ObjectIrProgram(LowerCore(values, returnPackets: true), LowerBindings(program.Flow.Bindings));
         var scalar = new ScalarBoxedIrProgram(new(objects), values.Types);
         var result = new ScalarManagedExceptionIrProgram(new(scalar), program.Exceptions);
         _ = ObjectRootAssignment.AssignExceptions(result);
         return result;
     }
 
+    private static ImmutableArray<ObjectMethodBinding> LowerBindings(ImmutableArray<ObjectMethodBinding> bindings) =>
+        [.. bindings.Select(binding => binding.Kind == ObjectMethodKind.ValueConstructor ? binding with {
+            Kind = ObjectMethodKind.Static,
+            Attributes = (binding.Attributes & ~(System.Reflection.MethodAttributes.SpecialName | System.Reflection.MethodAttributes.RTSpecialName))
+                | System.Reflection.MethodAttributes.Static } : binding)];
+
     public static ScalarDelegateIrProgram LowerDelegates(DelegateValueIrProgram program)
     {
         _ = ValueRootAssignment.Assign(program);
-        var scalar = new ScalarBoxedIrProgram(new(new(LowerCore(program.Flow.Flow, returnPackets: true), program.Bindings)), program.Flow.Flow.Types);
+        var scalar = new ScalarBoxedIrProgram(new(new(LowerCore(program.Flow.Flow, returnPackets: true), LowerBindings(program.Bindings))), program.Flow.Flow.Types);
         var result = new ScalarDelegateIrProgram(scalar);
         _ = ObjectRootAssignment.AssignDelegates(result);
         return result;
@@ -34,7 +40,7 @@ public static class ValueScalarLowering
     public static ScalarBoxedIrProgram LowerBoxes(BoxedValueIrProgram program)
     {
         _ = ValueRootAssignment.Assign(program);
-        var result = new ScalarBoxedIrProgram(new(new(LowerCore(program.Flow.Flow, returnPackets: true), program.Bindings)), program.Flow.Flow.Types);
+        var result = new ScalarBoxedIrProgram(new(new(LowerCore(program.Flow.Flow, returnPackets: true), LowerBindings(program.Bindings))), program.Flow.Flow.Types);
         _ = ObjectRootAssignment.AssignBoxes(result);
         return result;
     }
@@ -42,7 +48,7 @@ public static class ValueScalarLowering
     public static ScalarLocationIrProgram LowerArrays(ValueArrayIrProgram program)
     {
         _ = ValueRootAssignment.Assign(program);
-        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow.Flow, returnPackets: true), program.Bindings));
+        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow.Flow, returnPackets: true), LowerBindings(program.Bindings)));
         _ = ObjectRootAssignment.AssignLocations(result);
         return result;
     }
@@ -50,7 +56,7 @@ public static class ValueScalarLowering
     public static ScalarLocationIrProgram LowerObjects(ValueObjectIrProgram program)
     {
         _ = ValueRootAssignment.Assign(program);
-        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow.Flow, returnPackets: true), program.Bindings));
+        var result = new ScalarLocationIrProgram(new(LowerCore(program.Flow.Flow, returnPackets: true), LowerBindings(program.Bindings)));
         _ = ObjectRootAssignment.AssignLocations(result);
         return result;
     }

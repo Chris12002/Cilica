@@ -896,7 +896,10 @@ closed generic scalar fields and managed exceptions
 ([ADR 0099](decisions/0099-wide-managed-object-cil.md)); wide arrays and narrow
 heap storage remain pending. Closed nominal reference vectors now compose with
 generic fields, value flow, managed faults and array casts in that explicit profile
-([ADR 0100](decisions/0100-composed-reference-array-cil.md)).
+([ADR 0100](decisions/0100-composed-reference-array-cil.md)). Exact struct
+constructors now initialize checked inline receiver locations; readonly writes
+are limited to the declaring constructor before private scalar-call lowering
+([ADR 0102](decisions/0102-inline-value-constructors.md)).
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential
