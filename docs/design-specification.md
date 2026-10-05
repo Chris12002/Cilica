@@ -1492,3 +1492,11 @@ previous declaration count while remaining within its byte, instruction and meta
 budgets (ADR 0162). Exact/excess discovery, detached validation and full-capacity
 native O0/O2 checks pass. All other aggregate and runtime limits are unchanged;
 interface declarations, facts and bodies continue to share the method cap.
+
+
+Exact externally visible Int32-backed enums now use existing scalar storage for
+signatures, fields, copies and borrows in the integer-object profile (ADR 0163).
+Metadata shape and selected Enum ancestry are validated; closed generic signatures
+retain nominal identity. Two native probes provide 588 repeated O0/O2 comparisons.
+Other widths, enum boxing/arrays and general Enum APIs remain diagnostic. The
+concrete kernel next needs Boolean field storage; native transcripts remain pending.

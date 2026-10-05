@@ -335,6 +335,8 @@ public static partial class ValueProgramDiscovery
                                 }
                                 if (integers64 && boxing)
                                 {
+                                    if (EnumScalar(signature, work, offset))
+                                        Fail(work, "Enum boxing requires preserved nominal runtime descriptors before execution.", offset);
                                     var normalized = OperandSignature(signature, work, offset);
                                     bool referenceOperand = normalized is TypeSignature.Primitive { Code: PrimitiveTypeCode.Object or PrimitiveTypeCode.String }
                                         or TypeSignature.Named { Kind: SignatureTypeKind.Class }
@@ -621,6 +623,7 @@ public static partial class ValueProgramDiscovery
         private TypeSignature OperandSignature(TypeSignature signature, Work work, int offset)
         {
             if (signature is not TypeSignature.Named named) return signature;
+            if (EnumScalar(signature, work, offset)) return named with { Kind = SignatureTypeKind.ValueType };
             // A TypeDef/TypeRef operand encodes selected primitives as named types.
             // Compare resolver-owned identities; a matching spelling is insufficient.
             foreach (var code in new[] { PrimitiveTypeCode.Int32, PrimitiveTypeCode.UInt32, PrimitiveTypeCode.Int64, PrimitiveTypeCode.UInt64,
@@ -634,6 +637,7 @@ public static partial class ValueProgramDiscovery
 
         private IrType Storage(TypeSignature signature, Work? caller, int offset, bool borrow = false, bool allowVoid = false) => signature switch
         {
+            TypeSignature.Named value when EnumScalar(value, caller, offset) => IrType.Int32,
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
             TypeSignature.Primitive { Code: PrimitiveTypeCode.UInt32 } when integers64 => IrType.Int32,
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 } when integers64 => IrType.Int64,

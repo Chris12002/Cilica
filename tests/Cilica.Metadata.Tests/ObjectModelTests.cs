@@ -262,6 +262,7 @@ public sealed class ObjectModelTests
         var first = Enumerable.Range(1, 2048).Select(row => Field(model.Entry, row)).ToImmutableArray();
         first = first.SetItem(0, first[0] with { Storage = new ObjectStorage.Reference(extraId) });
         var extra = node with { Source = node.Source with { Token = extraId.Token },
+            LexicalOwners = node.LexicalOwners.SetItem(0, node.LexicalOwners[0] with { Token = extraId.Token }),
             Fields = [.. Enumerable.Range(2049, 2048 + (excess ? 1 : 0)).Select(row => Field(extraId, row))] };
         model = model with { Types = [model.Types.Single(t => ObjectTypeId.From(t.Source) == model.ObjectBase), node with { Fields = first }, extra] };
         if (excess) Assert.Contains("aggregate field limit", Assert.Throws<ArgumentException>(() => ObjectModelValidator.Validate(model)).Message, StringComparison.Ordinal);

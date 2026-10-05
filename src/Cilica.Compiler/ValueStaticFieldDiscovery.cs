@@ -24,7 +24,7 @@ public static partial class ValueProgramDiscovery
             if (_staticFields.TryGetValue(id, out var known)) return known;
             if (_staticFields.Count >= ObjectModelLimits.MaximumFields)
                 Fail(work, "Static field storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-            if (field.Signature is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
+            if (!EnumScalar(field.Signature, work, offset) && field.Signature is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
                 or TypeSignature.Named { Kind: SignatureTypeKind.Class } or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } or TypeSignature.Vector))
                 Fail(work, "Static fields currently require Int32 or admitted reference storage; narrow, wide and inline values require later lowering.", offset);
             var storage = Storage(field.Signature, work, offset);

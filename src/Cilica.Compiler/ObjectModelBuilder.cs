@@ -40,12 +40,12 @@ public static class ObjectModelBuilder
 
     internal static ObjectCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, Func<ConstructedType, TypeReadLimits, TypeSnapshot> readType,
-        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null) =>
-        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates, integers64, inline);
+        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null, Func<TypeSignature, bool>? enumScalar = null) =>
+        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates, integers64, inline, enumScalar);
 
     private static ObjectCatalogResult BuildCatalogCore(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly runtimeLibrary, Func<ConstructedType, TypeReadLimits, TypeSnapshot>? readType, ImmutableArray<ObjectTypeId> arrayRoots,
-        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null)
+        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null, Func<TypeSignature, bool>? enumScalar = null)
     {
         strings ??= new(resolver, runtimeLibrary, new(ObjectModelLimits.MaximumMetadataMembers));
         ObjectTypeId? stringType = null;
@@ -214,6 +214,11 @@ public static class ObjectModelBuilder
                 string location = input.Source.Name + "::" + field.Name + " token 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
                 if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "Static, literal, marshalled, RVA, constant and explicit-offset field storage require later lowering.", location);
+                if (integers64 && enumScalar?.Invoke(field.Signature) == true)
+                {
+                    declared.Add(new(new(id, field.Token), field.Name, field.Attributes, new ObjectStorage.Int32()));
+                    continue;
+                }
                 if (integers64 && inline is not null)
                 {
                     var nested = field.Signature switch {

@@ -92,6 +92,19 @@ public static class ValueModelBuilder
             inputs.Add(id, input); observe?.Invoke(type, input); return input;
         }
         TypeInput Read(ResolvedType type, TypeReadLimits limits) => ReadClosed(new(type, SignatureList<TypeSignature>.Empty), limits);
+        var enumScalars = new Dictionary<ResolvedType, bool>();
+        bool EnumScalar(TypeSignature signature)
+        {
+            if (!integers64 || signature is not TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named) return false;
+            if (enumScalars.TryGetValue(named.Definition, out bool known)) return known;
+            try
+            {
+                bool scalar = Int32EnumStorage.Matches(signature,
+                    resolver.ResolveType(library, "System", "Enum").Value, type => Read(type, new()));
+                enumScalars.Add(named.Definition, scalar); return scalar;
+            }
+            catch (ArgumentException error) { Fail(error.Message); return false; }
+        }
         void IncludeValue(ConstructedType type, string path)
         {
             ObjectTypeId id;
@@ -179,7 +192,8 @@ public static class ValueModelBuilder
                     if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                         Fail("Static, literal, marshalled, RVA, explicit-offset and constant field storage require later lowering.", location);
                     ObjectStorage storage;
-                    if (field.Signature is TypeSignature.Named { Kind: SignatureTypeKind.ValueType } nested)
+                    if (EnumScalar(field.Signature)) storage = new ObjectStorage.Int32();
+                    else if (field.Signature is TypeSignature.Named { Kind: SignatureTypeKind.ValueType } nested)
                     {
                         IncludeValue(new(nested.Definition, SignatureList<TypeSignature>.Empty), location); storage = new ObjectStorage.Value(Id(nested.Definition));
                     }
@@ -210,7 +224,7 @@ public static class ValueModelBuilder
                 try { return new(ReadClosed(type, limits), []); }
                 catch (Failure failure) { return new(null, failure.Diagnostics); }
             }
-            referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings, delegates, integers64, integers64 ? type => { IncludeValue(type, "heap field: " + Label(type)); return ClosedId(type); } : null)
+            referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings, delegates, integers64, integers64 ? type => { IncludeValue(type, "heap field: " + Label(type)); return ClosedId(type); } : null, EnumScalar)
                 : ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values.Select(t => t.Definition)], library, Read, [.. arrays], strings);
             if (referenceResult.Catalog is null) return new(null, referenceResult.Diagnostics);
         } while (pending.Count != 0);
