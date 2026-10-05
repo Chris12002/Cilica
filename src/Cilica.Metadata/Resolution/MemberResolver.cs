@@ -110,7 +110,7 @@ public sealed partial class AssemblyResolver
             Visit(lookup, visited);
             MetadataReader target = lookup.Definition.Assembly.Image.Reader;
             var matches = new List<MethodDefinitionHandle>();
-            foreach (MethodDefinitionHandle candidate in target.GetTypeDefinition(lookup.Definition.Handle).GetMethods())
+            foreach (MethodDefinitionHandle candidate in MethodCandidates(lookup.Definition, name, budget))
             {
                 InspectMember(budget);
                 MethodDefinition definition = target.GetMethodDefinition(candidate);
@@ -169,7 +169,7 @@ public sealed partial class AssemblyResolver
             Visit(lookup, visited);
             MetadataReader target = lookup.Definition.Assembly.Image.Reader;
             var matches = new List<FieldDefinitionHandle>();
-            foreach (FieldDefinitionHandle candidate in target.GetTypeDefinition(lookup.Definition.Handle).GetFields())
+            foreach (FieldDefinitionHandle candidate in FieldCandidates(lookup.Definition, name, budget))
             {
                 InspectMember(budget);
                 FieldDefinition field = target.GetFieldDefinition(candidate);

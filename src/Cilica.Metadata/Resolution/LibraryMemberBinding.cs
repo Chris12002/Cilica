@@ -33,7 +33,7 @@ public sealed partial class AssemblyResolver
             var targetImage = owner.Definition.Assembly;
             var reader = targetImage.Image.Reader;
             MethodDefinitionHandle selected = default;
-            foreach (var candidate in reader.GetTypeDefinition(owner.Definition.Handle).GetMethods())
+            foreach (var candidate in MethodCandidates(owner.Definition, name, budget))
             {
                 InspectMember(budget);
                 var definition = reader.GetMethodDefinition(candidate);
@@ -73,7 +73,7 @@ public sealed partial class AssemblyResolver
             var wanted = ProjectLibrarySignature(plan, new SignatureDecoder(this, sourceImage).Field(sourceDefinition.Signature), budget);
             var targetImage = owner.Definition.Assembly; var reader = targetImage.Image.Reader;
             FieldDefinitionHandle selected = default;
-            foreach (var candidate in reader.GetTypeDefinition(owner.Definition.Handle).GetFields())
+            foreach (var candidate in FieldCandidates(owner.Definition, name, budget))
             {
                 InspectMember(budget); var definition = reader.GetFieldDefinition(candidate);
                 if (!reader.StringComparer.Equals(definition.Name, name)) continue;

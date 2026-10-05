@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.45 and 6d.1–6d.22 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.46 and 6d.1–6d.22 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -18,7 +18,7 @@ fixtures and examples must be independent.
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit API added in 6d.3 |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.45 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.46 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.22 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -1139,3 +1139,17 @@ The core evidence is `artifacts/milestone6-library/core-6d22-trial`: image SHA-2
 and 87 grants. `gate-mapped-6d22-trial.json` again reaches CIL2003 metadata work
 exhaustion at ResolutionHandlerRegistry.Get IL_0009, via DriveAutomatic IL_0121.
 No bounds were raised; native kernel equivalence remains pending.
+
+
+## Slice 6c.46 outcome
+
+Budget-owned complete method/field name indexes avoid repeated scans of unrelated
+members during strict and mapped binding (ADR 0160). All matching overloads still
+undergo fresh signature, generic, attribute and conflict checks. Scan work and index
+storage are charged to the existing caller ledger; no bound was raised.
+
+129 focused/composed checks and the full solution build pass. Review confirmed
+complete-scan publication, fresh-budget isolation and unchanged semantic checks.
+With the 6d.22 core/digest, `gate-mapped-6c46-trial.json` reaches missing String.Empty
+in ResolutionHandlerId.WriteCanonical IL_0019. The concrete transcript gate remains
+pending.
