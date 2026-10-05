@@ -477,7 +477,7 @@ public static class ValueTranslator
                             else Push(offset, IrType.Value(boxedType), new IrExpression.UnboxValue(boxedType, boxedOperand), true);
                             break;
                         case "initobj" or "ldobj" or "stobj" or "cpobj":
-                            var valueType = IrType.Value(method.TypeOperands[offset]);
+                            var valueType = method.MemoryOperands.TryGetValue(offset, out var memoryType) ? memoryType : IrType.Value(method.TypeOperands[offset]);
                             int stored = opcode == "stobj" ? Pop(offset, valueType) : -1;
                             if (opcode == "cpobj")
                             {

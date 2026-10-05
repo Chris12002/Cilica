@@ -70,6 +70,11 @@ struct BorrowScope {
         frame = {c.borrows, &roots, roots.slots, roots.count, accepts, integers, count, token, wide_integers, wide_count};
         c.borrows = &frame; status = LocationStatus::complete;
     }
+    // Keep per-frame array access and sanitizer instrumentation out of the
+    // generated method driver, whose native stack must remain bounded at O0.
+    template<class F> [[gnu::noinline]] BorrowScope(Context& c, F* storage, const ReferencePredicate* accepts) noexcept
+        : BorrowScope(c, storage->header, storage->integers.data(), storage->integers.size(), accepts,
+            storage->wide_integers.data(), storage->wide_integers.size()) {}
     BorrowScope(const BorrowScope&) = delete;
     BorrowScope& operator=(const BorrowScope&) = delete;
     ~BorrowScope() noexcept { if (status == LocationStatus::complete) context.borrows = frame.previous; }

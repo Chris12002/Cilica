@@ -670,8 +670,8 @@ public static class ObjectCppEmitter
                 .Append("    RootScope roots(context, f->header, f->roots.data(), f->roots.size());\n");
             if (layout.BorrowsFrame)
             {
-                code.Append("    BorrowScope borrowed(context, f->header, f->integers.data(), f->integers.size(), ")
-                    .Append(FrameType(method)).Append("_root_types.data(), f->wide_integers.data(), f->wide_integers.size());\n");
+                code.Append("    BorrowScope borrowed(context, f, ")
+                    .Append(FrameType(method)).Append("_root_types.data());\n");
                 Guard("borrowed.status != LocationStatus::complete", "borrowed.status == LocationStatus::limit ? 9u : 6u", method.Blocks[0].ILOffset);
                 code.Append("    f->borrow_token = borrowed.frame.token;\n");
             }

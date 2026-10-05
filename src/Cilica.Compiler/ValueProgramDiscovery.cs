@@ -24,6 +24,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, ObjectTypeId> DelegateOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> ArrayOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ObjectInterfaceDeclaration> InterfaceOperands { get; init; } = ImmutableDictionary<int, ObjectInterfaceDeclaration>.Empty;
+    public ImmutableDictionary<int, IrType> MemoryOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
 }
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
@@ -141,6 +142,7 @@ public static partial class ValueProgramDiscovery
                     var intrinsics = ImmutableDictionary.CreateBuilder<int, ValueIntrinsicCall>();
                     var literals = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ushort>>();
                     var interfaceCalls = ImmutableDictionary.CreateBuilder<int, ObjectInterfaceDeclaration>();
+                    var memory = ImmutableDictionary.CreateBuilder<int, IrType>();
                     foreach (var instruction in work.Input.Instructions)
                     {
                         var offset = instruction.Offset;
@@ -266,6 +268,15 @@ public static partial class ValueProgramDiscovery
                             if (generics)
                             {
                                 var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(token)), work, offset);
+                                if (integers64 && instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj")
+                                {
+                                    signature = MemorySignature(signature, work, offset);
+                                    CheckArgumentAccess(signature, work, offset);
+                                    if (IntegerCasts.NarrowStorage(signature) is not null)
+                                        Fail(work, "Narrow memory operands require storage-width-aware locations before execution.", offset);
+                                    memory.Add(offset, Storage(signature, work, offset));
+                                    continue;
+                                }
                                 var operandType = signature switch
                                 {
                                     TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
@@ -286,7 +297,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {
@@ -366,7 +377,7 @@ public static partial class ValueProgramDiscovery
                             : "Readonly value fields cannot be written by this static-method profile.", access.Key);
                     if (field.Storage is ObjectStorage.Value inline) CheckType(inline.Type, access.Key);
                 }
-                foreach (var type in method.Parameters.Concat(method.Locals).Append(method.ReturnType))
+                foreach (var type in method.Parameters.Concat(method.Locals).Append(method.ReturnType).Concat(method.MemoryOperands.Values))
                 {
                     var element = type.Kind == IrTypeKind.ManagedLocation ? type.Element! : type;
                     if (element.Kind == IrTypeKind.Value) CheckType(element.Class!, 0);
@@ -493,6 +504,20 @@ public static partial class ValueProgramDiscovery
             if (_virtualCache.TryGetValue(key, out var known)) return known;
             var exact = Require(resolver.ResolveClosedClassVirtualTarget(declaration, receiver, library, _metadata), caller, offset);
             _virtualCache.Add(key, exact); return exact;
+        }
+
+        private TypeSignature MemorySignature(TypeSignature signature, Work work, int offset)
+        {
+            if (signature is not TypeSignature.Named named) return signature;
+            // A TypeDef/TypeRef operand encodes selected primitives as named types.
+            // Compare resolver-owned identities; a matching spelling is insufficient.
+            foreach (var code in new[] { PrimitiveTypeCode.Int32, PrimitiveTypeCode.UInt32, PrimitiveTypeCode.Int64, PrimitiveTypeCode.UInt64,
+                PrimitiveTypeCode.Boolean, PrimitiveTypeCode.Char, PrimitiveTypeCode.SByte, PrimitiveTypeCode.Byte,
+                PrimitiveTypeCode.Int16, PrimitiveTypeCode.UInt16, PrimitiveTypeCode.Object, PrimitiveTypeCode.String })
+                if (named.Definition == Require(resolver.ResolveRuntimeType(library, code), work, offset))
+                    return new TypeSignature.Primitive(code);
+            return named.Kind == SignatureTypeKind.Unknown
+                ? named with { Kind = Inline(named.Definition, work, offset) ? SignatureTypeKind.ValueType : SignatureTypeKind.Class } : named;
         }
 
         private IrType Storage(TypeSignature signature, Work? caller, int offset, bool borrow = false, bool allowVoid = false) => signature switch

@@ -908,6 +908,10 @@ Same-image public/internal calls also use bounded declaring-chain visibility
 facts; both discovery and detached validation enforce the same access rule
 ([ADR 0116](decisions/0116-same-assembly-method-access.md)). Broader protected,
 friend-assembly, field and type-operand access remain separate gates.
+Closed generic memory operations now preserve exact substituted storage for
+integer, reference and inline-value operands; defaults clear the existing checked
+locations ([ADR 0117](decisions/0117-closed-generic-memory-operations.md)). Narrow
+memory operands still require width-aware carriers.
 
 ## 11. Class library and assembly identity
 

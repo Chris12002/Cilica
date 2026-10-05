@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.25 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.26 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -17,7 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.23 supply integer/narrow scalar, composed wide object/value, struct-constructor, direct class-instance and reference-vector CIL plus closed interface assignments/calls and closed class virtual calls; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.26 supply integer/narrow scalar, composed wide object/value, struct-constructor, direct class-instance and reference-vector CIL plus closed interface/class calls with values, same-image helper calls and generic memory operations; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -478,6 +478,17 @@ sanitizer results. Review found no remaining actionable issue. See
 [ADR 0116](../decisions/0116-same-assembly-method-access.md). The private kernel
 now reaches closed generic default initialization in PassPriority. Local main
 remains an ancestor; native kernel execution is still pending.
+
+## Slice 6c.26 outcome
+
+Closed generic initobj/ldobj/stobj/cpobj now use exact admitted integer, reference
+or value storage. Three probes match .NET in 882 repeated native sanitizer
+results; explicit primitive copies/defaults add 588 expected results. All 102
+distinct focused checks pass. Testing exposed and corrected a generated O0
+driver stack overrun while retaining the 2 KiB limit. Review found no remaining
+actionable issue. See [ADR 0117](../decisions/0117-closed-generic-memory-operations.md).
+The private kernel now reaches a class constructor with value parameters; native
+kernel comparison remains pending. Local main remains an ancestor.
 
 ## Remaining completion evidence
 
