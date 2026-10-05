@@ -135,7 +135,7 @@ public static class ValueTranslator
             }
             var program = new ManagedLocationIrProgram(new(input.Entry, [.. translated], input.Types));
             if (integers64) program = RetainUsedVectors(program);
-            var interfacePlan = input.InterfaceDispatch is null ? null : input.InterfaceDispatch with { Types = program.Flow.Types.References };
+            var interfacePlan = input.InterfaceDispatch is null ? null : input.InterfaceDispatch with { Types = program.Flow.Types.References, Values = input.InterfaceDispatch.Values is null ? null : program.Flow.Types };
             ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
             try
             {

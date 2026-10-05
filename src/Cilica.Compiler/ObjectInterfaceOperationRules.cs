@@ -13,11 +13,13 @@ internal sealed class ObjectInterfaceOperationRules
     internal int TargetCount { get; }
 
     internal ObjectInterfaceOperationRules(ObjectIrProgram program, IReadOnlyDictionary<IrMethodId, ObjectMethodBinding> bindings,
-        IReadOnlyDictionary<IrMethodId, IrMethod> methods)
+        IReadOnlyDictionary<IrMethodId, IrMethod> methods, ValueTypeCatalog? values = null)
     {
         if (program.InterfaceDispatch is not { } plan) return;
         ObjectInterfacePlanValidator.Validate(plan);
         Require(CatalogMatches(program.Flow.Types, plan.Types), "interface plan and executable catalog disagree.");
+        Require(plan.Values is null || values is not null && ValueCatalogMatches(plan.Values, values),
+            "interface value layouts and executable catalog disagree.");
         foreach (var declaration in plan.Declarations)
         {
             var id = IrMethodId.From(declaration.Source);
@@ -46,7 +48,8 @@ internal sealed class ObjectInterfaceOperationRules
     internal IEnumerable<IrMethodId> Targets(IrMethodId id) => _maps[id].Targets.Select(t => t.Implementation);
     internal bool Mapped(ObjectMethodBinding binding) => _facts.TryGetValue(binding.Method, out var fact) && fact.Binding == binding;
     internal IEnumerable<ObjectTypeId> SignatureTypes(IrMethodId id) => _declarations[id].Parameters.Append(_declarations[id].ReturnType)
-        .Where(t => t.Class is not null).Select(t => t.Class!);
+        .Select(t => t.Kind == IrTypeKind.ManagedLocation ? t.Element! : t)
+        .Where(t => t.Kind == IrTypeKind.Reference).Select(t => t.Class!);
 
     internal void ValidateUsage(ObjectIrProgram program)
     {
@@ -60,7 +63,17 @@ internal sealed class ObjectInterfaceOperationRules
         Require(used.SetEquals(_maps.Keys), "interface maps must exactly match reachable interface call declarations.");
     }
 
-    private static bool CatalogMatches(ObjectTypeCatalog left, ObjectTypeCatalog right)
+    private static bool ValueCatalogMatches(ValueTypeCatalog left, ValueTypeCatalog right)
+    {
+        if (left.ValueBase != right.ValueBase || !left.Roots.ToHashSet().SetEquals(right.Roots)
+            || left.Types.Length != right.Types.Length || !CatalogMatches(left.References, right.References)) return false;
+        var types = right.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
+        return left.Types.All(t => types.TryGetValue(ObjectTypeId.From(t.Source), out var other)
+            && t.Source == other.Source && t.Attributes == other.Attributes && t.ExternallyVisible == other.ExternallyVisible
+            && t.Fields.SequenceEqual(other.Fields));
+    }
+
+    internal static bool CatalogMatches(ObjectTypeCatalog left, ObjectTypeCatalog right)
     {
         if (left.Integer64 != right.Integer64 || !left.Delegates.SequenceEqual(right.Delegates)
             || left.String != right.String || left.ObjectBase != right.ObjectBase || !left.Roots.ToHashSet().SetEquals(right.Roots)

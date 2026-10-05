@@ -221,7 +221,8 @@ public static partial class ValueProgramDiscovery
                             if (instruction.OpCode == "callvirt" && !integers64) Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
                             if (integers64 && instruction.OpCode == "callvirt" && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Interface) != 0)
                             {
-                                _interfaceSession ??= new(resolver, library, _metadata, closed: true);
+                                _interfaceSession ??= new(resolver, library, _metadata, closed: true,
+                                    signature: (type, allowVoid) => Storage(type, root, 0, borrow: !allowVoid, allowVoid: allowVoid));
                                 ObjectInterfaceDeclaration interfaceDeclaration;
                                 try { interfaceDeclaration = _interfaceSession.Declare(target); }
                                 catch (ObjectInterfacePlanBuilder.PlanFailure failure) { throw new Failure(failure.Diagnostic with { Location = Location(work, offset) }); }
@@ -306,7 +307,7 @@ public static partial class ValueProgramDiscovery
                 catalog = built.Catalog ?? throw new Failure(built.Diagnostics[0]);
                 if (_interfaceSession is not null)
                 {
-                    try { interfacePlan = _interfaceSession.RunPrepared(catalog.References, _knownTypes, [.. _interfaces.Values.Select(s => s.Method)]); }
+                    try { interfacePlan = _interfaceSession.RunPrepared(catalog.References, _knownTypes, [.. _interfaces.Values.Select(s => s.Method)], catalog); }
                     catch (ObjectInterfacePlanBuilder.PlanFailure failure)
                     {
                         if (failure.Declaration is { } id && _interfaces.TryGetValue(id, out var site))

@@ -901,8 +901,9 @@ actual-value constructors, localization and broader exception APIs remain pendin
 Exact class virtual calls also carry inline copies, rooted returns and bounded
 borrow parameters in the explicit integer-object profile; by-value starg writes
 use the existing checked parameter storage
-([ADR 0114](decisions/0114-class-virtual-value-signatures.md)). Interface value
-plans remain a separate gate.
+([ADR 0114](decisions/0114-class-virtual-value-signatures.md)). Exact interface
+calls now use the same signature expansion, with checked value layouts retained
+in their dispatch plans ([ADR 0115](decisions/0115-interface-value-signatures.md)).
 
 ## 11. Class library and assembly identity
 

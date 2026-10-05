@@ -22,6 +22,7 @@ public sealed record ObjectInterfaceDispatchPlan(ObjectTypeCatalog Types,
     ImmutableArray<ObjectInterfaceDispatch> Dispatch)
 {
     public const string Profile = "interface-dispatch-plan-v1";
+    public ValueTypeCatalog? Values { get; init; }
 }
 
 public sealed record ObjectInterfacePlanResult(ObjectInterfaceDispatchPlan? Plan, ImmutableArray<Diagnostic> Diagnostics)

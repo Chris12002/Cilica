@@ -16,7 +16,7 @@ public static class ValueScalarLowering
         _ = ValueRootAssignment.Assign(program);
         var values = program.Flow.Flow.Flow;
         var objects = new ObjectIrProgram(LowerCore(values, returnPackets: true), LowerBindings(program.Flow.Bindings))
-            { InterfaceDispatch = program.Flow.InterfaceDispatch, Dispatch = program.Flow.Dispatch };
+            { InterfaceDispatch = LowerInterfacePlan(program.Flow.InterfaceDispatch), Dispatch = program.Flow.Dispatch };
         var scalar = new ScalarBoxedIrProgram(new(objects), values.Types);
         var result = new ScalarManagedExceptionIrProgram(new(scalar), program.Exceptions);
         _ = ObjectRootAssignment.AssignExceptions(result);
@@ -33,7 +33,7 @@ public static class ValueScalarLowering
     {
         _ = ValueRootAssignment.Assign(program);
         var objects = new ObjectIrProgram(LowerCore(program.Flow.Flow, returnPackets: true), LowerBindings(program.Bindings))
-            { InterfaceDispatch = program.InterfaceDispatch, Dispatch = program.Dispatch };
+            { InterfaceDispatch = LowerInterfacePlan(program.InterfaceDispatch), Dispatch = program.Dispatch };
         var scalar = new ScalarBoxedIrProgram(new(objects), program.Flow.Flow.Types);
         var result = new ScalarDelegateIrProgram(scalar);
         _ = ObjectRootAssignment.AssignDelegates(result);
@@ -83,6 +83,52 @@ public static class ValueScalarLowering
         return result;
     }
 
+    private static ImmutableArray<IrType> ExpandSignatureType(IrType type, IReadOnlyDictionary<ObjectTypeId, ValueTypePlan> plans)
+    {
+        static IrType Scalar(ObjectStorage storage) => storage switch
+        {
+            ObjectStorage.Int32 => IrType.Int32,
+            ObjectStorage.Int64 => IrType.Int64,
+            ObjectStorage.Reference reference => IrType.Reference(reference.Type),
+            _ => throw new InvalidOperationException("Validated layout has a non-scalar leaf."),
+        };
+        return type.Kind switch
+        {
+            IrTypeKind.Value => [.. plans[type.Class!].Slots.Select(slot => Scalar(slot.Storage))],
+            IrTypeKind.ManagedLocation when type.Element!.Kind == IrTypeKind.Value =>
+                [.. plans[type.Element.Class!].Slots.Select(slot => IrType.Location(Scalar(slot.Storage), type.ReadOnly))],
+            _ => [type],
+        };
+    }
+
+    private static ObjectInterfaceDispatchPlan? LowerInterfacePlan(ObjectInterfaceDispatchPlan? plan)
+    {
+        if (plan?.Values is not { } values) return plan;
+        var layouts = ValueLayoutPlanner.Build(values).ToDictionary(p => p.Type);
+        ImmutableArray<IrType> Parameters(ImmutableArray<IrType> parameters, IrType returned)
+        {
+            var result = ImmutableArray.CreateBuilder<IrType>();
+            void Append(IrType type, bool destination)
+            {
+                var expanded = ExpandSignatureType(type, layouts);
+                if (expanded.Length > IrLimits.MaximumParameters - result.Count)
+                    throw new ArgumentException("Value interface signature exceeds the expanded parameter budget.");
+                result.AddRange(destination ? expanded.Select(t => IrType.Location(t)) : expanded);
+            }
+            foreach (var parameter in parameters) Append(parameter, false);
+            if (returned.Kind == IrTypeKind.Value) Append(returned, true);
+            return result.ToImmutable();
+        }
+        var lowered = plan with {
+            Values = null,
+            Declarations = [.. plan.Declarations.Select(d => d with { Parameters = Parameters(d.Parameters, d.ReturnType),
+                ReturnType = d.ReturnType.Kind == IrTypeKind.Value ? IrType.Void : d.ReturnType })],
+            Methods = [.. plan.Methods.Select(m => m with { Parameters = Parameters(m.Parameters, m.ReturnType),
+                ReturnType = m.ReturnType.Kind == IrTypeKind.Value ? IrType.Void : m.ReturnType })] };
+        ObjectInterfacePlanValidator.Validate(lowered);
+        return lowered;
+    }
+
     private static ReferenceIrProgram LowerCore(ValueIrProgram program, bool returnPackets = false)
     {
         var plans = ValueLayoutPlanner.Build(program.Types).ToDictionary(p => p.Type);
@@ -108,20 +154,7 @@ public static class ValueScalarLowering
                 ranges.Add(field.Id, (start, count)); start += count;
             }
         }
-        static IrType Scalar(ObjectStorage storage) => storage switch
-        {
-            ObjectStorage.Int32 => IrType.Int32,
-            ObjectStorage.Int64 => IrType.Int64,
-            ObjectStorage.Reference reference => IrType.Reference(reference.Type),
-            _ => throw new InvalidOperationException("Validated layout has a non-scalar leaf."),
-        };
-        ImmutableArray<IrType> Expand(IrType type) => type.Kind switch
-        {
-            IrTypeKind.Value => [.. plans[type.Class!].Slots.Select(slot => Scalar(slot.Storage))],
-            IrTypeKind.ManagedLocation when type.Element!.Kind == IrTypeKind.Value =>
-                [.. plans[type.Element.Class!].Slots.Select(slot => IrType.Location(Scalar(slot.Storage), type.ReadOnly))],
-            _ => [type],
-        };
+        ImmutableArray<IrType> Expand(IrType type) => ExpandSignatureType(type, plans);
         static void Require(bool condition, string message)
         {
             if (!condition) throw new ArgumentException("Value scalar lowering: " + message, nameof(program));

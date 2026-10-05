@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.23 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.24 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -457,6 +457,17 @@ checks pass. Review retained the explicit integer-object catalog gate and found
 no remaining actionable issue. See
 [ADR 0114](../decisions/0114-class-virtual-value-signatures.md). Interface value
 plans/discovery remain pending; local main remains an ancestor.
+
+## Slice 6c.24 outcome
+
+Exact interface signatures now carry inline values and synchronous borrows using
+shared scalar signature expansion and rooted return destinations. Detached plans
+must retain the executable value layouts. Four probes match .NET in 1,176 repeated
+native sanitizer results; all 69 distinct focused checks pass. Review found no
+remaining actionable issue. See
+[ADR 0115](../decisions/0115-interface-value-signatures.md). The private kernel
+advances to an internal helper call in CommandId construction; native kernel
+equivalence remains pending. Local main remains an ancestor.
 
 ## Remaining completion evidence
 

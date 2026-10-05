@@ -107,7 +107,7 @@ internal sealed class ObjectIrRules
             }
             else Require(binding.Owner != flow.Types.ObjectBase, "ordinary selected Object methods require explicit runtime support.");
         }
-        _interfaces = new(program, _bindings, _methods);
+        _interfaces = new(program, _bindings, _methods, values);
         _dispatch = new(program, _bindings, _methods, _types, _interfaces);
     }
 

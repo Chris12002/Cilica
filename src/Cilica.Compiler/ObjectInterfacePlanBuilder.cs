@@ -47,7 +47,7 @@ public static class ObjectInterfacePlanBuilder
     }
     // A monotonic translation closure: Run receives the complete declaration set on each pass.
     internal sealed class Session(AssemblyResolver resolver, ResolvedAssembly runtimeLibrary, MemberResolutionBudget budget,
-        Func<ResolvedType, TypeReadLimits, TypeInput>? readType = null, bool closed = false)
+        Func<ResolvedType, TypeReadLimits, TypeInput>? readType = null, bool closed = false, Func<TypeSignature, bool, IrType>? signature = null)
     {
         private readonly ObjectStringType _strings = new(resolver, runtimeLibrary, budget);
         private readonly Dictionary<ObjectTypeId, ConstructedType> _roots = [], _knownTypes = [];
@@ -60,6 +60,7 @@ public static class ObjectInterfacePlanBuilder
         private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ClosedInterfaceMethodTarget> _choices = [];
         private ObjectTypeId _object = null!;
         private int _parameters;
+        private ValueTypeCatalog? _values;
 
         internal ObjectInterfaceDispatchPlan Run(ImmutableArray<ResolvedType> roots, ImmutableArray<ResolvedMethod> declarations,
             ImmutableArray<ObjectTypeId> arrays = default)
@@ -98,8 +99,9 @@ public static class ObjectInterfacePlanBuilder
         internal IEnumerable<ConstructedType> ClosedRoots => _roots.Values;
         internal IEnumerable<ObjectTypeId> Arrays => _arrays;
         internal ObjectInterfaceDispatchPlan RunPrepared(ObjectTypeCatalog catalog,
-            IReadOnlyDictionary<ObjectTypeId, ConstructedType> known, ImmutableArray<ResolvedMethod> declarations)
+            IReadOnlyDictionary<ObjectTypeId, ConstructedType> known, ImmutableArray<ResolvedMethod> declarations, ValueTypeCatalog? values = null)
         {
+            _values = values;
             foreach (var pair in known) _knownTypes.TryAdd(pair.Key, pair.Value);
             return Prepare(catalog, declarations);
         }
@@ -144,7 +146,7 @@ public static class ObjectInterfacePlanBuilder
             var plan = new ObjectInterfaceDispatchPlan(catalog,
                 [.. _declarations.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).ThenBy(p => p.Key.Specialization, StringComparer.Ordinal).Select(p => p.Value)],
                 [.. _methods.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).ThenBy(p => p.Key.Specialization, StringComparer.Ordinal).Select(p => p.Value)],
-                [.. maps.OrderBy(m => m.Declaration.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Declaration.Token).ThenBy(m => m.Declaration.Specialization, StringComparer.Ordinal)]);
+                [.. maps.OrderBy(m => m.Declaration.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Declaration.Token).ThenBy(m => m.Declaration.Specialization, StringComparer.Ordinal)]) { Values = _values };
             try { ObjectInterfacePlanValidator.Validate(plan); }
             catch (ArgumentException exception) { Fail(exception.Message); }
             return plan;
@@ -218,8 +220,8 @@ public static class ObjectInterfacePlanBuilder
                 return;
             }
             var parameters = Parameters(input, owner); var returned = Type(input.Signature.ReturnType, true);
-            if (parameters.Append(returned).Any(t => t.Class is { } type && !catalog.Types.Any(c => ObjectTypeId.From(c.Source) == type)
-                && !catalog.Interfaces.Any(c => ObjectTypeId.From(c.Source) == type) && !catalog.Arrays.Contains(type) && type != catalog.String))
+            var types = new IrTypeRules(catalog, _values, locations: catalog.Integer64);
+            if (parameters.Any(t => !types.Valid(t, true)) || returned != IrType.Void && !types.Valid(returned, true))
                 Fail("Mapped method signature introduced a type outside the prepared catalog.", input.Source.Name);
             Count(parameters.Length);
             _methods.Add(id, new(new(id, owner, ObjectMethodKind.Instance, input.Attributes, input.OwnerExternallyVisible)
@@ -236,8 +238,8 @@ public static class ObjectInterfacePlanBuilder
                 Fail("Interface catalog root limit exceeded.", limit: true);
             _arrays.Add(array); return array;
         }
-        private IrType Type(TypeSignature signature, bool allowVoid = false) =>
-            ObjectSignatureTypes.Convert(signature, _object, Include, IncludeArray, allowVoid, () => Include(_strings.Require()), integers64: closed,
+        private IrType Type(TypeSignature type, bool allowVoid = false) => signature is not null ? signature(type, allowVoid) :
+            ObjectSignatureTypes.Convert(type, _object, Include, IncludeArray, allowVoid, () => Include(_strings.Require()), integers64: closed,
                 closedReference: closed ? generic => Include(new ConstructedType(generic.Definition.Definition, generic.Arguments)) : null)
             ?? throw new PlanFailure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error, ObjectSignatureTypes.Unsupported));
         private void Count(int count) { _parameters += count; if (_parameters > ProgramLimits.MaximumCallArguments) Fail("Aggregate dispatch parameter limit exceeded.", limit: true); }

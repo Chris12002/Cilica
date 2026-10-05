@@ -14,7 +14,13 @@ public static class ObjectInterfacePlanValidator
     {
         ArgumentNullException.ThrowIfNull(plan);
         ObjectModelValidator.Validate(plan.Types);
-        var types = new IrTypeRules(plan.Types);
+        if (plan.Values is { } values)
+        {
+            _ = ValueLayoutPlanner.Build(values);
+            Require(plan.Types.Integer64 && ObjectInterfaceOperationRules.CatalogMatches(plan.Types, values.References),
+                "interface value signatures require the same explicit integer-object catalog.");
+        }
+        var types = new IrTypeRules(plan.Types, plan.Values, locations: plan.Types.Integer64);
         var classes = plan.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var contracts = plan.Types.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
         Require(!plan.Declarations.IsDefault && plan.Declarations.Length is > 0 and <= ProgramLimits.MaximumMethods
@@ -23,7 +29,7 @@ public static class ObjectInterfacePlanValidator
         bool Signature(System.Collections.Immutable.ImmutableArray<IrType> parameters, IrType result, ObjectTypeId owner) =>
             !parameters.IsDefault && parameters.Length is > 0 and <= IrLimits.MaximumParameters
             && parameters[0] == IrType.Reference(owner) && parameters.All(t => types.Valid(t, true))
-            && (types.Valid(result, true) || result == IrType.Void);
+            && result is not null && (result.Kind != IrTypeKind.ManagedLocation && types.Valid(result, true) || result == IrType.Void);
         var declarations = new Dictionary<IrMethodId, ObjectInterfaceDeclaration>();
         int parameters = 0;
         foreach (var declaration in plan.Declarations)

@@ -29,8 +29,16 @@ public sealed class ClosedInterfaceTranslationTests
         [(nameof(ClosedDispatchProbe.Wide), ClosedDispatchProbe.Wide), (nameof(ClosedDispatchProbe.References), ClosedDispatchProbe.References),
             (nameof(ClosedDispatchProbe.Faults), ClosedDispatchProbe.Faults), (nameof(ClosedDispatchProbe.SameWidth), ClosedDispatchProbe.SameWidth)], typeof(ClosedDispatchProbe));
 
+    [Fact]
+    public void Closed_interface_value_signature_uses_checked_value_plan()
+    {
+        var result = IntegerObjectTranslationTests.Translate("ValueSignature", fixture: typeof(ClosedDispatchProbe));
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
+    }
+
     [Theory]
-    [InlineData("ValueSignature")] [InlineData("VariantCall")]
+    [InlineData("VariantCall")]
     public void Unimplemented_dispatch_extensions_remain_actionable(string name)
     {
         var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(ClosedDispatchProbe));
