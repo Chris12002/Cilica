@@ -20,6 +20,7 @@ public sealed record ValueTranslationResult(ManagedLocationIrProgram? Program,
 {
     public bool Success => Program is not null;
     public ManagedExceptionTypes? Exceptions { get; init; }
+    public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
 }
 
 public sealed record ValueArrayTranslationResult(ValueArrayIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)
@@ -48,7 +49,7 @@ public static class ValueTranslator
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
         var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true, exceptions: true, integers64: true);
-        return new(result.Program is null ? null : new(new(result.Program, result.Bindings), result.Exceptions!), result.Diagnostics);
+        return new(result.Program is null ? null : new(new(result.Program, result.Bindings) { InterfaceDispatch = result.InterfaceDispatch }, result.Exceptions!), result.Diagnostics);
     }
 
     public const string ExceptionProfile = "managed-exceptions-cil-v1";
@@ -133,10 +134,11 @@ public static class ValueTranslator
             }
             var program = new ManagedLocationIrProgram(new(input.Entry, [.. translated], input.Types));
             if (integers64) program = RetainUsedVectors(program);
+            var interfacePlan = input.InterfaceDispatch is null ? null : input.InterfaceDispatch with { Types = program.Flow.Types.References };
             ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
             try
             {
-                if (exceptions) _ = ValueRootAssignment.Assign(new ManagedExceptionIrProgram(new(program, bindings), input.Exceptions!));
+                if (exceptions) _ = ValueRootAssignment.Assign(new ManagedExceptionIrProgram(new(program, bindings) { InterfaceDispatch = interfacePlan }, input.Exceptions!));
                 else if (delegates) _ = ValueRootAssignment.Assign(new DelegateValueIrProgram(program, bindings));
                 else if (boxing) _ = ValueRootAssignment.Assign(new BoxedValueIrProgram(program, bindings));
                 else if (classes) _ = ValueRootAssignment.Assign(new ValueObjectIrProgram(program, bindings));
@@ -144,7 +146,7 @@ public static class ValueTranslator
                 else _ = ValueRootAssignment.Assign(program);
             }
             catch (ArgumentException error) { Fail(methods[input.Entry], 0, error.Message); }
-            return new(program, bindings, []) { Exceptions = input.Exceptions };
+            return new(program, bindings, []) { Exceptions = input.Exceptions, InterfaceDispatch = interfacePlan };
         }
         catch (Failure failure) { return new(null, [], [failure.Diagnostic]); }
     }
@@ -383,6 +385,13 @@ public static class ValueTranslator
                             break;
                         case "newobj" when method.DelegateOperands.ContainsKey(offset):
                             Error(offset, "Delegate constructor requires a preceding adjacent ldftn in the same block.", DiagnosticIds.ExecutionUnsupported); break;
+                        case "callvirt" when method.InterfaceOperands.TryGetValue(offset, out var contract):
+                            var interfaceArguments = new int[contract.Parameters.Length];
+                            for (int i = interfaceArguments.Length - 1; i >= 0; --i) interfaceArguments[i] = Pop(offset, contract.Parameters[i]);
+                            var interfaceMethod = IrMethodId.From(contract.Source);
+                            if (contract.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, interfaceMethod, [.. interfaceArguments], NullCheckReceiver: true, VirtualDispatch: true), offset);
+                            else Push(offset, contract.ReturnType, new IrExpression.Call(interfaceMethod, [.. interfaceArguments], NullCheckReceiver: true, VirtualDispatch: true), true);
+                            break;
                         case "newobj" when classes:
                         case "callvirt" when types.IntegerCasts:
                         case "call":

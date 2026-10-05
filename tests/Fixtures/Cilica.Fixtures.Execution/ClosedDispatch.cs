@@ -34,12 +34,27 @@ namespace Cilica.Fixtures.Execution
         int IClosedDispatch<T>.Code() => 66;
     }
     public sealed class ClosedDispatchConcrete : ClosedDispatchOverride<long> { }
-    public sealed class ClosedDispatchDual : IClosedDispatch<int>, IClosedDispatch<long>
+    public sealed class ClosedDispatchDual : IClosedDispatch<int>, IClosedDispatch<long>, IClosedDispatch<uint>
     {
         int IClosedDispatch<int>.Echo(int value) => value;
         long IClosedDispatch<long>.Echo(long value) => value;
+        uint IClosedDispatch<uint>.Echo(uint value) => value;
         int IClosedDispatch<int>.Code() => 77;
         int IClosedDispatch<long>.Code() => 88;
+        int IClosedDispatch<uint>.Code() => 99;
+    }
+    public sealed class ClosedDispatchChain<T> : IClosedDispatch<T>
+    {
+        public T Echo(T value)
+        {
+            IClosedDispatch<T> next = new ClosedDispatchExplicit<T>();
+            return next.Echo(value);
+        }
+        public int Code()
+        {
+            IClosedDispatch<T> next = new ClosedDispatchBase<T>();
+            return next.Code() + 100;
+        }
     }
     public sealed class ClosedDispatchReference<T> : IClosedDispatch<T> where T : class
     {

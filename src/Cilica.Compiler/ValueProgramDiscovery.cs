@@ -23,6 +23,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, ImmutableArray<ushort>> Literals { get; init; } = ImmutableDictionary<int, ImmutableArray<ushort>>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> DelegateOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> ArrayOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
+    public ImmutableDictionary<int, ObjectInterfaceDeclaration> InterfaceOperands { get; init; } = ImmutableDictionary<int, ObjectInterfaceDeclaration>.Empty;
 }
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
@@ -31,6 +32,7 @@ public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, 
 public sealed record ValueProgramInput(IrMethodId Entry, ImmutableArray<ValueMethodInput> Methods, ValueTypeCatalog Types)
 {
     public ManagedExceptionTypes? Exceptions { get; init; }
+    public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
 }
 public sealed record ValueDiscoveryResult(ValueProgramInput? Input, ImmutableArray<Diagnostic> Diagnostics)
 {
@@ -97,6 +99,9 @@ public static partial class ValueProgramDiscovery
         private readonly Dictionary<ObjectTypeId, ConstructedType> _references = [];
         private readonly HashSet<ObjectTypeId> _vectors = [];
         private readonly Dictionary<ObjectTypeId, TypeInput> _snapshots = [];
+        private readonly Dictionary<ObjectTypeId, ConstructedType> _knownTypes = [];
+        private readonly Dictionary<IrMethodId, (ResolvedMethod Method, Work Caller, int Offset)> _interfaces = [];
+        private ObjectInterfacePlanBuilder.Session? _interfaceSession;
         private readonly Dictionary<(string Hash, int Token), ResolvedMethod> _calls = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedField> _fields = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedType> _types = [];
@@ -116,157 +121,203 @@ public static partial class ValueProgramDiscovery
             if (root.Binding.Kind != ObjectMethodKind.Static || root.ReturnType != IrType.Int32 || root.Parameters.Any(t => t != IrType.Int32))
                 Fail(root, "Value entry requires Int32 parameters and return; values and borrows remain internal.");
             var methods = new List<ValueMethodInput>();
-            while (_pending.TryDequeue(out var work))
+            ValueTypeCatalog catalog;
+            ObjectInterfaceDispatchPlan? interfacePlan = null;
+            while (true)
             {
-                var calls = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
-                var fields = ImmutableDictionary.CreateBuilder<int, ObjectFieldId>();
-                var types = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
-                var callable = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
-                var vectors = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
-                var intrinsics = ImmutableDictionary.CreateBuilder<int, ValueIntrinsicCall>();
-                var literals = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ushort>>();
-                foreach (var instruction in work.Input.Instructions)
+                while (_pending.TryDequeue(out var work))
                 {
-                    var offset = instruction.Offset;
-                    if (exceptions && instruction.OpCode == "ldstr")
+                    var calls = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
+                    var fields = ImmutableDictionary.CreateBuilder<int, ObjectFieldId>();
+                    var types = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
+                    var callable = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
+                    var vectors = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
+                    var intrinsics = ImmutableDictionary.CreateBuilder<int, ValueIntrinsicCall>();
+                    var literals = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ushort>>();
+                    var interfaceCalls = ImmutableDictionary.CreateBuilder<int, ObjectInterfaceDeclaration>();
+                    foreach (var instruction in work.Input.Instructions)
                     {
-                        _ = IncludeString(work, offset);
-                        if (_literalUnits >= ObjectStringLimits.MaximumTotalLiteralCodeUnits) Fail(work, "String literal budget exceeded.", offset, DiagnosticIds.TranslationLimit);
-                        var literal = Require(resolver.ReadUserString(work.Assembly, instruction.IntegerOperand ?? 0,
-                            Math.Min(ObjectStringLimits.MaximumLiteralCodeUnits, ObjectStringLimits.MaximumTotalLiteralCodeUnits - _literalUnits)), work, offset);
-                        _literalUnits += literal.CodeUnits.Length; literals.Add(offset, literal.CodeUnits);
-                    }
-                    else if (exceptions && instruction.OpCode is ("isinst" or "castclass"))
-                    {
-                        var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
-                        types.Add(offset, ReferenceOperand(signature, work, offset));
-                    }
-                    else if (arrays && instruction.OpCode == "newarr")
-                    {
-                        if (integers64)
+                        var offset = instruction.Offset;
+                        if (exceptions && instruction.OpCode == "ldstr")
+                        {
+                            _ = IncludeString(work, offset);
+                            if (_literalUnits >= ObjectStringLimits.MaximumTotalLiteralCodeUnits) Fail(work, "String literal budget exceeded.", offset, DiagnosticIds.TranslationLimit);
+                            var literal = Require(resolver.ReadUserString(work.Assembly, instruction.IntegerOperand ?? 0,
+                                Math.Min(ObjectStringLimits.MaximumLiteralCodeUnits, ObjectStringLimits.MaximumTotalLiteralCodeUnits - _literalUnits)), work, offset);
+                            _literalUnits += literal.CodeUnits.Length; literals.Add(offset, literal.CodeUnits);
+                        }
+                        else if (exceptions && instruction.OpCode is ("isinst" or "castclass"))
                         {
                             var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
-                            vectors.Add(offset, Vector(signature, work, offset)); continue;
+                            types.Add(offset, ReferenceOperand(signature, work, offset));
                         }
-                        int token = Token(work, instruction, 0x01, 0x02);
-                        var key = (work.Assembly.ContentHash, token);
-                        if (!_types.TryGetValue(key, out var element))
+                        else if (arrays && instruction.OpCode == "newarr")
                         {
-                            element = Require(resolver.ResolveType(work.Assembly, MetadataTokens.EntityHandle(token)), work, offset);
-                            _types.Add(key, element);
-                        }
-                        _integer ??= ObjectModelBuilder.Id(Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), work, offset));
-                        if (ObjectModelBuilder.Id(element) != _integer)
-                            Fail(work, "Value CIL array allocation requires the selected runtime's Int32 element; reference/value arrays require later translation.", offset);
-                        vectors.Add(offset, IntegerArray());
-                    }
-                    else if (arrays && (instruction.OpCode is ("ldelem.i4" or "stelem.i4") || !integers64 && instruction.OpCode == "ldlen")) _ = IntegerArray();
-                    else if (integers64 && instruction.OpCode is ("ldelem.ref" or "stelem.ref")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Object), work, offset);
-                    else if (integers64 && instruction.OpCode is ("ldelem" or "stelem"))
-                    {
-                        var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
-                        vectors.Add(offset, Vector(signature, work, offset));
-                    }
-                    else if (instruction.OpCode == "call" || classes && instruction.OpCode == "newobj" || delegates && instruction.OpCode is ("ldftn" or "callvirt"))
-                    {
-                        int token = Token(work, instruction, 0x06, 0x0a, 0x2b);
-                        var key = (work.Assembly.ContentHash, token);
-                        if (generics || !_calls.TryGetValue(key, out _))
-                        {
-                            _calls[key] = Require(generics
-                                ? resolver.ResolveClosedCall(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
-                                : resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
-                        }
-                        var target = _calls[key];
-                        if (generics)
-                        {
-                            try { _ = ClosedGenericKey.Create(target.DeclaringType.Arguments, target.MethodArguments); }
-                            catch (ArgumentException error) { Fail(work, error.Message, offset, DiagnosticIds.TranslationLimit); }
-                            foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
-                                CheckArgumentAccess(argument, work, offset);
-                        }
-                        if (exceptions && ExceptionCall(work, instruction, target) is { } intrinsic)
-                        {
-                            _arguments += intrinsic.Parameters;
-                            if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-                            intrinsics.Add(offset, intrinsic); continue;
-                        }
-                        if (delegates && DelegateType(target.DeclaringType, work, offset) is { } declaration)
-                        {
-                            var facts = _delegateFacts[ObjectTypeId.From(declaration.Source)];
-                            if (!(instruction.OpCode == "newobj" && target.Handle == facts.Constructor
-                                || instruction.OpCode == "callvirt" && target.Handle == facts.Invoke))
-                                Fail(work, "Delegate members require paired ldftn/newobj construction or callvirt Invoke; multicast and other members are unsupported.", offset);
-                            _arguments += instruction.OpCode == "newobj" ? 1 : declaration.ParameterCount + 1;
-                            if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate delegate argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-                            callable.Add(offset, IncludeReference(target.DeclaringType, work, offset));
-                            continue;
-                        }
-                        if (instruction.OpCode == "callvirt" && !integers64) Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
-                        var callee = Discover(target, work, offset);
-                        if (instruction.OpCode == "callvirt" && callee.Binding.Kind != ObjectMethodKind.Instance)
-                            Fail(work, "Direct callvirt requires a nonvirtual class instance method.", offset);
-                        if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
-                            Fail(work, "newobj requires an exact supported constructor declaration.", offset);
-                        if (work.Binding.Owner != callee.Binding.Owner
-                            && ((callee.Binding.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || !callee.Binding.OwnerExternallyVisible))
-                            Fail(work, "Calls require the same declaring owner or a public method on an externally visible owner.", offset);
-                        _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" ? 1 : 0);
-                        if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-                        calls.Add(offset, callee.Binding.Method);
-                    }
-                    else if (instruction.OpCode is "ldfld" or "ldflda" or "stfld")
-                    {
-                        int token = Token(work, instruction, 0x04, 0x0a);
-                        var key = (work.Assembly.ContentHash, token);
-                        if (generics || !_fields.TryGetValue(key, out _))
-                        {
-                            _fields[key] = Require(generics ? resolver.ResolveClosedField(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
-                                : resolver.ResolveDeclaredField(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
-                        }
-                        var field = _fields[key];
-                        if (!generics && field.DeclaringType.Arguments.Count != 0) Fail(work, "Generic field owners require later lowering.", offset);
-                        var owner = field.DeclaringType.Definition;
-                        fields.Add(offset, new(classes && !Inline(owner, work, offset) ? IncludeReference(field.DeclaringType, work, offset)
-                            : Include(field.DeclaringType, work, offset), MetadataTokens.GetToken(field.Handle)));
-                    }
-                    else if (instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj"
-                        || boxing && instruction.OpCode is ("box" or "unbox" or "unbox.any"))
-                    {
-                        int token = generics ? Token(work, instruction, 0x01, 0x02, 0x1b) : Token(work, instruction, 0x01, 0x02);
-                        if (generics)
-                        {
-                            var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(token)), work, offset);
-                            var operandType = signature switch
+                            if (integers64)
                             {
-                                TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
-                                TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
-                                _ => null,
-                            };
-                            if (operandType is null) Fail(work, "This closed generic type operand requires an inline struct; primitive/reference operand lowering remains unsupported.", offset);
-                            types.Add(offset, Include(operandType!, work, offset));
-                            continue;
+                                var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
+                                vectors.Add(offset, Vector(signature, work, offset)); continue;
+                            }
+                            int token = Token(work, instruction, 0x01, 0x02);
+                            var key = (work.Assembly.ContentHash, token);
+                            if (!_types.TryGetValue(key, out var element))
+                            {
+                                element = Require(resolver.ResolveType(work.Assembly, MetadataTokens.EntityHandle(token)), work, offset);
+                                _types.Add(key, element);
+                            }
+                            _integer ??= ObjectModelBuilder.Id(Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), work, offset));
+                            if (ObjectModelBuilder.Id(element) != _integer)
+                                Fail(work, "Value CIL array allocation requires the selected runtime's Int32 element; reference/value arrays require later translation.", offset);
+                            vectors.Add(offset, IntegerArray());
                         }
-                        var key = (work.Assembly.ContentHash, token);
-                        if (!_types.TryGetValue(key, out var type))
+                        else if (arrays && (instruction.OpCode is ("ldelem.i4" or "stelem.i4") || !integers64 && instruction.OpCode == "ldlen")) _ = IntegerArray();
+                        else if (integers64 && instruction.OpCode is ("ldelem.ref" or "stelem.ref")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Object), work, offset);
+                        else if (integers64 && instruction.OpCode is ("ldelem" or "stelem"))
                         {
-                            type = Require(resolver.ResolveType(work.Assembly, MetadataTokens.EntityHandle(token)), work, offset);
-                            _types.Add(key, type);
+                            var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
+                            vectors.Add(offset, Vector(signature, work, offset));
                         }
-                        types.Add(offset, Include(type, work, offset));
+                        else if (instruction.OpCode == "call" || classes && instruction.OpCode == "newobj" || delegates && instruction.OpCode is ("ldftn" or "callvirt"))
+                        {
+                            int token = Token(work, instruction, 0x06, 0x0a, 0x2b);
+                            var key = (work.Assembly.ContentHash, token);
+                            if (generics || !_calls.TryGetValue(key, out _))
+                            {
+                                _calls[key] = Require(generics
+                                    ? resolver.ResolveClosedCall(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
+                                    : resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
+                            }
+                            var target = _calls[key];
+                            if (generics)
+                            {
+                                try { _ = ClosedGenericKey.Create(target.DeclaringType.Arguments, target.MethodArguments); }
+                                catch (ArgumentException error) { Fail(work, error.Message, offset, DiagnosticIds.TranslationLimit); }
+                                foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
+                                    CheckArgumentAccess(argument, work, offset);
+                            }
+                            if (exceptions && ExceptionCall(work, instruction, target) is { } intrinsic)
+                            {
+                                _arguments += intrinsic.Parameters;
+                                if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                                intrinsics.Add(offset, intrinsic); continue;
+                            }
+                            if (delegates && DelegateType(target.DeclaringType, work, offset) is { } declaration)
+                            {
+                                var facts = _delegateFacts[ObjectTypeId.From(declaration.Source)];
+                                if (!(instruction.OpCode == "newobj" && target.Handle == facts.Constructor
+                                    || instruction.OpCode == "callvirt" && target.Handle == facts.Invoke))
+                                    Fail(work, "Delegate members require paired ldftn/newobj construction or callvirt Invoke; multicast and other members are unsupported.", offset);
+                                _arguments += instruction.OpCode == "newobj" ? 1 : declaration.ParameterCount + 1;
+                                if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate delegate argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                                callable.Add(offset, IncludeReference(target.DeclaringType, work, offset));
+                                continue;
+                            }
+                            if (instruction.OpCode == "callvirt" && !integers64) Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
+                            if (integers64 && instruction.OpCode == "callvirt" && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Interface) != 0)
+                            {
+                                _interfaceSession ??= new(resolver, library, _metadata, closed: true);
+                                ObjectInterfaceDeclaration interfaceDeclaration;
+                                try { interfaceDeclaration = _interfaceSession.Declare(target); }
+                                catch (ObjectInterfacePlanBuilder.PlanFailure failure) { throw new Failure(failure.Diagnostic with { Location = Location(work, offset) }); }
+                                _interfaces.TryAdd(IrMethodId.From(interfaceDeclaration.Source), (target, work, offset));
+                                _arguments += interfaceDeclaration.Parameters.Length;
+                                if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate interface argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                                interfaceCalls.Add(offset, interfaceDeclaration); continue;
+                            }
+                            var callee = Discover(target, work, offset);
+                            if (instruction.OpCode == "callvirt" && (callee.Binding.Kind != ObjectMethodKind.Instance || callee.Binding.VirtualSlot is not null))
+                                Fail(work, "Direct callvirt requires a nonvirtual class instance method.", offset);
+                            if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
+                                Fail(work, "newobj requires an exact supported constructor declaration.", offset);
+                            if (work.Binding.Owner != callee.Binding.Owner
+                                && ((callee.Binding.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || !callee.Binding.OwnerExternallyVisible))
+                                Fail(work, "Calls require the same declaring owner or a public method on an externally visible owner.", offset);
+                            _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" ? 1 : 0);
+                            if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                            calls.Add(offset, callee.Binding.Method);
+                        }
+                        else if (instruction.OpCode is "ldfld" or "ldflda" or "stfld")
+                        {
+                            int token = Token(work, instruction, 0x04, 0x0a);
+                            var key = (work.Assembly.ContentHash, token);
+                            if (generics || !_fields.TryGetValue(key, out _))
+                            {
+                                _fields[key] = Require(generics ? resolver.ResolveClosedField(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
+                                    : resolver.ResolveDeclaredField(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
+                            }
+                            var field = _fields[key];
+                            if (!generics && field.DeclaringType.Arguments.Count != 0) Fail(work, "Generic field owners require later lowering.", offset);
+                            var owner = field.DeclaringType.Definition;
+                            fields.Add(offset, new(classes && !Inline(owner, work, offset) ? IncludeReference(field.DeclaringType, work, offset)
+                                : Include(field.DeclaringType, work, offset), MetadataTokens.GetToken(field.Handle)));
+                        }
+                        else if (instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj"
+                            || boxing && instruction.OpCode is ("box" or "unbox" or "unbox.any"))
+                        {
+                            int token = generics ? Token(work, instruction, 0x01, 0x02, 0x1b) : Token(work, instruction, 0x01, 0x02);
+                            if (generics)
+                            {
+                                var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(token)), work, offset);
+                                var operandType = signature switch
+                                {
+                                    TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
+                                    TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                                    _ => null,
+                                };
+                                if (operandType is null) Fail(work, "This closed generic type operand requires an inline struct; primitive/reference operand lowering remains unsupported.", offset);
+                                types.Add(offset, Include(operandType!, work, offset));
+                                continue;
+                            }
+                            var key = (work.Assembly.ContentHash, token);
+                            if (!_types.TryGetValue(key, out var type))
+                            {
+                                type = Require(resolver.ResolveType(work.Assembly, MetadataTokens.EntityHandle(token)), work, offset);
+                                _types.Add(key, type);
+                            }
+                            types.Add(offset, Include(type, work, offset));
+                        }
+                    }
+                    methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                }
+                if (_interfaceSession is not null)
+                {
+                    foreach (var reference in _interfaceSession.ClosedRoots) IncludeReference(reference, root, 0);
+                    foreach (var vector in _interfaceSession.Arrays) _vectors.Add(vector);
+                }
+                if (!generics && _values.Count == 0) Fail(root, "Value discovery requires an inline value; use the existing primitive/object translator for other programs.");
+                var built = generics ? ValueModelBuilder.BuildClosedCatalog(resolver, [.. _values.Values], library, _metadata, _integerArray is not null,
+                    [.. _references.Values], _snapshots, delegates ? type => {
+                        if (exceptions) IncludeExceptionHierarchy(type, root, 0);
+                        return DelegateType(type, root, 0);
+                    } : null, integers64, [.. _vectors], (type, input) => {
+                        var id = ObjectModelBuilder.Id(type); _knownTypes.TryAdd(id, type);
+                        if (_snapshots.TryAdd(id, input)) _snapshotFields += input.Fields.Length;
+                    }) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
+                    [.. _references.Values.Select(t => t.Definition)], _snapshots);
+                catalog = built.Catalog ?? throw new Failure(built.Diagnostics[0]);
+                if (_interfaceSession is not null)
+                {
+                    try { interfacePlan = _interfaceSession.RunPrepared(catalog.References, _knownTypes, [.. _interfaces.Values.Select(s => s.Method)]); }
+                    catch (ObjectInterfacePlanBuilder.PlanFailure failure)
+                    {
+                        if (failure.Declaration is { } id && _interfaces.TryGetValue(id, out var site))
+                            throw new Failure(failure.Diagnostic with { Message = failure.Diagnostic.Message + Path(site.Caller), Location = Location(site.Caller, site.Offset) });
+                        throw new Failure(failure.Diagnostic);
+                    }
+                    if (_methods.Keys.Concat(interfacePlan.Declarations.Select(d => IrMethodId.From(d.Source)))
+                        .Concat(interfacePlan.Methods.Select(m => m.Binding.Method)).Distinct().Count() + _exceptionDeclarations.Count > ProgramLimits.MaximumMethods)
+                        Fail(root, "Bodies, interface declarations and mapping facts share the method limit.", code: DiagnosticIds.TranslationLimit);
+                    var facts = interfacePlan.Methods.ToDictionary(m => m.Binding.Method);
+                    foreach (var map in interfacePlan.Dispatch)
+                    {
+                        var site = _interfaces[map.Declaration];
+                        foreach (var target in map.Targets)
+                            Discover(_interfaceSession.Resolved(target.Implementation), site.Caller, site.Offset, facts[target.Implementation]);
                     }
                 }
-                methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                    calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                if (_pending.Count == 0) break;
             }
-            if (!generics && _values.Count == 0) Fail(root, "Value discovery requires an inline value; use the existing primitive/object translator for other programs.");
-            var built = generics ? ValueModelBuilder.BuildClosedCatalog(resolver, [.. _values.Values], library, _metadata, _integerArray is not null,
-                [.. _references.Values], _snapshots, delegates ? type => {
-                    if (exceptions) IncludeExceptionHierarchy(type, root, 0);
-                    return DelegateType(type, root, 0);
-                } : null, integers64, [.. _vectors]) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
-                [.. _references.Values.Select(t => t.Definition)], _snapshots);
-            if (built.Catalog is not { } catalog) throw new Failure(built.Diagnostics[0]);
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
             var declarations = catalog.Types.SelectMany(t => t.Fields).Concat(catalog.References.Types.SelectMany(t => t.Fields)).ToDictionary(f => f.Id);
             foreach (var method in methods)
@@ -312,10 +363,10 @@ public static partial class ValueProgramDiscovery
                 }
             }
             return new(root.Binding.Method, [.. methods.OrderBy(m => m.Binding.Method.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Binding.Method.Token).ThenBy(m => m.Binding.Method.Specialization, StringComparer.Ordinal)], catalog)
-                { Exceptions = exceptions ? new(_exceptionBase!, [.. catalog.References.Types.Where(t => IsException(ObjectTypeId.From(t.Source))).Select(t => ObjectTypeId.From(t.Source))], [.. _runtimeFaults]) : null };
+                { InterfaceDispatch = interfacePlan, Exceptions = exceptions ? new(_exceptionBase!, [.. catalog.References.Types.Where(t => IsException(ObjectTypeId.From(t.Source))).Select(t => ObjectTypeId.From(t.Source))], [.. _runtimeFaults]) : null };
         }
 
-        private Work Discover(ResolvedMethod resolved, Work? parent, int offset)
+        private Work Discover(ResolvedMethod resolved, Work? parent, int offset, ObjectDispatchMethod? fact = null)
         {
             var owner = resolved.DeclaringType.Definition;
             string specialization = "";
@@ -328,7 +379,13 @@ public static partial class ValueProgramDiscovery
             // Check instantiation before the definition-key cache: a generic call must never alias an ordinary one.
             if (!generics && (resolved.DeclaringType.Arguments.Count != 0 || resolved.MethodArguments.Count != 0))
                 Fail(parent, "Generic method/type instantiations require later lowering.", offset);
-            if (_methods.TryGetValue(id, out var known)) return known;
+            fact ??= _interfaceSession?.Fact(id);
+            if (_methods.TryGetValue(id, out var known))
+            {
+                if (fact is not null && (known.Binding != fact.Binding || known.ReturnType != fact.ReturnType || !known.Parameters.SequenceEqual(fact.Parameters)))
+                    Fail(parent, "Executable method contradicts its interface mapping facts.", offset);
+                return known;
+            }
             if (_methods.Count + _exceptionDeclarations.Count >= ProgramLimits.MaximumMethods || _bytes >= ProgramLimits.MaximumBodyBytes
                 || _instructions >= ProgramLimits.MaximumInstructions || _metadata.Remaining == 0)
                 Fail(parent, "Aggregate method, IL or metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
@@ -345,8 +402,11 @@ public static partial class ValueProgramDiscovery
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(parent, "Aggregate metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             bool constructor = classes && input.DeclaredName == ".ctor";
             bool instance = constructor || delegates && (input.Attributes & MethodAttributes.Static) == 0;
+            if (integers64 && fact is null && (input.Attributes & MethodAttributes.Virtual) != 0)
+                Fail(parent, "Class virtual calls require a prepared exact dispatch map; this profile currently prepares interface call targets only.", offset);
             var allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | (integers64 ? MethodAttributes.SpecialName : 0)
+                | (fact is not null ? MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final : 0)
                 | (constructor ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
             if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != (instance ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
                 || input.HasTypeInitializer || input.HasModuleInitializer || !exceptions && input.ExceptionRegionCount != 0
@@ -372,12 +432,15 @@ public static partial class ValueProgramDiscovery
             if (_parameters > IrLimits.MaximumParameters || _locals > IrLimits.MaximumLocals)
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             var kind = inlineConstructor ? ObjectMethodKind.ValueConstructor : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
-            var binding = new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
+            var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
             var work = new Work(owner.Assembly, resolved, input, binding,
                 [.. (instance ? new[] { inlineConstructor ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
                 [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);
+            if (fact is not null && (binding.Kind != kind || binding.Owner != ownerId || binding.Attributes != input.Attributes
+                || work.ReturnType != fact.ReturnType || !work.Parameters.SequenceEqual(fact.Parameters)))
+                Fail(parent, "Closed method signature contradicts its interface mapping facts.", offset);
             if (instance && !inlineConstructor && (!integers64 || constructor) && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
                 Fail(parent, "Class instance methods require scalar/reference parameters, locals and returns; values and borrows need later lowering.", offset);
             if (protectedInput is not null) work = work with { Regions = [.. protectedInput.Regions.Select(r => new IrExceptionRegion(r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd,

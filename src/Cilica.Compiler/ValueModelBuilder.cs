@@ -33,9 +33,9 @@ public static class ValueModelBuilder
 
     internal static ValueCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null)
     {
-        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots); }
+        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots, observe); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
         catch (ArgumentException error) { return new(null, [new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, error.Message)]); }
@@ -45,7 +45,7 @@ public static class ValueModelBuilder
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -89,7 +89,7 @@ public static class ValueModelBuilder
                 if (!work.TryConsume(input.MetadataMembersRead)) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
             }
             fields += input.Fields.Length;
-            inputs.Add(id, input); return input;
+            inputs.Add(id, input); observe?.Invoke(type, input); return input;
         }
         TypeInput Read(ResolvedType type, TypeReadLimits limits) => ReadClosed(new(type, SignatureList<TypeSignature>.Empty), limits);
         void IncludeValue(ConstructedType type, string path)

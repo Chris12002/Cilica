@@ -92,6 +92,20 @@ public static class ObjectInterfacePlanBuilder
                     (type, limits) => new(Snapshot(type, limits), []), [.. _arrays], _strings, integers64: true)
                 : ObjectModelBuilder.BuildCatalog(resolver, [.. _roots.Values.Select(t => t.Definition)], runtimeLibrary,
                     (type, limits) => Snapshot(new(type, SignatureList<TypeSignature>.Empty), limits), [.. _arrays], _strings));
+            return Prepare(catalog, declarations);
+        }
+
+        internal IEnumerable<ConstructedType> ClosedRoots => _roots.Values;
+        internal IEnumerable<ObjectTypeId> Arrays => _arrays;
+        internal ObjectInterfaceDispatchPlan RunPrepared(ObjectTypeCatalog catalog,
+            IReadOnlyDictionary<ObjectTypeId, ConstructedType> known, ImmutableArray<ResolvedMethod> declarations)
+        {
+            foreach (var pair in known) _knownTypes.TryAdd(pair.Key, pair.Value);
+            return Prepare(catalog, declarations);
+        }
+
+        private ObjectInterfaceDispatchPlan Prepare(ObjectTypeCatalog catalog, ImmutableArray<ResolvedMethod> declarations)
+        {
             var types = new IrTypeRules(catalog); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
             foreach (var resolved in declarations)
             {

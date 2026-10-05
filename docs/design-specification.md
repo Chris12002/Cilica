@@ -875,11 +875,13 @@ assignment through a bounded type-relation closure, after declaration-position
 validation ([ADR 0105](decisions/0105-closed-interface-assignments.md)). Value
 arguments remain exact. An opt-in metadata resolver selects exact closed
 interface mappings and class slots ([ADR 0106](decisions/0106-exact-closed-interface-targets.md));
-executable composition, variance-only targets and array helpers remain pending.
+variance-only targets and array helpers remain pending.
 Closed scalar/reference dispatch plans now preserve those mappings and signatures
 through the shared preparation session
-([ADR 0108](decisions/0108-closed-interface-plans.md)); automatic CIL body discovery
-remains separate from metadata planning.
+([ADR 0108](decisions/0108-closed-interface-plans.md)). The explicit integer-object
+CIL profile now repeatedly discovers exact scalar/reference interface calls and
+their executable implementations through shared metadata plans
+([ADR 0109](decisions/0109-closed-interface-cil.md)).
 
 ## 11. Class library and assembly identity
 
@@ -917,8 +919,8 @@ value/borrow signatures and caller-owned returns while preserving `callvirt`
 null checks ([ADR 0104](decisions/0104-composed-class-instance-calls.md)).
 Explicit composed IR can also retain scalar/reference interface plans through
 value lowering and managed exception routing
-([ADR 0107](decisions/0107-composed-interface-ir.md)); automatic closed interface
-CIL discovery and struct dispatch signatures remain pending.
+([ADR 0107](decisions/0107-composed-interface-ir.md)). Exact scalar/reference
+closed CIL calls use this path; struct dispatch signatures remain pending.
 Array catalogs that mention interfaces declared by the selected Array base or
 runtime-supplied generic vector contracts now fail before execution until those
 relationships and helpers are implemented. Exact runtime identities prevent
