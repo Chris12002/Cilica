@@ -14,6 +14,8 @@ namespace System
     }
     public abstract class ValueType { protected ValueType() { } }
     public abstract class Enum : ValueType { protected Enum() { } }
+    public abstract class Delegate { protected Delegate() { } }
+    public abstract class MulticastDelegate : Delegate { protected MulticastDelegate() { } }
     public abstract class Attribute { protected Attribute() { } }
     // Primitive storage is owned by the compiler/runtime, not managed fields.
     public struct Void { }
@@ -23,15 +25,48 @@ namespace System
     public struct Byte { }
     public struct Int16 { }
     public struct UInt16 { }
-    public struct Int32 { public override int GetHashCode() => this; }
-    public struct UInt32 { public override int GetHashCode() => unchecked((int)this); }
-    public struct Int64 { public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32)); }
-    public struct UInt64 { public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32)); }
+    public struct Int32 : IConvertible
+    {
+        public override int GetHashCode() => this;
+        public string ToString(IFormatProvider provider)
+        {
+            if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
+            return Cilica.Runtime.IntegerText.Int32(this);
+        }
+    }
+    public struct UInt32 : IConvertible
+    {
+        public override int GetHashCode() => unchecked((int)this);
+        public string ToString(IFormatProvider provider)
+        {
+            if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
+            return Cilica.Runtime.IntegerText.UInt32(this);
+        }
+    }
+    public struct Int64 : IConvertible
+    {
+        public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
+        public string ToString(IFormatProvider provider)
+        {
+            if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
+            return Cilica.Runtime.IntegerText.Int64(this);
+        }
+    }
+    public struct UInt64 : IConvertible
+    {
+        public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
+        public string ToString(IFormatProvider provider)
+        {
+            if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
+            return Cilica.Runtime.IntegerText.UInt64(this);
+        }
+    }
     public struct Single { }
     public struct Double { }
     public struct IntPtr { }
     public struct UIntPtr { }
     public interface IFormatProvider { }
+    public interface IConvertible { string ToString(IFormatProvider provider); }
 
     public sealed class String
     {

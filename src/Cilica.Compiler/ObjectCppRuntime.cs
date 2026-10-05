@@ -122,6 +122,7 @@ struct Instance {
     std::size_t handle_count = 0, handle_limit = handle_capacity;
     StringObject* literals = nullptr;
     StringObject* exception_resources = nullptr;
+    StringObject* integer_texts = nullptr;
     Object* emergency_exception = nullptr;
     Object* invariant_culture = nullptr;
     Object* head = nullptr;
@@ -234,7 +235,8 @@ struct RootScope {
 };
 [[maybe_unused]] static bool valid_roots(const Context& context) noexcept {
     if (!context.instance.owns(context.exception) || !context.instance.owns(context.instance.emergency_exception)
-        || !context.instance.owns(context.instance.invariant_culture)) return false;
+        || !context.instance.owns(context.instance.invariant_culture)
+        || !context.instance.owns(reinterpret_cast<Object*>(context.instance.integer_texts))) return false;
     for (const Frame* f = context.top; f != nullptr; f = f->previous)
         for (std::size_t i = 0; i < f->count; ++i)
             if (!context.instance.owns(f->slots[i])) return false;
@@ -306,6 +308,34 @@ struct RootScope {
     if (first == 0) return right;
     if (second == 0) return left;
     return allocate_string(context, descriptor, a->units, first, b->units, second);
+}
+// Private bounded decimal cache. Formatting stays in managed code; publication
+// copies its text so numeric cache identity never aliases a string literal.
+[[maybe_unused, gnu::noinline]] static Object* integer_text_find(Context& context, const Descriptor& descriptor, std::uint32_t index) noexcept {
+    if (index >= 300u) { context.pending = 6u; return nullptr; }
+    std::size_t count = 0;
+    for (auto* entry = context.instance.integer_texts; entry != nullptr; entry = entry->literal_next) {
+        auto* value = reinterpret_cast<Object*>(entry);
+        if (++count > 300 || !context.instance.owns(value) || value->owner != &context.instance
+            || value->type != &descriptor || entry->literal_id >= 300u) { context.pending = 6u; return nullptr; }
+        if (entry->literal_id == index) return value;
+    }
+    return nullptr;
+}
+[[maybe_unused, gnu::noinline]] static Object* integer_text_publish(Context& context, const Descriptor& descriptor,
+    std::uint32_t index, Object* text) noexcept {
+    if (text == nullptr || !context.instance.owns(text) || text->owner != &context.instance || text->type != &descriptor) {
+        context.pending = 6u; return nullptr;
+    }
+    auto* known = integer_text_find(context, descriptor, index);
+    if (context.pending != 0 || known != nullptr) return known;
+    auto* input = reinterpret_cast<StringObject*>(text);
+    auto* result = allocate_string(context, descriptor, input->units, input->length, nullptr, 0);
+    if (result == nullptr) return nullptr;
+    auto* entry = reinterpret_cast<StringObject*>(result);
+    entry->literal_id = index; entry->literal_next = context.instance.integer_texts;
+    context.instance.integer_texts = entry;
+    return result;
 }
 template<class T> static Object* allocate(Context& context, const Descriptor& descriptor) noexcept {
     if (!valid_roots(context)) { context.pending = 6u; return nullptr; }

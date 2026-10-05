@@ -25,7 +25,7 @@ public static class ValueScalarLowering
 
     private static ImmutableArray<ObjectMethodBinding> LowerBindings(ImmutableArray<ObjectMethodBinding> bindings) =>
         [.. bindings.Select(binding => binding.Kind is ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance ? binding with {
-            Kind = ObjectMethodKind.Static, Primitive = null,
+            Kind = ObjectMethodKind.Static, Primitive = null, InvariantProviderOnly = false,
             Attributes = (binding.Attributes & ~(System.Reflection.MethodAttributes.SpecialName | System.Reflection.MethodAttributes.RTSpecialName
                 | System.Reflection.MethodAttributes.Virtual | System.Reflection.MethodAttributes.NewSlot | System.Reflection.MethodAttributes.Final))
                 | System.Reflection.MethodAttributes.Static } : binding)];
@@ -382,6 +382,8 @@ public static class ValueScalarLowering
                                 IrExpression.CastClass e => e with { Operand = One(e.Operand) },
                                 IrExpression.StringLength e => e with { Operand = One(e.Operand) },
                                 IrExpression.StringCodeUnit e => e with { Operand = One(e.Operand), Index = One(e.Index) },
+                                IrExpression.IntegerTextFind e => e with { Index = One(e.Index) },
+                                IrExpression.IntegerTextPublish e => e with { Index = One(e.Index), Text = One(e.Text) },
                                 IrExpression.StringConcat e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.StringEquals e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.NewDelegate d => d with { Receiver = One(d.Receiver) },

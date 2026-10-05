@@ -47,7 +47,11 @@
     {
       "path": "library/Cilica.Core/CoreTypes.cs",
       "intrinsicRequests": "library/Cilica.Core/intrinsic-requests.json",
-      "scope": "Cilica-owned zero-reference declarations. Exact string/exception/invariant-provider/integer-hash mappings tested against the pinned reference image; no general CoreLib, numeric formatting API, reflection or platform compatibility claim. Build-specific intrinsic approval remains independent."
+      "scope": "Cilica-owned zero-reference declarations. Exact string/exception/provider/integer-hash and directly proven invariant ToString mappings tested against the pinned reference image. General formatting, provider aliases, reflection and platform compatibility remain unclaimed. Build-specific intrinsic approval remains independent."
+    },
+    {
+      "path": "library/Cilica.Core/IntegerText.cs",
+      "scope": "Owned managed API/cache adapter for the pinned decimal helper. Shared [0, 300) numeric string identity uses private exact approved cache operations; production approvals remain separate."
     }
   ]
 }

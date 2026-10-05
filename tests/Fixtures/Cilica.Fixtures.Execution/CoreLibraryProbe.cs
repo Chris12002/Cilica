@@ -2,6 +2,11 @@ using System;
 
 namespace Cilica.Fixtures.Execution
 {
+    public sealed class CoreNumberHolder
+    {
+        public long Value;
+        public CoreNumberHolder(long value) { Value = value; }
+    }
     public static class CoreLibraryProbe
     {
         public static int InvariantIdentity(int input, int mode)
@@ -14,6 +19,69 @@ namespace Cilica.Fixtures.Execution
                 + (provider is System.Globalization.CultureInfo ? 31 : 37) + text.Length;
         }
         public static int UnsupportedCulture(int input, int mode) => System.Globalization.CultureInfo.InvariantCulture.Name.Length + input + mode;
+        public static int FormatSigned32(int input, int position)
+        {
+            int value = unchecked((int)LibraryFormattingProbe.SignedCase(input));
+            string text = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return position < 0 ? text.Length : position < text.Length ? text[position] : -1;
+        }
+        public static int FormatUnsigned32(int input, int position)
+        {
+            uint value = unchecked((uint)LibraryFormattingProbe.UnsignedCase(input));
+            string text = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return position < 0 ? text.Length : position < text.Length ? text[position] : -1;
+        }
+        public static int FormatSigned64(int input, int position)
+        {
+            long value = LibraryFormattingProbe.SignedCase(input);
+            string text = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return position < 0 ? text.Length : position < text.Length ? text[position] : -1;
+        }
+        public static int FormatUnsigned64(int input, int position)
+        {
+            ulong value = LibraryFormattingProbe.UnsignedCase(input);
+            string text = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return position < 0 ? text.Length : position < text.Length ? text[position] : -1;
+        }
+        public static int IntegerHeapText(int input, int mode)
+        {
+            var holder = new CoreNumberHolder(((long)input << 32) | (uint)mode);
+            string text = holder.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return text.Length + text[(int)((uint)mode % (uint)text.Length)];
+        }
+        public static int IntegerText(int input, int mode)
+        {
+            int signed = input;
+            uint unsigned = (uint)mode;
+            long wide = ((long)input << 32) | (uint)mode;
+            ulong unsignedWide = unchecked((ulong)wide + (uint)input);
+            string a = signed.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string b = unsigned.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string c = wide.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string d = unsignedWide.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string all = string.Concat(string.Concat(a, b), string.Concat(c, d));
+            int hash = 0;
+            for (int i = 0; i < all.Length; ++i) hash = unchecked(hash * 31 + all[i]);
+            return hash;
+        }
+        public static int IntegerTextIdentity(int input, int mode)
+        {
+            uint value = (uint)input % 301;
+            string a = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string b = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            int signed = (int)value;
+            long wide = value;
+            ulong unsignedWide = value;
+            string c = signed.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string d = wide.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string e = unsignedWide.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            object literal = value == 0 ? "0" : value == 1 ? "1" : "299";
+            return ((object)a == b ? 1 : 2) + ((object)a == c ? 4 : 8) + ((object)a == d ? 16 : 32)
+                + ((object)a == e ? 64 : 128) + ((object)a == literal ? 256 : 512) + mode;
+        }
+        public static int UnsupportedProvider(int input, int mode) => input.ToString((IFormatProvider)null).Length + mode;
+        public static int AliasedProvider(int input, int mode) => WithProvider(input, System.Globalization.CultureInfo.InvariantCulture) + mode;
+        private static int WithProvider(int input, IFormatProvider provider) => input.ToString(provider).Length;
         public static int IntegerHashes(int input, int mode)
         {
             int signed = input;

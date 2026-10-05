@@ -4,7 +4,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppTracing
 {
     internal const string Text = """
-enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource, invariant_culture };
+enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource, invariant_culture, integer_text };
 enum class TraceResult { complete, stopped, invalid };
 struct ReferenceEdge {
     ReferenceKind kind;
@@ -35,6 +35,17 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
         if (++count > 13 || count > context.instance.count || !traceable_reference(context.instance, value)
             || !string_type(value->type)) return TraceResult::invalid;
         const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::exception_resource, value, nullptr, nullptr, resource->literal_id});
+        if (result != TraceResult::complete) return result;
+    }
+    return TraceResult::complete;
+}
+[[maybe_unused, gnu::noinline]] static TraceResult visit_integer_texts(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
+    std::size_t count = 0;
+    for (auto* entry = context.instance.integer_texts; entry != nullptr; entry = entry->literal_next) {
+        auto* value = reinterpret_cast<Object*>(entry);
+        if (++count > 300 || !traceable_reference(context.instance, value) || !string_type(value->type)
+            || entry->literal_id >= 300u) return TraceResult::invalid;
+        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::integer_text, value, nullptr, nullptr, entry->literal_id});
         if (result != TraceResult::complete) return result;
     }
     return TraceResult::complete;
@@ -76,6 +87,8 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
         const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::literal, value, nullptr, nullptr, literal->literal_id});
         if (result != TraceResult::complete) return result;
     }
+    const auto numbers = visit_integer_texts(context, visitor, state);
+    if (numbers != TraceResult::complete) return numbers;
     const auto resources = visit_exception_resources(context, visitor, state);
     if (resources != TraceResult::complete) return resources;
     std::size_t active = 0;

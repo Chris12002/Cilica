@@ -83,12 +83,15 @@ public sealed class IntegerObjectTranslationTests
                         std::size_t permanent = 1;
                         if (heap.invariant_culture != nullptr) ++permanent;
                         for (auto* literal = heap.literals; literal; literal = literal->literal_next) ++permanent;
+                        for (auto* number = heap.integer_texts; number; number = number->literal_next) ++permanent;
                         for (auto* resource = heap.exception_resources; resource; resource = resource->literal_next) ++permanent;
                         assert(heap.count == permanent);
                     }
                     const auto peak = c.peak; Context exact(heap, peak);
                     assert({{symbol}}(exact, args) == expected && exact.pending == 0 && exact.used == 0);
-                    Context short_frame(heap, peak - 1); (void){{symbol}}(short_frame, args);
+                    // Cache hits can use less call depth than the first invocation.
+                    assert(exact.peak <= peak && exact.peak != 0);
+                    Context short_frame(heap, exact.peak - 1); (void){{symbol}}(short_frame, args);
                     assert(short_frame.pending == 9 && short_frame.used == 0 && short_frame.top == nullptr && short_frame.borrows == nullptr);
                 }
                 """);

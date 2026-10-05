@@ -29,13 +29,13 @@ public sealed class CoreLibraryBuildTests
         var requests = LibraryIntrinsicRequests.Read(CorePath("intrinsic-requests.json"));
         var request = LibraryBuildProducerTests.Request(files, CorePath("CoreTypes.cs"));
         string reference = request.References.Single();
-        request = request with { AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
+        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs"))], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
         var built = await LibraryBuilder.Build(request);
-        var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!,
+        var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!, Path.GetDirectoryName(built.AssemblyPath)!,
             Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;
         var contract = resolver.OpenInput(reference).Value!; Assert.True(contract.IsReferenceAssembly);
         var implementation = resolver.OpenInput(built.AssemblyPath).Value!;
-        var names = requests.Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Concat(new[] { "Int32", "UInt32", "Int64", "UInt64" }.Select(n => ("System", n))).Distinct().ToArray();
+        var names = requests.Where(r => r.Namespace != "Cilica.Runtime").Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Concat(new[] { "Int32", "UInt32", "Int64", "UInt64" }.Select(n => ("System", n))).Distinct().ToArray();
         var pairs = names.Select(name => new LibraryTypeMapping(resolver.ResolveType(contract, name.Item1, name.Item2).Value!,
             resolver.ResolveType(implementation, name.Item1, name.Item2).Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);
@@ -43,7 +43,9 @@ public sealed class CoreLibraryBuildTests
         return (built, request, resolver, implementation, plan.Value!);
     }
 
-    internal static async Task<ManagedExceptionIrProgram> TranslateFixture(string name)
+    internal static async Task<ManagedExceptionIrProgram> TranslateFixture(string name) => (await TranslateFixtures(name))[0];
+
+    internal static async Task<ManagedExceptionIrProgram[]> TranslateFixtures(params string[] names)
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await BuildAndMap(files);
@@ -51,10 +53,12 @@ public sealed class CoreLibraryBuildTests
         var bytes = await File.ReadAllBytesAsync(built.ManifestPath);
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
         var input = resolver.OpenInput(typeof(CoreLibraryProbe).Assembly.Location).Value!;
-        var translated = ValueTranslator.TranslateIntegerObjects(scope, input,
-            (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(name)!.MetadataToken), implementation);
-        Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
-        return translated.Program!;
+        return names.Select(name => {
+            var translated = ValueTranslator.TranslateIntegerObjects(scope, input,
+                (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(name)!.MetadataToken), implementation);
+            Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
+            return translated.Program!;
+        }).ToArray();
     }
 
     [Theory]
@@ -99,7 +103,34 @@ public sealed class CoreLibraryBuildTests
         var otherCultureMember = ValueTranslator.TranslateIntegerObjects(scope, input,
             (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod("UnsupportedCulture")!.MetadataToken), implementation);
         Assert.False(otherCultureMember.Success); Assert.NotEmpty(otherCultureMember.Diagnostics);
-        var probes = new[] { ("Text", (Func<int, int, int>)CoreLibraryProbe.Text), ("Fault", CoreLibraryProbe.Fault), ("Formatting", CoreLibraryProbe.Formatting), ("InvariantIdentity", CoreLibraryProbe.InvariantIdentity), ("IntegerHashes", CoreLibraryProbe.IntegerHashes) };
+        var numericMethod = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod("IntegerText")!.MetadataToken);
+        foreach (var capability in new[] { LibraryIntrinsicCapability.InvariantIntegerFormatting, LibraryIntrinsicCapability.IntegerTextCacheFind, LibraryIntrinsicCapability.IntegerTextCachePublish })
+        {
+            var narrowed = manifest with { Artifacts = [artifact with { Grants = [.. artifact.Grants.Where(g => g.Capability != capability)] }] };
+            var narrowedBytes = AssemblyResolver.SerializeLibraryBuildManifest(narrowed);
+            using var narrowedScope = resolver.CreateTrustedLibraryCompilationScope(plan, narrowedBytes, Convert.ToHexStringLower(SHA256.HashData(narrowedBytes))).Value!;
+            var denied = ValueTranslator.TranslateIntegerObjects(narrowedScope, input, numericMethod, implementation);
+            Assert.False(denied.Success); Assert.Contains(denied.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
+        }
+        foreach (string name in new[] { "UnsupportedProvider", "AliasedProvider" })
+        {
+            var unsupportedProvider = ValueTranslator.TranslateIntegerObjects(scope, input,
+                (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(name)!.MetadataToken), implementation);
+            Assert.False(unsupportedProvider.Success);
+            Assert.Contains(unsupportedProvider.Diagnostics, d => d.Message.Contains("directly proven CultureInfo.InvariantCulture", StringComparison.Ordinal));
+        }
+        var hostile = new ResolutionAssemblyBuilder(new AssemblyIdentity("ExternalCacheCaller", new Version(1, 0, 0, 0)));
+        var cacheOwner = hostile.TypeReference("Cilica.Runtime", "IntegerTextCache", hostile.Reference(implementation.Identity));
+        var findCache = hostile.Member(cacheOwner, "Find", 0, 1, 0x0e, 0x09);
+        hostile.Type("Example", "ExternalCacheCaller");
+        var hostileRoot = hostile.Method("Run", [0, 0, 8], emit: il => {
+            il.LoadConstantI4(1); il.Call(findCache); il.OpCode(ILOpCode.Pop); il.LoadConstantI4(0); il.OpCode(ILOpCode.Ret);
+        });
+        var hostileInput = scope.OpenInput(files.Write("cache-caller.dll", hostile.Build())).Value!;
+        var privateCache = ValueTranslator.TranslateIntegerObjects(scope, hostileInput, hostileRoot, implementation);
+        Assert.False(privateCache.Success);
+        Assert.Contains(privateCache.Diagnostics, d => d.Message.Contains("private to the selected core", StringComparison.Ordinal));
+        var probes = new[] { ("Text", (Func<int, int, int>)CoreLibraryProbe.Text), ("Fault", CoreLibraryProbe.Fault), ("Formatting", CoreLibraryProbe.Formatting), ("InvariantIdentity", CoreLibraryProbe.InvariantIdentity), ("IntegerHashes", CoreLibraryProbe.IntegerHashes), ("IntegerText", CoreLibraryProbe.IntegerText), ("IntegerHeapText", CoreLibraryProbe.IntegerHeapText), ("IntegerTextIdentity", CoreLibraryProbe.IntegerTextIdentity) };
         var translated = probes.Select(probe => {
             var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(probe.Item1)!.MetadataToken);
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);

@@ -411,5 +411,47 @@
     "Member": "get_InvariantCulture",
     "ParameterCount": 0,
     "Capability": "InvariantCulture"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Int32",
+    "Member": "ToString",
+    "ParameterCount": 1,
+    "Capability": "InvariantIntegerFormatting"
+  },
+  {
+    "Namespace": "System",
+    "Type": "UInt32",
+    "Member": "ToString",
+    "ParameterCount": 1,
+    "Capability": "InvariantIntegerFormatting"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Int64",
+    "Member": "ToString",
+    "ParameterCount": 1,
+    "Capability": "InvariantIntegerFormatting"
+  },
+  {
+    "Namespace": "System",
+    "Type": "UInt64",
+    "Member": "ToString",
+    "ParameterCount": 1,
+    "Capability": "InvariantIntegerFormatting"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "IntegerTextCache",
+    "Member": "Find",
+    "ParameterCount": 1,
+    "Capability": "IntegerTextCacheFind"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "IntegerTextCache",
+    "Member": "Publish",
+    "ParameterCount": 2,
+    "Capability": "IntegerTextCachePublish"
   }
 ]

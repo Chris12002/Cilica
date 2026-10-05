@@ -85,6 +85,11 @@ internal sealed class ObjectIrRules
             bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
             bool valueInstance = binding.Kind == ObjectMethodKind.ValueInstance;
             bool primitiveInstance = binding.Kind == ObjectMethodKind.PrimitiveInstance;
+            if (binding.InvariantProviderOnly)
+                Require(primitiveInstance && method.Parameters.Length == 2 && method.ReturnType == StringType
+                    && method.Parameters[1].Class is { } provider && _program.Flow.Types.Interfaces.Any(i => ObjectTypeId.From(i.Source) == provider
+                        && i.Source.Name == "System.IFormatProvider" && provider.ContentHash == flow.Types.ObjectBase.ContentHash),
+                    "invariant provider contract requires the selected primitive method and provider signature.");
             Require(primitiveInstance == (binding.Primitive is not null), "primitive receiver evidence/kind mismatch.");
             Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
                 || (isStatic || valueConstructor) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0
@@ -119,7 +124,8 @@ internal sealed class ObjectIrRules
                     && binding.Primitive.Code is PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64
                     && method.Parameters.Length > 0 && method.Parameters[0] == IrType.Location(binding.Primitive.Storage)
                     && method.ReturnType.Kind != IrTypeKind.ManagedLocation && binding.VirtualSlot is null
-                    && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0,
+                    && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) == 0
+                    && ((binding.Attributes & MethodAttributes.Virtual) != 0 || (binding.Attributes & (MethodAttributes.NewSlot | MethodAttributes.Final)) == 0),
                     "primitive instance method requires exact selected integer identity, a scalar borrow and ordinary direct-call flags.");
                 Require(!primitiveOwners.TryGetValue(binding.Owner, out var previous) || previous == binding.Primitive,
                     "primitive identity has contradictory receiver facts.");
@@ -173,7 +179,7 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },
         IrStatement.StoreElement a => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit
-            or IrExpression.StringEquals or IrExpression.StringConcat } when _program.Flow.Types.String is { } text => new[] { text },
+            or IrExpression.StringEquals or IrExpression.StringConcat or IrExpression.IntegerTextFind or IrExpression.IntegerTextPublish } when _program.Flow.Types.String is { } text => new[] { text },
         IrStatement.Define { Value.Expression: IrExpression.Call c } when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         IrStatement.Invoke c when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         _ => Array.Empty<ObjectTypeId>(),
@@ -258,7 +264,7 @@ internal sealed class ObjectIrRules
         && _types.Assignable(values[store.Value], ArrayElement(store.ArrayType)) && store.Exceptional == IrExceptionTarget.MethodExit;
 
     internal bool Call(IrMethod caller, IrMethodId? target, System.Collections.Immutable.ImmutableArray<int> arguments,
-        bool nullCheck, IReadOnlyList<IrType> values, bool allocation = false, bool virtualDispatch = false)
+        bool nullCheck, IReadOnlyList<IrType> values, bool allocation = false, bool virtualDispatch = false, IReadOnlyList<IrExpression>? expressions = null)
     {
         if (target is null || arguments.IsDefault) return false;
         if (_interfaces.Has(target))
@@ -276,6 +282,8 @@ internal sealed class ObjectIrRules
         if (nullCheck && callee.Kind != ObjectMethodKind.Instance) return false;
         if (virtualDispatch ? allocation || !nullCheck || callee.VirtualSlot is null || !_dispatch.Has(target)
             : nullCheck && callee.VirtualSlot is not null) return false;
+        if (callee.InvariantProviderOnly && (arguments.Length != 2 || expressions is null || arguments[1] < 0
+            || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.InvariantCulture)) return false;
         for (int index = 0; index < arguments.Length; index++)
             if (arguments[index] < 0 || arguments[index] >= values.Count || !_types.Assignable(values[arguments[index]], signature[index + skip])) return false;
         return true;
@@ -375,6 +383,8 @@ internal sealed class ObjectIrRules
                             IrExpression.Call c => c.Arguments.All(a => !This(a)),
                             IrExpression.NewObject n => n.Arguments.All(a => !This(a)),
                             IrExpression.StringLiteral or IrExpression.InvariantCulture => true,
+                            IrExpression.IntegerTextFind s => !This(s.Index),
+                            IrExpression.IntegerTextPublish s => !This(s.Index) && !This(s.Text),
                             IrExpression.StringLength s => !This(s.Operand),
                             IrExpression.StringCodeUnit s => !This(s.Operand) && !This(s.Index),
                             IrExpression.StringEquals s => !This(s.Left) && !This(s.Right),

@@ -77,6 +77,8 @@ public abstract record IrExpression
     // UTF-16 code units, including embedded zero and unpaired surrogates. Equal
     // literal contents share instance-local identity; no host string encoding.
     public sealed record StringLiteral(ImmutableArray<ushort> CodeUnits) : IrExpression;
+    public sealed record IntegerTextFind(int Index) : IrExpression;
+    public sealed record IntegerTextPublish(int Index, int Text) : IrExpression;
     public sealed record InvariantCulture(ObjectTypeId Type) : IrExpression;
     public sealed record StringLength(int Operand) : IrExpression;
     // Result is the zero-extended UTF-16 code unit, not a Unicode scalar value.

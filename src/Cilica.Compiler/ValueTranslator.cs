@@ -290,6 +290,11 @@ public static class ValueTranslator
                                 constructorIntrinsic.MessageArgument < 0 ? null : constructorArguments[constructorIntrinsic.MessageArgument],
                                 constructorIntrinsic.ParameterArgument < 0 ? null : constructorArguments[constructorIntrinsic.ParameterArgument]), true);
                             break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var cache) && cache.Kind is ValueIntrinsic.IntegerTextFind or ValueIntrinsic.IntegerTextPublish:
+                            int cacheText = cache.Kind == ValueIntrinsic.IntegerTextPublish ? Pop(offset, IrType.Reference(stringType!)) : -1;
+                            int cacheIndex = Pop(offset, IrType.Int32);
+                            Push(offset, IrType.Reference(stringType!), cache.Kind == ValueIntrinsic.IntegerTextFind
+                                ? new IrExpression.IntegerTextFind(cacheIndex) : new IrExpression.IntegerTextPublish(cacheIndex, cacheText), true); break;
                         case "newobj" or "call" or "callvirt" when method.Intrinsics.ContainsKey(offset):
                             var intrinsic = method.Intrinsics[offset];
                             int rightText = intrinsic.Kind == ValueIntrinsic.StringCodeUnit ? Pop(offset, IrType.Int32)
@@ -432,6 +437,8 @@ public static class ValueTranslator
                             bool nullCheck = opcode == "callvirt" && !constrained;
                             var arguments = new int[target.Parameters.Length - skip];
                             for (int i = arguments.Length - 1; i >= 0; i--) arguments[i] = Pop(offset, target.Parameters[i + skip]);
+                            if (target.Binding.InvariantProviderOnly && (arguments.Length != 2 || valueExpressions[arguments[1]] is not IrExpression.InvariantCulture))
+                                Error(offset, "ToString(IFormatProvider) currently requires a directly proven CultureInfo.InvariantCulture result; null, other providers and provider aliases need later lowering.", DiagnosticIds.ExecutionUnsupported);
                             if (skip != 0 && target.Binding.Kind == ObjectMethodKind.ValueConstructor)
                             {
                                 var constructed = IrType.Value(target.Binding.Owner);

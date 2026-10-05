@@ -39,5 +39,16 @@
       ],
       "scope": "Text equivalence only. No System numeric member mapping, cached string identity, general formatting or intrinsic privilege is claimed."
     }
+  ],
+  "ownedAdapters": [
+    {
+      "path": "library/Cilica.Core/IntegerText.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Number.Formatting.cs",
+      "contracts": [
+        "CoreCLR SmallNumberCacheLength = 300, shared by UInt32ToDecStr and UInt64ToDecStr.",
+        "Cilica native ownership/tracing replaces the runtime-private static cache; managed decimal text still uses the recorded adaptation."
+      ],
+      "scope": "The owned core maps four directly proven invariant-provider APIs. The standalone decimal helper remains text-only; no general globalization or full CoreLib claim."
+    }
   ]
 }

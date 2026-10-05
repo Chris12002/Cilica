@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v20";
+    public const string Profile = "object-frames-native-v21";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -430,7 +430,7 @@ public static class ObjectCppEmitter
                         or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
                     // Array/field access, type tests and virtual calls include ownership/type checks.
@@ -510,6 +510,11 @@ public static class ObjectCppEmitter
                                     expression = Value(value.Id); break;
                                 case IrExpression.ReadOnlyLocation view:
                                     expression = Value(view.Location); break;
+                                case IrExpression.IntegerTextFind cached:
+                                    expression = "integer_text_find(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + Value(cached.Index) + ")"; break;
+                                case IrExpression.IntegerTextPublish cached:
+                                    Check(Value(cached.Text), program.Flow.Types.String!, true, value.ILOffset); Flush();
+                                    expression = "integer_text_publish(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + Value(cached.Index) + ", " + Value(cached.Text) + ")"; break;
                                 case IrExpression.InvariantCulture culture:
                                     string cultureType = TypeSymbol(culture.Type);
                                     expression = "invariant_culture<" + cultureType + ">(context, " + cultureType + "_descriptor)"; break;
@@ -580,13 +585,13 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
-                            else if (value.Expression is IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.StringConcat)
+                            else if (value.Expression is IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringConcat)
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
                             else if (value.Expression is IrExpression.LoadElement && value.Type.Kind == IrTypeKind.Reference)
                             {
                                 Flush(); Check(Value(value.Id), value.Type.Class!, false, value.ILOffset);
                             }
-                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate) Pending();
+                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate or IrExpression.IntegerTextFind) Pending();
                             break;
                         }
                         case IrStatement.StoreLocal store:

@@ -25,5 +25,7 @@ additional integer bit patterns. Public probes contain no application game rules
 
 The separate [Cilica.Core trial](Cilica.Core/README.md) supplies Cilica-owned
 runtime declarations with exact string/exception mappings and build evidence.
-Its native probes also compose this managed formatter with the owned core image.
-System numeric formatting APIs and the real kernel comparison remain pending.
+The core image also compiles this helper into four bounded System numeric
+ToString(IFormatProvider) implementations with directly proven InvariantCulture
+and tested cache identity. This leaves the standalone helper's text-only contract
+unchanged. General formatting and the real kernel comparison remain pending.

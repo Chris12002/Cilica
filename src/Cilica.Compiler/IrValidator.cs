@@ -112,7 +112,7 @@ internal static class IrValidator
             {
                 if (call.Target is null || call.Arguments.IsDefault || call.Arguments.Length > IrLimits.MaximumParameters || !call.Arguments.All(Earlier)) return false;
                 if (objectRules is not null) return result == objectRules.ReturnType(call.Target)
-                    && objectRules.Call(method, call.Target, call.Arguments, call.NullCheckReceiver, valueTypes, virtualDispatch: call.VirtualDispatch);
+                    && objectRules.Call(method, call.Target, call.Arguments, call.NullCheckReceiver, valueTypes, virtualDispatch: call.VirtualDispatch, expressions: expressions);
                 return methods is not null && methods.TryGetValue(call.Target, out var target) && !target.Parameters.IsDefault
                     && call.Arguments.Length == target.Parameters.Length && result == target.ReturnType && !call.NullCheckReceiver && !call.VirtualDispatch
                     && call.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(valid => valid);
@@ -168,6 +168,10 @@ internal static class IrValidator
                             IrExpression.CallDelegate d => objectRules is not null && objectRules.DelegateCall(method, d.Type, d.Delegate, d.Arguments, value.Type, valueTypes),
                             IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
+                            IrExpression.IntegerTextFind cached => types.IntegerCasts && objectRules?.StringType == value.Type
+                                && Earlier(cached.Index) && valueTypes[cached.Index] == IrType.Int32,
+                            IrExpression.IntegerTextPublish cached => types.IntegerCasts && objectRules?.StringType == value.Type
+                                && Earlier(cached.Index) && valueTypes[cached.Index] == IrType.Int32 && objectRules.StringOperand(cached.Text, valueTypes),
                             IrExpression.InvariantCulture culture => objectRules is not null && objectRules.InvariantCulture(culture.Type, value.Type),
                             IrExpression.StringLiteral literal => objectRules is not null && value.Type == objectRules.StringType
                                 && objectRules.StringLiteral(literal.CodeUnits),
@@ -223,7 +227,7 @@ internal static class IrValidator
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.LoadLocation
                             or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation

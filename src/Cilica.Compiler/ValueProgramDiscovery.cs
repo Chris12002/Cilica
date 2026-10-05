@@ -31,7 +31,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
 public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receiver);
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
-public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture }
+public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish }
 public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, int Parameters,
     int MessageArgument = -1, int ParameterArgument = -1);
 public sealed record ValueProgramInput(IrMethodId Entry, ImmutableArray<ValueMethodInput> Methods, ValueTypeCatalog Types)
@@ -222,7 +222,7 @@ public static partial class ValueProgramDiscovery
                                 foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
                                     CheckArgumentAccess(argument, work, offset);
                             }
-                            if (exceptions && (CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
+                            if (exceptions && (IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
                             {
                                 _arguments += intrinsic.Parameters;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
@@ -518,6 +518,15 @@ public static partial class ValueProgramDiscovery
             var kind = primitive is not null ? ObjectMethodKind.PrimitiveInstance : inlineConstructor ? ObjectMethodKind.ValueConstructor : inlineInstance ? ObjectMethodKind.ValueInstance : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible)
                 { OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible, Primitive = primitive };
+            if (primitive is not null && input.DeclaredName == "ToString")
+            {
+                if (input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
+                    || input.Signature.Parameters.Count != 1 || input.Signature.Parameters[0] is not TypeSignature.Named provider
+                    || provider.Definition != Require(resolver.ResolveType(library, "System", "IFormatProvider"), parent, offset))
+                    Fail(parent, "Integer formatting requires the supported ToString(IFormatProvider) declaration.", offset);
+                _ = Require(resolver.AuthorizeLibraryIntrinsic(library, resolved.Handle, LibraryIntrinsicCapability.InvariantIntegerFormatting), parent, offset);
+                binding = binding with { InvariantProviderOnly = true };
+            }
             if (fact is null && primitive is null && !inlineInstance && (input.Attributes & MethodAttributes.Virtual) != 0)
             {
                 var exact = ResolveVirtual(resolved, resolved.DeclaringType, parent, offset);

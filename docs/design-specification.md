@@ -1056,8 +1056,12 @@ provider now has stable per-instance identity in native v20, with an independent
 authorized fieldless layout, permanent GC root and checked ownership
 ([ADR 0132](decisions/0132-invariant-provider-identity.md)). Selected 32/64-bit integer instance bodies now use checked scalar receivers;
 owned GetHashCode overrides execute as ordinary managed code
-([ADR 0133](decisions/0133-primitive-instance-bodies-and-hashing.md)). Other culture
-members and numeric formatting APIs remain pending. The image is never
+([ADR 0133](decisions/0133-primitive-instance-bodies-and-hashing.md)). The four integer
+ToString(IFormatProvider) overloads now execute that managed decimal helper when
+calls directly prove the invariant provider. Native v21 preserves shared [0, 300)
+string-cache identity with private exact grants and instance-owned traced storage
+([ADR 0134](decisions/0134-invariant-integer-formatting-apis.md)). Other culture
+members, general formatting and provider proofs through aliases remain pending. The image is never
 loaded into the host CLR. Unsupported declarations, including string hashing,
 remain diagnostic; general CoreLib and kernel compatibility are not claimed.
 

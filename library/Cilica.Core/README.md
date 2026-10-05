@@ -14,24 +14,32 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --compiler-directory /path/to/dotnet/sdk/10.0.400/Roslyn/bincore \
   --profile core --assembly-name Cilica.Core \
   --source library/Cilica.Core/CoreTypes.cs \
+  --source library/Cilica.Core/IntegerText.cs \
+  --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 59 exact string/exception/invariant-provider capabilities for review; it does not
+file describes 65 exact string/exception/provider/numeric capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
 
 `CoreLibraryBuildTests` builds this source and maps its admitted declarations
-against the pinned .NET Standard 2.1 reference image. Five native probes match
+against the pinned .NET Standard 2.1 reference image. Eight native probes match
 .NET at O0/O2 with ASan/UBSan, collection before allocations, repeated calls,
 frame exhaustion and ownership cleanup. They cover UTF-16 strings, exception
-messages/parameter names, stable invariant-provider identity, four integer hashes and composition with the ported decimal helper. Missing
+messages/parameter names, stable invariant-provider identity, four integer hashes, invariant numeric APIs, heap receivers and the decimal helper.
+NumericFormattingTests adds complete text and cache-boundary comparisons. Missing
 approval and unsupported string hashing fail explicitly.
 
-This is a bounded core trial. Numeric `ToString` APIs, general culture/provider members,
+The four integer `ToString(IFormatProvider)` methods require directly proven
+`CultureInfo.InvariantCulture` at each call. Their [0, 300) cache matches the
+pinned source's shared numeric identity without aliasing literals. The private
+cache helpers are callable only by the selected core image and need exact grants.
+
+This is a bounded core trial. General formatting/culture/provider members,
 StringBuilder, collections, full reflection and general CoreLib compatibility
 remain unimplemented. The image is metadata input to Cilica, never loaded into
-the host CLR. See ADRs 0131–0133 for scope and review evidence.
+the host CLR. See ADRs 0131–0134 for scope and review evidence.
