@@ -210,6 +210,7 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.InvariantCulture c } => new[] { c.Type },
         IrStatement.Define { Value.Expression: IrExpression.EmptyArray a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
+        IrStatement.Define { Value.Expression: IrExpression.AddressArraySlot a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },
         IrStatement.StoreElement a => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.StringFromCodeUnits } when _program.Flow.Types.String is { } created =>

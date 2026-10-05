@@ -116,6 +116,8 @@ public abstract record IrExpression
     public sealed record AddressBoxSlot(ObjectTypeId Type, int Receiver, int Slot) : IrExpression;
     public sealed record AddressLocal(int Index) : IrExpression;
     public sealed record AddressParameter(int Index) : IrExpression;
+    // Scalar backend borrow of one validated value-vector leaf.
+    public sealed record AddressArraySlot(ObjectTypeId ArrayType, int Array, int Index, int Slot) : IrExpression;
     public sealed record AddressField(ObjectFieldId Field, int Receiver) : IrExpression;
     public sealed record LocationField(ObjectFieldId Field, int Location) : IrExpression;
     public sealed record ReadOnlyLocation(int Location) : IrExpression;

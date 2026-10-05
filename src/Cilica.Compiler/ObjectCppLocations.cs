@@ -4,8 +4,8 @@ namespace Cilica.Compiler;
 internal static class ObjectCppLocations
 {
     internal const string Text = """
-enum class LocationStatus { complete, invalid, read_only, limit, busy, null_reference };
-enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field, frame_wide_integer };
+enum class LocationStatus { complete, invalid, read_only, limit, busy, null_reference, index_bounds };
+enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field, frame_wide_integer, array_slot };
 struct Location {
     // A heap location's owner must be published as a root across allocations.
     // A frame location borrows the registered frame's already-published storage.
@@ -15,6 +15,7 @@ struct Location {
     const Descriptor* declaring = nullptr;
     LocationOrigin origin = LocationOrigin::invalid;
     bool read_only = false;
+    std::size_t element = 0;
 };
 struct LocationResult { LocationStatus status; Location value{}; };
 struct BorrowFrame {
@@ -106,7 +107,7 @@ struct LocationStorage {
     ReferencePredicate accepts = nullptr;
 };
 [[gnu::noinline]] static LocationStorage frame_location_storage(Context& context, const Location& location) noexcept {
-    if (location.owner != nullptr || location.declaring != nullptr) return {LocationStatus::invalid};
+    if (location.owner != nullptr || location.declaring != nullptr || location.element != 0) return {LocationStatus::invalid};
     const BorrowFrame* frame = find_borrow(context, location.frame);
     if (frame == nullptr) return {LocationStatus::invalid};
     if (location.origin == LocationOrigin::frame_integer) {
@@ -121,7 +122,7 @@ struct LocationStorage {
     return {LocationStatus::complete, StorageKind::reference, &frame->references[location.slot], frame->accepts[location.slot]};
 }
 [[gnu::noinline]] static LocationStorage heap_location_storage(Context& context, const Location& location, bool write) noexcept {
-    if (location.origin != LocationOrigin::heap_field || location.frame != 0 || location.owner == nullptr ||
+    if (location.origin != LocationOrigin::heap_field || location.element != 0 || location.frame != 0 || location.owner == nullptr ||
         !traceable_reference(context.instance, location.owner) || !known_type(location.declaring)) return {LocationStatus::invalid};
     const Descriptor& actual = *location.owner->type;
     if (!derives_from(&actual, location.declaring) || location.slot >= location.declaring->field_count ||
@@ -130,11 +131,27 @@ struct LocationStorage {
     if (write && storage.read_only) return {LocationStatus::read_only};
     return {LocationStatus::complete, storage.kind, field_address(location.owner, location.slot), storage.accepts};
 }
+[[gnu::noinline]] static LocationStorage array_location_storage(Context& context, const Location& location) noexcept {
+    if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)
+        || !known_type(location.declaring) || location.owner->type != location.declaring
+        || location.declaring->array_kind != 3 || !valid_array_storage(location.owner)) return {LocationStatus::invalid};
+    auto* array = reinterpret_cast<ArrayObject*>(location.owner);
+    const auto& type = *location.declaring;
+    if (location.element >= array->length || location.slot >= type.array_component_count || type.array_components == nullptr)
+        return {LocationStatus::invalid};
+    const auto& component = type.array_components[location.slot];
+    if (component.kind == StorageKind::integer)
+        return {LocationStatus::complete, component.kind, &array->integers[location.element * type.array_int32_count + component.offset]};
+    if (component.kind == StorageKind::wide_integer)
+        return {LocationStatus::complete, component.kind, &array->wide_integers[location.element * type.array_int64_count + component.offset]};
+    return {LocationStatus::complete, component.kind, &array->references[location.element * type.array_reference_slots + component.offset], component.accepts};
+}
 [[gnu::noinline]] static LocationStorage location_storage(Context& context, const Location& location, bool write) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
     if (write && location.read_only) return {LocationStatus::read_only};
     if (location.origin == LocationOrigin::frame_integer || location.origin == LocationOrigin::frame_reference || location.origin == LocationOrigin::frame_wide_integer)
         return frame_location_storage(context, location);
+    if (location.origin == LocationOrigin::array_slot) return array_location_storage(context, location);
     return heap_location_storage(context, location, write);
 }
 [[maybe_unused, gnu::noinline]] static LocationResult frame_location(Context& context, std::uint64_t token,
@@ -148,6 +165,17 @@ struct LocationStorage {
     StorageKind kind, ReferencePredicate accepts, bool read_only) noexcept {
     const auto storage = location_storage(context, location, !read_only);
     return storage.status == LocationStatus::complete && storage.kind == kind && storage.accepts == accepts;
+}
+[[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+    const Descriptor* declaring, std::uint32_t index, std::size_t slot, bool read_only = false) noexcept {
+    if (context.instance.marking) return {LocationStatus::busy};
+    if (owner == nullptr) return {LocationStatus::null_reference};
+    if (!traceable_reference(context.instance, owner) || !known_type(declaring) || owner->type != declaring
+        || declaring->array_kind != 3 || !valid_array_storage(owner)) return {LocationStatus::invalid};
+    if (index >= reinterpret_cast<ArrayObject*>(owner)->length) return {LocationStatus::index_bounds};
+    Location value{owner, 0, slot, declaring, LocationOrigin::array_slot, read_only, index};
+    const auto storage = location_storage(context, value, false);
+    return storage.status == LocationStatus::complete ? LocationResult{storage.status, value} : LocationResult{storage.status};
 }
 [[maybe_unused, gnu::noinline]] static LocationResult heap_location(Context& context, Object* owner,
     const Descriptor* declaring, std::size_t slot, bool read_only = false) noexcept {

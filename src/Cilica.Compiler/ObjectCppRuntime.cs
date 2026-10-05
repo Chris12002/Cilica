@@ -29,6 +29,7 @@ struct Descriptor;
 using ReferencePredicate = bool (*)(const Descriptor*) noexcept;
 enum class StorageKind { integer, reference, wide_integer };
 struct FieldStorage { StorageKind kind; bool read_only; ReferencePredicate accepts; };
+struct ArrayComponent { StorageKind kind; std::size_t offset; ReferencePredicate accepts; };
 using FieldAccessor = void* (*)(Object*) noexcept;
 struct Descriptor {
     std::size_t size, alignment;
@@ -48,6 +49,8 @@ struct Descriptor {
     Object** (*dynamic_references)(Object*) noexcept = nullptr;
     const FieldStorage* storage = nullptr;
     std::size_t array_int32_count = 0, array_int64_count = 0, array_reference_slots = 0;
+    const ArrayComponent* array_components = nullptr;
+    std::size_t array_component_count = 0;
 };
 [[maybe_unused]] static bool known_type(const Descriptor*) noexcept;
 [[maybe_unused]] static bool string_type(const Descriptor*) noexcept;

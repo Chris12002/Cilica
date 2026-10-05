@@ -1656,3 +1656,10 @@ Int32/Int64/reference buffers preserve zeroing, exact heap quotas, per-instance
 empty identity and collection of every element reference. O0/O2 sanitizer probes
 cover storage and reclamation. Value element operations and CIL/library discovery
 remain pending; this does not yet compile the kernel's `PlayerId[]` path.
+
+
+Scalar value-vector component borrows now retain owner roots and validate exact
+descriptors, indices, leaf kinds and reference predicates (ADR 0167; scalar location
+IR v2/native v35). Twelve focused/composed checks include 288 repeated O0/O2
+.NET/native outcomes with sanitizers and forced collection. Logical value element
+operations and CIL/library admission are still pending.

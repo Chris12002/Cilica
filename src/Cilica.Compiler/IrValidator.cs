@@ -220,6 +220,7 @@ internal static class IrValidator
                                 && ManagedLocationRules.Address(method.Locals[a.Index], value.Type),
                             IrExpression.AddressParameter a => locations is not null && a.Index >= 0 && a.Index < method.Parameters.Length
                                 && ManagedLocationRules.Address(method.Parameters[a.Index], value.Type),
+                            IrExpression.AddressArraySlot a => locations is not null && valueRules is null && locations.ArraySlot(a, value.Type, valueTypes),
                             IrExpression.AddressField f => locations is not null && Earlier(f.Receiver)
                                 && locations.HeapField(valueTypes[f.Receiver], f.Field, value.Type)
                                 && (objectRules is null || objectRules.Field(method, f.Field, f.Receiver, valueTypes, out _)),
@@ -237,7 +238,7 @@ internal static class IrValidator
                         bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadStatic or IrExpression.LoadField
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.EmptyArray or IrExpression.ArrayLength or IrExpression.LoadElement
-                            or IrExpression.AddressField or IrExpression.LoadLocation
+                            or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation
                             or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation)

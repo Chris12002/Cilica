@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v34";
+    public const string Profile = "object-frames-native-v35";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -180,9 +180,19 @@ public static class ObjectCppEmitter
             bool reference = array.ArrayElement!.Kind == ObjectArrayElementKind.Reference;
             var slots = array.ArrayElement.Kind == ObjectArrayElementKind.Value
                 ? program.Flow.Types.ValueArrays.Single(v => v.Type == array.ArrayElement.Type).Slots : [];
+            if (!slots.IsEmpty)
+            {
+                text.Append("static constexpr std::array<ArrayComponent, ").Append(N(slots.Length)).Append("> ").Append(TypeSymbol(array)).Append("_components = {{");
+                int integers = 0, wide = 0, references = 0;
+                foreach (var slot in slots)
+                    text.Append("{StorageKind::").Append(StorageKind(slot)).Append(", ")
+                        .Append(N(slot is ObjectStorage.Int32 ? integers++ : slot is ObjectStorage.Int64 ? wide++ : references++))
+                        .Append(", ").Append(slot is ObjectStorage.Reference r ? Predicate(r.Type) : "nullptr").Append("},");
+                text.Append("}};\n");
+            }
             string valueStorage = "3, nullptr, array_reference_count, array_references, nullptr, "
                 + N(slots.Count(s => s is ObjectStorage.Int32)) + ", " + N(slots.Count(s => s is ObjectStorage.Int64))
-                + ", " + N(slots.Count(s => s is ObjectStorage.Reference));
+                + ", " + N(slots.Count(s => s is ObjectStorage.Reference)) + ", " + TypeSymbol(array) + "_components.data(), " + N(slots.Length);
             text.Append("[[maybe_unused]] static constexpr Descriptor ").Append(TypeSymbol(array)).Append("_descriptor = { sizeof(ArrayObject), alignof(ArrayObject), nullptr, 0, destroy_array, &")
                 .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
                 .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : array.ArrayElement.Kind == ObjectArrayElementKind.Value ? valueStorage : "1, nullptr, nullptr, nullptr").Append(" };\n");
@@ -331,7 +341,7 @@ public static class ObjectCppEmitter
                 code.Append("    if (").Append(condition).Append(") {\n"); Fault(status, offset); code.Append("    }\n");
             }
             void CheckLocationResult(int offset) => Guard("f->location_result.status != LocationStatus::complete",
-                "f->location_result.status == LocationStatus::null_reference ? 4u : 6u", offset);
+                "f->location_result.status == LocationStatus::null_reference ? 4u : f->location_result.status == LocationStatus::index_bounds ? 10u : 6u", offset);
             void CastFault(string condition, string receiver, string target, int offset)
             {
                 code.Append("    if (").Append(condition).Append(") {\n        raise_cast_exception(context, ").Append(receiver).Append(", &")
@@ -446,7 +456,7 @@ public static class ObjectCppEmitter
                 {
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
                         or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
-                            or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
+                            or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
@@ -532,6 +542,11 @@ public static class ObjectCppEmitter
                                     code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")
                                         .Append("frame_" + LocationKind(value.Type.Element!)).Append(", ")
                                         .Append(N(layout.Index(ObjectRootKind.Parameter, parameter.Index))).Append(");\n");
+                                    CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
+                                case IrExpression.AddressArraySlot element:
+                                    code.Append("    f->location_result = array_location(context, ").Append(Value(element.Array)).Append(", &")
+                                        .Append(TypeSymbol(element.ArrayType)).Append("_descriptor, ").Append(Value(element.Index)).Append(", ")
+                                        .Append(N(element.Slot)).Append(");\n");
                                     CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.AddressField field:
                                     code.Append("    f->location_result = heap_location(context, ").Append(Value(field.Receiver)).Append(", &")

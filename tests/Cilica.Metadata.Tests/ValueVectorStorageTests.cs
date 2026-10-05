@@ -16,7 +16,7 @@ public sealed class ValueVectorStorageTests
     private static readonly string Hash = new('a', 64);
     private static readonly ObjectTypeId Object = new(Hash, 0x02000002), Value = new(Hash, 0x02000003);
     private static readonly ObjectTypeId Vector = ObjectTypeId.Vector(Object, ObjectArrayElement.Value(Value));
-    private static ObjectTypeCatalog Catalog() => new([Vector], Object,
+    internal static ObjectTypeCatalog Catalog() => new([Vector], Object,
         [new(new("fixture", Hash, Object.Token, "System.Object"), null, TypeAttributes.Public, [])])
     {
         Integer64 = true, Arrays = [Vector],
