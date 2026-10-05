@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
@@ -18,10 +19,11 @@ public sealed class DefaultStaticTests
         [(nameof(DefaultStaticProbe.Values), DefaultStaticProbe.Values), (nameof(DefaultStaticProbe.Generic), DefaultStaticProbe.Generic)], typeof(DefaultStaticProbe));
 
     [Fact]
-    public void Initializers_and_legacy_profile_remain_diagnostic()
+    public void Field_initializers_require_the_integer_profile()
     {
         var initialized = IntegerObjectTranslationTests.Translate("Initialized", fixture: typeof(DefaultStaticProbe));
-        Assert.False(initialized.Success); Assert.Contains(initialized.Diagnostics, d => d.Message.Contains("initialization", StringComparison.Ordinal));
+        Assert.True(initialized.Success, string.Join("; ", initialized.Diagnostics));
+        Assert.Single(initialized.Program!.Flow.Bindings.Where(b => b.TypeInitializerName is not null));
         Assert.False(IntegerObjectTranslationTests.Translate("Values", enabled: false, fixture: typeof(DefaultStaticProbe)).Success);
     }
 

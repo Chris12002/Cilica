@@ -5,8 +5,8 @@ namespace Cilica.Compiler;
 
 internal static class DefaultStaticFields
 {
-    internal static bool IsUninitialized(TypeInput owner, FieldInput field) =>
-        !owner.IsReferenceAssembly && !owner.HasTypeInitializer && !owner.HasModuleInitializer
+    internal static bool IsStorage(TypeInput owner, FieldInput field) =>
+        !owner.IsReferenceAssembly && !owner.HasModuleInitializer
         && !field.HasExplicitStorage && (field.Attributes & FieldAttributes.Static) != 0
         && ObjectModelValidator.FieldAttributesSupported(field.Attributes & ~FieldAttributes.Static);
 

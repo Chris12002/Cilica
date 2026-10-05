@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.41 and 6d.1–6d.18 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.42 and 6d.1–6d.18 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -18,7 +18,7 @@ fixtures and examples must be independent.
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit API added in 6d.3 |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.41 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.42 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.18 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -969,3 +969,22 @@ allocation ordering, readonly ownership, bounded state and fault propagation.
 This is the runtime/IR half of initialization. CIL trigger discovery and initialized
 metadata admission remain pending, so the concrete kernel is still blocked at its
 initialized callback receiver. No native transcript equivalence is claimed.
+
+
+## Slice 6c.42 outcome
+
+BeforeFieldInit class initializers are now discovered and compiled as managed IL,
+with a dedicated trigger before static field reads/writes. Four probes provide
+1,176 repeated native/.NET comparisons, including reentry, readonly initialization,
+closed generic caches and retained failures. The full build and 33 composed checks
+pass. Review corrected generic exception display names and authenticated the exact
+wrapper constructor grant. See [ADR 0152](../decisions/0152-field-triggered-type-initialization.md).
+
+The trial core contains 212 inputs and 84 grants. Image SHA-256:
+`3b8bd091e919c43e4157047bb92e363b5d86c6318714ece180da99dc3fe107d9`;
+manifest SHA-256:
+`c6ab993f914dd530bbee2e1a78eaa9956ff403919824862108e13a1e49410a27`.
+The unchanged kernel now stops at private nested static owner access in
+ResolutionState.WriteCanonical IL_0002. Strict type/module initialization and
+initialized value types remain diagnostic; private nested access is next for the
+kernel. No native kernel equivalence or completed M6 claim is made.

@@ -136,7 +136,7 @@ public static class ObjectModelBuilder
                 return Failed(id, DiagnosticIds.ExecutionUnsupported,
                     "Interface contracts require public visibility and public enclosing types.", input.Source.Name);
             if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || isInterface && type.Arguments.Count != 0 && !integers64
-                || input.PackingSize != 0 || input.ClassSize != 0 || input.HasTypeInitializer || input.HasModuleInitializer
+                || input.PackingSize != 0 || input.ClassSize != 0 || input.HasTypeInitializer && (!integers64 || (input.Attributes & System.Reflection.TypeAttributes.BeforeFieldInit) == 0) || input.HasModuleInitializer
                 || !(isInterface ? ObjectModelValidator.InterfaceAttributes(input.Attributes) : ObjectModelValidator.ClassAttributes(input.Attributes)))
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, ObjectModel.Profile +
                     (generics ? " requires concrete closed automatic-layout classes or admitted public fieldless interfaces without native layout or initialization."
@@ -210,7 +210,7 @@ public static class ObjectModelBuilder
             var declared = new List<ObjectField>();
             foreach (var field in input.Fields)
             {
-                if (integers64 && DefaultStaticFields.IsUninitialized(input, field)) continue;
+                if (integers64 && DefaultStaticFields.IsStorage(input, field)) continue;
                 string location = input.Source.Name + "::" + field.Name + " token 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
                 if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "Static, literal, marshalled, RVA, constant and explicit-offset field storage require later lowering.", location);

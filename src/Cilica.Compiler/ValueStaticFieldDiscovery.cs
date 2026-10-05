@@ -12,9 +12,10 @@ public static partial class ValueProgramDiscovery
         private readonly Dictionary<ObjectFieldId, ObjectStaticField> _staticFields = [];
         private ObjectStaticField StaticField(Work work, ResolvedField field, TypeInput owner, FieldInput declaration, bool write, int offset)
         {
-            if (!DefaultStaticFields.IsUninitialized(owner, declaration))
-                Fail(work, "Static storage requires ordinary fields without type/module initialization or explicit storage; initialized statics require later lowering.", offset);
-            if (write && (declaration.Attributes & FieldAttributes.InitOnly) != 0)
+            if (!DefaultStaticFields.IsStorage(owner, declaration) || owner.HasTypeInitializer && (owner.Attributes & TypeAttributes.BeforeFieldInit) == 0)
+                Fail(work, "Static storage requires ordinary fields without module initialization or explicit storage; strict type initialization requires later lowering.", offset);
+            if (write && (declaration.Attributes & FieldAttributes.InitOnly) != 0
+                && (work.Binding.TypeInitializerName is null || work.Binding.Owner != ClosedId(field.DeclaringType, work, offset)))
                 Fail(work, "Readonly static fields cannot be assigned outside their type initializer.", offset);
             var id = new ObjectFieldId(ClosedId(field.DeclaringType, work, offset), MetadataTokens.GetToken(field.Handle));
             var access = declaration.Attributes & FieldAttributes.FieldAccessMask;

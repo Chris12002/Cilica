@@ -242,6 +242,7 @@ public static class ValueTranslator
                 for (int index = start; index < end; index++)
                 {
                     var instruction = input.Instructions[index]; int offset = instruction.Offset; string opcode = instruction.OpCode;
+                    if (method.Initializers.TryGetValue(offset, out var initializerTarget)) Add(new IrStatement.InitializeType(offset, initializerTarget), offset);
                     if (Int32Operations.FromOpcode(opcode) is { } operation)
                     {
                         int right = Pop(offset), left = Pop(offset);

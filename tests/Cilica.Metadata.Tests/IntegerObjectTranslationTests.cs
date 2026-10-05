@@ -57,7 +57,7 @@ public sealed class IntegerObjectTranslationTests
     }
 
     internal static async Task VerifyTranslated(bool optimized, (string Name, ManagedExceptionIrProgram Program, Func<int, int, int> Oracle)[] probes,
-        (int First, int Second)[]? pairs = null)
+        (int First, int Second)[]? pairs = null, bool persistentRoots = false)
     {
         pairs ??= (from first in new[] { 0, 1, -1, 127, 32768, int.MinValue, int.MaxValue }
                    from second in new[] { 0, 1, 2, 3, -1, int.MinValue, int.MaxValue } select (first, second)).ToArray();
@@ -74,6 +74,7 @@ public sealed class IntegerObjectTranslationTests
                     using namespace {{artifact.EntryPoint[..^4]}}_closure;
                     Instance heap; heap.collect_before_allocation = true; Context c(heap);
                     LocationArgument args[2]; args[0].bits = std::bit_cast<std::uint32_t>(first); args[1].bits = std::bit_cast<std::uint32_t>(second);
+                    [[maybe_unused]] std::size_t retained = 0;
                     for (int repeat = 0; repeat < 3; ++repeat) {
                         const auto result = {{symbol}}(c, args);
                         if (c.pending != 0 || result != expected) std::fprintf(stderr, "{{name}} %d/%d: status %u result %d expected %d\n", first, second, c.pending, result, expected);
@@ -86,7 +87,8 @@ public sealed class IntegerObjectTranslationTests
                         for (auto* number = heap.integer_texts; number; number = number->literal_next) ++permanent;
                         for (auto* resource = heap.exception_resources; resource; resource = resource->literal_next) ++permanent;
                         for (auto* entry = heap.empty_arrays; entry != nullptr; entry = entry->empty_next) ++permanent;
-                        assert(heap.count == permanent);
+                        {{(persistentRoots ? "if (repeat == 0) retained = heap.count; else assert(heap.count == retained);" : "assert(heap.count == permanent);")}}
+                        (void)permanent;
                     }
                     const auto peak = c.peak; Context exact(heap, peak);
                     assert({{symbol}}(exact, args) == expected && exact.pending == 0 && exact.used == 0);

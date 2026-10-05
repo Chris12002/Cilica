@@ -59,7 +59,7 @@ public static class ClosedGenericKey
 public sealed partial class AssemblyResolver
 {
     /// <summary>Select one declared closed method by exact name and nongeneric parameter count.</summary>
-    public ResolutionResult<ResolvedMethod> ResolveClosedDeclaration(ConstructedType owner, string name, int parameterCount, MemberResolutionBudget budget)
+    public ResolutionResult<ResolvedMethod> ResolveClosedDeclaration(ConstructedType owner, string name, int parameterCount, MemberResolutionBudget budget, bool publicOnly = false)
     {
         ArgumentNullException.ThrowIfNull(owner); ArgumentNullException.ThrowIfNull(budget);
         CheckOwner(owner.Definition.Assembly);
@@ -76,7 +76,9 @@ public sealed partial class AssemblyResolver
             foreach (var handle in reader.GetTypeDefinition(owner.Definition.Handle).GetMethods())
             {
                 InspectMember(budget);
-                if (!reader.StringComparer.Equals(reader.GetMethodDefinition(handle).Name, name)) continue;
+                var declaration = reader.GetMethodDefinition(handle);
+                if (!reader.StringComparer.Equals(declaration.Name, name)
+                    || publicOnly && (declaration.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public) continue;
                 var signature = MethodDefinitionSignature(owner.Definition.Assembly, handle);
                 if (signature.GenericArity != 0 || signature.Parameters.Count != parameterCount) continue;
                 if (selected is not null) throw new UnsupportedBindingException("Closed declaration selector is ambiguous: " + name);

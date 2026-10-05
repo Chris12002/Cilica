@@ -25,6 +25,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, ObjectTypeId> ArrayOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ObjectInterfaceDeclaration> InterfaceOperands { get; init; } = ImmutableDictionary<int, ObjectInterfaceDeclaration>.Empty;
     public ImmutableDictionary<int, IrType> MemoryOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
+    public ImmutableDictionary<int, IrMethodId> Initializers { get; init; } = ImmutableDictionary<int, IrMethodId>.Empty;
     public ImmutableDictionary<int, ObjectStaticField> StaticFields { get; init; } = ImmutableDictionary<int, ObjectStaticField>.Empty;
     public ImmutableDictionary<int, IrType> DefaultStatics { get; init; } = ImmutableDictionary<int, IrType>.Empty;
     public ImmutableDictionary<int, IrType> ReferenceBoxOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
@@ -150,6 +151,7 @@ public static partial class ValueProgramDiscovery
                     var interfaceCalls = ImmutableDictionary.CreateBuilder<int, ObjectInterfaceDeclaration>();
                     var memory = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var defaultStatics = ImmutableDictionary.CreateBuilder<int, IrType>();
+                    var initializers = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
                     var staticFields = ImmutableDictionary.CreateBuilder<int, ObjectStaticField>();
                     var referenceBoxes = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var constrained = ConstrainedPrefixes(work);
@@ -287,6 +289,7 @@ public static partial class ValueProgramDiscovery
                             if (instruction.OpCode == "stsfld" || !DefaultStaticFields.IsDefault(owner, declaration))
                             {
                                 staticFields.Add(offset, StaticField(work, field, owner, declaration, instruction.OpCode == "stsfld", offset));
+                                if (owner.HasTypeInitializer) initializers.Add(offset, FieldInitializer(field.DeclaringType, work, offset));
                                 continue;
                             }
                             var access = declaration.Attributes & FieldAttributes.FieldAccessMask;
@@ -360,7 +363,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {
@@ -513,21 +516,22 @@ public static partial class ValueProgramDiscovery
                 : resolver.ReadMethodInput(owner.Assembly, resolved.Handle, readLimits), parent, offset);
             _bytes += input.CodeSize; _instructions += input.Instructions.Length;
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(parent, "Aggregate metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+            bool initializer = integers64 && input.DeclaredName == ".cctor";
             bool constructor = classes && input.DeclaredName == ".ctor";
             bool instance = constructor || delegates && (input.Attributes & MethodAttributes.Static) == 0;
             var allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | (integers64 ? MethodAttributes.SpecialName : 0)
                 | (integers64 || fact is not null ? MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final : 0)
-                | (constructor ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
+                | (constructor || initializer ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
             if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != (instance ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
-                || input.HasTypeInitializer || input.HasModuleInitializer || !exceptions && input.ExceptionRegionCount != 0
+                || input.HasTypeInitializer && (!integers64 || (SnapshotClosed(resolved.DeclaringType, parent, offset).Attributes & TypeAttributes.BeforeFieldInit) == 0) || input.HasModuleInitializer || !exceptions && input.ExceptionRegionCount != 0
                 || !input.Locals.IsEmpty && !input.InitializeLocals
                 || ((input.Attributes & MethodAttributes.Static) != 0) == instance
                 || (input.Attributes & ~allowed) != 0
                 || (input.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.PrivateScope
                 || (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL)
                 Fail(parent, classes
-                    ? "Value/object methods require ordinary static methods, exact class constructors or selected delegate-profile instance methods, managed IL, supported closed signatures, no type/module initializers, no exception regions and initialized locals."
+                    ? "Value/object methods require ordinary static methods, exact class constructors or selected delegate-profile instance methods, managed IL, supported closed signatures, no strict type/module initializers and initialized locals; protected regions require the exception profile."
                     : "Value methods require static nongeneric ordinary managed IL without initialization, special names, exception regions or uninitialized locals.", offset);
             var ownerId = generics ? ClosedId(resolved.DeclaringType, parent, offset) : ObjectModelBuilder.Id(owner);
             var primitive = integers64 && instance && !constructor ? Primitive(owner, parent, offset) : null;
@@ -551,6 +555,14 @@ public static partial class ValueProgramDiscovery
             var kind = primitive is not null ? ObjectMethodKind.PrimitiveInstance : inlineConstructor ? ObjectMethodKind.ValueConstructor : inlineInstance ? ObjectMethodKind.ValueInstance : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible)
                 { OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible, Primitive = primitive };
+            if (initializer)
+            {
+                if (input.Attributes != (MethodAttributes.Private | MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
+                    || input.Signature.Parameters.Count != 0 || input.Signature.GenericArity != 0 || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void })
+                    Fail(parent, "Type initializer requires exact private static constructor flags, no parameters and void return.", offset);
+                var initializedOwner = SnapshotClosed(resolved.DeclaringType, parent, offset);
+                binding = binding with { TypeInitializerName = initializedOwner.Source.Name.Replace('/', '+') };
+            }
             if (primitive is not null && input.DeclaredName == "ToString")
             {
                 if (input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }

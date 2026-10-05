@@ -1413,3 +1413,13 @@ object operations IR v11 and native v32. Wrapper preparation precedes user IL;
 preparation failure can retry, while started initializers never repeat side effects.
 Native O0/O2 sanitizer tests cover roots, failure identity and quota/corruption.
 CIL trigger insertion and initialized metadata admission remain pending.
+
+
+BeforeFieldInit class initialization is now connected to CIL field reads/writes
+(ADR 0152). Exact closed .cctor bodies execute through the ordinary compiler, with
+readonly owner checks and a granted failure-wrapper constructor. The permitted
+timing choice is first static field access. Generic failure names use the definition
+name while state uses the closed owner identity. Four probes provide 1,176 local
+O0/O2 differential results. Strict type/module initialization, initialized values,
+static addresses and broader static storage remain diagnostic. The concrete kernel
+still requires private nested cache access and has no native transcript evidence.
