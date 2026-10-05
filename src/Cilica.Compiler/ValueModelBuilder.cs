@@ -147,7 +147,8 @@ public static class ValueModelBuilder
             catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
             if (input.IsByRefLike) Fail("ByRefLike values require stack-only lifetime and escape checking before executable layout.", input.Source.Name);
             if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || input.HasTypeInitializer || input.HasModuleInitializer
-                || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && input.Fields.IsEmpty
+                || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && (input.Fields.IsEmpty
+                    || integers64 && input.Fields.All(f => DefaultStaticFields.IsDefault(input, f)))
                     && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || !integers64 && input.InterfaceCount != 0
                 || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
                 || input.BaseType is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } declaredBase
@@ -170,6 +171,7 @@ public static class ValueModelBuilder
             }
             foreach (var field in input.Fields)
             {
+                if (integers64 && DefaultStaticFields.IsDefault(input, field)) continue;
                 string location = paths[id] + " -> " + input.Source.Name + "::" + field.Name + " field 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
                 if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                     Fail("Static, literal, marshalled, RVA, explicit-offset and constant field storage require later lowering.", location);

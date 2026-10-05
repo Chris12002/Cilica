@@ -339,6 +339,11 @@ public static class ValueTranslator
                             var storeView = ArrayView(storeArray, opcode, offset);
                             Compatible(values[elementValue], storeView.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? IrType.Int32 : IrType.Reference(storeView.ArrayElement.Type!), offset);
                             Add(new IrStatement.StoreElement(offset, storeView, storeArray, storeIndex, elementValue), offset); break;
+                        case "ldsfld" when types.IntegerCasts && method.DefaultStatics.TryGetValue(offset, out var defaultStatic):
+                            if (defaultStatic.Kind == IrTypeKind.Reference) Push(offset, IrType.NullReference, new IrExpression.Null());
+                            else Push(offset, defaultStatic, defaultStatic == IrType.Int32 ? new IrExpression.Constant(0)
+                                : defaultStatic == IrType.Int64 ? new IrExpression.Constant64(0) : new IrExpression.DefaultValue(defaultStatic.Class!));
+                            break;
                         case "ldnull": Push(offset, IrType.NullReference, new IrExpression.Null()); break;
                         case "ldarg.0" or "ldarg.1" or "ldarg.2" or "ldarg.3" or "ldarg.s" or "ldarg":
                             int argument = Variable(instruction, method.Parameters.Length);

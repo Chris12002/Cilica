@@ -1075,6 +1075,12 @@ is tested on application collections with Int64 and reference elements; library
 collection storage, array helpers and variance-only dispatch remain pending
 ([ADR 0135](decisions/0135-owned-read-only-collection-contracts.md)).
 
+The integer-object compiler admits readonly static reads only when exact metadata
+proves zero initialization: no type/module initializer or explicit field storage.
+Reads become ordinary scalar zero, null or fresh inline defaults; instance layouts
+omit these static declarations. Mutable/initialized statics, addresses and writes
+remain unsupported ([ADR 0137](decisions/0137-default-readonly-static-fields.md)).
+
 Recognised framework types map to canonical runtime types. Resolve supported
 facades and type forwarders deliberately. User types retain assembly-qualified
 identity; never match solely by a short type name.
