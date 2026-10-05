@@ -16,7 +16,7 @@ internal sealed class HeapValueFields
     {
         var arrays = values.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value)
             .Select(a => a.ArrayElement!.Type!).Distinct().Select(type => new ObjectValueArrayLayout(type,
-                plans[type].Slots.IsEmpty ? [new ObjectStorage.Int32()] : [.. plans[type].Slots.Select(s => s.Storage)])).ToImmutableArray();
+                plans[type].Slots.IsEmpty ? [new ObjectStorage.Int32()] : [.. plans[type].Slots.Select(s => s.Storage)]) { Empty = plans[type].Slots.IsEmpty }).ToImmutableArray();
         if (!values.References.Types.Any(t => t.Fields.Any(f => f.Storage is ObjectStorage.Value)))
         { Catalog = values.References with { ValueArrays = arrays }; ObjectModelValidator.Validate(Catalog); return; }
         int count = 0;

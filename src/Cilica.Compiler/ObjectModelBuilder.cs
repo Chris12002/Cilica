@@ -179,9 +179,14 @@ public static class ObjectModelBuilder
                         closedReference: generic => Reference(new(generic.Definition.Definition, generic.Arguments)), integers64: integers64, inline: inline);
                     if (argument is TypeSignature.Vector && storage is null)
                         return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface array arguments require an admitted vector element type.", input.Source.Name);
+                    var valueArgument = argument switch {
+                        TypeSignature.Named { Kind: SignatureTypeKind.ValueType } named => Plain(named.Definition),
+                        TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                        _ => null };
                     arguments.Add(new(ClosedGenericKey.Create(new([argument]), SignatureList<TypeSignature>.Empty),
                         storage?.Kind == IrTypeKind.Reference ? storage.Class : null,
-                        input.ClosedParameterAttributes[index] & System.Reflection.GenericParameterAttributes.VarianceMask));
+                        input.ClosedParameterAttributes[index] & System.Reflection.GenericParameterAttributes.VarianceMask) {
+                            Value = valueArgument is not null && inline is not null && enumScalar?.Invoke(argument) != true ? inline(valueArgument) : null });
                 }
                 if (exceeded) return Failed(id, DiagnosticIds.TranslationLimit, "Interface argument type closure exceeds the catalog limit.", input.Source.Name);
                 interfaceTypes.Add(id, type);

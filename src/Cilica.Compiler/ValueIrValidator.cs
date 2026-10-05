@@ -23,6 +23,7 @@ public static class ValueIrValidator
             .Where(t => t.Kind == IrTypeKind.Value).Select(t => t.Class!));
         foreach (var field in program.Types.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>()) pending.Push(field.Type);
         foreach (var array in program.Types.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value)) pending.Push(array.ArrayElement!.Type!);
+        foreach (var argument in program.Types.References.Interfaces.SelectMany(i => i.Arguments)) if (argument.Value is { } value) pending.Push(value);
         var visited = new HashSet<ObjectTypeId>();
         var layouts = program.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         while (pending.TryPop(out var id))

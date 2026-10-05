@@ -116,10 +116,14 @@ internal sealed class ObjectTypeRelations
                         var argument = contract.Arguments[0];
                         compatible = array.ArrayElement is { Kind: ObjectArrayElementKind.Reference, Type: { } element }
                             ? argument.Reference is { } reference && Ancestors[element].Contains(reference)
+                            : array.ArrayElement is { Kind: ObjectArrayElementKind.Value, Type: { } value } ? argument.Value == value
                             : array.ArrayElement!.Kind == ObjectArrayElementKind.Int32 && (argument.Identity == integerArgument || argument.Identity == unsignedArgument);
                     }
                     if (compatible) changed |= Ancestors[array].Add(ObjectTypeId.From(contract.Source));
                 }
+            // The nominal graph is already transitively closed. Revisit inherited
+            // assignments only after a new variance or array edge was admitted.
+            if (!changed) break;
             foreach (var ancestors in Ancestors.Values)
                 foreach (var parent in ancestors.ToArray())
                     foreach (var ancestor in Ancestors[parent].ToArray())

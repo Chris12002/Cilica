@@ -29,7 +29,10 @@ public sealed record ObjectArrayElement(ObjectArrayElementKind Kind, ObjectTypeI
 }
 
 /// <summary>Ordered scalar leaves of a closed value-array element, including private empty-value storage.</summary>
-public sealed record ObjectValueArrayLayout(ObjectTypeId Type, ImmutableArray<ObjectStorage> Slots);
+public sealed record ObjectValueArrayLayout(ObjectTypeId Type, ImmutableArray<ObjectStorage> Slots)
+{
+    public bool Empty { get; init; }
+}
 
 /// <summary>A fieldless interface contract; it has no instance allocation layout.</summary>
 public enum ObjectArrayInterfaceKind { None, Enumerable, GenericEnumerable, Collection, List, ReadOnlyCollection, ReadOnlyList, NonGenericCollection, NonGenericList }
@@ -44,7 +47,10 @@ public sealed record ObjectInterface(TypeSource Source, TypeAttributes Attribute
 }
 
 /// <summary>Exact argument identity plus its reference type when variance can apply; value arguments have no reference identity.</summary>
-public sealed record ObjectInterfaceArgument(string Identity, ObjectTypeId? Reference, GenericParameterAttributes Variance);
+public sealed record ObjectInterfaceArgument(string Identity, ObjectTypeId? Reference, GenericParameterAttributes Variance)
+{
+    public ObjectTypeId? Value { get; init; }
+}
 
 /// <summary>Intrinsic single-target delegate shape; the receiver is private traced runtime storage.</summary>
 public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, bool ReturnsVoid)
@@ -92,7 +98,7 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 {
     public bool Integer64 { get; init; }
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
-    public const string Profile = "object-layout-v12";
+    public const string Profile = "object-layout-v13";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];

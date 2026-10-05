@@ -63,7 +63,7 @@ public static class ObjectModelValidator
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
         var interfaceParameters = new Dictionary<(string Hash, int Token), GenericParameterAttributes[]>();
         var arrayContracts = new Dictionary<(string Hash, int Token), ObjectArrayInterfaceKind>();
-        var argumentReferences = new Dictionary<string, ObjectTypeId?>();
+        var argumentReferences = new Dictionary<string, (ObjectTypeId? Reference, ObjectTypeId? Value)>();
         int argumentCount = 0;
         var fieldIdentities = new HashSet<(string Hash, string Specialization, int Token, int Component)>();
         int fieldCount = 0;
@@ -136,10 +136,11 @@ public static class ObjectModelValidator
             {
                 Require(argument is not null && argument.Identity is { Length: 64 } && Specialization(argument.Identity)
                     && argument.Variance is GenericParameterAttributes.None or GenericParameterAttributes.Covariant or GenericParameterAttributes.Contravariant
-                    && (argument.Reference is null || ReferenceIdentity(argument.Reference, model.ObjectBase)), "invalid interface argument identity/variance.");
+                    && (argument.Reference is null || ReferenceIdentity(argument.Reference, model.ObjectBase))
+                    && (argument.Value is null || model.Integer64 && argument.Reference is null && Identity(argument.Value, 0x02)), "invalid interface argument identity/variance.");
                 if (argumentReferences.TryGetValue(argument.Identity, out var prior))
-                    Require(prior == argument.Reference, "one argument identity cannot describe different reference types.");
-                else argumentReferences.Add(argument.Identity, argument.Reference);
+                    Require(prior == (argument.Reference, argument.Value), "one argument identity cannot describe different argument types.");
+                else argumentReferences.Add(argument.Identity, (argument.Reference, argument.Value));
             }
             var parameterKey = (id.ContentHash, id.Token);
             var variance = contract.Arguments.Select(a => a.Variance).ToArray();
@@ -178,6 +179,8 @@ public static class ObjectModelValidator
                 && valueArrays.TryAdd(layout.Type, layout) && !layout.Slots.IsDefaultOrEmpty
                 && layout.Slots.Length <= ObjectModelLimits.MaximumFields - arraySlots,
                 "invalid, duplicate or excessive value-array scalar layout.");
+            Require(!layout.Empty || layout.Slots.Length == 1 && layout.Slots[0] is ObjectStorage.Int32,
+                "empty value arrays require exactly one private Int32 slot.");
             arraySlots += layout.Slots.Length;
             Require(layout.Slots.All(s => s is ObjectStorage.Int32 or ObjectStorage.Int64
                 || s is ObjectStorage.Reference r && Known(r.Type)), "value-array leaves require known scalar storage.");
@@ -201,6 +204,7 @@ public static class ObjectModelValidator
         }
         foreach (var contract in interfaces.Values)
         {
+            Require(contract.Arguments.All(a => a.Value is null || !Known(a.Value)), "interface value argument collides with a reference type.");
             Require(contract.Parents.All(interfaces.ContainsKey), "interface parents must name included interface contracts.");
             Require(contract.Arguments.All(a => a.Reference is null || Known(a.Reference)), "interface argument reference is outside the catalog.");
         }

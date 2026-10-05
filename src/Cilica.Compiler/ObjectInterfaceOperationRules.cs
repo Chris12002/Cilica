@@ -82,7 +82,7 @@ internal sealed class ObjectInterfaceOperationRules
             || left.String != right.String || left.ObjectBase != right.ObjectBase || !left.Roots.ToHashSet().SetEquals(right.Roots)
             || left.Types.Length != right.Types.Length || left.Interfaces.Length != right.Interfaces.Length
             || left.ValueArrays.Length != right.ValueArrays.Length
-            || !left.ValueArrays.All(a => right.ValueArrays.Any(b => a.Type == b.Type && a.Slots.SequenceEqual(b.Slots)))
+            || !left.ValueArrays.All(a => right.ValueArrays.Any(b => a.Type == b.Type && a.Empty == b.Empty && a.Slots.SequenceEqual(b.Slots)))
             || !left.Arrays.ToHashSet().SetEquals(right.Arrays)) return false;
         var classes = right.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var interfaces = right.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));

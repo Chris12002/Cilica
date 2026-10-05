@@ -1689,3 +1689,13 @@ within bounded work. Escaping aliases and actual boxed interface calls remain
 diagnostic. Two probes add 588 repeated O0/O2 .NET/native outcomes. The concrete
 kernel next requires value-array interface assignment; native transcripts remain
 unproven.
+
+
+Value-array interfaces now preserve exact closed value arguments and use the
+selected managed ArrayInterface<T> bodies (ADR 0173; object layout v13). Scalar
+helper signatures derive from ordered element leaves, including explicit empty
+values. Four probes add 1,176 repeated O0/O2 .NET/native outcomes with sanitizers,
+forced collection, nested reference-bearing structs, fixed-size faults and live
+List/read-only views. Unrelated value/reference interface casts remain false.
+The concrete kernel now reaches switch in ResolutionKernel.Step; native transcript
+equivalence remains pending.

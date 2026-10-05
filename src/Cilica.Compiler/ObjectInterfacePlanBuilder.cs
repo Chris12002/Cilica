@@ -252,9 +252,9 @@ public static class ObjectInterfacePlanBuilder
             if (recipe is "Add" or "Set")
             {
                 var item = declaration.Parameters[^1];
-                if (item != IrType.Int32 && item.Kind != IrTypeKind.Reference)
-                    Fail("Array interface mutation requires Int32 or reference elements.", declaration.Source.Name);
-                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int32 ? ObjectArrayElement.Int32 : ObjectArrayElement.Reference(item.Class!));
+                if (item != IrType.Int32 && item.Kind is not (IrTypeKind.Reference or IrTypeKind.Value))
+                    Fail("Array interface mutation requires Int32, reference or inline value elements.", declaration.Source.Name);
+                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int32 ? ObjectArrayElement.Int32 : item.Kind == IrTypeKind.Value ? ObjectArrayElement.Value(item.Class!) : ObjectArrayElement.Reference(item.Class!));
             }
             TypeSignature element;
             if (view.ArrayElement!.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
@@ -264,7 +264,7 @@ public static class ObjectInterfacePlanBuilder
             {
                 if (!_knownTypes.TryGetValue(view.ArrayElement.Type!, out var type))
                     throw new PlanFailure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error, "Missing closed vector element metadata."));
-                var named = new TypeSignature.Named(type.Definition, SignatureTypeKind.Class);
+                var named = new TypeSignature.Named(type.Definition, view.ArrayElement.Kind == ObjectArrayElementKind.Value ? SignatureTypeKind.ValueType : SignatureTypeKind.Class);
                 element = type.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, type.Arguments);
             }
             var owner = Value(resolver.ResolveType(runtimeLibrary, "Cilica.Runtime", "ArrayInterface`1"));

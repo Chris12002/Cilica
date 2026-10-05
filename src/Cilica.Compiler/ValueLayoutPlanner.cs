@@ -87,7 +87,9 @@ public static class ValueLayoutPlanner
         Require(heapValues.All(types.ContainsKey), "heap inline field target is outside the value catalog.");
         var arrayValues = catalog.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).Select(a => a.ArrayElement!.Type!).ToArray();
         Require(arrayValues.All(types.ContainsKey), "array element is outside the value catalog.");
-        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues).Concat(arrayValues));
+        var argumentValues = catalog.References.Interfaces.SelectMany(i => i.Arguments).Where(a => a.Value is not null).Select(a => a.Value!).ToArray();
+        Require(argumentValues.All(types.ContainsKey), "interface argument is outside the value catalog.");
+        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues).Concat(arrayValues).Concat(argumentValues));
         while (pending.TryPop(out var id))
             if (included.Add(id)) foreach (var child in children[id]) pending.Push(child);
         Require(included.Count == types.Count, "catalog contains unrelated inline types.");
@@ -134,7 +136,7 @@ public static class ValueLayoutPlanner
         {
             var slots = plans[shape.Type].Slots;
             IEnumerable<ObjectStorage> expected = slots.IsEmpty ? [new ObjectStorage.Int32()] : slots.Select(s => s.Storage);
-            Require(shape.Slots.SequenceEqual(expected), "value-array scalar shape contradicts the logical layout.");
+            Require(shape.Empty == slots.IsEmpty && shape.Slots.SequenceEqual(expected), "value-array scalar shape contradicts the logical layout.");
         }
         return [.. catalog.Types.Select(t => plans[ObjectTypeId.From(t.Source)])];
     }

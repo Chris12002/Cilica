@@ -69,7 +69,7 @@ public static class ObjectInterfacePlanValidator
                     && !method.Parameters.IsDefaultOrEmpty && method.Parameters[0].Class is { ArrayElement: not null } vector
                     && plan.Types.Arrays.Contains(vector) && Signature(method.Parameters, method.ReturnType, vector),
                     "invalid selected array helper facts/identity/signature.");
-                Require(ObjectArrayInterfaceRecipes.Signature(method), "unsupported array helper operation/signature.");
+                Require(ObjectArrayInterfaceRecipes.Signature(method, plan), "unsupported array helper operation/signature.");
                 Require(methods.TryAdd(helper.Method, method), "duplicate array helper identity.");
                 parameters += method.Parameters.Length;
                 Require(parameters <= ProgramLimits.MaximumCallArguments, "aggregate declaration parameter limit exceeded.");
@@ -140,7 +140,8 @@ public static class ObjectInterfacePlanValidator
                         && types.Assignable(IrType.Reference(target.Receiver), mapping.Parameters[0])
                         && declaration.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1))
                         && (mapping.ReturnType == declaration.ReturnType || types.Assignable(mapping.ReturnType, declaration.ReturnType))
-                        && mapping.Name == ObjectArrayInterfaceRecipes.Select(declaration, kind, plan.Types.ObjectBase),
+                        && mapping.Name == ObjectArrayInterfaceRecipes.Select(declaration, kind, plan.Types.ObjectBase,
+                            scalarValue: plan.Values is null && target.Receiver.ArrayElement.Kind == ObjectArrayElementKind.Value),
                         "array mapping requires the exact selected helper and matching interface operation.");
                     used.Add(target.Implementation); continue;
                 }

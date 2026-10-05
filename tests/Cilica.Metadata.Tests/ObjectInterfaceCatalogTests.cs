@@ -262,7 +262,7 @@ public sealed class ObjectInterfaceCatalogTests
             previous = next;
         }
         var root = builder.Type("Example", "Root", baseType: rootObject); builder.Implements(root, previous);
-        var result = Build(builder, root); Assert.Equal(!excess, result.Success);
+        var result = Build(builder, root); Assert.True(result.Success == !excess, string.Join("; ", result.Diagnostics));
         if (excess) Assert.Equal(DiagnosticIds.TranslationLimit, Assert.Single(result.Diagnostics).Id);
         else
         {
