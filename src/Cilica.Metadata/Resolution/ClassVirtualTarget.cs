@@ -45,19 +45,24 @@ public sealed partial class AssemblyResolver
     }
 
     private List<ConstructedType> DispatchClassHierarchy(ResolvedType receiver, MemberResolutionBudget budget)
+        => DispatchClassHierarchy(OpenType(receiver), budget);
+
+    private List<ConstructedType> DispatchClassHierarchy(ConstructedType receiver, MemberResolutionBudget budget,
+        Action<ConstructedType>? validateClosed = null)
     {
         var hierarchy = new List<ConstructedType>();
         var seen = new HashSet<ResolvedType>();
-        var current = OpenType(receiver);
+        var current = receiver;
         while (true)
         {
             InspectMember(budget);
+            validateClosed?.Invoke(current);
             if (!seen.Add(current.Definition) || seen.Count > ClassVirtualTarget.MaximumHierarchyDepth)
                 throw Failure(DiagnosticIds.TypeResolutionCycle, "Class virtual hierarchy is cyclic or exceeds 256 types.");
             var type = current.Definition.Assembly.Image.Reader.GetTypeDefinition(current.Definition.Handle);
             if (MetadataTokens.GetRowNumber(current.Definition.Handle) == 1)
                 throw new BadImageFormatException("The module definition is not a class dispatch receiver or ancestor.");
-            if (current.Arguments.Count != 0 || (type.Attributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != 0)
+            if (validateClosed is null && current.Arguments.Count != 0 || (type.Attributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != 0)
                 throw new UnsupportedBindingException("Exact class dispatch requires concrete nongeneric class ancestors; interfaces and abstract classes need later lowering.");
             if (hierarchy.Count > 0 && (type.Attributes & TypeAttributes.Sealed) != 0)
                 throw new BadImageFormatException("Class virtual hierarchy extends a sealed class.");
@@ -68,7 +73,7 @@ public sealed partial class AssemblyResolver
                 if (!owners.Add(owner) || owners.Count > TypeReadLimits.MaximumSupportedOwnerDepth)
                     throw Failure(DiagnosticIds.TranslationLimit, "Class dispatch declaring owners are cyclic or exceed 64 levels.");
                 var enclosing = current.Definition.Assembly.Image.Reader.GetTypeDefinition(owner);
-                if (enclosing.GetGenericParameters().Count != 0)
+                if (validateClosed is null && enclosing.GetGenericParameters().Count != 0)
                     throw new UnsupportedBindingException("Generic declaring owners require a later class dispatch profile.");
                 owner = enclosing.GetDeclaringType();
             }
@@ -80,12 +85,12 @@ public sealed partial class AssemblyResolver
     }
 
     private ClassVirtualTarget ClassSlotTarget(ResolvedMethod declaration, ResolvedType receiver,
-        List<ConstructedType> hierarchy, MemberResolutionBudget budget, bool allowPrivateFinalSlots = false)
+        List<ConstructedType> hierarchy, MemberResolutionBudget budget, bool allowPrivateFinalSlots = false, bool closed = false)
     {
-        ValidateClassVirtual(declaration, allowPrivateFinalSlots);
+        ValidateClassVirtual(declaration, allowPrivateFinalSlots, closed);
         var assembly = declaration.DeclaringType.Definition.Assembly;
         string name = assembly.Image.Reader.GetString(assembly.Image.Reader.GetMethodDefinition(declaration.Handle).Name);
-        if (!hierarchy.Exists(t => t.Definition == declaration.DeclaringType.Definition))
+        if (!hierarchy.Exists(t => t == declaration.DeclaringType))
             throw Failure(DiagnosticIds.MemberNotFound, "Virtual declaration owner is outside the receiver's class hierarchy.");
 
         // Each newslot starts an independent chain. Reuse-slot definitions replace
@@ -106,7 +111,7 @@ public sealed partial class AssemblyResolver
                 if (!metadata.StringComparer.Equals(definition.Name, name)) continue;
                 // Generic overloads cannot override the nongeneric declaration.
                 if (definition.GetGenericParameters().Count != 0) continue;
-                var candidate = Method(image, candidateHandle, declaredOnly: true, budget: budget);
+                var candidate = Method(image, candidateHandle, closed ? new(owner, SignatureList<TypeSignature>.Empty) : null, declaredOnly: true, budget: budget);
                 if (candidate.Signature != declaration.Signature)
                 {
                     if ((definition.Attributes & MethodAttributes.Virtual) != 0 && candidate.Signature.Header == declaration.Signature.Header
@@ -117,7 +122,7 @@ public sealed partial class AssemblyResolver
                 if (++exactDeclarations > 1)
                     throw Failure(DiagnosticIds.MemberConflict, "Multiple class declarations match one virtual name/signature on an owner.");
                 if ((definition.Attributes & MethodAttributes.Virtual) == 0) continue;
-                ValidateClassVirtual(candidate, allowPrivateFinalSlots);
+                ValidateClassVirtual(candidate, allowPrivateFinalSlots, closed);
                 match = candidate;
             }
             if (match is null) continue;
@@ -136,7 +141,7 @@ public sealed partial class AssemblyResolver
         return new(declaration, slots[selected].Root, receiver, slots[selected].Body);
     }
 
-    private static void ValidateClassVirtual(ResolvedMethod method, bool allowPrivateFinalSlots = false)
+    private static void ValidateClassVirtual(ResolvedMethod method, bool allowPrivateFinalSlots = false, bool closed = false)
     {
         var definition = method.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(method.Handle);
         const MethodAttributes allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Virtual
@@ -146,7 +151,7 @@ public sealed partial class AssemblyResolver
             && (definition.Attributes & (MethodAttributes.Final | MethodAttributes.NewSlot)) == (MethodAttributes.Final | MethodAttributes.NewSlot);
         if ((definition.Attributes & MethodAttributes.Virtual) == 0 || (definition.Attributes & ~allowed) != 0
             || (definition.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public && !privateFinalSlot
-            || method.DeclaringType.Arguments.Count != 0 || method.MethodArguments.Count != 0
+            || !closed && method.DeclaringType.Arguments.Count != 0 || method.MethodArguments.Count != 0
             || method.Signature.Header != 0x20 || method.Signature.GenericArity != 0)
             throw new UnsupportedBindingException(allowPrivateFinalSlots
                 ? "Exact interface mapping bodies require public virtual or private final newslot nongeneric instance declarations without abstract or special runtime semantics."

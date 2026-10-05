@@ -27,12 +27,17 @@ public sealed partial class AssemblyResolver
     }
 
     private InterfaceMethodTarget InterfaceTarget(ResolvedAssembly assembly, MethodDefinitionHandle handle,
-        ResolvedType receiver, MemberResolutionBudget budget)
+        ResolvedType receiver, MemberResolutionBudget budget) =>
+        InterfaceTarget(Method(assembly, handle, declaredOnly: true, budget: budget), OpenType(receiver), budget);
+
+    private InterfaceMethodTarget InterfaceTarget(ResolvedMethod declaration, ConstructedType receiver,
+        MemberResolutionBudget budget, Action<ConstructedType>? validateClosed = null)
     {
-        var declaration = Method(assembly, handle, declaredOnly: true, budget: budget);
-        ValidateInterfaceMethod(declaration);
-        var hierarchy = DispatchClassHierarchy(receiver, budget);
-        var facts = ReadInterfaceHierarchy(hierarchy, budget, declaration.DeclaringType);
+        bool closed = validateClosed is not null;
+        validateClosed?.Invoke(declaration.DeclaringType);
+        ValidateInterfaceMethod(declaration, closed);
+        var hierarchy = DispatchClassHierarchy(receiver, budget, validateClosed);
+        var facts = ReadInterfaceHierarchy(hierarchy, budget, declaration.DeclaringType, validateClosed);
         var direct = facts.Direct; var mappings = facts.Mappings; var implemented = facts.Implemented;
         if (!implemented.Contains(declaration.DeclaringType))
             throw Failure(DiagnosticIds.MemberNotFound, "Receiver does not declare or inherit the requested interface contract.");
@@ -51,7 +56,7 @@ public sealed partial class AssemblyResolver
                 {
                     var owner = hierarchy[search];
                     isExplicit = mappings[owner].TryGetValue(declaration, out mapping);
-                    if (!isExplicit) mapping = InterfaceNameMatch(owner, declaration, budget);
+                    if (!isExplicit) mapping = InterfaceNameMatch(owner, declaration, budget, closed);
                 }
                 if (mapping is null)
                     throw Failure(DiagnosticIds.MemberNotFound, "Concrete class has no implementation for the interface declaration; default bodies require later lowering.");
@@ -59,9 +64,9 @@ public sealed partial class AssemblyResolver
         }
         if (mapping is null) throw Failure(DiagnosticIds.MemberNotFound, "Interface declaration has no supported class mapping.");
         if ((MethodFlags(mapping) & MethodAttributes.Virtual) == 0)
-            return new(declaration, receiver, mapping, null, mapping, isExplicit);
-        var target = ClassSlotTarget(mapping, receiver, hierarchy, budget, allowPrivateFinalSlots: isExplicit);
-        return new(declaration, receiver, mapping, target.Slot, target.Implementation, isExplicit);
+            return new(declaration, receiver.Definition, mapping, null, mapping, isExplicit);
+        var target = ClassSlotTarget(mapping, receiver.Definition, hierarchy, budget, allowPrivateFinalSlots: isExplicit, closed: closed);
+        return new(declaration, receiver.Definition, mapping, target.Slot, target.Implementation, isExplicit);
     }
 
     private sealed record InterfaceHierarchy(
@@ -72,7 +77,7 @@ public sealed partial class AssemblyResolver
     // Both exact resolvers authenticate every MethodImpl row against this same
     // bounded interface closure before the class-slot walk may consume it.
     private InterfaceHierarchy ReadInterfaceHierarchy(List<ConstructedType> hierarchy, MemberResolutionBudget budget,
-        ConstructedType? requiredContract = null)
+        ConstructedType? requiredContract = null, Action<ConstructedType>? validateClosed = null)
     {
         var direct = new Dictionary<ConstructedType, HashSet<ConstructedType>>();
         var graph = new Dictionary<ConstructedType, List<ConstructedType>>();
@@ -93,7 +98,8 @@ public sealed partial class AssemblyResolver
         }
         while (pending.TryDequeue(out var type))
         {
-            ValidateInterfaceType(type, budget);
+            validateClosed?.Invoke(type);
+            ValidateInterfaceType(type, budget, validateClosed is not null);
             var parents = ReadInterfaceEdges(type, budget); graph.Add(type, parents);
             foreach (var parent in parents) Schedule(parent);
         }
@@ -136,7 +142,7 @@ public sealed partial class AssemblyResolver
         for (int i = hierarchy.Count - 1; i >= 0; i--)
         {
             var type = hierarchy[i]; implemented.UnionWith(direct[type]);
-            mappings.Add(type, ReadInterfaceMappings(type, implemented, budget));
+            mappings.Add(type, ReadInterfaceMappings(type, implemented, budget, validateClosed is not null));
         }
         return new(direct, mappings, implemented);
     }
@@ -158,7 +164,7 @@ public sealed partial class AssemblyResolver
         return result;
     }
 
-    private static void ValidateInterfaceMethod(ResolvedMethod method)
+    private static void ValidateInterfaceMethod(ResolvedMethod method, bool closed = false)
     {
         var owner = method.DeclaringType;
         var type = owner.Definition.Assembly.Image.Reader.GetTypeDefinition(owner.Definition.Handle);
@@ -167,24 +173,24 @@ public sealed partial class AssemblyResolver
         var flags = MethodFlags(method);
         if ((type.Attributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
             || (flags & required) != required || (flags & ~allowed) != 0 || method.Signature.Header != 0x20
-            || method.Signature.GenericArity != 0 || owner.Arguments.Count != 0 || method.MethodArguments.Count != 0)
-            throw new UnsupportedBindingException("Exact interface dispatch requires public nongeneric abstract instance interface declarations; default/static members require later lowering.");
+            || method.Signature.GenericArity != 0 || !closed && owner.Arguments.Count != 0 || method.MethodArguments.Count != 0)
+            throw new UnsupportedBindingException("Exact interface dispatch requires public abstract instance declarations on admitted owners; generic methods and default/static members require later lowering.");
     }
 
-    private void ValidateInterfaceType(ConstructedType owner, MemberResolutionBudget budget)
+    private void ValidateInterfaceType(ConstructedType owner, MemberResolutionBudget budget, bool closed = false)
     {
         var type = owner.Definition.Assembly.Image.Reader.GetTypeDefinition(owner.Definition.Handle);
-        if (MetadataTokens.GetRowNumber(owner.Definition.Handle) == 1 || owner.Arguments.Count != 0
+        if (MetadataTokens.GetRowNumber(owner.Definition.Handle) == 1 || !closed && owner.Arguments.Count != 0
             || (type.Attributes & (TypeAttributes.Interface | TypeAttributes.Abstract | TypeAttributes.Sealed)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
             || (type.Attributes & TypeAttributes.VisibilityMask) is not (TypeAttributes.Public or TypeAttributes.NestedPublic)
             || !type.BaseType.IsNil || type.GetMethodImplementations().Count != 0)
-            throw new UnsupportedBindingException("Interface dispatch requires public nongeneric abstract interfaces without default remapping or class bases.");
+            throw new UnsupportedBindingException("Interface dispatch requires admitted public abstract interfaces without default remapping or class bases.");
         InspectOwner(owner.Definition, budget);
         for (var enclosing = owner.Definition.Handle; !enclosing.IsNil;)
         {
             InspectMember(budget);
             var definition = owner.Definition.Assembly.Image.Reader.GetTypeDefinition(enclosing);
-            if (definition.GetGenericParameters().Count != 0)
+            if (!closed && definition.GetGenericParameters().Count != 0)
                 throw new UnsupportedBindingException("Generic interface declaring owners require later lowering.");
             enclosing = definition.GetDeclaringType();
             if ((definition.Attributes & TypeAttributes.VisibilityMask) != (enclosing.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic))
@@ -200,8 +206,8 @@ public sealed partial class AssemblyResolver
         foreach (var method in type.GetMethods())
         {
             InspectMember(budget);
-            var declaration = Method(owner.Definition.Assembly, method, declaredOnly: true, budget: budget);
-            ValidateInterfaceMethod(declaration);
+            var declaration = Method(owner.Definition.Assembly, method, closed ? new(owner, SignatureList<TypeSignature>.Empty) : null, declaredOnly: true, budget: budget);
+            ValidateInterfaceMethod(declaration, closed);
             string name = owner.Definition.Assembly.Image.Reader.GetString(owner.Definition.Assembly.Image.Reader.GetMethodDefinition(method).Name);
             if (name.Length == 0 || !declarations.Add((name, declaration.Signature)))
                 throw Failure(DiagnosticIds.MemberConflict, "Empty or duplicate interface member name/signature.");
@@ -209,7 +215,7 @@ public sealed partial class AssemblyResolver
     }
 
     private Dictionary<ResolvedMethod, ResolvedMethod> ReadInterfaceMappings(ConstructedType type,
-        HashSet<ConstructedType> implemented, MemberResolutionBudget budget)
+        HashSet<ConstructedType> implemented, MemberResolutionBudget budget, bool closed = false)
     {
         var reader = type.Definition.Assembly.Image.Reader;
         var result = new Dictionary<ResolvedMethod, ResolvedMethod>();
@@ -217,13 +223,13 @@ public sealed partial class AssemblyResolver
         {
             InspectMember(budget);
             var row = reader.GetMethodImplementation(handle);
-            var declaration = Method(type.Definition.Assembly, row.MethodDeclaration, declaredOnly: true, budget: budget);
+            var declaration = Method(type.Definition.Assembly, row.MethodDeclaration, closed ? new(type, SignatureList<TypeSignature>.Empty) : null, declaredOnly: true, budget: budget);
             if ((declaration.DeclaringType.Definition.Assembly.Image.Reader.GetTypeDefinition(declaration.DeclaringType.Definition.Handle).Attributes & TypeAttributes.Interface) == 0)
                 throw new UnsupportedBindingException("Class MethodImpl slot remapping requires later lowering; only interface declarations are supported.");
-            ValidateInterfaceMethod(declaration);
+            ValidateInterfaceMethod(declaration, closed);
             if (!implemented.Contains(declaration.DeclaringType)) throw new BadImageFormatException("Explicit mapping refers to an unimplemented interface.");
-            var body = Method(type.Definition.Assembly, row.MethodBody, declaredOnly: true, budget: budget);
-            ValidateClassVirtual(body, allowPrivateFinalSlots: true);
+            var body = Method(type.Definition.Assembly, row.MethodBody, closed ? new(type, SignatureList<TypeSignature>.Empty) : null, declaredOnly: true, budget: budget);
+            ValidateClassVirtual(body, allowPrivateFinalSlots: true, closed: closed);
             if (body.DeclaringType != type || body.Signature != declaration.Signature)
                 throw new UnsupportedBindingException("Explicit interface body requires the implementing owner and an identical signature.");
             if (!result.TryAdd(declaration, body)) throw new BadImageFormatException("Duplicate explicit mappings for one interface declaration.");
@@ -231,7 +237,7 @@ public sealed partial class AssemblyResolver
         return result;
     }
 
-    private ResolvedMethod? InterfaceNameMatch(ConstructedType owner, ResolvedMethod declaration, MemberResolutionBudget budget)
+    private ResolvedMethod? InterfaceNameMatch(ConstructedType owner, ResolvedMethod declaration, MemberResolutionBudget budget, bool closed = false)
     {
         var reader = owner.Definition.Assembly.Image.Reader;
         string name = declaration.DeclaringType.Definition.Assembly.Image.Reader.GetString(
@@ -244,7 +250,7 @@ public sealed partial class AssemblyResolver
             if (!reader.StringComparer.Equals(reader.GetMethodDefinition(handle).Name, name)
                 || (flags & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || (flags & MethodAttributes.Static) != 0
                 || reader.GetMethodDefinition(handle).GetGenericParameters().Count != 0) continue;
-            var candidate = Method(owner.Definition.Assembly, handle, declaredOnly: true, budget: budget);
+            var candidate = Method(owner.Definition.Assembly, handle, closed ? new(owner, SignatureList<TypeSignature>.Empty) : null, declaredOnly: true, budget: budget);
             if (candidate.Signature != declaration.Signature)
             {
                 if (candidate.Signature.Header == declaration.Signature.Header && candidate.Signature.Parameters.Equals(declaration.Signature.Parameters))

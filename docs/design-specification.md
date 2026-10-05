@@ -873,7 +873,9 @@ variance flags independently from special constraints
 integer-object profile now admits closed reference variance and nested array
 assignment through a bounded type-relation closure, after declaration-position
 validation ([ADR 0105](decisions/0105-closed-interface-assignments.md)). Value
-arguments remain exact; generic interface dispatch remains pending.
+arguments remain exact. An opt-in metadata resolver selects exact closed
+interface mappings and class slots ([ADR 0106](decisions/0106-exact-closed-interface-targets.md));
+executable composition, variance-only targets and array helpers remain pending.
 
 ## 11. Class library and assembly identity
 

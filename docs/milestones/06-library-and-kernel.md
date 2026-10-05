@@ -333,6 +333,17 @@ remaining actionable issue; local main remains an ancestor. See
 [ADR 0105](../decisions/0105-closed-interface-assignments.md). Interface method
 dispatch and array interface helpers remain subsequent gates.
 
+## Slice 6c.15 outcome
+
+An opt-in metadata resolver now selects exact closed interface targets through
+generic class hierarchies, reimplementation, explicit MethodImpl mappings and
+virtual slots. Forty-eight mappings and authored calls agree with .NET, including
+exact/insufficient budget checks. All 147 focused checks pass. Review found no
+remaining actionable issue; local main remains an ancestor. See
+[ADR 0106](../decisions/0106-exact-closed-interface-targets.md). This establishes
+metadata choices; composing executable dispatch, variance-only targets and array
+helpers remains pending.
+
 ## Remaining completion evidence
 
 - Pin imported source commits, licenses, local patches, reference identities
