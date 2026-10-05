@@ -1,0 +1,70 @@
+namespace Cilica.Fixtures.Execution
+{
+    public static class IntegerConversions
+    {
+        public static int int_sbyte_wrapping(int value) => unchecked((sbyte)value);
+        public static int int_byte_wrapping(int value) => unchecked((byte)value);
+        public static int int_short_wrapping(int value) => unchecked((short)value);
+        public static int int_ushort_wrapping(int value) => unchecked((ushort)value);
+        public static int int_int_wrapping(int value) => unchecked((int)value);
+        public static uint int_uint_wrapping(int value) => unchecked((uint)value);
+        public static long int_long_wrapping(int value) => unchecked((long)value);
+        public static ulong int_ulong_wrapping(int value) => unchecked((ulong)value);
+        public static int int_sbyte_checked(int value) => checked((sbyte)value);
+        public static int int_byte_checked(int value) => checked((byte)value);
+        public static int int_short_checked(int value) => checked((short)value);
+        public static int int_ushort_checked(int value) => checked((ushort)value);
+        public static int int_int_checked(int value) => checked((int)value);
+        public static uint int_uint_checked(int value) => checked((uint)value);
+        public static long int_long_checked(int value) => checked((long)value);
+        public static ulong int_ulong_checked(int value) => checked((ulong)value);
+        public static int uint_sbyte_wrapping(uint value) => unchecked((sbyte)value);
+        public static int uint_byte_wrapping(uint value) => unchecked((byte)value);
+        public static int uint_short_wrapping(uint value) => unchecked((short)value);
+        public static int uint_ushort_wrapping(uint value) => unchecked((ushort)value);
+        public static int uint_int_wrapping(uint value) => unchecked((int)value);
+        public static uint uint_uint_wrapping(uint value) => unchecked((uint)value);
+        public static long uint_long_wrapping(uint value) => unchecked((long)value);
+        public static ulong uint_ulong_wrapping(uint value) => unchecked((ulong)value);
+        public static int uint_sbyte_checked(uint value) => checked((sbyte)value);
+        public static int uint_byte_checked(uint value) => checked((byte)value);
+        public static int uint_short_checked(uint value) => checked((short)value);
+        public static int uint_ushort_checked(uint value) => checked((ushort)value);
+        public static int uint_int_checked(uint value) => checked((int)value);
+        public static uint uint_uint_checked(uint value) => checked((uint)value);
+        public static long uint_long_checked(uint value) => checked((long)value);
+        public static ulong uint_ulong_checked(uint value) => checked((ulong)value);
+        public static int long_sbyte_wrapping(long value) => unchecked((sbyte)value);
+        public static int long_byte_wrapping(long value) => unchecked((byte)value);
+        public static int long_short_wrapping(long value) => unchecked((short)value);
+        public static int long_ushort_wrapping(long value) => unchecked((ushort)value);
+        public static int long_int_wrapping(long value) => unchecked((int)value);
+        public static uint long_uint_wrapping(long value) => unchecked((uint)value);
+        public static long long_long_wrapping(long value) => unchecked((long)value);
+        public static ulong long_ulong_wrapping(long value) => unchecked((ulong)value);
+        public static int long_sbyte_checked(long value) => checked((sbyte)value);
+        public static int long_byte_checked(long value) => checked((byte)value);
+        public static int long_short_checked(long value) => checked((short)value);
+        public static int long_ushort_checked(long value) => checked((ushort)value);
+        public static int long_int_checked(long value) => checked((int)value);
+        public static uint long_uint_checked(long value) => checked((uint)value);
+        public static long long_long_checked(long value) => checked((long)value);
+        public static ulong long_ulong_checked(long value) => checked((ulong)value);
+        public static int ulong_sbyte_wrapping(ulong value) => unchecked((sbyte)value);
+        public static int ulong_byte_wrapping(ulong value) => unchecked((byte)value);
+        public static int ulong_short_wrapping(ulong value) => unchecked((short)value);
+        public static int ulong_ushort_wrapping(ulong value) => unchecked((ushort)value);
+        public static int ulong_int_wrapping(ulong value) => unchecked((int)value);
+        public static uint ulong_uint_wrapping(ulong value) => unchecked((uint)value);
+        public static long ulong_long_wrapping(ulong value) => unchecked((long)value);
+        public static ulong ulong_ulong_wrapping(ulong value) => unchecked((ulong)value);
+        public static int ulong_sbyte_checked(ulong value) => checked((sbyte)value);
+        public static int ulong_byte_checked(ulong value) => checked((byte)value);
+        public static int ulong_short_checked(ulong value) => checked((short)value);
+        public static int ulong_ushort_checked(ulong value) => checked((ushort)value);
+        public static int ulong_int_checked(ulong value) => checked((int)value);
+        public static uint ulong_uint_checked(ulong value) => checked((uint)value);
+        public static long ulong_long_checked(ulong value) => checked((long)value);
+        public static ulong ulong_ulong_checked(ulong value) => checked((ulong)value);
+    }
+}

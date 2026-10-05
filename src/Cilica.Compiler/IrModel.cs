@@ -50,6 +50,9 @@ public abstract record IrExpression
     public sealed record Binary64(Int64Operation Operation, int Left, int Right) : IrExpression;
     public sealed record Not64(int Operand) : IrExpression;
     public sealed record ConvertInteger(IntegerConversion Conversion, int Operand) : IrExpression;
+    // Narrow results are normalized to the CIL Int32 evaluation stack. Source
+    // signedness is explicit because .un checked conversions reinterpret bits.
+    public sealed record IntegerCast(IntegerCastTarget Target, int Operand, bool Checked, bool UnsignedSource) : IrExpression;
     public sealed record Null : IrExpression;
     public sealed record Parameter(int Index) : IrExpression;
     public sealed record Local(int Index) : IrExpression;

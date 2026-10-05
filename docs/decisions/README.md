@@ -100,3 +100,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0092](0092-library-build-admission.md) | Independently approved library build attestations | Accepted for exact image and intrinsic grants; build producer remains ahead |
 | [0093](0093-int64-scalar-ir.md) | Int64 scalar IR and native arithmetic | Accepted for typed transfers and O0/O2 arithmetic conformance |
 | [0094](0094-integer-cil-closures.md) | Mixed-width integer CIL closures | Accepted for static scalar CIL and O0/O2 differential execution |
+| [0095](0095-integer-conversion-semantics.md) | Checked and narrow integer conversions | Accepted for all integer conversion opcodes and O0/O2 boundary conformance |

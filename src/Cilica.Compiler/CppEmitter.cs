@@ -167,6 +167,20 @@ public static class CppEmitter
         Func<int, string>? operand = null, Func<bool, string>? scratch = null, Func<int, IrType>? operandType = null)
     {
         operand ??= id => "v" + Number(id);
+        if (value.Expression is IrExpression.IntegerCast cast)
+        {
+            string result = "cast_" + Number(value.Id);
+            text.Append("    const I8Result ").Append(result).Append(" = cilica_cast_integer(").Append(operand(cast.Operand))
+                .Append(", ").Append(operandType?.Invoke(cast.Operand) == IrType.Int64 ? "64u" : "32u")
+                .Append(", ").Append(Number(IntegerCasts.Bits(cast.Target))).Append("u, ")
+                .Append(IntegerCasts.Unsigned(cast.Target) ? "true" : "false").Append(", ")
+                .Append(cast.Checked ? "true" : "false").Append(", ").Append(cast.UnsignedSource ? "true" : "false").Append(");\n");
+            if (cast.Checked)
+            {
+                text.Append("    if (").Append(result).Append(".fault != 0u) {\n"); fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
+            }
+            return "static_cast<" + Unsigned(value.Type) + ">(" + result + ".value)";
+        }
         if (value.Expression is IrExpression.Binary64 wideOperation)
         {
             string result = "i8_" + Number(value.Id);

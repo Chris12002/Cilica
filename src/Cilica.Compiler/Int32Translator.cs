@@ -164,7 +164,12 @@ public static partial class Int32Translator
                         if (stack.Count != 1) Fail(DiagnosticIds.InconsistentStack, "Integer return requires exactly one value and no residual stack entries.", offset);
                         terminator = new IrReturn(offset, Pop(offset, ScalarType(input.Signature.ReturnType, integers64))); break;
                     default:
-                        if (BranchComparison(opcode) is Int32Comparison comparison)
+                        if (integers64 && IntegerCasts.FromOpcode(opcode, -1) is { } cast)
+                        {
+                            cast = cast with { Operand = Pop(offset) };
+                            Push(offset, cast, cast.Checked ? IrExceptionTarget.MethodExit : null, IntegerCasts.Result(cast.Target));
+                        }
+                        else if (BranchComparison(opcode) is Int32Comparison comparison)
                         {
                             int? branchRight = comparison is Int32Comparison.Zero or Int32Comparison.Nonzero ? null : Pop(offset);
                             int branchLeft = Pop(offset);

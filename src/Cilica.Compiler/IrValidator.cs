@@ -144,6 +144,9 @@ internal static class IrValidator
                                 && valueTypes[b.Right] == (Int64Operations.Shift(b.Operation) ? IrType.Int32 : IrType.Int64),
                             IrExpression.Not64 n => value.Type == IrType.Int64 && Earlier(n.Operand) && valueTypes[n.Operand] == IrType.Int64,
                             IrExpression.ConvertInteger c => Earlier(c.Operand) && Int64Operations.Convert(c.Conversion, valueTypes[c.Operand], value.Type),
+                            IrExpression.IntegerCast c => types.IntegerCasts && Enum.IsDefined(c.Target) && Earlier(c.Operand)
+                                && valueTypes[c.Operand] is var castInput && (castInput == IrType.Int32 || castInput == IrType.Int64)
+                                && value.Type == IntegerCasts.Result(c.Target),
                             IrExpression.Null => catalog is not null && value.Type == IrType.NullReference,
                             IrExpression.Parameter p => p.Index >= 0 && p.Index < method.Parameters.Length && value.Type == method.Parameters[p.Index],
                             IrExpression.Local l => Local(l.Index) && value.Type == method.Locals[l.Index],
@@ -223,7 +226,8 @@ internal static class IrValidator
                             or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation
                             or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation)
-                            || value.Expression is IrExpression.Binary64 wide && Int64Operations.MayFault(wide.Operation);
+                            || value.Expression is IrExpression.Binary64 wide && Int64Operations.MayFault(wide.Operation)
+                            || value.Expression is IrExpression.IntegerCast { Checked: true };
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
                             "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");
                         if (value.Expression is IrExpression.Call call)

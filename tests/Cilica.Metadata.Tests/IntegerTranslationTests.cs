@@ -115,11 +115,11 @@ public sealed class IntegerTranslationTests
     }
 
     [Fact]
-    public void Checked_conversions_and_non_integer_signatures_remain_explicitly_unsupported()
+    public void Floating_conversions_and_non_integer_signatures_remain_explicitly_unsupported()
     {
         using var files = new ResolverFiles(); using var resolver = files.Open();
         var b = new ResolutionAssemblyBuilder(new("UnsupportedWide", new Version(1, 0, 0, 0))); b.Type("", "Probe");
-        var convert = b.Method("Convert", [0, 1, 8, 0x0a], emit: il => { il.LoadArgument(0); il.OpCode(ILOpCode.Conv_ovf_i4); il.OpCode(ILOpCode.Ret); });
+        var convert = b.Method("Convert", [0, 1, 8, 0x0a], emit: il => { il.LoadArgument(0); il.OpCode(ILOpCode.Conv_r8); il.OpCode(ILOpCode.Ret); });
         var boolean = b.Method("Boolean", [0, 1, 8, 2], emit: il => { il.LoadArgument(0); il.OpCode(ILOpCode.Ret); });
         var input = resolver.OpenInput(files.Write("input.dll", b.Build())).Value!;
         Assert.Equal(DiagnosticIds.ExecutionUnsupported, Assert.Single(IntegerTranslator.TranslateProgram(resolver, input, convert).Diagnostics).Id);

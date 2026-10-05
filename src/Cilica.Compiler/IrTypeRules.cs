@@ -11,6 +11,7 @@ internal sealed class IrTypeRules
     private readonly HashSet<ObjectTypeId> _values = [];
     private readonly bool _locations;
     private readonly bool _integers64;
+    internal bool IntegerCasts => _integers64;
 
     internal IrTypeRules(ObjectTypeCatalog? catalog, ValueTypeCatalog? values = null, bool locations = false, bool integers64 = false)
     {

@@ -37,7 +37,8 @@ public sealed class NativeInteger64Tests
         await Verify(programs, probes.Select(p => p.Oracle).ToArray(), optimized);
     }
 
-    internal static async Task Verify(IReadOnlyList<IntegerIrProgram> programs, IReadOnlyList<Func<ulong, ulong, ulong>> oracles, bool optimized)
+    internal static async Task Verify(IReadOnlyList<IntegerIrProgram> programs, IReadOnlyList<Func<ulong, ulong, ulong>> oracles, bool optimized,
+        IReadOnlyList<(ulong a, ulong b)>? vectors = null)
     {
         Assert.Equal(programs.Count, oracles.Count);
         var methods = programs.Select(p => p.Flow.Methods.Single(m => IrMethodId.From(m.Source) == p.Flow.Entry)).ToArray();
@@ -64,6 +65,7 @@ public sealed class NativeInteger64Tests
         var pairs = edges.SelectMany(a => edges.Select(b => (a, b))).ToList();
         var random = new Random(20261005);
         for (int i = 0; i < 32; ++i) pairs.Add((unchecked((ulong)random.NextInt64()) ^ 0x8000000000000000, unchecked((ulong)random.NextInt64())));
+        if (vectors is not null) pairs = vectors.ToList();
         var input = new StringBuilder(); var expected = new List<string>();
         for (int op = 0; op < programs.Count; ++op) foreach (var (a, b) in pairs)
         {

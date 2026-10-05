@@ -5,6 +5,21 @@ internal static class Int64CppLowering
 {
     internal const string Runtime = """
 struct I8Result { std::uint64_t value; std::uint32_t fault; };
+[[maybe_unused]] static I8Result cilica_cast_integer(std::uint64_t bits, unsigned source_bits, unsigned target_bits,
+    bool target_unsigned, bool checked_range, bool source_unsigned) noexcept {
+    constexpr auto maximum = ~std::uint64_t{0};
+    const auto source_mask = source_bits == 64 ? maximum : (std::uint64_t{1} << source_bits) - 1;
+    const auto target_mask = target_bits == 64 ? maximum : (std::uint64_t{1} << target_bits) - 1;
+    bits &= source_mask;
+    const bool negative = !source_unsigned && (bits & (std::uint64_t{1} << (source_bits - 1))) != 0;
+    const auto magnitude = negative ? (std::uint64_t{0} - bits) & source_mask : bits;
+    const auto limit = target_unsigned ? target_mask : target_mask >> 1;
+    if (checked_range && (negative ? target_unsigned || magnitude > limit + 1 : magnitude > limit)) return {0, 2};
+    auto result = (bits | (negative ? ~source_mask : 0)) & target_mask;
+    if (!target_unsigned && target_bits < 32 && (result & (std::uint64_t{1} << (target_bits - 1))) != 0)
+        result |= std::uint64_t{0xffffffffu} & ~target_mask;
+    return {result, 0};
+}
 [[maybe_unused]] static I8Result cilica_binary_i8(unsigned operation, std::uint64_t a, std::uint64_t b) noexcept {
     constexpr std::uint64_t sign = std::uint64_t{1} << 63;
     constexpr std::uint64_t maximum = ~std::uint64_t{0};
