@@ -75,7 +75,7 @@ internal sealed class ObjectInterfaceOperationRules
 
     internal static bool CatalogMatches(ObjectTypeCatalog left, ObjectTypeCatalog right)
     {
-        if (left.Integer64 != right.Integer64 || left.Delegates.Length != right.Delegates.Length
+        if (!left.Statics.SequenceEqual(right.Statics) || left.Integer64 != right.Integer64 || left.Delegates.Length != right.Delegates.Length
             || !left.Delegates.Zip(right.Delegates).All(pair => pair.First.Source == pair.Second.Source
                 && pair.First.ParameterCount == pair.Second.ParameterCount && pair.First.ReturnsVoid == pair.Second.ReturnsVoid
                 && pair.First.ExternallyVisible == pair.Second.ExternallyVisible && pair.First.Parameters.SequenceEqual(pair.Second.Parameters))

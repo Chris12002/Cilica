@@ -193,6 +193,7 @@ internal static class IrValidator
                                 && objectRules.ArrayLength(a.Array, valueTypes),
                             IrExpression.LoadElement a => objectRules is not null && objectRules.Element(a.ArrayType, a.Array, a.Index, valueTypes)
                                 && value.Type == objectRules.ArrayElement(a.ArrayType),
+                            IrExpression.LoadStatic f => objectRules is not null && objectRules.StaticField(method, f.Field, false, out var staticType) && value.Type == staticType,
                             IrExpression.LoadField f => objectRules is not null && objectRules.Field(method, f.Field, f.Receiver, valueTypes, out var storage)
                                 && value.Type == storage,
                             IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type),
@@ -230,7 +231,7 @@ internal static class IrValidator
                                 && ManagedLocationRules.Load(valueTypes[l.Location], value.Type),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
-                        bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
+                        bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadStatic or IrExpression.LoadField
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.EmptyArray or IrExpression.ArrayLength or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.LoadLocation
@@ -281,6 +282,9 @@ internal static class IrValidator
                             && objectRules.DelegateCall(method, invoke.Type, invoke.Delegate, invoke.Arguments, IrType.Void, valueTypes), "invalid void delegate invocation.");
                         callArguments += invoke.Arguments.Length + 1;
                         Require(callArguments <= ProgramLimits.MaximumCallArguments, "delegate argument limit exceeded."); break;
+                    case IrStatement.StoreStatic store:
+                        Offset(store.ILOffset);
+                        Require(objectRules is not null && objectRules.StaticStore(method, store, valueTypes), "invalid static field store, access or fault edge."); break;
                     case IrStatement.StoreField store:
                         Offset(store.ILOffset);
                         Require(objectRules is not null && objectRules.Store(method, store, valueTypes, expressions), "invalid field store, access or readonly receiver."); break;

@@ -20,7 +20,7 @@ public static class ObjectModelBuilder
         ArgumentNullException.ThrowIfNull(root);
         var result = BuildCatalog(resolver, [root], runtimeLibrary);
         return new(result.Catalog is null ? null : new ObjectModel(Id(root), result.Catalog.ObjectBase, result.Catalog.Types)
-            { Interfaces = result.Catalog.Interfaces, Arrays = result.Catalog.Arrays, String = result.Catalog.String, Delegates = result.Catalog.Delegates }, result.Diagnostics);
+            { Statics = result.Catalog.Statics, Interfaces = result.Catalog.Interfaces, Arrays = result.Catalog.Arrays, String = result.Catalog.String, Delegates = result.Catalog.Delegates }, result.Diagnostics);
     }
 
     public static ObjectCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
@@ -210,7 +210,7 @@ public static class ObjectModelBuilder
             var declared = new List<ObjectField>();
             foreach (var field in input.Fields)
             {
-                if (integers64 && DefaultStaticFields.IsDefault(input, field)) continue;
+                if (integers64 && DefaultStaticFields.IsUninitialized(input, field)) continue;
                 string location = input.Source.Name + "::" + field.Name + " token 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
                 if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "Static, literal, marshalled, RVA, constant and explicit-offset field storage require later lowering.", location);

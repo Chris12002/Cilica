@@ -1527,3 +1527,11 @@ signatures match exactly; wide/value/byref parameters, reference returns, recurs
 parameter closures and binding variance remain diagnostic. Current profiles are
 object-layout-v9, typed-reference-ir-v7, interface-dispatch-plan-v3 and
 object-frames-native-v29. Initialized static callback caches remain pending.
+
+
+Ordinary Int32/reference static fields without type/module initialization now use
+typed load/store IR and instance-owned, quota-charged native slots (ADR 0149).
+Reference slots are collector roots, and exact closed owner identities separate
+generic state. Readonly writes, addresses, initialized types and narrow/wide/inline
+static values remain diagnostic. Object layout v10, typed reference IR v8 and
+native v30 encode this foundation; initializer execution is still pending.

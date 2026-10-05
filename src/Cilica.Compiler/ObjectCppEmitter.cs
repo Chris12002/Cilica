@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v29";
+    public const string Profile = "object-frames-native-v30";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -97,6 +97,7 @@ public static class ObjectCppEmitter
         }
         var types = program.Flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var fields = program.Flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
+        var statics = program.Flow.Types.Statics.Select((f, index) => (f, index)).ToDictionary(p => p.f.Id);
         var typeRules = new IrTypeRules(program.Flow.Types);
         var contracts = program.Flow.Types.Interfaces.Select(i => ObjectTypeId.From(i.Source)).ToHashSet();
         var arrays = program.Flow.Types.Arrays;
@@ -118,7 +119,7 @@ public static class ObjectCppEmitter
             .Append(scope).Append(" {\nstatic constexpr std::size_t exception_resource_capacity = ")
             .Append((exceptions is null ? 0 : ManagedExceptionMessages.Build(exceptions, program.Flow.Types).Values
                 .Where(message => !message.StartsWith("Exception of type '", StringComparison.Ordinal)).Distinct(StringComparer.Ordinal).Count()).ToString(CultureInfo.InvariantCulture))
-            .Append(";\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
+            .Append(";\nstatic constexpr std::size_t static_field_count = ").Append(N(statics.Count)).Append(";\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
         if (exceptions is not null) ObjectCppExceptions.AppendStorage(text);
         if (handlers) text.Append(ObjectCppExceptionFlow.Storage);
         if (program.Flow.Types.Integer64) text.Append(Int64CppLowering.Runtime);
@@ -430,12 +431,12 @@ public static class ObjectCppEmitter
                 foreach (var statement in block.Statements)
                 {
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
-                        or IrStatement.Define { Value.Expression: IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
+                        or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
-                        or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
+                        or IrStatement.StoreStatic or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
                     // Array/field access, type tests and virtual calls include ownership/type checks.
                     // Keep them in separate steps to retain the O0 sanitizer stack bound.
                     if (isolatedOperation) { Flush(); statementsInStep = 0; }
@@ -536,6 +537,9 @@ public static class ObjectCppEmitter
                                     Check(Value(equal.Left), program.Flow.Types.String!, false, value.ILOffset); Flush();
                                     Check(Value(equal.Right), program.Flow.Types.String!, false, value.ILOffset); Flush();
                                     expression = "string_equals(" + Value(equal.Left) + ", " + Value(equal.Right) + ")"; break;
+                                case IrExpression.LoadStatic loaded:
+                                    Guard("!ensure_static_storage(context)", "context.pending == 0u ? 5u : context.pending", value.ILOffset); Flush();
+                                    expression = "context.instance.statics[" + N(statics[loaded.Field].index) + "]." + (value.Type == IrType.Int32 ? "bits" : "reference"); break;
                                 case IrExpression.EmptyArray empty:
                                     expression = "empty_array(context, " + TypeSymbol(empty.ArrayType) + "_descriptor)"; break;
                                 case IrExpression.StringFromCodeUnits units:
@@ -595,7 +599,7 @@ public static class ObjectCppEmitter
                             }
                             else if (value.Expression is IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat)
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
-                            else if (value.Expression is IrExpression.LoadElement && value.Type.Kind == IrTypeKind.Reference)
+                            else if (value.Expression is (IrExpression.LoadElement or IrExpression.LoadStatic) && value.Type.Kind == IrTypeKind.Reference)
                             {
                                 Flush(); Check(Value(value.Id), value.Type.Class!, false, value.ILOffset);
                             }
@@ -627,6 +631,11 @@ public static class ObjectCppEmitter
                             else
                                 Guard("!store_reference_element(context, " + Value(store.Array) + ", " + Value(store.Index) + ", " + Value(store.Value) + ")", "context.pending", store.ILOffset);
                             break;
+                        case IrStatement.StoreStatic store:
+                            Guard("!ensure_static_storage(context)", "context.pending == 0u ? 5u : context.pending", store.ILOffset); Flush();
+                            if (statics[store.Field].f.Type.Class is { } staticClass) Check(Value(store.Value), staticClass, false, store.ILOffset);
+                            code.Append("    context.instance.statics[").Append(N(statics[store.Field].index)).Append("].")
+                                .Append(statics[store.Field].f.Type == IrType.Int32 ? "bits" : "reference").Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
                         case IrStatement.StoreField store:
                             Check(Value(store.Receiver), store.Field.Owner, true, store.ILOffset);
                             if (values[store.Value].Type.Kind == IrTypeKind.Reference)

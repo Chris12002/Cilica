@@ -99,10 +99,12 @@ public static class ValueRootAssignment
                     if (block.Statements[i] is IrStatement.Define define)
                     {
                         Add(ObjectRootKind.Value, define.Value.Id, define.Value.Type, block.Id);
-                        if (define.Value.Expression is IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.ExceptionMessage or IrExpression.NewException or IrExpression.Call or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate or IrExpression.CallDelegate)
-                            points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.ExceptionMessage or IrExpression.NewException or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate
+                        if (define.Value.Expression is IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.ExceptionMessage or IrExpression.NewException or IrExpression.Call or IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate or IrExpression.CallDelegate)
+                            points.Add(new(i, define.Value.ILOffset, define.Value.Expression is IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.ExceptionMessage or IrExpression.NewException or IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.NewObject or IrExpression.BoxValue or IrExpression.NewDelegate
                                 ? ObjectSafepointKind.Allocation : ObjectSafepointKind.Call, block.Id));
                     }
+                    else if (block.Statements[i] is IrStatement.StoreStatic staticStore)
+                        points.Add(new(i, staticStore.ILOffset, ObjectSafepointKind.Allocation, block.Id));
                     else if (block.Statements[i] is IrStatement.InvokeDelegate delegateCall)
                         points.Add(new(i, delegateCall.ILOffset, ObjectSafepointKind.Call, block.Id));
                     else if (block.Statements[i] is IrStatement.Invoke invoke)

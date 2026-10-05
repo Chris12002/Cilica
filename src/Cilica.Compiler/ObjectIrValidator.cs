@@ -32,6 +32,7 @@ internal sealed class ObjectIrRules
     private readonly Dictionary<IrMethodId, ObjectMethodBinding> _bindings = [];
     private readonly Dictionary<IrMethodId, IrMethod> _methods = [];
     private readonly Dictionary<ObjectFieldId, ObjectField> _fields;
+    private readonly Dictionary<ObjectFieldId, ObjectStaticField> _statics;
     private readonly Dictionary<ObjectTypeId, ObjectTypeLayout> _layouts;
     private readonly HashSet<ObjectTypeId> _contracts;
     private readonly HashSet<ObjectTypeId> _arrays;
@@ -47,6 +48,7 @@ internal sealed class ObjectIrRules
     internal ObjectIrRules(ObjectIrProgram program, bool locations = false, ValueTypeCatalog? values = null, bool delegates = false)
     {
         _program = program;
+        _statics = program.Flow.Types.Statics.ToDictionary(f => f.Id);
         var flow = program.Flow;
         _allowDelegates = delegates;
         Require(delegates || flow.Types.Delegates.IsEmpty, "delegate catalogs require the explicit delegate IR profile.");
@@ -150,7 +152,14 @@ internal sealed class ObjectIrRules
         _dispatch = new(program, _bindings, _methods, _types, _interfaces);
     }
 
-    internal void DispatchMaps() { _dispatch.Validate(); _interfaces.ValidateUsage(_program); }
+    internal void DispatchMaps()
+    {
+        _dispatch.Validate(); _interfaces.ValidateUsage(_program);
+        var used = _program.Flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Statements).Select(s => s switch {
+            IrStatement.Define { Value.Expression: IrExpression.LoadStatic read } => read.Field,
+            IrStatement.StoreStatic write => write.Field, _ => null }).Where(f => f is not null).ToHashSet();
+        Require(used.SetEquals(_statics.Keys), "static catalog contains unused or missing field declarations.");
+    }
     internal IEnumerable<IrMethodId> DispatchTargets(IrMethodId declaration) => _interfaces.Has(declaration)
         ? _interfaces.Targets(declaration) : _dispatch.Targets(declaration);
     internal bool Interface(IrMethodId declaration) => _interfaces.Has(declaration);
@@ -169,6 +178,8 @@ internal sealed class ObjectIrRules
                 || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public));
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch
     {
+        IrStatement.Define { Value.Expression: IrExpression.LoadStatic f } when _statics.TryGetValue(f.Field, out var slot) && slot.Type.Class is { } type => new[] { type },
+        IrStatement.StoreStatic f when _statics.TryGetValue(f.Field, out var slot) && slot.Type.Class is { } type => new[] { type },
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
         IrStatement.Define { Value.Expression: IrExpression.AddressField f } => new[] { f.Field.Owner },
         IrStatement.StoreField f => new[] { f.Field.Owner },
@@ -311,6 +322,18 @@ internal sealed class ObjectIrRules
     internal IrType? AllocationType(IrMethodId? constructor) => constructor is not null && _bindings.TryGetValue(constructor, out var target)
         && Constructor(target) ? IrType.Reference(target.Owner) : null;
 
+    internal bool StaticField(IrMethod method, ObjectFieldId? id, bool write, out IrType? storage)
+    {
+        storage = null;
+        if (id is null || !_statics.TryGetValue(id, out var field) || write && (field.Attributes & FieldAttributes.InitOnly) != 0) return false;
+        var access = field.Attributes & FieldAttributes.FieldAccessMask;
+        if (access == FieldAttributes.PrivateScope || Binding(IrMethodId.From(method.Source)).Owner != id.Owner
+            && (access != FieldAttributes.Public || !field.OwnerExternallyVisible)) return false;
+        storage = field.Type; return true;
+    }
+    internal bool StaticStore(IrMethod method, IrStatement.StoreStatic store, IReadOnlyList<IrType> values) =>
+        store.Exceptional == IrExceptionTarget.MethodExit && StaticField(method, store.Field, true, out var type)
+        && store.Value >= 0 && store.Value < values.Count && _types.Assignable(values[store.Value], type);
     internal bool Field(IrMethod method, ObjectFieldId? id, int receiver, IReadOnlyList<IrType> values, out IrType? storage)
     {
         storage = null;
@@ -394,7 +417,7 @@ internal sealed class ObjectIrRules
                             IrExpression.StringEquals s => !This(s.Left) && !This(s.Right),
                             IrExpression.StringFromCodeUnits s => !This(s.Array),
                             IrExpression.StringConcat s => !This(s.Left) && !This(s.Right),
-                            IrExpression.EmptyArray => true,
+                            IrExpression.EmptyArray or IrExpression.LoadStatic => true,
                             IrExpression.NewArray a => !This(a.Length),
                             IrExpression.ArrayLength a => !This(a.Array),
                             IrExpression.LoadElement a => !This(a.Array) && !This(a.Index),
@@ -407,6 +430,7 @@ internal sealed class ObjectIrRules
                         IrStatement.StoreLocation s when _program.Flow.Types.Integer64 => !This(s.Location) && !This(s.Value),
                         IrStatement.InitializeLocation s when _program.Flow.Types.Integer64 => !This(s.Location),
                         IrStatement.Invoke c => c.Arguments.All(a => !This(a)),
+                        IrStatement.StoreStatic s => !This(s.Value),
                         IrStatement.StoreField s => !This(s.Value) && (!This(s.Receiver) || s.Field.Owner == binding.Owner),
                         IrStatement.StoreElement s => !This(s.Array) && !This(s.Index) && !This(s.Value),
                         _ => false,

@@ -53,6 +53,9 @@ public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, b
 /// <summary>FieldDef identity plus an optional derived scalar component; -1 is the original declaration.</summary>
 public sealed record ObjectFieldId(ObjectTypeId Owner, int Token, int Component = -1);
 
+/// <summary>Per-instance static storage; initialized types are not admitted by this profile.</summary>
+public sealed record ObjectStaticField(ObjectFieldId Id, IrType Type, FieldAttributes Attributes, bool OwnerExternallyVisible);
+
 /// <summary>Logical storage kinds; a reference is never an Int32 or an untracked native pointer.</summary>
 public abstract record ObjectStorage
 {
@@ -80,7 +83,8 @@ public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
     public bool Integer64 { get; init; }
-    public const string Profile = "object-layout-v9";
+    public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
+    public const string Profile = "object-layout-v10";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];
@@ -94,6 +98,7 @@ public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, Objec
 {
     // Explicit wider scalar storage profile; legacy catalogs retain Int32 only.
     public bool Integer64 { get; init; }
+    public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];

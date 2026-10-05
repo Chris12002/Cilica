@@ -47,6 +47,11 @@ public sealed class DefaultStaticTests
         var input = resolver.OpenInput(files.Write("bad.dll", b.Build())).Value!;
         var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
         var result = ValueTranslator.TranslateIntegerObjects(resolver, input, root, library);
-        Assert.False(result.Success); Assert.Null(result.Program); Assert.NotEmpty(result.Diagnostics);
+        if (kind == "mutable")
+        {
+            Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+            Assert.Single(result.Program!.Flow.Flow.Flow.Types.References.Statics);
+        }
+        else { Assert.False(result.Success); Assert.Null(result.Program); Assert.NotEmpty(result.Diagnostics); }
     }
 }

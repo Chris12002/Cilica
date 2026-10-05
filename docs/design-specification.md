@@ -1387,3 +1387,11 @@ integer-object profile (ADR 0148). Object layout v9/native v29 retain parameter
 identities, structural catalog checks and managed reference argument packets.
 Targets match exactly; wide/value/byref parameters, reference returns and binding
 variance remain diagnostic. Static callback initialization is still pending.
+
+
+Ordinary Int32/reference static fields without type/module initialization now use
+typed load/store IR and instance-owned, quota-charged native slots (ADR 0149).
+Reference slots are collector roots, and exact closed owner identities separate
+generic state. Readonly writes, addresses, initialized types and narrow/wide/inline
+static values remain diagnostic. Object layout v10, typed reference IR v8 and
+native v30 encode this foundation; initializer execution is still pending.

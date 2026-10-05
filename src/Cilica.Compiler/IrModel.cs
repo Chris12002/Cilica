@@ -70,6 +70,7 @@ public abstract record IrExpression
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
     // Vector lengths/indices use bounded Int32 values. Allocation zero-initializes
     // elements; negative length and allocation failure leave via the fault edge.
+    public sealed record LoadStatic(ObjectFieldId Field) : IrExpression;
     public sealed record NewArray(ObjectTypeId ArrayType, int Length) : IrExpression;
     // One zero-length vector per exact element descriptor and runtime instance.
     public sealed record EmptyArray(ObjectTypeId ArrayType) : IrExpression;
@@ -130,6 +131,8 @@ public abstract record IrStatement
     public sealed record Invoke(int ILOffset, IrMethodId Target, ImmutableArray<int> Arguments,
         bool NullCheckReceiver = false, IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit,
         bool VirtualDispatch = false) : IrStatement;
+    public sealed record StoreStatic(int ILOffset, ObjectFieldId Field, int Value,
+        IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
     public sealed record StoreField(int ILOffset, ObjectFieldId Field, int Receiver, int Value,
         IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
     // Reference stores additionally check the allocation's actual element type,
@@ -205,7 +208,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 /// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
-    public const string Profile = "typed-reference-ir-v7";
+    public const string Profile = "typed-reference-ir-v8";
 }
 
 /// <summary>Detached copy semantics; no CIL access checks, mutable managed locations or object operations.</summary>

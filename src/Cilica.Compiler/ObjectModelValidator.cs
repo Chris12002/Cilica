@@ -15,7 +15,7 @@ public static class ObjectModelValidator
     public static void Validate(ObjectModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Integer64 = model.Integer64, Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String, Delegates = model.Delegates });
+        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Statics = model.Statics, Integer64 = model.Integer64, Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String, Delegates = model.Delegates });
     }
 
     public static void Validate(ObjectTypeCatalog model) => Validate(model, inlineFields: false);
@@ -152,6 +152,16 @@ public static class ObjectModelValidator
         bool Known(ObjectTypeId id) => delegates.Contains(id) || types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id) || id == model.String;
         foreach (var declaration in model.Delegates)
             Require(declaration.Parameters.All(p => p.Class is null || Known(p.Class)), "delegate parameter type is outside the catalog.");
+        Require(!model.Statics.IsDefault && model.Statics.Length <= ObjectModelLimits.MaximumFields - fieldIdentities.Count && (model.Integer64 || model.Statics.IsEmpty), "invalid static field count/profile.");
+        var staticIds = new HashSet<(string Hash, string Specialization, int Token)>();
+        foreach (var field in model.Statics)
+            Require(field is not null && field.Id is { Component: -1 } && Identity(field.Id.Owner, 0x02)
+                && (field.Id.Token >> 24) == 0x04 && (field.Id.Token & 0x00ffffff) != 0
+                && staticIds.Add((field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token))
+                && !fieldIdentities.Contains((field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token, -1))
+                && (field.Attributes & FieldAttributes.Static) != 0 && FieldAttributesSupported(field.Attributes & ~FieldAttributes.Static)
+                && (field.Type == IrType.Int32 || field.Type is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false }
+                    && ReferenceIdentity(field.Type.Class, model.ObjectBase) && Known(field.Type.Class!)), "invalid static field identity, flags or storage.");
         foreach (var array in arrays)
             Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element) || element == model.String || delegates.Contains(element),
                 "array reference element is outside the nominal catalog.");
@@ -173,6 +183,7 @@ public static class ObjectModelValidator
         var visited = new HashSet<ObjectTypeId>();
         var pending = new Stack<ObjectTypeId>();
         foreach (var root in model.Roots) pending.Push(root);
+        foreach (var field in model.Statics) if (field.Type.Class is { } reference) pending.Push(reference);
         pending.Push(model.ObjectBase);
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))

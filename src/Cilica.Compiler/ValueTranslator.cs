@@ -175,6 +175,8 @@ public static class ValueTranslator
         foreach (var field in flow.Types.Types.SelectMany(t => t.Fields).Concat(flow.Types.References.Types.SelectMany(t => t.Fields)))
             if (field.Storage is ObjectStorage.Reference reference) Include(reference.Type);
         foreach (var argument in flow.Types.References.Interfaces.SelectMany(i => i.Arguments)) Include(argument.Reference);
+        foreach (var field in flow.Types.References.Statics) Include(field.Type.Class);
+        foreach (var declaration in flow.Types.References.Delegates) foreach (var parameter in declaration.Parameters) Include(parameter.Class);
         var catalog = flow.Types.References;
         return program with { Flow = flow with { Types = flow.Types with { References = catalog with {
             Arrays = [.. catalog.Arrays.Where(used.Contains)], Roots = [.. catalog.Roots.Where(t => t.ArrayElement is null || used.Contains(t))] } } } };
@@ -369,6 +371,10 @@ public static class ValueTranslator
                             else Push(offset, defaultStatic, defaultStatic == IrType.Int32 ? new IrExpression.Constant(0)
                                 : defaultStatic == IrType.Int64 ? new IrExpression.Constant64(0) : new IrExpression.DefaultValue(defaultStatic.Class!));
                             break;
+                        case "ldsfld" when method.StaticFields.TryGetValue(offset, out var readStatic):
+                            Push(offset, readStatic.Type, new IrExpression.LoadStatic(readStatic.Id), true); break;
+                        case "stsfld" when method.StaticFields.TryGetValue(offset, out var writeStatic):
+                            Add(new IrStatement.StoreStatic(offset, writeStatic.Id, Pop(offset, writeStatic.Type)), offset); break;
                         case "ldnull": Push(offset, IrType.NullReference, new IrExpression.Null()); break;
                         case "ldarg.0" or "ldarg.1" or "ldarg.2" or "ldarg.3" or "ldarg.s" or "ldarg":
                             int argument = Variable(instruction, method.Parameters.Length);

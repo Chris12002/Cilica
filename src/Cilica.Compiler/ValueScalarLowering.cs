@@ -274,6 +274,8 @@ public static class ValueScalarLowering
                         Emit(element with { Array = One(element.Array), Index = One(element.Index), Value = One(element.Value) });
                         continue;
                     }
+                    if (statement is IrStatement.StoreStatic staticStore)
+                    { Emit(staticStore with { Value = One(staticStore.Value) }); continue; }
                     if (statement is IrStatement.StoreField fieldStore)
                     {
                         if (heap.Fields.TryGetValue(fieldStore.Field, out var components))
@@ -417,6 +419,7 @@ public static class ValueScalarLowering
                                 IrExpression.StringEquals e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.NewDelegate d => d with { Receiver = One(d.Receiver) },
                                 IrExpression.CallDelegate d => d with { Delegate = One(d.Delegate), Arguments = Arguments(d.Arguments, true) },
+                                IrExpression.LoadStatic staticRead => staticRead,
                                 IrExpression.EmptyArray empty => empty,
                                 IrExpression.NewArray array => array with { Length = One(array.Length) },
                                 IrExpression.NewObject allocated => allocated with { Arguments = Arguments(allocated.Arguments, true) },

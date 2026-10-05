@@ -25,6 +25,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, ObjectTypeId> ArrayOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ObjectInterfaceDeclaration> InterfaceOperands { get; init; } = ImmutableDictionary<int, ObjectInterfaceDeclaration>.Empty;
     public ImmutableDictionary<int, IrType> MemoryOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
+    public ImmutableDictionary<int, ObjectStaticField> StaticFields { get; init; } = ImmutableDictionary<int, ObjectStaticField>.Empty;
     public ImmutableDictionary<int, IrType> DefaultStatics { get; init; } = ImmutableDictionary<int, IrType>.Empty;
     public ImmutableDictionary<int, IrType> ReferenceBoxOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
     public ImmutableDictionary<int, ClosedKeyIntrinsic> KeyOperations { get; init; } = ImmutableDictionary<int, ClosedKeyIntrinsic>.Empty;
@@ -149,6 +150,7 @@ public static partial class ValueProgramDiscovery
                     var interfaceCalls = ImmutableDictionary.CreateBuilder<int, ObjectInterfaceDeclaration>();
                     var memory = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var defaultStatics = ImmutableDictionary.CreateBuilder<int, IrType>();
+                    var staticFields = ImmutableDictionary.CreateBuilder<int, ObjectStaticField>();
                     var referenceBoxes = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var constrained = ConstrainedPrefixes(work);
                     var constrainedCalls = ImmutableDictionary.CreateBuilder<int, ConstrainedValueCall>();
@@ -276,14 +278,17 @@ public static partial class ValueProgramDiscovery
                             if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                             calls.Add(offset, callee.Binding.Method);
                         }
-                        else if (integers64 && instruction.OpCode == "ldsfld")
+                        else if (integers64 && instruction.OpCode is ("ldsfld" or "stsfld"))
                         {
                             int token = Token(work, instruction, 0x04, 0x0a);
                             var field = Require(resolver.ResolveClosedField(work.Resolved, MetadataTokens.EntityHandle(token), _metadata), work, offset);
                             var owner = SnapshotClosed(field.DeclaringType, work, offset);
                             var declaration = owner.Fields.Single(f => f.Token == MetadataTokens.GetToken(field.Handle));
-                            if (!DefaultStaticFields.IsDefault(owner, declaration))
-                                Fail(work, "Static reads require an initonly field without explicit storage or type/module initialization; mutable and initialized static storage needs later lowering.", offset);
+                            if (instruction.OpCode == "stsfld" || !DefaultStaticFields.IsDefault(owner, declaration))
+                            {
+                                staticFields.Add(offset, StaticField(work, field, owner, declaration, instruction.OpCode == "stsfld", offset));
+                                continue;
+                            }
                             var access = declaration.Attributes & FieldAttributes.FieldAccessMask;
                             if (access == FieldAttributes.PrivateScope || work.Binding.Owner != ClosedId(field.DeclaringType, work, offset)
                                 && (access != FieldAttributes.Public || !owner.ExternallyVisible))
@@ -355,7 +360,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {
@@ -373,6 +378,7 @@ public static partial class ValueProgramDiscovery
                     }) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                     [.. _references.Values.Select(t => t.Definition)], _snapshots);
                 catalog = built.Catalog ?? throw new Failure(built.Diagnostics[0]);
+                catalog = catalog with { References = catalog.References with { Statics = [.. _staticFields.Values.OrderBy(f => f.Id.Owner.ContentHash).ThenBy(f => f.Id.Owner.Token).ThenBy(f => f.Id.Owner.Specialization).ThenBy(f => f.Id.Token)] } };
                 if (_interfaceSession is not null)
                 {
                     try { interfacePlan = _interfaceSession.RunPrepared(catalog.References, _knownTypes, [.. _interfaces.Values.Select(s => s.Method)], catalog); }

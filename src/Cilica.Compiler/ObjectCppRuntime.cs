@@ -116,7 +116,9 @@ static_assert(std::is_standard_layout_v<StringObject> && offsetof(StringObject, 
 struct Handle { std::uint64_t token = 0; };
 struct HandleSlot { Object* value = nullptr; std::uint64_t token = 0; };
 static constexpr std::size_t handle_capacity = 1024;
+struct StaticSlot { std::uint32_t bits = 0; Object* reference = nullptr; };
 struct Instance {
+    StaticSlot* statics = nullptr;
     bool marking = false;
     bool collect_before_allocation = false;
     HandleSlot* handles = nullptr;
@@ -140,6 +142,7 @@ struct Instance {
         return false;
     }
     ~Instance() noexcept {
+        delete[] statics;
         delete[] handles;
         while (head != nullptr) { Object* p = head; head = p->next; p->type->destroy(p); }
     }
@@ -400,6 +403,21 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
     }
 }
 [[maybe_unused]] static bool traceable_reference(const Instance&, const Object*) noexcept;
+[[maybe_unused, gnu::noinline]] static bool ensure_static_storage(Context& context) noexcept {
+    if (context.instance.marking) { context.pending = 6; return false; }
+    if (context.instance.statics != nullptr) return true;
+    if (!valid_roots(context)) { context.pending = 6; return false; }
+    if (context.observe != nullptr) context.observe(context);
+    constexpr auto charged = static_field_count * sizeof(StaticSlot);
+    bool attempted = false;
+    for (;;) {
+        if (!allocation_room(context, charged, attempted)) return false;
+        auto* slots = new (std::nothrow) StaticSlot[static_field_count]{};
+        if (slots == nullptr) { if (collect_for_allocation(context, attempted)) continue; return false; }
+        context.instance.statics = slots; context.instance.bytes += charged;
+        return true;
+    }
+}
 // Exact descriptors preserve different closed generic cache identities even
 // when reference arrays admit covariant assignments. Cache publication cannot GC.
 [[maybe_unused, gnu::noinline]] static Object* empty_array(Context& context, const Descriptor& descriptor) noexcept {
