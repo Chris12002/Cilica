@@ -137,9 +137,9 @@ public static class ObjectInterfacePlanValidator
                 {
                     var kind = contracts[declaration.Owner].ArrayContract;
                     Require(mapping.ArrayHelper && target.Mapping == target.Implementation && !target.IsExplicit
-                        && mapping.Parameters[0] == IrType.Reference(target.Receiver)
+                        && types.Assignable(IrType.Reference(target.Receiver), mapping.Parameters[0])
                         && declaration.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1))
-                        && types.Assignable(mapping.ReturnType, declaration.ReturnType)
+                        && (mapping.ReturnType == declaration.ReturnType || types.Assignable(mapping.ReturnType, declaration.ReturnType))
                         && mapping.Name == ObjectArrayInterfaceRecipes.Select(declaration, kind, plan.Types.ObjectBase),
                         "array mapping requires the exact selected helper and matching interface operation.");
                     used.Add(target.Implementation); continue;

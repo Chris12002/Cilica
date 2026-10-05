@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.38 and 6d.1–6d.16 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.38 and 6d.1–6d.17 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.38 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.16 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; List and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.17 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -880,3 +880,23 @@ No native transcript comparison is claimed.
 
 All 25 composed local array, dictionary, tracing, exception and collection checks
 pass. No hosted CI or external application changes were made.
+
+
+## Slice 6d.17 outcome
+
+Pinned managed List<T> now supplies construction, capacity, indexed reads/writes,
+Add/growth and live AsReadOnly views for Int32/reference elements. Array interface
+writes and fixed-size Add have exact managed helper grants, including covariant
+store checks. See [ADR 0147](../decisions/0147-managed-lists-and-readonly-views.md).
+Six probes supply 1,764 repeated native/.NET comparisons. Exact nominal interfaces,
+member mappings and grant denial are verified. The full build and 61 composed
+collection/interface tests pass. Review found no remaining issue in this scope.
+
+The trial core has 212 inputs and 80 grants. Image SHA-256:
+`3327031b3245a1c4af859b8ab4ff8692faf422baaafbce5b1c6ddb2e9216d970`;
+manifest SHA-256:
+`ef0f5f047f7e86a9f87a10566f7cd8cbb6835e1e28a52424032d2423d1707f9b`.
+The unmodified kernel now stops at ResolutionState.WriteCanonical IL_0002 on
+compiler-generated initialized static delegate-cache storage. This requires
+compiler/runtime semantics; the application remains unchanged. Native transcript
+equivalence and the implementation/filter audit remain outstanding.

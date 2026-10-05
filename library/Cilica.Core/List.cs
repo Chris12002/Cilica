@@ -1,0 +1,87 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// Bounded adaptation of pinned List<T> storage, growth and indexed access.
+namespace System.Collections.Generic
+{
+    public class List<T> : IList<T>, Collections.IList, IReadOnlyList<T>
+    {
+        private T[] items;
+        private int size;
+        private int version;
+        public List() { items = Array.Empty<T>(); }
+        public List(int capacity) { items = CreateStorage(capacity); }
+        private static T[] CreateStorage(int capacity)
+        {
+            if (capacity < 0) throw new ArgumentOutOfRangeException("capacity", "Non-negative number required.");
+            return capacity == 0 ? Array.Empty<T>() : new T[capacity];
+        }
+        public int Count => size;
+        public int Capacity
+        {
+            get => items.Length;
+            set
+            {
+                if (value < size) throw new ArgumentOutOfRangeException("value", "capacity was less than the current size.");
+                if (value == items.Length) return;
+                if (value == 0) { items = Array.Empty<T>(); return; }
+                var replacement = new T[value];
+                for (int i = 0; i < size; ++i) replacement[i] = items[i];
+                items = replacement;
+            }
+        }
+        public T this[int index]
+        {
+            get
+            {
+                if ((uint)index >= (uint)size) throw new ArgumentOutOfRangeException("index", "Index was out of range. Must be non-negative and less than the size of the collection.");
+                return items[index];
+            }
+            set
+            {
+                if ((uint)index >= (uint)size) throw new ArgumentOutOfRangeException("index", "Index was out of range. Must be non-negative and less than the size of the collection.");
+                items[index] = value;
+                version++;
+            }
+        }
+        public void Add(T item)
+        {
+            version++;
+            int oldSize = size;
+            if ((uint)oldSize >= (uint)items.Length) Grow(oldSize + 1);
+            size = oldSize + 1;
+            items[oldSize] = item;
+        }
+        private void Grow(int capacity)
+        {
+            int length = Capacity;
+            int next = length == 0 ? 4 : unchecked(length * 2);
+            if ((uint)next > 0x7fffffc7) next = 0x7fffffc7;
+            if (next < capacity) next = capacity;
+            Capacity = next;
+        }
+        public ObjectModel.ReadOnlyCollection<T> AsReadOnly() => new ObjectModel.ReadOnlyCollection<T>(this);
+        bool ICollection<T>.IsReadOnly => false;
+        bool Collections.IList.IsReadOnly => false;
+        bool Collections.IList.IsFixedSize => false;
+        bool Collections.ICollection.IsSynchronized => false;
+        object Collections.ICollection.SyncRoot => this;
+        // Keep the exact nominal interface contract; unimplemented reachable APIs
+        // fail during compilation through the selected unsupported-member marker.
+        public void Clear() { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public bool Contains(T value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public void CopyTo(T[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public bool Remove(T value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public int IndexOf(T value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
+        public void Insert(int index, T value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void RemoveAt(int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
+        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+        object Collections.IList.this[int index] { get => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke(); set { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); } }
+        int Collections.IList.Add(object value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
+        bool Collections.IList.Contains(object value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        int Collections.IList.IndexOf(object value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
+        void Collections.IList.Insert(int index, object value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        void Collections.IList.Remove(object value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+    }
+}

@@ -5,6 +5,11 @@ internal static class ObjectArrayInterfaceRecipes
 {
     internal static string? Select(ObjectInterfaceDeclaration declaration, ObjectArrayInterfaceKind kind, ObjectTypeId objectBase)
     {
+        if (declaration.ReturnType == IrType.Void)
+        {
+            if (declaration.Name == "Add" && kind == ObjectArrayInterfaceKind.Collection && declaration.Parameters.Length == 2) return "Add";
+            if (declaration.Name == "set_Item" && kind == ObjectArrayInterfaceKind.List && declaration.Parameters.Length == 3 && declaration.Parameters[1] == IrType.Int32) return "Set";
+        }
         if (declaration.Parameters.Length == 2 && declaration.Parameters[1] == IrType.Int32
             && declaration.Name == "get_Item" && kind is ObjectArrayInterfaceKind.List or ObjectArrayInterfaceKind.ReadOnlyList)
             return "Get";
@@ -22,11 +27,14 @@ internal static class ObjectArrayInterfaceRecipes
     }
     internal static IrType? Result(string name, ObjectTypeId vector) => name switch {
         "Count" or "False" or "True" => IrType.Int32,
+        "Add" or "Set" => IrType.Void,
         "Get" => vector.ArrayElement!.Type is { } element ? IrType.Reference(element) : IrType.Int32,
         "Identity" => IrType.Reference(vector), _ => null };
+    internal static int Arity(string name) => name == "Set" ? 3 : name is "Get" or "Add" ? 2 : 1;
     internal static bool Signature(ObjectDispatchMethod method) =>
         !method.Parameters.IsDefaultOrEmpty && method.Parameters[0].Class is { ArrayElement: not null } vector
-        && method.Parameters.Length == (method.Name == "Get" ? 2 : 1)
-        && (method.Name != "Get" || method.Parameters[1] == IrType.Int32)
+        && method.Parameters.Length == Arity(method.Name)
+        && (method.Name is not ("Get" or "Set") || method.Parameters[1] == IrType.Int32)
+        && (method.Name is not ("Add" or "Set") || method.Parameters[^1] == Result("Get", vector))
         && Result(method.Name, vector) == method.ReturnType;
 }

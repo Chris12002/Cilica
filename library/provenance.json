@@ -67,6 +67,16 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/StringBuilder.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Text/StringBuilder.cs",
       "sha256": "4852f4b57d749bbfb9d5b865e0784974ee5f056de4427c6e584fb4ecd193c751"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs",
+      "sha256": "1346574be64b5708f97aaa196ad474a63ff52f6d977d7ae18c366a600766f036"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/ObjectModel/ReadOnlyCollection.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/ObjectModel/ReadOnlyCollection.cs",
+      "sha256": "bb8a2de7ce720ea780e4e4a0279981f980112991f8a22b61ffa9f46cabc51428"
     }
   ],
   "adaptations": [
@@ -124,14 +134,15 @@
       "upstreamPath": "src/coreclr/System.Private.CoreLib/src/System/Array.CoreCLR.cs",
       "algorithms": [
         "SZArrayHelper.get_Count<T> and get_Item<T>",
-        "SZArrayHelper.IsReadOnly and System.Array collection flags/SyncRoot"
+        "SZArrayHelper.IsReadOnly and System.Array collection flags/SyncRoot",
+        "SZArrayHelper.set_Item<T> and fixed-size Add<T>"
       ],
       "changes": [
         "Replace unsafe receiver reinterpretation with a compiler-selected closed T[] argument.",
         "Preserve unsigned index bounds and the pinned IndexMustBeLess message/parameter.",
-        "Require independent exact Count/Get/False/True/Identity helper grants; other members remain unsupported."
+        "Require exact Count/Get/Set/Add/False/True/Identity grants. Mutations use the interface element view and preserve runtime covariance checks; other members remain unsupported."
       ],
-      "scope": "Int32 and reference vectors; exact selected-runtime array contracts and covariant reference reads only.",
+      "scope": "Int32 and reference vectors; exact selected-runtime contracts, indexed reads/writes and fixed-size Add faults.",
       "additionalUpstreamPaths": [
         "src/libraries/System.Private.CoreLib/src/System/Array.cs"
       ]
@@ -163,6 +174,33 @@
         "Trace permanent cache roots; preserve exact element descriptors independently of reference covariance."
       ],
       "scope": "Int32 and admitted nominal reference arrays only; unsigned, wide, narrow and inline value element arrays remain diagnostic."
+    },
+    {
+      "path": "library/Cilica.Core/List.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs",
+      "algorithms": [
+        "List construction, capacity, indexed access, Add and geometric growth"
+      ],
+      "changes": [
+        "Replace Array.Copy with typed managed loops; retain allocation-before-publication and exception ordering.",
+        "Use Array.Empty<T> for private empty storage; private backing identity is not exposed by the admitted surface.",
+        "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile.",
+        "Read growth length through Capacity to retain explicit Int32 length conversion in supported IL."
+      ],
+      "scope": "Int32 and reference elements only; exact public/explicit interface members in the bounded implementation; no general collection or enumeration support."
+    },
+    {
+      "path": "library/Cilica.Core/ReadOnlyCollection.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/ObjectModel/ReadOnlyCollection.cs",
+      "algorithms": [
+        "Live IList-backed Count/index view, identity, flags and unconditional readonly mutation exceptions"
+      ],
+      "changes": [
+        "Preserve exact nominal interfaces and keep unused search/copy/enumeration paths diagnostic.",
+        "Omit static Empty factory and enumeration optimizations until separately implemented.",
+        "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile."
+      ],
+      "scope": "Int32 and reference elements only; exact public/explicit interface members in the bounded implementation; no general collection or enumeration support."
     }
   ],
   "ownedAdapters": [

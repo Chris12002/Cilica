@@ -544,5 +544,19 @@
     "Member": "Empty",
     "ParameterCount": 0,
     "Capability": "ArrayEmpty"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Add",
+    "ParameterCount": 2,
+    "Capability": "ArrayInterfaceAdd"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Set",
+    "ParameterCount": 3,
+    "Capability": "ArrayInterfaceSet"
   }
 ]

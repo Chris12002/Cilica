@@ -245,31 +245,43 @@ public static class ObjectInterfacePlanBuilder
             var contract = catalog.Interfaces.Single(i => ObjectTypeId.From(i.Source) == declaration.Owner);
             var recipe = ObjectArrayInterfaceRecipes.Select(declaration, contract.ArrayContract, catalog.ObjectBase);
             if (!closed || !catalog.Integer64 || recipe is null)
-                Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads, collection flags and SyncRoot are admitted.", declaration.Source.Name);
+                Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, fixed-size Add, collection flags and SyncRoot are admitted.", declaration.Source.Name);
+            // Writes use the interface's element view so covariant array stores
+            // retain the actual receiver's runtime type check after bounds checks.
+            var view = receiver;
+            if (recipe is "Add" or "Set")
+            {
+                var item = declaration.Parameters[^1];
+                if (item != IrType.Int32 && item.Kind != IrTypeKind.Reference)
+                    Fail("Array interface mutation requires Int32 or reference elements.", declaration.Source.Name);
+                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int32 ? ObjectArrayElement.Int32 : ObjectArrayElement.Reference(item.Class!));
+            }
             TypeSignature element;
-            if (receiver.ArrayElement!.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
-            else if (receiver.ArrayElement.Type == catalog.ObjectBase) element = new TypeSignature.Primitive(PrimitiveTypeCode.Object);
-            else if (receiver.ArrayElement.Type == catalog.String) element = new TypeSignature.Primitive(PrimitiveTypeCode.String);
+            if (view.ArrayElement!.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
+            else if (view.ArrayElement.Type == catalog.ObjectBase) element = new TypeSignature.Primitive(PrimitiveTypeCode.Object);
+            else if (view.ArrayElement.Type == catalog.String) element = new TypeSignature.Primitive(PrimitiveTypeCode.String);
             else
             {
-                if (!_knownTypes.TryGetValue(receiver.ArrayElement.Type!, out var type))
+                if (!_knownTypes.TryGetValue(view.ArrayElement.Type!, out var type))
                     throw new PlanFailure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error, "Missing closed vector element metadata."));
                 var named = new TypeSignature.Named(type.Definition, SignatureTypeKind.Class);
                 element = type.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, type.Arguments);
             }
             var owner = Value(resolver.ResolveType(runtimeLibrary, "Cilica.Runtime", "ArrayInterface`1"));
-            var method = Value(resolver.ResolveClosedDeclaration(new(owner, new([element])), recipe!, recipe == "Get" ? 2 : 1, budget));
+            var method = Value(resolver.ResolveClosedDeclaration(new(owner, new([element])), recipe!, ObjectArrayInterfaceRecipes.Arity(recipe!), budget));
             _ = Value(resolver.AuthorizeLibraryIntrinsic(runtimeLibrary, method.Handle,
                 recipe switch { "Count" => LibraryIntrinsicCapability.ArrayInterfaceCount, "Get" => LibraryIntrinsicCapability.ArrayInterfaceGet,
+                    "Add" => LibraryIntrinsicCapability.ArrayInterfaceAdd, "Set" => LibraryIntrinsicCapability.ArrayInterfaceSet,
                     "False" => LibraryIntrinsicCapability.ArrayInterfaceFalse, "True" => LibraryIntrinsicCapability.ArrayInterfaceTrue, _ => LibraryIntrinsicCapability.ArrayInterfaceIdentity }));
             var input = Read(method, arrayHelper: true); var id = Id(method);
             var parameters = input.Signature.Parameters.Select(p => Type(p)).ToImmutableArray();
             var returned = Type(input.Signature.ReturnType, true);
             if (!input.HasBody || input.Implementation != MethodImplAttributes.IL
                 || input.Attributes != (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
-                || input.OwnerGenericArity != 1 || parameters.Length != (recipe == "Get" ? 2 : 1)
-                || parameters[0] != IrType.Reference(receiver) || recipe == "Get" && parameters[1] != IrType.Int32
-                || returned != ObjectArrayInterfaceRecipes.Result(recipe!, receiver))
+                || input.OwnerGenericArity != 1 || parameters.Length != (ObjectArrayInterfaceRecipes.Arity(recipe!))
+                || parameters[0] != IrType.Reference(view) || recipe is ("Get" or "Set") && parameters[1] != IrType.Int32
+                || recipe is ("Add" or "Set") && parameters[^1] != ObjectArrayInterfaceRecipes.Result("Get", view)
+                || returned != ObjectArrayInterfaceRecipes.Result(recipe!, view))
                 Fail("Invalid selected array interface helper declaration.", input.Source.Name);
             if (!_methods.ContainsKey(id))
             {

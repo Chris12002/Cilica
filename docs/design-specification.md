@@ -1372,3 +1372,11 @@ reference vectors retain identity across collection without conflating covariant
 element types. Unsigned, narrow, wide and inline-value vector caches remain
 diagnostic. Typed reference IR v7/native v27 encode the operation and traced roots.
 The real kernel next requires List<T>.
+
+
+The managed library provides bounded List<T> storage/growth and live
+ReadOnlyCollection<T> views (ADR 0147). Exact array interface mutation helpers
+preserve fixed-size Add faults and bounds-before-covariant-store checks. Interface
+plan v3/native v28 carry validated mutable array views. Int32/reference element
+storage is admitted; broad collection APIs remain diagnostic. The concrete kernel
+next requires compiler-generated initialized static delegate caches.
