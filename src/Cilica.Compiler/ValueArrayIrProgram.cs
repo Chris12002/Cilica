@@ -67,7 +67,7 @@ public static class ValueArrayIrValidator
                         or IrExpression.Not64 or IrExpression.ConvertInteger or IrExpression.IntegerCast)
                     || classes && d.Value.Expression is (IrExpression.NewObject or IrExpression.LoadField)
                     || boxing && d.Value.Expression is (IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation)
-                    || exceptions is not null && d.Value.Expression is (IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.IsInstance or IrExpression.CastClass or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringEquals)
+                    || exceptions is not null && d.Value.Expression is (IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.IsInstance or IrExpression.CastClass or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringEquals)
                     || exceptions is not null && flow.Types.References.Integer64 && d.Value.Expression is (IrExpression.StringCodeUnit or IrExpression.StringConcat)
                     || delegates && d.Value.Expression is (IrExpression.NewDelegate or IrExpression.CallDelegate),
                 IrStatement.StoreLocal or IrStatement.Invoke or IrStatement.StoreLocation

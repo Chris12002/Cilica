@@ -11,10 +11,16 @@ public enum IrExceptionClause { Catch, Filter, Finally, Fault }
 public sealed record IrExceptionRegion(int TryStart, int TryEnd, int HandlerStart, int HandlerEnd,
     IrExceptionClause Kind, ObjectTypeId? CatchType = null, int? FilterStart = null);
 public sealed record RuntimeExceptionBinding(uint Status, ObjectTypeId Type);
+public enum ExceptionResourceKind { ArgumentNull, ArgumentOutOfRange, InvalidOperation, NotSupported }
+public sealed record ExceptionResourceBinding(ObjectTypeId Type, ExceptionResourceKind Kind);
 
 /// <summary>Intrinsic fieldless exception shells in the ordinary nominal class graph.</summary>
 public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<ObjectTypeId> Types,
-    ImmutableArray<RuntimeExceptionBinding> RuntimeFaults);
+    ImmutableArray<RuntimeExceptionBinding> RuntimeFaults)
+{
+    public ObjectTypeId? ArgumentBase { get; init; }
+    public ImmutableArray<ExceptionResourceBinding> Resources { get; init; } = [];
+}
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
@@ -74,16 +80,35 @@ internal sealed class ManagedExceptionRules
             && types.RuntimeFaults.Select(b => b.Status).Order().SequenceEqual(statuses)
             && types.RuntimeFaults.Select(b => b.Type).Distinct().Count() == statuses.Length,
             "runtime faults require distinct exact exception identities for statuses 1, 2, 4, 5, 7, 10, 11 and 12.");
+        Require(!types.Resources.IsDefault && types.Resources.Length <= 4
+            && types.Resources.All(r => r is not null && _types.Contains(r.Type) && Enum.IsDefined(r.Kind))
+            && types.Resources.Select(r => r.Type).Distinct().Count() == types.Resources.Length
+            && types.Resources.Select(r => r.Kind).Distinct().Count() == types.Resources.Length
+            && types.Resources.All(r => r.Type != types.Base && !types.RuntimeFaults.Any(b => b.Type == r.Type)),
+            "additional message resources require distinct admitted exception types and resource kinds.");
+        Require(types.ArgumentBase is null || types.RuntimeFaults.Single(b => b.Status == 12).Type == types.ArgumentBase,
+            "argument exception base must match its runtime identity.");
+        foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.ArgumentNull or ExceptionResourceKind.ArgumentOutOfRange))
+            Require(types.ArgumentBase is not null && resource.Type != types.ArgumentBase
+                && classes[resource.Type].BaseType == types.ArgumentBase, "argument resources require direct descendants of the selected argument base.");
         _ = ManagedExceptionMessages.Build(types, catalog);
     }
     internal bool Throwable(IrType type) => type == IrType.NullReference || type.Kind == IrTypeKind.Reference && _types.Contains(type.Class!);
+    private bool StringOperand(int? operand, IReadOnlyList<IrType> values) => operand is null
+        || operand is int index && index >= 0 && index < values.Count
+            && (_catalog.String is not null && values[index] == IrType.Reference(_catalog.String) || values[index] == IrType.NullReference);
     internal bool Creation(IrExpression.NewException creation, IrType result, IReadOnlyList<IrType> values) =>
         creation.Type is not null && _types.Contains(creation.Type) && result == IrType.Reference(creation.Type)
-        && (creation.Message is null || creation.Message is int index && index >= 0 && index < values.Count
-            && (_catalog.String is not null && values[index] == IrType.Reference(_catalog.String) || values[index] == IrType.NullReference));
+        && StringOperand(creation.Message, values) && StringOperand(creation.ParameterName, values)
+        && (creation.ParameterName is null || Types.ArgumentBase is not null && _relations.Ancestors[creation.Type].Contains(Types.ArgumentBase));
     internal bool Message(IrExpression.ExceptionMessage message, IrType result, IReadOnlyList<IrType> values) =>
         _catalog.String is not null && result == IrType.Reference(_catalog.String)
         && message.Operand >= 0 && message.Operand < values.Count && Throwable(values[message.Operand]);
+    internal bool ParameterName(IrExpression.ExceptionParameterName parameter, IrType result, IReadOnlyList<IrType> values) =>
+        Types.ArgumentBase is not null && _catalog.String is not null && result == IrType.Reference(_catalog.String)
+        && parameter.Operand >= 0 && parameter.Operand < values.Count
+        && (values[parameter.Operand] == IrType.NullReference || values[parameter.Operand].Kind == IrTypeKind.Reference
+            && _types.Contains(values[parameter.Operand].Class!) && _relations.Ancestors[values[parameter.Operand].Class!].Contains(Types.ArgumentBase));
 
     private enum Part { Try, Handler, Filter }
     private sealed record Scope(int Region, Part Part, int Start, int End);

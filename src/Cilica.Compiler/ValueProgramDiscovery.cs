@@ -27,8 +27,9 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
 }
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
-public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual }
-public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, int Parameters);
+public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName }
+public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, int Parameters,
+    int MessageArgument = -1, int ParameterArgument = -1);
 public sealed record ValueProgramInput(IrMethodId Entry, ImmutableArray<ValueMethodInput> Methods, ValueTypeCatalog Types)
 {
     public ManagedExceptionTypes? Exceptions { get; init; }
@@ -393,7 +394,7 @@ public static partial class ValueProgramDiscovery
                     Dispatch = [.. _dispatch.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).ThenBy(p => p.Key.Specialization, StringComparer.Ordinal)
                         .Select(p => new ObjectVirtualDispatch(p.Key, [.. p.Value.OrderBy(t => t.Key.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Key.Token).ThenBy(t => t.Key.Specialization, StringComparer.Ordinal)
                             .Select(t => new ObjectVirtualTarget(t.Key, t.Value))]))],
-                    Exceptions = exceptions ? new(_exceptionBase!, [.. catalog.References.Types.Where(t => IsException(ObjectTypeId.From(t.Source))).Select(t => ObjectTypeId.From(t.Source))], [.. _runtimeFaults]) : null };
+                    Exceptions = exceptions ? new(_exceptionBase!, [.. catalog.References.Types.Where(t => IsException(ObjectTypeId.From(t.Source))).Select(t => ObjectTypeId.From(t.Source))], [.. _runtimeFaults]) { ArgumentBase = _argumentBase, Resources = [.. _exceptionResources] } : null };
         }
 
         private Work Discover(ResolvedMethod resolved, Work? parent, int offset, ObjectDispatchMethod? fact = null)

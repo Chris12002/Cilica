@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v18";
+    public const string Profile = "object-frames-native-v19";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -424,7 +424,7 @@ public static class ObjectCppEmitter
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
                         or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
-                            or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
+                            or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
@@ -441,7 +441,12 @@ public static class ObjectCppEmitter
                             {
                                 case IrExpression.NewException creation:
                                     code.Append("    f->exception_result = make_exception(context, &").Append(TypeSymbol(creation.Type)).Append("_descriptor, ")
-                                        .Append(creation.Message is int messageValue ? Value(messageValue) : "nullptr").Append(creation.Message is null ? ", 1u);\n" : ", 0u);\n");
+                                        .Append(creation.Message is int messageValue ? Value(messageValue) : "nullptr").Append(creation.Message is null ? ", 1u, " : ", 0u, ")
+                                        .Append(creation.ParameterName is int parameterValue ? Value(parameterValue) : "nullptr").Append(");\n");
+                                    Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
+                                    expression = "f->exception_result.value"; break;
+                                case IrExpression.ExceptionParameterName parameter:
+                                    code.Append("    f->exception_result = exception_parameter_name(context, ").Append(Value(parameter.Operand)).Append(");\n");
                                     Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
                                     expression = "f->exception_result.value"; break;
                                 case IrExpression.ExceptionMessage message:

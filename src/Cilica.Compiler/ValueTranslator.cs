@@ -281,14 +281,22 @@ public static class ValueTranslator
                             int accepted = Pop(offset, IrType.Int32);
                             if (stack.Count != 0) Error(offset, "endfilter leaves a residual evaluation stack.");
                             terminator = new IrEndFilter(offset, accepted); break;
+                        case "newobj" when method.Intrinsics.TryGetValue(offset, out var constructorIntrinsic) && constructorIntrinsic.Kind == ValueIntrinsic.NewException:
+                            var constructorArguments = new int[constructorIntrinsic.Parameters];
+                            for (int i = constructorArguments.Length - 1; i >= 0; --i) constructorArguments[i] = Pop(offset, IrType.Reference(stringType!));
+                            Push(offset, IrType.Reference(constructorIntrinsic.Type), new IrExpression.NewException(constructorIntrinsic.Type,
+                                constructorIntrinsic.MessageArgument < 0 ? null : constructorArguments[constructorIntrinsic.MessageArgument],
+                                constructorIntrinsic.ParameterArgument < 0 ? null : constructorArguments[constructorIntrinsic.ParameterArgument]), true);
+                            break;
                         case "newobj" or "call" or "callvirt" when method.Intrinsics.ContainsKey(offset):
                             var intrinsic = method.Intrinsics[offset];
                             int rightText = intrinsic.Kind == ValueIntrinsic.StringCodeUnit ? Pop(offset, IrType.Int32)
                                 : intrinsic.Kind is ValueIntrinsic.StringEqual or ValueIntrinsic.StringNotEqual or ValueIntrinsic.StringConcat
                                     ? Pop(offset, IrType.Reference(stringType!)) : -1;
-                            int operand = intrinsic.Parameters == 0 ? -1 : Pop(offset, IrType.Reference(intrinsic.Kind == ValueIntrinsic.ExceptionMessage ? exceptions!.Base : stringType!));
+                            int operand = intrinsic.Parameters == 0 ? -1 : Pop(offset, IrType.Reference(intrinsic.Kind == ValueIntrinsic.ExceptionMessage ? exceptions!.Base : intrinsic.Kind == ValueIntrinsic.ExceptionParameterName ? intrinsic.Type : stringType!));
                             IrExpression expression = intrinsic.Kind switch {
                                 ValueIntrinsic.NewException => new IrExpression.NewException(intrinsic.Type, operand < 0 ? null : operand),
+                                ValueIntrinsic.ExceptionParameterName => new IrExpression.ExceptionParameterName(operand),
                                 ValueIntrinsic.ExceptionMessage => new IrExpression.ExceptionMessage(operand),
                                 ValueIntrinsic.StringLength => new IrExpression.StringLength(operand),
                                 ValueIntrinsic.StringCodeUnit => new IrExpression.StringCodeUnit(operand, rightText),
@@ -302,7 +310,7 @@ public static class ValueTranslator
                                 expression = new IrExpression.Compare(Int32Comparison.Equal, equal, falseValue);
                             }
                             Push(offset, intrinsic.Kind == ValueIntrinsic.NewException ? IrType.Reference(intrinsic.Type)
-                                : intrinsic.Kind is ValueIntrinsic.ExceptionMessage or ValueIntrinsic.StringConcat ? IrType.Reference(stringType!) : IrType.Int32, expression, intrinsic.Kind != ValueIntrinsic.StringNotEqual); break;
+                                : intrinsic.Kind is ValueIntrinsic.ExceptionMessage or ValueIntrinsic.ExceptionParameterName or ValueIntrinsic.StringConcat ? IrType.Reference(stringType!) : IrType.Int32, expression, intrinsic.Kind != ValueIntrinsic.StringNotEqual); break;
                         case "newarr" when arrays:
                             var arrayType = method.ArrayOperands[offset];
                             Push(offset, IrType.Reference(arrayType), new IrExpression.NewArray(arrayType, Pop(offset, IrType.Int32)), true); break;

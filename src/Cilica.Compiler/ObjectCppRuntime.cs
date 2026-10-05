@@ -243,12 +243,14 @@ struct RootScope {
 // Buffers are filled before publication and exposed only through const units.
 // Callers validate the owned, exact String descriptors before reading operands.
 [[maybe_unused, gnu::noinline]] static Object* allocate_string(Context& context, const Descriptor& descriptor,
-    const std::uint16_t* left, std::uint32_t first, const std::uint16_t* right, std::uint32_t second) noexcept {
+    const std::uint16_t* left, std::uint32_t first, const std::uint16_t* right, std::uint32_t second,
+    const std::uint16_t* extra = nullptr, std::uint32_t third = 0, const std::uint16_t* tail = nullptr, std::uint32_t fourth = 0) noexcept {
     if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
     if (context.observe != nullptr) context.observe(context);
     Instance& heap = context.instance;
     if (first > 0x7fffffffu || second > 0x7fffffffu - first) return nullptr;
-    const std::uint32_t length = first + second;
+    if (third > 0x7fffffffu - first - second || fourth > 0x7fffffffu - first - second - third) return nullptr;
+    const std::uint32_t length = first + second + third + fourth;
     if (std::size_t{length} > (std::numeric_limits<std::size_t>::max() - sizeof(StringObject)) / sizeof(std::uint16_t)) return nullptr;
     const std::size_t charged = sizeof(StringObject) + std::size_t{length} * sizeof(std::uint16_t);
     bool attempted = false;
@@ -260,6 +262,8 @@ struct RootScope {
         if (length != 0 && units == nullptr) { delete value; if (collect_for_allocation(context, attempted)) continue; return nullptr; }
         for (std::uint32_t i = 0; i < first; ++i) units[i] = left[i];
         for (std::uint32_t i = 0; i < second; ++i) units[first + i] = right[i];
+        for (std::uint32_t i = 0; i < third; ++i) units[first + second + i] = extra[i];
+        for (std::uint32_t i = 0; i < fourth; ++i) units[first + second + third + i] = tail[i];
         value->length = length; value->units = units;
         value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
         value->header.allocation_bytes = charged;

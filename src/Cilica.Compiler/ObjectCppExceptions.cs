@@ -9,11 +9,12 @@ namespace Cilica.Compiler;
 internal static class ObjectCppExceptions
 {
     internal static void AppendStorage(StringBuilder text) => text.Append("""
-struct ExceptionObject { Object header; Object* message = nullptr; std::uint32_t message_kind = 0; const Descriptor* cast_from = nullptr; const Descriptor* cast_to = nullptr; };
+struct ExceptionObject { Object header; Object* message = nullptr; Object* parameter_name = nullptr; std::uint32_t message_kind = 0; const Descriptor* cast_from = nullptr; const Descriptor* cast_to = nullptr; };
 static_assert(std::is_standard_layout_v<ExceptionObject> && std::is_trivially_destructible_v<ExceptionObject> && offsetof(ExceptionObject, header) == 0);
-static constexpr std::size_t exception_references[] = {offsetof(ExceptionObject, message)};
+static constexpr std::size_t exception_references[] = {offsetof(ExceptionObject, message), offsetof(ExceptionObject, parameter_name)};
 [[gnu::noinline]] static void* exception_field(Object* value, [[maybe_unused]] std::size_t offset) noexcept {
-    return &reinterpret_cast<ExceptionObject*>(value)->message;
+    auto* payload = reinterpret_cast<ExceptionObject*>(value);
+    return offset == offsetof(ExceptionObject, message) ? &payload->message : &payload->parameter_name;
 }
 struct ExceptionResult { std::uint32_t status = 0; Object* value = nullptr; };
 struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; std::uint32_t method = 0, il = 0; };
@@ -26,7 +27,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
 
     internal static void AppendType(StringBuilder text, string symbol, string parent) => text
         .Append("using ").Append(symbol).Append(" = ExceptionObject;\nstatic constexpr Descriptor ").Append(symbol)
-        .Append("_descriptor = {sizeof(ExceptionObject), alignof(ExceptionObject), exception_references, 1, ")
+        .Append("_descriptor = {sizeof(ExceptionObject), alignof(ExceptionObject), exception_references, 2, ")
         .Append("[](Object* p) noexcept { delete reinterpret_cast<ExceptionObject*>(p); }, &").Append(parent)
         .Append("_descriptor, nullptr, 0, nullptr, exception_field};\n");
 
@@ -65,6 +66,10 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         }
         text.Append("}};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_cast_text(const Descriptor* from, const Descriptor* to) noexcept {\n")
             .Append("    for (const auto& entry : exception_cast_texts) if (entry.from == from && entry.to == to) return entry.text;\n    return {};\n}\n");
+        text.Append("[[maybe_unused, gnu::noinline]] static bool argument_exception(const Descriptor* type) noexcept {\n");
+        if (types.ArgumentBase is { } argumentBase) text.Append("    return derives_from(type, &").Append(symbol(argumentBase)).Append("_descriptor);\n");
+        else text.Append("    (void)type; return false;\n");
+        text.Append("}\n");
         text.Append(ResourceHelper);
         text.Append("[[maybe_unused, gnu::noinline]] static Object* exception_message_string(Context& c, ExceptionText text) noexcept {\n");
         if (catalog.String is { } stringType) text.Append("    return exception_resource(c, ").Append(symbol(stringType)).Append("_descriptor, text);\n");
@@ -77,10 +82,10 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     if (text.cache_id == 0) return allocate_string(c, type, text.units, text.length, nullptr, 0);
     std::size_t count = 0;
     for (auto* value = c.instance.exception_resources; value != nullptr; value = value->literal_next) {
-        if (++count > 9 || !traceable_reference(c.instance, reinterpret_cast<Object*>(value)) || value->header.type != &type) { c.pending = 6; return nullptr; }
+        if (++count > 13 || !traceable_reference(c.instance, reinterpret_cast<Object*>(value)) || value->header.type != &type) { c.pending = 6; return nullptr; }
         if (value->literal_id == text.cache_id) return &value->header;
     }
-    if (count == 9) { c.pending = 6; return nullptr; }
+    if (count == 13) { c.pending = 6; return nullptr; }
     auto* result = allocate_string(c, type, text.units, text.length, nullptr, 0);
     if (result == nullptr) return nullptr;
     auto* value = reinterpret_cast<StringObject*>(result);
@@ -96,15 +101,17 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
 }
 // Failure leaves the previous pending exception and its provenance unchanged.
 // The caller publishes the message reference before a potentially collecting allocation.
-[[maybe_unused, gnu::noinline]] static ExceptionResult make_exception(Context& c, const Descriptor* type, Object* message, std::uint32_t message_kind = 0) noexcept {
+[[maybe_unused, gnu::noinline]] static ExceptionResult make_exception(Context& c, const Descriptor* type, Object* message, std::uint32_t message_kind = 0, Object* parameter_name = nullptr) noexcept {
     if (c.instance.marking || message_kind > 2 || !known_exception(type) || !traceable_reference(c.instance, message)
-        || (message != nullptr && !string_type(message->type))) return {6};
+        || (message != nullptr && !string_type(message->type)) || !traceable_reference(c.instance, parameter_name)
+        || (parameter_name != nullptr && (!argument_exception(type) || !string_type(parameter_name->type)))) return {6};
     const auto origin = exception_origin(c); c.pending = 0;
     Object* value = allocate<ExceptionObject>(c, *type);
     const auto failure = c.pending; set_exception_origin(c, origin);
     if (value == nullptr) return {failure == 0 ? 5u : failure};
     reinterpret_cast<ExceptionObject*>(value)->message = message;
     reinterpret_cast<ExceptionObject*>(value)->message_kind = message_kind;
+    reinterpret_cast<ExceptionObject*>(value)->parameter_name = parameter_name;
     return {0, value};
 }
 [[maybe_unused, gnu::noinline]] static std::uint32_t prepare_exceptions(Context& c) noexcept {
@@ -122,6 +129,8 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     auto* payload = reinterpret_cast<ExceptionObject*>(value);
     if (payload->message_kind > 2) return {6};
     Object* message = payload->message;
+    Object* parameter = payload->parameter_name;
+    if (!traceable_reference(c.instance, parameter) || (parameter != nullptr && (!argument_exception(value->type) || !string_type(parameter->type)))) return {6};
     if (!traceable_reference(c.instance, message) || (message != nullptr && !string_type(message->type))) return {6};
     if (message == nullptr) {
         const auto text = payload->cast_from == nullptr && payload->cast_to == nullptr ? exception_text(value->type, payload->message_kind)
@@ -131,9 +140,29 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         message = exception_message_string(c, text);
         const auto failure = c.pending; set_exception_origin(c, origin);
         if (message == nullptr) return {failure == 0 ? 5u : failure};
-        if (text.cache_id != 0 || payload->cast_from != nullptr) payload->message = message;
+        if (text.cache_id != 0 || payload->cast_from != nullptr || (parameter != nullptr && string_length(parameter) != 0)) payload->message = message;
+    }
+    if (parameter != nullptr && string_length(parameter) != 0) {
+        // Both inputs are now retained by the caller-rooted exception. Format in
+        // one bounded allocation; no intermediate managed pointer crosses GC.
+        static constexpr std::uint16_t prefix[] = {32, 40, 80, 97, 114, 97, 109, 101, 116, 101, 114, 32, 39};
+        static constexpr std::uint16_t suffix[] = {39, 41};
+        const auto* first = reinterpret_cast<StringObject*>(message);
+        const auto* name = reinterpret_cast<StringObject*>(parameter);
+        const auto origin = exception_origin(c); c.pending = 0;
+        message = allocate_string(c, *message->type, first->units, first->length, prefix, 13, name->units, name->length, suffix, 2);
+        const auto failure = c.pending; set_exception_origin(c, origin);
+        if (message == nullptr) return {failure == 0 ? 5u : failure};
     }
     return {0, message};
+}
+[[maybe_unused, gnu::noinline]] static ExceptionResult exception_parameter_name(Context& c, Object* value) noexcept {
+    if (c.instance.marking) return {6};
+    if (value == nullptr) return {4};
+    if (!valid_exception(c, value) || !argument_exception(value->type)) return {6};
+    Object* parameter = reinterpret_cast<ExceptionObject*>(value)->parameter_name;
+    if (!traceable_reference(c.instance, parameter) || (parameter != nullptr && !string_type(parameter->type))) return {6};
+    return {0, parameter};
 }
 // Turn a numeric runtime fault into a rooted managed identity before handler search.
 // Status 13 denotes an explicitly thrown managed exception; 6/8/9 stay fatal.

@@ -893,6 +893,11 @@ Selected UTF-16 indexing, two-string concatenation and inequality also compose
 through this profile's value and exception lowering, using the existing runtime
 operations ([ADR 0112](decisions/0112-composed-string-operations.md)).
 
+Selected argument-exception constructors and parameter/message access now retain
+traced parameter names and exact invariant resources in private native v19
+([ADR 0113](decisions/0113-argument-exception-payloads.md)). Inner exceptions,
+actual-value constructors, localization and broader exception APIs remain pending.
+
 ## 11. Class library and assembly identity
 
 Milestone 6's `integer-arithmetic-ir-v1` profile adds authored Int64 scalar IR

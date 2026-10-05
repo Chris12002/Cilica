@@ -15,7 +15,7 @@ namespace Cilica.Metadata.Resolution;
 public enum LibraryIntrinsicCapability
 {
     StringLayout, ExceptionLayout, StringLength, StringCodeUnit, StringEqual, StringNotEqual, StringConcat,
-    ExceptionConstructor, ExceptionMessage,
+    ExceptionConstructor, ExceptionMessage, ExceptionParameterName,
 }
 
 public sealed record LibraryBuildInput(string Role, string Path, string Sha256);

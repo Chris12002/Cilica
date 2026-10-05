@@ -12,6 +12,7 @@ internal static class ManagedExceptionMessages
     {
         var classes = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var statuses = exceptions.RuntimeFaults.ToDictionary(b => b.Type, b => b.Status);
+        var resources = exceptions.Resources.ToDictionary(r => r.Type, r => r.Kind);
         var result = new Dictionary<(ObjectTypeId, int), string>(); var unique = new HashSet<string>(StringComparer.Ordinal);
         int units = 0;
         foreach (var type in exceptions.Types)
@@ -31,9 +32,15 @@ internal static class ManagedExceptionMessages
                 11 => "Attempted to access an element as a type incompatible with the array.",
                 12 => "Value does not fall within the expected range.", _ => generic,
             };
+            if (resources.TryGetValue(type, out var resource)) ordinary = resource switch {
+                ExceptionResourceKind.ArgumentNull => "Value cannot be null.",
+                ExceptionResourceKind.ArgumentOutOfRange => "Specified argument was out of the range of valid values.",
+                ExceptionResourceKind.InvalidOperation => "Operation is not valid due to the current state of the object.",
+                ExceptionResourceKind.NotSupported => "Specified method is not supported.",
+                _ => throw new ArgumentException("Unknown exception resource.") };
             for (int kind = 0; kind < 3; ++kind)
             {
-                string text = kind == 0 && status == 0 ? generic : kind == 2 && status == 12 ? "Delegate to an instance method cannot have null 'this'." : ordinary;
+                string text = kind == 0 && status == 0 && !resources.ContainsKey(type) ? generic : kind == 2 && status == 12 && !resources.ContainsKey(type) ? "Delegate to an instance method cannot have null 'this'." : ordinary;
                 if (unique.Add(text) && (units += text.Length) > ObjectStringLimits.MaximumTotalLiteralCodeUnits)
                     throw new ArgumentException("Exception message resource budget exceeded.");
                 result.Add((type, kind), text);

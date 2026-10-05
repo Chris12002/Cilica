@@ -15,7 +15,8 @@ public static partial class ValueProgramDiscovery
 {
     private sealed partial class Session
     {
-        private ObjectTypeId? _exceptionBase, _stringType;
+        private ObjectTypeId? _exceptionBase, _stringType, _argumentBase;
+        private readonly List<ExceptionResourceBinding> _exceptionResources = [];
         private readonly HashSet<ObjectTypeId> _exceptionTypes = [], _frameworkExceptions = [];
         private readonly List<RuntimeExceptionBinding> _runtimeFaults = [];
         private readonly Dictionary<IrMethodId, MethodDeclarationInput> _exceptionDeclarations = [];
@@ -28,6 +29,7 @@ public static partial class ValueProgramDiscovery
             string[] names = ["Exception", "SystemException", "ArithmeticException", "DivideByZeroException", "OverflowException",
                 "NullReferenceException", "OutOfMemoryException", "InvalidCastException", "IndexOutOfRangeException", "ArrayTypeMismatchException", "ArgumentException"];
             uint[] statuses = [0, 0, 0, 1, 2, 4, 5, 7, 10, 11, 12];
+            if (integers64) { names = [.. names, "ArgumentNullException", "ArgumentOutOfRangeException", "InvalidOperationException", "NotSupportedException"]; statuses = [.. statuses, 0, 0, 0, 0]; }
             for (int i = 0; i < names.Length; ++i)
             {
                 var type = Require(resolver.ResolveType(library, "System", names[i])); var id = ObjectModelBuilder.Id(type);
@@ -42,6 +44,8 @@ public static partial class ValueProgramDiscovery
                 _frameworkExceptions.Add(id); _exceptionTypes.Add(id);
                 _references.TryAdd(id, new(type, SignatureList<TypeSignature>.Empty));
                 if (i == 0) _exceptionBase = id;
+                if (integers64 && i == 10) _argumentBase = id;
+                if (i >= 11) _exceptionResources.Add(new(id, (ExceptionResourceKind)(i - 11)));
                 if (statuses[i] != 0) _runtimeFaults.Add(new(statuses[i], id));
             }
         }
@@ -126,11 +130,18 @@ public static partial class ValueProgramDiscovery
                 {
                     ValidateExceptionConstructor(target, work, offset, 0);
                     if (signature.Parameters.Count != 0) _ = IncludeString(work, offset);
-                    return new(ValueIntrinsic.NewException, owner, signature.Parameters.Count);
+                    bool named = _exceptionResources.Any(r => r.Type == owner && r.Kind is ExceptionResourceKind.ArgumentNull or ExceptionResourceKind.ArgumentOutOfRange);
+                    int count = signature.Parameters.Count;
+                    return new(ValueIntrinsic.NewException, owner, count,
+                        named ? count == 2 ? 1 : -1 : count == 0 ? -1 : 0,
+                        named ? count == 0 ? -1 : 0 : owner == _argumentBase && count == 2 ? 1 : -1);
                 }
-                if (instruction.OpCode == "callvirt" && owner == _exceptionBase && input.DeclaredName == "get_Message"
+                if (instruction.OpCode == "callvirt" && (owner == _exceptionBase || owner == _argumentBase || _exceptionResources.Any(r => r.Type == owner && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)) && input.DeclaredName == "get_Message"
                     && signature.Header == 0x20 && signature.Parameters.Count == 0 && Primitive(signature.ReturnType, PrimitiveTypeCode.String))
                 { Authorize(LibraryIntrinsicCapability.ExceptionMessage); _ = IncludeString(work, offset); return new(ValueIntrinsic.ExceptionMessage, owner, 1); }
+                if (integers64 && instruction.OpCode == "callvirt" && owner == _argumentBase && input.DeclaredName == "get_ParamName"
+                    && signature.Header == 0x20 && signature.Parameters.Count == 0 && Primitive(signature.ReturnType, PrimitiveTypeCode.String))
+                { Authorize(LibraryIntrinsicCapability.ExceptionParameterName); _ = IncludeString(work, offset); return new(ValueIntrinsic.ExceptionParameterName, owner, 1); }
                 Fail(work, "Only verified exception constructors and selected Exception.Message are supported; other members or overrides need explicit lowering.", offset);
             }
             var text = IncludeString(work, offset);
@@ -164,15 +175,17 @@ public static partial class ValueProgramDiscovery
             if (depth >= ObjectModelLimits.MaximumOwnerDepth) Fail(work, "Exception forwarding constructor depth exceeded.", offset, DiagnosticIds.TranslationLimit);
             var input = ExceptionDeclaration(target, work, offset); var signature = input.Signature;
             const MethodAttributes flags = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
+            bool named = _exceptionResources.Any(r => r.Type == owner && r.Kind is ExceptionResourceKind.ArgumentNull or ExceptionResourceKind.ArgumentOutOfRange);
+            int maximum = owner == _argumentBase || named ? 2 : 1;
             if (input.DeclaredName != ".ctor" || input.Attributes != flags || signature.Header != 0x20
                 || signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }
-                || input.Signature.GenericArity != 0 || signature.Parameters.Count > 1 || signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }))
-                Fail(work, "Exception construction requires an exact public parameterless or single-string constructor.", offset);
+                || input.Signature.GenericArity != 0 || signature.Parameters.Count > maximum || signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }))
+                Fail(work, "Exception construction requires an exact public supported string constructor; inner exceptions and actual values need later lowering.", offset);
             if (_frameworkExceptions.Contains(owner))
             {
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(target.DeclaringType.Definition.Assembly, target.Handle,
                     LibraryIntrinsicCapability.ExceptionConstructor), work, offset);
-                if (owner != _exceptionBase && !_runtimeFaults.Any(b => b.Type == owner))
+                if (owner != _exceptionBase && !_runtimeFaults.Any(b => b.Type == owner) && !_exceptionResources.Any(r => r.Type == owner))
                     Fail(work, "This framework exception constructor has no selected message resource lowering.", offset);
                 _constructors.Add(id); return;
             }
@@ -194,6 +207,8 @@ public static partial class ValueProgramDiscovery
             var parent = Snapshot(target.DeclaringType.Definition, work, offset).BaseType as TypeSignature.Named;
             if (parent is null || ObjectModelBuilder.Id(parent.Definition) != ClosedId(called.DeclaringType, work, offset) || called.Signature.Parameters.Count != count)
                 Fail(work, "Custom exception constructor must call its direct base with the same signature.", offset);
+            if (_exceptionResources.Any(r => r.Type == ClosedId(called.DeclaringType, work, offset)))
+                Fail(work, "Custom forwarding to additional runtime exception constructors requires preserved constructor semantics.", offset);
             ValidateExceptionConstructor(called, work, offset, depth + 1); _constructors.Add(id);
         }
     }

@@ -62,8 +62,9 @@ public abstract record IrExpression
     public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
     public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false,
         bool VirtualDispatch = false) : IrExpression;
-    public sealed record NewException(ObjectTypeId Type, int? Message = null) : IrExpression;
+    public sealed record NewException(ObjectTypeId Type, int? Message = null, int? ParameterName = null) : IrExpression;
     public sealed record ExceptionMessage(int Operand) : IrExpression;
+    public sealed record ExceptionParameterName(int Operand) : IrExpression;
     public sealed record NewDelegate(ObjectTypeId Type, IrMethodId Target, int Receiver) : IrExpression;
     public sealed record CallDelegate(ObjectTypeId Type, int Delegate, ImmutableArray<int> Arguments) : IrExpression;
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
