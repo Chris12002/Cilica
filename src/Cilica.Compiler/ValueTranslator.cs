@@ -194,6 +194,7 @@ public static class ValueTranslator
         {
             var input = method.Input;
             var locals = method.Locals.ToBuilder();
+            var constructorTemporaries = new Dictionary<int, int>();
             if (input.Instructions.IsEmpty) Error(0, "Method body is empty.");
             var boundaries = method.ExceptionRegions.SelectMany(r => new[] { r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd, r.FilterStart ?? r.HandlerStart });
             var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code), boundaries, exceptions is not null);
@@ -201,8 +202,9 @@ public static class ValueTranslator
             var regions = method.ExceptionRegions.Select(r => r with { TryStart = BlockAt(r.TryStart), TryEnd = BlockAt(r.TryEnd),
                 HandlerStart = BlockAt(r.HandlerStart), HandlerEnd = BlockAt(r.HandlerEnd), FilterStart = r.FilterStart is int first ? BlockAt(first) : null }).ToImmutableArray();
             var incoming = new ImmutableArray<IrType>[partition.Ranges.Count];
+            var incomingThis = new ImmutableArray<bool>[partition.Ranges.Count];
             var blocks = new IrBlock[partition.Ranges.Count]; var pending = new Queue<int>();
-            incoming[0] = []; pending.Enqueue(0);
+            incoming[0] = []; incomingThis[0] = []; pending.Enqueue(0);
             foreach (var region in regions)
             {
                 Seed(region.HandlerStart, region.Kind == IrExceptionClause.Catch ? [IrType.Reference(region.CatchType!)]
@@ -212,7 +214,7 @@ public static class ValueTranslator
             void Seed(int id, ImmutableArray<IrType> types)
             {
                 if (!incoming[id].IsDefault) { if (!incoming[id].SequenceEqual(types)) Error(0, "Conflicting exception entry stack."); return; }
-                incoming[id] = types; pending.Enqueue(id);
+                incoming[id] = types; incomingThis[id] = [.. types.Select(_ => false)]; pending.Enqueue(id);
             }
             while (pending.TryDequeue(out int id)) blocks[id] = Block(id);
             for (int id = 0; id < blocks.Length; id++)
@@ -227,7 +229,9 @@ public static class ValueTranslator
                 if (_inputs > IrLimits.MaximumInputs) Error(blockOffset, "Aggregate block-input limit exceeded.", DiagnosticIds.TranslationLimit);
                 var statements = new List<IrStatement>(); var values = new List<IrType>(); var valueExpressions = new List<IrExpression>(); var stack = new List<int>();
                 IrTerminator? terminator = null;
-                for (int i = 0; i < incoming[id].Length; i++) Push(blockOffset, incoming[id][i], new IrExpression.StackInput(i));
+                int transferred = 0;
+                for (int i = 0; i < incoming[id].Length; i++)
+                    Push(blockOffset, incoming[id][i], incomingThis[id][i] ? new IrExpression.Parameter(0) : new IrExpression.StackInput(transferred++));
                 for (int index = start; index < end; index++)
                 {
                     var instruction = input.Instructions[index]; int offset = instruction.Offset; string opcode = instruction.OpCode;
@@ -307,21 +311,27 @@ public static class ValueTranslator
                         case "ldnull": Push(offset, IrType.NullReference, new IrExpression.Null()); break;
                         case "ldarg.0" or "ldarg.1" or "ldarg.2" or "ldarg.3" or "ldarg.s" or "ldarg":
                             int argument = Variable(instruction, method.Parameters.Length);
-                            Push(offset, method.Parameters[argument], new IrExpression.Parameter(argument)); break;
+                            int loadedArgument = Define(offset, method.Parameters[argument], new IrExpression.Parameter(argument));
+                            stack.Add(Normalize(loadedArgument, ParameterStorage(argument), offset)); break;
                         case "ldloc.0" or "ldloc.1" or "ldloc.2" or "ldloc.3" or "ldloc.s" or "ldloc":
                             int local = Variable(instruction, method.Locals.Length);
                             Push(offset, method.Locals[local], new IrExpression.Local(local)); break;
                         case "ldloca" or "ldloca.s":
                             int localAddress = Variable(instruction, method.Locals.Length);
+                            if (IntegerCasts.NarrowStorage(input.Locals[localAddress]) is not null)
+                                Error(offset, "Narrow local addresses require width-preserving borrow storage.", DiagnosticIds.ExecutionUnsupported);
                             Push(offset, IrType.Location(method.Locals[localAddress]), new IrExpression.AddressLocal(localAddress)); break;
                         case "ldarga" or "ldarga.s":
                             int parameterAddress = Variable(instruction, method.Parameters.Length);
+                            if (ParameterStorage(parameterAddress) is { } parameterStorage && IntegerCasts.NarrowStorage(parameterStorage) is not null)
+                                Error(offset, "Narrow parameter addresses require width-preserving borrow storage.", DiagnosticIds.ExecutionUnsupported);
                             if (method.Parameters[parameterAddress].Kind == IrTypeKind.ManagedLocation)
                                 Error(offset, "Taking the address of a borrowed parameter would create a nested byref.", DiagnosticIds.ExecutionUnsupported);
                             Push(offset, IrType.Location(method.Parameters[parameterAddress]), new IrExpression.AddressParameter(parameterAddress)); break;
                         case "stloc.0" or "stloc.1" or "stloc.2" or "stloc.3" or "stloc.s" or "stloc":
                             int storedLocal = Variable(instruction, method.Locals.Length);
-                            Add(new IrStatement.StoreLocal(offset, storedLocal, Pop(offset, method.Locals[storedLocal])), offset); break;
+                            Add(new IrStatement.StoreLocal(offset, storedLocal,
+                                Normalize(Pop(offset, method.Locals[storedLocal]), input.Locals[storedLocal], offset)), offset); break;
                         case "ldc.i4.m1" or "ldc.i4.0" or "ldc.i4.1" or "ldc.i4.2" or "ldc.i4.3" or "ldc.i4.4" or "ldc.i4.5" or "ldc.i4.6" or "ldc.i4.7" or "ldc.i4.8":
                             Push(offset, IrType.Int32, new IrExpression.Constant(opcode == "ldc.i4.m1" ? -1 : opcode[^1] - '0')); break;
                         case "ldc.i4.s" or "ldc.i4": Push(offset, IrType.Int32, new IrExpression.Constant(instruction.IntegerOperand!.Value)); break;
@@ -379,8 +389,12 @@ public static class ValueTranslator
                             for (int i = arguments.Length - 1; i >= 0; i--) arguments[i] = Pop(offset, target.Parameters[i + skip]);
                             if (skip != 0 && target.Binding.Kind == ObjectMethodKind.ValueConstructor)
                             {
-                                if (locals.Count >= IrLimits.MaximumLocals) Error(offset, "Value constructor temporary local limit exceeded.", DiagnosticIds.TranslationLimit);
-                                int temporary = locals.Count; var constructed = IrType.Value(target.Binding.Owner); locals.Add(constructed);
+                                var constructed = IrType.Value(target.Binding.Owner);
+                                if (!constructorTemporaries.TryGetValue(offset, out int temporary))
+                                {
+                                    if (locals.Count >= IrLimits.MaximumLocals) Error(offset, "Value constructor temporary local limit exceeded.", DiagnosticIds.TranslationLimit);
+                                    temporary = locals.Count; locals.Add(constructed); constructorTemporaries.Add(offset, temporary);
+                                }
                                 int address = Define(offset, IrType.Location(constructed), new IrExpression.AddressLocal(temporary));
                                 Add(new IrStatement.InitializeLocation(offset, address), offset);
                                 Add(new IrStatement.Invoke(offset, target.Binding.Method, [address, .. arguments]), offset);
@@ -457,7 +471,7 @@ public static class ValueTranslator
                         case "ret":
                             int returned = method.ReturnType == IrType.Void ? -1 : Pop(offset, method.ReturnType);
                             if (stack.Count != 0) Error(offset, "Return leaves residual evaluation-stack values.");
-                            terminator = returned < 0 ? new IrVoidReturn(offset) : new IrReturn(offset, returned); break;
+                            terminator = returned < 0 ? new IrVoidReturn(offset) : new IrReturn(offset, Normalize(returned, input.Signature.ReturnType, offset)); break;
                         default:
                             if (CilControlFlow.BranchComparison(opcode) is { } comparison)
                             {
@@ -474,7 +488,7 @@ public static class ValueTranslator
                 }
                 var last = input.Instructions[end - 1];
                 terminator ??= new IrJump(last.Offset, Edge(last.Offset + last.Length, last.Offset));
-                return new(id, blockOffset, incoming[id], [.. statements], terminator);
+                return new(id, blockOffset, [.. incoming[id].Where((_, index) => !incomingThis[id][index])], [.. statements], terminator);
 
                 void Add(IrStatement statement, int offset)
                 {
@@ -487,6 +501,14 @@ public static class ValueTranslator
                     Add(new IrStatement.Define(new(id, type, offset, expression), fault ? IrExceptionTarget.MethodExit : null), offset); return id;
                 }
                 void Push(int offset, IrType type, IrExpression expression, bool fault = false) => stack.Add(Define(offset, type, expression, fault));
+                TypeSignature? ParameterStorage(int parameter)
+                {
+                    int index = parameter - ((input.Signature.Header & 0x20) != 0 ? 1 : 0);
+                    return index < 0 ? null : input.Signature.Parameters[index];
+                }
+                int Normalize(int operand, TypeSignature? signature, int offset) => types.IntegerCasts && signature is not null
+                    && IntegerCasts.NarrowStorage(signature) is { } target
+                    ? Define(offset, IrType.Int32, new IrExpression.IntegerCast(target, operand, false, false)) : operand;
                 int Pop(int offset, IrType? expected = null)
                 {
                     if (stack.Count == 0) Error(offset, "Instruction requires an evaluation-stack operand.");
@@ -540,7 +562,10 @@ public static class ValueTranslator
                 {
                     if (!partition.BlockAt.TryGetValue(offset, out int target)) Error(from, "Control transfer falls outside this method.", DiagnosticIds.InvalidControlTransfer);
                     var stackTypes = stack.Select(id => values[id]).ToImmutableArray();
-                    if (stackTypes.Any(t => t.Kind == IrTypeKind.ManagedLocation)) Error(from, "Managed locations cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
+                    var receiverSlots = stack.Select(value => method.Binding.Kind == ObjectMethodKind.ValueConstructor
+                        && valueExpressions[value] is IrExpression.Parameter { Index: 0 }).ToImmutableArray();
+                    if (stackTypes.Where((type, index) => type.Kind == IrTypeKind.ManagedLocation && !receiverSlots[index]).Any())
+                        Error(from, "Managed locations other than the direct value-constructor receiver cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
                     if (!incoming[target].IsDefault && !incoming[target].SequenceEqual(stackTypes))
                     {
                         if (exceptions is null || incoming[target].Length != stackTypes.Length) Error(from, "Block receives incompatible stack types or depths.");
@@ -549,10 +574,11 @@ public static class ValueTranslator
                         var widened = joined.Select(t => t!).ToImmutableArray();
                         if (!incoming[target].SequenceEqual(widened)) { incoming[target] = widened; pending.Enqueue(target); }
                     }
-                    if (incoming[target].IsDefault) { incoming[target] = stackTypes; pending.Enqueue(target); }
+                    if (incoming[target].IsDefault) { incoming[target] = stackTypes; incomingThis[target] = receiverSlots; pending.Enqueue(target); }
+                    else if (!incomingThis[target].SequenceEqual(receiverSlots)) Error(from, "Constructor receiver provenance differs across incoming edges.");
                     _edges += stackTypes.Length;
                     if (_edges > IrLimits.MaximumEdgeArguments) Error(from, "Aggregate edge-argument limit exceeded.", DiagnosticIds.TranslationLimit);
-                    return new(target, [.. stack]);
+                    return new(target, [.. stack.Where((_, index) => !receiverSlots[index])]);
                 }
             }
         }

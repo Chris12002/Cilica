@@ -899,7 +899,11 @@ generic fields, value flow, managed faults and array casts in that explicit prof
 ([ADR 0100](decisions/0100-composed-reference-array-cil.md)). Exact struct
 constructors now initialize checked inline receiver locations; readonly writes
 are limited to the declaring constructor before private scalar-call lowering
-([ADR 0102](decisions/0102-inline-value-constructors.md)).
+([ADR 0102](decisions/0102-inline-value-constructors.md)). Narrow scalar
+parameters, locals and returns also normalize in the composed profile, with
+direct constructor receiver reloads across conditional branches
+([ADR 0103](decisions/0103-composed-narrow-scalar-boundaries.md)). Narrow
+heap/borrow storage remains separate.
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential

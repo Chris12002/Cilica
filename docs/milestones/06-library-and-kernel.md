@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.11 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.12 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -17,7 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.11 supply integer scalar, composed wide object/value, struct-constructor and reference-vector CIL plus closed interface variance metadata; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.12 supply integer/narrow scalar, composed wide object/value, struct-constructor and reference-vector CIL plus closed interface variance metadata; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -293,6 +293,20 @@ All 141 distinct focused checks pass; review found no remaining actionable issue
 The private kernel now passes constructor-kind admission and stops on a
 constructor storage signature (CIL2002). General value instance calls, narrow/enum
 storage and library integration remain subsequent gates.
+
+## Slice 6c.12 outcome
+
+Narrow scalar parameters, locals and returns now normalize in the composed CIL
+profile, including generic arguments and constructor signatures. Eighteen authored
+IL boundary probes and two C# composition probes match .NET in 2,640 repeated
+O0/O2 ASan/UBSan results. Tests exposed C#'s direct constructor receiver crossing
+conditional branches; a bounded receiver reload now preserves its identity and
+readonly initialization permission. Other borrow joins and narrow storage addresses
+remain unsupported. See [ADR 0103](../decisions/0103-composed-narrow-scalar-boundaries.md).
+All 105 focused checks pass; review found no remaining actionable issue. The
+private kernel passes the narrow constructor signature and now stops at an
+ordinary `callvirt` (CIL2001 at IL_00f9). Narrow fields/borrows/arrays, enums and
+broader instance/library integration remain subsequent gates.
 
 ## Remaining completion evidence
 

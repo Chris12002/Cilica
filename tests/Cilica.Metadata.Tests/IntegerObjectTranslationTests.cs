@@ -48,12 +48,23 @@ public sealed class IntegerObjectTranslationTests
 
     internal static async Task Verify(bool optimized, (string Name, Func<int, int, int> Oracle)[] probes, Type fixture)
     {
+        await VerifyTranslated(optimized, probes.Select(probe => {
+            var result = Translate(probe.Name, fixture: fixture);
+            Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+            return (probe.Name, result.Program!, probe.Oracle);
+        }).ToArray());
+    }
+
+    internal static async Task VerifyTranslated(bool optimized, (string Name, ManagedExceptionIrProgram Program, Func<int, int, int> Oracle)[] probes,
+        (int First, int Second)[]? pairs = null)
+    {
+        pairs ??= (from first in new[] { 0, 1, -1, 127, 32768, int.MinValue, int.MaxValue }
+                   from second in new[] { 0, 1, 2, 3, -1, int.MinValue, int.MaxValue } select (first, second)).ToArray();
         var source = new StringBuilder(); var calls = new StringBuilder();
-        foreach (var (name, oracle) in probes)
+        foreach (var (name, program, oracle) in probes)
         {
-            var translated = Translate(name, fixture: fixture); Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
-            var flow = translated.Program!.Flow.Flow.Flow;
-            var artifact = ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(translated.Program));
+            var flow = program.Flow.Flow.Flow;
+            var artifact = ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(program));
             string symbol = "cilica_m_" + flow.Entry.ContentHash + "_" + flow.Entry.Token.ToString("x8", CultureInfo.InvariantCulture);
             source.Append(artifact.Text).Append(CultureInfo.InvariantCulture, $$"""
                 #include <cassert>
@@ -79,9 +90,8 @@ public sealed class IntegerObjectTranslationTests
                     assert(short_frame.pending == 9 && short_frame.used == 0 && short_frame.top == nullptr && short_frame.borrows == nullptr);
                 }
                 """);
-            foreach (int a in new[] { 0, 1, -1, 127, 32768, int.MinValue, int.MaxValue })
-                foreach (int b in new[] { 0, 1, 2, 3, -1, int.MinValue, int.MaxValue })
-                    calls.Append(CultureInfo.InvariantCulture, $"run_{name}({a}, {b}, {oracle(a, b)});\n");
+            foreach (var (a, b) in pairs)
+                calls.Append(CultureInfo.InvariantCulture, $"run_{name}({a}, {b}, {oracle(a, b)});\n");
         }
         source.Append("int main() {\n").Append(calls).Append("}\n");
         using var files = new ResolverFiles(); string dir = files.DirectoryPath("wide-cil"), cpp = Path.Combine(dir, "wide.cpp"), exe = Path.Combine(dir, "wide");
