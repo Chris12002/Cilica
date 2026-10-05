@@ -535,11 +535,16 @@ public static partial class ValueProgramDiscovery
                 MaximumInstructions = Math.Min(limits.MaximumInstructions, ProgramLimits.MaximumInstructions - _instructions),
                 MaximumInitializerMembers = Math.Min(limits.MaximumInitializerMembers, _metadata.Remaining),
             };
-            ManagedExceptionMethodInput? protectedInput = exceptions ? Require(resolver.ReadManagedExceptionMethodInput(resolved, library, readLimits), parent, offset) : null;
+            ManagedExceptionMethodInput? protectedInput = exceptions ? Require(resolver.ReadManagedExceptionMethodInput(resolved, library, readLimits, _metadata), parent, offset) : null;
             var input = protectedInput?.Method ?? Require(generics ? resolver.ReadClosedMethodInput(resolved, library, readLimits)
                 : resolver.ReadMethodInput(owner.Assembly, resolved.Handle, readLimits), parent, offset);
+            if (protectedInput is not null)
+                foreach (var call in protectedInput.ResolvedCalls)
+                    _calls.TryAdd((owner.Assembly.ContentHash, call.Key, generics ? id : null), call.Value);
             _bytes += input.CodeSize; _instructions += input.Instructions.Length;
-            if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(parent, "Aggregate metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+            // The protected reader has already charged the shared ledger, including
+            // body snapshots and call-shape resolution. Other readers report a cost.
+            if (!exceptions && !_metadata.TryConsume(input.MetadataMembersRead)) Fail(parent, "Aggregate metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             bool initializer = integers64 && input.DeclaredName == ".cctor";
             bool constructor = classes && input.DeclaredName == ".ctor";
             bool instance = constructor || delegates && (input.Attributes & MethodAttributes.Static) == 0;

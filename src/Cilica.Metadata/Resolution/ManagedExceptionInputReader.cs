@@ -12,16 +12,23 @@ namespace Cilica.Metadata.Resolution;
 public sealed record ManagedExceptionRegionInput(ExceptionRegionKind Kind, int TryStart, int TryEnd,
     int HandlerStart, int HandlerEnd, int? FilterStart, TypeSignature? CatchType, string? FilterKind);
 
-public sealed record ManagedExceptionMethodInput(MethodInput Method, ImmutableArray<ManagedExceptionRegionInput> Regions);
+public sealed record ManagedExceptionMethodInput(MethodInput Method, ImmutableArray<ManagedExceptionRegionInput> Regions)
+{
+    public ImmutableDictionary<int, ResolvedMethod> ResolvedCalls { get; init; } = ImmutableDictionary<int, ResolvedMethod>.Empty;
+}
 
 public sealed partial class AssemblyResolver
 {
-    /// <summary>Reads a closed method and validates its protected control flow and stage-A filters as metadata.</summary>
+    /// <summary>Reads a closed method and validates its protected control flow and stage-A filters as metadata.
+    /// With a shared ledger, MetadataMembersRead reports work already charged to it; the per-read limit still applies.</summary>
     public ResolutionResult<ManagedExceptionMethodInput> ReadManagedExceptionMethodInput(ResolvedMethod method,
-        ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
+        ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null, MemberResolutionBudget? sharedBudget = null)
     {
         ArgumentNullException.ThrowIfNull(method);
         limits ??= new();
+        int available = Math.Min(sharedBudget?.Remaining ?? 65536, limits.MaximumInitializerMembers);
+        if (available <= 0) return ResolutionResult<ManagedExceptionMethodInput>.Failed(DiagnosticIds.TranslationLimit, "Managed exception metadata budget exhausted.");
+        limits = limits with { MaximumInitializerMembers = available };
         var input = ReadClosedMethodInput(method, runtimeLibrary, limits);
         if (input.Value is not { } value) return ResolutionResult<ManagedExceptionMethodInput>.Failed(input.Diagnostics);
         var assembly = method.DeclaringType.Definition.Assembly;
@@ -31,9 +38,9 @@ public sealed partial class AssemblyResolver
             var body = assembly.Image.PEReader.GetMethodBody(definition.RelativeVirtualAddress);
             if (body.ExceptionRegions.Length > 256)
                 throw Failure(DiagnosticIds.TranslationLimit, "Managed exception methods support at most 256 clauses.");
-            int remaining = limits.MaximumInitializerMembers - value.MetadataMembersRead;
-            if (remaining <= 0) throw Failure(DiagnosticIds.TranslationLimit, "Managed exception metadata budget exhausted.");
-            var budget = new MemberResolutionBudget(Math.Min(65536, remaining));
+            var budget = sharedBudget?.Limit(available) ?? new MemberResolutionBudget(available);
+            if (!budget.TryConsume(value.MetadataMembersRead) || budget.Remaining == 0)
+                throw Failure(DiagnosticIds.TranslationLimit, "Managed exception metadata budget exhausted.");
             var instructions = ILDecoder.Decode(body.GetILReader(), out var error, limits.MaximumInstructions);
             if (error is not null) throw Failure(DiagnosticIds.MalformedMethodBody, error);
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
@@ -86,7 +93,8 @@ public sealed partial class AssemblyResolver
             }
             if (diagnostics.Count != 0) throw new BindingFailureException(diagnostics);
             return new ManagedExceptionMethodInput(value with
-                { MetadataMembersRead = checked(value.MetadataMembersRead + Math.Min(65536, remaining) - budget.Remaining) }, regions.ToImmutable());
+                { MetadataMembersRead = checked(available - budget.Remaining) }, regions.ToImmutable())
+                { ResolvedCalls = calls.ToImmutableDictionary() };
         });
     }
 }

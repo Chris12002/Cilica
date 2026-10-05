@@ -12,6 +12,38 @@ namespace Cilica.Metadata.Tests;
 
 public sealed class ManagedExceptionInputTests
 {
+    [Fact]
+    public void Shared_ledger_reuses_name_scans_and_charges_each_read_once()
+    {
+        using var files = new ResolverFiles(); using var resolver = files.Open();
+        var b = new ResolutionAssemblyBuilder(new("ProtectedBudget",new Version(1,0,0,0)));
+        var owner = b.Type("Test","Target");
+        for (int i = 0; i < 64; i++) b.Method("Unused" + i,[0,0,8]);
+        b.Method("Read",[0,0,8],emit:il => { il.LoadConstantI4(7); il.OpCode(ILOpCode.Ret); });
+        var operand = b.Member(owner,"Read",0,0,8);
+        b.Type("Test","Caller");
+        var first = b.Method("First",[0,0,8],emit:il => { il.Call(operand); il.OpCode(ILOpCode.Ret); });
+        var second = b.Method("Second",[0,0,8],emit:il => { il.Call(operand); il.OpCode(ILOpCode.Ret); });
+        var input = resolver.OpenInput(files.Write("input.dll",b.Build())).Value!;
+        var a = resolver.ResolveDeclaredMethod(input,first).Value!;
+        var c = resolver.ResolveDeclaredMethod(input,second).Value!;
+        var ledger = new MemberResolutionBudget(100);
+        int start = ledger.Remaining;
+        var one = resolver.ReadManagedExceptionMethodInput(a,input,new(MaximumInitializerMembers:100),ledger);
+        Assert.True(one.Success,string.Join("; ",one.Diagnostics));
+        Assert.Equal(start - ledger.Remaining,one.Value!.Method.MetadataMembersRead);
+        start = ledger.Remaining;
+        var two = resolver.ReadManagedExceptionMethodInput(c,input,new(MaximumInitializerMembers:start),ledger);
+        Assert.True(two.Success,string.Join("; ",two.Diagnostics));
+        Assert.Equal(start - ledger.Remaining,two.Value!.Method.MetadataMembersRead);
+        Assert.True(two.Value.Method.MetadataMembersRead < one.Value.Method.MetadataMembersRead);
+        // With a fresh ledger, the second body pays for its own complete scan.
+        Assert.False(resolver.ReadManagedExceptionMethodInput(c,input,new(MaximumInitializerMembers:start),new(start)).Success);
+        Assert.False(resolver.ReadManagedExceptionMethodInput(c,input,new(MaximumInitializerMembers:1),ledger).Success);
+        Assert.True(ledger.TryConsume(ledger.Remaining));
+        Assert.False(resolver.ReadManagedExceptionMethodInput(c,input,sharedBudget:ledger).Success);
+    }
+
     internal static ResolutionResult<ManagedExceptionMethodInput> Read(string name)
     {
         using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
