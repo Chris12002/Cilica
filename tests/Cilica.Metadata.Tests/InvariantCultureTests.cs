@@ -3,9 +3,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using Cilica.Metadata.Resolution;
 using System.Text;
 using System.Threading.Tasks;
 using Cilica.Compiler;
@@ -16,19 +13,7 @@ namespace Cilica.Metadata.Tests;
 
 public sealed class InvariantCultureTests
 {
-    private static readonly Lazy<Task<ManagedExceptionIrProgram>> Fixture = new(async () =>
-    {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var resolverLifetime = resolver;
-        var bytes = await File.ReadAllBytesAsync(built.ManifestPath);
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(CoreLibraryProbe).Assembly.Location).Value!;
-        var translated = ValueTranslator.TranslateIntegerObjects(scope, input,
-            (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(nameof(CoreLibraryProbe.InvariantIdentity))!.MetadataToken), implementation);
-        Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
-        return translated.Program!;
-    });
+    private static readonly Lazy<Task<ManagedExceptionIrProgram>> Fixture = new(() => CoreLibraryBuildTests.TranslateFixture(nameof(CoreLibraryProbe.InvariantIdentity)));
 
     [Fact]
     public async Task Selected_runtime_provider_requires_explicit_integer_profile_and_supported_member()

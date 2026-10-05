@@ -31,7 +31,7 @@ public static class ValueArrayIrValidator
         // checked on the value signatures before hidden scalar parameters exist.
         _ = ValueLayoutPlanner.Build(flow.Types);
         if (bindings.IsDefault || bindings.Any(b => b is null || b.Kind != ObjectMethodKind.Static
-            && !(flow.Types.References.Integer64 && b.Kind is ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance)
+            && !(flow.Types.References.Integer64 && b.Kind is ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
             && !((delegates || classes && flow.Types.References.Integer64) && b.Kind == ObjectMethodKind.Instance)
             && !(classes && b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor)))
             throw new ArgumentException("Composed value methods require direct static bindings or explicitly supported class constructors.", nameof(program));
@@ -42,7 +42,7 @@ public static class ValueArrayIrValidator
         var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings) { InterfaceDispatch = interfaces, Dispatch = dispatch.IsDefault ? [] : dispatch }, locations: true, values: flow.Types, delegates: delegates);
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing, exceptions);
         foreach (var method in flow.Methods)
-            if (objects.Binding(IrMethodId.From(method.Source)).Kind is not (ObjectMethodKind.Static or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance)
+            if (objects.Binding(IrMethodId.From(method.Source)).Kind is not (ObjectMethodKind.Static or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
                 && !(flow.Types.References.Integer64 && objects.Binding(IrMethodId.From(method.Source)).Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor)
                 && method.Parameters.Concat(method.Locals).Concat(method.Blocks.SelectMany(b => b.Inputs))
                     .Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type))

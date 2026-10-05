@@ -35,12 +35,26 @@ public sealed class CoreLibraryBuildTests
             Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;
         var contract = resolver.OpenInput(reference).Value!; Assert.True(contract.IsReferenceAssembly);
         var implementation = resolver.OpenInput(built.AssemblyPath).Value!;
-        var names = requests.Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Distinct().ToArray();
+        var names = requests.Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Concat(new[] { "Int32", "UInt32", "Int64", "UInt64" }.Select(n => ("System", n))).Distinct().ToArray();
         var pairs = names.Select(name => new LibraryTypeMapping(resolver.ResolveType(contract, name.Item1, name.Item2).Value!,
             resolver.ResolveType(implementation, name.Item1, name.Item2).Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);
         Assert.True(plan.Success, string.Join("; ", plan.Diagnostics));
         return (built, request, resolver, implementation, plan.Value!);
+    }
+
+    internal static async Task<ManagedExceptionIrProgram> TranslateFixture(string name)
+    {
+        using var files = new ResolverFiles();
+        var (built, _, resolver, implementation, plan) = await BuildAndMap(files);
+        using var resolverLifetime = resolver;
+        var bytes = await File.ReadAllBytesAsync(built.ManifestPath);
+        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
+        var input = resolver.OpenInput(typeof(CoreLibraryProbe).Assembly.Location).Value!;
+        var translated = ValueTranslator.TranslateIntegerObjects(scope, input,
+            (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(name)!.MetadataToken), implementation);
+        Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
+        return translated.Program!;
     }
 
     [Theory]
@@ -85,7 +99,7 @@ public sealed class CoreLibraryBuildTests
         var otherCultureMember = ValueTranslator.TranslateIntegerObjects(scope, input,
             (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod("UnsupportedCulture")!.MetadataToken), implementation);
         Assert.False(otherCultureMember.Success); Assert.NotEmpty(otherCultureMember.Diagnostics);
-        var probes = new[] { ("Text", (Func<int, int, int>)CoreLibraryProbe.Text), ("Fault", CoreLibraryProbe.Fault), ("Formatting", CoreLibraryProbe.Formatting), ("InvariantIdentity", CoreLibraryProbe.InvariantIdentity) };
+        var probes = new[] { ("Text", (Func<int, int, int>)CoreLibraryProbe.Text), ("Fault", CoreLibraryProbe.Fault), ("Formatting", CoreLibraryProbe.Formatting), ("InvariantIdentity", CoreLibraryProbe.InvariantIdentity), ("IntegerHashes", CoreLibraryProbe.IntegerHashes) };
         var translated = probes.Select(probe => {
             var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(probe.Item1)!.MetadataToken);
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);

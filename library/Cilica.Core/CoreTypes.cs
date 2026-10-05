@@ -23,10 +23,10 @@ namespace System
     public struct Byte { }
     public struct Int16 { }
     public struct UInt16 { }
-    public struct Int32 { }
-    public struct UInt32 { }
-    public struct Int64 { }
-    public struct UInt64 { }
+    public struct Int32 { public override int GetHashCode() => this; }
+    public struct UInt32 { public override int GetHashCode() => unchecked((int)this); }
+    public struct Int64 { public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32)); }
+    public struct UInt64 { public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32)); }
     public struct Single { }
     public struct Double { }
     public struct IntPtr { }

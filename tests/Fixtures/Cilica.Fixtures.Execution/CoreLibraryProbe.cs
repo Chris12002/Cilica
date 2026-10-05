@@ -14,6 +14,17 @@ namespace Cilica.Fixtures.Execution
                 + (provider is System.Globalization.CultureInfo ? 31 : 37) + text.Length;
         }
         public static int UnsupportedCulture(int input, int mode) => System.Globalization.CultureInfo.InvariantCulture.Name.Length + input + mode;
+        public static int IntegerHashes(int input, int mode)
+        {
+            int signed = input;
+            uint unsigned = (uint)mode;
+            long wide = ((long)input << 32) | (uint)mode;
+            ulong unsignedWide = unchecked((ulong)wide + (uint)input);
+            int first = signed.GetHashCode() ^ unsigned.GetHashCode();
+            int second = wide.GetHashCode() + unsignedWide.GetHashCode();
+            signed = mode;
+            return first + second + signed.GetHashCode();
+        }
         public static int UnsupportedHash(int input, int mode) => "text".GetHashCode() ^ input ^ mode;
         public static int Text(int input, int mode)
         {

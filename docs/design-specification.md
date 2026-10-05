@@ -1054,8 +1054,10 @@ execute string/exception probes and the managed formatter through native v19
 ([ADR 0131](decisions/0131-owned-core-library-bootstrap.md)). The selected invariant
 provider now has stable per-instance identity in native v20, with an independently
 authorized fieldless layout, permanent GC root and checked ownership
-([ADR 0132](decisions/0132-invariant-provider-identity.md)). Other culture members
-and numeric formatting APIs remain pending. The image is never
+([ADR 0132](decisions/0132-invariant-provider-identity.md)). Selected 32/64-bit integer instance bodies now use checked scalar receivers;
+owned GetHashCode overrides execute as ordinary managed code
+([ADR 0133](decisions/0133-primitive-instance-bodies-and-hashing.md)). Other culture
+members and numeric formatting APIs remain pending. The image is never
 loaded into the host CLR. Unsupported declarations, including string hashing,
 remain diagnostic; general CoreLib and kernel compatibility are not claimed.
 

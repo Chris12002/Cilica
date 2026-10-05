@@ -1,18 +1,27 @@
 using System.Collections.Immutable;
 using System.Reflection;
+using System.Reflection.Metadata;
+using Cilica.Metadata.Resolution;
 using Cilica.Metadata;
 
 namespace Cilica.Compiler;
 
-public enum ObjectMethodKind { Static, Instance, Constructor, ObjectBaseConstructor, ValueConstructor, ValueInstance }
+public enum ObjectMethodKind { Static, Instance, Constructor, ObjectBaseConstructor, ValueConstructor, ValueInstance, PrimitiveInstance }
 
 /// <summary>Detached declaration facts; instance signatures include the explicit receiver at parameter zero.</summary>
 public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, ObjectMethodKind Kind,
     MethodAttributes Attributes, bool OwnerExternallyVisible)
 {
+    public PrimitiveReceiver? Primitive { get; init; }
     public ObjectVirtualSlot? VirtualSlot { get; init; }
     public string? VirtualName { get; init; }
     public bool OwnerAssemblyVisible { get; init; }
+}
+
+/// <summary>Exact selected primitive identity; its receiver is an existing scalar borrow, never an object layout.</summary>
+public sealed record PrimitiveReceiver(TypeSource Source, PrimitiveTypeCode Code)
+{
+    public IrType Storage => Code is PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 ? IrType.Int32 : IrType.Int64;
 }
 
 public sealed record ObjectVirtualSlot(IrMethodId Method, ObjectTypeId Owner);
@@ -26,7 +35,7 @@ public static class ObjectDispatchLimits
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v8";
+    public const string Profile = "object-operations-ir-v9";
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
 }

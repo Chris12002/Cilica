@@ -25,7 +25,7 @@ internal sealed class ObjectDispatchRules
         var signatures = new Dictionary<ObjectVirtualSlot, ObjectMethodBinding>();
         foreach (var binding in bindings.Values)
         {
-            if (binding.Kind == ObjectMethodKind.ValueInstance)
+            if (binding.Kind is ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
             {
                 Require(binding.VirtualSlot is null && binding.VirtualName is null, "direct value methods cannot supply class dispatch slots.");
                 continue;

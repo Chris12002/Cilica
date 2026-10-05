@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.34 and 6d.1–6d.6 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.34 and 6d.1–6d.7 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.34 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.6 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings and invariant-provider identity; numeric API mapping, collections and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.7 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings invariant-provider identity and integer hashing; numeric API mapping, collections and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -655,6 +655,18 @@ String/interface gate remains explicit. See
 [ADR 0132](../decisions/0132-invariant-provider-identity.md).
 Numeric formatting methods, general culture behavior and native kernel
 equivalence remain pending.
+
+## Slice 6d.7 outcome
+
+The four selected 32/64-bit integer types now execute ordinary managed instance
+bodies using checked scalar receivers. The owned core supplies exact GetHashCode
+mappings; the additional probe matches .NET in 294 repeated native O0/O2 sanitizer
+results (1,470 across the five core probes). The composed regression run passes
+40 checks, followed by 11 focused checks (41 distinct); review added a duplicate-primitive-identity regression and tightened
+primitive layout/stack-only checks. Unsigned ldind.u4 uses checked 32-bit storage.
+See [ADR 0133](../decisions/0133-primitive-instance-bodies-and-hashing.md).
+Numeric formatting APIs, primitive constrained dispatch and kernel equivalence
+remain pending.
 
 ## Remaining completion evidence
 

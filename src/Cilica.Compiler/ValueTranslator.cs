@@ -507,9 +507,9 @@ public static class ValueTranslator
                                     : new IrStatement.StoreLocation(offset, destination, stored), offset);
                             }
                             break;
-                        case "ldind.i8" when types.IntegerCasts:
+                        case "ldind.i8" or "ldind.u4" when types.IntegerCasts:
                         case "ldind.i4" or "ldind.ref":
-                            int read = Location(offset, opcode == "ldind.i8" ? IrType.Int64 : opcode == "ldind.i4" ? IrType.Int32 : null);
+                            int read = Location(offset, opcode == "ldind.i8" ? IrType.Int64 : opcode is "ldind.i4" or "ldind.u4" ? IrType.Int32 : null);
                             if (opcode == "ldind.ref" && values[read].Element!.Kind != IrTypeKind.Reference) Error(offset, "ldind.ref requires reference storage.");
                             Push(offset, values[read].Element!, new IrExpression.LoadLocation(read), true); break;
                         case "stind.i8" when types.IntegerCasts:
@@ -613,7 +613,7 @@ public static class ValueTranslator
                 {
                     if (!partition.BlockAt.TryGetValue(offset, out int target)) Error(from, "Control transfer falls outside this method.", DiagnosticIds.InvalidControlTransfer);
                     var stackTypes = stack.Select(id => values[id]).ToImmutableArray();
-                    var receiverSlots = stack.Select(value => method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance)
+                    var receiverSlots = stack.Select(value => method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
                         && valueExpressions[value] is IrExpression.Parameter { Index: 0 }).ToImmutableArray();
                     if (stackTypes.Where((type, index) => type.Kind == IrTypeKind.ManagedLocation && !receiverSlots[index]).Any())
                         Error(from, "Managed locations other than the direct value receiver cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);

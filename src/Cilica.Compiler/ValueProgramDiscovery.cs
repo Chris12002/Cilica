@@ -497,29 +497,34 @@ public static partial class ValueProgramDiscovery
                     ? "Value/object methods require ordinary static methods, exact class constructors or selected delegate-profile instance methods, managed IL, supported closed signatures, no type/module initializers, no exception regions and initialized locals."
                     : "Value methods require static nongeneric ordinary managed IL without initialization, special names, exception regions or uninitialized locals.", offset);
             var ownerId = generics ? ClosedId(resolved.DeclaringType, parent, offset) : ObjectModelBuilder.Id(owner);
-            bool inlineInstance = integers64 && instance && Inline(owner, parent, offset);
+            var primitive = integers64 && instance && !constructor ? Primitive(owner, parent, offset) : null;
+            bool inlineInstance = primitive is null && integers64 && instance && Inline(owner, parent, offset);
             bool inlineConstructor = inlineInstance && constructor;
             if (instance)
             {
-                if (!inlineInstance && Inline(owner, parent, offset) || constructor && ((input.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
+                if (primitive is null && !inlineInstance && Inline(owner, parent, offset) || constructor && ((input.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
                     || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }))
                     Fail(parent, "Class constructors require exact constructor flags, a class receiver and void return.", offset);
-                if (inlineInstance) Include(resolved.DeclaringType, parent, offset);
-                else IncludeReference(resolved.DeclaringType, parent, offset);
+                // Scalar receivers need no nominal storage layout.
+                if (primitive is null)
+                {
+                    if (inlineInstance) Include(resolved.DeclaringType, parent, offset);
+                    else IncludeReference(resolved.DeclaringType, parent, offset);
+                }
             }
             _parameters += input.Signature.Parameters.Count + (instance ? 1 : 0); _locals += input.Locals.Length;
             if (_parameters > IrLimits.MaximumParameters || _locals > IrLimits.MaximumLocals)
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-            var kind = inlineConstructor ? ObjectMethodKind.ValueConstructor : inlineInstance ? ObjectMethodKind.ValueInstance : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
+            var kind = primitive is not null ? ObjectMethodKind.PrimitiveInstance : inlineConstructor ? ObjectMethodKind.ValueConstructor : inlineInstance ? ObjectMethodKind.ValueInstance : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible)
-                { OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible };
-            if (fact is null && !inlineInstance && (input.Attributes & MethodAttributes.Virtual) != 0)
+                { OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible, Primitive = primitive };
+            if (fact is null && primitive is null && !inlineInstance && (input.Attributes & MethodAttributes.Virtual) != 0)
             {
                 var exact = ResolveVirtual(resolved, resolved.DeclaringType, parent, offset);
                 binding = binding with { VirtualName = input.DeclaredName, VirtualSlot = new(MethodId(exact.Slot), ObjectModelBuilder.Id(exact.Slot.DeclaringType)) };
             }
             var work = new Work(owner.Assembly, resolved, input, binding,
-                [.. (instance ? new[] { inlineInstance ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
+                [.. (instance ? new[] { primitive is not null ? IrType.Location(primitive.Storage) : inlineInstance ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
                 [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);

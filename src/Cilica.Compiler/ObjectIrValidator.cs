@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 
 namespace Cilica.Compiler;
 
@@ -62,6 +63,8 @@ internal sealed class ObjectIrRules
             Require(method?.Source is not null && method.Source.ContentHash is { Length: 64 } && CanonicalHash(method.Source.ContentHash.ToLowerInvariant()), "invalid method source.");
             Require(_methods.TryAdd(IrMethodId.From(method.Source), method), "duplicate method identity.");
         }
+        var primitiveCodes = new Dictionary<PrimitiveTypeCode, ObjectTypeId>();
+        var primitiveOwners = new Dictionary<ObjectTypeId, PrimitiveReceiver>();
         foreach (var binding in program.Bindings)
         {
             Require(binding?.Method is not null && binding.Owner is not null && binding.Owner.ArrayElement is null && ObjectModelValidator.Specialization(binding.Owner.Specialization) && CanonicalHash(binding.Owner.ContentHash)
@@ -73,7 +76,7 @@ internal sealed class ObjectIrRules
             Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
                 && method.Parameters.All(p => _types.Valid(p, true)) && (_types.Valid(method.ReturnType, true) || method.ReturnType == IrType.Void)
                 && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
-                or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance, "invalid bound signature/kind.");
+                or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance, "invalid bound signature/kind.");
             Require((binding.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0
                 && (binding.Attributes & MethodAttributes.MemberAccessMask) is > MethodAttributes.PrivateScope and <= MethodAttributes.Public,
@@ -81,9 +84,11 @@ internal sealed class ObjectIrRules
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
             bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
             bool valueInstance = binding.Kind == ObjectMethodKind.ValueInstance;
+            bool primitiveInstance = binding.Kind == ObjectMethodKind.PrimitiveInstance;
+            Require(primitiveInstance == (binding.Primitive is not null), "primitive receiver evidence/kind mismatch.");
             Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
                 || (isStatic || valueConstructor) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0
-                || valueInstance && binding.VirtualSlot is null
+                || (valueInstance || primitiveInstance) && binding.VirtualSlot is null
                 || flow.Types.Integer64 && binding.Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor,
                 "borrowed parameters require static methods, value constructors or admitted integer-object instance methods.");
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
@@ -105,6 +110,24 @@ internal sealed class ObjectIrRules
                         : (binding.Attributes & MethodAttributes.RTSpecialName) == 0
                             && ((binding.Attributes & MethodAttributes.Virtual) != 0 || (binding.Attributes & (MethodAttributes.NewSlot | MethodAttributes.Final)) == 0)),
                     "value constructor/instance method requires an exact writable inline receiver and admitted declaration flags; constructors require void and constructor flags.");
+            else if (primitiveInstance)
+            {
+                Require(flow.Types.Integer64 && binding.OwnerExternallyVisible && binding.Owner.Specialization == ""
+                    && binding.Owner.ContentHash == flow.Types.ObjectBase.ContentHash
+                    && binding.Primitive!.Source is { } primitiveSource && ObjectTypeId.From(primitiveSource) == binding.Owner
+                    && primitiveSource.Name == "System." + binding.Primitive.Code
+                    && binding.Primitive.Code is PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64
+                    && method.Parameters.Length > 0 && method.Parameters[0] == IrType.Location(binding.Primitive.Storage)
+                    && method.ReturnType.Kind != IrTypeKind.ManagedLocation && binding.VirtualSlot is null
+                    && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0,
+                    "primitive instance method requires exact selected integer identity, a scalar borrow and ordinary direct-call flags.");
+                Require(!primitiveOwners.TryGetValue(binding.Owner, out var previous) || previous == binding.Primitive,
+                    "primitive identity has contradictory receiver facts.");
+                Require(!primitiveCodes.TryGetValue(binding.Primitive!.Code, out var previousOwner) || previousOwner == binding.Owner,
+                    "primitive code has contradictory selected identities.");
+                primitiveOwners[binding.Owner] = binding.Primitive!;
+                primitiveCodes[binding.Primitive!.Code] = binding.Owner;
+            }
             else if (!isStatic)
                 Require(_layouts.ContainsKey(binding.Owner) && method.Parameters.Length > 0
                     && method.Parameters[0] == IrType.Reference(binding.Owner), "instance receiver must have the exact declaring class type.");
