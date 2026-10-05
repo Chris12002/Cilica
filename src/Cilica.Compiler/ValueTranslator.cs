@@ -322,6 +322,13 @@ public static class ValueTranslator
                             int readException = Pop(offset, IrType.Reference(exceptionRead.Type));
                             Push(offset, IrType.Reference(exceptionRead.Kind == ValueIntrinsic.ExceptionInnerException ? exceptions!.Base : stringType!),
                                 exceptionRead.Kind == ValueIntrinsic.ExceptionInnerException ? new IrExpression.ExceptionInnerException(readException) : new IrExpression.ExceptionTypeName(readException), true); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var ordinal) && ordinal.Kind == ValueIntrinsic.StringOrdinalEqual:
+                            int mode = Pop(offset, IrType.Int32);
+                            if (valueExpressions[mode] is not IrExpression.Constant { Value: 4 })
+                                Error(offset, "String.Equals currently requires a directly proven StringComparison.Ordinal constant; other modes and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            int ordinalRight = Pop(offset, IrType.Reference(stringType!));
+                            int ordinalLeft = Pop(offset, IrType.Reference(stringType!));
+                            Push(offset, IrType.Int32, new IrExpression.StringEquals(ordinalLeft, ordinalRight), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var emptyArray) && emptyArray.Kind == ValueIntrinsic.EmptyArray:
                             Push(offset, IrType.Reference(emptyArray.Type), new IrExpression.EmptyArray(emptyArray.Type), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var stringConstruction) && stringConstruction.Kind == ValueIntrinsic.StringFromCodeUnits:

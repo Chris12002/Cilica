@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.44 and 6d.1–6d.20 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.44 and 6d.1–6d.21 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.44 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.20 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.21 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -1078,3 +1078,26 @@ rejected. Three reduced tests and 104 related checks pass (107 total), including
 native composed strings, interface values, array interfaces and nested access.
 The full solution builds without warnings. Review checked that structural comparison
 preserves every other binding fact and grants no additional access.
+
+
+## Slice 6d.21 outcome
+
+The pinned StringComparison enum and exact granted three-argument String.Equals
+contract are present. Body translation requires a directly proven Ordinal constant,
+then uses the existing UTF-16 equality operation. Other modes and mode aliases remain
+diagnostic. See [ADR 0157](../decisions/0157-proven-ordinal-string-comparison.md).
+
+One probe provides 294 repeated O0/O2 native/.NET comparisons for nulls, case,
+NULs, surrogates and distinct equal strings. Enum/grant/proof checks pass; the full
+solution builds without warnings. Fifty distinct ordinal/core/tuple/string checks
+pass after the separately recorded lexical interface correction. Review covered
+exact declaration and enum storage checks, evaluation order and unchanged native
+ownership. General enum storage and cultural/ignore-case comparison are not added.
+
+The trial core contains 217 inputs and 87 grants. Image SHA-256:
+`659dde9e1d51a8df3c7908950b5fc36f0b706b5f698ed77199ec215de084f17c`;
+manifest SHA-256:
+`546374503b43fbb1389febd921e52b8428443d2e4e93a1ca38d11d4e2e0783ba`.
+The unchanged kernel now reaches the 65,536-member metadata work limit while binding
+DecisionBatch.Complete. Investigate reusable exact bindings before changing bounds.
+Native transcript equivalence and final closure/filter auditing remain pending.

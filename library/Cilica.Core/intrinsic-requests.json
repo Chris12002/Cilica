@@ -600,5 +600,12 @@
     "Member": "Render",
     "ParameterCount": 1,
     "Capability": "BoxedTextRender"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "Equals",
+    "ParameterCount": 3,
+    "Capability": "StringOrdinalEqual"
   }
 ]

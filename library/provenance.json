@@ -107,6 +107,11 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/ValueStringBuilder.AppendFormat.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Text/ValueStringBuilder.AppendFormat.cs",
       "sha256": "d75f3931fc4c5b33afecb92653bd8b89962ca2a281d6f66497f8b4b832c18856"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringComparison.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/StringComparison.cs",
+      "sha256": "8077f5fa5da22eeb84e8e1503057589de20f51d5afa90630c37c00e7d96d99c9"
     }
   ],
   "adaptations": [
@@ -283,6 +288,17 @@
         "No custom providers, IFormattable/ISpanFormattable, argument arrays, primitive/reference arguments or object aliases are admitted."
       ],
       "scope": "Exactly granted String.Format(String,Object) with a same-block direct box witness; no general formatting or boxed virtual/interface dispatch."
+    },
+    {
+      "path": "library/Cilica.Core/StringComparison.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringComparison.cs",
+      "algorithms": [
+        "Exact StringComparison enum names and values"
+      ],
+      "changes": [
+        "No source changes; only directly proven Ordinal equality is executable in the selected compiler profile."
+      ],
+      "scope": "Nominal comparison contract; no cultural or ignore-case comparison implementation."
     }
   ],
   "ownedAdapters": [

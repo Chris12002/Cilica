@@ -83,6 +83,7 @@ namespace System
         public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }
         [IndexerName("Chars")] public extern char this[int index] { [MethodImpl(MethodImplOptions.InternalCall)] get; }
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern bool Equals(string left, string right);
+        [MethodImpl(MethodImplOptions.InternalCall)] public static extern bool Equals(string left, string right, StringComparison comparisonType);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern bool operator ==(string left, string right);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern bool operator !=(string left, string right);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Concat(string left, string right);

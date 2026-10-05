@@ -1600,3 +1600,11 @@ allocation, repeated callback mutation and fault ordering are retained. Four pro
 provide 1,176 local O0/O2 comparisons. Aliases, other argument kinds, providers,
 IFormattable and general boxed dispatch remain diagnostic. The kernel next requires
 StringComparison; native transcript equivalence remains unproven.
+
+
+The exact String.Equals(String,String,StringComparison) overload now accepts a
+directly proven Ordinal constant through an approved grant (ADR 0157). It reuses
+existing UTF-16 equality; nulls and operand evaluation retain existing semantics.
+The pinned enum declaration is mapped, but other modes, aliases and general enum
+storage remain diagnostic. One probe supplies 294 local O0/O2 comparisons. The
+kernel now reaches the bounded metadata work limit; native transcripts remain pending.

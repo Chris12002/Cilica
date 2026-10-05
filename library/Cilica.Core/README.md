@@ -29,13 +29,14 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/StringKeyOperations.cs \
   --source library/Cilica.Core/PairHash.cs \
   --source library/Cilica.Core/BoxedFormatting.cs \
+  --source library/Cilica.Core/StringComparison.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 86 exact string/exception/provider/numeric/array/key capabilities for review; it does not
+file describes 87 exact string/exception/provider/numeric/array/key capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -118,3 +119,7 @@ directly boxed named value with an ordinary ToString override and no IFormattabl
 contract. Two exact grants retain the box and borrow its payload for each callback.
 Alignment, escapes, ignored format text and diagnostic ordering are managed code.
 Other overloads, providers, primitive/reference arguments and aliases are diagnostic.
+
+StringComparison.cs preserves the pinned enum declaration. The exact granted
+three-argument String.Equals overload requires a directly proven Ordinal constant
+and reuses UTF-16 ordinal equality. Other modes and mode aliases remain diagnostic.

@@ -18,7 +18,7 @@ public enum LibraryIntrinsicCapability
     ExceptionConstructor, ExceptionMessage, ExceptionParameterName,
     CultureInfoLayout, InvariantCulture, InvariantIntegerFormatting, IntegerTextCacheFind, IntegerTextCachePublish,
     ClosedKeyEqual, ClosedKeyHash, ClosedKeyIsNull,
-    ArrayInterfaceCount, ArrayInterfaceGet, ArrayInterfaceFalse, ArrayInterfaceTrue, ArrayInterfaceIdentity, StringFromCodeUnits, ArrayEmpty, ArrayInterfaceAdd, ArrayInterfaceSet, TypeInitializationExceptionConstructor, ExceptionTypeName, ExceptionInnerException, BoxedStringFormat, BoxedTextRender,
+    ArrayInterfaceCount, ArrayInterfaceGet, ArrayInterfaceFalse, ArrayInterfaceTrue, ArrayInterfaceIdentity, StringFromCodeUnits, ArrayEmpty, ArrayInterfaceAdd, ArrayInterfaceSet, TypeInitializationExceptionConstructor, ExceptionTypeName, ExceptionInnerException, BoxedStringFormat, BoxedTextRender, StringOrdinalEqual,
 }
 
 public sealed record LibraryBuildInput(string Role, string Path, string Sha256);
