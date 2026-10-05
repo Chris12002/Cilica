@@ -204,6 +204,11 @@ public static class ValueTranslator
             var locals = method.Locals.ToBuilder();
             var constructorTemporaries = new Dictionary<int, int>();
             var constrainedPrefixes = method.ConstrainedCalls.Values.Select(c => c.PrefixOffset).ToHashSet();
+            // Re-reading a carried class receiver is valid only while its argument
+            // slot cannot be changed through a managed address. Direct starg.0 is
+            // separately rejected for every instance method.
+            bool stableConstructorReceiver = types.IntegerCasts && method.Binding.Kind == ObjectMethodKind.Constructor
+                && !input.Instructions.Any(i => i.OpCode is "ldarga" or "ldarga.s" && i.IntegerOperand == 0);
             if (input.Instructions.IsEmpty) Error(0, "Method body is empty.");
             var boundaries = method.ExceptionRegions.SelectMany(r => new[] { r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd, r.FilterStart ?? r.HandlerStart });
             var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code), boundaries, exceptions is not null, switches: types.IntegerCasts);
@@ -740,7 +745,7 @@ public static class ValueTranslator
                 IrEdge EdgeToBlock(int target, int from)
                 {
                     var stackTypes = stack.Select(id => values[id]).ToImmutableArray();
-                    var receiverSlots = stack.Select(value => method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
+                    var receiverSlots = stack.Select(value => (stableConstructorReceiver || method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance))
                         && valueExpressions[value] is IrExpression.Parameter { Index: 0 }).ToImmutableArray();
                     if (stackTypes.Where((type, index) => type.Kind == IrTypeKind.ManagedLocation && !receiverSlots[index]).Any())
                         Error(from, "Managed locations other than the direct value receiver cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);

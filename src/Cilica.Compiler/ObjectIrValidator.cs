@@ -407,7 +407,24 @@ internal sealed class ObjectIrRules
             {
                 if (!condition) Require(false, message + origin);
             }
-            ConstructorRequire(method.Blocks.Length == 1, "constructors require straight-line initialization.");
+            ConstructorRequire(method.Blocks.Length == 1 || _program.Flow.Types.Integer64,
+                "constructors require straight-line initialization outside the integer-object profile.");
+            // Only the entry prefix may perform initialization. All admitted body
+            // paths start after that prefix; no handler may recover its failures.
+            ConstructorRequire(!method.ExceptionRegions.Any(r => r.TryStart == 0),
+                "constructor initialization prefix cannot be protected by a local handler.");
+            foreach (var block in method.Blocks)
+            {
+                bool entersEntry = block.Terminator switch {
+                    IrJump j => j.Edge.Target == 0,
+                    IrBranch b => b.Taken.Target == 0 || b.NotTaken.Target == 0,
+                    IrLeave l => l.Edge.Target == 0, _ => false };
+                ConstructorRequire(!entersEntry, "constructor body cannot re-enter its initialization prefix.");
+                if (block.Id != 0)
+                    ConstructorRequire(!block.Statements.OfType<IrStatement.Invoke>().Any(c =>
+                        _bindings.TryGetValue(c.Target, out var target) && Constructor(target)),
+                        "constructor must initialize its base only in the entry prefix.");
+            }
             var values = method.Blocks[0].Values;
             var types = values.Select(v => v.Type).ToArray();
             var expressions = values.Select(v => v.Expression).ToArray();

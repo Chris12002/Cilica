@@ -1709,3 +1709,12 @@ comparison offsets occupy only the existing table operand span. Five probes add
 Malformed targets, non-Int32 selectors and expanded block overflows are diagnostic.
 The kernel now reaches readonly constructor receiver validation; full native
 transcript equivalence remains pending.
+
+
+Class constructors may now branch after one immediate-base call in their entry
+prefix (ADR 0175; object operations IR v14). Body paths cannot re-enter that prefix,
+repeat initialization or catch its failures. Stable direct receiver provenance
+survives joins only when its argument slot is never addressed. A reduced readonly
+null-coalescing constructor matches .NET in 294 repeated O0/O2 native outcomes;
+mutable receiver slots and detached reinitialization/re-entry mutations are rejected.
+The real kernel next reaches cast exception type-name resource validation.
