@@ -898,6 +898,12 @@ traced parameter names and exact invariant resources in private native v19
 ([ADR 0113](decisions/0113-argument-exception-payloads.md)). Inner exceptions,
 actual-value constructors, localization and broader exception APIs remain pending.
 
+Exact class virtual calls also carry inline copies, rooted returns and bounded
+borrow parameters in the explicit integer-object profile; by-value starg writes
+use the existing checked parameter storage
+([ADR 0114](decisions/0114-class-virtual-value-signatures.md)). Interface value
+plans remain a separate gate.
+
 ## 11. Class library and assembly identity
 
 Milestone 6's `integer-arithmetic-ir-v1` profile adds authored Int64 scalar IR

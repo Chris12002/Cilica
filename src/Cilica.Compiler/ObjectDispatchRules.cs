@@ -34,8 +34,9 @@ internal sealed class ObjectDispatchRules
                 continue;
             }
             var signature = methods[binding.Method];
-            Require(!signature.Parameters.Append(signature.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation),
-                "virtual signatures require scalar/reference parameters and returns.");
+            Require(program.Flow.Types.Integer64 || !signature.Parameters.Append(signature.ReturnType)
+                .Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation),
+                "value/borrow virtual signatures require the explicit integer-object catalog.");
             Require(binding.Method.Specialization == binding.Owner.Specialization,
                 "virtual methods must preserve their exact closed owner specialization.");
             var slot = binding.VirtualSlot!;

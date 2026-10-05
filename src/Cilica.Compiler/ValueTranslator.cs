@@ -351,6 +351,13 @@ public static class ValueTranslator
                             if (method.Parameters[parameterAddress].Kind == IrTypeKind.ManagedLocation)
                                 Error(offset, "Taking the address of a borrowed parameter would create a nested byref.", DiagnosticIds.ExecutionUnsupported);
                             Push(offset, IrType.Location(method.Parameters[parameterAddress]), new IrExpression.AddressParameter(parameterAddress)); break;
+                        case "starg" or "starg.s" when types.IntegerCasts:
+                            int storedParameter = Variable(instruction, method.Parameters.Length);
+                            if (method.Parameters[storedParameter].Kind == IrTypeKind.ManagedLocation || storedParameter == 0 && method.Binding.Kind != ObjectMethodKind.Static)
+                                Error(offset, "Rebinding a borrowed parameter or an instance receiver requires later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            int parameterValue = Normalize(Pop(offset, method.Parameters[storedParameter]), ParameterStorage(storedParameter), offset);
+                            int parameterLocation = Define(offset, IrType.Location(method.Parameters[storedParameter]), new IrExpression.AddressParameter(storedParameter));
+                            Add(new IrStatement.StoreLocation(offset, parameterLocation, parameterValue), offset); break;
                         case "stloc.0" or "stloc.1" or "stloc.2" or "stloc.3" or "stloc.s" or "stloc":
                             int storedLocal = Variable(instruction, method.Locals.Length);
                             Add(new IrStatement.StoreLocal(offset, storedLocal,

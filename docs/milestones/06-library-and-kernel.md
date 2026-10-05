@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.22 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.23 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -17,7 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.22 supply integer/narrow scalar, composed wide object/value, struct-constructor, direct class-instance and reference-vector CIL plus closed interface assignments/calls and closed class virtual calls; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.23 supply integer/narrow scalar, composed wide object/value, struct-constructor, direct class-instance and reference-vector CIL plus closed interface assignments/calls and closed class virtual calls; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -446,6 +446,17 @@ See [ADR 0113](../decisions/0113-argument-exception-payloads.md). The private ke
 now reaches a value-returning interface signature at registry-constructor
 IL_0046. Full native kernel execution remains pending. Local main remains an
 ancestor.
+
+## Slice 6c.23 outcome
+
+Class virtual signatures now carry inline values and synchronous borrows through
+the existing scalar ABI, preserving rooted return packets and exact maps.
+By-value starg writes were added after the fixture exposed the missing opcode.
+Five probes match .NET in 1,470 repeated native sanitizer results; all 66 focused
+checks pass. Review retained the explicit integer-object catalog gate and found
+no remaining actionable issue. See
+[ADR 0114](../decisions/0114-class-virtual-value-signatures.md). Interface value
+plans/discovery remain pending; local main remains an ancestor.
 
 ## Remaining completion evidence
 

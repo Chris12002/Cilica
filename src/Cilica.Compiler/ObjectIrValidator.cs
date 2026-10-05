@@ -81,9 +81,9 @@ internal sealed class ObjectIrRules
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
             bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
             Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
-                || (isStatic || valueConstructor || flow.Types.Integer64 && binding.Kind == ObjectMethodKind.Instance)
-                    && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0,
-                "borrowed parameters require direct static methods or admitted nonvirtual instance methods.");
+                || (isStatic || valueConstructor) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0
+                || flow.Types.Integer64 && binding.Kind == ObjectMethodKind.Instance,
+                "borrowed parameters require static methods, value constructors or admitted integer-object instance methods.");
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
                 || (layout.Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic,
                 "owner visibility contradicts its layout attributes.");

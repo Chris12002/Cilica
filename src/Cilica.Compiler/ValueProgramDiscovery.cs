@@ -472,8 +472,6 @@ public static partial class ValueProgramDiscovery
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
                 [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);
-            if (binding.VirtualSlot is not null && work.Parameters.Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
-                Fail(parent, "Composed virtual signatures require scalar/reference parameters and returns; struct/borrow dispatch needs later lowering.", offset);
             if (fact is not null && (binding.Kind != kind || binding.Owner != ownerId || binding.Attributes != input.Attributes
                 || work.ReturnType != fact.ReturnType || !work.Parameters.SequenceEqual(fact.Parameters)))
                 Fail(parent, "Closed method signature contradicts its interface mapping facts.", offset);

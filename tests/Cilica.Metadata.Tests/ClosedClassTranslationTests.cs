@@ -52,9 +52,10 @@ public sealed class ClosedClassTranslationTests
     }
 
     [Fact]
-    public void Struct_virtual_signature_remains_diagnostic()
+    public void Struct_virtual_signature_uses_the_composed_value_abi()
     {
         var result = IntegerObjectTranslationTests.Translate("ValueSignature", fixture: typeof(ClosedClassDispatchProbe));
-        Assert.False(result.Success); Assert.NotEmpty(result.Diagnostics);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
     }
 }
