@@ -94,12 +94,18 @@ namespace System
     {
         [MethodImpl(MethodImplOptions.InternalCall)] public extern Exception();
         [MethodImpl(MethodImplOptions.InternalCall)] public extern Exception(string message);
+        public extern Exception InnerException { [MethodImpl(MethodImplOptions.InternalCall)] get; }
         public virtual extern string Message { [MethodImpl(MethodImplOptions.InternalCall)] get; }
     }
     public class SystemException : Exception
     {
         [MethodImpl(MethodImplOptions.InternalCall)] public extern SystemException();
         [MethodImpl(MethodImplOptions.InternalCall)] public extern SystemException(string message);
+    }
+    public sealed class TypeInitializationException : SystemException
+    {
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern TypeInitializationException(string fullTypeName, Exception innerException);
+        public extern string TypeName { [MethodImpl(MethodImplOptions.InternalCall)] get; }
     }
     public class ArithmeticException : SystemException
     {

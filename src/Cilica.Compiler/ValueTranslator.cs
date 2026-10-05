@@ -312,6 +312,14 @@ public static class ValueTranslator
                                 constructorIntrinsic.MessageArgument < 0 ? null : constructorArguments[constructorIntrinsic.MessageArgument],
                                 constructorIntrinsic.ParameterArgument < 0 ? null : constructorArguments[constructorIntrinsic.ParameterArgument]), true);
                             break;
+                        case "newobj" when method.Intrinsics.TryGetValue(offset, out var initialization) && initialization.Kind == ValueIntrinsic.NewTypeInitializationException:
+                            int innerException = Pop(offset, IrType.Reference(exceptions!.Base));
+                            int initializedName = Pop(offset, IrType.Reference(stringType!));
+                            Push(offset, IrType.Reference(initialization.Type), new IrExpression.NewException(initialization.Type, Inner: innerException, TypeName: initializedName), true); break;
+                        case "callvirt" when method.Intrinsics.TryGetValue(offset, out var exceptionRead) && exceptionRead.Kind is ValueIntrinsic.ExceptionInnerException or ValueIntrinsic.ExceptionTypeName:
+                            int readException = Pop(offset, IrType.Reference(exceptionRead.Type));
+                            Push(offset, IrType.Reference(exceptionRead.Kind == ValueIntrinsic.ExceptionInnerException ? exceptions!.Base : stringType!),
+                                exceptionRead.Kind == ValueIntrinsic.ExceptionInnerException ? new IrExpression.ExceptionInnerException(readException) : new IrExpression.ExceptionTypeName(readException), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var emptyArray) && emptyArray.Kind == ValueIntrinsic.EmptyArray:
                             Push(offset, IrType.Reference(emptyArray.Type), new IrExpression.EmptyArray(emptyArray.Type), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var stringConstruction) && stringConstruction.Kind == ValueIntrinsic.StringFromCodeUnits:

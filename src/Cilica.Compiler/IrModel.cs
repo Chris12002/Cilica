@@ -62,9 +62,11 @@ public abstract record IrExpression
     public sealed record Compare(Int32Comparison Comparison, int Left, int Right) : IrExpression;
     public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false,
         bool VirtualDispatch = false) : IrExpression;
-    public sealed record NewException(ObjectTypeId Type, int? Message = null, int? ParameterName = null) : IrExpression;
+    public sealed record NewException(ObjectTypeId Type, int? Message = null, int? ParameterName = null, int? Inner = null, int? TypeName = null) : IrExpression;
     public sealed record ExceptionMessage(int Operand) : IrExpression;
     public sealed record ExceptionParameterName(int Operand) : IrExpression;
+    public sealed record ExceptionInnerException(int Operand) : IrExpression;
+    public sealed record ExceptionTypeName(int Operand) : IrExpression;
     public sealed record NewDelegate(ObjectTypeId Type, IrMethodId Target, int Receiver) : IrExpression;
     public sealed record CallDelegate(ObjectTypeId Type, int Delegate, ImmutableArray<int> Arguments) : IrExpression;
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
@@ -208,7 +210,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 /// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
-    public const string Profile = "typed-reference-ir-v8";
+    public const string Profile = "typed-reference-ir-v9";
 }
 
 /// <summary>Detached copy semantics; no CIL access checks, mutable managed locations or object operations.</summary>

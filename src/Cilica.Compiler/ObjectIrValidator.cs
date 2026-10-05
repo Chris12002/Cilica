@@ -183,6 +183,7 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
         IrStatement.Define { Value.Expression: IrExpression.AddressField f } => new[] { f.Field.Owner },
         IrStatement.StoreField f => new[] { f.Field.Owner },
+        IrStatement.Define { Value.Expression: IrExpression.NewException { TypeName: not null } } when _program.Flow.Types.String is { } text => new[] { text },
         IrStatement.Define { Value.Expression: IrExpression.NewDelegate d } => new[] { d.Type },
         IrStatement.Define { Value.Expression: IrExpression.CallDelegate d } => new[] { d.Type },
         IrStatement.InvokeDelegate d => new[] { d.Type },

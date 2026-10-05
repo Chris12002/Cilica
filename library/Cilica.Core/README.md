@@ -92,3 +92,12 @@ List.cs and ReadOnlyCollection.cs adapt pinned managed storage/growth and live
 views for Int32/reference elements. ArrayInterface also supplies exact granted
 indexed writes and fixed-size Add faults. Enumeration/search/copy/removal and
 broader collection APIs remain diagnostic.
+
+
+The exact TypeInitializationException(String, Exception), TypeName and base
+Exception.InnerException members use granted, traced native payloads. Construction
+eagerly formats the pinned invariant message; original names and inner exceptions
+retain identity. Null names read as the canonical empty string. Pinned original
+sources and hashes are recorded in provenance.json. Type initializer execution,
+serialization, HResult and other exception constructor overloads remain separate
+work (ADR 0150).

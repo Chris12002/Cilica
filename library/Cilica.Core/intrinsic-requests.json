@@ -558,5 +558,33 @@
     "Member": "Set",
     "ParameterCount": 3,
     "Capability": "ArrayInterfaceSet"
+  },
+  {
+    "Namespace": "System",
+    "Type": "TypeInitializationException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "TypeInitializationException",
+    "Member": ".ctor",
+    "ParameterCount": 2,
+    "Capability": "TypeInitializationExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "TypeInitializationException",
+    "Member": "get_TypeName",
+    "ParameterCount": 0,
+    "Capability": "ExceptionTypeName"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Exception",
+    "Member": "get_InnerException",
+    "ParameterCount": 0,
+    "Capability": "ExceptionInnerException"
   }
 ]

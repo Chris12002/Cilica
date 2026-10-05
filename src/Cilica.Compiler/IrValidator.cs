@@ -136,6 +136,8 @@ internal static class IrValidator
                         Require(value.Expression switch
                         {
                             IrExpression.NewException creation => exceptions is not null && exceptions.Creation(creation, value.Type, valueTypes) && objectRules?.TypeTest(method, creation.Type) == true,
+                            IrExpression.ExceptionInnerException inner => exceptions is not null && exceptions.InnerException(inner, value.Type, valueTypes),
+                            IrExpression.ExceptionTypeName name => exceptions is not null && exceptions.TypeName(name, value.Type, valueTypes),
                             IrExpression.ExceptionParameterName parameter => exceptions is not null && exceptions.ParameterName(parameter, value.Type, valueTypes),
                             IrExpression.ExceptionMessage message => exceptions is not null && exceptions.Message(message, value.Type, valueTypes),
                             IrExpression.Constant => value.Type == IrType.Int32,
@@ -231,7 +233,7 @@ internal static class IrValidator
                                 && ManagedLocationRules.Load(valueTypes[l.Location], value.Type),
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
-                        bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadStatic or IrExpression.LoadField
+                        bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadStatic or IrExpression.LoadField
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.EmptyArray or IrExpression.ArrayLength or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.LoadLocation

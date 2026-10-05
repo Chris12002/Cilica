@@ -1395,3 +1395,12 @@ Reference slots are collector roots, and exact closed owner identities separate
 generic state. Readonly writes, addresses, initialized types and narrow/wide/inline
 static values remain diagnostic. Object layout v10, typed reference IR v8 and
 native v30 encode this foundation; initializer execution is still pending.
+
+
+TypeInitializationException(String, Exception), TypeName and Exception.InnerException
+are now exact granted integer-object operations (ADR 0150). Construction eagerly
+formats the pinned invariant message and retains a precisely traced name/inner
+payload; null names read as canonical empty strings. Managed/scalar exception IR
+v3, typed reference IR v9 and native v31 encode this addition. Initializer execution,
+failure caching, serialization and general Exception constructor overloads remain
+outside this slice. Local O0/O2 sanitizer comparisons cover payloads and failures.

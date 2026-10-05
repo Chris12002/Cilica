@@ -77,6 +77,16 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/ObjectModel/ReadOnlyCollection.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/ObjectModel/ReadOnlyCollection.cs",
       "sha256": "bb8a2de7ce720ea780e4e4a0279981f980112991f8a22b61ffa9f46cabc51428"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/TypeInitializationException.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/TypeInitializationException.cs",
+      "sha256": "be8cffe0989561e48a3b1ed2ad11563426cf35e5fb99f4a4d54a8b353cc9950a"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Exception.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Exception.cs",
+      "sha256": "3f44c5b9eb6851301091fc65ce6dd6671e1a750f8a7f120837bc09021ecf12ab"
     }
   ],
   "adaptations": [
@@ -239,6 +249,16 @@
         "Unimplemented callable members carry no runtime fallback or intrinsic grant."
       ],
       "scope": "Nominal dictionary contracts and minimal signature types; no serialization implementation."
+    },
+    {
+      "path": "src/Cilica.Compiler/ObjectCppExceptions.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/TypeInitializationException.cs",
+      "contracts": [
+        "Public (String, Exception) construction eagerly formats the pinned invariant message and retains the exact supplied inner exception and type name.",
+        "TypeName returns the original non-null name or canonical empty string; Exception.InnerException returns the retained identity or null.",
+        "Cilica-owned exception payloads and precise roots replace runtime-private storage; no serialization or HResult surface is admitted."
+      ],
+      "scope": "Exact granted constructor and property getters in the integer-object profile; initializer execution and failure caching remain separate compiler work."
     }
   ]
 }

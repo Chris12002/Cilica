@@ -19,12 +19,13 @@ public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<Obj
     ImmutableArray<RuntimeExceptionBinding> RuntimeFaults)
 {
     public ObjectTypeId? ArgumentBase { get; init; }
+    public ObjectTypeId? TypeInitialization { get; init; }
     public ImmutableArray<ExceptionResourceBinding> Resources { get; init; } = [];
 }
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "managed-exceptions-ir-v2";
+    public const string Profile = "managed-exceptions-ir-v3";
 }
 
 public static class ManagedExceptionIrValidator
@@ -100,6 +101,11 @@ internal sealed class ManagedExceptionRules
                 && classes[resource.Type].Source.Name == "System." + resource.Kind + "Exception",
                 "framework message resources require exact selected names, images and ancestry.");
         }
+        if (types.TypeInitialization is { } initialization)
+            Require(catalog.Integer64 && _types.Contains(initialization) && initialization.ContentHash == catalog.ObjectBase.ContentHash
+                && classes[initialization].Source.Name == "System.TypeInitializationException"
+                && classes[initialization].BaseType == types.Resources.SingleOrDefault(r => r.Kind == ExceptionResourceKind.System)?.Type,
+                "type initialization requires the exact selected framework identity and ancestry.");
         _ = ManagedExceptionMessages.Build(types, catalog);
     }
     internal bool Throwable(IrType type) => type == IrType.NullReference || type.Kind == IrTypeKind.Reference && _types.Contains(type.Class!);
@@ -109,7 +115,15 @@ internal sealed class ManagedExceptionRules
     internal bool Creation(IrExpression.NewException creation, IrType result, IReadOnlyList<IrType> values) =>
         creation.Type is not null && _types.Contains(creation.Type) && result == IrType.Reference(creation.Type)
         && StringOperand(creation.Message, values) && StringOperand(creation.ParameterName, values)
+        && (creation.Inner is null || creation.Type == Types.TypeInitialization && creation.Inner is int inner && inner >= 0 && inner < values.Count && Throwable(values[inner]))
+        && (creation.Type == Types.TypeInitialization ? creation.TypeName is not null && _catalog.String is not null
+            && creation.Message is null && creation.ParameterName is null && StringOperand(creation.TypeName, values) : creation.TypeName is null)
         && (creation.ParameterName is null || Types.ArgumentBase is not null && _relations.Ancestors[creation.Type].Contains(Types.ArgumentBase));
+    internal bool InnerException(IrExpression.ExceptionInnerException read, IrType result, IReadOnlyList<IrType> values) =>
+        _catalog.Integer64 && result == IrType.Reference(Types.Base) && read.Operand >= 0 && read.Operand < values.Count && Throwable(values[read.Operand]);
+    internal bool TypeName(IrExpression.ExceptionTypeName read, IrType result, IReadOnlyList<IrType> values) =>
+        Types.TypeInitialization is not null && _catalog.String is not null && result == IrType.Reference(_catalog.String)
+        && read.Operand >= 0 && read.Operand < values.Count && (values[read.Operand] == IrType.NullReference || values[read.Operand] == IrType.Reference(Types.TypeInitialization));
     internal bool Message(IrExpression.ExceptionMessage message, IrType result, IReadOnlyList<IrType> values) =>
         _catalog.String is not null && result == IrType.Reference(_catalog.String)
         && message.Operand >= 0 && message.Operand < values.Count && Throwable(values[message.Operand]);

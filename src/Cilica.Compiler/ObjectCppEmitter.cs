@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v30";
+    public const string Profile = "object-frames-native-v31";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -433,7 +433,7 @@ public static class ObjectCppEmitter
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
                         or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
-                            or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
+                            or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.StoreStatic or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
@@ -448,10 +448,25 @@ public static class ObjectCppEmitter
                             code.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                             switch (value.Expression)
                             {
+                                case IrExpression.NewException creation when creation.TypeName is int initializedTypeName:
+                                    code.Append("    f->exception_result = make_initialization_exception(context, &").Append(TypeSymbol(creation.Type)).Append("_descriptor, ")
+                                        .Append(Value(initializedTypeName)).Append(", ").Append(creation.Inner is int suppliedInner ? Value(suppliedInner) : "nullptr").Append(");\n");
+                                    Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
+                                    expression = "f->exception_result.value"; break;
                                 case IrExpression.NewException creation:
                                     code.Append("    f->exception_result = make_exception(context, &").Append(TypeSymbol(creation.Type)).Append("_descriptor, ")
-                                        .Append(creation.Message is int messageValue ? Value(messageValue) : "nullptr").Append(creation.Message is null ? ", 1u, " : ", 0u, ")
-                                        .Append(creation.ParameterName is int parameterValue ? Value(parameterValue) : "nullptr").Append(");\n");
+                                        .Append(creation.Message is int messageValue ? Value(messageValue) : "nullptr").Append(creation.TypeName is not null ? ", 3u, " : creation.Message is null ? ", 1u, " : ", 0u, ")
+                                        .Append(creation.ParameterName is int parameterValue ? Value(parameterValue) : "nullptr").Append(", ")
+                                        .Append(creation.Inner is int innerValue ? Value(innerValue) : "nullptr").Append(", ")
+                                        .Append(creation.TypeName is int nameValue ? Value(nameValue) : "nullptr").Append(");\n");
+                                    Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
+                                    expression = "f->exception_result.value"; break;
+                                case IrExpression.ExceptionInnerException inner:
+                                    code.Append("    f->exception_result = exception_inner(context, ").Append(Value(inner.Operand)).Append(");\n");
+                                    Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
+                                    expression = "f->exception_result.value"; break;
+                                case IrExpression.ExceptionTypeName name:
+                                    code.Append("    f->exception_result = exception_type_name(context, ").Append(Value(name.Operand)).Append(");\n");
                                     Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
                                     expression = "f->exception_result.value"; break;
                                 case IrExpression.ExceptionParameterName parameter:

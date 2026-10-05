@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.40 and 6d.1–6d.17 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.40 and 6d.1–6d.18 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.40 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.17 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.18 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -936,3 +936,21 @@ Object layout v10, typed reference IR v8 and native v30 carry the change.
 Initialized static fields, initializer execution/failure caching, static addresses
 and narrow/wide/inline static values remain diagnostic. The actual kernel's
 compiler-generated initialized callback receiver still blocks native compilation.
+
+
+## Slice 6d.18 outcome
+
+Exact granted TypeInitializationException construction and TypeName/InnerException
+reads now retain a traced name, message and inner exception. The public constructor
+formats eagerly, preserving the allocation point; null names return canonical
+empty strings and nested exception identity is preserved. See
+[ADR 0150](../decisions/0150-type-initialization-exception-payload.md).
+
+Four probes supply 1,542 repeated native/.NET comparisons. Nine focused tests cover
+those probes, grant denial, detached IR, roots, corrupt payloads, quota failure and
+fault provenance. The full solution builds without warnings. All 43 exception
+checks pass (42 in the composed run, with the corrected O0 test-harness stack
+check passing in the subsequent focused run); two core-build tests also pass.
+Review corrected eager message construction and kept native helpers within the
+2 KiB stack limit. Initializer execution and cached failures remain outstanding;
+this prerequisite alone does not advance the concrete kernel gate.
