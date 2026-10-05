@@ -269,7 +269,8 @@ public static class ValueTranslator
                                 : new IrExpression.CastClass(testedType, tested), true); break;
                         case "throw" when exceptions is not null:
                             int thrown = Pop(offset, IrType.Reference(exceptions.Base));
-                            if (stack.Count != 0) Error(offset, "throw leaves a residual evaluation stack.");
+                            // CLI throw discards the remainder of the evaluation stack.
+                            stack.Clear();
                             terminator = new IrThrow(offset, thrown); break;
                         case "rethrow" when exceptions is not null:
                             if (stack.Count != 0) Error(offset, "rethrow requires an empty evaluation stack.");
