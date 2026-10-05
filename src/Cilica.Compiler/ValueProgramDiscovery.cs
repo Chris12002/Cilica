@@ -262,6 +262,7 @@ public static partial class ValueProgramDiscovery
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate interface argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                                 interfaceCalls.Add(offset, interfaceDeclaration); continue;
                             }
+                            target = NarrowVirtualReceiver(work, instruction, target);
                             var callee = Discover(target, work, offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.Kind != (constrainedCalls.ContainsKey(offset) ? ObjectMethodKind.ValueInstance : ObjectMethodKind.Instance))
                                 Fail(work, "callvirt requires a class instance method.", offset);

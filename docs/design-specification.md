@@ -1348,3 +1348,10 @@ through real reference calls. Missing bodies fail at build time. Nongeneric arra
 collection flags and SyncRoot use exact granted managed helpers, with layout v8
 and native v25. The real kernel now reaches StringBuilder; native equivalence
 remains pending.
+
+
+Immediately proven sealed receivers now narrow public zero-argument virtual calls
+before body discovery (ADR 0144). Canonical slots, typed receivers and null checks
+remain intact. Branch/handler entry, nonpublic declarations and unproven Object
+parameters do not establish a proof. This supports managed overrides without
+claiming a general Object.ToString implementation.
