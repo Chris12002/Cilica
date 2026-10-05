@@ -606,10 +606,10 @@ public static class ValueTranslator
                 {
                     if (!partition.BlockAt.TryGetValue(offset, out int target)) Error(from, "Control transfer falls outside this method.", DiagnosticIds.InvalidControlTransfer);
                     var stackTypes = stack.Select(id => values[id]).ToImmutableArray();
-                    var receiverSlots = stack.Select(value => method.Binding.Kind == ObjectMethodKind.ValueConstructor
+                    var receiverSlots = stack.Select(value => method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance)
                         && valueExpressions[value] is IrExpression.Parameter { Index: 0 }).ToImmutableArray();
                     if (stackTypes.Where((type, index) => type.Kind == IrTypeKind.ManagedLocation && !receiverSlots[index]).Any())
-                        Error(from, "Managed locations other than the direct value-constructor receiver cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
+                        Error(from, "Managed locations other than the direct value receiver cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
                     if (!incoming[target].IsDefault && !incoming[target].SequenceEqual(stackTypes))
                     {
                         if (exceptions is null || incoming[target].Length != stackTypes.Length) Error(from, "Block receives incompatible stack types or depths.");

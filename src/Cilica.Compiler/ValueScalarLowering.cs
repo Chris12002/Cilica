@@ -24,7 +24,7 @@ public static class ValueScalarLowering
     }
 
     private static ImmutableArray<ObjectMethodBinding> LowerBindings(ImmutableArray<ObjectMethodBinding> bindings) =>
-        [.. bindings.Select(binding => binding.Kind == ObjectMethodKind.ValueConstructor ? binding with {
+        [.. bindings.Select(binding => binding.Kind is ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance ? binding with {
             Kind = ObjectMethodKind.Static,
             Attributes = (binding.Attributes & ~(System.Reflection.MethodAttributes.SpecialName | System.Reflection.MethodAttributes.RTSpecialName))
                 | System.Reflection.MethodAttributes.Static } : binding)];

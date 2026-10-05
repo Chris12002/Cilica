@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.28 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.29 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -509,6 +509,15 @@ Review confirmed that interface message keys are excluded from concrete runtime
 types. See [ADR 0119](../decisions/0119-closed-reference-boxing.md). The private
 kernel advances to a struct instance call in PlayerId equality; local main remains
 an ancestor and native kernel comparison is still pending.
+
+## Slice 6c.29 outcome
+
+Direct ordinary struct instance methods use exact checked receiver borrows and
+the shared value lowering. Four probes match .NET in 1,176 repeated native
+sanitizer results; all 44 focused checks pass. Review found no remaining actionable
+issue. See [ADR 0120](../decisions/0120-direct-struct-instance-calls.md). The private
+kernel next requires interface implementation metadata on its direct PlayerId
+equality call. Local main remains an ancestor; native equivalence is still pending.
 
 ## Remaining completion evidence
 

@@ -920,6 +920,10 @@ Closed reference boxing preserves identity and unbox.any uses checked casts,
 including interface casts with bounded diagnostic identities
 ([ADR 0119](decisions/0119-closed-reference-boxing.md)). This does not admit
 reference operands to unbox or make interfaces allocatable.
+Direct nonvirtual struct instance calls now borrow their exact inline receiver,
+preserving mutation, copied returns and bounded receiver flow through branches
+([ADR 0120](decisions/0120-direct-struct-instance-calls.md)). Readonly receivers and
+value virtual/interface dispatch remain separate capabilities.
 
 ## 11. Class library and assembly identity
 

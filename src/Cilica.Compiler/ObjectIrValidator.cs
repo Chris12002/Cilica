@@ -73,15 +73,16 @@ internal sealed class ObjectIrRules
             Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
                 && method.Parameters.All(p => _types.Valid(p, true)) && (_types.Valid(method.ReturnType, true) || method.ReturnType == IrType.Void)
                 && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
-                or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor, "invalid bound signature/kind.");
+                or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance, "invalid bound signature/kind.");
             Require((binding.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0
                 && (binding.Attributes & MethodAttributes.MemberAccessMask) is > MethodAttributes.PrivateScope and <= MethodAttributes.Public,
                 "native, abstract and unsupported method flags require later lowering.");
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
             bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
+            bool valueInstance = binding.Kind == ObjectMethodKind.ValueInstance;
             Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
-                || (isStatic || valueConstructor) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0
+                || (isStatic || valueConstructor || valueInstance) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0
                 || flow.Types.Integer64 && binding.Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor,
                 "borrowed parameters require static methods, value constructors or admitted integer-object instance methods.");
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
@@ -92,13 +93,16 @@ internal sealed class ObjectIrRules
                     or TypeAttributes.NestedPublic or TypeAttributes.NestedAssembly or TypeAttributes.NestedFamORAssem,
                 "assembly owner visibility contradicts its layout attributes.");
             Require(((binding.Attributes & MethodAttributes.Static) != 0) == isStatic, "static attribute/kind mismatch.");
-            if (valueConstructor)
+            if (valueConstructor || valueInstance)
                 Require(values is not null && flow.Types.Integer64 && values.Types.Any(t => ObjectTypeId.From(t.Source) == binding.Owner
                         && (!binding.OwnerExternallyVisible || t.ExternallyVisible))
                     && method.Parameters.Length > 0 && method.Parameters[0] == IrType.Location(IrType.Value(binding.Owner))
-                    && method.ReturnType == IrType.Void && binding.VirtualSlot is null
-                    && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final))
-                        == (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName), "value constructor requires an exact writable inline receiver, void and constructor flags.");
+                    && method.ReturnType.Kind != IrTypeKind.ManagedLocation && binding.VirtualSlot is null
+                    && (valueConstructor ? method.ReturnType == IrType.Void
+                        && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final))
+                            == (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
+                        : (binding.Attributes & (MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0),
+                    "value constructor/instance method requires an exact writable inline receiver and admitted nonvirtual flags; constructors require void and constructor flags.");
             else if (!isStatic)
                 Require(_layouts.ContainsKey(binding.Owner) && method.Parameters.Length > 0
                     && method.Parameters[0] == IrType.Reference(binding.Owner), "instance receiver must have the exact declaring class type.");
