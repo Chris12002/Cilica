@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.61 and 6d.1–6d.23 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.61 6d.1–6d.23 and 6e complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -20,7 +20,7 @@ fixtures and examples must be independent.
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.61 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; closed value arrays and Int32 enum storage now admitted; value-array interfaces now admitted; switch also admitted; constructor entry-prefix flow also admitted; remaining integration pending |
 | 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.23 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
-| 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
+| 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | Complete; 10,752 exact O0/O2 normal/forced-GC comparisons, with sanitizers |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
 These slices are capability gates, not time estimates. Detailed requirements can
@@ -1389,3 +1389,28 @@ pass. Existing name-length/aggregate UTF-16 limits remain unchanged.
 The real kernel passes translation with no diagnostics; scalar lowering and C++
 emission also succeed. Evidence: gate-mapped-6c61.json and kernel-6c61.cpp. The
 native transcript comparison is now running; this slice does not claim equivalence.
+
+## Slice 6e outcome
+
+The unchanged private kernel and concrete adapter now produce equivalent .NET and
+native command transcripts. The pinned source build is revision
+`a8942127ee6d26545de6daa2259cc2793c13be8e`; copied kernel/primitives image hashes
+match the earlier clean build evidence. A fresh .NET 10.0.11 run matches the saved
+oracle byte-for-byte (SHA-256
+`b7a111e6dd0e2cac34e46b352cb0de2462e431a3a0e3f20bdded311176a734af`).
+
+Ten steps cover boundary rejection, immediate and framed completion, priority
+passes/actors, rejected commands, terminal state, event ordering, state identity
+and sequence fields. Each pass checks 130 scalar fields and 766 canonical UTF-16
+code units. Three repeats at O0/O2, both normal and collect-before-allocation,
+produce **10,752 exact comparisons** under ASan/UBSan. All runs pass and release
+frame/borrow roots. Retained objects are stable after warm-up. Observed maxima:
+32,168 heap bytes/302 objects normally, 10,710 bytes/101 objects with forced
+collection, and 21,568 execution-storage bytes in both modes. These are bounded
+probe measurements, not production performance claims.
+
+Private evidence is `artifacts/milestone6-harness/evidence-6e.json`, the four
+`native-6e-O*-*.txt`/baseline logs, generated C++ and its harness. The unchanged
+6d.23 trial core/digest remains selected. No application game rules were changed,
+no hosted jobs ran, and no public ABI/platform compatibility is claimed. The
+implementation/filter closure audit and final composed review remain for 6f.

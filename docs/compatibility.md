@@ -1725,3 +1725,10 @@ retaining existing length/text budgets (ADR 0176). A closed anonymous-type probe
 compares the complete UTF-16 message against .NET at O0/O2 (294 repeated outcomes).
 The real kernel now passes translation and detached IR validation, and native C++
 emission succeeds. Native execution/transcript and final closure gates remain.
+
+
+Milestone 6e now matches the unmodified private kernel's ten-step .NET transcript
+against native O0/O2 builds, normally and with collection before every allocation.
+All 10,752 scalar/canonical UTF-16 observations pass under ASan/UBSan, with stable
+retained roots across repeats. Evidence is pinned to the source build and selected
+6d.23 library; final implementation/filter closure and composed review remain.
