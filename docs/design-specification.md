@@ -1578,3 +1578,10 @@ survives joins only when its argument slot is never addressed. A reduced readonl
 null-coalescing constructor matches .NET in 294 repeated O0/O2 native outcomes;
 mutable receiver slots and detached reinitialization/re-entry mutations are rejected.
 The real kernel next reaches cast exception type-name resource validation.
+
+
+Cast exception type names now admit compiler-generated angle-bracket names while
+retaining existing length/text budgets (ADR 0176). A closed anonymous-type probe
+compares the complete UTF-16 message against .NET at O0/O2 (294 repeated outcomes).
+The real kernel now passes translation and detached IR validation, and native C++
+emission succeeds. Native execution/transcript and final closure gates remain.

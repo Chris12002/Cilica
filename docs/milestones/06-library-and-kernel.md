@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.60 and 6d.1–6d.23 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.61 and 6d.1–6d.23 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -18,7 +18,7 @@ fixtures and examples must be independent.
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit API added in 6d.3 |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.60 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; closed value arrays and Int32 enum storage now admitted; value-array interfaces now admitted; switch also admitted; constructor entry-prefix flow also admitted; remaining integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.61 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; closed value arrays and Int32 enum storage now admitted; value-array interfaces now admitted; switch also admitted; constructor entry-prefix flow also admitted; remaining integration pending |
 | 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.23 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -1376,3 +1376,16 @@ remain diagnostic.
 The real kernel progresses to cast exception name-resource validation;
 gate-mapped-6c60b.json records the next failure. Native transcript equivalence is
 still pending.
+
+
+## Slice 6c.61 outcome
+
+Compiler-generated angle-bracket names are admitted in bounded cast-error text
+(ADR 0176). The kernel's ResolutionFrame+<>c triggered the previous name rejection.
+The exact .NET message for a closed anonymous type now matches in 294 repeated
+O0/O2 native comparisons. Ten focused exception/boxing checks and the full build
+pass. Existing name-length/aggregate UTF-16 limits remain unchanged.
+
+The real kernel passes translation with no diagnostics; scalar lowering and C++
+emission also succeed. Evidence: gate-mapped-6c61.json and kernel-6c61.cpp. The
+native transcript comparison is now running; this slice does not claim equivalence.
