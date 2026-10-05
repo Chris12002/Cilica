@@ -102,6 +102,7 @@ public static class ValueScalarLowering
         static IrType Scalar(ObjectStorage storage) => storage switch
         {
             ObjectStorage.Int32 => IrType.Int32,
+            ObjectStorage.Int64 => IrType.Int64,
             ObjectStorage.Reference reference => IrType.Reference(reference.Type),
             _ => throw new InvalidOperationException("Validated layout has a non-scalar leaf."),
         };
@@ -308,7 +309,7 @@ public static class ValueScalarLowering
                             break;
                         case IrExpression.DefaultValue:
                             foreach (var type in expanded) ids.Add(Define(type, value.ILOffset, type == IrType.Int32
-                                ? new IrExpression.Constant(0) : new IrExpression.Local(ZeroReference(type))));
+                                ? new IrExpression.Constant(0) : type == IrType.Int64 ? new IrExpression.Constant64(0) : new IrExpression.Local(ZeroReference(type))));
                             break;
                         case IrExpression.ValueField field:
                             var range = ranges[field.Field]; ids.AddRange(values[field.Operand].AsSpan(range.Start, range.Count));

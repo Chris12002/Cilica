@@ -103,3 +103,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0095](0095-integer-conversion-semantics.md) | Checked and narrow integer conversions | Accepted for all integer conversion opcodes and O0/O2 boundary conformance |
 | [0096](0096-narrow-scalar-storage.md) | Narrow primitive scalar boundaries | Accepted for parameters, locals, returns and Boolean/Char CIL |
 | [0097](0097-wide-object-storage.md) | Int64 object, frame and borrow storage | Accepted for explicit wide catalogs and native collection/fault probes |
+| [0098](0098-wide-inline-and-boxed-values.md) | Int64 inline and boxed values | Accepted for typed copy/return packets and nested mutable boxing |

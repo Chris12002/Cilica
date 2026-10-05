@@ -15,7 +15,7 @@ internal static class ObjectCppBoxing
 
     internal static void Append(StringBuilder text, ImmutableArray<ValueTypePlan> plans, string objectSymbol, Func<ObjectTypeId, string> predicate)
     {
-        text.Append("// Cilica boxed-payload-runtime-v1: private helper checkpoint, not boxed IR emission.\n");
+        text.Append("// Cilica boxed-payload-runtime-v2: private typed payloads, including admitted Int64 slots.\n");
         foreach (var plan in plans)
         {
             string type = Symbol(plan.Type);
@@ -23,7 +23,7 @@ internal static class ObjectCppBoxing
             string Offset(int i) => "offsetof(" + type + ", s" + N(i) + ")";
             text.Append("struct ").Append(type).Append(" { Object header;\n");
             foreach (int i in indices)
-                text.Append("    ").Append(plan.Slots[i].Storage is ObjectStorage.Int32 ? "std::uint32_t" : "Object*")
+                text.Append("    ").Append(plan.Slots[i].Storage switch { ObjectStorage.Int32 => "std::uint32_t", ObjectStorage.Int64 => "std::uint64_t", _ => "Object*" })
                     .Append(" s").Append(N(i)).Append(";\n");
             text.Append("};\nstatic_assert(std::is_standard_layout_v<").Append(type).Append("> && std::is_trivially_destructible_v<")
                 .Append(type).Append("> && offsetof(").Append(type).Append(", header) == 0);\n");
@@ -41,7 +41,7 @@ internal static class ObjectCppBoxing
                 // borrows carry readonly capability, just like inline frame storage.
                 .Append("static constexpr std::array<FieldStorage, ").Append(N(indices.Length)).Append("> ").Append(type).Append("_storage = {{")
                 .Append(string.Join(", ", plan.Slots.Select(s => s.Storage is ObjectStorage.Reference r
-                    ? "{StorageKind::reference, false, " + predicate(r.Type) + "}" : "{StorageKind::integer, false, nullptr}"))).Append("}};\n")
+                    ? "{StorageKind::reference, false, " + predicate(r.Type) + "}" : "{StorageKind::" + (s.Storage is ObjectStorage.Int64 ? "wide_integer" : "integer") + ", false, nullptr}"))).Append("}};\n")
                 .Append("static constexpr Descriptor ").Append(type).Append("_descriptor = {sizeof(").Append(type).Append("), alignof(").Append(type)
                 .Append("), ").Append(type).Append("_references.data(), ").Append(N(references.Length))
                 .Append(", [](Object* p) noexcept { delete reinterpret_cast<").Append(type).Append("*>(p); }, &").Append(objectSymbol)
@@ -81,6 +81,8 @@ struct BoxResult { BoxStatus status; Object* value = nullptr; };
     for (std::size_t i = 0; i < count; ++i)
         if (value->type->storage[i].kind == StorageKind::integer)
             *static_cast<std::uint32_t*>(field_address(value, i)) = source[i].bits;
+        else if (value->type->storage[i].kind == StorageKind::wide_integer)
+            *static_cast<std::uint64_t*>(field_address(value, i)) = source[i].wide_bits;
         else *static_cast<Object**>(field_address(value, i)) = source[i].reference;
 }
 [[maybe_unused, gnu::noinline]] static BoxResult box_value(Context& c, const Descriptor* type, const Argument* source, std::size_t count) noexcept {
@@ -103,6 +105,7 @@ struct BoxResult { BoxStatus status; Object* value = nullptr; };
             *static_cast<Object**>(field_address(value, i)))) return BoxStatus::invalid;
     for (std::size_t i = 0; i < count; ++i)
         if (type->storage[i].kind == StorageKind::integer) output[i].bits = *static_cast<std::uint32_t*>(field_address(value, i));
+        else if (type->storage[i].kind == StorageKind::wide_integer) output[i].wide_bits = *static_cast<std::uint64_t*>(field_address(value, i));
         else output[i].reference = *static_cast<Object**>(field_address(value, i));
     return BoxStatus::complete;
 }

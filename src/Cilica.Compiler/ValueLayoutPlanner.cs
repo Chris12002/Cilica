@@ -56,9 +56,10 @@ public static class ValueLayoutPlanner
                 Require(field.Name is not null && ObjectModelValidator.FieldAttributesSupported(field.Attributes),
                     "unsupported field name/attributes.");
                 Require(field.Storage is ObjectStorage.Int32
+                    || catalog.References.Integer64 && field.Storage is ObjectStorage.Int64
                     || field.Storage is ObjectStorage.Reference reference && references.Contains(reference.Type)
                     || field.Storage is ObjectStorage.Value value && ObjectModelValidator.Identity(value.Type, 0x02),
-                    "fields require Int32, included object references or canonical inline values.");
+                    "fields require admitted integer storage, included object references or canonical inline values.");
             }
         }
         Require(catalog.Roots.All(types.ContainsKey), "root is outside the value catalog.");

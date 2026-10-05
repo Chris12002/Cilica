@@ -41,8 +41,12 @@ internal sealed class ScalarBoxingRules
         _object = values.References.ObjectBase;
         _types = new(values.References, locations: true);
     }
-    private static IrType Scalar(ObjectStorage storage) => storage is ObjectStorage.Int32 ? IrType.Int32
-        : IrType.Reference(((ObjectStorage.Reference)storage).Type);
+    private static IrType Scalar(ObjectStorage storage) => storage switch
+    {
+        ObjectStorage.Int32 => IrType.Int32, ObjectStorage.Int64 => IrType.Int64,
+        ObjectStorage.Reference reference => IrType.Reference(reference.Type),
+        _ => throw new ArgumentException("Box payload leaf is not scalar."),
+    };
     internal bool Box(IrExpression.BoxScalars box, IrType result, IReadOnlyList<IrType> values) => box.Type is not null
         && _plans.TryGetValue(box.Type, out var plan) && result == IrType.Reference(_object)
         && !box.Values.IsDefault && box.Values.Length == plan.Slots.Length && box.Values.Length <= IrLimits.MaximumParameters

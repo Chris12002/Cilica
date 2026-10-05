@@ -56,6 +56,8 @@ public static class ValueArrayIrValidator
                     or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField
                     or IrExpression.LocationField or IrExpression.ReadOnlyLocation or IrExpression.LoadLocation
                     or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
+                    || flow.Types.References.Integer64 && d.Value.Expression is (IrExpression.Constant64 or IrExpression.Binary64
+                        or IrExpression.Not64 or IrExpression.ConvertInteger or IrExpression.IntegerCast)
                     || classes && d.Value.Expression is (IrExpression.NewObject or IrExpression.LoadField)
                     || boxing && d.Value.Expression is (IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation)
                     || exceptions is not null && d.Value.Expression is (IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.IsInstance or IrExpression.CastClass or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringEquals)

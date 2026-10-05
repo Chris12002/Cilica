@@ -69,6 +69,7 @@ internal sealed class ValueIrRules
         return field.Storage switch
         {
             ObjectStorage.Int32 => IrType.Int32,
+            ObjectStorage.Int64 => IrType.Int64,
             ObjectStorage.Reference reference => IrType.Reference(reference.Type),
             ObjectStorage.Value value => IrType.Value(value.Type),
             _ => null,
