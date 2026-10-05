@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using Cilica.Metadata.Resolution;
+using Cilica.Metadata;
 using Xunit;
 
 namespace Cilica.Metadata.Tests;
@@ -53,6 +54,46 @@ public sealed class LibraryMemberBindingTests
         b.Method("M", [0, 1, 8, 0x13, 0]);
         b.Method("M", [0, 1, 8, 8]);
         b.Method("Map", [0x10, 1, 2, 0x1e, 0, 0x13, 0, 0x1e, 0], arity: 1);
+    }
+
+    [Fact]
+    public void Declaration_matches_share_a_budget_but_not_closed_arguments_plans_or_fresh_ledgers()
+    {
+        using var f = new Fixture(Shape);
+        var b = new ResolutionAssemblyBuilder(Id("ManyClosures"));
+        b.TypeReference("Example", "Box`1", b.Reference(Id("Contract")));
+        var first = b.Specification(0x15, 0x12, 5, 1, 8);
+        var second = b.Specification(0x15, 0x12, 5, 1, 10);
+        var m1 = b.Member(first, "Map", 0x10, 1, 2, 0x1e, 0, 0x13, 0, 0x1e, 0);
+        var m2 = b.Member(second, "Map", 0x10, 1, 2, 0x1e, 0, 0x13, 0, 0x1e, 0);
+        var one = b.Instantiate(m1, 0x0a, 1, 8); var two = b.Instantiate(m2, 0x0a, 1, 10);
+        var input = Success(f.Resolver.OpenInput(f.Files.Write("many.dll", b.Build(), "input")));
+        var budget = new MemberResolutionBudget(10000);
+        int before = budget.Remaining;
+        _ = Success(f.Resolver.ResolveLibraryMethod(f.Plan, input, one, budget));
+        int cold = before - budget.Remaining; before = budget.Remaining;
+        _ = Success(f.Resolver.ResolveLibraryMethod(f.Plan, input, one, budget));
+        int warm = before - budget.Remaining;
+        Assert.True(warm > 0 && warm < cold);
+        for (int i = 0; i < 100; ++i)
+        {
+            var binding = Success(f.Resolver.ResolveLibraryMethod(f.Plan, input, i % 2 == 0 ? one : two, budget));
+            var expected = new TypeSignature.Primitive(i % 2 == 0 ? PrimitiveTypeCode.Int32 : PrimitiveTypeCode.Int64);
+            Assert.Equal(expected, binding.Implementation.Signature.ReturnType);
+            Assert.All(binding.Implementation.Signature.Parameters, p => Assert.Equal(expected, p));
+            Assert.Equal(expected, Assert.Single(binding.Implementation.DeclaringType.Arguments));
+            Assert.Equal(expected, Assert.Single(binding.Implementation.MethodArguments));
+        }
+        Error(f.Resolver.ResolveLibraryMethod(f.Plan, input, one, new(warm)), DiagnosticIds.TranslationLimit);
+        var shortBudget = new MemberResolutionBudget(cold - 1);
+        Error(f.Resolver.ResolveLibraryMethod(f.Plan, input, one, shortBudget), DiagnosticIds.TranslationLimit);
+        Error(f.Resolver.ResolveLibraryMethod(f.Plan, input, one, shortBudget), DiagnosticIds.TranslationLimit);
+        var other = new ResolutionAssemblyBuilder(Id("OtherImplementation")); other.Type("Example", "Box`1", arity: 1);
+        other.Method("Different", [0, 0, 1]);
+        var image = Success(f.Resolver.OpenInput(f.Files.Write("other.dll", other.Build())));
+        var plan = Success(f.Resolver.CreateLibraryBindingPlan([new(Success(f.Resolver.ResolveType(f.Contract, "Example", "Box`1")),
+            Success(f.Resolver.ResolveType(image, "Example", "Box`1")))]));
+        Error(f.Resolver.ResolveLibraryMethod(plan, input, one, budget), DiagnosticIds.MemberNotFound);
     }
 
     [Fact]

@@ -27,30 +27,41 @@ public sealed partial class AssemblyResolver
             var owner = ProjectLibraryOwner(plan, source.DeclaringType, budget);
             var arguments = new SignatureList<TypeSignature>(source.MethodArguments.Select(a => ProjectLibrarySignature(plan, a, budget)));
             var sourceImage = source.DeclaringType.Definition.Assembly;
-            var sourceDefinition = sourceImage.Image.Reader.GetMethodDefinition(source.Handle);
-            string name = sourceImage.Image.Reader.GetString(sourceDefinition.Name);
-            var wanted = ProjectLibraryMethodSignature(plan, MethodDefinitionSignature(sourceImage, source.Handle), budget);
-            var targetImage = owner.Definition.Assembly;
-            var reader = targetImage.Image.Reader;
-            MethodDefinitionHandle selected = default;
-            foreach (var candidate in MethodCandidates(owner.Definition, name, budget))
+            // Match the immutable declaration once per exact plan/image/token in
+            // this ledger. Closing arguments and executable constraint proof remain
+            // per call; this cache grants neither access nor intrinsic authority.
+            InspectMember(budget);
+            var key = (plan, sourceImage, source.Handle);
+            if (!budget.LibraryMethods.TryGetValue(key, out var matched))
             {
-                InspectMember(budget);
-                var definition = reader.GetMethodDefinition(candidate);
-                if (!reader.StringComparer.Equals(definition.Name, name)) continue;
-                var signature = ProjectLibraryMethodSignature(plan, MethodDefinitionSignature(targetImage, candidate), budget);
-                if (signature != wanted) continue;
-                if (!selected.IsNil) throw Failure(DiagnosticIds.MemberConflict, "Multiple implementation methods match the mapped declaration: " + name);
-                selected = candidate;
+                var sourceDefinition = sourceImage.Image.Reader.GetMethodDefinition(source.Handle);
+                string name = sourceImage.Image.Reader.GetString(sourceDefinition.Name);
+                var wanted = ProjectLibraryMethodSignature(plan, MethodDefinitionSignature(sourceImage, source.Handle), budget);
+                var targetImage = owner.Definition.Assembly;
+                var reader = targetImage.Image.Reader;
+                MethodDefinitionHandle selected = default;
+                foreach (var candidate in MethodCandidates(owner.Definition, name, budget))
+                {
+                    InspectMember(budget);
+                    var definition = reader.GetMethodDefinition(candidate);
+                    if (!reader.StringComparer.Equals(definition.Name, name)) continue;
+                    var signature = ProjectLibraryMethodSignature(plan, MethodDefinitionSignature(targetImage, candidate), budget);
+                    if (signature != wanted) continue;
+                    if (!selected.IsNil) throw Failure(DiagnosticIds.MemberConflict, "Multiple implementation methods match the mapped declaration: " + name);
+                    selected = candidate;
+                }
+                if (selected.IsNil) throw Failure(DiagnosticIds.MemberNotFound, "No implementation method matches the mapped owner and declaration signature: " + name);
+                var targetDefinition = reader.GetMethodDefinition(selected);
+                const MethodAttributes flags = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.Virtual
+                    | MethodAttributes.Abstract | MethodAttributes.Final | MethodAttributes.NewSlot | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
+                if ((sourceDefinition.Attributes & flags) != (targetDefinition.Attributes & flags))
+                    throw InvalidLibraryBinding("Mapped method access, instance/static, dispatch or special-name attributes differ: " + name);
+                CompareLibraryParameters(plan, sourceImage, source.Handle, targetImage, selected, budget);
+                matched = (owner.Definition, selected, wanted);
+                budget.LibraryMethods.Add(key, matched);
             }
-            if (selected.IsNil) throw Failure(DiagnosticIds.MemberNotFound, "No implementation method matches the mapped owner and declaration signature: " + name);
-            var targetDefinition = reader.GetMethodDefinition(selected);
-            const MethodAttributes flags = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.Virtual
-                | MethodAttributes.Abstract | MethodAttributes.Final | MethodAttributes.NewSlot | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-            if ((sourceDefinition.Attributes & flags) != (targetDefinition.Attributes & flags))
-                throw InvalidLibraryBinding("Mapped method access, instance/static, dispatch or special-name attributes differ: " + name);
-            CompareLibraryParameters(plan, sourceImage, source.Handle, targetImage, selected, budget);
-            return new LibraryMethodBinding(source, new(owner, selected, arguments, Substitute(wanted, owner.Arguments, arguments)));
+            return new LibraryMethodBinding(source, new(new(matched.Owner, owner.Arguments), matched.Method, arguments,
+                Substitute(matched.Signature, owner.Arguments, arguments)));
         });
     }
 

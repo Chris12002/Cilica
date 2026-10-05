@@ -13,6 +13,8 @@ public sealed class MemberResolutionBudget
     // scans are retained; signatures, mappings and closed contexts are not cached.
     internal Dictionary<ResolvedType, Dictionary<string, List<MethodDefinitionHandle>>> MethodNames { get; } = new();
     internal Dictionary<ResolvedType, Dictionary<string, List<FieldDefinitionHandle>>> FieldNames { get; } = new();
+    internal Dictionary<(LibraryBindingPlan Plan, ResolvedAssembly Image, MethodDefinitionHandle Method),
+        (ResolvedType Owner, MethodDefinitionHandle Method, MethodSignature Signature)> LibraryMethods { get; } = new();
     public MemberResolutionBudget(int maximumMembers = 65536)
     {
         if (maximumMembers is <= 0 or > 65536) throw new ArgumentOutOfRangeException(nameof(maximumMembers));
@@ -21,7 +23,7 @@ public sealed class MemberResolutionBudget
     private MemberResolutionBudget(MemberResolutionBudget parent, int maximum)
     {
         _parent = parent; _remaining = maximum;
-        MethodNames = parent.MethodNames; FieldNames = parent.FieldNames;
+        MethodNames = parent.MethodNames; FieldNames = parent.FieldNames; LibraryMethods = parent.LibraryMethods;
     }
     internal MemberResolutionBudget Limit(int maximum) => maximum is > 0 and <= 65536
         ? new(this, Math.Min(maximum, Remaining)) : throw new ArgumentOutOfRangeException(nameof(maximum));
