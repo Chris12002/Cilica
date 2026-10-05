@@ -15,6 +15,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --profile core --assembly-name Cilica.Core \
   --source library/Cilica.Core/CoreTypes.cs \
   --source library/Cilica.Core/IntegerText.cs \
+  --source library/Cilica.Core/CollectionContracts.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
@@ -39,7 +40,13 @@ The four integer `ToString(IFormatProvider)` methods require directly proven
 pinned source's shared numeric identity without aliasing literals. The private
 cache helpers are callable only by the selected core image and need exact grants.
 
+`CollectionContracts.cs` supplies read-only collection and enumeration interfaces
+with their pinned inheritance and variance. Six native probes exercise exact
+mapped calls on application collections, including Int64 elements and reference
+enumeration. This does not implement List storage, array interface helpers or
+variance-only dispatch (ADR 0135).
+
 This is a bounded core trial. General formatting/culture/provider members,
-StringBuilder, collections, full reflection and general CoreLib compatibility
+StringBuilder, library collection implementations, full reflection and general CoreLib compatibility
 remain unimplemented. The image is metadata input to Cilica, never loaded into
-the host CLR. See ADRs 0131–0134 for scope and review evidence.
+the host CLR. See ADRs 0131–0135 for scope and review evidence.

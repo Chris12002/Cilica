@@ -45,6 +45,10 @@
   "intrinsicGrants": [],
   "ownedSources": [
     {
+      "path": "library/Cilica.Core/CollectionContracts.cs",
+      "scope": "Owned read-only collection/enumeration contracts preserve pinned inheritance, variance and members. Exact mapped application dispatch is tested; library collection storage, array helpers and variance-only dispatch remain pending. No new intrinsic grant."
+    },
+    {
       "path": "library/Cilica.Core/CoreTypes.cs",
       "intrinsicRequests": "library/Cilica.Core/intrinsic-requests.json",
       "scope": "Cilica-owned zero-reference declarations. Exact string/exception/provider/integer-hash and directly proven invariant ToString mappings tested against the pinned reference image. General formatting, provider aliases, reflection and platform compatibility remain unclaimed. Build-specific intrinsic approval remains independent."

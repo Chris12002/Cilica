@@ -1065,6 +1065,12 @@ members, general formatting and provider proofs through aliases remain pending. 
 loaded into the host CLR. Unsupported declarations, including string hashing,
 remain diagnostic; general CoreLib and kernel compatibility are not claimed.
 
+The owned core also preserves the pinned read-only collection and enumeration
+contracts, including interface inheritance and covariance. Exact mapped dispatch
+is tested on application collections with Int64 and reference elements; library
+collection storage, array helpers and variance-only dispatch remain pending
+([ADR 0135](decisions/0135-owned-read-only-collection-contracts.md)).
+
 Recognised framework types map to canonical runtime types. Resolve supported
 facades and type forwarders deliberately. User types retain assembly-qualified
 identity; never match solely by a short type name.

@@ -29,13 +29,14 @@ public sealed class CoreLibraryBuildTests
         var requests = LibraryIntrinsicRequests.Read(CorePath("intrinsic-requests.json"));
         var request = LibraryBuildProducerTests.Request(files, CorePath("CoreTypes.cs"));
         string reference = request.References.Single();
-        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs"))], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
+        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs"))], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
         var built = await LibraryBuilder.Build(request);
         var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!, Path.GetDirectoryName(built.AssemblyPath)!,
             Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;
         var contract = resolver.OpenInput(reference).Value!; Assert.True(contract.IsReferenceAssembly);
         var implementation = resolver.OpenInput(built.AssemblyPath).Value!;
         var names = requests.Where(r => r.Namespace != "Cilica.Runtime").Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Concat(new[] { "Int32", "UInt32", "Int64", "UInt64" }.Select(n => ("System", n))).Distinct().ToArray();
+        names = names.Concat(CollectionContractNames).ToArray();
         var pairs = names.Select(name => new LibraryTypeMapping(resolver.ResolveType(contract, name.Item1, name.Item2).Value!,
             resolver.ResolveType(implementation, name.Item1, name.Item2).Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);
@@ -43,19 +44,27 @@ public sealed class CoreLibraryBuildTests
         return (built, request, resolver, implementation, plan.Value!);
     }
 
+    internal static readonly (string Namespace, string Name)[] CollectionContractNames = [
+        ("System", "IDisposable"), ("System.Collections", "IEnumerable"), ("System.Collections", "IEnumerator"),
+        ("System.Collections.Generic", "IEnumerable`1"), ("System.Collections.Generic", "IEnumerator`1"),
+        ("System.Collections.Generic", "IReadOnlyCollection`1"), ("System.Collections.Generic", "IReadOnlyList`1")];
+
     internal static async Task<ManagedExceptionIrProgram> TranslateFixture(string name) => (await TranslateFixtures(name))[0];
 
     internal static async Task<ManagedExceptionIrProgram[]> TranslateFixtures(params string[] names)
+        => await TranslateFixtures(typeof(CoreLibraryProbe), names);
+
+    internal static async Task<ManagedExceptionIrProgram[]> TranslateFixtures(Type fixture, params string[] names)
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await BuildAndMap(files);
         using var resolverLifetime = resolver;
         var bytes = await File.ReadAllBytesAsync(built.ManifestPath);
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(CoreLibraryProbe).Assembly.Location).Value!;
+        var input = resolver.OpenInput(fixture.Assembly.Location).Value!;
         return names.Select(name => {
             var translated = ValueTranslator.TranslateIntegerObjects(scope, input,
-                (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(name)!.MetadataToken), implementation);
+                (MethodDefinitionHandle)MetadataTokens.EntityHandle(fixture.GetMethod(name)!.MetadataToken), implementation);
             Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
             return translated.Program!;
         }).ToArray();
