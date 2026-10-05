@@ -7,7 +7,7 @@ namespace Cilica.Compiler;
 /// <summary>Inline copies and synchronous borrows composed with bounded vector allocation/access.</summary>
 public sealed record ValueArrayIrProgram(ManagedLocationIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "value-arrays-ir-v1";
+    public const string Profile = "value-arrays-ir-v2";
 }
 
 public static class ValueArrayIrValidator
@@ -62,7 +62,7 @@ public static class ValueArrayIrValidator
                     or IrExpression.Parameter or IrExpression.Local or IrExpression.StackInput
                     or IrExpression.Binary or IrExpression.Unary or IrExpression.Compare or IrExpression.Call
                     or IrExpression.DefaultValue or IrExpression.ValueField or IrExpression.WithValueField
-                    or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField
+                    or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressElement
                     or IrExpression.LocationField or IrExpression.ReadOnlyLocation or IrExpression.LoadLocation
                     or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                     || flow.Types.References.Integer64 && d.Value.Expression is (IrExpression.Constant64 or IrExpression.Binary64

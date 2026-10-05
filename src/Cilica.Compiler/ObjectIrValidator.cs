@@ -36,6 +36,7 @@ internal sealed class ObjectIrRules
     private readonly Dictionary<ObjectTypeId, ObjectTypeLayout> _layouts;
     private readonly HashSet<ObjectTypeId> _contracts;
     private readonly HashSet<ObjectTypeId> _arrays;
+    private readonly Dictionary<ObjectTypeId, ValueTypeLayout>? _valueLayouts;
     private readonly IrTypeRules _types;
     private readonly ObjectDispatchRules _dispatch;
     private readonly ObjectInterfaceOperationRules _interfaces;
@@ -57,6 +58,7 @@ internal sealed class ObjectIrRules
         _layouts = flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         _contracts = flow.Types.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _arrays = flow.Types.Arrays.ToHashSet();
+        _valueLayouts = values?.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         _fields = flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         Require(!flow.Methods.IsDefault && flow.Methods.Length is > 0 and <= ProgramLimits.MaximumMethods
             && !program.Bindings.IsDefault && program.Bindings.Length == flow.Methods.Length, "bounded methods and matching bindings are required.");
@@ -210,6 +212,7 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.InvariantCulture c } => new[] { c.Type },
         IrStatement.Define { Value.Expression: IrExpression.EmptyArray a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
+        IrStatement.Define { Value.Expression: IrExpression.AddressElement a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.AddressArraySlot a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },
         IrStatement.StoreElement a => new[] { a.ArrayType },
@@ -283,11 +286,18 @@ internal sealed class ObjectIrRules
         return _literals.Count <= ObjectStringLimits.MaximumDistinctLiterals;
     }
 
-    internal IrType? ArrayElement(ObjectTypeId? array) => array is not null && _types.Valid(IrType.Reference(array), true) && _arrays.Contains(array) && array.ArrayElement!.Kind != ObjectArrayElementKind.Value
-        ? array.ArrayElement!.Type is { } element ? IrType.Reference(element) : IrType.Int32 : null;
+    internal IrType? ArrayElement(ObjectTypeId? array) => array is not null && _types.Valid(IrType.Reference(array), true) && _arrays.Contains(array)
+        ? array.ArrayElement!.Kind switch {
+            ObjectArrayElementKind.Int32 => IrType.Int32,
+            ObjectArrayElementKind.Reference => IrType.Reference(array.ArrayElement.Type!),
+            ObjectArrayElementKind.Value when _valueLayouts?.ContainsKey(array.ArrayElement.Type!) == true => IrType.Value(array.ArrayElement.Type!),
+            _ => null } : null;
 
     internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array) => array is not null && _arrays.Contains(array)
-        && (array.ArrayElement!.Kind != ObjectArrayElementKind.Reference || TypeTest(caller, array.ArrayElement.Type!));
+        && (array.ArrayElement!.Kind != ObjectArrayElementKind.Reference || TypeTest(caller, array.ArrayElement.Type!))
+        && (array.ArrayElement.Kind != ObjectArrayElementKind.Value || _valueLayouts is null
+            || _valueLayouts.TryGetValue(array.ArrayElement.Type!, out var layout)
+                && (layout.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == array.ArrayElement.Type));
 
     internal bool ArrayLength(int array, IReadOnlyList<IrType> values) => array >= 0 && array < values.Count
         && (values[array] == IrType.NullReference || values[array].Class is { } type && _arrays.Contains(type));

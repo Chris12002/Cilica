@@ -14,8 +14,11 @@ internal sealed class HeapValueFields
 
     internal HeapValueFields(ValueTypeCatalog values, IReadOnlyDictionary<ObjectTypeId, ValueTypePlan> plans)
     {
+        var arrays = values.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value)
+            .Select(a => a.ArrayElement!.Type!).Distinct().Select(type => new ObjectValueArrayLayout(type,
+                plans[type].Slots.IsEmpty ? [new ObjectStorage.Int32()] : [.. plans[type].Slots.Select(s => s.Storage)])).ToImmutableArray();
         if (!values.References.Types.Any(t => t.Fields.Any(f => f.Storage is ObjectStorage.Value)))
-        { Catalog = values.References; return; }
+        { Catalog = values.References with { ValueArrays = arrays }; ObjectModelValidator.Validate(Catalog); return; }
         int count = 0;
         var layouts = ImmutableArray.CreateBuilder<ObjectTypeLayout>();
         foreach (var layout in values.References.Types)
@@ -41,7 +44,7 @@ internal sealed class HeapValueFields
             if (count > ObjectModelLimits.MaximumFields) throw new ArgumentException("Expanded heap field limit exceeded.");
             layouts.Add(layout with { Fields = fields.ToImmutable() });
         }
-        Catalog = values.References with { Types = layouts.ToImmutable() };
+        Catalog = values.References with { Types = layouts.ToImmutable(), ValueArrays = arrays };
         ObjectModelValidator.Validate(Catalog);
     }
 }

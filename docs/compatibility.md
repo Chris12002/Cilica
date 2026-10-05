@@ -1663,3 +1663,11 @@ descriptors, indices, leaf kinds and reference predicates (ADR 0167; scalar loca
 IR v2/native v35). Twelve focused/composed checks include 288 repeated O0/O2
 .NET/native outcomes with sanitizers and forced collection. Logical value element
 operations and CIL/library admission are still pending.
+
+
+Logical closed value-array loads/stores and synchronous element borrows now lower
+to checked scalar components (ADR 0168; value array IR v2/value location lowering
+v4). Shapes derive from the validated struct plan; copies snapshot fields, roots
+retain references/owners, and empty structs retain null/bounds checks. Thirty-four
+focused/composed checks include 576 repeated O0/O2 .NET/native outcomes. CIL and
+collection/interface admission remain pending.

@@ -32,7 +32,7 @@ internal sealed class ManagedLocationRules
     internal ManagedLocationRules(ValueTypeCatalog catalog, ValueIrRules values) : this(catalog.References, catalog, values) { }
     internal ManagedLocationRules(ObjectTypeCatalog references, ValueTypeCatalog? catalog = null, ValueIrRules? values = null)
     {
-        _arrays = references.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).ToDictionary(a => a, a => references.ValueArrays.Single(v => v.Type == a.ArrayElement!.Type));
+        _arrays = catalog is not null ? [] : references.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).ToDictionary(a => a, a => references.ValueArrays.Single(v => v.Type == a.ArrayElement!.Type));
         _heapFields = references.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         _types = new(references, catalog, locations: true); _values = values;
     }

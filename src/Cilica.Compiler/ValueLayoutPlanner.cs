@@ -85,7 +85,9 @@ public static class ValueLayoutPlanner
         var included = new HashSet<ObjectTypeId>();
         var heapValues = catalog.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>().Select(v => v.Type).ToArray();
         Require(heapValues.All(types.ContainsKey), "heap inline field target is outside the value catalog.");
-        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues));
+        var arrayValues = catalog.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).Select(a => a.ArrayElement!.Type!).ToArray();
+        Require(arrayValues.All(types.ContainsKey), "array element is outside the value catalog.");
+        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues).Concat(arrayValues));
         while (pending.TryPop(out var id))
             if (included.Add(id)) foreach (var child in children[id]) pending.Push(child);
         Require(included.Count == types.Count, "catalog contains unrelated inline types.");
@@ -128,6 +130,12 @@ public static class ValueLayoutPlanner
             foreach (var parent in parents[id]) if (--outstanding[parent] == 0) ready.Enqueue(parent);
         }
         Require(plans.Count == types.Count, "recursive inline containment has no finite layout.");
+        foreach (var shape in catalog.References.ValueArrays)
+        {
+            var slots = plans[shape.Type].Slots;
+            IEnumerable<ObjectStorage> expected = slots.IsEmpty ? [new ObjectStorage.Int32()] : slots.Select(s => s.Storage);
+            Require(shape.Slots.SequenceEqual(expected), "value-array scalar shape contradicts the logical layout.");
+        }
         return [.. catalog.Types.Select(t => plans[ObjectTypeId.From(t.Source)])];
     }
 

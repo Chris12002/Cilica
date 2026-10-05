@@ -182,8 +182,11 @@ public static class ObjectModelValidator
             Require(layout.Slots.All(s => s is ObjectStorage.Int32 or ObjectStorage.Int64
                 || s is ObjectStorage.Reference r && Known(r.Type)), "value-array leaves require known scalar storage.");
         }
-        Require(arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).Select(a => a.ArrayElement!.Type!)
-            .ToHashSet().SetEquals(valueArrays.Keys), "value-array identities and scalar layouts disagree.");
+        var valueElements = arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).Select(a => a.ArrayElement!.Type!).ToHashSet();
+        // Logical catalogs derive scalar shapes from their separately validated
+        // value layouts; detached scalar catalogs must supply every shape.
+        Require(inlineFields ? valueArrays.Keys.All(valueElements.Contains) : valueElements.SetEquals(valueArrays.Keys),
+            "value-array identities and scalar layouts disagree.");
         foreach (var array in arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Reference))
             Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element) || element == model.String || delegates.Contains(element),
                 "array reference element is outside the nominal catalog.");
@@ -219,8 +222,8 @@ public static class ObjectModelValidator
                 else if (arrays.Contains(id))
                 {
                     if (id.ArrayElement!.Kind == ObjectArrayElementKind.Reference) pending.Push(id.ArrayElement.Type!);
-                    if (id.ArrayElement.Kind == ObjectArrayElementKind.Value)
-                        foreach (var slot in valueArrays[id.ArrayElement.Type!].Slots.OfType<ObjectStorage.Reference>()) pending.Push(slot.Type);
+                    if (id.ArrayElement.Kind == ObjectArrayElementKind.Value && valueArrays.TryGetValue(id.ArrayElement.Type!, out var valueLayout))
+                        foreach (var slot in valueLayout.Slots.OfType<ObjectStorage.Reference>()) pending.Push(slot.Type);
                 }
                 else if (interfaces.TryGetValue(id, out var contract))
                 {

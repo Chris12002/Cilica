@@ -9,7 +9,7 @@ namespace Cilica.Compiler;
 public static class ValueScalarLowering
 {
     public const string Profile = "value-scalars-v2";
-    public const string LocationProfile = "value-location-scalars-v3";
+    public const string LocationProfile = "value-location-scalars-v4";
 
     public static ScalarManagedExceptionIrProgram LowerExceptions(ManagedExceptionIrProgram program)
     {
@@ -272,7 +272,20 @@ public static class ValueScalarLowering
                     }
                     if (statement is IrStatement.StoreElement element)
                     {
-                        Emit(element with { Array = One(element.Array), Index = One(element.Index), Value = One(element.Value) });
+                        if (element.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Value)
+                        {
+                            var shape = heap.Catalog.ValueArrays.Single(a => a.Type == element.ArrayType.ArrayElement.Type);
+                            var elementTypes = Expand(IrType.Value(shape.Type));
+                            for (int i = 0; i < shape.Slots.Length; ++i)
+                            {
+                                int source = values[element.Value].IsEmpty ? Define(IrType.Int32, element.ILOffset, new IrExpression.Constant(0)) : values[element.Value][i];
+                                var scalarType = values[element.Value].IsEmpty ? IrType.Int32 : elementTypes[i];
+                                int address = Define(IrType.Location(scalarType), element.ILOffset,
+                                    new IrExpression.AddressArraySlot(element.ArrayType, One(element.Array), One(element.Index), i), element.Exceptional);
+                                Emit(new IrStatement.StoreLocation(element.ILOffset, address, source, element.Exceptional));
+                            }
+                        }
+                        else Emit(element with { Array = One(element.Array), Index = One(element.Index), Value = One(element.Value) });
                         continue;
                     }
                     if (statement is IrStatement.StoreStatic staticStore)
@@ -298,6 +311,24 @@ public static class ValueScalarLowering
                     var ids = ImmutableArray.CreateBuilder<int>();
                     switch (value.Expression)
                     {
+                        case IrExpression.LoadElement vectorElement when vectorElement.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Value:
+                            for (int i = 0; i < Math.Max(1, expanded.Length); ++i)
+                            {
+                                var scalar = expanded.IsEmpty ? IrType.Int32 : expanded[i];
+                                int location = Define(IrType.Location(scalar), value.ILOffset,
+                                    new IrExpression.AddressArraySlot(vectorElement.ArrayType, One(vectorElement.Array), One(vectorElement.Index), i), definition.Exceptional);
+                                int loaded = Define(scalar, value.ILOffset, new IrExpression.LoadLocation(location), definition.Exceptional);
+                                if (!expanded.IsEmpty) ids.Add(loaded);
+                            }
+                            break;
+                        case IrExpression.AddressElement vectorElement:
+                            for (int i = 0; i < Math.Max(1, expanded.Length); ++i)
+                            {
+                                int location = Define(expanded.IsEmpty ? IrType.Location(IrType.Int32, value.Type.ReadOnly) : expanded[i], value.ILOffset,
+                                    new IrExpression.AddressArraySlot(vectorElement.ArrayType, One(vectorElement.Array), One(vectorElement.Index), i), definition.Exceptional);
+                                if (!expanded.IsEmpty) ids.Add(location);
+                            }
+                            break;
                         case IrExpression.LoadField field when heap.Fields.ContainsKey(field.Field):
                             var loadedFields = heap.Fields[field.Field];
                             for (int i = 0; i < loadedFields.Length; ++i)
