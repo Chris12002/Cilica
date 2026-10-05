@@ -71,7 +71,7 @@ separately. Historical checkpoint sections retain their original stage-specific 
 | `typed-reference-ir-v5` | Detached caller-constructed IR validation | Class/interface/array/String references/null, ancestry, reference-vector covariance and typed flow; String metadata/signature flow and bounded native storage are implemented |
 | `interface-dispatch-plan-v1` | Bounded metadata-backed dispatch preparation and detached validation | Bodyless interface signatures, class method facts and complete receiver maps; CIL bodies/access/calls and native execution remain separate |
 | `object-operations-ir-v10` | Bounded nominal/vector/String CIL and selected integer instance methods | Existing rooted string/array operations plus invariant provider contracts/cache operations and exact Int32/UInt32/Int64/UInt64 scalar receivers; integer hashing/formatting use ordinary managed code (ADRs 0132–0134) |
-| `object-frames-native-v21` | C++20 emission and local native differential execution | v20 capabilities plus the bounded numeric string cache (ADR 0134); invariant-provider root/cache (ADR 0132); traced argument-exception parameter payloads (ADR 0113); explicit Int64 class fields, frames, calls, checked borrows and inline/boxed payloads; wide CIL uses the explicit integer-object API; wide arrays remain pending (ADRs 0097–0099). Existing UTF-16 strings, Int32/reference vectors, class/interface dispatch, bounded collection, handles and managed exceptions retain their documented limits |
+| `object-frames-native-v22` | C++20 emission and local native differential execution | v20 capabilities plus the bounded numeric string cache (ADR 0134); invariant-provider root/cache (ADR 0132); traced argument-exception parameter payloads (ADR 0113); explicit Int64 class fields, frames, calls, checked borrows and inline/boxed payloads; wide CIL uses the explicit integer-object API; wide arrays remain pending (ADRs 0097–0099). Existing UTF-16 strings, Int32/reference vectors, class/interface dispatch, bounded collection, handles and managed exceptions retain their documented limits |
 | `managed-exceptions-cil-v1` | Bounded CIL catch/finally/fault, throw/rethrow, pure type-test filters and native execution | Selected exception shells, verified fieldless custom exceptions and forwarding constructors, messages/literals, runtime fault types and contextual class-cast/unbox messages; composes with closed generics/boxes/delegates; general filters, virtual exception APIs, localization and interface-target cast messages remain diagnostic |
 | Broader managed runtime and library | Planned | General arrays beyond the bounded vector profile, broader String APIs, advanced GC features, general filters, broad library and public embedding support are unimplemented |
 
@@ -1404,7 +1404,7 @@ exception objects or handler execution.
 
 ## Authored exception contracts
 
-`managed-exceptions-ir-v1` validates intrinsic exception identities, explicit throw/
+`managed-exceptions-ir-v2` validates intrinsic exception identities, explicit throw/
 rethrow/leave/cleanup/filter terminators, region entry stacks and protected transfers
 (ADR 0082). Type-test filters are pure and acyclic; saved identities reserve bounded
 phase A roots. Earlier native profiles reject these operations. This checkpoint does
@@ -1418,7 +1418,7 @@ ASan/UBSan checks cover ownership, collection, exact heap capacity and emergency
 allocation fallback. The emergency object is charged to the normal instance quota.
 This helper gate does not execute handler IR or supply default/resource messages.
 
-The authored `scalar-managed-exceptions-ir-v1` profile now executes catch, pure type
+The authored `scalar-managed-exceptions-ir-v2` profile now executes catch, pure type
 filters, throw/rethrow and leave/finally/fault through explicit native continuations
 ([ADR 0084](decisions/0084-native-exception-dispatch.md)). Messages preserve supplied UTF-16
 and bounded invariant defaults; O0/O2 sanitizer checks cover rooted identity and
@@ -1460,3 +1460,13 @@ var cpp = ObjectCppEmitter.EmitExceptions(scalar);
 `entry` is the selected static Int32 MethodDef; `runtimeLibrary` is an explicitly
 resolved implementation assembly. Translation performs bounded discovery and validates
 the complete supported closure before emitting any native source.
+
+
+Owned Guid support (ADR 0138) now covers numeric constructors, Empty, typed
+identity/hash/unsigned comparison and standard D/N/B/P/X formatting through
+managed IL. Four Int32 words are an internal representation, not a public layout
+or serialization ABI. Boxed value type tests, parsing, random generation and
+byte/span APIs remain outside the admitted profile. Exception IR v2 and native
+v22 add exact System/Arithmetic/Format resources, including distinct explicit-null
+behavior and resource identity. Native Guid evidence is pinned to the local
+little-endian .NET oracle; this does not complete the real-kernel milestone.

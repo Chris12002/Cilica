@@ -45,6 +45,7 @@ public static partial class ValueProgramDiscovery
                 _references.TryAdd(id, new(type, SignatureList<TypeSignature>.Empty));
                 if (i == 0) _exceptionBase = id;
                 if (integers64 && i == 10) _argumentBase = id;
+                if (integers64 && i is 1 or 2) _exceptionResources.Add(new(id, i == 1 ? ExceptionResourceKind.System : ExceptionResourceKind.Arithmetic));
                 if (i >= 11) _exceptionResources.Add(new(id, (ExceptionResourceKind)(i - 11)));
                 if (statuses[i] != 0) _runtimeFaults.Add(new(statuses[i], id));
             }
@@ -77,7 +78,24 @@ public static partial class ValueProgramDiscovery
                 var id = ObjectModelBuilder.Id(current);
                 if (!seen.Add(id) || seen.Count > ObjectModelLimits.MaximumOwnerDepth) Fail(work, "Cyclic or excessive exception class ancestry.", offset);
                 if (_exceptionTypes.Contains(id)) break;
-                var input = Snapshot(current, work, offset); chain.Add((current, input));
+                var input = Snapshot(current, work, offset);
+                if (integers64 && input.Source.Name == "System.FormatException"
+                    && current == Require(resolver.ResolveType(library, "System", "FormatException"), work, offset))
+                {
+                    _ = Require(resolver.AuthorizeLibraryIntrinsic(current.Assembly, current.Handle, LibraryIntrinsicCapability.ExceptionLayout), work, offset);
+                    if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || !input.ExternallyVisible
+                        || input.BaseType is not TypeSignature.Named formatBase
+                        || ObjectModelBuilder.Id(formatBase.Definition) != _exceptionResources.Single(r => r.Kind == ExceptionResourceKind.System).Type)
+                        Fail(work, "Selected FormatException requires a public nongeneric implementation directly derived from selected SystemException.", offset);
+                    _snapshots[id] = input with { Fields = [], Interfaces = [], InterfaceCount = 0,
+                        Attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit, PackingSize = 0, ClassSize = 0,
+                        HasTypeInitializer = false, HasModuleInitializer = false };
+                    _frameworkExceptions.Add(id); _exceptionTypes.Add(id);
+                    _references.TryAdd(id, new(current, SignatureList<TypeSignature>.Empty));
+                    _exceptionResources.Add(new(id, ExceptionResourceKind.Format));
+                    break;
+                }
+                chain.Add((current, input));
                 if (input.BaseType is not TypeSignature.Named parent) return;
                 current = parent.Definition;
             }
@@ -207,7 +225,8 @@ public static partial class ValueProgramDiscovery
             var parent = Snapshot(target.DeclaringType.Definition, work, offset).BaseType as TypeSignature.Named;
             if (parent is null || ObjectModelBuilder.Id(parent.Definition) != ClosedId(called.DeclaringType, work, offset) || called.Signature.Parameters.Count != count)
                 Fail(work, "Custom exception constructor must call its direct base with the same signature.", offset);
-            if (_exceptionResources.Any(r => r.Type == ClosedId(called.DeclaringType, work, offset)))
+            if (_exceptionResources.Any(r => r.Type == ClosedId(called.DeclaringType, work, offset)
+                && !(r.Kind == ExceptionResourceKind.System && count == 1)))
                 Fail(work, "Custom forwarding to additional runtime exception constructors requires preserved constructor semantics.", offset);
             ValidateExceptionConstructor(called, work, offset, depth + 1); _constructors.Add(id);
         }

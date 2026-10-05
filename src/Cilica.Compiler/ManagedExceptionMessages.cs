@@ -37,10 +37,15 @@ internal static class ManagedExceptionMessages
                 ExceptionResourceKind.ArgumentOutOfRange => "Specified argument was out of the range of valid values.",
                 ExceptionResourceKind.InvalidOperation => "Operation is not valid due to the current state of the object.",
                 ExceptionResourceKind.NotSupported => "Specified method is not supported.",
+                ExceptionResourceKind.Format => "One of the identified items was in an invalid format.",
+                ExceptionResourceKind.System => "System error.",
+                ExceptionResourceKind.Arithmetic => "Overflow or underflow in the arithmetic operation.",
                 _ => throw new ArgumentException("Unknown exception resource.") };
             for (int kind = 0; kind < 3; ++kind)
             {
-                string text = kind == 0 && status == 0 && !resources.ContainsKey(type) ? generic : kind == 2 && status == 12 && !resources.ContainsKey(type) ? "Delegate to an instance method cannot have null 'this'." : ordinary;
+                bool genericNull = kind == 0 && (status == 0 && !resources.ContainsKey(type)
+                    || resources.TryGetValue(type, out var messageResource) && messageResource == ExceptionResourceKind.System);
+                string text = genericNull ? generic : kind == 2 && status == 12 && !resources.ContainsKey(type) ? "Delegate to an instance method cannot have null 'this'." : ordinary;
                 if (unique.Add(text) && (units += text.Length) > ObjectStringLimits.MaximumTotalLiteralCodeUnits)
                     throw new ArgumentException("Exception message resource budget exceeded.");
                 result.Add((type, kind), text);

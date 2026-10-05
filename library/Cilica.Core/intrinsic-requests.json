@@ -453,5 +453,26 @@
     "Member": "Publish",
     "ParameterCount": 2,
     "Capability": "IntegerTextCachePublish"
+  },
+  {
+    "Namespace": "System",
+    "Type": "FormatException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "FormatException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "FormatException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
   }
 ]

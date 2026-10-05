@@ -22,6 +22,26 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Number.Formatting.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Number.Formatting.cs",
       "sha256": "9abe57939b6f91ea75bc56c40a40e2319600b2fae51a454dc86e9029117f7f89"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Guid.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Guid.cs",
+      "sha256": "8849825055730b57406e92c1851d5d7fd868d0981fed619b658082578ef219a8"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/Resources/Strings.resx",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/Resources/Strings.resx",
+      "sha256": "1d109264f46cab42c410771f08d213d61676b747827aa42d72c2d2306f5decd9"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/SystemException.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/SystemException.cs",
+      "sha256": "eb883067908c5145e4a877dccdcb70822b4af05a67d69cd4bc649806a56f4007"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ArithmeticException.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/ArithmeticException.cs",
+      "sha256": "d1a6304efa7d092e443f3d7bf5888cd9c958da23f5312df1d820858f472c4026"
     }
   ],
   "adaptations": [
@@ -38,6 +58,22 @@
         "Use an explicit decimal digit lookup and omit caches, formatting providers, precision, spans and UTF-8 paths."
       ],
       "scope": "Text equivalence only. No System numeric member mapping, cached string identity, general formatting or intrinsic privilege is claimed."
+    },
+    {
+      "path": "library/Cilica.Core/Guid.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Guid.cs",
+      "algorithms": [
+        "Four-word equality and XOR hash",
+        "Unsigned field-order comparison",
+        "D/N/B/P/X hexadecimal formatting and format validation"
+      ],
+      "changes": [
+        "Pack narrow fields into four managed Int32 words; no unsafe aliases, vectors, spans, serialization layout or native ABI claim.",
+        "Use bounded managed string composition and hexadecimal digits in place of pointer/span writes.",
+        "Retain the pinned English Guid error resources from src/libraries/System.Private.CoreLib/src/Resources/Strings.resx.",
+        "Omit parsing, byte/span APIs, random generation and other unimplemented members."
+      ],
+      "scope": "Owned-core managed numeric constructors, Empty, typed equality/hash/comparison and standard formatting. Boxed object overloads remain blocked by value type-test lowering; hash evidence is the pinned local little-endian oracle."
     }
   ],
   "ownedAdapters": [
@@ -49,6 +85,15 @@
         "Cilica native ownership/tracing replaces the runtime-private static cache; managed decimal text still uses the recorded adaptation."
       ],
       "scope": "The owned core maps four directly proven invariant-provider APIs. The standalone decimal helper remains text-only; no general globalization or full CoreLib claim."
+    },
+    {
+      "path": "src/Cilica.Compiler/ManagedExceptionMessages.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/Resources/Strings.resx",
+      "contracts": [
+        "SystemException defaults to System error.; its explicit null message retains the generic type-name fallback.",
+        "ArithmeticException and FormatException use their selected fixed resources for default and explicit null messages."
+      ],
+      "scope": "Selected exact framework identities and bounded invariant English resources; full localization and arbitrary framework exceptions remain unsupported."
     }
   ]
 }

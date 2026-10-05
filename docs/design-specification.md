@@ -1294,7 +1294,7 @@ The intended initial release claim is deliberately specific:
 
 This claim is aspirational until the corresponding exit gates have passed.
 
-The authored `scalar-managed-exceptions-ir-v1` profile now executes catch, pure type
+The authored `scalar-managed-exceptions-ir-v2` profile now executes catch, pure type
 filters, throw/rethrow and leave/finally/fault through explicit native continuations
 ([ADR 0084](decisions/0084-native-exception-dispatch.md)). Messages preserve supplied UTF-16
 and bounded invariant defaults; O0/O2 sanitizer checks cover rooted identity and
@@ -1304,3 +1304,13 @@ structured-error ABI remains separate.
 Final exception identity review (ADR 0086) distinguishes fresh formatted defaults,
 shared fixed resource strings and supplied/contextual cast messages. A separate
 bounded instance resource-root list preserves collection and identity semantics.
+
+
+Owned Guid support (ADR 0138) now covers numeric constructors, Empty, typed
+identity/hash/unsigned comparison and standard D/N/B/P/X formatting through
+managed IL. Four Int32 words are an internal representation, not a public layout
+or serialization ABI. Boxed value type tests, parsing, random generation and
+byte/span APIs remain outside the admitted profile. Exception IR v2 and native
+v22 add exact System/Arithmetic/Format resources, including distinct explicit-null
+behavior and resource identity. Native Guid evidence is pinned to the local
+little-endian .NET oracle; this does not complete the real-kernel milestone.

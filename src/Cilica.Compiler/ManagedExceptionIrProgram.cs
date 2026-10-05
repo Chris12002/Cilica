@@ -11,7 +11,7 @@ public enum IrExceptionClause { Catch, Filter, Finally, Fault }
 public sealed record IrExceptionRegion(int TryStart, int TryEnd, int HandlerStart, int HandlerEnd,
     IrExceptionClause Kind, ObjectTypeId? CatchType = null, int? FilterStart = null);
 public sealed record RuntimeExceptionBinding(uint Status, ObjectTypeId Type);
-public enum ExceptionResourceKind { ArgumentNull, ArgumentOutOfRange, InvalidOperation, NotSupported }
+public enum ExceptionResourceKind { ArgumentNull, ArgumentOutOfRange, InvalidOperation, NotSupported, Format, System, Arithmetic }
 public sealed record ExceptionResourceBinding(ObjectTypeId Type, ExceptionResourceKind Kind);
 
 /// <summary>Intrinsic fieldless exception shells in the ordinary nominal class graph.</summary>
@@ -24,7 +24,7 @@ public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<Obj
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "managed-exceptions-ir-v1";
+    public const string Profile = "managed-exceptions-ir-v2";
 }
 
 public static class ManagedExceptionIrValidator
@@ -80,7 +80,7 @@ internal sealed class ManagedExceptionRules
             && types.RuntimeFaults.Select(b => b.Status).Order().SequenceEqual(statuses)
             && types.RuntimeFaults.Select(b => b.Type).Distinct().Count() == statuses.Length,
             "runtime faults require distinct exact exception identities for statuses 1, 2, 4, 5, 7, 10, 11 and 12.");
-        Require(!types.Resources.IsDefault && types.Resources.Length <= 4
+        Require(!types.Resources.IsDefault && types.Resources.Length <= 7
             && types.Resources.All(r => r is not null && _types.Contains(r.Type) && Enum.IsDefined(r.Kind))
             && types.Resources.Select(r => r.Type).Distinct().Count() == types.Resources.Length
             && types.Resources.Select(r => r.Kind).Distinct().Count() == types.Resources.Length
@@ -91,6 +91,15 @@ internal sealed class ManagedExceptionRules
         foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.ArgumentNull or ExceptionResourceKind.ArgumentOutOfRange))
             Require(types.ArgumentBase is not null && resource.Type != types.ArgumentBase
                 && classes[resource.Type].BaseType == types.ArgumentBase, "argument resources require direct descendants of the selected argument base.");
+        foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.System or ExceptionResourceKind.Arithmetic or ExceptionResourceKind.Format))
+        {
+            var parent = resource.Kind == ExceptionResourceKind.System ? types.Base
+                : types.Resources.SingleOrDefault(r => r.Kind == ExceptionResourceKind.System)?.Type;
+            Require(parent is not null && classes[resource.Type].BaseType == parent
+                && resource.Type.ContentHash == catalog.ObjectBase.ContentHash
+                && classes[resource.Type].Source.Name == "System." + resource.Kind + "Exception",
+                "framework message resources require exact selected names, images and ancestry.");
+        }
         _ = ManagedExceptionMessages.Build(types, catalog);
     }
     internal bool Throwable(IrType type) => type == IrType.NullReference || type.Kind == IrTypeKind.Reference && _types.Contains(type.Class!);

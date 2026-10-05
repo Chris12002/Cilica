@@ -183,6 +183,7 @@ namespace System.Reflection
 
 namespace System.Runtime.CompilerServices
 {
+    public sealed class IsReadOnlyAttribute : System.Attribute { }
     public sealed class IndexerNameAttribute : System.Attribute
     {
         public IndexerNameAttribute(string name) { }

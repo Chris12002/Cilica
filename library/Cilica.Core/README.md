@@ -17,13 +17,14 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/IntegerText.cs \
   --source library/Cilica.Core/CollectionContracts.cs \
   --source library/Cilica.Core/DelegateContracts.cs \
+  --source library/Cilica.Core/Guid.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 65 exact string/exception/provider/numeric capabilities for review; it does not
+file describes 68 exact string/exception/provider/numeric capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -52,7 +53,13 @@ checked single-target delegate path. Closed application delegates also retain
 distinct specialization identities; reference/wide callback signatures and
 delegate variance conversions remain unsupported (ADR 0136).
 
+`Guid.cs` supplies numeric constructors, Empty, typed equality/hash/comparison
+and D/N/B/P/X formatting, adapted from the pinned source with four Int32 words.
+The local suite covers 14,400 repeated native comparisons, including every output
+code unit and null/default/empty exception messages. Parsing, random/byte/span
+APIs and boxed Guid type tests remain unsupported (ADR 0138).
+
 This is a bounded core trial. General formatting/culture/provider members,
 StringBuilder, library collection implementations, full reflection and general CoreLib compatibility
 remain unimplemented. The image is metadata input to Cilica, never loaded into
-the host CLR. See ADRs 0131–0136 for scope and review evidence.
+the host CLR. See ADRs 0131–0138 for scope and review evidence.

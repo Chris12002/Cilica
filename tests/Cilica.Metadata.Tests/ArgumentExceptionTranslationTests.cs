@@ -16,7 +16,7 @@ public sealed class ArgumentExceptionTranslationTests
         var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(ArgumentExceptionProbe));
         Assert.True(result.Success, string.Join("; ", result.Diagnostics));
         Assert.NotNull(result.Program!.Exceptions.ArgumentBase);
-        Assert.Equal(4, result.Program.Exceptions.Resources.Length);
+        Assert.Equal(6, result.Program.Exceptions.Resources.Length);
         ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program));
         Assert.False(IntegerObjectTranslationTests.Translate(name, enabled: false, fixture: typeof(ArgumentExceptionProbe)).Success);
     }
