@@ -145,6 +145,7 @@ public static class ValueModelBuilder
             TypeInput input;
             try { input = ReadClosed(type, new()); }
             catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
+            if (input.IsByRefLike) Fail("ByRefLike values require stack-only lifetime and escape checking before executable layout.", input.Source.Name);
             if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || input.HasTypeInitializer || input.HasModuleInitializer
                 || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && input.Fields.IsEmpty
                     && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || !integers64 && input.InterfaceCount != 0

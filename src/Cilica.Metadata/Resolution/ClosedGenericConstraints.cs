@@ -45,12 +45,21 @@ public sealed partial class AssemblyResolver
                 if (++count > 4096) throw Failure(DiagnosticIds.TranslationLimit, "Generic argument constraints exceed 4096 signature nodes.");
                 switch (signature)
                 {
+                    case TypeSignature.Named named:
+                        RejectByRefLike(named.Definition);
+                        break;
                     case TypeSignature.Generic generic:
                         pending.Enqueue(new(generic.Definition.Definition, generic.Arguments));
                         break; // That declaration will validate and enqueue its own arguments.
                     case TypeSignature.Vector vector: stack.Push(vector.Element); break;
                 }
             }
+        }
+        void RejectByRefLike(ResolvedType type)
+        {
+            CheckOwner(type.Assembly); Member();
+            if (TypeMarkers.IsByRefLike(type, Member))
+                throw new UnsupportedBindingException("ByRefLike type arguments require stack-only lifetime and escape checking before closed specialization.");
         }
         (bool Value, bool Nullable, ResolvedType? Definition) Traits(TypeSignature signature)
         {
@@ -102,9 +111,11 @@ public sealed partial class AssemblyResolver
                 const GenericParameterAttributes allowed = GenericParameterAttributes.ReferenceTypeConstraint
                     | GenericParameterAttributes.NotNullableValueTypeConstraint | GenericParameterAttributes.DefaultConstructorConstraint;
                 var variance = parameter.Attributes & GenericParameterAttributes.VarianceMask;
-                if ((parameter.Attributes & ~(allowed | GenericParameterAttributes.VarianceMask)) != 0
+                if ((parameter.Attributes & ~(allowed | GenericParameterAttributes.VarianceMask | GenericParameterAttributes.AllowByRefLike)) != 0
                     || variance == GenericParameterAttributes.VarianceMask || !interfaceOwner && variance != GenericParameterAttributes.None)
-                    throw new UnsupportedBindingException("Variance flags require an interface type parameter with one declared direction; additional flags and variant class/method/delegate parameters require later lowering.");
+                    throw new UnsupportedBindingException("Variance flags require an interface type parameter with one declared direction; unknown flags and variant class/method/delegate parameters require later lowering.");
+                // AllowByRefLike broadens declaration admission only. Argument traversal
+                // rejects actual byref-like arguments, including nested/unused ones.
                 bool reference = (parameter.Attributes & GenericParameterAttributes.ReferenceTypeConstraint) != 0;
                 bool value = (parameter.Attributes & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0;
                 bool construct = (parameter.Attributes & GenericParameterAttributes.DefaultConstructorConstraint) != 0;
@@ -132,6 +143,7 @@ public sealed partial class AssemblyResolver
             if (!seen.Add(type)) continue;
             if (seen.Count > 256) throw Failure(DiagnosticIds.TranslationLimit, "Closed argument constraints exceed 256 declarations.");
             CheckOwner(type.Definition.Assembly);
+            RejectByRefLike(type.Definition);
             var declaration = type.Definition.Assembly.Image.Reader.GetTypeDefinition(type.Definition.Handle);
             Parameters(type.Definition.Assembly, declaration.GetGenericParameters(), type.Arguments,
                 interfaceOwner: (declaration.Attributes & TypeAttributes.Interface) != 0);

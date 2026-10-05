@@ -87,6 +87,8 @@ public sealed partial class AssemblyResolver
         if (input.Value is not { } value) return input;
         return Bind(assembly, type.Definition.Handle, () =>
         {
+            if (value.IsByRefLike)
+                throw new UnsupportedBindingException("ByRefLike values require stack-only lifetime and escape checking before executable layout.");
             if (type.Arguments.Count != value.OwnerGenericArity)
                 throw new BadImageFormatException("Closed type argument count does not match its declaration.");
             string key;

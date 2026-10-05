@@ -931,6 +931,13 @@ a diagnostic ([ADR 0121](decisions/0121-direct-interface-value-declarations.md))
 
 ## 11. Class library and assembly identity
 
+Closed generic declarations may carry AllowByRefLike when their actual arguments
+are ordinary supported types. Stack-only values/arguments remain explicitly
+rejected through bounded marker inspection, and library mappings cannot erase
+their marker ([ADR 0125](decisions/0125-ordinary-arguments-with-byreflike-permission.md)).
+This permits direct IEquatable value bodies against the selected runtime without
+claiming ref struct or constrained-dispatch support.
+
 Milestone 6's `integer-arithmetic-ir-v1` profile adds authored Int64 scalar IR
 and C++20 arithmetic with typed calls, locals and block edges
 ([ADR 0093](decisions/0093-int64-scalar-ir.md)). UInt64 storage, guarded signed

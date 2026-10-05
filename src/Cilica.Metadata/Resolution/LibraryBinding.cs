@@ -52,8 +52,8 @@ public sealed partial class AssemblyResolver
             {
                 var source = Header(pair.Key); var target = Header(pair.Value);
                 if (source.Namespace != target.Namespace || !source.Names.SequenceEqual(target.Names)
-                    || source.Flags != target.Flags || !source.Parameters.SequenceEqual(target.Parameters))
-                    throw InvalidLibraryBinding("Mapped types must retain exact namespace/nesting/name, visibility, class/interface/abstract/sealed flags and generic parameter attributes.");
+                    || source.Flags != target.Flags || source.ByRefLike != target.ByRefLike || !source.Parameters.SequenceEqual(target.Parameters))
+                    throw InvalidLibraryBinding("Mapped types must retain exact namespace/nesting/name, visibility, class/interface/abstract/sealed flags, stack-only markers and generic parameter attributes.");
                 var sourceParent = Parent(pair.Key); var targetParent = Parent(pair.Value);
                 if (sourceParent is null ? targetParent is not null : targetParent != CanonicalLibraryType(provisional, sourceParent))
                     throw InvalidLibraryBinding("Nested type owners must have an explicit corresponding mapping.");
@@ -80,7 +80,7 @@ public sealed partial class AssemblyResolver
                 images.Add(image.Identity, image.ContentHash);
             }
 
-            (string Namespace, ImmutableArray<string> Names, TypeAttributes Flags, ImmutableArray<GenericParameterAttributes> Parameters) Header(ResolvedType type)
+            (string Namespace, ImmutableArray<string> Names, TypeAttributes Flags, ImmutableArray<GenericParameterAttributes> Parameters, bool ByRefLike) Header(ResolvedType type)
             {
                 var reader = type.Assembly.Image.Reader;
                 var definition = reader.GetTypeDefinition(type.Handle);
@@ -110,7 +110,7 @@ public sealed partial class AssemblyResolver
                 }
                 names.Reverse();
                 return (ns, [.. names], definition.Attributes & (TypeAttributes.VisibilityMask | TypeAttributes.ClassSemanticsMask
-                    | TypeAttributes.Abstract | TypeAttributes.Sealed), parameters.ToImmutable());
+                    | TypeAttributes.Abstract | TypeAttributes.Sealed), parameters.ToImmutable(), TypeMarkers.IsByRefLike(type, () => InspectMember(budget)));
             }
 
             ResolvedType? Parent(ResolvedType type)

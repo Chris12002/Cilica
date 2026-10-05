@@ -11,7 +11,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class DirectInterfaceValueTests
 {
     [Theory]
-    [InlineData("Equality")] [InlineData("Generic")]
+    [InlineData("Equality")] [InlineData("Generic")] [InlineData("RuntimeContract")]
     public void Direct_calls_retain_value_interface_declarations(string name)
     {
         var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(DirectInterfaceValues));
@@ -24,17 +24,15 @@ public sealed class DirectInterfaceValueTests
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public Task Direct_interface_value_bodies_match_dotnet(bool optimized) => IntegerObjectTranslationTests.Verify(optimized,
-        [("Equality", DirectInterfaceValues.Equality), ("Generic", DirectInterfaceValues.Generic)], typeof(DirectInterfaceValues));
+        [("Equality", DirectInterfaceValues.Equality), ("Generic", DirectInterfaceValues.Generic),
+            ("RuntimeContract", DirectInterfaceValues.RuntimeContract)], typeof(DirectInterfaceValues));
 
     [Fact]
-    public void Constrained_and_runtime_generic_extensions_remain_diagnostic()
+    public void Constrained_calls_remain_diagnostic()
     {
-        foreach (var name in new[] { "Constrained", "RuntimeContract" })
-        {
-            var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(DirectInterfaceValues));
-            Assert.False(result.Success);
-            Assert.NotEmpty(result.Diagnostics);
-        }
+        var result = IntegerObjectTranslationTests.Translate("Constrained", fixture: typeof(DirectInterfaceValues));
+        Assert.False(result.Success);
+        Assert.NotEmpty(result.Diagnostics);
     }
 
     [Fact]

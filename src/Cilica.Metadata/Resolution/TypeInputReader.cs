@@ -110,10 +110,11 @@ public sealed partial class AssemblyResolver
                 interfaces.Add(interfaceDecoder.Type(reader.GetInterfaceImplementation(implementation).Interface));
             }
             bool typeInitializer = Initializer(type), moduleInitializer = Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1)));
+            bool byRefLike = TypeMarkers.IsByRefLike(new(assembly, handle), Member);
             return new TypeInput(source, type.Attributes, arity, assembly.IsReferenceAssembly, baseType,
                 type.GetInterfaceImplementations().Count, layout.PackingSize, layout.Size,
                 typeInitializer, moduleInitializer, fields.ToImmutable(), work)
-                { Interfaces = interfaces.ToImmutable(), ExternallyVisible = externallyVisible };
+                { Interfaces = interfaces.ToImmutable(), ExternallyVisible = externallyVisible, IsByRefLike = byRefLike };
         });
     }
 }

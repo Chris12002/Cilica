@@ -23,6 +23,7 @@ public sealed record TypeInput(TypeSource Source, TypeAttributes Attributes, int
 {
     public ImmutableArray<TypeSignature> Interfaces { get; init; } = [];
     public bool ExternallyVisible { get; init; }
+    public bool IsByRefLike { get; init; }
     // Populated by the closed snapshot reader in declaration-index order.
     public ImmutableArray<GenericParameterAttributes> ClosedParameterAttributes { get; init; } = [];
 }

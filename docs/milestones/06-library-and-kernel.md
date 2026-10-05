@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.30 and 6d.1–6d.3 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.31 and 6d.1–6d.3 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -564,6 +564,18 @@ checks pass. Review found no remaining actionable issue; see
 [ADR 0124](../decisions/0124-mapped-library-implementation-audits.md).
 The actual required-library closure, general-filter decision and native kernel
 comparison remain pending.
+
+## Slice 6c.31 outcome
+
+AllowByRefLike declarations now accept ordinary supported arguments while actual
+stack-only values/arguments remain diagnostic. Marker checks include nested and
+unused arguments and cannot be erased by a library type mapping. All 167 focused
+checks pass; the direct interface suite supplies 882 repeated native sanitizer
+results, including 294 for the real runtime IEquatable declaration. Review found
+no remaining actionable issue; see
+[ADR 0125](../decisions/0125-ordinary-arguments-with-byreflike-permission.md).
+Constrained dispatch, framework member mappings and native kernel equivalence
+remain pending.
 
 ## Remaining completion evidence
 

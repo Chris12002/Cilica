@@ -52,7 +52,8 @@ internal sealed class ResolutionAssemblyBuilder
     // Add each type before its contiguous member rows, as required by TypeDef lists.
     internal MethodDefinitionHandle Method(string name, byte[] signature, int arity = 0,
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.Static,
-        Action<InstructionEncoder>? emit = null, byte[]? locals = null, bool initializeLocals = true, int maxStack = 8)
+        Action<InstructionEncoder>? emit = null, byte[]? locals = null, bool initializeLocals = true, int maxStack = 8,
+        GenericParameterAttributes genericAttributes = GenericParameterAttributes.None)
     {
         int offset = -1;
         if (emit is not null)
@@ -64,7 +65,7 @@ internal sealed class ResolutionAssemblyBuilder
         }
         var handle = _metadata.AddMethodDefinition(attributes, emit is null ? MethodImplAttributes.Runtime : MethodImplAttributes.IL,
             _metadata.GetOrAddString(name), _metadata.GetOrAddBlob(signature), offset, MetadataTokens.ParameterHandle(1));
-        Parameters(handle, arity);
+        Parameters(handle, arity, genericAttributes);
         return handle;
     }
 

@@ -128,6 +128,8 @@ public static class ObjectModelBuilder
                 return Failed(id, DiagnosticIds.TranslationLimit, "Aggregate catalog field/metadata-member limit exceeded.");
             if (id.Token == 0x02000001)
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, "The module definition is not an instance class.", input.Source.Name);
+            if (input.IsByRefLike)
+                return Failed(id, DiagnosticIds.ExecutionUnsupported, "ByRefLike types cannot enter heap/reference layouts.", input.Source.Name);
             bool isInterface = (input.Attributes & System.Reflection.TypeAttributes.Interface) != 0;
             if (isInterface && !input.ExternallyVisible)
                 return Failed(id, DiagnosticIds.ExecutionUnsupported,
