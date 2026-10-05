@@ -23,33 +23,7 @@ public sealed partial class AssemblyResolver
         var assembly = declaration.DeclaringType.Definition.Assembly;
         return Bind(assembly, declaration.Handle, () =>
         {
-            var validated = new HashSet<ConstructedType>();
-            void Validate(ConstructedType type)
-            {
-                CheckOwner(type.Definition.Assembly);
-                // Check provenance before semantic identity deduplication.
-                var pending = new Stack<TypeSignature>(type.Arguments); int nodes = 0;
-                while (pending.TryPop(out var argument))
-                {
-                    InspectMember(budget);
-                    if (++nodes > 4096) throw Failure(DiagnosticIds.TranslationLimit, "Closed dispatch arguments exceed 4096 nodes.");
-                    switch (argument)
-                    {
-                        case TypeSignature.Named named: CheckOwner(named.Definition.Assembly); break;
-                        case TypeSignature.Generic generic:
-                            CheckOwner(generic.Definition.Definition.Assembly);
-                            foreach (var child in generic.Arguments) pending.Push(child);
-                            break;
-                        case TypeSignature.Vector vector: pending.Push(vector.Element); break;
-                    }
-                }
-                if (!validated.Add(type)) return;
-                if (validated.Count > 512) throw Failure(DiagnosticIds.TranslationLimit, "Closed dispatch type validation exceeds 512 declarations.");
-                if (budget.Remaining == 0) throw Failure(DiagnosticIds.TranslationLimit, "Closed dispatch metadata budget exhausted.");
-                var snapshot = ReadClosedTypeInput(type, runtimeLibrary, new(MaximumMembers: budget.Remaining));
-                if (snapshot.Value is not { } value) throw new BindingFailureException(snapshot.Diagnostics);
-                if (!budget.TryConsume(value.MetadataMembersRead)) throw Failure(DiagnosticIds.TranslationLimit, "Closed dispatch metadata budget exhausted.");
-            }
+            var Validate = ClosedDispatchValidation(runtimeLibrary, budget);
             Validate(declaration.DeclaringType);
             var authenticated = Method(assembly, declaration.Handle,
                 new(declaration.DeclaringType, SignatureList<TypeSignature>.Empty), declaredOnly: true, budget: budget);
@@ -60,4 +34,37 @@ public sealed partial class AssemblyResolver
                 target.Slot, target.Implementation, target.IsExplicit);
         });
     }
+
+    private Action<ConstructedType> ClosedDispatchValidation(ResolvedAssembly runtimeLibrary, MemberResolutionBudget budget)
+    {
+        var validated = new HashSet<ConstructedType>();
+        void Validate(ConstructedType type)
+        {
+            CheckOwner(type.Definition.Assembly);
+            // Check provenance before semantic identity deduplication.
+            var pending = new Stack<TypeSignature>(type.Arguments); int nodes = 0;
+            while (pending.TryPop(out var argument))
+            {
+                InspectMember(budget);
+                if (++nodes > 4096) throw Failure(DiagnosticIds.TranslationLimit, "Closed dispatch arguments exceed 4096 nodes.");
+                switch (argument)
+                {
+                    case TypeSignature.Named named: CheckOwner(named.Definition.Assembly); break;
+                    case TypeSignature.Generic generic:
+                        CheckOwner(generic.Definition.Definition.Assembly);
+                        foreach (var child in generic.Arguments) pending.Push(child);
+                        break;
+                    case TypeSignature.Vector vector: pending.Push(vector.Element); break;
+                }
+            }
+            if (!validated.Add(type)) return;
+            if (validated.Count > 512) throw Failure(DiagnosticIds.TranslationLimit, "Closed dispatch type validation exceeds 512 declarations.");
+            if (budget.Remaining == 0) throw Failure(DiagnosticIds.TranslationLimit, "Closed dispatch metadata budget exhausted.");
+            var snapshot = ReadClosedTypeInput(type, runtimeLibrary, new(MaximumMembers: budget.Remaining));
+            if (snapshot.Value is not { } value) throw new BindingFailureException(snapshot.Diagnostics);
+            if (!budget.TryConsume(value.MetadataMembersRead)) throw Failure(DiagnosticIds.TranslationLimit, "Closed dispatch metadata budget exhausted.");
+        }
+        return Validate;
+    }
+
 }

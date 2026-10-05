@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.13 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.19 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -17,7 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.13 supply integer/narrow scalar, composed wide object/value, struct-constructor, direct class-instance and reference-vector CIL plus closed interface variance metadata; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.19 supply integer/narrow scalar, composed wide object/value, struct-constructor, direct class-instance and reference-vector CIL plus closed interface assignments/calls and closed class target metadata; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members, beginning with list/read-only collection operations and their runtime prerequisites | Planned; expand to equality, dictionaries/sets, strings and formatting only as concrete roots require |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -393,6 +393,15 @@ from its bodyless interface member to a class virtual `WriteCanonical` call at
 IL_02ba. Full native kernel execution remains pending, along with broader class
 dispatch, struct signatures, variance-only targets, array helpers and the ported
 library. Local main remains an ancestor.
+
+## Slice 6c.19 outcome
+
+Exact closed class virtual target resolution now reuses the checked slot walk
+and shared closed dispatch validation. All 53 focused checks pass, including
+.NET callvirt/base-slot comparisons, exact/short budgets and input provenance.
+Review found no remaining actionable issue; local main remains an ancestor.
+See [ADR 0110](../decisions/0110-closed-class-virtual-targets.md). Composed class
+CIL discovery and native conformance remain the next gate.
 
 ## Remaining completion evidence
 

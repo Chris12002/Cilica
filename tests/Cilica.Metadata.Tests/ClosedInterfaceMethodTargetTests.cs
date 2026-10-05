@@ -69,7 +69,7 @@ public sealed class ClosedInterfaceMethodTargetTests
         }
     }
 
-    private static object Call(MethodInfo method, object instance, object value, bool dispatch)
+    internal static object Call(MethodInfo method, object instance, object value, bool dispatch)
     {
         var function = new DynamicMethod("ClosedInterfaceOracle", typeof(object), [typeof(object), typeof(object)], typeof(ClosedInterfaceMethodTargetTests).Module, true);
         var il = function.GetILGenerator(); il.Emit(OpCodes.Ldarg_0); il.Emit(OpCodes.Castclass, method.DeclaringType!);

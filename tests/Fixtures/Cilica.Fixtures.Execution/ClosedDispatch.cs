@@ -33,6 +33,14 @@ namespace Cilica.Fixtures.Execution
         T IClosedDispatch<T>.Echo(T value) => value;
         int IClosedDispatch<T>.Code() => 66;
     }
+    public class ClosedDispatchNewSlot<T> : ClosedDispatchOverride<T>
+    {
+        public new virtual int Code() => 123;
+    }
+    public sealed class ClosedDispatchFinal<T> : ClosedDispatchNewSlot<T>
+    {
+        public sealed override int Code() => 234;
+    }
     public sealed class ClosedDispatchConcrete : ClosedDispatchOverride<long> { }
     public sealed class ClosedDispatchDual : IClosedDispatch<int>, IClosedDispatch<long>, IClosedDispatch<uint>
     {

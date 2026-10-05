@@ -882,6 +882,9 @@ through the shared preparation session
 CIL profile now repeatedly discovers exact scalar/reference interface calls and
 their executable implementations through shared metadata plans
 ([ADR 0109](decisions/0109-closed-interface-cil.md)).
+Exact closed class target selection now shares the bounded slot algorithm and
+closed owner validation; executable integration remains pending
+([ADR 0110](decisions/0110-closed-class-virtual-targets.md)).
 
 ## 11. Class library and assembly identity
 
