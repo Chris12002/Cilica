@@ -425,6 +425,14 @@ review found no remaining actionable issue. See
 reaches unsupported exception construction in its handler registry. Local main
 remains an ancestor; full native transcript comparison is still pending.
 
+## Slice 6c.21a review fix
+
+Follow-on allocation review found that the source value-root plan omitted
+StringConcat safepoints even though native lowering registered its roots. A
+regression first reproduced the missing source allocation site; both source and
+scalar plans now record it. The regression and 54 focused value-root checks pass.
+No native ABI or allocation behavior changed. Review found no further issue.
+
 ## Remaining completion evidence
 
 - Pin imported source commits, licenses, local patches, reference identities
