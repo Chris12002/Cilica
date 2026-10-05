@@ -87,6 +87,21 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Exception.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Exception.cs",
       "sha256": "3f44c5b9eb6851301091fc65ce6dd6671e1a750f8a7f120837bc09021ecf12ab"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ValueTuple.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/ValueTuple.cs",
+      "sha256": "4839c8498234ecd3451b7d1983fdb3add0c28837522180641eacaa0fd0ea11d7"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/HashCode.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/HashCode.cs",
+      "sha256": "1eb6528896cde47d258f8dcfe277f25331d31a260c439c49d7a773780100e306"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Comparison.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.Comparison.cs",
+      "sha256": "332e2a21449ad65f2368d672a116246eadf3842dfcb45f35a713d912c51731c5"
     }
   ],
   "adaptations": [
@@ -211,6 +226,43 @@
         "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile."
       ],
       "scope": "Int32 and reference elements only; exact public/explicit interface members in the bounded implementation; no general collection or enumeration support."
+    },
+    {
+      "path": "library/Cilica.Core/ValueTuple.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ValueTuple.cs",
+      "algorithms": [
+        "Two-field tuple construction, typed equality and component hashing"
+      ],
+      "changes": [
+        "Copy equality receivers, but hash original fields in left-to-right order, preserving mutable value callbacks.",
+        "Use exact private granted key selection in place of comparer factories; retain six public nominal interfaces and diagnostic stubs for unimplemented members.",
+        "Use managed sequential inline storage; no external native layout compatibility claim."
+      ],
+      "scope": "Bounded pair fields, constructor, typed equality and hashing for admitted integer, string and exact inline keys. No object equality, comparison, structural APIs, tuple indexing, formatting or boxing support."
+    },
+    {
+      "path": "library/Cilica.Core/StringKeyOperations.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Comparison.cs",
+      "algorithms": [
+        "String.GetNonRandomizedHashCode two-state UTF-16 hashing"
+      ],
+      "changes": [
+        "Replace unsafe word reads with checked managed UTF-16 pairs and explicit trailing zero.",
+        "Route only exact private granted string key helpers to ordinary managed equality/hash bodies."
+      ],
+      "scope": "Private dictionary/tuple ordinal string keys; public String.GetHashCode and arbitrary reference equality remain diagnostic."
+    },
+    {
+      "path": "library/Cilica.Core/PairHash.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/HashCode.cs",
+      "algorithms": [
+        "Two-component xxHash32 Combine and avalanche"
+      ],
+      "changes": [
+        "Retain complete MIT and xxHash BSD 2-Clause notices.",
+        "Use a fixed zero seed instead of runtime random seeding; hash results remain implementation-specific."
+      ],
+      "scope": "Private two-component tuple hash combination; no public HashCode API or cross-runtime numeric hash equivalence."
     }
   ],
   "ownedAdapters": [

@@ -42,6 +42,12 @@ public static partial class ValueProgramDiscovery
             CheckArgumentAccess(key, work, offset);
             var storage = Storage(key, work, offset);
             if (isNull) return new(ClosedKeyOperation.IsNull, storage);
+            if (key is TypeSignature.Primitive { Code: PrimitiveTypeCode.String })
+            {
+                var strings = Require(resolver.ResolveType(library, "Cilica.Runtime", "StringKeyOperations"), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(strings, SignatureList<TypeSignature>.Empty), equal ? "Equal" : "Hash", equal ? 2 : 1, _metadata), work, offset);
+                return null;
+            }
             if (equal && storage.Kind is IrTypeKind.Int32 or IrTypeKind.Int64)
                 return new(ClosedKeyOperation.Equal, storage);
             ConstructedType? receiver = key switch {

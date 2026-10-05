@@ -1573,3 +1573,13 @@ layout v11 and object operations IR v12 retain this evidence. Three probes provi
 882 local O0/O2 differential results. Protected/generic lexical access and broader
 private member access remain diagnostic. The unchanged kernel now reaches its
 ValueTuple`2 dependency; native equivalence remains pending.
+
+
+Bounded ValueTuple<T1,T2> fields/construction, typed equality and hashing now execute
+as managed code (ADR 0154). Exact private key grants select managed ordinal string
+operations as well as existing integer/inline keys. Equality copies component
+receivers; hashing addresses the original fields. Fixed private hashes preserve
+key consistency without promising cross-runtime numeric hashes. Four probes
+provide 1,176 repeated local O0/O2 results. Object equality, tuple formatting,
+comparison and structural APIs remain diagnostic. The concrete kernel next reaches
+String.Format; no native kernel equivalence is claimed.

@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.43 and 6d.1–6d.18 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.43 and 6d.1–6d.19 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.43 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.18 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.19 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -1004,3 +1004,23 @@ initialized private callback cache and reaches missing System.ValueTuple`2 at
 StepPriority IL_00b8. Native transcript equivalence and the implementation/filter
 closure audit remain outstanding. Strict initialization and generic/protected
 lexical access remain outside the added scope.
+
+
+## Slice 6d.19 outcome
+
+Bounded ValueTuple<T1,T2> construction, fields, typed equality and hashing now use
+ordinary managed code. Exact granted key operations also admit ordinal string
+keys. Four probes provide 1,176 repeated O0/O2 native/.NET comparisons, including
+null/UTF-16 string keys, dictionary growth and mutable component callbacks. Review
+caught and corrected field hashing: equality copies receivers, but hashing must
+mutate the actual tuple fields when their callbacks do so. Nine composed checks
+and the full solution build pass. See [ADR 0154](../decisions/0154-bounded-tuple-and-string-keys.md).
+
+The trial core has 215 inputs and 84 grants. Image SHA-256:
+`e88f47457d5a7b410feed2f16ef1cc1b0f525a7b69be4c2e66bfc8c03ec9880c`;
+manifest SHA-256:
+`5d6eb422bbcf2cb76cf2cb71978864c803708e4827ba7eb2f5f6d57ad6144b3b`.
+The unchanged kernel passes tuple binding and now requires String.Format at
+DriveAutomatic IL_0121. Object tuple equality, comparison, structural operations,
+formatting, public String.GetHashCode and general reference keys remain diagnostic.
+Native kernel transcripts and the closure/filter audit remain outstanding.

@@ -25,13 +25,16 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/StringBuilder.cs \
   --source library/Cilica.Core/List.cs \
   --source library/Cilica.Core/ReadOnlyCollection.cs \
+  --source library/Cilica.Core/ValueTuple.cs \
+  --source library/Cilica.Core/StringKeyOperations.cs \
+  --source library/Cilica.Core/PairHash.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 77 exact string/exception/provider/numeric/array/key capabilities for review; it does not
+file describes 84 exact string/exception/provider/numeric/array/key capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -101,3 +104,10 @@ retain identity. Null names read as the canonical empty string. Pinned original
 sources and hashes are recorded in provenance.json. Type initializer execution,
 serialization, HResult and other exception constructor overloads remain separate
 work (ADR 0150).
+
+ValueTuple.cs supplies bounded two-field tuple construction, typed equality and
+hashing. Equality copies component receivers; hashing targets the fields directly.
+String keys use private managed ordinal equality and UTF-16 hashing. Hash values
+are implementation-specific. Object equality, comparison, structural APIs, tuple
+indexing and formatting remain diagnostic. Pinned sources and the hash combiner’s
+additional BSD notice are retained in the provenance record.
