@@ -110,15 +110,16 @@ namespace Cilica.Runtime
         }
     }
 }
-namespace Cilica.Library
+namespace System.Collections.Generic
 {
     using System;
-    public class TrialDictionary<TKey, TValue>
+    public class Dictionary<TKey, TValue> : IDictionary<TKey, TValue>, Collections.IDictionary, IReadOnlyDictionary<TKey, TValue>,
+        Runtime.Serialization.ISerializable, Runtime.Serialization.IDeserializationCallback
     {
         private int[] buckets;
         private Cilica.Runtime.DictionaryEntry<TKey, TValue>[] entries;
         private int count;
-        public TrialDictionary() { }
+        public Dictionary() { }
         public int Count => count;
         // FindValue and equality preserve EqualityComparer<T>'s by-value receiver
         // semantics. TryInsert deliberately hashes its own key parameter byref,
@@ -150,7 +151,44 @@ namespace Cilica.Library
             value = default; return false;
         }
         public bool TryAdd(TKey key, TValue value) => Insert(key, value, false);
-        public TValue this[TKey key] { set { Insert(key, value, true); } }
+        public TValue this[TKey key] {
+            get => Cilica.Runtime.UnsupportedLibraryMember<TValue>.Invoke();
+            set { Insert(key, value, true); }
+        }
+        public bool ContainsKey(TKey key) => Find(key) != null;
+        public void Add(TKey key, TValue value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public bool Remove(TKey key) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public void Clear() { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public virtual extern void GetObjectData(Runtime.Serialization.SerializationInfo info, Runtime.Serialization.StreamingContext context);
+        [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public virtual extern void OnDeserialization(object sender);
+        ICollection<TKey> IDictionary<TKey, TValue>.Keys => Cilica.Runtime.UnsupportedLibraryMember<ICollection<TKey>>.Invoke();
+        ICollection<TValue> IDictionary<TKey, TValue>.Values => Cilica.Runtime.UnsupportedLibraryMember<ICollection<TValue>>.Invoke();
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Cilica.Runtime.UnsupportedLibraryMember<IEnumerable<TKey>>.Invoke();
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Cilica.Runtime.UnsupportedLibraryMember<IEnumerable<TValue>>.Invoke();
+        bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly => false;
+        void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<KeyValuePair<TKey, TValue>>>.Invoke();
+        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+        bool Collections.ICollection.IsSynchronized => false;
+        object Collections.ICollection.SyncRoot => this;
+        void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        bool Collections.IDictionary.IsFixedSize => false;
+        bool Collections.IDictionary.IsReadOnly => false;
+        Collections.ICollection Collections.IDictionary.Keys => Cilica.Runtime.UnsupportedLibraryMember<Collections.ICollection>.Invoke();
+        Collections.ICollection Collections.IDictionary.Values => Cilica.Runtime.UnsupportedLibraryMember<Collections.ICollection>.Invoke();
+        object Collections.IDictionary.this[object key] {
+            get => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+            set { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        }
+        void Collections.IDictionary.Add(object key, object value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        bool Collections.IDictionary.Contains(object key) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        Collections.IDictionaryEnumerator Collections.IDictionary.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IDictionaryEnumerator>.Invoke();
+        void Collections.IDictionary.Remove(object key) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         private bool Insert(TKey key, TValue value, bool overwrite)
         {
             CheckKey(key);

@@ -110,5 +110,31 @@ namespace Cilica.Fixtures.Execution
             values.TryAdd(new DictionaryPayload(input), mode);
             return values.Count;
         }
+        public static int Interfaces(int input, int mode)
+        {
+            var dictionary = new Dictionary<int, long>();
+            IDictionary<int, long> writable = dictionary;
+            IReadOnlyDictionary<int, long> readable = dictionary;
+            writable[input] = mode;
+            bool found = readable.TryGetValue(input, out long value);
+            bool absent = writable.TryGetValue(~input, out long missing);
+            System.Collections.ICollection count = mode < 0 ? (System.Collections.ICollection)dictionary : new int[3];
+            object boxed = dictionary;
+            int bits = boxed is System.Collections.IDictionary ? 1 : 0;
+            bits += boxed is IEnumerable<KeyValuePair<int, long>> ? 2 : 0;
+            bits += boxed is IReadOnlyCollection<KeyValuePair<int, long>> ? 4 : 0;
+            bits += boxed is IReadOnlyDictionary<long, long> ? 8 : 0;
+            var legacy = (System.Collections.IDictionary)boxed;
+            bits += legacy.IsReadOnly || legacy.IsFixedSize || legacy.IsSynchronized ? 16 : 0;
+            bits += legacy.SyncRoot == boxed ? 32 : 64;
+            return unchecked((int)value + (int)missing + count.Count + readable.Count + bits
+                + (found ? 17 : 19) + (absent ? 23 : 29) + (dictionary.ContainsKey(input) ? 31 : 37));
+        }
+        public static int UnsupportedRemoval(int input, int mode)
+        {
+            var dictionary = new Dictionary<int, int>();
+            dictionary.TryAdd(input, mode);
+            return dictionary.Remove(input) ? input : mode;
+        }
     }
 }

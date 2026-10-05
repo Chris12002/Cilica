@@ -27,7 +27,7 @@ public sealed class CollectionContractTests
         using var targetImage = new PEReader(targetStream);
         var sourceReader = sourceImage.GetMetadataReader();
         var targetReader = targetImage.GetMetadataReader();
-        foreach (var name in CoreLibraryBuildTests.CollectionContractNames)
+        foreach (var name in CoreLibraryBuildTests.CollectionContractNames.Concat(CoreLibraryBuildTests.DictionaryContractNames.Where(n => n.Name.StartsWith("I", StringComparison.Ordinal))))
         {
             var source = resolver.ResolveType(contract, name.Namespace, name.Name).Value!;
             var target = resolver.ResolveType(implementation, name.Namespace, name.Name).Value!;

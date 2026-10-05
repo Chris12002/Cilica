@@ -69,11 +69,7 @@ public static class ObjectInterfacePlanValidator
                     && !method.Parameters.IsDefaultOrEmpty && method.Parameters[0].Class is { ArrayElement: not null } vector
                     && plan.Types.Arrays.Contains(vector) && Signature(method.Parameters, method.ReturnType, vector),
                     "invalid selected array helper facts/identity/signature.");
-                var element = method.Parameters[0].Class!.ArrayElement!;
-                Require(method.Name == "Count" && method.Parameters.Length == 1 && method.ReturnType == IrType.Int32
-                    || method.Name == "Get" && method.Parameters.Length == 2 && method.Parameters[1] == IrType.Int32
-                        && method.ReturnType == (element.Type is { } reference ? IrType.Reference(reference) : IrType.Int32),
-                    "unsupported array helper operation/signature.");
+                Require(ObjectArrayInterfaceRecipes.Signature(method), "unsupported array helper operation/signature.");
                 Require(methods.TryAdd(helper.Method, method), "duplicate array helper identity.");
                 parameters += method.Parameters.Length;
                 Require(parameters <= ProgramLimits.MaximumCallArguments, "aggregate declaration parameter limit exceeded.");
@@ -144,10 +140,7 @@ public static class ObjectInterfacePlanValidator
                         && mapping.Parameters[0] == IrType.Reference(target.Receiver)
                         && declaration.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1))
                         && types.Assignable(mapping.ReturnType, declaration.ReturnType)
-                        && (mapping.Name == "Count" && declaration.Name == "get_Count"
-                                && kind is ObjectArrayInterfaceKind.Collection or ObjectArrayInterfaceKind.ReadOnlyCollection
-                            || mapping.Name == "Get" && declaration.Name == "get_Item"
-                                && kind is ObjectArrayInterfaceKind.List or ObjectArrayInterfaceKind.ReadOnlyList),
+                        && mapping.Name == ObjectArrayInterfaceRecipes.Select(declaration, kind, plan.Types.ObjectBase),
                         "array mapping requires the exact selected helper and matching interface operation.");
                     used.Add(target.Implementation); continue;
                 }

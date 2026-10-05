@@ -28,7 +28,7 @@ public sealed class InterfaceVarianceTranslationTests
     public Task Native_nested_variance_and_array_covariance_match_dotnet(bool optimized) =>
         IntegerObjectTranslationTests.Verify(optimized,
             [(nameof(VariantContracts.Test), VariantContracts.Test), (nameof(VariantContracts.Assignments), VariantContracts.Assignments),
-                (nameof(VariantContracts.Nested), VariantContracts.Nested), (nameof(VariantContracts.Strings), VariantContracts.Strings)], typeof(VariantContracts));
+                (nameof(VariantContracts.Nested), VariantContracts.Nested), (nameof(VariantContracts.Strings), VariantContracts.Strings), (nameof(VariantContracts.ArrayInterface), VariantContracts.ArrayInterface)], typeof(VariantContracts));
 
     [Fact]
     public void Unmodeled_String_interface_implementations_remain_diagnostic()
@@ -61,12 +61,11 @@ public sealed class InterfaceVarianceTranslationTests
     }
 
     [Fact]
-    public void Runtime_provided_array_interfaces_cannot_silently_test_false()
+    public void Runtime_provided_array_interfaces_are_modeled()
     {
         Assert.Equal(17, VariantContracts.ArrayInterface(17, 23));
         var result = IntegerObjectTranslationTests.Translate(nameof(VariantContracts.ArrayInterface), fixture: typeof(VariantContracts));
-        Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Message.Contains("Array interface", StringComparison.Ordinal));
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
     }
 
     [Fact]

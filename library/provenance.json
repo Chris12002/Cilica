@@ -57,6 +57,11 @@
       "upstreamPath": "src/coreclr/System.Private.CoreLib/src/System/Array.CoreCLR.cs",
       "localPath": "library/upstream/dotnet-runtime/src/coreclr/System.Private.CoreLib/src/System/Array.CoreCLR.cs",
       "sha256": "25df8e8b93aca34d704e98738af690d22f90ed02dbc87818d30b90c64bed3ea3"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Array.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Array.cs",
+      "sha256": "3beb7a940a8ff7b4949141fa8934167c346c047b776a6b250426ba04fc34aae3"
     }
   ],
   "adaptations": [
@@ -91,7 +96,7 @@
       "scope": "Owned-core managed numeric constructors, Empty, typed equality/hash/comparison and standard formatting. Boxed object overloads remain blocked by value type-test lowering; hash evidence is the pinned local little-endian oracle."
     },
     {
-      "path": "library/Cilica.Core/TrialDictionary.cs",
+      "path": "library/Cilica.Core/Dictionary.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs",
       "algorithms": [
         "FindValue bucket-chain lookup",
@@ -100,26 +105,31 @@
         "Prime capacities from System/Collections/HashHelpers.cs"
       ],
       "changes": [
-        "Expose Cilica.Library.TrialDictionary pending the System.Dictionary interface/array contract gate.",
+        "Map the bounded public System.Collections.Generic.Dictionary member subset with exact nominal interfaces and method flags.",
         "Replace inline entry arrays and unsafe/ref helpers with managed reference-entry vectors and checked indexing; entries remain private to collection operations.",
         "Use exact compiler-selected closed integer/value key operations instead of runtime reflection and EqualityComparer factory selection.",
         "Retain distinct value-key hash receiver semantics in FindValue and TryInsert.",
-        "Omit removal, enumeration, comparer/capacity constructors, read indexers and unimplemented members."
+        "Leave removal, enumeration, comparer/capacity constructors, read indexers and further members without executable support.",
+        "Preserve the public generic/nongeneric/serialization interface declarations; unimplemented members remain compile-time errors."
       ],
-      "scope": "Direct-core trial for 32/64-bit integer and exact IEquatable struct keys. Count, TryAdd, TryGetValue and overwrite are locally compared; reference/string keys and public System.Dictionary mappings remain unsupported."
+      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; no removal/enumeration/indexer-read or serialization implementation."
     },
     {
       "path": "library/Cilica.Core/ArrayInterface.cs",
       "upstreamPath": "src/coreclr/System.Private.CoreLib/src/System/Array.CoreCLR.cs",
       "algorithms": [
-        "SZArrayHelper.get_Count<T> and get_Item<T>"
+        "SZArrayHelper.get_Count<T> and get_Item<T>",
+        "SZArrayHelper.IsReadOnly and System.Array collection flags/SyncRoot"
       ],
       "changes": [
         "Replace unsafe receiver reinterpretation with a compiler-selected closed T[] argument.",
         "Preserve unsigned index bounds and the pinned IndexMustBeLess message/parameter.",
-        "Require independent exact Count/Get helper grants; other interface members remain unsupported."
+        "Require independent exact Count/Get/False/True/Identity helper grants; other members remain unsupported."
       ],
-      "scope": "Int32 and reference vectors; exact selected-runtime array contracts and covariant reference reads only."
+      "scope": "Int32 and reference vectors; exact selected-runtime array contracts and covariant reference reads only.",
+      "additionalUpstreamPaths": [
+        "src/libraries/System.Private.CoreLib/src/System/Array.cs"
+      ]
     }
   ],
   "ownedAdapters": [
@@ -148,7 +158,16 @@
         "Exact private granted helpers select ordinary closed value equality/hash bodies or integer equality.",
         "Managed wrappers preserve the pinned caller-specific receiver copies; unsupported reference fallbacks remain diagnostics."
       ],
-      "scope": "Compile-time key operations for the managed dictionary trial; no public EqualityComparer.Default or shared singleton identity claim."
+      "scope": "Compile-time key operations for the bounded dictionary; no public EqualityComparer.Default or shared singleton identity claim."
+    },
+    {
+      "path": "library/Cilica.Core/DictionaryContracts.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs",
+      "contracts": [
+        "Exact pinned netstandard2.1 generic, nongeneric and serialization interface metadata is verified locally.",
+        "Unimplemented callable members carry no runtime fallback or intrinsic grant."
+      ],
+      "scope": "Nominal dictionary contracts and minimal signature types; no serialization implementation."
     }
   ]
 }

@@ -18,7 +18,7 @@ public sealed class ArrayInterfaceLibraryTests
 {
     private static readonly (string Name, Func<int, int, int> Oracle)[] Probes = [
         ("Casts", ArrayInterfaceProbe.Casts), ("Integers", ArrayInterfaceProbe.Integers),
-        ("Covariance", ArrayInterfaceProbe.Covariance), ("Faults", ArrayInterfaceProbe.Faults), ("Mixed", ArrayInterfaceProbe.Mixed), ("SignedReads", ArrayInterfaceProbe.SignedReads)];
+        ("Covariance", ArrayInterfaceProbe.Covariance), ("Faults", ArrayInterfaceProbe.Faults), ("Mixed", ArrayInterfaceProbe.Mixed), ("SignedReads", ArrayInterfaceProbe.SignedReads), ("Flags", ArrayInterfaceProbe.Flags)];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
         CoreLibraryBuildTests.TranslateFixtures(typeof(ArrayInterfaceProbe), Probes.Select(p => p.Name).ToArray()));
 
@@ -43,12 +43,12 @@ public sealed class ArrayInterfaceLibraryTests
         var artifact = Assert.Single(manifest.Artifacts);
         var input = resolver.OpenInput(typeof(ArrayInterfaceProbe).Assembly.Location).Value!;
         MethodDefinitionHandle Method(string name) => (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ArrayInterfaceProbe).GetMethod(name)!.MetadataToken);
-        foreach (var capability in new[] { LibraryIntrinsicCapability.ArrayInterfaceCount, LibraryIntrinsicCapability.ArrayInterfaceGet })
+        foreach (var capability in new[] { LibraryIntrinsicCapability.ArrayInterfaceCount, LibraryIntrinsicCapability.ArrayInterfaceGet, LibraryIntrinsicCapability.ArrayInterfaceFalse, LibraryIntrinsicCapability.ArrayInterfaceTrue, LibraryIntrinsicCapability.ArrayInterfaceIdentity })
         {
             var narrowed = manifest with { Artifacts = [artifact with { Grants = [.. artifact.Grants.Where(g => g.Capability != capability)] }] };
             var deniedBytes = AssemblyResolver.SerializeLibraryBuildManifest(narrowed);
             using var denied = resolver.CreateTrustedLibraryCompilationScope(plan, deniedBytes, Convert.ToHexStringLower(SHA256.HashData(deniedBytes))).Value!;
-            var result = ValueTranslator.TranslateIntegerObjects(denied, input, Method("Integers"), implementation);
+            var result = ValueTranslator.TranslateIntegerObjects(denied, input, Method(capability is LibraryIntrinsicCapability.ArrayInterfaceCount or LibraryIntrinsicCapability.ArrayInterfaceGet ? "Integers" : "Flags"), implementation);
             Assert.False(result.Success);
             Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         }
@@ -58,7 +58,7 @@ public sealed class ArrayInterfaceLibraryTests
         Assert.False(enumArgument.Success);
         Assert.Contains(enumArgument.Diagnostics, d => d.Message.Contains("enum element equivalence", StringComparison.Ordinal));
         Assert.False(unsupported.Success);
-        Assert.Contains(unsupported.Diagnostics, d => d.Message.Contains("only Count and indexed reads", StringComparison.Ordinal));
+        Assert.Contains(unsupported.Diagnostics, d => d.Message.Contains("only Count, indexed reads", StringComparison.Ordinal));
     }
 
     [Theory]

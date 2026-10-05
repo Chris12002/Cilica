@@ -243,12 +243,9 @@ public static class ObjectInterfacePlanBuilder
             var key = (IrMethodId.From(declaration.Source), receiver);
             if (_arrayChoices.TryGetValue(key, out var cached)) return cached;
             var contract = catalog.Interfaces.Single(i => ObjectTypeId.From(i.Source) == declaration.Owner);
-            bool count = contract.ArrayContract is ObjectArrayInterfaceKind.Collection or ObjectArrayInterfaceKind.ReadOnlyCollection
-                && declaration.Name == "get_Count" && declaration.Parameters.Length == 1 && declaration.ReturnType == IrType.Int32;
-            bool get = contract.ArrayContract is ObjectArrayInterfaceKind.List or ObjectArrayInterfaceKind.ReadOnlyList
-                && declaration.Name == "get_Item" && declaration.Parameters.Length == 2 && declaration.Parameters[1] == IrType.Int32;
-            if (!closed || !catalog.Integer64 || !(count || get))
-                Fail("Array interface member requires an explicit runtime helper contract; only Count and indexed reads are admitted.", declaration.Source.Name);
+            var recipe = ObjectArrayInterfaceRecipes.Select(declaration, contract.ArrayContract, catalog.ObjectBase);
+            if (!closed || !catalog.Integer64 || recipe is null)
+                Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads, collection flags and SyncRoot are admitted.", declaration.Source.Name);
             TypeSignature element;
             if (receiver.ArrayElement!.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
             else if (receiver.ArrayElement.Type == catalog.ObjectBase) element = new TypeSignature.Primitive(PrimitiveTypeCode.Object);
@@ -261,18 +258,18 @@ public static class ObjectInterfacePlanBuilder
                 element = type.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, type.Arguments);
             }
             var owner = Value(resolver.ResolveType(runtimeLibrary, "Cilica.Runtime", "ArrayInterface`1"));
-            var method = Value(resolver.ResolveClosedDeclaration(new(owner, new([element])), count ? "Count" : "Get", count ? 1 : 2, budget));
+            var method = Value(resolver.ResolveClosedDeclaration(new(owner, new([element])), recipe!, recipe == "Get" ? 2 : 1, budget));
             _ = Value(resolver.AuthorizeLibraryIntrinsic(runtimeLibrary, method.Handle,
-                count ? LibraryIntrinsicCapability.ArrayInterfaceCount : LibraryIntrinsicCapability.ArrayInterfaceGet));
+                recipe switch { "Count" => LibraryIntrinsicCapability.ArrayInterfaceCount, "Get" => LibraryIntrinsicCapability.ArrayInterfaceGet,
+                    "False" => LibraryIntrinsicCapability.ArrayInterfaceFalse, "True" => LibraryIntrinsicCapability.ArrayInterfaceTrue, _ => LibraryIntrinsicCapability.ArrayInterfaceIdentity }));
             var input = Read(method, arrayHelper: true); var id = Id(method);
             var parameters = input.Signature.Parameters.Select(p => Type(p)).ToImmutableArray();
             var returned = Type(input.Signature.ReturnType, true);
-            var elementStorage = receiver.ArrayElement.Type is { } reference ? IrType.Reference(reference) : IrType.Int32;
             if (!input.HasBody || input.Implementation != MethodImplAttributes.IL
                 || input.Attributes != (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
-                || input.OwnerGenericArity != 1 || parameters.Length != (count ? 1 : 2)
-                || parameters[0] != IrType.Reference(receiver) || get && parameters[1] != IrType.Int32
-                || returned != (count ? IrType.Int32 : elementStorage))
+                || input.OwnerGenericArity != 1 || parameters.Length != (recipe == "Get" ? 2 : 1)
+                || parameters[0] != IrType.Reference(receiver) || recipe == "Get" && parameters[1] != IrType.Int32
+                || returned != ObjectArrayInterfaceRecipes.Result(recipe!, receiver))
                 Fail("Invalid selected array interface helper declaration.", input.Source.Name);
             if (!_methods.ContainsKey(id))
             {

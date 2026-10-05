@@ -29,20 +29,29 @@ public sealed class CoreLibraryBuildTests
         var requests = LibraryIntrinsicRequests.Read(CorePath("intrinsic-requests.json"));
         var request = LibraryBuildProducerTests.Request(files, CorePath("CoreTypes.cs"));
         string reference = request.References.Single();
-        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), CorePath("DelegateContracts.cs"), CorePath("Guid.cs"), CorePath("KeyOperations.cs"), CorePath("TrialDictionary.cs"), CorePath("ArrayInterface.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs")), .. additionalSources], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
+        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), CorePath("DelegateContracts.cs"), CorePath("Guid.cs"), CorePath("KeyOperations.cs"), CorePath("Dictionary.cs"), CorePath("DictionaryContracts.cs"), CorePath("ArrayInterface.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs")), .. additionalSources], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
         var built = await LibraryBuilder.Build(request);
         var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!, Path.GetDirectoryName(built.AssemblyPath)!,
             Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;
         var contract = resolver.OpenInput(reference).Value!; Assert.True(contract.IsReferenceAssembly);
         var implementation = resolver.OpenInput(built.AssemblyPath).Value!;
         var names = requests.Where(r => r.Namespace != "Cilica.Runtime").Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Concat(new[] { "Int32", "UInt32", "Int64", "UInt64" }.Select(n => ("System", n))).Distinct().ToArray();
-        names = names.Concat(CollectionContractNames).Concat(new[] { "Enum", "Delegate", "MulticastDelegate", "Action`2", "Guid", "IEquatable`1", "IComparable", "IComparable`1", "IFormattable" }.Select(n => ("System", n))).ToArray();
+        names = names.Concat(DictionaryContractNames).Concat(CollectionContractNames).Concat(new[] { "Enum", "Delegate", "MulticastDelegate", "Action`2", "Guid", "IEquatable`1", "IComparable", "IComparable`1", "IFormattable" }.Select(n => ("System", n))).ToArray();
         var pairs = names.Select(name => new LibraryTypeMapping(resolver.ResolveType(contract, name.Item1, name.Item2).Value!,
             resolver.ResolveType(implementation, name.Item1, name.Item2).Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);
         Assert.True(plan.Success, string.Join("; ", plan.Diagnostics));
         return (built, request, resolver, implementation, plan.Value!);
     }
+
+    internal static readonly (string Namespace, string Name)[] DictionaryContractNames = [
+        ("System", "Array"), ("System.Collections", "ICollection"), ("System.Collections", "IList"), ("System.Collections", "IDictionary"),
+        ("System.Collections", "IDictionaryEnumerator"), ("System.Collections", "DictionaryEntry"),
+        ("System.Collections.Generic", "ICollection`1"), ("System.Collections.Generic", "IList`1"),
+        ("System.Collections.Generic", "IDictionary`2"), ("System.Collections.Generic", "IReadOnlyDictionary`2"),
+        ("System.Collections.Generic", "KeyValuePair`2"), ("System.Collections.Generic", "Dictionary`2"),
+        ("System.Runtime.Serialization", "ISerializable"), ("System.Runtime.Serialization", "IDeserializationCallback"),
+        ("System.Runtime.Serialization", "SerializationInfo"), ("System.Runtime.Serialization", "StreamingContext")];
 
     internal static readonly (string Namespace, string Name)[] CollectionContractNames = [
         ("System", "IDisposable"), ("System.Collections", "IEnumerable"), ("System.Collections", "IEnumerator"),

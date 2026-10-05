@@ -17,6 +17,10 @@ namespace Cilica.Fixtures.Execution
             bits += vector is IReadOnlyList<object> ? 32 : 0;
             bits += vector is IReadOnlyList<long> ? 64 : 0;
             bits += vector is IReadOnlyList<uint> ? 128 : 0;
+            bits += vector is System.Collections.ICollection ? 256 : 0;
+            bits += vector is System.Collections.IList ? 512 : 0;
+            bits += vector is IList<object> ? 1024 : 0;
+            bits += vector is ICollection<uint> ? 2048 : 0;
             return unchecked(input + bits);
         }
         public static int Integers(int input, int mode)
@@ -50,6 +54,21 @@ namespace Cilica.Fixtures.Execution
         {
             IReadOnlyList<int> values = mode < 0 ? (IReadOnlyList<int>)new ContractPair<int>(input, mode) : new[] { input, mode };
             return unchecked(values.Count + values[0] + values[1]);
+        }
+        public static int Flags(int input, int mode)
+        {
+            IList legacy = new int[mode < 0 ? 0 : 2];
+            ICollection<uint> generic = (ICollection<uint>)(object)legacy;
+            int result = legacy.Count + generic.Count;
+            result += legacy.IsReadOnly ? 1 : 2;
+            result += legacy.IsFixedSize ? 4 : 8;
+            result += legacy.IsSynchronized ? 16 : 32;
+            result += legacy.SyncRoot == (object)legacy ? 64 : 128;
+            result += generic.IsReadOnly ? 256 : 512;
+            if (input < 0) legacy = null;
+            try { result += legacy.IsReadOnly ? 1024 : 2048; }
+            catch (NullReferenceException) { result += 4096; }
+            return unchecked(input + result);
         }
         public static int SignedReads(int input, int mode)
         {

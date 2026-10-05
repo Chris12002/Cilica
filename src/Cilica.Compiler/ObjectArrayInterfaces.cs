@@ -29,6 +29,8 @@ internal static class ObjectArrayInterfaces
         var inspectedValues = new HashSet<ResolvedType>();
         var enumBase = Optional(resolver.ResolveType(library, "System", "Enum"));
         var enumerable = Optional(resolver.ResolveType(library, "System.Collections", "IEnumerable"));
+        var collection = Optional(resolver.ResolveType(library, "System.Collections", "ICollection"));
+        var list = Optional(resolver.ResolveType(library, "System.Collections", "IList"));
         void Mark(ResolvedType? type, ObjectArrayInterfaceKind kind)
         {
             if (type is null) return;
@@ -57,13 +59,15 @@ internal static class ObjectArrayInterfaces
                     contracts[index] = contracts[index] with { ArrayContract = kind };
                 }
         }
+        Mark(collection, ObjectArrayInterfaceKind.NonGenericCollection);
+        Mark(list, ObjectArrayInterfaceKind.NonGenericList);
         Mark(enumerable, ObjectArrayInterfaceKind.Enumerable);
         var array = Optional(resolver.ResolveRuntimeArrayBase(library));
         if (array is not null)
         {
             var inherited = resolver.ReadIntrinsicInterfaceDefinitions(array, budget);
             if (inherited.Value is not { } value) throw new ObjectStringType.Failure(inherited.Diagnostics[0]);
-            if (value.Types.Any(t => Mentioned(t) && (!closed || t != enumerable))) throw Unsupported();
+            if (value.Types.Any(t => Mentioned(t) && (!closed || t != enumerable && t != collection && t != list))) throw Unsupported();
         }
         // These vector contracts are supplied by the runtime rather than ordinary
         // InterfaceImpl rows on System.Array. Resolve against the selected image;

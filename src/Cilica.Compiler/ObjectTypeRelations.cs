@@ -110,7 +110,7 @@ internal sealed class ObjectTypeRelations
                 foreach (var contract in catalog.Interfaces.Where(i => i.ArrayContract != ObjectArrayInterfaceKind.None))
                 {
                     Step();
-                    bool compatible = contract.ArrayContract == ObjectArrayInterfaceKind.Enumerable;
+                    bool compatible = contract.ArrayContract is ObjectArrayInterfaceKind.Enumerable or ObjectArrayInterfaceKind.NonGenericCollection or ObjectArrayInterfaceKind.NonGenericList;
                     if (!compatible)
                     {
                         var argument = contract.Arguments[0];

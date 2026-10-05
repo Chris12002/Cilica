@@ -107,12 +107,14 @@ public static class ObjectModelValidator
                 "closed interface arguments require the explicit profile, a specialized identity and bounded argument facts.");
             Require(Enum.IsDefined(contract.ArrayContract) && (contract.ArrayContract == ObjectArrayInterfaceKind.None
                 || model.Integer64 && id.ContentHash == model.ObjectBase.ContentHash
-                    && contract.Arguments.Length == (contract.ArrayContract == ObjectArrayInterfaceKind.Enumerable ? 0 : 1)),
+                    && contract.Arguments.Length == (contract.ArrayContract is ObjectArrayInterfaceKind.Enumerable or ObjectArrayInterfaceKind.NonGenericCollection or ObjectArrayInterfaceKind.NonGenericList ? 0 : 1)),
                 "runtime vector contracts require selected-library identity and exact argument arity.");
             if (contract.ArrayContract != ObjectArrayInterfaceKind.None)
             {
                 string expectedName = contract.ArrayContract switch {
                     ObjectArrayInterfaceKind.Enumerable => "System.Collections.IEnumerable",
+                    ObjectArrayInterfaceKind.NonGenericCollection => "System.Collections.ICollection",
+                    ObjectArrayInterfaceKind.NonGenericList => "System.Collections.IList",
                     ObjectArrayInterfaceKind.GenericEnumerable => "System.Collections.Generic.IEnumerable`1",
                     ObjectArrayInterfaceKind.Collection => "System.Collections.Generic.ICollection`1",
                     ObjectArrayInterfaceKind.List => "System.Collections.Generic.IList`1",

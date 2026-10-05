@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Reflection.Metadata.Ecma335;
 using Cilica.Metadata;
 using Cilica.Metadata.Resolution;
@@ -22,29 +23,25 @@ public sealed class DictionaryLibraryTests
     private static async Task<ManagedExceptionIrProgram[]> BuildPrograms()
     {
         using var files = new ResolverFiles();
-        string source = Path.GetFullPath(Path.Combine(CoreLibraryBuildTests.CorePath(".."), "..", "tests", "Fixtures", "Cilica.Fixtures.Execution", "DictionaryProbe.cs"));
-        // The public System.Dictionary mapping is deliberately unavailable until
-        // its interface contracts are implemented. Change only the dictionary
-        // type identifier in this independent probe; the .NET oracle runs the
-        // original source against the real framework implementation.
-        string adapted = (await File.ReadAllTextAsync(source, TestContext.Current.CancellationToken))
-            .Replace("Dictionary<", "Cilica.Library.TrialDictionary<", StringComparison.Ordinal);
-        string nativeSource = files.Write("dictionary-probe.cs", System.Text.Encoding.UTF8.GetBytes(adapted));
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files, nativeSource);
+        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
         using var lifetime = resolver;
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
             await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var owner = scope.ResolveType(implementation, "Cilica.Fixtures.Execution", "DictionaryProbe").Value!;
+        var input = scope.OpenInput(typeof(DictionaryProbe).Assembly.Location).Value!;
+        MethodDefinitionHandle Method(string name) => (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(DictionaryProbe).GetMethod(name)!.MetadataToken);
         var programs = new System.Collections.Generic.List<ManagedExceptionIrProgram>();
-        foreach (string name in new[] { "Integers", "WideKeys", "Guids", "Collisions", "CallbackFaults" })
+        foreach (string name in new[] { "Integers", "WideKeys", "Guids", "Collisions", "CallbackFaults", "Interfaces" })
         {
-            var method = scope.ResolveClosedDeclaration(new(owner, SignatureList<TypeSignature>.Empty), name, 2, new()).Value!;
-            var translated = ValueTranslator.TranslateIntegerObjects(scope, implementation, method.Handle, implementation);
+            var method = Method(name);
+            var translated = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
             Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
             programs.Add(translated.Program!);
         }
-        var unsupported = scope.ResolveClosedDeclaration(new(owner, SignatureList<TypeSignature>.Empty), "UnsupportedReferenceKey", 2, new()).Value!;
-        var rejected = ValueTranslator.TranslateIntegerObjects(scope, implementation, unsupported.Handle, implementation);
+        var missing = ValueTranslator.TranslateIntegerObjects(scope, input, Method("UnsupportedRemoval"), implementation);
+        Assert.False(missing.Success);
+        Assert.Contains(missing.Diagnostics, d => d.Message.Contains("no implemented managed body", StringComparison.Ordinal));
+        var unsupported = Method("UnsupportedReferenceKey");
+        var rejected = ValueTranslator.TranslateIntegerObjects(scope, input, unsupported, implementation);
         Assert.False(rejected.Success); Assert.Null(rejected.Program);
         Assert.Contains(rejected.Diagnostics, d => d.Message.Contains("reference fallbacks", StringComparison.Ordinal));
         var bytes = await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken);
@@ -52,13 +49,13 @@ public sealed class DictionaryLibraryTests
             Converters = { new JsonStringEnumConverter<LibraryIntrinsicCapability>() }
         })!;
         var artifact = Assert.Single(manifest.Artifacts);
-        var integers = scope.ResolveClosedDeclaration(new(owner, SignatureList<TypeSignature>.Empty), "Integers", 2, new()).Value!;
+        var integers = Method("Integers");
         foreach (var capability in new[] { LibraryIntrinsicCapability.ClosedKeyEqual, LibraryIntrinsicCapability.ClosedKeyHash, LibraryIntrinsicCapability.ClosedKeyIsNull })
         {
             var narrowed = manifest with { Artifacts = [artifact with { Grants = [.. artifact.Grants.Where(g => g.Capability != capability)] }] };
             var narrowedBytes = AssemblyResolver.SerializeLibraryBuildManifest(narrowed);
             using var deniedScope = resolver.CreateTrustedLibraryCompilationScope(plan, narrowedBytes, Convert.ToHexStringLower(SHA256.HashData(narrowedBytes))).Value!;
-            var denied = ValueTranslator.TranslateIntegerObjects(deniedScope, implementation, integers.Handle, implementation);
+            var denied = ValueTranslator.TranslateIntegerObjects(deniedScope, input, integers, implementation);
             Assert.False(denied.Success);
             Assert.Contains(denied.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         }
@@ -77,6 +74,36 @@ public sealed class DictionaryLibraryTests
         return programs.ToArray();
     }
 
+    [Fact]
+    public async Task Dictionary_nominal_interfaces_and_admitted_members_match_reference_metadata()
+    {
+        using var files = new ResolverFiles();
+        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
+        using var lifetime = resolver;
+        var contract = resolver.ResolveAssembly(plan.Bindings[0].Contract.Assembly).Value!;
+        using var sourceStream = File.OpenRead(LibraryBuildProducerTests.Request(files, CoreLibraryBuildTests.CorePath("CoreTypes.cs")).References.Single());
+        using var targetStream = File.OpenRead(built.AssemblyPath);
+        using var sourceImage = new PEReader(sourceStream); using var targetImage = new PEReader(targetStream);
+        var sourceReader = sourceImage.GetMetadataReader(); var targetReader = targetImage.GetMetadataReader();
+        var source = resolver.ResolveType(contract, "System.Collections.Generic", "Dictionary`2").Value!;
+        var target = resolver.ResolveType(implementation, "System.Collections.Generic", "Dictionary`2").Value!;
+        var expected = sourceReader.GetTypeDefinition(source.Handle).GetInterfaceImplementations().Select(h =>
+            resolver.ResolveLibrarySignatureType(plan, contract, sourceReader.GetInterfaceImplementation(h).Interface).Value).ToHashSet();
+        var actual = targetReader.GetTypeDefinition(target.Handle).GetInterfaceImplementations().Select(h =>
+            resolver.ResolveSignatureType(implementation, targetReader.GetInterfaceImplementation(h).Interface).Value).ToHashSet();
+        Assert.DoesNotContain(null, expected); Assert.True(expected.SetEquals(actual));
+        foreach (var (name, count) in new[] { (".ctor", 0), ("get_Count", 0), ("TryAdd", 2), ("TryGetValue", 2), ("ContainsKey", 1), ("set_Item", 2) })
+        {
+            var method = Assert.Single(sourceReader.GetTypeDefinition(source.Handle).GetMethods(), h => {
+                var definition = sourceReader.GetMethodDefinition(h);
+                var signature = resolver.ResolveMethod(contract, h).Value;
+                return sourceReader.GetString(definition.Name) == name && signature?.Signature.Parameters.Count == count;
+            });
+            var mapped = resolver.ResolveLibraryMethod(plan, contract, method);
+            Assert.True(mapped.Success, string.Join("; ", mapped.Diagnostics));
+        }
+    }
+
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task Dictionary_growth_collisions_copies_and_mutating_key_callbacks_match_dotnet(bool optimized)
@@ -85,6 +112,6 @@ public sealed class DictionaryLibraryTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, [
             ("Integers", programs[0], DictionaryProbe.Integers), ("WideKeys", programs[1], DictionaryProbe.WideKeys),
             ("Guids", programs[2], DictionaryProbe.Guids), ("Collisions", programs[3], DictionaryProbe.Collisions),
-            ("CallbackFaults", programs[4], DictionaryProbe.CallbackFaults)]);
+            ("CallbackFaults", programs[4], DictionaryProbe.CallbackFaults), ("Interfaces", programs[5], DictionaryProbe.Interfaces)]);
     }
 }

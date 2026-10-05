@@ -473,6 +473,8 @@ public static partial class ValueProgramDiscovery
         private Work Discover(ResolvedMethod resolved, Work? parent, int offset, ObjectDispatchMethod? fact = null)
         {
             var owner = resolved.DeclaringType.Definition;
+            if (owner.Assembly == library && owner == resolver.ResolveType(library, "Cilica.Runtime", "UnsupportedLibraryMember`1").Value)
+                Fail(parent, "This library member has no implemented managed body in the selected bounded core.", offset);
             string specialization = "";
             if (generics)
             {

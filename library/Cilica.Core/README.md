@@ -19,14 +19,16 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/DelegateContracts.cs \
   --source library/Cilica.Core/Guid.cs \
   --source library/Cilica.Core/KeyOperations.cs \
-  --source library/Cilica.Core/TrialDictionary.cs \
+  --source library/Cilica.Core/Dictionary.cs \
+  --source library/Cilica.Core/DictionaryContracts.cs \
+  --source library/Cilica.Core/ArrayInterface.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 71 exact string/exception/provider/numeric capabilities for review; it does not
+file describes 76 exact string/exception/provider/numeric/array/key capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -61,14 +63,16 @@ The local suite covers 14,400 repeated native comparisons, including every outpu
 code unit and null/default/empty exception messages. Parsing, random/byte/span
 APIs and boxed Guid type tests remain unsupported (ADR 0138).
 
-`TrialDictionary.cs` adapts pinned dictionary storage/prime algorithms under a
-Cilica.Library name. Five direct-core probes provide 1,470 repeated native
-comparisons, including resize/collisions and mutable key callback semantics.
-Private exact key grants select integer and IEquatable struct bodies. The public
-System.Dictionary mapping still needs collection/array interfaces; reference keys,
-enumeration, removal and other omitted members remain unsupported (ADR 0141).
+`Dictionary.cs` maps the bounded public Dictionary constructor, Count, TryAdd,
+TryGetValue, ContainsKey and indexer setter, using the previously tested storage
+algorithms. DictionaryContracts.cs preserves generic, nongeneric and serialization
+interface declarations. Unimplemented members reach UnsupportedLibraryMember and
+fail compilation; no default-valued or throwing runtime substitute is provided.
+ArrayInterface.cs supplies separately granted managed Count/index readers, collection flags and SyncRoot.
+The complete kernel/native equivalence gate remains pending.
+
 
 This is a bounded core trial. General formatting/culture/provider members,
-StringBuilder, library collection implementations, full reflection and general CoreLib compatibility
+StringBuilder, broader collection members, full reflection and general CoreLib compatibility
 remain unimplemented. The image is metadata input to Cilica, never loaded into
-the host CLR. See ADRs 0131–0138 for scope and review evidence.
+the host CLR. See ADRs 0131–0143 for scope and review evidence.

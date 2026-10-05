@@ -509,5 +509,26 @@
     "Member": "Get",
     "ParameterCount": 2,
     "Capability": "ArrayInterfaceGet"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "False",
+    "ParameterCount": 1,
+    "Capability": "ArrayInterfaceFalse"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "True",
+    "ParameterCount": 1,
+    "Capability": "ArrayInterfaceTrue"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Identity",
+    "ParameterCount": 1,
+    "Capability": "ArrayInterfaceIdentity"
   }
 ]

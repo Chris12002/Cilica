@@ -1494,3 +1494,12 @@ reference covariance, Int32/UInt32 bit identity, bounds messages and null checks
 Object layout v7, interface plan v2 and native v24 carry explicit array assertions.
 Enum elements and unimplemented interface operations remain diagnostic. This does
 not yet provide public collection implementations or native kernel equivalence.
+
+
+The bounded public Dictionary mapping now preserves its exact nominal interfaces
+and admitted method flags (ADR 0143). Default construction, Count, TryAdd,
+TryGetValue, ContainsKey, setter overwrite and collection flags/SyncRoot are tested
+through real reference calls. Missing bodies fail at build time. Nongeneric array
+collection flags and SyncRoot use exact granted managed helpers, with layout v8
+and native v25. The real kernel now reaches StringBuilder; native equivalence
+remains pending.
