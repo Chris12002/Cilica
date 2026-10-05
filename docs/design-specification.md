@@ -879,7 +879,9 @@ O0/O2 UBSan conformance matches .NET. `integer-arithmetic-cil-v1` now translates
 static mixed-width scalar closures with explicit conversions and checked stack
 widths ([ADR 0094](decisions/0094-integer-cil-closures.md)). Checked and unchecked
 integer conversions, including narrow stack results, have boundary conformance
-([ADR 0095](decisions/0095-integer-conversion-semantics.md)). Narrow storage and
+([ADR 0095](decisions/0095-integer-conversion-semantics.md)). Narrow primitive
+parameters, locals and returns normalize to their declared storage width
+([ADR 0096](decisions/0096-narrow-scalar-storage.md)). Enum identities and
 heap/array integration remain pending. Existing Int32/object/value profile claims
 are unchanged.
 

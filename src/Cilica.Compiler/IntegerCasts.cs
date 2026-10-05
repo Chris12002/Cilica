@@ -1,4 +1,6 @@
 using System;
+using System.Reflection.Metadata;
+using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
@@ -6,6 +8,14 @@ public enum IntegerCastTarget { Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64
 
 internal static class IntegerCasts
 {
+    internal static IntegerCastTarget? NarrowStorage(TypeSignature signature) => signature switch
+    {
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.SByte } => IntegerCastTarget.Int8,
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Boolean } => IntegerCastTarget.UInt8,
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.Int16 } => IntegerCastTarget.Int16,
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.UInt16 or PrimitiveTypeCode.Char } => IntegerCastTarget.UInt16,
+        _ => null,
+    };
     internal static int Bits(IntegerCastTarget target) => target switch
     {
         IntegerCastTarget.Int8 or IntegerCastTarget.UInt8 => 8,

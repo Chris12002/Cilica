@@ -49,7 +49,7 @@ public static partial class Int32Translator
                 || !Scalar(input.Signature.ReturnType) || input.Signature.Parameters.Any(p => !Scalar(p))
                 || input.Locals.Any(l => !Scalar(l)))
                 Fail(DiagnosticIds.ExecutionSignatureUnsupported, integers64
-                    ? IntegerTranslator.Profile + " requires static nongeneric Int32/UInt32/Int64/UInt64 parameters, locals and return."
+                    ? IntegerTranslator.Profile + " requires static nongeneric integer, Boolean or Char parameters, locals and return."
                     : IrMethod.Profile + " requires a static nongeneric default-convention method with Int32 parameters, locals and return type.");
             if (input.Signature.Parameters.Count > IrLimits.MaximumParameters || input.Locals.Length > IrLimits.MaximumLocals)
                 Fail(DiagnosticIds.TranslationLimit, "Parameter/local storage limit exceeded.");
@@ -100,13 +100,14 @@ public static partial class Int32Translator
                     case "nop": break;
                     case "ldarg.0" or "ldarg.1" or "ldarg.2" or "ldarg.3" or "ldarg.s" or "ldarg":
                         int parameter = Variable(instruction, input.Signature.Parameters.Count, "Argument");
-                        Push(offset, new IrExpression.Parameter(parameter), type: ScalarType(input.Signature.Parameters[parameter], integers64)); break;
+                        Push(offset, new IrExpression.Parameter(parameter), type: ScalarType(input.Signature.Parameters[parameter], integers64));
+                        stack.Add(Normalize(Pop(offset), input.Signature.Parameters[parameter], offset)); break;
                     case "ldloc.0" or "ldloc.1" or "ldloc.2" or "ldloc.3" or "ldloc.s" or "ldloc":
                         int loaded = Variable(instruction, input.Locals.Length, "Local");
                         Push(offset, new IrExpression.Local(loaded), type: ScalarType(input.Locals[loaded], integers64)); break;
                     case "stloc.0" or "stloc.1" or "stloc.2" or "stloc.3" or "stloc.s" or "stloc":
                         int local = Variable(instruction, input.Locals.Length, "Local");
-                        Add(new IrStatement.StoreLocal(offset, local, Pop(offset, ScalarType(input.Locals[local], integers64))), offset); break;
+                        Add(new IrStatement.StoreLocal(offset, local, Normalize(Pop(offset, ScalarType(input.Locals[local], integers64)), input.Locals[local], offset)), offset); break;
                     case "ldc.i4.m1" or "ldc.i4.0" or "ldc.i4.1" or "ldc.i4.2" or "ldc.i4.3" or "ldc.i4.4" or "ldc.i4.5" or "ldc.i4.6" or "ldc.i4.7" or "ldc.i4.8":
                         Push(offset, new IrExpression.Constant(opcode == "ldc.i4.m1" ? -1 : opcode[^1] - '0')); break;
                     case "ldc.i4.s" or "ldc.i4": Push(offset, new IrExpression.Constant(instruction.IntegerOperand!.Value)); break;
@@ -162,7 +163,7 @@ public static partial class Int32Translator
                     case "br" or "br.s": terminator = new IrJump(offset, Edge(instruction.Targets[0], offset)); break;
                     case "ret":
                         if (stack.Count != 1) Fail(DiagnosticIds.InconsistentStack, "Integer return requires exactly one value and no residual stack entries.", offset);
-                        terminator = new IrReturn(offset, Pop(offset, ScalarType(input.Signature.ReturnType, integers64))); break;
+                        terminator = new IrReturn(offset, Normalize(Pop(offset, ScalarType(input.Signature.ReturnType, integers64)), input.Signature.ReturnType, offset)); break;
                     default:
                         if (integers64 && IntegerCasts.FromOpcode(opcode, -1) is { } cast)
                         {
@@ -204,6 +205,12 @@ public static partial class Int32Translator
                 if (expected is not null && valueTypes[value] != expected)
                     Fail(DiagnosticIds.InconsistentStack, "Operand width does not match the required integer type.", offset);
                 return value;
+            }
+            int Normalize(int value, TypeSignature signature, int offset)
+            {
+                if (!integers64 || IntegerCasts.NarrowStorage(signature) is not { } target) return value;
+                Push(offset, new IrExpression.IntegerCast(target, value, Checked: false, UnsignedSource: false));
+                return Pop(offset);
             }
             IrEdge Edge(int targetOffset, int from)
             {

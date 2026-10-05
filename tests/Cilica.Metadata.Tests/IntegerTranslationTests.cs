@@ -120,10 +120,10 @@ public sealed class IntegerTranslationTests
         using var files = new ResolverFiles(); using var resolver = files.Open();
         var b = new ResolutionAssemblyBuilder(new("UnsupportedWide", new Version(1, 0, 0, 0))); b.Type("", "Probe");
         var convert = b.Method("Convert", [0, 1, 8, 0x0a], emit: il => { il.LoadArgument(0); il.OpCode(ILOpCode.Conv_r8); il.OpCode(ILOpCode.Ret); });
-        var boolean = b.Method("Boolean", [0, 1, 8, 2], emit: il => { il.LoadArgument(0); il.OpCode(ILOpCode.Ret); });
+        var floating = b.Method("Floating", [0, 1, 8, 0x0c], emit: il => { il.LoadArgument(0); il.OpCode(ILOpCode.Ret); });
         var input = resolver.OpenInput(files.Write("input.dll", b.Build())).Value!;
         Assert.Equal(DiagnosticIds.ExecutionUnsupported, Assert.Single(IntegerTranslator.TranslateProgram(resolver, input, convert).Diagnostics).Id);
-        Assert.Equal(DiagnosticIds.ExecutionSignatureUnsupported, Assert.Single(IntegerTranslator.TranslateProgram(resolver, input, boolean).Diagnostics).Id);
+        Assert.Equal(DiagnosticIds.ExecutionSignatureUnsupported, Assert.Single(IntegerTranslator.TranslateProgram(resolver, input, floating).Diagnostics).Id);
         Assert.False(Int32Translator.TranslateProgram(resolver, input, convert).Success);
     }
 }

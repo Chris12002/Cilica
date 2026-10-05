@@ -11,7 +11,7 @@ public sealed record IntegerTranslationResult(IntegerIrProgram? Program, Immutab
     public bool Success => Program is not null;
 }
 
-/// <summary>Explicit static Int32/UInt32/Int64/UInt64 CIL closures; no heap, generic or native-pointer semantics.</summary>
+/// <summary>Explicit static integer/Boolean/Char CIL closures; no heap, enum, generic or native-pointer semantics.</summary>
 public static class IntegerTranslator
 {
     public const string Profile = "integer-arithmetic-cil-v1";

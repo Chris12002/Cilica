@@ -41,6 +41,8 @@ public static partial class Int32Translator
     {
         TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
         TypeSignature.Primitive { Code: PrimitiveTypeCode.UInt32 } when integers64 => IrType.Int32,
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.SByte or PrimitiveTypeCode.Byte or PrimitiveTypeCode.Int16
+            or PrimitiveTypeCode.UInt16 or PrimitiveTypeCode.Char or PrimitiveTypeCode.Boolean } when integers64 => IrType.Int32,
         TypeSignature.Primitive { Code: PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 } when integers64 => IrType.Int64,
         _ => null,
     };
@@ -113,7 +115,7 @@ public static partial class Int32Translator
             if (target.Signature.Header != 0 || ScalarType(target.Signature.ReturnType, integers64) is null
                 || target.Signature.Parameters.Any(p => ScalarType(p, integers64) is null))
                 Fail(caller, DiagnosticIds.ExecutionSignatureUnsupported, integers64
-                    ? "Direct integer calls require static default-convention Int32/UInt32/Int64/UInt64 parameters and return."
+                    ? "Direct integer calls require static default-convention integer, Boolean or Char parameters and return."
                     : "Direct calls require static default-convention Int32 parameters and return.", instruction.Offset);
             if (target.Signature.Parameters.Count > IrLimits.MaximumParameters)
                 Fail(caller, DiagnosticIds.TranslationLimit, "Call parameter limit exceeded.", instruction.Offset);
