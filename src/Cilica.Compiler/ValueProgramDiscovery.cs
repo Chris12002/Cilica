@@ -487,7 +487,7 @@ public static partial class ValueProgramDiscovery
             if (fact is not null && (binding.Kind != kind || binding.Owner != ownerId || binding.Attributes != input.Attributes
                 || work.ReturnType != fact.ReturnType || !work.Parameters.SequenceEqual(fact.Parameters)))
                 Fail(parent, "Closed method signature contradicts its interface mapping facts.", offset);
-            if (instance && !inlineConstructor && (!integers64 || constructor) && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
+            if (instance && !inlineConstructor && !integers64 && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
                 Fail(parent, "Class instance methods require scalar/reference parameters, locals and returns; values and borrows need later lowering.", offset);
             if (protectedInput is not null) work = work with { Regions = [.. protectedInput.Regions.Select(r => new IrExceptionRegion(r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd,
                 r.Kind switch { ExceptionRegionKind.Catch => IrExceptionClause.Catch, ExceptionRegionKind.Filter => IrExceptionClause.Filter, ExceptionRegionKind.Finally => IrExceptionClause.Finally, _ => IrExceptionClause.Fault },

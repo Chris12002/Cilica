@@ -82,7 +82,7 @@ internal sealed class ObjectIrRules
             bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
             Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
                 || (isStatic || valueConstructor) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0
-                || flow.Types.Integer64 && binding.Kind == ObjectMethodKind.Instance,
+                || flow.Types.Integer64 && binding.Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor,
                 "borrowed parameters require static methods, value constructors or admitted integer-object instance methods.");
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
                 || (layout.Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic,
@@ -314,6 +314,18 @@ internal sealed class ObjectIrRules
                         IrStatement.Define d => d.Value.Expression switch
                         {
                             IrExpression.Parameter or IrExpression.Constant or IrExpression.Null or IrExpression.Local => true,
+                            IrExpression.Constant64 or IrExpression.DefaultValue or IrExpression.AddressLocal when _program.Flow.Types.Integer64 => true,
+                            IrExpression.AddressParameter p when _program.Flow.Types.Integer64 => p.Index != 0,
+                            IrExpression.Binary64 b when _program.Flow.Types.Integer64 => !This(b.Left) && !This(b.Right),
+                            IrExpression.Not64 n when _program.Flow.Types.Integer64 => !This(n.Operand),
+                            IrExpression.ConvertInteger c when _program.Flow.Types.Integer64 => !This(c.Operand),
+                            IrExpression.IntegerCast c when _program.Flow.Types.Integer64 => !This(c.Operand),
+                            IrExpression.ValueField f when _program.Flow.Types.Integer64 => !This(f.Operand),
+                            IrExpression.WithValueField f when _program.Flow.Types.Integer64 => !This(f.Operand) && !This(f.Value),
+                            IrExpression.LocationField f when _program.Flow.Types.Integer64 => !This(f.Location),
+                            IrExpression.ReadOnlyLocation r when _program.Flow.Types.Integer64 => !This(r.Location),
+                            IrExpression.LoadLocation l when _program.Flow.Types.Integer64 => !This(l.Location),
+                            IrExpression.AddressField f when _program.Flow.Types.Integer64 => !This(f.Receiver),
                             IrExpression.Binary b => !This(b.Left) && !This(b.Right),
                             IrExpression.Unary u => !This(u.Operand),
                             IrExpression.Compare c => !This(c.Left) && !This(c.Right),
@@ -333,6 +345,8 @@ internal sealed class ObjectIrRules
                             _ => false,
                         },
                         IrStatement.StoreLocal s => !This(s.Value),
+                        IrStatement.StoreLocation s when _program.Flow.Types.Integer64 => !This(s.Location) && !This(s.Value),
+                        IrStatement.InitializeLocation s when _program.Flow.Types.Integer64 => !This(s.Location),
                         IrStatement.Invoke c => c.Arguments.All(a => !This(a)),
                         IrStatement.StoreField s => !This(s.Value) && (!This(s.Receiver) || s.Field.Owner == binding.Owner),
                         IrStatement.StoreElement s => !This(s.Array) && !This(s.Index) && !This(s.Value),

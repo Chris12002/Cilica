@@ -912,6 +912,10 @@ Closed generic memory operations now preserve exact substituted storage for
 integer, reference and inline-value operands; defaults clear the existing checked
 locations ([ADR 0117](decisions/0117-closed-generic-memory-operations.md)). Narrow
 memory operands still require width-aware carriers.
+Class constructors also carry inline arguments and borrows through the same
+lowering. Value computations before the base call must remain independent of the
+uninitialized receiver; straight-line initialization and the immediate-base check
+remain ([ADR 0118](decisions/0118-class-constructor-value-signatures.md)).
 
 ## 11. Class library and assembly identity
 

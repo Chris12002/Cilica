@@ -43,7 +43,7 @@ public static class ValueArrayIrValidator
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing, exceptions);
         foreach (var method in flow.Methods)
             if (objects.Binding(IrMethodId.From(method.Source)).Kind is not (ObjectMethodKind.Static or ObjectMethodKind.ValueConstructor)
-                && !(flow.Types.References.Integer64 && objects.Binding(IrMethodId.From(method.Source)).Kind == ObjectMethodKind.Instance)
+                && !(flow.Types.References.Integer64 && objects.Binding(IrMethodId.From(method.Source)).Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor)
                 && method.Parameters.Concat(method.Locals).Concat(method.Blocks.SelectMany(b => b.Inputs))
                     .Concat(method.Blocks.SelectMany(b => b.Values).Select(v => v.Type))
                     .Any(p => p.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))

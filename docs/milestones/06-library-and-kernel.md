@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.26 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.27 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -489,6 +489,16 @@ driver stack overrun while retaining the 2 KiB limit. Review found no remaining
 actionable issue. See [ADR 0117](../decisions/0117-closed-generic-memory-operations.md).
 The private kernel now reaches a class constructor with value parameters; native
 kernel comparison remains pending. Local main remains an ancestor.
+
+## Slice 6c.27 outcome
+
+Class constructors now carry value copies and synchronous borrows, including
+value-returning base-argument helpers. Receiver escape and exactly-once immediate
+base checks remain enforced. Three probes match .NET in 882 repeated native
+sanitizer results; all 107 distinct focused checks pass. Review found no remaining
+actionable issue. See [ADR 0118](../decisions/0118-class-constructor-value-signatures.md).
+The private kernel advances to reference boxing in a generic null test. Local
+main remains an ancestor; native kernel equivalence is still pending.
 
 ## Remaining completion evidence
 
