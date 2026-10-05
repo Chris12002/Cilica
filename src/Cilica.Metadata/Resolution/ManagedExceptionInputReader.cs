@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -38,14 +39,21 @@ public sealed partial class AssemblyResolver
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
             void Report(string code, string message, int offset) => diagnostics.Add(new(code, DiagnosticSeverity.Error, message,
                 value.Source.Name + " IL_" + offset.ToString("x4", System.Globalization.CultureInfo.InvariantCulture)));
+            // This reader has one exact closed caller. Repeated operand tokens
+            // share declaration resolution; opcode-specific stack effects do not.
+            var calls = new Dictionary<int, ResolvedMethod>();
             CallShape? Call(Instruction instruction)
             {
                 if (instruction.Code.Name == "calli")
                 {
                     Report(DiagnosticIds.ExecutionUnsupported, "Indirect unmanaged/function-pointer calls require a supported lowering.", instruction.Offset); return null;
                 }
-                var resolved = ResolveClosedCall(method, MetadataTokens.EntityHandle(instruction.Token), budget);
-                if (resolved.Value is not { } target) { diagnostics.AddRange(resolved.Diagnostics); return null; }
+                if (!calls.TryGetValue(instruction.Token, out var target))
+                {
+                    var resolved = ResolveClosedCall(method, MetadataTokens.EntityHandle(instruction.Token), budget);
+                    if (resolved.Value is not { } declaration) { diagnostics.AddRange(resolved.Diagnostics); return null; }
+                    calls.Add(instruction.Token, target = declaration);
+                }
                 var signature = target.Signature;
                 int receiver = (signature.Header & 0x20) != 0 && instruction.Code.Name != "newobj" ? 1 : 0;
                 return new(signature.Parameters.Count + receiver, instruction.Code.Name == "newobj"

@@ -118,8 +118,10 @@ public static partial class ValueProgramDiscovery
         private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ClosedClassVirtualTarget> _virtualCache = [];
         private readonly Dictionary<IrMethodId, Dictionary<ObjectTypeId, IrMethodId>> _dispatch = [];
         private int _dispatchTargetCount;
-        private readonly Dictionary<(string Hash, int Token), ResolvedMethod> _calls = [];
-        private readonly Dictionary<(string Hash, int Token), ResolvedField> _fields = [];
+        // A generic operand is meaningful only in its exact closed caller context.
+        // Cache declarations, never access decisions or intrinsic authorization.
+        private readonly Dictionary<(string Hash, int Token, IrMethodId? Caller), ResolvedMethod> _calls = [];
+        private readonly Dictionary<(string Hash, int Token, IrMethodId? Caller), ResolvedField> _fields = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedType> _types = [];
         private int _bytes, _instructions, _parameters, _locals, _arguments, _snapshotFields;
         private ObjectTypeId? _integerArray, _integer, _object, _valueBase;
@@ -206,8 +208,8 @@ public static partial class ValueProgramDiscovery
                         else if (instruction.OpCode == "call" || classes && instruction.OpCode == "newobj" || delegates && instruction.OpCode is ("ldftn" or "callvirt"))
                         {
                             int token = Token(work, instruction, 0x06, 0x0a, 0x2b);
-                            var key = (work.Assembly.ContentHash, token);
-                            if (generics || !_calls.TryGetValue(key, out _))
+                            var key = (work.Assembly.ContentHash, token, generics ? work.Binding.Method : null);
+                            if (!_calls.TryGetValue(key, out _))
                             {
                                 _calls[key] = Require(generics
                                     ? resolver.ResolveClosedCall(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
@@ -289,7 +291,7 @@ public static partial class ValueProgramDiscovery
                         else if (integers64 && instruction.OpCode is ("ldsfld" or "stsfld"))
                         {
                             int token = Token(work, instruction, 0x04, 0x0a);
-                            var field = Require(resolver.ResolveClosedField(work.Resolved, MetadataTokens.EntityHandle(token), _metadata), work, offset);
+                            var field = BoundField(work, token, offset);
                             var owner = SnapshotClosed(field.DeclaringType, work, offset);
                             var declaration = owner.Fields.Single(f => f.Token == MetadataTokens.GetToken(field.Handle));
                             if (instruction.OpCode == "stsfld" || !DefaultStaticFields.IsDefault(owner, declaration))
@@ -307,13 +309,7 @@ public static partial class ValueProgramDiscovery
                         else if (instruction.OpCode is "ldfld" or "ldflda" or "stfld")
                         {
                             int token = Token(work, instruction, 0x04, 0x0a);
-                            var key = (work.Assembly.ContentHash, token);
-                            if (generics || !_fields.TryGetValue(key, out _))
-                            {
-                                _fields[key] = Require(generics ? resolver.ResolveClosedField(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
-                                    : resolver.ResolveDeclaredField(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
-                            }
-                            var field = _fields[key];
+                            var field = BoundField(work, token, offset);
                             if (!generics && field.DeclaringType.Arguments.Count != 0) Fail(work, "Generic field owners require later lowering.", offset);
                             var owner = field.DeclaringType.Definition;
                             fields.Add(offset, new(classes && !Inline(owner, work, offset) ? IncludeReference(field.DeclaringType, work, offset)
@@ -777,6 +773,18 @@ public static partial class ValueProgramDiscovery
             _snapshotFields += input.Fields.Length;
             _snapshots.Add(id, input); return input;
         }
+        private ResolvedField BoundField(Work work, int token, int offset)
+        {
+            var key = (work.Assembly.ContentHash, token, generics ? work.Binding.Method : null);
+            if (!_fields.TryGetValue(key, out var field))
+            {
+                field = Require(generics ? resolver.ResolveClosedField(work.Resolved, MetadataTokens.EntityHandle(token), _metadata)
+                    : resolver.ResolveDeclaredField(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
+                _fields.Add(key, field);
+            }
+            return field;
+        }
+
         private static int Token(Work work, MethodInstruction instruction, params int[] kinds)
         {
             int token = instruction.IntegerOperand ?? 0;
