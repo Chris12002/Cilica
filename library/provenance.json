@@ -112,6 +112,21 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringComparison.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/StringComparison.cs",
       "sha256": "8077f5fa5da22eeb84e8e1503057589de20f51d5afa90630c37c00e7d96d99c9"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.cs",
+      "sha256": "12774ab3e250374dede05eb62f84c044d472296deea73509943984fc33a3d9ea"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Char.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Char.cs",
+      "sha256": "55ade7e035571a2e6287645d4cace388e03d5754fb2733e16a18daa5df22382d"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/CharUnicodeInfo.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Globalization/CharUnicodeInfo.cs",
+      "sha256": "421b42928c7feb79870bc238487893a3d75e32620c63e0aa33190b27cf96d629"
     }
   ],
   "adaptations": [
@@ -299,6 +314,18 @@
         "No source changes; only directly proven Ordinal equality is executable in the selected compiler profile."
       ],
       "scope": "Nominal comparison contract; no cultural or ignore-case comparison implementation."
+    },
+    {
+      "path": "library/Cilica.Core/StringWhitespace.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.cs",
+      "algorithms": [
+        "IsNullOrWhiteSpace null check and UTF-16 scan",
+        "Char.IsWhiteSpace / CharUnicodeInfo BMP White_Space classification"
+      ],
+      "changes": [
+        "Replace runtime-private Unicode lookup tables with the exact bounded whitespace ranges; verify all 65,536 UTF-16 code units against pinned .NET."
+      ],
+      "scope": "Managed String.IsNullOrWhiteSpace only; no general Unicode classification API."
     }
   ],
   "ownedAdapters": [

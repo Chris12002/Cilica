@@ -76,7 +76,7 @@ namespace System
     public interface IFormatProvider { }
     public interface IConvertible { string ToString(IFormatProvider provider); }
 
-    public sealed class String
+    public sealed partial class String
     {
         private String() { }
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0);

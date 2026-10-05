@@ -30,6 +30,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/PairHash.cs \
   --source library/Cilica.Core/BoxedFormatting.cs \
   --source library/Cilica.Core/StringComparison.cs \
+  --source library/Cilica.Core/StringWhitespace.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
@@ -123,3 +124,7 @@ Other overloads, providers, primitive/reference arguments and aliases are diagno
 StringComparison.cs preserves the pinned enum declaration. The exact granted
 three-argument String.Equals overload requires a directly proven Ordinal constant
 and reuses UTF-16 ordinal equality. Other modes and mode aliases remain diagnostic.
+
+StringWhitespace.cs implements IsNullOrWhiteSpace as ordinary managed code with
+pinned BMP whitespace ranges. Exhaustive UTF-16 and mixed-string differential tests
+cover the implementation. No general Unicode classification API is supplied.

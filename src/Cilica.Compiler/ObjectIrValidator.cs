@@ -75,7 +75,9 @@ internal sealed class ObjectIrRules
                 && (uint)binding.Owner.Token >> 24 == 0x02 && (binding.Owner.Token & 0xffffff) > 1
                 && binding.Owner.ContentHash == binding.Method.ContentHash
                 && _methods.ContainsKey(binding.Method) && _bindings.TryAdd(binding.Method, binding), "invalid or duplicate method binding identity.");
-            Require(binding.Owner != flow.Types.String && !_delegates.ContainsKey(binding.Owner), "selected String methods require explicit intrinsic operations.");
+            Require((binding.Owner != flow.Types.String || flow.Types.Integer64 && binding.Kind == ObjectMethodKind.Static
+                    && binding.TypeInitializerName is null)
+                && !_delegates.ContainsKey(binding.Owner), "selected String instance and delegate methods require explicit intrinsic operations.");
             Require(ObjectLexicalAccess.Valid(binding.Owner, binding.LexicalOwners)
                 && (binding.LexicalOwners.IsEmpty || ObjectLexicalAccess.Public(binding.LexicalOwners) == binding.OwnerExternallyVisible
                     && ObjectLexicalAccess.AssemblyVisible(binding.LexicalOwners) == binding.OwnerAssemblyVisible),

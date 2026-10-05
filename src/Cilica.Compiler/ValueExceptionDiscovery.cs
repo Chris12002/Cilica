@@ -165,6 +165,13 @@ public static partial class ValueProgramDiscovery
                 Fail(work, "Only verified exception constructors and selected Exception.Message are supported; other members or overrides need explicit lowering.", offset);
             }
             var text = IncludeString(work, offset);
+            // Ordinary selected-library static bodies have no intrinsic behavior
+            // to replace. Discover and validate their IL through the normal path.
+            if (integers64 && instruction.OpCode == "call" && signature.Header == 0
+                && (input.Attributes & MethodAttributes.Static) != 0
+                && (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask
+                    | MethodImplAttributes.InternalCall)) == MethodImplAttributes.IL)
+                return null;
             if (instruction.OpCode == "callvirt" && input.DeclaredName == "get_Length" && signature.Header == 0x20
                 && signature.Parameters.Count == 0 && Primitive(signature.ReturnType, PrimitiveTypeCode.Int32))
             { Authorize(LibraryIntrinsicCapability.StringLength); return new(ValueIntrinsic.StringLength, text, 1); }

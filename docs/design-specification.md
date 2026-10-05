@@ -1468,3 +1468,12 @@ existing UTF-16 equality; nulls and operand evaluation retain existing semantics
 The pinned enum declaration is mapped, but other modes, aliases and general enum
 storage remain diagnostic. One probe supplies 294 local O0/O2 comparisons. The
 kernel now reaches the bounded metadata work limit; native transcripts remain pending.
+
+
+String.IsNullOrWhiteSpace now executes as ordinary managed UTF-16 code (ADR 0159).
+Selected String static IL bodies use normal discovery and validation; instance
+methods and initialization retain explicit restrictions. Object operations IR v13
+records this admission. Every UTF-16 code unit and mixed/null/empty strings match
+.NET at O0/O2 with ASan/UBSan and forced collection. No native intrinsic was added.
+The concrete kernel again reaches the unchanged metadata work bound; native
+transcript equivalence and implementation/filter closure remain pending.
