@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.34 and 6d.1–6d.3 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.34 and 6d.1–6d.3 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -17,6 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit API added in 6d.3 |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
+| 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.34 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.3 add a pinned-source invariant decimal text helper, actual build evidence producer and mapped audit API; framework member mapping, collections and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
@@ -608,6 +609,16 @@ Review added malformed interface-encoding regressions and corrected a stale
 AllowByRefLike expectation; see
 [ADR 0128](../decisions/0128-exact-interface-constraints.md). Library mapping
 correspondence, broader constraints and native kernel equivalence remain pending.
+
+## Slice 6b.4 outcome
+
+Library mappings now compare open generic constraint sets after explicit type
+projection. Changed obligations, duplicates, malformed signatures and unmapped
+identities fail before substitution. All 146 focused checks pass; review found
+no remaining actionable issue. See
+[ADR 0129](../decisions/0129-library-constraint-correspondence.md). This closes a
+mapping prerequisite; it does not provide the required framework bodies or the
+native kernel result.
 
 ## Remaining completion evidence
 

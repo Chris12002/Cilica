@@ -935,6 +935,13 @@ a diagnostic ([ADR 0121](decisions/0121-direct-interface-value-declarations.md))
 
 ## 11. Class library and assembly identity
 
+Explicit library mappings preserve generic constraint sets structurally before
+closing type/method arguments. Projection retains named identities and modifiers,
+checks both variable environments and rejects changed or malformed obligations
+([ADR 0129](decisions/0129-library-constraint-correspondence.md)). Matching
+declarations does not replace executable constraint proof or grant intrinsic
+authority.
+
 Closed generic declarations may carry AllowByRefLike when their actual arguments
 are ordinary supported types. Stack-only values/arguments remain explicitly
 rejected through bounded marker inspection, and library mappings cannot erase

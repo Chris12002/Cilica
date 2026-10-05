@@ -174,7 +174,7 @@ public sealed class LibraryBindingTests
     }
 
     [Fact]
-    public void Nominal_constraints_remain_an_explicit_unsupported_obligation()
+    public void Matching_nominal_constraints_preserve_structural_obligations()
     {
         using var files = new ResolverFiles(); using var resolver = files.Open();
         Action<ResolutionAssemblyBuilder> shape = b =>
@@ -186,8 +186,7 @@ public sealed class LibraryBindingTests
         var target = resolver.OpenInput(files.Write("runtime.dll", Image("Cilica.Core", false, shape))).Value!;
         var result = resolver.CreateLibraryBindingPlan([new(Type(resolver, source, "Parent"), Type(resolver, target, "Parent")),
             new(Type(resolver, source, "Api`1"), Type(resolver, target, "Api`1"))]);
-        Error(result);
-        Assert.Contains("Nominal/dependent", Assert.Single(result.Diagnostics).Message, StringComparison.Ordinal);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
     }
 
     [Fact]
@@ -312,8 +311,8 @@ public sealed class LibraryBindingTests
         var source = resolver.OpenInput(files.Write("contract.dll", Image("Contract", true))).Value!;
         var target = resolver.OpenInput(files.Write("runtime.dll", Image("Cilica.Core", false))).Value!;
         var pair = new LibraryTypeMapping(Type(resolver, source, "Api"), Type(resolver, target, "Api"));
-        Assert.Single(Success(resolver.CreateLibraryBindingPlan([pair], new(3))).Bindings);
-        Error(resolver.CreateLibraryBindingPlan([pair], new(2)), DiagnosticIds.TranslationLimit);
+        Assert.Single(Success(resolver.CreateLibraryBindingPlan([pair], new(5))).Bindings);
+        Error(resolver.CreateLibraryBindingPlan([pair], new(4)), DiagnosticIds.TranslationLimit);
         Error(resolver.CreateLibraryBindingPlan(Enumerable.Repeat(pair, LibraryBindingPlan.MaximumMappings + 1)), DiagnosticIds.TranslationLimit);
         Assert.Single(Success(resolver.CreateLibraryBindingPlan(Enumerable.Repeat(pair, LibraryBindingPlan.MaximumMappings))).Bindings);
         Error(resolver.CreateLibraryBindingPlan([]));

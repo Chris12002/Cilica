@@ -227,7 +227,7 @@ public sealed class LibraryMemberBindingTests
     }
 
     [Fact]
-    public void Nominal_method_constraints_are_rejected_even_when_both_images_match()
+    public void Open_generic_definitions_in_method_constraints_are_rejected_even_when_both_images_match()
     {
         using var f = new Fixture(b =>
         {

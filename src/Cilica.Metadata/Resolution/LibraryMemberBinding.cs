@@ -49,7 +49,7 @@ public sealed partial class AssemblyResolver
                 | MethodAttributes.Abstract | MethodAttributes.Final | MethodAttributes.NewSlot | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
             if ((sourceDefinition.Attributes & flags) != (targetDefinition.Attributes & flags))
                 throw InvalidLibraryBinding("Mapped method access, instance/static, dispatch or special-name attributes differ: " + name);
-            CompareLibraryMethodParameters(sourceImage, sourceDefinition.GetGenericParameters(), targetImage, targetDefinition.GetGenericParameters(), budget);
+            CompareLibraryParameters(plan, sourceImage, source.Handle, targetImage, selected, budget);
             return new LibraryMethodBinding(source, new(owner, selected, arguments, Substitute(wanted, owner.Arguments, arguments)));
         });
     }
@@ -100,24 +100,6 @@ public sealed partial class AssemblyResolver
     private static MethodSignature ProjectLibraryMethodSignature(LibraryBindingPlan plan, MethodSignature signature, MemberResolutionBudget budget) =>
         signature with { ReturnType = ProjectLibrarySignature(plan, signature.ReturnType, budget),
             Parameters = new(signature.Parameters.Select(p => ProjectLibrarySignature(plan, p, budget))) };
-
-    private static void CompareLibraryMethodParameters(ResolvedAssembly source, GenericParameterHandleCollection sourceParameters,
-        ResolvedAssembly target, GenericParameterHandleCollection targetParameters, MemberResolutionBudget budget)
-    {
-        if (sourceParameters.Count != targetParameters.Count) throw InvalidLibraryBinding("Mapped method generic parameter counts differ.");
-        var left = sourceParameters.GetEnumerator(); var right = targetParameters.GetEnumerator();
-        int index = 0;
-        while (left.MoveNext() && right.MoveNext())
-        {
-            InspectMember(budget); InspectMember(budget);
-            var a = source.Image.Reader.GetGenericParameter(left.Current); var b = target.Image.Reader.GetGenericParameter(right.Current);
-            if (a.Index != index || b.Index != index || a.Attributes != b.Attributes)
-                throw InvalidLibraryBinding("Mapped method generic parameter indices/attributes differ.");
-            if (a.GetConstraints().Count != 0 || b.GetConstraints().Count != 0)
-                throw InvalidLibraryBinding("Nominal/dependent method constraints require a later library binding profile.");
-            index++;
-        }
-    }
 
     private static string LibraryConstant(ResolvedAssembly assembly, ConstantHandle handle, MemberResolutionBudget budget)
     {

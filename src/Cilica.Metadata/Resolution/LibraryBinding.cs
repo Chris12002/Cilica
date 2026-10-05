@@ -59,6 +59,8 @@ public sealed partial class AssemblyResolver
                     throw InvalidLibraryBinding("Nested type owners must have an explicit corresponding mapping.");
                 if (Base(pair.Key) != Base(pair.Value))
                     throw InvalidLibraryBinding("Mapped base types must correspond structurally; include their required type mappings.");
+                CompareLibraryParameters(provisional, pair.Key.Assembly, pair.Key.Handle,
+                    pair.Value.Assembly, pair.Value.Handle, budget);
                 evidence.Add(new(Identity(pair.Key), Identity(pair.Value), source.Namespace, source.Names, source.Parameters.Length));
             }
             return ResolutionResult<LibraryBindingPlan>.Resolved(new(this, immutable, evidence.ToImmutable()));
@@ -91,8 +93,6 @@ public sealed partial class AssemblyResolver
                     var parameter = reader.GetGenericParameter(handle);
                     if (parameter.Index != parameters.Count || parameter.Parent != type.Handle)
                         throw InvalidLibraryBinding("Generic parameters must have contiguous indices and the expected owner.");
-                    if (parameter.GetConstraints().Count != 0)
-                        throw InvalidLibraryBinding("Nominal/dependent generic constraints require a later library binding profile.");
                     parameters.Add(parameter.Attributes);
                 }
                 var names = new List<string>();
