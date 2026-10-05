@@ -1006,8 +1006,10 @@ snapshots, leaving its source resolver strict
 call probe passes. Slice 6b.3 validates independently approved build attestations
 and exact string/exception intrinsic grants at the compiler boundary
 ([ADR 0092](decisions/0092-library-build-admission.md)). The host must pin the
-manifest digest independently of compiler input. Mapped audit evidence, an actual
-trusted build producer remain separate gates. The first source import now adapts
+manifest digest independently of compiler input. A separate local build tool now
+captures actual Roslyn inputs/arguments and emitted image evidence without granting
+approval ([ADR 0123](decisions/0123-library-build-evidence-producer.md)). Mapped
+implementation-audit evidence remains a separate gate. The first source import now adapts
 the pinned decimal integer formatting algorithm into a checked managed helper
 ([ADR 0122](decisions/0122-managed-decimal-formatting-trial.md)). Differential
 native evidence covers text only; System numeric member mapping and string-cache

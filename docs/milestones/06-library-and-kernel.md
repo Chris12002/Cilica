@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.30 and 6d.1 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.30 and 6d.1–6d.2 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -18,7 +18,7 @@ fixtures and examples must be independent.
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit reporting remains a gate |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.30 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory and reference boxing; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1 adds a pinned-source invariant decimal text helper; member mapping, collections and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.2 add a pinned-source invariant decimal text helper and actual build evidence producer; member mapping, collections and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -541,6 +541,18 @@ Review found no remaining actionable issue. See
 [ADR 0122](../decisions/0122-managed-decimal-formatting-trial.md). System member
 mapping, actual build provenance production and implementation-closure auditing
 remain pending; the native kernel still does not run.
+
+## Slice 6d.2 outcome
+
+A separate local build tool now captures actual Roslyn source/reference/compiler
+inputs, host/runtime evidence, effective arguments and output identity/hash. It
+publishes complete new build directories and no intrinsic grants or approval.
+All 39 distinct producer/admission checks pass, including deterministic bytes,
+failure cleanup, bounded compiler output and existing-output preservation. The
+formatter's actual build records 201 inputs. Review found no remaining actionable
+issue; see [ADR 0123](../decisions/0123-library-build-evidence-producer.md).
+Mapped implementation auditing, System member mapping and native kernel execution
+remain pending.
 
 ## Remaining completion evidence
 

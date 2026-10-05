@@ -20,6 +20,9 @@
   <Folder Name="/library/">
     <Project Path="library/Cilica.Library/Cilica.Library.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Cilica.LibraryBuild/Cilica.LibraryBuild.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj" />
   </Folder>
