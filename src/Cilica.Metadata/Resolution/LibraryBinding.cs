@@ -53,7 +53,8 @@ public sealed partial class AssemblyResolver
                 var source = Header(pair.Key); var target = Header(pair.Value);
                 if (source.Namespace != target.Namespace || !source.Names.SequenceEqual(target.Names)
                     || source.Flags != target.Flags || source.ByRefLike != target.ByRefLike || !source.Parameters.SequenceEqual(target.Parameters))
-                    throw InvalidLibraryBinding("Mapped types must retain exact namespace/nesting/name, visibility, class/interface/abstract/sealed flags, stack-only markers and generic parameter attributes.");
+                    throw InvalidLibraryBinding("Mapped types must retain exact namespace/nesting/name, visibility, class/interface/abstract/sealed flags, stack-only markers and generic parameter attributes: "
+                        + source.Namespace + "." + string.Join("/", source.Names) + ".");
                 var sourceParent = Parent(pair.Key); var targetParent = Parent(pair.Value);
                 if (sourceParent is null ? targetParent is not null : targetParent != CanonicalLibraryType(provisional, sourceParent))
                     throw InvalidLibraryBinding("Nested type owners must have an explicit corresponding mapping.");

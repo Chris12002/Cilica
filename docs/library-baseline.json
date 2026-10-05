@@ -1,7 +1,7 @@
 {
   "format": "cilica.library-baseline",
   "formatVersion": 1,
-  "status": "bounded-managed-formatting-trial",
+  "status": "bounded-core-and-managed-formatting-trial",
   "referenceProfile": {
     "package": "NETStandard.Library.Ref",
     "version": "2.1.0",
@@ -42,5 +42,12 @@
     }
   ],
   "trustedImplementationArtifacts": [],
-  "intrinsicGrants": []
+  "intrinsicGrants": [],
+  "ownedSources": [
+    {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "intrinsicRequests": "library/Cilica.Core/intrinsic-requests.json",
+      "scope": "Cilica-owned zero-reference declarations. Exact string/exception mappings tested against the pinned reference image; no general CoreLib, numeric formatting API, reflection or platform compatibility claim. Build-specific intrinsic approval remains independent."
+    }
+  ]
 }

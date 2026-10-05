@@ -1048,6 +1048,13 @@ the pinned decimal integer formatting algorithm into a checked managed helper
 native evidence covers text only; System numeric member mapping and string-cache
 identity are not claimed.
 
+The zero-reference Cilica.Core bootstrap now supplies owned runtime declarations
+and explicit intrinsic requests. Exact mappings to the pinned reference image
+execute string/exception probes and the managed formatter through native v19
+([ADR 0131](decisions/0131-owned-core-library-bootstrap.md)). The image is never
+loaded into the host CLR. Unsupported declarations, including string hashing,
+remain diagnostic; general CoreLib and kernel compatibility are not claimed.
+
 Recognised framework types map to canonical runtime types. Resolve supported
 facades and type forwarders deliberately. User types retain assembly-qualified
 identity; never match solely by a short type name.

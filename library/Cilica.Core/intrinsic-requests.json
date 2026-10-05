@@ -1,0 +1,401 @@
+[
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "StringLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "get_Length",
+    "ParameterCount": 0,
+    "Capability": "StringLength"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "get_Chars",
+    "ParameterCount": 1,
+    "Capability": "StringCodeUnit"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "Equals",
+    "ParameterCount": 2,
+    "Capability": "StringEqual"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "op_Equality",
+    "ParameterCount": 2,
+    "Capability": "StringEqual"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "op_Inequality",
+    "ParameterCount": 2,
+    "Capability": "StringNotEqual"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "Concat",
+    "ParameterCount": 2,
+    "Capability": "StringConcat"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Exception",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Exception",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Exception",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "SystemException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "SystemException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "SystemException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArithmeticException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArithmeticException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArithmeticException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "DivideByZeroException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "DivideByZeroException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "DivideByZeroException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "OverflowException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "OverflowException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "OverflowException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "NullReferenceException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "NullReferenceException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "NullReferenceException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "OutOfMemoryException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "OutOfMemoryException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "OutOfMemoryException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "InvalidCastException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "InvalidCastException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "InvalidCastException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "IndexOutOfRangeException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "IndexOutOfRangeException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "IndexOutOfRangeException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArrayTypeMismatchException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArrayTypeMismatchException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArrayTypeMismatchException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "InvalidOperationException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "InvalidOperationException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "InvalidOperationException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentException",
+    "Member": ".ctor",
+    "ParameterCount": 2,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentNullException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentNullException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentNullException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentNullException",
+    "Member": ".ctor",
+    "ParameterCount": 2,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentOutOfRangeException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentOutOfRangeException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentOutOfRangeException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentOutOfRangeException",
+    "Member": ".ctor",
+    "ParameterCount": 2,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Exception",
+    "Member": "get_Message",
+    "ParameterCount": 0,
+    "Capability": "ExceptionMessage"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentException",
+    "Member": "get_ParamName",
+    "ParameterCount": 0,
+    "Capability": "ExceptionParameterName"
+  },
+  {
+    "Namespace": "System",
+    "Type": "NotSupportedException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "NotSupportedException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "NotSupportedException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
+  }
+]

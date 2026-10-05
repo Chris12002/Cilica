@@ -22,3 +22,8 @@ granted to this assembly by its name or namespace.
 at native O0/O2 with ASan/UBSan, collection before each allocation, repeated calls,
 frame exhaustion and ownership cleanup. A managed randomized comparison covers
 additional integer bit patterns. Public probes contain no application game rules.
+
+The separate [Cilica.Core trial](Cilica.Core/README.md) supplies Cilica-owned
+runtime declarations with exact string/exception mappings and build evidence.
+Its native probes also compose this managed formatter with the owned core image.
+System numeric formatting APIs and the real kernel comparison remain pending.
