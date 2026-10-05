@@ -8,6 +8,15 @@ namespace Cilica.Compiler;
 
 internal static class ObjectLexicalAccess
 {
+    internal static bool Same(ImmutableArray<LexicalTypeOwner> left, ImmutableArray<LexicalTypeOwner> right) =>
+        !left.IsDefault && !right.IsDefault && left.SequenceEqual(right);
+
+    internal static bool SameBinding(ObjectMethodBinding left, ObjectMethodBinding right) =>
+        Same(left.LexicalOwners, right.LexicalOwners) && (left with { LexicalOwners = right.LexicalOwners }) == right;
+
+    internal static bool SameStatic(ObjectStaticField left, ObjectStaticField right) =>
+        Same(left.LexicalOwners, right.LexicalOwners) && (left with { LexicalOwners = right.LexicalOwners }) == right;
+
     internal static bool Valid(ObjectTypeId owner, ImmutableArray<LexicalTypeOwner> chain) => !chain.IsDefault
         && (chain.IsEmpty || chain.Length <= ObjectModelLimits.MaximumOwnerDepth && chain[0]?.Token == owner.Token
             && chain.All(o => o is not null && (o.Token >> 24) == 2 && (o.Token & 0xffffff) > 1 && o.GenericArity is >= 0 and <= 4096)

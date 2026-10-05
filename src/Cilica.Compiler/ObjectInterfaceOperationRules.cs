@@ -30,7 +30,7 @@ internal sealed class ObjectInterfaceOperationRules
         {
             _facts.Add(fact.Binding.Method, fact);
             if (methods.TryGetValue(fact.Binding.Method, out var body))
-                Require(bindings[fact.Binding.Method] == fact.Binding && body.ReturnType == fact.ReturnType
+                Require(ObjectLexicalAccess.SameBinding(bindings[fact.Binding.Method], fact.Binding) && body.ReturnType == fact.ReturnType
                     && body.Parameters.SequenceEqual(fact.Parameters), "executable body contradicts its interface method facts.");
         }
         Require(methods.Keys.Concat(_declarations.Keys).Concat(_facts.Keys).Distinct().Count() <= ProgramLimits.MaximumMethods,
@@ -46,7 +46,7 @@ internal sealed class ObjectInterfaceOperationRules
     internal bool Has(IrMethodId id) => _declarations.ContainsKey(id);
     internal ObjectInterfaceDeclaration Declaration(IrMethodId id) => _declarations[id];
     internal IEnumerable<IrMethodId> Targets(IrMethodId id) => _maps[id].Targets.Select(t => t.Implementation);
-    internal bool Mapped(ObjectMethodBinding binding) => _facts.TryGetValue(binding.Method, out var fact) && fact.Binding == binding;
+    internal bool Mapped(ObjectMethodBinding binding) => _facts.TryGetValue(binding.Method, out var fact) && ObjectLexicalAccess.SameBinding(fact.Binding, binding);
     internal IEnumerable<ObjectTypeId> SignatureTypes(IrMethodId id) => _declarations[id].Parameters.Append(_declarations[id].ReturnType)
         .Select(t => t.Kind == IrTypeKind.ManagedLocation ? t.Element! : t)
         .Where(t => t.Kind == IrTypeKind.Reference).Select(t => t.Class!);
@@ -75,7 +75,7 @@ internal sealed class ObjectInterfaceOperationRules
 
     internal static bool CatalogMatches(ObjectTypeCatalog left, ObjectTypeCatalog right)
     {
-        if (!left.Statics.SequenceEqual(right.Statics) || left.Integer64 != right.Integer64 || left.Delegates.Length != right.Delegates.Length
+        if (left.Statics.Length != right.Statics.Length || !left.Statics.Zip(right.Statics).All(p => ObjectLexicalAccess.SameStatic(p.First, p.Second)) || left.Integer64 != right.Integer64 || left.Delegates.Length != right.Delegates.Length
             || !left.Delegates.Zip(right.Delegates).All(pair => pair.First.Source == pair.Second.Source
                 && pair.First.ParameterCount == pair.Second.ParameterCount && pair.First.ReturnsVoid == pair.Second.ReturnsVoid
                 && pair.First.ExternallyVisible == pair.Second.ExternallyVisible && pair.First.Parameters.SequenceEqual(pair.Second.Parameters))
@@ -85,7 +85,8 @@ internal sealed class ObjectInterfaceOperationRules
         var classes = right.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var interfaces = right.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
         return left.Types.All(t => classes.TryGetValue(ObjectTypeId.From(t.Source), out var other) && t.Attributes == other.Attributes
-                && t.BaseType == other.BaseType && t.Fields.SequenceEqual(other.Fields) && t.Interfaces.SequenceEqual(other.Interfaces))
+                && t.BaseType == other.BaseType && t.Fields.SequenceEqual(other.Fields) && t.Interfaces.SequenceEqual(other.Interfaces)
+                && ObjectLexicalAccess.Same(t.LexicalOwners, other.LexicalOwners))
             && left.Interfaces.All(t => interfaces.TryGetValue(ObjectTypeId.From(t.Source), out var other)
                 && t.Attributes == other.Attributes && t.ExternallyVisible == other.ExternallyVisible && t.ArrayContract == other.ArrayContract && t.Parents.SequenceEqual(other.Parents)
                 && t.Arguments.SequenceEqual(other.Arguments));

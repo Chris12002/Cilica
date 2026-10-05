@@ -40,3 +40,11 @@ metadata-only snapshots and consistency between discovery and detached validatio
 The unchanged concrete kernel passes the initialized private callback cache and
 now reaches the missing System.ValueTuple`2 mapping at StepPriority IL_00b8. This
 advances compilation closure, not native transcript equivalence.
+
+## Follow-up correction
+
+Interface mapping construction must retain the same lexical chains as ordinary
+method discovery. Compare independently read chains structurally, including binding
+and static/catalog agreement, rather than relying on immutable-array object identity.
+Copied snapshot and missing-evidence regressions plus related native/metadata checks
+pass (107 tests). This corrects agreement checking without widening lexical access.

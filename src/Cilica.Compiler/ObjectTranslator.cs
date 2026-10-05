@@ -231,7 +231,7 @@ public static partial class ObjectTranslator
             fact ??= _interfaceSession?.Fact(key);
             if (_methods.TryGetValue(key, out var known))
             {
-                if (fact is not null && (known.Binding != fact.Binding || known.Return != fact.ReturnType || !known.Parameters.SequenceEqual(fact.Parameters)))
+                if (fact is not null && (!ObjectLexicalAccess.SameBinding(known.Binding, fact.Binding) || known.Return != fact.ReturnType || !known.Parameters.SequenceEqual(fact.Parameters)))
                     Fail(parent, "Executable method contradicts its validated interface mapping facts.", offset);
                 return known;
             }

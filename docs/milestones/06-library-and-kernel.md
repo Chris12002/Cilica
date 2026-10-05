@@ -1065,3 +1065,16 @@ manifest SHA-256:
 `a26dcb28e4b505d8727d999bfe7bf0284e0e005fbe1a0171ee10f334c0f678ae`.
 The unchanged kernel next requires System.StringComparison in PendingDecision.IsLegal.
 Native transcripts and implementation/filter closure remain pending.
+
+
+## Lexical interface agreement correction
+
+Composed string/interface validation exposed a 6c.43 regression: interface mapping
+facts omitted lexical owners, and record equality compared independent immutable
+chain arrays by storage identity. Mapping construction now carries those facts;
+binding, static-field and catalog agreement compare their lexical contents.
+Independent copied snapshots are accepted, while dropped/contradictory facts remain
+rejected. Three reduced tests and 104 related checks pass (107 total), including
+native composed strings, interface values, array interfaces and nested access.
+The full solution builds without warnings. Review checked that structural comparison
+preserves every other binding fact and grants no additional access.

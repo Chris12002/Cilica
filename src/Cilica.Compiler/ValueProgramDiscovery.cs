@@ -514,7 +514,7 @@ public static partial class ValueProgramDiscovery
             fact ??= _interfaceSession?.Fact(id);
             if (_methods.TryGetValue(id, out var known))
             {
-                if (fact is not null && (known.Binding != fact.Binding || known.ReturnType != fact.ReturnType || !known.Parameters.SequenceEqual(fact.Parameters)))
+                if (fact is not null && (!ObjectLexicalAccess.SameBinding(known.Binding, fact.Binding) || known.ReturnType != fact.ReturnType || !known.Parameters.SequenceEqual(fact.Parameters)))
                     Fail(parent, "Executable method contradicts its interface mapping facts.", offset);
                 return known;
             }

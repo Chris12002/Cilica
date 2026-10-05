@@ -235,7 +235,7 @@ public static class ObjectInterfacePlanBuilder
                 Fail("Mapped method signature introduced a type outside the prepared catalog.", input.Source.Name);
             Count(parameters.Length);
             _methods.Add(id, new(new(id, owner, ObjectMethodKind.Instance, input.Attributes, input.OwnerExternallyVisible)
-                { VirtualSlot = slot, VirtualName = slot is null ? null : input.DeclaredName,
+                { LexicalOwners = catalog.Integer64 ? input.LexicalOwners : [], VirtualSlot = slot, VirtualName = slot is null ? null : input.DeclaredName,
                     OwnerAssemblyVisible = closed && input.OwnerAssemblyVisible }, input.DeclaredName, parameters, returned));
         }
         private IrMethodId ArrayMethod(ObjectInterfaceDeclaration declaration, ObjectTypeId receiver, ObjectTypeCatalog catalog)
@@ -287,7 +287,7 @@ public static class ObjectInterfacePlanBuilder
             {
                 Count(parameters.Length);
                 _methods.Add(id, new(new(id, ObjectModelBuilder.Id(method.DeclaringType), ObjectMethodKind.Static,
-                    input.Attributes, input.OwnerExternallyVisible) { OwnerAssemblyVisible = input.OwnerAssemblyVisible },
+                    input.Attributes, input.OwnerExternallyVisible) { LexicalOwners = input.LexicalOwners, OwnerAssemblyVisible = input.OwnerAssemblyVisible },
                     input.DeclaredName, parameters, returned) { ArrayHelper = true });
             }
             _arrayChoices.Add(key, id); return id;
