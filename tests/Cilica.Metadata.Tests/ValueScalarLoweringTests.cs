@@ -10,6 +10,28 @@ namespace Cilica.Metadata.Tests;
 public sealed class ValueScalarLoweringTests
 {
     [Fact]
+    public void Wide_scalar_operands_remap_after_inline_value_expansion()
+    {
+        var (program, _) = NativeValueCopyTests.Model(false);
+        var entry = program.Methods[0]; var block = entry.Blocks[0];
+        int start = block.Values.Length; int original = ((IrReturn)block.Terminator).Value;
+        var statements = block.Statements.AddRange(new IrStatement[] {
+            new IrStatement.Define(new(start, IrType.Int64, 0, new IrExpression.ConvertInteger(IntegerConversion.SignExtend32, original))),
+            new IrStatement.Define(new(start + 1, IrType.Int64, 0, new IrExpression.Constant64(long.MinValue))),
+            new IrStatement.Define(new(start + 2, IrType.Int64, 0, new IrExpression.Binary64(Int64Operation.BitwiseXor, start, start + 1))),
+            new IrStatement.Define(new(start + 3, IrType.Int64, 0, new IrExpression.Not64(start + 2))),
+            new IrStatement.Define(new(start + 4, IrType.Int32, 0, new IrExpression.IntegerCast(IntegerCastTarget.Int32, start + 3, false, false)))});
+        entry = entry with { Blocks = [block with { Statements = statements, Terminator = new IrReturn(1, start + 4) }] };
+        program = program with { Methods = program.Methods.SetItem(0, entry), Types = program.Types with { References = program.Types.References with { Integer64 = true } } };
+        var lowered = ValueScalarLowering.Lower(program);
+        ReferenceIrValidator.Validate(lowered);
+        var result = lowered.Methods[0].Blocks[0].Values;
+        var cast = Assert.IsType<IrExpression.IntegerCast>(result[^1].Expression);
+        Assert.Equal(result[^2].Id, cast.Operand);
+        Assert.True(cast.Operand > start + 3);
+    }
+
+    [Fact]
     public void Lowering_uses_scalar_reference_packets_without_boxing_or_struct_layouts()
     {
         var (program, _) = NativeValueCopyTests.Model(false);

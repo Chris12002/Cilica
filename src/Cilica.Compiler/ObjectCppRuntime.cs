@@ -27,7 +27,7 @@ internal static class ObjectCppRuntime
 struct Object;
 struct Descriptor;
 using ReferencePredicate = bool (*)(const Descriptor*) noexcept;
-enum class StorageKind { integer, reference };
+enum class StorageKind { integer, reference, wide_integer };
 struct FieldStorage { StorageKind kind; bool read_only; ReferencePredicate accepts; };
 using FieldAccessor = void* (*)(Object*) noexcept;
 struct Descriptor {
@@ -143,7 +143,7 @@ struct Instance {
 // Argument packets live in the caller's execution storage. Reference arguments
 // also remain in the caller's published roots until the callee publishes its copy.
 static constexpr std::uint32_t frame_done = 0xffffffffu;
-struct Argument { std::uint32_t bits = 0; Object* reference = nullptr; };
+struct Argument { std::uint32_t bits = 0; Object* reference = nullptr; std::uint64_t wide_bits = 0; };
 struct Frame {
     Frame* previous = nullptr;
     Object** slots = nullptr;

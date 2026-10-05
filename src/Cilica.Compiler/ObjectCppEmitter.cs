@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v17";
+    public const string Profile = "object-frames-native-v18";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -118,7 +118,8 @@ public static class ObjectCppEmitter
             .Append(scope).Append(" {\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
         if (exceptions is not null) ObjectCppExceptions.AppendStorage(text);
         if (handlers) text.Append(ObjectCppExceptionFlow.Storage);
-        if (locations) text.Append("struct LocationArgument { std::uint32_t bits = 0; Object* reference = nullptr; Location location; };\n");
+        if (program.Flow.Types.Integer64) text.Append(Int64CppLowering.Runtime);
+        if (locations) text.Append("struct LocationArgument { std::uint32_t bits = 0; Object* reference = nullptr; Location location; std::uint64_t wide_bits = 0; };\n");
         foreach (var type in referenceTypes)
             text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
         foreach (var composed in native.Fields)
@@ -135,7 +136,7 @@ public static class ObjectCppEmitter
             var references = composed.Value.Where(f => f.Storage is ObjectStorage.Reference).ToArray();
             text.Append("struct ").Append(type).Append(" { Object header;\n");
             foreach (var field in composed.Value)
-                text.Append("    ").Append(field.Storage is ObjectStorage.Int32 ? "std::uint32_t" : "Object*").Append(' ').Append(Member(field)).Append(";\n");
+                text.Append("    ").Append(StorageType(field.Storage)).Append(' ').Append(Member(field)).Append(";\n");
             text.Append("};\nstatic_assert(std::is_standard_layout_v<").Append(type).Append("> && std::is_trivially_destructible_v<")
                 .Append(type).Append("> && offsetof(").Append(type).Append(", header) == 0);\n")
                 .Append("static constexpr std::array<std::size_t, ").Append(N(references.Length)).Append("> ").Append(type).Append("_references = {")
@@ -151,7 +152,7 @@ public static class ObjectCppEmitter
             text.Append("static constexpr std::array<FieldAccessor, ").Append(N(composed.Value.Length)).Append("> ").Append(type).Append("_accessors = {")
                 .Append(string.Join(", ", Enumerable.Range(0, composed.Value.Length).Select(i => type + "_field_" + N(i)))).Append("};\n");
             text.Append("static constexpr std::array<FieldStorage, ").Append(N(composed.Value.Length)).Append("> ").Append(type).Append("_storage = {{")
-                .Append(string.Join(", ", composed.Value.Select(field => "{" + (field.Storage is ObjectStorage.Int32 ? "StorageKind::integer" : "StorageKind::reference")
+                .Append(string.Join(", ", composed.Value.Select(field => "{StorageKind::" + StorageKind(field.Storage)
                     + ", " + ((field.Attributes & System.Reflection.FieldAttributes.InitOnly) != 0 ? "true" : "false")
                     + ", " + (field.Storage is ObjectStorage.Reference reference ? Predicate(reference.Type) : "nullptr") + "}"))).Append("}};\n")
                 .Append("[[maybe_unused]] static constexpr Descriptor ").Append(type).Append("_descriptor = { sizeof(").Append(type).Append("), ")
@@ -209,6 +210,7 @@ public static class ObjectCppEmitter
             text.Append("struct ").Append(FrameType(method)).Append(" {\n    Frame header;\n    const ").Append(argumentType).Append("* incoming = nullptr; ").Append(argumentType).Append(" result;\n")
                 .Append("    std::array<Object*, ").Append(N(layout.RootCount)).Append("> roots{};\n")
                 .Append("    std::array<std::uint32_t, ").Append(N(layout.IntegerCount)).Append("> integers{};\n")
+                .Append("    std::array<std::uint64_t, ").Append(N(layout.WideIntegerCount)).Append("> wide_integers{};\n")
                 .Append("    std::array<").Append(argumentType).Append(", ").Append(N(layout.CallArgumentCount)).Append("> arguments{};\n")
                 .Append("    std::int64_t signed_scratch = 0; std::uint64_t unsigned_scratch = 0;\n");
             if (locations) text.Append("    std::array<Location, ").Append(N(layout.LocationCount)).Append("> locations{};\n")
@@ -292,7 +294,7 @@ public static class ObjectCppEmitter
             string Value(int id) => layout.Storage(ObjectRootKind.Value, id, currentBlock);
             static string PacketMember(IrType type) => type.Kind switch
             {
-                IrTypeKind.Int32 => "bits", IrTypeKind.ManagedLocation => "location", _ => "reference",
+                IrTypeKind.Int32 => "bits", IrTypeKind.Int64 => "wide_bits", IrTypeKind.ManagedLocation => "location", _ => "reference",
             };
             string Exit() => inStep ? "return frame_done;" : method.ReturnType.Kind switch { IrTypeKind.Void => "return;", IrTypeKind.Reference => "return nullptr;", _ => "return 0;" };
             void Fault(string status, int offset)
@@ -385,7 +387,7 @@ public static class ObjectCppEmitter
             string Field(ObjectFieldId field, int receiver)
             {
                 string value = Value(receiver);
-                string storage = fields[field].Storage is ObjectStorage.Int32 ? "std::uint32_t" : "Object*";
+                string storage = StorageType(fields[field].Storage);
                 return "*static_cast<" + storage + "*>(field_address(" + value + ", " + N(native.Indices[field]) + "))";
             }
             for (int i = 0; i < method.Parameters.Length; i++)
@@ -406,7 +408,7 @@ public static class ObjectCppEmitter
                 {
                     var type = method.Parameters[i]; string storage = layout.Storage(ObjectRootKind.Parameter, i);
                     Guard("!valid_location_argument(context, " + storage + ", "
-                        + (type.Element!.Kind == IrTypeKind.Int32 ? "StorageKind::integer, nullptr" : "StorageKind::reference, " + Predicate(type.Element.Class!))
+                        + "StorageKind::" + LocationKind(type.Element!) + ", " + (type.Element!.Kind == IrTypeKind.Reference ? Predicate(type.Element.Class!) : "nullptr")
                         + ", " + (type.ReadOnly ? "true" : "false") + ")", "6u", method.Blocks[0].ILOffset);
                     Flush();
                 }
@@ -480,12 +482,12 @@ public static class ObjectCppEmitter
                                     CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.AddressLocal local:
                                     code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")
-                                        .Append(value.Type.Element!.Kind == IrTypeKind.Int32 ? "frame_integer" : "frame_reference").Append(", ")
+                                        .Append("frame_" + LocationKind(value.Type.Element!)).Append(", ")
                                         .Append(N(layout.Index(ObjectRootKind.Local, local.Index))).Append(");\n");
                                     CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.AddressParameter parameter:
                                     code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")
-                                        .Append(value.Type.Element!.Kind == IrTypeKind.Int32 ? "frame_integer" : "frame_reference").Append(", ")
+                                        .Append("frame_" + LocationKind(value.Type.Element!)).Append(", ")
                                         .Append(N(layout.Index(ObjectRootKind.Parameter, parameter.Index))).Append(");\n");
                                     CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.AddressField field:
@@ -493,7 +495,7 @@ public static class ObjectCppEmitter
                                         .Append(TypeSymbol(field.Field.Owner)).Append("_descriptor, ").Append(N(native.Indices[field.Field])).Append(");\n");
                                     CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.LoadLocation load:
-                                    Guard("load_location_" + (value.Type.Kind == IrTypeKind.Int32 ? "integer" : "reference") + "(context, "
+                                    Guard("load_location_" + LocationKind(value.Type) + "(context, "
                                         + Value(load.Location) + ", " + Value(value.Id) + ") != LocationStatus::complete", "6u", value.ILOffset);
                                     expression = Value(value.Id); break;
                                 case IrExpression.ReadOnlyLocation view:
@@ -549,11 +551,12 @@ public static class ObjectCppEmitter
                                     if (call.VirtualDispatch) SelectDispatch(call.Target, call.Arguments, value.ILOffset);
                                     else if (call.NullCheckReceiver) Guard(Value(call.Arguments[0]) + " == nullptr", "4u", value.ILOffset);
                                     expression = Call(call.Target, call.Arguments, dispatch: call.VirtualDispatch);
-                                    if (value.Type.Kind == IrTypeKind.Int32) expression = "std::bit_cast<std::uint32_t>(" + expression + ")";
+                                    if (value.Type.Kind is IrTypeKind.Int32 or IrTypeKind.Int64)
+                                        expression = "std::bit_cast<" + (value.Type.Kind == IrTypeKind.Int64 ? "std::uint64_t" : "std::uint32_t") + ">(" + expression + ")";
                                     break;
                                 default:
                                     expression = CppEmitter.AppendValuePreparation(code, value, block.Id, (fault, offset) => Fault(N((int)fault) + "u", offset),
-                                        Value, signed => signed ? "f->signed_scratch" : "f->unsigned_scratch"); break;
+                                        Value, signed => signed ? "f->signed_scratch" : "f->unsigned_scratch", id => values[id].Type); break;
                             }
                             code.Append("    ").Append(Value(value.Id)).Append(" = ").Append(expression).Append(";\n");
                             if (value.Type.Kind == IrTypeKind.ManagedLocation) PublishLocation(ObjectRootKind.Value, value.Id, value.Type, block.Id);
@@ -576,11 +579,11 @@ public static class ObjectCppEmitter
                         case IrStatement.StoreLocal store:
                             code.Append("    ").Append(layout.Storage(ObjectRootKind.Local, store.Local)).Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
                         case IrStatement.StoreLocation store:
-                            Guard("store_location_" + (values[store.Location].Type.Element!.Kind == IrTypeKind.Int32 ? "integer" : "reference")
+                            Guard("store_location_" + LocationKind(values[store.Location].Type.Element!)
                                 + "(context, " + Value(store.Location) + ", " + Value(store.Value) + ") != LocationStatus::complete", "6u", store.ILOffset); break;
                         case IrStatement.InitializeLocation initialize:
-                            bool integer = values[initialize.Location].Type.Element!.Kind == IrTypeKind.Int32;
-                            Guard("store_location_" + (integer ? "integer" : "reference") + "(context, " + Value(initialize.Location) + ", "
+                            bool integer = values[initialize.Location].Type.Element!.Kind is IrTypeKind.Int32 or IrTypeKind.Int64;
+                            Guard("store_location_" + LocationKind(values[initialize.Location].Type.Element!) + "(context, " + Value(initialize.Location) + ", "
                                 + (integer ? "0u" : "nullptr") + ") != LocationStatus::complete", "6u", initialize.ILOffset); break;
                         case IrStatement.InvokeDelegate invoke:
                             string delegateInvocation = DelegateCall(invoke.Type, invoke.Delegate, invoke.Arguments, true, invoke.ILOffset);
@@ -623,14 +626,15 @@ public static class ObjectCppEmitter
                         code.Append("    return finish_exception_scope(context, f, ").Append(N(exceptionRules!.FilterAt(method, block.Id))).Append("u, ")
                             .Append(Value(ended.Value)).Append(" != 0u);\n"); Flush(terminal: true); break;
                     case IrReturn returned:
-                        code.Append(method.ReturnType.Kind == IrTypeKind.Int32 ? "    f->result.bits = " : "    f->result.reference = ")
+                        code.Append("    f->result.").Append(PacketMember(method.ReturnType)).Append(" = ")
                             .Append(Value(returned.Value)).Append(";\n    return frame_done;\n"); Flush(terminal: true); break;
                     case IrVoidReturn: code.Append("    return frame_done;\n"); Flush(terminal: true); break;
                     case IrJump jump: Edge(jump.Edge); break;
                     case IrBranch branch:
                         string taken = "taken" + N(block.Id), other = "other" + N(block.Id);
                         code.Append("    return (").Append(CppEmitter.Comparison(branch.Comparison, branch.Left, branch.Right,
-                            values[branch.Left].Type.Kind != IrTypeKind.Int32, Value)).Append(") ? ").Append(taken).Append(" : ").Append(other).Append(";\n");
+                            values[branch.Left].Type.Kind is IrTypeKind.Reference or IrTypeKind.NullReference, Value,
+                            wide: values[branch.Left].Type == IrType.Int64)).Append(") ? ").Append(taken).Append(" : ").Append(other).Append(";\n");
                         Flush(terminal: true);
                         Label(taken); Edge(branch.Taken); Label(other); Edge(branch.NotTaken); break;
                 }
@@ -662,7 +666,7 @@ public static class ObjectCppEmitter
             if (layout.BorrowsFrame)
             {
                 code.Append("    BorrowScope borrowed(context, f->header, f->integers.data(), f->integers.size(), ")
-                    .Append(FrameType(method)).Append("_root_types.data());\n");
+                    .Append(FrameType(method)).Append("_root_types.data(), f->wide_integers.data(), f->wide_integers.size());\n");
                 Guard("borrowed.status != LocationStatus::complete", "borrowed.status == LocationStatus::limit ? 9u : 6u", method.Blocks[0].ILOffset);
                 code.Append("    f->borrow_token = borrowed.frame.token;\n");
             }
@@ -673,6 +677,7 @@ public static class ObjectCppEmitter
                 {
                     IrTypeKind.Void => "return;",
                     IrTypeKind.Int32 => "return std::bit_cast<std::int32_t>(f->result.bits);",
+                    IrTypeKind.Int64 => "return std::bit_cast<std::int64_t>(f->result.wide_bits);",
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
             void Edge(IrEdge edge)
@@ -688,7 +693,13 @@ public static class ObjectCppEmitter
         }
     }
 
-    private static string CType(IrType type) => type.Kind switch { IrTypeKind.Int32 => "std::int32_t", IrTypeKind.Void => "void", _ => "Object*" };
+    private static string CType(IrType type) => type.Kind switch { IrTypeKind.Int32 => "std::int32_t", IrTypeKind.Int64 => "std::int64_t", IrTypeKind.Void => "void", _ => "Object*" };
+    private static string StorageType(ObjectStorage storage) => storage switch
+        { ObjectStorage.Int32 => "std::uint32_t", ObjectStorage.Int64 => "std::uint64_t", _ => "Object*" };
+    private static string StorageKind(ObjectStorage storage) => storage switch
+        { ObjectStorage.Int32 => "integer", ObjectStorage.Int64 => "wide_integer", _ => "reference" };
+    private static string LocationKind(IrType type) => type.Kind switch
+        { IrTypeKind.Int32 => "integer", IrTypeKind.Int64 => "wide_integer", _ => "reference" };
     private static string N(int value) => value.ToString(CultureInfo.InvariantCulture);
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture)
         + (type.Specialization.Length == 0 ? "" : "_g_" + type.Specialization)

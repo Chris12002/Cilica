@@ -16,7 +16,7 @@ internal sealed class IrTypeRules
     internal IrTypeRules(ObjectTypeCatalog? catalog, ValueTypeCatalog? values = null, bool locations = false, bool integers64 = false)
     {
         _locations = locations;
-        _integers64 = integers64;
+        _integers64 = integers64 || catalog?.Integer64 == true;
         if (catalog is null) return;
         _object = catalog.ObjectBase;
         _ancestors = new ObjectTypeRelations(catalog).Ancestors;
@@ -25,7 +25,7 @@ internal sealed class IrTypeRules
 
     internal bool Valid(IrType? type, bool storage) => type is not null && (type.Kind == IrTypeKind.ManagedLocation
         ? _locations && type.Class is null && type.Element is { Element: null, ReadOnly: false } element
-            && element.Kind is IrTypeKind.Int32 or IrTypeKind.Reference or IrTypeKind.Value && Valid(element, true)
+            && element.Kind is IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.Value && Valid(element, true)
         : type.Element is null && !type.ReadOnly && (type.Kind switch
     {
         IrTypeKind.Int32 => type.Class is null,

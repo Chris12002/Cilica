@@ -36,7 +36,7 @@ internal sealed class ManagedLocationRules
     }
 
     internal static bool Address(IrType storage, IrType result, bool readOnly = false) =>
-        storage.Kind is IrTypeKind.Int32 or IrTypeKind.Reference or IrTypeKind.Value
+        storage.Kind is IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.Value
         && result.Kind == IrTypeKind.ManagedLocation && result.Element == storage && (!readOnly || result.ReadOnly);
 
     internal bool HeapField(IrType receiver, ObjectFieldId? id, IrType result) => id is not null
@@ -54,6 +54,7 @@ internal sealed class ManagedLocationRules
     private static IrType? Storage(ObjectStorage storage) => storage switch
     {
         ObjectStorage.Int32 => IrType.Int32,
+        ObjectStorage.Int64 => IrType.Int64,
         ObjectStorage.Reference reference => IrType.Reference(reference.Type),
         ObjectStorage.Value value => IrType.Value(value.Type),
         _ => null,

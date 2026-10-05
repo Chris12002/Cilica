@@ -102,3 +102,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0094](0094-integer-cil-closures.md) | Mixed-width integer CIL closures | Accepted for static scalar CIL and O0/O2 differential execution |
 | [0095](0095-integer-conversion-semantics.md) | Checked and narrow integer conversions | Accepted for all integer conversion opcodes and O0/O2 boundary conformance |
 | [0096](0096-narrow-scalar-storage.md) | Narrow primitive scalar boundaries | Accepted for parameters, locals, returns and Boolean/Char CIL |
+| [0097](0097-wide-object-storage.md) | Int64 object, frame and borrow storage | Accepted for explicit wide catalogs and native collection/fault probes |

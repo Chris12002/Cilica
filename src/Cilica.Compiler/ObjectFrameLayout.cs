@@ -10,6 +10,7 @@ internal sealed class ObjectFrameLayout
     private readonly Dictionary<(ObjectRootKind Kind, int Block, int Index), int> _indices = [];
     private readonly Dictionary<(ObjectRootKind Kind, int Block, int Index), string> _owners = [];
     internal int IntegerCount { get; }
+    internal int WideIntegerCount { get; }
     internal int RootCount { get; }
     internal int CallArgumentCount { get; }
     internal int BoxArgumentCount { get; }
@@ -37,13 +38,18 @@ internal sealed class ObjectFrameLayout
             };
             RootTypes.Add(type);
         }
-        int integers = 0, arguments = 0, locations = 0;
+        int integers = 0, wideIntegers = 0, arguments = 0, locations = 0;
         void Add(ObjectRootKind kind, int index, IrType type, int block = -1)
         {
             if (type.Kind == IrTypeKind.Int32)
             {
                 _indices.Add((kind, block, index), integers);
                 _storage.Add((kind, block, index), "f->integers[" + Number(integers++) + "]");
+            }
+            else if (type.Kind == IrTypeKind.Int64)
+            {
+                _indices.Add((kind, block, index), wideIntegers);
+                _storage.Add((kind, block, index), "f->wide_integers[" + Number(wideIntegers++) + "]");
             }
             else if (type.Kind == IrTypeKind.ManagedLocation)
             {
@@ -78,7 +84,7 @@ internal sealed class ObjectFrameLayout
                 if (call.VirtualDispatch) DispatchKinds.Add(IrTypeKind.Void);
             }
         }
-        IntegerCount = integers; CallArgumentCount = arguments; LocationCount = locations;
+        IntegerCount = integers; WideIntegerCount = wideIntegers; CallArgumentCount = arguments; LocationCount = locations;
         BorrowsFrame = method.Blocks.SelectMany(b => b.Values).Any(v => v.Expression is IrExpression.AddressLocal or IrExpression.AddressParameter);
     }
 

@@ -320,8 +320,12 @@ public static class ValueScalarLowering
                         default:
                             IrExpression expression = value.Expression switch
                             {
-                                IrExpression.Constant or IrExpression.Null or IrExpression.StringLiteral => value.Expression,
+                                IrExpression.Constant or IrExpression.Constant64 or IrExpression.Null or IrExpression.StringLiteral => value.Expression,
                                 IrExpression.Binary binary => binary with { Left = One(binary.Left), Right = One(binary.Right) },
+                                IrExpression.Binary64 binary => binary with { Left = One(binary.Left), Right = One(binary.Right) },
+                                IrExpression.Not64 unary => unary with { Operand = One(unary.Operand) },
+                                IrExpression.ConvertInteger conversion => conversion with { Operand = One(conversion.Operand) },
+                                IrExpression.IntegerCast cast => cast with { Operand = One(cast.Operand) },
                                 IrExpression.Unary unary => unary with { Operand = One(unary.Operand) },
                                 IrExpression.Compare compare => compare with { Left = One(compare.Left), Right = One(compare.Right) },
                                 IrExpression.Call call => call with { Arguments = Arguments(call.Arguments, true) },

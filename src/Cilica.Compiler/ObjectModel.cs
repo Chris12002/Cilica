@@ -48,6 +48,7 @@ public sealed record ObjectFieldId(ObjectTypeId Owner, int Token);
 public abstract record ObjectStorage
 {
     public sealed record Int32 : ObjectStorage;
+    public sealed record Int64 : ObjectStorage;
     public sealed record Reference(ObjectTypeId Type) : ObjectStorage;
     // Inline storage, accepted only by the value-layout contract until executable
     // value lowering is available. It is never an implicit boxed reference.
@@ -69,6 +70,7 @@ public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
 /// <summary>Detached base/field/interface/array-element closure. This is a storage/type contract, not executable IR.</summary>
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
+    public bool Integer64 { get; init; }
     public const string Profile = "object-layout-v5";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
@@ -81,6 +83,8 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, ObjectTypeId ObjectBase,
     ImmutableArray<ObjectTypeLayout> Types)
 {
+    // Explicit wider scalar storage profile; legacy catalogs retain Int32 only.
+    public bool Integer64 { get; init; }
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];

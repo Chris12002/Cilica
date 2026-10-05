@@ -882,8 +882,10 @@ integer conversions, including narrow stack results, have boundary conformance
 ([ADR 0095](decisions/0095-integer-conversion-semantics.md)). Narrow primitive
 parameters, locals and returns normalize to their declared storage width
 ([ADR 0096](decisions/0096-narrow-scalar-storage.md)). Enum identities and
-heap/array integration remain pending. Existing Int32/object/value profile claims
-are unchanged.
+array and inline-value integration remain pending. Explicit wide object catalogs
+now admit Int64 class fields, typed call frames and checked borrows under native
+v18 ([ADR 0097](decisions/0097-wide-object-storage.md)); wide CIL discovery remains
+pending. Catalogs without that capability retain their existing admission rules.
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential

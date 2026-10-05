@@ -5,7 +5,7 @@ internal static class ObjectCppLocations
 {
     internal const string Text = """
 enum class LocationStatus { complete, invalid, read_only, limit, busy, null_reference };
-enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field };
+enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field, frame_wide_integer };
 struct Location {
     // A heap location's owner must be published as a root across allocations.
     // A frame location borrows the registered frame's already-published storage.
@@ -26,6 +26,8 @@ struct BorrowFrame {
     std::uint32_t* integers = nullptr;
     std::size_t integer_count = 0;
     std::uint64_t token = 0;
+    std::uint64_t* wide_integers = nullptr;
+    std::size_t wide_integer_count = 0;
 };
 // Registration lists, slot extents and predicate tables are runtime-owned.
 // Validate the carrier and lifetime, not arbitrary native memory corruption.
@@ -52,10 +54,11 @@ struct BorrowScope {
     BorrowFrame frame;
     LocationStatus status = LocationStatus::invalid;
     BorrowScope(Context& c, const Frame& roots, std::uint32_t* integers, std::size_t count,
-        const ReferencePredicate* accepts) noexcept : context(c) {
+        const ReferencePredicate* accepts, std::uint64_t* wide_integers = nullptr, std::size_t wide_count = 0) noexcept : context(c) {
         if (c.instance.marking) { status = LocationStatus::busy; return; }
-        if (!active_root_frame(c, &roots) || roots.count > 1024 || count > 65536 ||
-            (roots.count != 0 && (roots.slots == nullptr || accepts == nullptr)) || (count != 0 && integers == nullptr)) return;
+        if (!active_root_frame(c, &roots) || roots.count > 1024 || count > 65536 || wide_count > 65536 - count ||
+            (roots.count != 0 && (roots.slots == nullptr || accepts == nullptr)) || (count != 0 && integers == nullptr)
+            || (wide_count != 0 && wide_integers == nullptr)) return;
         for (std::size_t i = 0; i < roots.count; ++i) if (accepts[i] == nullptr) return;
         std::size_t registered = 0;
         for (const BorrowFrame* current = c.borrows; current != nullptr; current = current->previous) {
@@ -64,7 +67,7 @@ struct BorrowScope {
         }
         const auto token = issue_borrow_token();
         if (token == 0) { status = LocationStatus::limit; return; }
-        frame = {c.borrows, &roots, roots.slots, roots.count, accepts, integers, count, token};
+        frame = {c.borrows, &roots, roots.slots, roots.count, accepts, integers, count, token, wide_integers, wide_count};
         c.borrows = &frame; status = LocationStatus::complete;
     }
     BorrowScope(const BorrowScope&) = delete;
@@ -105,6 +108,10 @@ struct LocationStorage {
         if (location.slot >= frame->integer_count) return {LocationStatus::invalid};
         return {LocationStatus::complete, StorageKind::integer, &frame->integers[location.slot]};
     }
+    if (location.origin == LocationOrigin::frame_wide_integer) {
+        if (location.slot >= frame->wide_integer_count) return {LocationStatus::invalid};
+        return {LocationStatus::complete, StorageKind::wide_integer, &frame->wide_integers[location.slot]};
+    }
     if (location.slot >= frame->reference_count) return {LocationStatus::invalid};
     return {LocationStatus::complete, StorageKind::reference, &frame->references[location.slot], frame->accepts[location.slot]};
 }
@@ -121,14 +128,14 @@ struct LocationStorage {
 [[gnu::noinline]] static LocationStorage location_storage(Context& context, const Location& location, bool write) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
     if (write && location.read_only) return {LocationStatus::read_only};
-    if (location.origin == LocationOrigin::frame_integer || location.origin == LocationOrigin::frame_reference)
+    if (location.origin == LocationOrigin::frame_integer || location.origin == LocationOrigin::frame_reference || location.origin == LocationOrigin::frame_wide_integer)
         return frame_location_storage(context, location);
     return heap_location_storage(context, location, write);
 }
 [[maybe_unused, gnu::noinline]] static LocationResult frame_location(Context& context, std::uint64_t token,
     LocationOrigin origin, std::size_t slot, bool read_only = false) noexcept {
     Location value{nullptr, token, slot, nullptr, origin, read_only};
-    if (origin != LocationOrigin::frame_integer && origin != LocationOrigin::frame_reference) return {LocationStatus::invalid};
+    if (origin != LocationOrigin::frame_integer && origin != LocationOrigin::frame_reference && origin != LocationOrigin::frame_wide_integer) return {LocationStatus::invalid};
     const auto storage = location_storage(context, value, false);
     return storage.status == LocationStatus::complete ? LocationResult{storage.status, value} : LocationResult{storage.status};
 }
@@ -158,6 +165,18 @@ struct LocationStorage {
     if (storage.status != LocationStatus::complete) return storage.status;
     if (storage.kind != StorageKind::integer) return LocationStatus::invalid;
     *static_cast<std::uint32_t*>(storage.address) = value; return LocationStatus::complete;
+}
+[[maybe_unused, gnu::noinline]] static LocationStatus load_location_wide_integer(Context& context, const Location& location, std::uint64_t& result) noexcept {
+    const auto storage = location_storage(context, location, false);
+    if (storage.status != LocationStatus::complete) return storage.status;
+    if (storage.kind != StorageKind::wide_integer) return LocationStatus::invalid;
+    result = *static_cast<const std::uint64_t*>(storage.address); return LocationStatus::complete;
+}
+[[maybe_unused, gnu::noinline]] static LocationStatus store_location_wide_integer(Context& context, const Location& location, std::uint64_t value) noexcept {
+    const auto storage = location_storage(context, location, true);
+    if (storage.status != LocationStatus::complete) return storage.status;
+    if (storage.kind != StorageKind::wide_integer) return LocationStatus::invalid;
+    *static_cast<std::uint64_t*>(storage.address) = value; return LocationStatus::complete;
 }
 [[gnu::noinline]] static bool location_reference(const Instance& heap, ReferencePredicate accepts, Object* value) noexcept {
     return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));

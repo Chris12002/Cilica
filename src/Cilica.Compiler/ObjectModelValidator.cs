@@ -15,7 +15,7 @@ public static class ObjectModelValidator
     public static void Validate(ObjectModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String, Delegates = model.Delegates });
+        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Integer64 = model.Integer64, Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String, Delegates = model.Delegates });
     }
 
     public static void Validate(ObjectTypeCatalog model)
@@ -78,7 +78,7 @@ public static class ObjectModelValidator
                     && fieldIdentities.Add((id.ContentHash, id.Specialization, field.Id.Token)), "fields need their declaring owner and ordered unique image-scoped FieldDef tokens.");
                 previous = field.Id.Token;
                 Require(field.Name is not null && FieldAttributesSupported(field.Attributes), "unsupported field attributes/name.");
-                Require(field.Storage is ObjectStorage.Int32 || field.Storage is ObjectStorage.Reference reference
+                Require(field.Storage is ObjectStorage.Int32 || model.Integer64 && field.Storage is ObjectStorage.Int64 || field.Storage is ObjectStorage.Reference reference
                     && ReferenceIdentity(reference.Type, model.ObjectBase), "unsupported field storage.");
             }
             Require(id == model.ObjectBase
