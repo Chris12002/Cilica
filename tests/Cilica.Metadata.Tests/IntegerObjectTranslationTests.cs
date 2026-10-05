@@ -15,10 +15,11 @@ namespace Cilica.Metadata.Tests;
 
 public sealed class IntegerObjectTranslationTests
 {
-    internal static ManagedExceptionTranslationResult Translate(string name, bool enabled = true, Type? fixture = null)
+    internal static ManagedExceptionTranslationResult Translate(string name, bool enabled = true, Type? fixture = null,
+        string[]? referenceDirectories = null)
     {
         fixture ??= typeof(WideObjects);
-        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!, .. referenceDirectories ?? []]).Value!;
         var input = resolver.OpenInput(fixture.Assembly.Location).Value!;
         var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
         var root = (MethodDefinitionHandle)MetadataTokens.EntityHandle(fixture.GetMethod(name)!.MetadataToken);

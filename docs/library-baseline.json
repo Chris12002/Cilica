@@ -1,7 +1,7 @@
 {
   "format": "cilica.library-baseline",
   "formatVersion": 1,
-  "status": "planning-baseline-no-imported-library",
+  "status": "bounded-managed-formatting-trial",
   "referenceProfile": {
     "package": "NETStandard.Library.Ref",
     "version": "2.1.0",
@@ -31,7 +31,16 @@
     "observedCoreLibSha256": "9ed74c2e2efeee87f1f2d7ffe1736b7e9164ce248516ea39402a725eedc87af6",
     "scope": "Local oracle evidence, never a Cilica implementation or trusted-library artifact. Other platform images need their own evidence."
   },
-  "importedSources": [],
+  "importedSources": [
+    {
+      "manifest": "library/provenance.json",
+      "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+      "compiledAdaptations": [
+        "library/Cilica.Library/IntegerFormatting.cs"
+      ],
+      "scope": "Text equivalence only. No System numeric member mapping, cached string identity, general formatting or intrinsic privilege is claimed."
+    }
+  ],
   "trustedImplementationArtifacts": [],
   "intrinsicGrants": []
 }

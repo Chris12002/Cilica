@@ -1,0 +1,43 @@
+{
+  "format": "cilica.library-source-provenance",
+  "formatVersion": 1,
+  "upstream": {
+    "repository": "https://github.com/dotnet/runtime",
+    "tag": "v10.0.11",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "license": "MIT"
+  },
+  "originals": [
+    {
+      "upstreamPath": "LICENSE.TXT",
+      "localPath": "library/upstream/dotnet-runtime/LICENSE.TXT",
+      "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+    },
+    {
+      "upstreamPath": "THIRD-PARTY-NOTICES.TXT",
+      "localPath": "library/upstream/dotnet-runtime/THIRD-PARTY-NOTICES.TXT",
+      "sha256": "66f1d4e44973185519bb4aa8a9718eb22fc7af2cc532e3ae9cfc4c127ee7fc54"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Number.Formatting.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Number.Formatting.cs",
+      "sha256": "9abe57939b6f91ea75bc56c40a40e2319600b2fae51a454dc86e9029117f7f89"
+    }
+  ],
+  "adaptations": [
+    {
+      "path": "library/Cilica.Library/IntegerFormatting.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Number.Formatting.cs",
+      "algorithms": [
+        "UInt64ToDecChars two-digit division loop",
+        "Int64ToDecStr and NegativeInt64ToDecStr unsigned magnitude handling"
+      ],
+      "changes": [
+        "Expose Cilica.Library helper methods for invariant Int32/UInt32/Int64/UInt64 decimal text.",
+        "Replace unsafe pointer writes and runtime-private allocation with checked managed string concatenation.",
+        "Use an explicit decimal digit lookup and omit caches, formatting providers, precision, spans and UTF-8 paths."
+      ],
+      "scope": "Text equivalence only. No System numeric member mapping, cached string identity, general formatting or intrinsic privilege is claimed."
+    }
+  ]
+}

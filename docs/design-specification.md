@@ -1007,7 +1007,11 @@ call probe passes. Slice 6b.3 validates independently approved build attestation
 and exact string/exception intrinsic grants at the compiler boundary
 ([ADR 0092](decisions/0092-library-build-admission.md)). The host must pin the
 manifest digest independently of compiler input. Mapped audit evidence, an actual
-trusted build producer and shared library imports remain separate gates.
+trusted build producer remain separate gates. The first source import now adapts
+the pinned decimal integer formatting algorithm into a checked managed helper
+([ADR 0122](decisions/0122-managed-decimal-formatting-trial.md)). Differential
+native evidence covers text only; System numeric member mapping and string-cache
+identity are not claimed.
 
 Recognised framework types map to canonical runtime types. Resolve supported
 facades and type forwarders deliberately. User types retain assembly-qualified

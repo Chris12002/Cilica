@@ -4,4 +4,7 @@
          Debug C# may introduce Boolean bookkeeping locals. -->
     <OptimizeExecutionFixture>true</OptimizeExecutionFixture>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../library/Cilica.Library/Cilica.Library.csproj" />
+  </ItemGroup>
 </Project>
