@@ -45,8 +45,8 @@ public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, b
     public bool ExternallyVisible { get; init; } = true;
 }
 
-/// <summary>Field identity retains its declaring type, including its input image.</summary>
-public sealed record ObjectFieldId(ObjectTypeId Owner, int Token);
+/// <summary>FieldDef identity plus an optional derived scalar component; -1 is the original declaration.</summary>
+public sealed record ObjectFieldId(ObjectTypeId Owner, int Token, int Component = -1);
 
 /// <summary>Logical storage kinds; a reference is never an Int32 or an untracked native pointer.</summary>
 public abstract record ObjectStorage
@@ -54,8 +54,8 @@ public abstract record ObjectStorage
     public sealed record Int32 : ObjectStorage;
     public sealed record Int64 : ObjectStorage;
     public sealed record Reference(ObjectTypeId Type) : ObjectStorage;
-    // Inline storage, accepted only by the value-layout contract until executable
-    // value lowering is available. It is never an implicit boxed reference.
+    // Logical inline storage requires a composed value catalog. Heap expansion
+    // produces independently traced scalar fields, never an implicit box.
     public sealed record Value(ObjectTypeId Type) : ObjectStorage;
 }
 
@@ -75,7 +75,7 @@ public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
     public bool Integer64 { get; init; }
-    public const string Profile = "object-layout-v5";
+    public const string Profile = "object-layout-v6";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];

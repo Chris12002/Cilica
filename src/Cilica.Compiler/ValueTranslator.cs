@@ -469,7 +469,12 @@ public static class ValueTranslator
                             {
                                 Compatible(receiverType, IrType.Reference(field.Id.Owner), offset);
                                 if (opcode == "ldfld") Push(offset, fieldType, new IrExpression.LoadField(field.Id, receiver), true);
-                                else if (opcode == "stfld") Add(new IrStatement.StoreField(offset, field.Id, receiver, fieldValue), offset);
+                                else if (opcode == "stfld")
+                                {
+                                    if (fieldType.Kind == IrTypeKind.Value && valueExpressions[fieldValue] is IrExpression.Call)
+                                        Error(offset, "Direct struct-return calls stored into heap fields need destination/exception-order lowering; materialized copies and explicit managed locations are supported.", DiagnosticIds.ExecutionUnsupported);
+                                    Add(new IrStatement.StoreField(offset, field.Id, receiver, fieldValue), offset);
+                                }
                                 else Push(offset, IrType.Location(fieldType, (field.Attributes & FieldAttributes.InitOnly) != 0), new IrExpression.AddressField(field.Id, receiver), true);
                             }
                             else if (opcode == "ldfld" && receiverType == IrType.Value(field.Id.Owner))

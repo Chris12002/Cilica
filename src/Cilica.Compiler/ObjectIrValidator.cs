@@ -318,7 +318,7 @@ internal sealed class ObjectIrRules
         if (access == FieldAttributes.PrivateScope || (owner != id.Owner && (access != FieldAttributes.Public
             || (_layouts[id.Owner].Attributes & TypeAttributes.VisibilityMask) != TypeAttributes.Public))) return false;
         storage = field.Storage switch { ObjectStorage.Int32 => IrType.Int32, ObjectStorage.Int64 => IrType.Int64,
-            ObjectStorage.Reference reference => IrType.Reference(reference.Type), _ => null! };
+            ObjectStorage.Reference reference => IrType.Reference(reference.Type), ObjectStorage.Value value => IrType.Value(value.Type), _ => null! };
         return true;
     }
 

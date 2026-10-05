@@ -18,7 +18,9 @@ public static class ObjectModelValidator
         Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Integer64 = model.Integer64, Interfaces = model.Interfaces, Arrays = model.Arrays, String = model.String, Delegates = model.Delegates });
     }
 
-    public static void Validate(ObjectTypeCatalog model)
+    public static void Validate(ObjectTypeCatalog model) => Validate(model, inlineFields: false);
+
+    internal static void Validate(ObjectTypeCatalog model, bool inlineFields)
     {
         ArgumentNullException.ThrowIfNull(model);
         void Require([DoesNotReturnIf(false)] bool condition, string message)
@@ -59,7 +61,7 @@ public static class ObjectModelValidator
         var interfaceParameters = new Dictionary<(string Hash, int Token), GenericParameterAttributes[]>();
         var argumentReferences = new Dictionary<string, ObjectTypeId?>();
         int argumentCount = 0;
-        var fieldIdentities = new HashSet<(string Hash, string Specialization, int Token)>();
+        var fieldIdentities = new HashSet<(string Hash, string Specialization, int Token, int Component)>();
         int fieldCount = 0;
         foreach (var type in model.Types)
         {
@@ -73,15 +75,18 @@ public static class ObjectModelValidator
             Require(!type.Fields.IsDefault && type.Fields.Length <= ObjectModelLimits.MaximumFields, "invalid field array.");
             fieldCount += type.Fields.Length;
             Require(fieldCount <= ObjectModelLimits.MaximumFields, "aggregate field limit exceeded.");
-            int previous = 0;
+            int previous = 0, previousComponent = -1;
             foreach (var field in type.Fields)
             {
                 Require(field is not null && field.Id is not null && field.Id.Owner == id
-                    && DefinitionToken(field.Id.Token, 0x04) && field.Id.Token > previous
-                    && fieldIdentities.Add((id.ContentHash, id.Specialization, field.Id.Token)), "fields need their declaring owner and ordered unique image-scoped FieldDef tokens.");
-                previous = field.Id.Token;
+                    && DefinitionToken(field.Id.Token, 0x04) && (field.Id.Token > previous && field.Id.Component is -1 or 0
+                        || field.Id.Token == previous && field.Id.Component == previousComponent + 1 && previousComponent >= 0)
+                    && (field.Id.Component == -1 || model.Integer64) && field.Id.Component < ObjectModelLimits.MaximumFields
+                    && fieldIdentities.Add((id.ContentHash, id.Specialization, field.Id.Token, field.Id.Component)), "fields need their declaring owner and ordered unique image-scoped FieldDef tokens.");
+                previous = field.Id.Token; previousComponent = field.Id.Component;
                 Require(field.Name is not null && FieldAttributesSupported(field.Attributes), "unsupported field attributes/name.");
-                Require(field.Storage is ObjectStorage.Int32 || model.Integer64 && field.Storage is ObjectStorage.Int64 || field.Storage is ObjectStorage.Reference reference
+                Require(inlineFields && model.Integer64 && field.Id.Component == -1 && field.Storage is ObjectStorage.Value value && Identity(value.Type, 0x02)
+                    || field.Storage is ObjectStorage.Int32 || model.Integer64 && field.Storage is ObjectStorage.Int64 || field.Storage is ObjectStorage.Reference reference
                     && ReferenceIdentity(reference.Type, model.ObjectBase), "unsupported field storage.");
             }
             Require(id == model.ObjectBase

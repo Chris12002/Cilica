@@ -16,7 +16,7 @@ public sealed record ValueTypeLayout(TypeSource Source, TypeAttributes Attribute
 public sealed record ValueTypeCatalog(ImmutableArray<ObjectTypeId> Roots, ObjectTypeId ValueBase,
     ImmutableArray<ValueTypeLayout> Types, ObjectTypeCatalog References)
 {
-    public const string Profile = "value-layout-v1";
+    public const string Profile = "value-layout-v2";
 }
 
 /// <summary>One scalar copy slot. Each path preserves every declaring FieldDef, including nesting.</summary>

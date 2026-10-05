@@ -13,7 +13,7 @@ public static class ObjectInterfacePlanValidator
     public static void Validate(ObjectInterfaceDispatchPlan plan)
     {
         ArgumentNullException.ThrowIfNull(plan);
-        ObjectModelValidator.Validate(plan.Types);
+        ObjectModelValidator.Validate(plan.Types, inlineFields: plan.Values is not null && plan.Types.Integer64);
         if (plan.Values is { } values)
         {
             _ = ValueLayoutPlanner.Build(values);

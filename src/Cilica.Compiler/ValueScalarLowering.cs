@@ -8,8 +8,8 @@ namespace Cilica.Compiler;
 /// <summary>Expands inline copies into scalar/reference IR with explicitly selected object and boxing operations.</summary>
 public static class ValueScalarLowering
 {
-    public const string Profile = "value-scalars-v1";
-    public const string LocationProfile = "value-location-scalars-v2";
+    public const string Profile = "value-scalars-v2";
+    public const string LocationProfile = "value-location-scalars-v3";
 
     public static ScalarManagedExceptionIrProgram LowerExceptions(ManagedExceptionIrProgram program)
     {
@@ -121,7 +121,7 @@ public static class ValueScalarLowering
             return result.ToImmutable();
         }
         var lowered = plan with {
-            Values = null,
+            Values = null, Types = new HeapValueFields(values, layouts).Catalog,
             Declarations = [.. plan.Declarations.Select(d => d with { Parameters = Parameters(d.Parameters, d.ReturnType),
                 ReturnType = d.ReturnType.Kind == IrTypeKind.Value ? IrType.Void : d.ReturnType })],
             Methods = [.. plan.Methods.Select(m => m with { Parameters = Parameters(m.Parameters, m.ReturnType),
@@ -133,6 +133,7 @@ public static class ValueScalarLowering
     private static ReferenceIrProgram LowerCore(ValueIrProgram program, bool returnPackets = false)
     {
         var plans = ValueLayoutPlanner.Build(program.Types).ToDictionary(p => p.Type);
+        var heap = new HeapValueFields(program.Types, plans);
         // A borrowed struct expands into one carrier/owner pair per leaf. Bound
         // this before constructing any expanded arrays, including field aliases.
         int slots = 0;
@@ -275,7 +276,16 @@ public static class ValueScalarLowering
                     }
                     if (statement is IrStatement.StoreField fieldStore)
                     {
-                        Emit(fieldStore with { Receiver = One(fieldStore.Receiver), Value = One(fieldStore.Value) });
+                        if (heap.Fields.TryGetValue(fieldStore.Field, out var components))
+                        {
+                            var sources = values[fieldStore.Value];
+                            for (int i = 0; i < components.Length; ++i)
+                            {
+                                int source = sources.IsEmpty ? Define(IrType.Int32, fieldStore.ILOffset, new IrExpression.Constant(0)) : sources[i];
+                                Emit(fieldStore with { Field = components[i].Id, Receiver = One(fieldStore.Receiver), Value = source });
+                            }
+                        }
+                        else Emit(fieldStore with { Receiver = One(fieldStore.Receiver), Value = One(fieldStore.Value) });
                         continue;
                     }
                     var definition = (IrStatement.Define)statement;
@@ -285,6 +295,24 @@ public static class ValueScalarLowering
                     var ids = ImmutableArray.CreateBuilder<int>();
                     switch (value.Expression)
                     {
+                        case IrExpression.LoadField field when heap.Fields.ContainsKey(field.Field):
+                            var loadedFields = heap.Fields[field.Field];
+                            for (int i = 0; i < loadedFields.Length; ++i)
+                            {
+                                int loaded = Define(expanded.IsEmpty ? IrType.Int32 : expanded[i], value.ILOffset,
+                                    new IrExpression.LoadField(loadedFields[i].Id, One(field.Receiver)), definition.Exceptional);
+                                if (!expanded.IsEmpty) ids.Add(loaded);
+                            }
+                            break;
+                        case IrExpression.AddressField field when heap.Fields.ContainsKey(field.Field):
+                            var addressedFields = heap.Fields[field.Field];
+                            for (int i = 0; i < addressedFields.Length; ++i)
+                            {
+                                int address = Define(expanded.IsEmpty ? IrType.Location(IrType.Int32, value.Type.ReadOnly) : expanded[i], value.ILOffset,
+                                    new IrExpression.AddressField(addressedFields[i].Id, One(field.Receiver)), definition.Exceptional);
+                                if (!expanded.IsEmpty) ids.Add(address);
+                            }
+                            break;
                         case IrExpression.BoxValue boxed:
                             ids.Add(Define(value.Type, value.ILOffset, new IrExpression.BoxScalars(boxed.Type,
                                 Arguments([boxed.Operand], true)), definition.Exceptional));
@@ -424,6 +452,6 @@ public static class ValueScalarLowering
             lowered.Add(method with { Parameters = parameters.ToImmutable(), Locals = locals.ToImmutable(), Blocks = blocks.ToImmutable(),
                 ReturnType = method.ReturnType.Kind == IrTypeKind.Value ? IrType.Void : method.ReturnType });
         }
-        return new(program.Entry, lowered.ToImmutable(), program.Types.References);
+        return new(program.Entry, lowered.ToImmutable(), heap.Catalog);
     }
 }

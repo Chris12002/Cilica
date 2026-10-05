@@ -139,77 +139,81 @@ public static class ValueModelBuilder
             || Id(parent.Definition) != Id(objectBase))
             Fail("Selected System.ValueType must be a fieldless, nongeneric abstract direct child of the selected Object without initialization or native layout.", baseInput.Source.Name);
 
-        while (pending.TryDequeue(out var type))
+        ObjectCatalogResult referenceResult;
+        do
         {
-            var id = ClosedId(type);
-            TypeInput input;
-            try { input = ReadClosed(type, new()); }
-            catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
-            if (input.IsByRefLike) Fail("ByRefLike values require stack-only lifetime and escape checking before executable layout.", input.Source.Name);
-            if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || input.HasTypeInitializer || input.HasModuleInitializer
-                || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && (input.Fields.IsEmpty
-                    || integers64 && input.Fields.All(f => DefaultStaticFields.IsDefault(input, f)))
-                    && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || !integers64 && input.InterfaceCount != 0
-                || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
-                || input.BaseType is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } declaredBase
-                || Id(declaredBase.Definition) != Id(valueBase))
-                Fail("Value layouts require sealed nongeneric direct children of the selected System.ValueType, default managed layout, and no interfaces or type/module initialization.", input.Source.Name + "; value inclusion: " + paths[id]);
-            var declared = new List<ObjectField>();
-            var contracts = new List<ObjectTypeId>();
-            if (input.Interfaces.IsDefault || input.InterfaceCount != input.Interfaces.Length)
-                Fail("Value interface snapshot does not match its declaration count.", input.Source.Name);
-            foreach (var signature in input.Interfaces)
+            while (pending.TryDequeue(out var type))
             {
-                var contract = signature switch {
-                    TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
-                    TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
-                    _ => null };
-                if (contract is null) Fail("Value interface declarations require exact closed interface identities.", input.Source.Name);
-                var definition = ReadClosed(contract!, new());
-                if ((definition.Attributes & TypeAttributes.Interface) == 0) Fail("Value interface row names a non-interface type.", input.Source.Name);
-                contracts.Add(IncludeClosedReference(contract!));
+                var id = ClosedId(type);
+                TypeInput input;
+                try { input = ReadClosed(type, new()); }
+                catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
+                if (input.IsByRefLike) Fail("ByRefLike values require stack-only lifetime and escape checking before executable layout.", input.Source.Name);
+                if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || input.HasTypeInitializer || input.HasModuleInitializer
+                    || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && (input.Fields.IsEmpty
+                        || integers64 && input.Fields.All(f => DefaultStaticFields.IsDefault(input, f)))
+                        && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || !integers64 && input.InterfaceCount != 0
+                    || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
+                    || input.BaseType is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } declaredBase
+                    || Id(declaredBase.Definition) != Id(valueBase))
+                    Fail("Value layouts require sealed nongeneric direct children of the selected System.ValueType, default managed layout, and no interfaces or type/module initialization.", input.Source.Name + "; value inclusion: " + paths[id]);
+                var declared = new List<ObjectField>();
+                var contracts = new List<ObjectTypeId>();
+                if (input.Interfaces.IsDefault || input.InterfaceCount != input.Interfaces.Length)
+                    Fail("Value interface snapshot does not match its declaration count.", input.Source.Name);
+                foreach (var signature in input.Interfaces)
+                {
+                    var contract = signature switch {
+                        TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
+                        TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                        _ => null };
+                    if (contract is null) Fail("Value interface declarations require exact closed interface identities.", input.Source.Name);
+                    var definition = ReadClosed(contract!, new());
+                    if ((definition.Attributes & TypeAttributes.Interface) == 0) Fail("Value interface row names a non-interface type.", input.Source.Name);
+                    contracts.Add(IncludeClosedReference(contract!));
+                }
+                foreach (var field in input.Fields)
+                {
+                    if (integers64 && DefaultStaticFields.IsDefault(input, field)) continue;
+                    string location = paths[id] + " -> " + input.Source.Name + "::" + field.Name + " field 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
+                    if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
+                        Fail("Static, literal, marshalled, RVA, explicit-offset and constant field storage require later lowering.", location);
+                    ObjectStorage storage;
+                    if (field.Signature is TypeSignature.Named { Kind: SignatureTypeKind.ValueType } nested)
+                    {
+                        IncludeValue(new(nested.Definition, SignatureList<TypeSignature>.Empty), location); storage = new ObjectStorage.Value(Id(nested.Definition));
+                    }
+                    else if (generics && field.Signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic)
+                    {
+                        var nestedType = new ConstructedType(generic.Definition.Definition, generic.Arguments);
+                        IncludeValue(nestedType, location); storage = new ObjectStorage.Value(ClosedId(nestedType));
+                    }
+                    else
+                    {
+                        var converted = generics && field.Signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } genericReference
+                            ? IrType.Reference(IncludeClosedReference(new(genericReference.Definition.Definition, genericReference.Arguments)))
+                            : ObjectSignatureTypes.Convert(field.Signature, Id(objectBase), IncludeReference,
+                            array => { IncludeId(array); arrays.Add(array); return array; },
+                            text: () => IncludeReference(strings.Require()), integers64: integers64,
+                            closedReference: integers64 ? generic => IncludeClosedReference(new(generic.Definition.Definition, generic.Arguments)) : null);
+                        if (converted is null)
+                            Fail("Value fields require Int32, supported object references/vectors, or named nongeneric inline structs. Byrefs, pointers, other primitives, generic values and value arrays require later lowering.", location, DiagnosticIds.ExecutionSignatureUnsupported);
+                        storage = converted == IrType.Int32 ? new ObjectStorage.Int32() : converted == IrType.Int64
+                            ? new ObjectStorage.Int64() : new ObjectStorage.Reference(converted!.Class!);
+                    }
+                    declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
+                }
+                values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible, Interfaces = [.. contracts] });
             }
-            foreach (var field in input.Fields)
+            ObjectModelBuilder.TypeSnapshot ReadClosedReference(ConstructedType type, TypeReadLimits limits)
             {
-                if (integers64 && DefaultStaticFields.IsDefault(input, field)) continue;
-                string location = paths[id] + " -> " + input.Source.Name + "::" + field.Name + " field 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
-                if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
-                    Fail("Static, literal, marshalled, RVA, explicit-offset and constant field storage require later lowering.", location);
-                ObjectStorage storage;
-                if (field.Signature is TypeSignature.Named { Kind: SignatureTypeKind.ValueType } nested)
-                {
-                    IncludeValue(new(nested.Definition, SignatureList<TypeSignature>.Empty), location); storage = new ObjectStorage.Value(Id(nested.Definition));
-                }
-                else if (generics && field.Signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic)
-                {
-                    var nestedType = new ConstructedType(generic.Definition.Definition, generic.Arguments);
-                    IncludeValue(nestedType, location); storage = new ObjectStorage.Value(ClosedId(nestedType));
-                }
-                else
-                {
-                    var converted = generics && field.Signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } genericReference
-                        ? IrType.Reference(IncludeClosedReference(new(genericReference.Definition.Definition, genericReference.Arguments)))
-                        : ObjectSignatureTypes.Convert(field.Signature, Id(objectBase), IncludeReference,
-                        array => { IncludeId(array); arrays.Add(array); return array; },
-                        text: () => IncludeReference(strings.Require()), integers64: integers64,
-                        closedReference: integers64 ? generic => IncludeClosedReference(new(generic.Definition.Definition, generic.Arguments)) : null);
-                    if (converted is null)
-                        Fail("Value fields require Int32, supported object references/vectors, or named nongeneric inline structs. Byrefs, pointers, other primitives, generic values and value arrays require later lowering.", location, DiagnosticIds.ExecutionSignatureUnsupported);
-                    storage = converted == IrType.Int32 ? new ObjectStorage.Int32() : converted == IrType.Int64
-                        ? new ObjectStorage.Int64() : new ObjectStorage.Reference(converted!.Class!);
-                }
-                declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
+                try { return new(ReadClosed(type, limits), []); }
+                catch (Failure failure) { return new(null, failure.Diagnostics); }
             }
-            values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible, Interfaces = [.. contracts] });
-        }
-        ObjectModelBuilder.TypeSnapshot ReadClosedReference(ConstructedType type, TypeReadLimits limits)
-        {
-            try { return new(ReadClosed(type, limits), []); }
-            catch (Failure failure) { return new(null, failure.Diagnostics); }
-        }
-        var referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings, delegates, integers64)
-            : ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values.Select(t => t.Definition)], library, Read, [.. arrays], strings);
-        if (referenceResult.Catalog is null) return new(null, referenceResult.Diagnostics);
+            referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings, delegates, integers64, integers64 ? type => { IncludeValue(type, "heap field: " + Label(type)); return ClosedId(type); } : null)
+                : ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values.Select(t => t.Definition)], library, Read, [.. arrays], strings);
+            if (referenceResult.Catalog is null) return new(null, referenceResult.Diagnostics);
+        } while (pending.Count != 0);
         var catalog = new ValueTypeCatalog([.. roots.Select(ClosedId).Distinct()], Id(valueBase),
             [.. values.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)], referenceResult.Catalog);
         try { _ = ValueLayoutPlanner.Build(catalog); }

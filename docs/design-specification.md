@@ -1314,3 +1314,12 @@ byte/span APIs remain outside the admitted profile. Exception IR v2 and native
 v22 add exact System/Arithmetic/Format resources, including distinct explicit-null
 behavior and resource identity. Native Guid evidence is pinned to the local
 little-endian .NET oracle; this does not complete the real-kernel milestone.
+
+
+Composed integer-object heap fields may now contain closed inline values
+([ADR 0139](decisions/0139-inline-values-in-heap-fields.md)). The compiler discovers
+the combined class/value graph, then expands heap values into bounded scalar and
+reference fields with derived component identities. This reuses existing native
+field ownership and GC tracing without extra allocations. Empty fields retain a
+checked receiver operation. Compound stores directly from struct-return calls
+remain diagnostic until destination/exception ordering is explicitly lowered.

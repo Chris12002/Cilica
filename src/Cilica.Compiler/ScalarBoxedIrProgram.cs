@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 /// <summary>Scalar boxing operations with exact logical payload plans; not a public struct ABI.</summary>
 public sealed record ScalarBoxedIrProgram(ScalarLocationIrProgram Flow, ValueTypeCatalog Values)
 {
-    public const string Profile = "scalar-boxed-ir-v1";
+    public const string Profile = "scalar-boxed-ir-v2";
 }
 
 public static class ScalarBoxedIrValidator
@@ -21,7 +21,7 @@ public static class ScalarBoxedIrValidator
         ArgumentNullException.ThrowIfNull(program.Flow.Flow);
         ArgumentNullException.ThrowIfNull(program.Flow.Flow.Flow);
         var rules = new ScalarBoxingRules(program.Values);
-        if (program.Values.References != program.Flow.Flow.Flow.Types)
+        if (!ObjectInterfaceOperationRules.CatalogMatches(new HeapValueFields(program.Values, rules.Plans.ToDictionary(p => p.Type)).Catalog, program.Flow.Flow.Flow.Types))
             throw new ArgumentException("Scalar boxes must share the exact reference catalog.", nameof(program));
         ObjectIrValidator.Validate(program.Flow.Flow, locations: true, rules, delegates: delegates, exceptions: exceptions);
         return rules;

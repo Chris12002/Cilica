@@ -21,6 +21,7 @@ public static class ValueIrValidator
             .Concat(m.Blocks.SelectMany(b => b.Inputs)).Concat(m.Blocks.SelectMany(b => b.Values).Select(v => v.Type)))
             .Select(t => t.Kind == IrTypeKind.ManagedLocation ? t.Element! : t)
             .Where(t => t.Kind == IrTypeKind.Value).Select(t => t.Class!));
+        foreach (var field in program.Types.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>()) pending.Push(field.Type);
         var visited = new HashSet<ObjectTypeId>();
         var layouts = program.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         while (pending.TryPop(out var id))

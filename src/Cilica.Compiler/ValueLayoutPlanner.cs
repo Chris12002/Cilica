@@ -18,7 +18,9 @@ public static class ValueLayoutPlanner
             if (!condition) throw new ArgumentException("Invalid value layout model: " + message, nameof(catalog));
         }
         Require(catalog.References is not null, "reference catalog is missing.");
-        ObjectModelValidator.Validate(catalog.References);
+        ObjectModelValidator.Validate(catalog.References, inlineFields: catalog.References.Integer64);
+        Require(catalog.References.Types.SelectMany(t => t.Fields).All(f => f.Id.Component == -1),
+            "logical value catalogs require unexpanded heap FieldDef identities.");
         var references = catalog.References.Types.Select(t => ObjectTypeId.From(t.Source))
             .Concat(catalog.References.Interfaces.Select(t => ObjectTypeId.From(t.Source)))
             .Concat(catalog.References.Arrays).Concat(catalog.References.Delegates.Select(d => ObjectTypeId.From(d.Source))).ToHashSet();
@@ -57,7 +59,7 @@ public static class ValueLayoutPlanner
             int previous = 0;
             foreach (var field in type.Fields)
             {
-                Require(field?.Id is not null && field.Id.Owner == id && (uint)field.Id.Token >> 24 == 0x04
+                Require(field?.Id is not null && field.Id.Component == -1 && field.Id.Owner == id && (uint)field.Id.Token >> 24 == 0x04
                     && (field.Id.Token & 0xffffff) != 0 && field.Id.Token > previous
                     && fieldIds.Add((id.ContentHash, id.Specialization, field.Id.Token)), "fields need ordered unique image-scoped FieldDef identities and their declaring owner.");
                 previous = field.Id.Token;
@@ -81,7 +83,9 @@ public static class ValueLayoutPlanner
             foreach (var child in nested) parents[child].Add(id);
         }
         var included = new HashSet<ObjectTypeId>();
-        var pending = new Stack<ObjectTypeId>(catalog.Roots);
+        var heapValues = catalog.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>().Select(v => v.Type).ToArray();
+        Require(heapValues.All(types.ContainsKey), "heap inline field target is outside the value catalog.");
+        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues));
         while (pending.TryPop(out var id))
             if (included.Add(id)) foreach (var child in children[id]) pending.Push(child);
         Require(included.Count == types.Count, "catalog contains unrelated inline types.");

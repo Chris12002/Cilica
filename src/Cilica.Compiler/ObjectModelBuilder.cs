@@ -40,12 +40,12 @@ public static class ObjectModelBuilder
 
     internal static ObjectCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, Func<ConstructedType, TypeReadLimits, TypeSnapshot> readType,
-        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false) =>
-        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates, integers64);
+        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null) =>
+        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates, integers64, inline);
 
     private static ObjectCatalogResult BuildCatalogCore(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly runtimeLibrary, Func<ConstructedType, TypeReadLimits, TypeSnapshot>? readType, ImmutableArray<ObjectTypeId> arrayRoots,
-        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false)
+        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null)
     {
         strings ??= new(resolver, runtimeLibrary, new(ObjectModelLimits.MaximumMetadataMembers));
         ObjectTypeId? stringType = null;
@@ -212,6 +212,18 @@ public static class ObjectModelBuilder
                 string location = input.Source.Name + "::" + field.Name + " token 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
                 if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "Static, literal, marshalled, RVA, constant and explicit-offset field storage require later lowering.", location);
+                if (integers64 && inline is not null)
+                {
+                    var nested = field.Signature switch {
+                        TypeSignature.Named { Kind: SignatureTypeKind.ValueType } named => Plain(named.Definition),
+                        TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                        _ => null };
+                    if (nested is not null)
+                    {
+                        declared.Add(new(new(id, field.Token), field.Name, field.Attributes, new ObjectStorage.Value(inline(nested))));
+                        continue;
+                    }
+                }
                 bool exceeded = false;
                 var storageType = generics && field.Signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } genericReference
                     ? GenericReference(genericReference) : ObjectSignatureTypes.Convert(field.Signature, Id(objectBase), reference =>
@@ -254,7 +266,7 @@ public static class ObjectModelBuilder
             Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
         // Metadata can form cycles or extend sealed classes. Surface those as
         // input diagnostics rather than leaking the detached API's exception.
-        try { ObjectModelValidator.Validate(model); }
+        try { ObjectModelValidator.Validate(model, inlineFields: inline is not null); }
         catch (ArgumentException exception) { return Failed(ClosedId(roots[0]), DiagnosticIds.ExecutionUnsupported, exception.Message); }
         return new(model, []);
     }
