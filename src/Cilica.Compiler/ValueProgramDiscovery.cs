@@ -238,9 +238,8 @@ public static partial class ValueProgramDiscovery
                                 _virtualCalls.TryAdd(callee.Binding.Method, (work, offset));
                             if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
                                 Fail(work, "newobj requires an exact supported constructor declaration.", offset);
-                            if (work.Binding.Owner != callee.Binding.Owner
-                                && ((callee.Binding.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || !callee.Binding.OwnerExternallyVisible))
-                                Fail(work, "Calls require the same declaring owner or a public method on an externally visible owner.", offset);
+                            if (!ObjectMethodAccess.Allowed(work.Binding, callee.Binding, integers64))
+                                Fail(work, "Calls require the same declaring owner, a public externally visible target, or an assembly-accessible target in the same image under the integer-object profile.", offset);
                             _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" ? 1 : 0);
                             if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                             calls.Add(offset, callee.Binding.Method);
@@ -462,7 +461,8 @@ public static partial class ValueProgramDiscovery
             if (_parameters > IrLimits.MaximumParameters || _locals > IrLimits.MaximumLocals)
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             var kind = inlineConstructor ? ObjectMethodKind.ValueConstructor : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
-            var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
+            var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible)
+                { OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible };
             if (fact is null && (input.Attributes & MethodAttributes.Virtual) != 0)
             {
                 var exact = ResolveVirtual(resolved, resolved.DeclaringType, parent, offset);

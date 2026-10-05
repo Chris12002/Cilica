@@ -87,6 +87,10 @@ internal sealed class ObjectIrRules
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
                 || (layout.Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic,
                 "owner visibility contradicts its layout attributes.");
+            Require(!binding.OwnerAssemblyVisible || !_layouts.TryGetValue(binding.Owner, out var assemblyLayout)
+                || (assemblyLayout.Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NotPublic
+                    or TypeAttributes.NestedPublic or TypeAttributes.NestedAssembly or TypeAttributes.NestedFamORAssem,
+                "assembly owner visibility contradicts its layout attributes.");
             Require(((binding.Attributes & MethodAttributes.Static) != 0) == isStatic, "static attribute/kind mismatch.");
             if (valueConstructor)
                 Require(values is not null && flow.Types.Integer64 && values.Types.Any(t => ObjectTypeId.From(t.Source) == binding.Owner
@@ -345,8 +349,8 @@ internal sealed class ObjectIrRules
     }
 
     private static bool Constructor(ObjectMethodBinding b) => b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor;
-    private static bool Access(ObjectMethodBinding caller, ObjectMethodBinding target) => caller.Owner == target.Owner
-        || (target.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public && target.OwnerExternallyVisible;
+    private bool Access(ObjectMethodBinding caller, ObjectMethodBinding target) =>
+        ObjectMethodAccess.Allowed(caller, target, _program.Flow.Types.Integer64);
     private static bool CanonicalHash(string? hash) => hash is { Length: 64 } && hash.All(char.IsAsciiHexDigit) && hash == hash.ToLowerInvariant();
     private static void Require([DoesNotReturnIf(false)] bool condition, string message)
     {

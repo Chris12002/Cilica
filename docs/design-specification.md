@@ -904,6 +904,10 @@ use the existing checked parameter storage
 ([ADR 0114](decisions/0114-class-virtual-value-signatures.md)). Exact interface
 calls now use the same signature expansion, with checked value layouts retained
 in their dispatch plans ([ADR 0115](decisions/0115-interface-value-signatures.md)).
+Same-image public/internal calls also use bounded declaring-chain visibility
+facts; both discovery and detached validation enforce the same access rule
+([ADR 0116](decisions/0116-same-assembly-method-access.md)). Broader protected,
+friend-assembly, field and type-operand access remain separate gates.
 
 ## 11. Class library and assembly identity
 

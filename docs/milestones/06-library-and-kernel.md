@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.24 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.25 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -468,6 +468,16 @@ remaining actionable issue. See
 [ADR 0115](../decisions/0115-interface-value-signatures.md). The private kernel
 advances to an internal helper call in CommandId construction; native kernel
 equivalence remains pending. Local main remains an ancestor.
+
+## Slice 6c.25 outcome
+
+Same-image method calls now accept assembly-accessible members and enclosing
+types in the integer-object profile. Metadata and detached IR share the checked
+access contract. All 84 focused checks pass; two probes supply 588 matching native
+sanitizer results. Review found no remaining actionable issue. See
+[ADR 0116](../decisions/0116-same-assembly-method-access.md). The private kernel
+now reaches closed generic default initialization in PassPriority. Local main
+remains an ancestor; native kernel execution is still pending.
 
 ## Remaining completion evidence
 

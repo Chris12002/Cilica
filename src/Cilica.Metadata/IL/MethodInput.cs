@@ -30,6 +30,7 @@ public sealed record MethodInput(MethodSource Source, MethodSignature Signature,
     int OwnerToken, bool OwnerExternallyVisible)
 {
     public string DeclaredName { get; init; } = "";
+    public bool OwnerAssemblyVisible { get; init; }
     public int MetadataMembersRead { get; init; }
 }
 

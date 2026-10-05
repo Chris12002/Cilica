@@ -225,7 +225,8 @@ public static class ObjectInterfacePlanBuilder
                 Fail("Mapped method signature introduced a type outside the prepared catalog.", input.Source.Name);
             Count(parameters.Length);
             _methods.Add(id, new(new(id, owner, ObjectMethodKind.Instance, input.Attributes, input.OwnerExternallyVisible)
-                { VirtualSlot = slot, VirtualName = slot is null ? null : input.DeclaredName }, input.DeclaredName, parameters, returned));
+                { VirtualSlot = slot, VirtualName = slot is null ? null : input.DeclaredName,
+                    OwnerAssemblyVisible = closed && input.OwnerAssemblyVisible }, input.DeclaredName, parameters, returned));
         }
         private ImmutableArray<IrType> Parameters(MethodDeclarationInput input, ObjectTypeId owner)
         {

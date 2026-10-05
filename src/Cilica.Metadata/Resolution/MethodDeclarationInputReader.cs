@@ -41,17 +41,17 @@ public sealed partial class AssemblyResolver
             return new(header.Source, header.Signature, method.Attributes, method.ImplAttributes, header.Arity,
                 assembly.IsReferenceAssembly, Initializer(owner), Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1))),
                 MetadataTokens.GetToken(method.GetDeclaringType()), owner.Attributes, header.Visible,
-                method.RelativeVirtualAddress != 0, reader.GetString(method.Name), work);
+                method.RelativeVirtualAddress != 0, reader.GetString(method.Name), work) { OwnerAssemblyVisible = header.AssemblyVisible };
         });
     }
 
     // Share provenance/owner inspection with body input while retaining its existing IL/initializer fault order.
-    private (MethodSource Source, MethodSignature Signature, int Arity, bool Visible) ReadMethodHeader(
+    private (MethodSource Source, MethodSignature Signature, int Arity, bool Visible, bool AssemblyVisible) ReadMethodHeader(
         ResolvedAssembly assembly, MethodDefinitionHandle handle, int maximumOwnerDepth, Action? inspectOwner = null)
     {
         var reader = assembly.Image.Reader; var method = reader.GetMethodDefinition(handle);
         var signature = MethodDefinitionSignature(assembly, handle);
-        bool visible = true; int arity = 0;
+        bool visible = true, assemblyVisible = true; int arity = 0;
         var owners = new HashSet<TypeDefinitionHandle>();
         for (var current = method.GetDeclaringType(); !current.IsNil;)
         {
@@ -61,10 +61,13 @@ public sealed partial class AssemblyResolver
             var definition = reader.GetTypeDefinition(current); arity = checked(arity + definition.GetGenericParameters().Count);
             var parent = definition.GetDeclaringType();
             visible &= (definition.Attributes & TypeAttributes.VisibilityMask) == (parent.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
+            var visibility = definition.Attributes & TypeAttributes.VisibilityMask;
+            assemblyVisible &= parent.IsNil ? visibility is TypeAttributes.Public or TypeAttributes.NotPublic
+                : visibility is TypeAttributes.NestedPublic or TypeAttributes.NestedAssembly or TypeAttributes.NestedFamORAssem;
             current = parent;
         }
         var source = new MethodSource(assembly.Identity.DisplayName, assembly.ContentHash, MetadataTokens.GetToken(handle),
             new NameFormatter(reader).TypeDefinitionName(method.GetDeclaringType()) + "::" + reader.GetString(method.Name));
-        return (source, signature, arity, visible);
+        return (source, signature, arity, visible, assemblyVisible);
     }
 }

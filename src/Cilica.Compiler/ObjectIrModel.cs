@@ -12,6 +12,7 @@ public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, 
 {
     public ObjectVirtualSlot? VirtualSlot { get; init; }
     public string? VirtualName { get; init; }
+    public bool OwnerAssemblyVisible { get; init; }
 }
 
 public sealed record ObjectVirtualSlot(IrMethodId Method, ObjectTypeId Owner);

@@ -58,7 +58,7 @@ public sealed partial class AssemblyResolver
                     i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets])
                     { Int64Operand = i.Operand as long? })],
                 MetadataTokens.GetToken(method.GetDeclaringType()), header.Visible)
-            { DeclaredName = reader.GetString(method.Name), MetadataMembersRead = work };
+            { DeclaredName = reader.GetString(method.Name), MetadataMembersRead = work, OwnerAssemblyVisible = header.AssemblyVisible };
         });
     }
 }

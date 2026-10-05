@@ -8,4 +8,7 @@ public sealed record MethodDeclarationInput(MethodSource Source, MethodSignature
     MethodAttributes Attributes, MethodImplAttributes Implementation, int OwnerGenericArity,
     bool IsReferenceAssembly, bool HasTypeInitializer, bool HasModuleInitializer,
     int OwnerToken, TypeAttributes OwnerAttributes, bool OwnerExternallyVisible, bool HasBody,
-    string DeclaredName, int MetadataMembersRead);
+    string DeclaredName, int MetadataMembersRead)
+{
+    public bool OwnerAssemblyVisible { get; init; }
+}
