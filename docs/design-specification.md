@@ -915,6 +915,10 @@ Explicit composed IR can also retain scalar/reference interface plans through
 value lowering and managed exception routing
 ([ADR 0107](decisions/0107-composed-interface-ir.md)); automatic closed interface
 CIL discovery and struct dispatch signatures remain pending.
+Array catalogs that mention interfaces declared by the selected Array base or
+runtime-supplied generic vector contracts now fail before execution until those
+relationships and helpers are implemented. Exact runtime identities prevent
+application lookalikes from acquiring intrinsic treatment (slice 6c.16a).
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential

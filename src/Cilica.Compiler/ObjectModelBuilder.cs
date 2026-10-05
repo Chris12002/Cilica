@@ -243,6 +243,8 @@ public static class ObjectModelBuilder
         }
         if (stringType is not null && interfaces.Count != 0)
             members += strings.CheckInterfaces([.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members);
+        if (arrays.Count != 0 && interfaces.Count != 0)
+            members += ObjectArrayInterfaces.Check(resolver, runtimeLibrary, [.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members, strings.MetadataBudget);
         var model = new ObjectTypeCatalog([.. roots.Select(ClosedId).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)])
         { Integer64 = integers64, Delegates = [.. delegateTypes], String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],

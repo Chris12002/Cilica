@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
+using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Cilica.Compiler;
 using Cilica.Fixtures.Execution;
+using Cilica.Metadata.Resolution;
 using Xunit;
 
 namespace Cilica.Metadata.Tests;
@@ -56,5 +58,32 @@ public sealed class InterfaceVarianceTranslationTests
             _ => contract };
         catalog = catalog with { Integer64 = mutation != "capability", Interfaces = catalog.Interfaces.Replace(contract, changed) };
         Assert.Throws<ArgumentException>(() => ObjectModelValidator.Validate(catalog));
+    }
+
+    [Fact]
+    public void Runtime_provided_array_interfaces_cannot_silently_test_false()
+    {
+        Assert.Equal(17, VariantContracts.ArrayInterface(17, 23));
+        var result = IntegerObjectTranslationTests.Translate(nameof(VariantContracts.ArrayInterface), fixture: typeof(VariantContracts));
+        Assert.False(result.Success);
+        Assert.Contains(result.Diagnostics, d => d.Message.Contains("Array interface", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Application_interface_names_do_not_grant_runtime_array_contracts()
+    {
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
+        var builder = new ResolutionAssemblyBuilder(new("ArrayLookalike", new Version(1, 0, 0, 0)));
+        var scope = builder.Reference(library.Identity);
+        var objectType = builder.TypeReference("System", "Object", scope);
+        var contract = builder.Type("System.Collections", "IList",
+            attributes: TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract);
+        var root = builder.Type("Example", "Container", baseType: objectType);
+        builder.Implements(root, contract); builder.Field("Items", 6, 0x1d, 8);
+        using var files = new ResolverFiles();
+        var input = resolver.OpenInput(files.Write("lookalike.dll", builder.Build())).Value!;
+        var result = ObjectModelBuilder.Build(resolver, resolver.ResolveType(input, root).Value!, library);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
     }
 }

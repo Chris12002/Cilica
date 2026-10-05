@@ -51,5 +51,10 @@ namespace Cilica.Fixtures.Execution
             object value = "text";
             return value is System.Collections.Generic.IEnumerable<char> ? input : other;
         }
+        public static int ArrayInterface(int input, int other)
+        {
+            object value = new int[1];
+            return value is System.Collections.IList ? input : other;
+        }
     }
 }

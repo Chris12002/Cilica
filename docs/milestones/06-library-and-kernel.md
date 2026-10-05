@@ -356,6 +356,18 @@ closed-identity agreement; no remaining actionable issue was found. See
 CIL discovery, struct signatures, variance-only targets and array helpers remain
 pending. Local main remains an ancestor.
 
+## Slice 6c.16a review fix
+
+Dispatch integration review found that arrays could reach nominal interface type
+tests without their runtime-supplied contracts in the catalog. A reduced
+`int[] is IList` regression first reproduced erroneous admission. Metadata-backed
+catalogs now diagnose selected Array interfaces and the five generic vector
+contracts until helper relationships and methods are implemented. Runtime image
+identity distinguishes them from application lookalikes; ancestry inspection is
+bounded and charged to the shared ledger. All 124 focused checks pass. The fix
+also covers the earlier nongeneric interface path; no native array-interface
+compatibility is claimed.
+
 ## Remaining completion evidence
 
 - Pin imported source commits, licenses, local patches, reference identities

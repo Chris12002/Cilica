@@ -10,6 +10,7 @@ namespace Cilica.Compiler;
 /// <summary>Lazy selected-runtime identity; primitive-only profiles need not provide String.</summary>
 internal sealed class ObjectStringType(AssemblyResolver resolver, ResolvedAssembly library, MemberResolutionBudget budget)
 {
+    internal MemberResolutionBudget MetadataBudget => budget;
     private ResolutionResult<ResolvedType>? _selected, _validated;
     internal int ValidationWork { get; private set; }
     private ResolutionResult<ResolvedType> Selected => _selected ??= resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String);

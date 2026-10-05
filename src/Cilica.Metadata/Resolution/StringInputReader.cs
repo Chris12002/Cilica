@@ -10,6 +10,7 @@ namespace Cilica.Metadata.Resolution;
 
 public sealed record UserStringInput(ImmutableArray<ushort> CodeUnits);
 public sealed record IntrinsicStringInterfaces(ImmutableArray<ResolvedType> Types);
+public sealed record IntrinsicInterfaceDefinitions(ImmutableArray<ResolvedType> Types);
 
 public sealed partial class AssemblyResolver
 {
@@ -50,6 +51,14 @@ public sealed partial class AssemblyResolver
     /// Used to reject unmodeled String conversions, not to import implementations.</summary>
     public ResolutionResult<IntrinsicStringInterfaces> ReadIntrinsicStringInterfaces(ResolvedType text, MemberResolutionBudget budget)
     {
+        var result = ReadIntrinsicInterfaceDefinitions(text, budget);
+        return result.Value is { } value ? ResolutionResult<IntrinsicStringInterfaces>.Resolved(new(value.Types))
+            : ResolutionResult<IntrinsicStringInterfaces>.Failed(result.Diagnostics);
+    }
+
+    /// <summary>Reads bounded interface ancestry for an intrinsic shell without importing implementation bodies.</summary>
+    public ResolutionResult<IntrinsicInterfaceDefinitions> ReadIntrinsicInterfaceDefinitions(ResolvedType text, MemberResolutionBudget budget)
+    {
         ArgumentNullException.ThrowIfNull(text); ArgumentNullException.ThrowIfNull(budget);
         return Bind(text.Assembly, text.Handle, () =>
         {
@@ -59,11 +68,11 @@ public sealed partial class AssemblyResolver
             while (pending.TryDequeue(out var current))
             {
                 if (!seen.Add(current.Definition)) continue;
-                if (seen.Count > 256) throw Failure(DiagnosticIds.TranslationLimit, "Intrinsic String interface ancestry exceeds 256 definitions.");
+                if (seen.Count > 256) throw Failure(DiagnosticIds.TranslationLimit, "Intrinsic interface ancestry exceeds 256 definitions.");
                 foreach (var parent in ReadInterfaceEdges(current, budget)) pending.Enqueue(parent);
             }
             seen.Remove(text);
-            return new IntrinsicStringInterfaces([.. seen]);
+            return new IntrinsicInterfaceDefinitions([.. seen]);
         });
     }
 
