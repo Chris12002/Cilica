@@ -19,6 +19,7 @@ public enum LibraryIntrinsicCapability
     CultureInfoLayout, InvariantCulture, InvariantIntegerFormatting, IntegerTextCacheFind, IntegerTextCachePublish,
     ClosedKeyEqual, ClosedKeyHash, ClosedKeyIsNull,
     ArrayInterfaceCount, ArrayInterfaceGet, ArrayInterfaceFalse, ArrayInterfaceTrue, ArrayInterfaceIdentity, StringFromCodeUnits, ArrayEmpty, ArrayInterfaceAdd, ArrayInterfaceSet, TypeInitializationExceptionConstructor, ExceptionTypeName, ExceptionInnerException, BoxedStringFormat, BoxedTextRender, StringOrdinalEqual, StringEmpty,
+    RuntimeTypeLayout, RuntimeTypeHandleLayout, RuntimeTypeObjectLayout, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash,
 }
 
 public sealed record LibraryBuildInput(string Role, string Path, string Sha256);
@@ -184,7 +185,7 @@ public sealed partial class AssemblyResolver
     {
         if (!Enum.IsDefined(capability)) throw InvalidLibraryBuild("Unknown intrinsic capability.");
         var reader = image.Image.Reader;
-        bool layout = capability is LibraryIntrinsicCapability.StringLayout or LibraryIntrinsicCapability.ExceptionLayout or LibraryIntrinsicCapability.CultureInfoLayout;
+        bool layout = capability is LibraryIntrinsicCapability.StringLayout or LibraryIntrinsicCapability.ExceptionLayout or LibraryIntrinsicCapability.CultureInfoLayout or LibraryIntrinsicCapability.RuntimeTypeLayout or LibraryIntrinsicCapability.RuntimeTypeHandleLayout or LibraryIntrinsicCapability.RuntimeTypeObjectLayout;
         bool field = capability == LibraryIntrinsicCapability.StringEmpty;
         if (handle.IsNil || handle.Kind != (layout ? HandleKind.TypeDefinition : field ? HandleKind.FieldDefinition : HandleKind.MethodDefinition))
             throw InvalidLibraryBuild("Intrinsic capability requires the appropriate non-nil type, method or field definition token.");

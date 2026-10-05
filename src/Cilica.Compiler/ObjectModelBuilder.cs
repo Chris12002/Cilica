@@ -137,9 +137,9 @@ public static class ObjectModelBuilder
                     "Interface contracts require public visibility and public enclosing types.", input.Source.Name);
             if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || isInterface && type.Arguments.Count != 0 && !integers64
                 || input.PackingSize != 0 || input.ClassSize != 0 || input.HasTypeInitializer && (!integers64 || (input.Attributes & System.Reflection.TypeAttributes.BeforeFieldInit) == 0) || input.HasModuleInitializer
-                || !(isInterface ? ObjectModelValidator.InterfaceAttributes(input.Attributes) : ObjectModelValidator.ClassAttributes(input.Attributes)))
+                || !(isInterface ? ObjectModelValidator.InterfaceAttributes(input.Attributes) : ObjectModelValidator.ClassAttributes(input.Attributes, integers64)))
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, ObjectModel.Profile +
-                    (generics ? " requires concrete closed automatic-layout classes or admitted public fieldless interfaces without native layout or initialization."
+                    (generics ? " requires closed automatic-layout classes or admitted public fieldless interfaces without native layout or initialization."
                         : " requires concrete nongeneric automatic-layout classes or public fieldless interfaces without native layout or type/module initialization."), input.Source.Name);
             if (input.Interfaces.IsDefault || input.Interfaces.Length != input.InterfaceCount || input.Interfaces.Length > ObjectModelLimits.MaximumTypes)
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface snapshots must retain every bounded declaration edge.", input.Source.Name);

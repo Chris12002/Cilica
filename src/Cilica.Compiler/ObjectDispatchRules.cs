@@ -100,7 +100,7 @@ internal sealed class ObjectDispatchRules
         foreach (var map in _maps.Values)
         {
             var declaration = _bindings[map.Declaration]; var slot = declaration.VirtualSlot!;
-            var expected = _layouts.Keys.Where(id => _types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();
+            var expected = _layouts.Keys.Where(id => (_layouts[id].Attributes & TypeAttributes.Abstract) == 0 && _types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();
             Require(expected.SetEquals(map.Targets.Select(t => t.Receiver)), "dispatch map must cover every compatible catalog receiver exactly once.");
             foreach (var target in map.Targets)
             {

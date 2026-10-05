@@ -169,6 +169,7 @@ public static class ValueTranslator
             foreach (var statement in method.Blocks.SelectMany(b => b.Statements))
                 switch (statement)
                 {
+                    case IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeLiteral literal }: Include(literal.Target); break;
                     case IrStatement.Define { Value.Expression: IrExpression.AddressElement address }: Include(address.ArrayType); break;
                     case IrStatement.Define { Value.Expression: IrExpression.LoadElement load }: Include(load.ArrayType); break;
                     case IrStatement.StoreElement store: Include(store.ArrayType); break;
@@ -275,6 +276,18 @@ public static class ValueTranslator
                         case "ldsfld" when exceptions is not null && method.Literals.ContainsKey(offset):
                         case "ldstr" when exceptions is not null:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var objectHash) && objectHash.Kind == ValueIntrinsic.ObjectIdentityHash:
+                            Push(offset, IrType.Int32, new IrExpression.ObjectIdentityHash(Pop(offset, IrType.Reference(objectBase))), true); break;
+                        case "ldtoken" when method.RuntimeTypeTokens.TryGetValue(offset, out var tokenType):
+                            int typeObject = Define(offset, IrType.Reference(tokenType.Type), new IrExpression.RuntimeTypeLiteral(tokenType.Target, tokenType.Implementation), true);
+                            int emptyHandle = Define(offset, IrType.Value(tokenType.Handle), new IrExpression.DefaultValue(tokenType.Handle));
+                            Push(offset, IrType.Value(tokenType.Handle), new IrExpression.WithValueField(tokenType.HandleField, emptyHandle, typeObject)); break;
+                        case "call" or "callvirt" when method.Intrinsics.TryGetValue(offset, out var runtimeType) && runtimeType.Kind is ValueIntrinsic.ObjectGetType or ValueIntrinsic.RuntimeTypeHash:
+                            int typeReceiver = Pop(offset);
+                            if (!Reference(values[typeReceiver])) Error(offset, "Runtime type identity requires a reference operand.");
+                            Push(offset, runtimeType.Kind == ValueIntrinsic.ObjectGetType ? IrType.Reference(runtimeType.RuntimeTypeBase!) : IrType.Int32,
+                                runtimeType.Kind == ValueIntrinsic.ObjectGetType ? new IrExpression.ObjectGetType(typeReceiver, runtimeType.Type)
+                                    : new IrExpression.RuntimeTypeHash(typeReceiver, runtimeType.Type), true); break;
                         case "isinst" or "castclass" when exceptions is not null:
                             int tested = Pop(offset); var testedType = method.TypeOperands[offset];
                             if (!Reference(values[tested])) Error(offset, "Type tests require a reference operand.");

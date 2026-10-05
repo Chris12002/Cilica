@@ -41,7 +41,7 @@ public static class ValueArrayIrValidator
             throw new ArgumentException("Composed class dispatch requires the explicit integer-object catalog.", nameof(program));
         var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings) { InterfaceDispatch = interfaces, Dispatch = dispatch.IsDefault ? [] : dispatch }, locations: true, values: flow.Types, delegates: delegates);
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing, exceptions);
-        if (boxing) new BoxedTypeRelations(flow.Types).ValidateDispatch(flow.Methods, interfaces);
+        if (boxing) new BoxedTypeRelations(flow.Types).ValidateDispatch(flow.Methods, interfaces, dispatch);
         foreach (var method in flow.Methods)
             if (objects.Binding(IrMethodId.From(method.Source)).Kind is not (ObjectMethodKind.Static or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
                 && !(flow.Types.References.Integer64 && objects.Binding(IrMethodId.From(method.Source)).Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor)
@@ -69,7 +69,7 @@ public static class ValueArrayIrValidator
                     || classes && d.Value.Expression is (IrExpression.NewObject or IrExpression.LoadField)
                     || boxing && d.Value.Expression is (IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation)
                     || exceptions is not null && d.Value.Expression is (IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.IsInstance or IrExpression.CastClass or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringEquals)
-                    || exceptions is not null && flow.Types.References.Integer64 && d.Value.Expression is (IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.StringCodeUnit or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.InvariantCulture or IrExpression.IntegerTextFind or IrExpression.IntegerTextPublish)
+                    || exceptions is not null && flow.Types.References.Integer64 && d.Value.Expression is (IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.StringCodeUnit or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.IntegerTextFind or IrExpression.IntegerTextPublish)
                     || delegates && d.Value.Expression is (IrExpression.NewDelegate or IrExpression.CallDelegate),
                 IrStatement.InitializeType when exceptions is not null && flow.Types.References.Integer64 => true,
                 IrStatement.StoreLocal or IrStatement.Invoke or IrStatement.StoreLocation

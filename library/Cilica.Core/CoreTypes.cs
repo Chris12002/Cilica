@@ -8,11 +8,19 @@ namespace System
     public class Object
     {
         public Object() { }
-        [MethodImpl(MethodImplOptions.InternalCall)] public virtual extern bool Equals(object value);
-        [MethodImpl(MethodImplOptions.InternalCall)] public virtual extern int GetHashCode();
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern Type GetType();
+        public virtual bool Equals(object value) => this == value;
+        public virtual int GetHashCode() => Cilica.Runtime.TypeIdentity.ObjectHash(this);
         [MethodImpl(MethodImplOptions.InternalCall)] public virtual extern string ToString();
     }
-    public abstract class ValueType { protected ValueType() { } }
+    public abstract class ValueType
+    {
+        protected ValueType() { }
+        // Default structural value equality/hashing is still unsupported. Keep
+        // overrides so it cannot silently inherit reference identity semantics.
+        [MethodImpl(MethodImplOptions.InternalCall)] public override extern bool Equals(object value);
+        [MethodImpl(MethodImplOptions.InternalCall)] public override extern int GetHashCode();
+    }
     public abstract class Array
     {
         protected Array() { }

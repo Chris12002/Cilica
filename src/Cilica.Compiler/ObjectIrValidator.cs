@@ -163,7 +163,12 @@ internal sealed class ObjectIrRules
                 Require(binding.Kind == ObjectMethodKind.ObjectBaseConstructor ? binding.Owner == flow.Types.ObjectBase
                     && method.Parameters.Length == 1 : binding.Owner != flow.Types.ObjectBase, "invalid selected base constructor binding.");
             }
-            else Require(binding.Owner != flow.Types.ObjectBase, "ordinary selected Object methods require explicit runtime support.");
+            else Require(binding.Owner != flow.Types.ObjectBase || flow.Types.Integer64 && binding.Kind == ObjectMethodKind.Instance
+                && binding.Attributes == (MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig)
+                && method.ReturnType == IrType.Int32 && (binding.VirtualName == "Equals" && method.Parameters.Length == 2
+                    && method.Parameters[1] == IrType.Reference(flow.Types.ObjectBase)
+                    || binding.VirtualName == "GetHashCode" && method.Parameters.Length == 1),
+                "ordinary selected Object methods require the admitted managed equality/hash signatures.");
         }
         ObjectLexicalAccess.Consistent(program.Bindings.Select(b => (b.Owner, b.LexicalOwners))
             .Concat(flow.Types.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
@@ -209,6 +214,9 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.NewDelegate d } => new[] { d.Type },
         IrStatement.Define { Value.Expression: IrExpression.CallDelegate d } => new[] { d.Type },
         IrStatement.InvokeDelegate d => new[] { d.Type },
+        IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeLiteral t } => new[] { t.Target, t.Implementation },
+        IrStatement.Define { Value.Expression: IrExpression.ObjectGetType t } => new[] { t.Implementation },
+        IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeHash t } => new[] { t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.InvariantCulture c } => new[] { c.Type },
         IrStatement.Define { Value.Expression: IrExpression.EmptyArray a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
@@ -254,6 +262,33 @@ internal sealed class ObjectIrRules
         && arguments.Select((a, i) => a >= 0 && a < values.Count && _types.Assignable(values[a], declaration.Parameters[i])).All(valid => valid);
 
     internal IrType? StringType => _program.Flow.Types.String is { } text ? IrType.Reference(text) : null;
+
+    internal ObjectTypeId? RuntimeTypeBase(ObjectTypeId? implementation)
+    {
+        if (!_program.Flow.Types.Integer64 || implementation is null || implementation.Specialization != ""
+            || implementation.ContentHash != _program.Flow.Types.ObjectBase.ContentHash
+            || !_layouts.TryGetValue(implementation, out var concrete) || concrete.Source.Name != "Cilica.Runtime.RuntimeTypeObject"
+            || concrete.Attributes != (TypeAttributes.Sealed | TypeAttributes.BeforeFieldInit) || !concrete.Fields.IsEmpty || !concrete.Interfaces.IsEmpty
+            || concrete.BaseType is not { } type || !_layouts.TryGetValue(type, out var selected)
+            || type.Specialization != "" || type.ContentHash != implementation.ContentHash || selected.Source.Name != "System.Type"
+            || selected.Attributes != (TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.BeforeFieldInit) || !selected.Fields.IsEmpty || !selected.Interfaces.IsEmpty
+            || selected.BaseType is not { } member || !_layouts.TryGetValue(member, out var info)
+            || member.ContentHash != implementation.ContentHash || member.Specialization != "" || info.Source.Name != "System.Reflection.MemberInfo"
+            || info.Attributes != (TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.BeforeFieldInit) || !info.Fields.IsEmpty || !info.Interfaces.IsEmpty
+            || info.BaseType != _program.Flow.Types.ObjectBase
+            || _layouts.Any(p => p.Key != implementation && p.Value.BaseType == type)) return null;
+        return type;
+    }
+
+    internal bool RuntimeTypeLiteral(ObjectTypeId? target, ObjectTypeId? implementation, IrType result) =>
+        RuntimeTypeBase(implementation) is { } type && result == IrType.Reference(type) && target is not null
+        && (_layouts.ContainsKey(target) || _contracts.Contains(target) || _arrays.Contains(target)
+            || _delegates.ContainsKey(target) || _program.Flow.Types.String == target);
+
+    internal bool RuntimeTypeOperand(int operand, IReadOnlyList<IrType> values, ObjectTypeId? implementation, IrType result, bool hash) =>
+        RuntimeTypeBase(implementation) is { } type && operand >= 0 && operand < values.Count
+        && (hash ? _types.Assignable(values[operand], IrType.Reference(type)) : values[operand].Kind is IrTypeKind.Reference or IrTypeKind.NullReference)
+        && result == (hash ? IrType.Int32 : IrType.Reference(type));
 
     private ObjectTypeId? _invariantCulture;
     internal bool InvariantCulture(ObjectTypeId? type, IrType result)
@@ -325,7 +360,7 @@ internal sealed class ObjectIrRules
         var signature = _methods[target].Parameters;
         int skip = allocation ? 1 : 0;
         if (signature.IsDefault || arguments.Length != signature.Length - skip || !Access(Binding(IrMethodId.From(caller.Source)), callee)) return false;
-        if (allocation ? !Constructor(callee) : Constructor(callee)) return false;
+        if (allocation ? !Constructor(callee) || (_layouts[callee.Owner].Attributes & TypeAttributes.Abstract) != 0 : Constructor(callee)) return false;
         if (nullCheck && callee.Kind != ObjectMethodKind.Instance) return false;
         if (virtualDispatch ? allocation || !nullCheck || callee.VirtualSlot is null || !_dispatch.Has(target)
             : nullCheck && callee.VirtualSlot is not null) return false;
@@ -333,6 +368,13 @@ internal sealed class ObjectIrRules
             || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.InvariantCulture)) return false;
         for (int index = 0; index < arguments.Length; index++)
             if (arguments[index] < 0 || arguments[index] >= values.Count || !_types.Assignable(values[arguments[index]], signature[index + skip])) return false;
+        // Object slots also accept strings, arrays, delegates and boxes. Their
+        // descriptors have no ordinary-class virtual table, so an Object alias
+        // cannot prove that this map covers the dynamic receiver.
+        if (virtualDispatch && callee.VirtualSlot?.Owner == _program.Flow.Types.ObjectBase)
+            Require(!arguments.IsEmpty && (values[arguments[0]].Kind == IrTypeKind.NullReference
+                || values[arguments[0]].Class is { } receiver && receiver != _program.Flow.Types.ObjectBase && _layouts.ContainsKey(receiver)),
+                "Object-slot virtual calls require a statically known ordinary class receiver; special runtime objects and Object aliases need later dispatch lowering.");
         return true;
     }
 
@@ -465,7 +507,10 @@ internal sealed class ObjectIrRules
                             IrExpression.Compare c => !This(c.Left) && !This(c.Right),
                             IrExpression.Call c => c.Arguments.All(a => !This(a)),
                             IrExpression.NewObject n => n.Arguments.All(a => !This(a)),
-                            IrExpression.StringLiteral or IrExpression.InvariantCulture => true,
+                            IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral => true,
+                            IrExpression.ObjectGetType t => !This(t.Operand),
+                            IrExpression.RuntimeTypeHash t => !This(t.Operand),
+                            IrExpression.ObjectIdentityHash t => !This(t.Operand),
                             IrExpression.IntegerTextFind s => !This(s.Index),
                             IrExpression.IntegerTextPublish s => !This(s.Index) && !This(s.Text),
                             IrExpression.StringLength s => !This(s.Operand),

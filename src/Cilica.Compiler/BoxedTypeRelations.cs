@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Cilica.Compiler;
@@ -29,11 +30,13 @@ internal sealed class BoxedTypeRelations
     }
     internal bool Accepts(ObjectTypeId value, ObjectTypeId target) => _ancestors[value].Contains(target);
 
-    internal void ValidateDispatch(IEnumerable<IrMethod> methods, ObjectInterfaceDispatchPlan? dispatch)
+    internal void ValidateDispatch(IEnumerable<IrMethod> methods, ObjectInterfaceDispatchPlan? dispatch, ImmutableArray<ObjectVirtualDispatch> classes = default)
     {
-        if (dispatch is null) return;
+        if (dispatch is null && classes.IsDefaultOrEmpty) return;
         var bodies = methods.ToArray(); var proof = new BoxedUseProof(bodies);
-        var owners = dispatch.Declarations.Select(d => d.Owner).Distinct().ToArray();
+        var byId = bodies.ToDictionary(m => IrMethodId.From(m.Source));
+        var classOwners = classes.IsDefaultOrEmpty ? [] : classes.Select(d => byId[d.Declaration].Parameters[0].Class!).ToHashSet();
+        var owners = (dispatch?.Declarations.Select(d => d.Owner) ?? []).Concat(classOwners).Distinct().ToArray();
         int work = 0;
         foreach (var method in bodies)
         foreach (var block in method.Blocks)
@@ -47,7 +50,9 @@ internal sealed class BoxedTypeRelations
                 if (++work > ObjectModelLimits.MaximumTypeRelationWork)
                     throw new ArgumentException("Boxed dispatch closure exceeds the type-relation work limit.");
                 if (Accepts(type, owner) && !proof.Safe(block, value.Id))
-                    throw new ArgumentException("Boxed interface method dispatch requires payload receiver lowering before execution.");
+                    throw new ArgumentException(classOwners.Contains(owner)
+                        ? "Boxed class method dispatch requires payload receiver lowering before execution."
+                        : "Boxed interface method dispatch requires payload receiver lowering before execution.");
             }
         }
     }

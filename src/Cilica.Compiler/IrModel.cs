@@ -84,6 +84,10 @@ public abstract record IrExpression
     public sealed record StringLiteral(ImmutableArray<ushort> CodeUnits) : IrExpression;
     public sealed record IntegerTextFind(int Index) : IrExpression;
     public sealed record IntegerTextPublish(int Index, int Text) : IrExpression;
+    public sealed record RuntimeTypeLiteral(ObjectTypeId Target, ObjectTypeId Implementation) : IrExpression;
+    public sealed record ObjectGetType(int Operand, ObjectTypeId Implementation) : IrExpression;
+    public sealed record ObjectIdentityHash(int Operand) : IrExpression;
+    public sealed record RuntimeTypeHash(int Operand, ObjectTypeId Implementation) : IrExpression;
     public sealed record InvariantCulture(ObjectTypeId Type) : IrExpression;
     public sealed record StringLength(int Operand) : IrExpression;
     // Result is the zero-extended UTF-16 code unit, not a Unicode scalar value.

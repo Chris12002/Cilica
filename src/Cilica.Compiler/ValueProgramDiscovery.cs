@@ -18,6 +18,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     ImmutableDictionary<int, IrMethodId> Calls, ImmutableDictionary<int, ObjectFieldId> Fields,
     ImmutableDictionary<int, ObjectTypeId> TypeOperands)
 {
+    public ImmutableDictionary<int, RuntimeTypeToken> RuntimeTypeTokens { get; init; } = ImmutableDictionary<int, RuntimeTypeToken>.Empty;
     public ImmutableArray<IrExceptionRegion> ExceptionRegions { get; init; } = [];
     public ImmutableDictionary<int, ValueIntrinsicCall> Intrinsics { get; init; } = ImmutableDictionary<int, ValueIntrinsicCall>.Empty;
     public ImmutableDictionary<int, ImmutableArray<ushort>> Literals { get; init; } = ImmutableDictionary<int, ImmutableArray<ushort>>.Empty;
@@ -38,9 +39,12 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
 public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receiver);
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
-public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, StringOrdinalEqual }
+public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, StringOrdinalEqual, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash }
 public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, int Parameters,
-    int MessageArgument = -1, int ParameterArgument = -1);
+    int MessageArgument = -1, int ParameterArgument = -1)
+{
+    public ObjectTypeId? RuntimeTypeBase { get; init; }
+}
 public sealed record ValueProgramInput(IrMethodId Entry, ImmutableArray<ValueMethodInput> Methods, ValueTypeCatalog Types)
 {
     public ManagedExceptionTypes? Exceptions { get; init; }
@@ -146,6 +150,7 @@ public static partial class ValueProgramDiscovery
             {
                 while (_pending.TryDequeue(out var work))
                 {
+                    var runtimeTokens = ImmutableDictionary.CreateBuilder<int, RuntimeTypeToken>();
                     var calls = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
                     var fields = ImmutableDictionary.CreateBuilder<int, ObjectFieldId>();
                     var types = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
@@ -168,7 +173,8 @@ public static partial class ValueProgramDiscovery
                     foreach (var instruction in work.Input.Instructions)
                     {
                         var offset = instruction.Offset;
-                        if (exceptions && instruction.OpCode == "ldstr")
+                        if (integers64 && instruction.OpCode == "ldtoken") runtimeTokens.Add(offset, RuntimeToken(work, instruction));
+                        else if (exceptions && instruction.OpCode == "ldstr")
                         {
                             _ = IncludeString(work, offset);
                             if (_literalUnits >= ObjectStringLimits.MaximumTotalLiteralCodeUnits) Fail(work, "String literal budget exceeded.", offset, DiagnosticIds.TranslationLimit);
@@ -246,7 +252,7 @@ public static partial class ValueProgramDiscovery
                                 foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
                                     CheckArgumentAccess(argument, work, offset);
                             }
-                            if (exceptions && (OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
+                            if (exceptions && (RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
                             {
                                 _arguments += intrinsic.Parameters;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
@@ -282,6 +288,8 @@ public static partial class ValueProgramDiscovery
                                 Fail(work, "callvirt requires a class instance method.", offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null)
                                 _virtualCalls.TryAdd(callee.Binding.Method, (work, offset));
+                            if (instruction.OpCode == "newobj" && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Abstract) != 0)
+                                Fail(work, "Cannot allocate an abstract class.", offset);
                             if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
                                 Fail(work, "newobj requires an exact supported constructor declaration.", offset);
                             if (!ObjectMethodAccess.Allowed(work.Binding, callee.Binding, integers64))
@@ -377,7 +385,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {
@@ -427,6 +435,7 @@ public static partial class ValueProgramDiscovery
                     foreach (var layout in catalog.References.Types)
                     {
                         var receiver = ObjectTypeId.From(layout.Source);
+                        if ((layout.Attributes & TypeAttributes.Abstract) != 0) continue;
                         if (!relations.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Binding.Owner)) || targets.ContainsKey(receiver)) continue;
                         if (_dispatchTargetCount + interfaceTargets >= ObjectDispatchLimits.MaximumTargets)
                             Fail(site.Value.Caller, "Aggregate class/interface dispatch target limit exceeded.", site.Value.Offset, DiagnosticIds.TranslationLimit);

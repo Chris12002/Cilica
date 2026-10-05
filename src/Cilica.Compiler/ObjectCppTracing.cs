@@ -4,7 +4,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppTracing
 {
     internal const string Text = """
-enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource, invariant_culture, integer_text, empty_array, static_field, initialization };
+enum class ReferenceKind { runtime_type, frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource, invariant_culture, integer_text, empty_array, static_field, initialization };
 enum class TraceResult { complete, stopped, invalid };
 struct ReferenceEdge {
     ReferenceKind kind;
@@ -92,6 +92,16 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
     }
     return TraceResult::complete;
 }
+[[maybe_unused, gnu::noinline]] static TraceResult visit_runtime_types(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
+    if (context.instance.runtime_types != nullptr) for (std::size_t i = 0; i < runtime_type_count; ++i) {
+        auto* value = context.instance.runtime_types[i];
+        if (value == nullptr) continue;
+        if (!traceable_reference(context.instance, value) || !runtime_type_storage(value->type)) return TraceResult::invalid;
+        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::runtime_type, value, nullptr, nullptr, i});
+        if (result != TraceResult::complete) return result;
+    }
+    return TraceResult::complete;
+}
 [[maybe_unused, gnu::noinline]] static TraceResult visit_roots(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
     if (visitor == nullptr) return TraceResult::invalid;
     std::size_t depth = 0;
@@ -118,6 +128,8 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
     if (statics != TraceResult::complete) return statics;
     const auto initializers = visit_initializers(context, visitor, state);
     if (initializers != TraceResult::complete) return initializers;
+    const auto runtime_types = visit_runtime_types(context, visitor, state);
+    if (runtime_types != TraceResult::complete) return runtime_types;
     const auto arrays = visit_empty_arrays(context, visitor, state);
     if (arrays != TraceResult::complete) return arrays;
     const auto numbers = visit_integer_texts(context, visitor, state);

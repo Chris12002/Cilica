@@ -68,7 +68,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
                             if (!Call(call.Target, call.Arguments, call.VirtualDispatch, aliases, depth)) return false;
                             break;
                         case IrExpression.CheckBox check when aliases.Contains(check.Operand): aliases.Add(value.Id); break;
-                        case IrExpression.UnboxValue or IrExpression.UnboxLocation or IrExpression.AddressBoxSlot or IrExpression.Compare:
+                        case IrExpression.UnboxValue or IrExpression.UnboxLocation or IrExpression.AddressBoxSlot or IrExpression.Compare or IrExpression.ObjectGetType or IrExpression.ObjectIdentityHash:
                             break;
                         default:
                             if (Used(Operands(value.Expression))) return false;
@@ -99,12 +99,14 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
     }
     private static IEnumerable<int> Operands(IrExpression expression) => expression switch {
         IrExpression.Constant or IrExpression.Constant64 or IrExpression.Null or IrExpression.Parameter or IrExpression.Local or IrExpression.StackInput
-            or IrExpression.DefaultValue or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.EmptyArray
+            or IrExpression.DefaultValue or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.EmptyArray
             or IrExpression.LoadStatic or IrExpression.AddressLocal or IrExpression.AddressParameter => [],
         IrExpression.Binary b => [b.Left, b.Right], IrExpression.Binary64 b => [b.Left, b.Right],
         IrExpression.Unary u => [u.Operand], IrExpression.Not64 u => [u.Operand],
         IrExpression.ConvertInteger c => [c.Operand], IrExpression.IntegerCast c => [c.Operand],
         IrExpression.NewException e => new[] {e.Message, e.ParameterName, e.Inner, e.TypeName}.Where(v => v.HasValue).Select(v => v!.Value),
+        IrExpression.ObjectIdentityHash e => [e.Operand],
+        IrExpression.ObjectGetType e => [e.Operand], IrExpression.RuntimeTypeHash e => [e.Operand],
         IrExpression.ExceptionMessage e => [e.Operand], IrExpression.ExceptionParameterName e => [e.Operand],
         IrExpression.ExceptionInnerException e => [e.Operand], IrExpression.ExceptionTypeName e => [e.Operand],
         IrExpression.NewDelegate d => [d.Receiver], IrExpression.CallDelegate d => d.Arguments.Prepend(d.Delegate),

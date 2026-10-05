@@ -86,6 +86,7 @@ public sealed class IntegerObjectTranslationTests
                         for (auto* literal = heap.literals; literal; literal = literal->literal_next) ++permanent;
                         for (auto* number = heap.integer_texts; number; number = number->literal_next) ++permanent;
                         for (auto* resource = heap.exception_resources; resource; resource = resource->literal_next) ++permanent;
+                        if (heap.runtime_types != nullptr) for (std::size_t i = 0; i < runtime_type_count; ++i) if (heap.runtime_types[i] != nullptr) ++permanent;
                         for (auto* entry = heap.empty_arrays; entry != nullptr; entry = entry->empty_next) ++permanent;
                         {{(persistentRoots ? "if (repeat == 0) retained = heap.count; else assert(heap.count == retained);" : "assert(heap.count == permanent);")}}
                         (void)permanent;

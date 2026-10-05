@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v35";
+    public const string Profile = "object-frames-native-v36";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -110,6 +110,13 @@ public static class ObjectCppEmitter
             literals.TryAdd(LiteralKey(literal.CodeUnits), literal.CodeUnits);
         var literalIds = literals.Keys.Select((key, index) => (key, index)).ToDictionary(p => p.key, p => p.index, StringComparer.Ordinal);
         var referenceTypes = concrete.Concat(contracts).ToArray();
+        var runtimeOperations = methods.Values.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression).ToArray();
+        var runtimeImplementation = runtimeOperations.Select(e => e switch {
+            IrExpression.RuntimeTypeLiteral t => t.Implementation, IrExpression.ObjectGetType t => t.Implementation,
+            IrExpression.RuntimeTypeHash t => t.Implementation, _ => null }).FirstOrDefault(t => t is not null);
+        var runtimeIdentities = (runtimeImplementation is null ? Array.Empty<ObjectTypeId>()
+            : referenceTypes.Concat(boxedPayloads.Select(p => p.Type)).Distinct().ToArray())
+            .Select((type, index) => (type, index)).ToDictionary(p => p.type, p => p.index);
         string Predicate(ObjectTypeId type) => contracts.Contains(type) ? ContractSymbol(type) : TypeSymbol(type) + "_accepts";
         var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key], exceptions?.Base));
         var entry = methods[program.Flow.Entry];
@@ -120,7 +127,7 @@ public static class ObjectCppEmitter
             .Append(scope).Append(" {\nstatic constexpr std::size_t exception_resource_capacity = ")
             .Append((exceptions is null ? 0 : ManagedExceptionMessages.Build(exceptions, program.Flow.Types).Values
                 .Where(message => !message.StartsWith("Exception of type '", StringComparison.Ordinal)).Distinct(StringComparer.Ordinal).Count()).ToString(CultureInfo.InvariantCulture))
-            .Append(";\nstatic constexpr std::size_t static_field_count = ").Append(N(statics.Count)).Append(";\nstatic constexpr std::size_t type_initializer_count = ").Append(N(initializers.Count)).Append(";\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
+            .Append(";\nstatic constexpr std::size_t runtime_type_count = ").Append(N(runtimeIdentities.Count)).Append(";\nstatic constexpr std::size_t static_field_count = ").Append(N(statics.Count)).Append(";\nstatic constexpr std::size_t type_initializer_count = ").Append(N(initializers.Count)).Append(";\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
         if (exceptions is not null) ObjectCppExceptions.AppendStorage(text);
         if (handlers) text.Append(ObjectCppExceptionFlow.Storage);
         if (program.Flow.Types.Integer64) text.Append(Int64CppLowering.Runtime);
@@ -231,6 +238,18 @@ public static class ObjectCppEmitter
         text.Append("[[maybe_unused]] static bool string_type(const Descriptor* type) noexcept { ")
             .Append(program.Flow.Types.String is { } textType ? "return type == &" + TypeSymbol(textType) + "_descriptor;" : "(void)type; return false;")
             .Append(" }\n");
+        text.Append("[[maybe_unused]] static bool runtime_type_storage(const Descriptor* type) noexcept { ")
+            .Append(runtimeImplementation is null ? "(void)type; return false;" : "return type == &" + TypeSymbol(runtimeImplementation) + "_descriptor;")
+            .Append(" }\n");
+        if (runtimeImplementation is not null)
+        {
+            text.Append("[[maybe_unused]] static std::size_t runtime_type_index(const Descriptor* type) noexcept {\n");
+            foreach (var type in concrete)
+                text.Append("    if (type == &").Append(TypeSymbol(type)).Append("_descriptor) return ").Append(N(runtimeIdentities[type])).Append("u;\n");
+            foreach (var type in boxedPayloads)
+                text.Append("    if (type == &").Append(ObjectCppBoxing.Symbol(type.Type)).Append("_descriptor) return ").Append(N(runtimeIdentities[type.Type])).Append("u;\n");
+            text.Append("    return runtime_type_count;\n}\n");
+        }
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
             var layout = layouts[IrMethodId.From(method.Source)];
@@ -458,7 +477,7 @@ public static class ObjectCppEmitter
                         or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.InitializeType or IrStatement.StoreStatic or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
                     // Array/field access, type tests and virtual calls include ownership/type checks.
@@ -563,6 +582,19 @@ public static class ObjectCppEmitter
                                 case IrExpression.IntegerTextPublish cached:
                                     Check(Value(cached.Text), program.Flow.Types.String!, true, value.ILOffset); Flush();
                                     expression = "integer_text_publish(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + Value(cached.Index) + ", " + Value(cached.Text) + ")"; break;
+                                case IrExpression.RuntimeTypeLiteral literalType:
+                                    string literalImplementation = TypeSymbol(literalType.Implementation);
+                                    expression = "runtime_type<" + literalImplementation + ">(context, " + literalImplementation + "_descriptor, " + N(runtimeIdentities[literalType.Target]) + "u)"; break;
+                                case IrExpression.ObjectGetType objectType:
+                                    Check(Value(objectType.Operand), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
+                                    string objectImplementation = TypeSymbol(objectType.Implementation);
+                                    expression = "runtime_type<" + objectImplementation + ">(context, " + objectImplementation + "_descriptor, runtime_type_index(" + Value(objectType.Operand) + "->type))"; break;
+                                case IrExpression.ObjectIdentityHash identityHash:
+                                    Check(Value(identityHash.Operand), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
+                                    expression = "static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(" + Value(identityHash.Operand) + ") / alignof(Object))"; break;
+                                case IrExpression.RuntimeTypeHash typeHash:
+                                    Check(Value(typeHash.Operand), typeHash.Implementation, true, value.ILOffset); Flush();
+                                    expression = "runtime_type_hash(context, " + Value(typeHash.Operand) + ")"; break;
                                 case IrExpression.InvariantCulture culture:
                                     string cultureType = TypeSymbol(culture.Type);
                                     expression = "invariant_culture<" + cultureType + ">(context, " + cultureType + "_descriptor)"; break;
@@ -641,13 +673,13 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
-                            else if (value.Expression is IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat)
+                            else if (value.Expression is IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat)
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
                             else if (value.Expression is (IrExpression.LoadElement or IrExpression.LoadStatic) && value.Type.Kind == IrTypeKind.Reference)
                             {
                                 Flush(); Check(Value(value.Id), value.Type.Class!, false, value.ILOffset);
                             }
-                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate or IrExpression.IntegerTextFind) Pending();
+                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate or IrExpression.IntegerTextFind or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash) Pending();
                             break;
                         }
                         case IrStatement.StoreLocal store:

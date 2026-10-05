@@ -76,7 +76,7 @@ public static class ObjectModelValidator
             Require(Identity(id, 0x02) && types.TryAdd(id, type), "invalid or duplicate TypeDef identity.");
             Require(ObjectLexicalAccess.Valid(id, type.LexicalOwners) && (type.LexicalOwners.IsEmpty
                 || type.LexicalOwners[0].Visibility == (type.Attributes & TypeAttributes.VisibilityMask)), "lexical visibility contradicts the class layout.");
-            Require(ClassAttributes(type.Attributes), "class attributes are outside the layout profile.");
+            Require(ClassAttributes(type.Attributes, model.Integer64), "class attributes are outside the layout profile.");
             Require(Edges(type.Interfaces), "class interface edges need distinct canonical identities.");
             Require(!type.Fields.IsDefault && type.Fields.Length <= ObjectModelLimits.MaximumFields, "invalid field array.");
             fieldCount += type.Fields.Length;
@@ -96,7 +96,7 @@ public static class ObjectModelValidator
                     && ReferenceIdentity(reference.Type, model.ObjectBase), "unsupported field storage.");
             }
             Require(id == model.ObjectBase
-                ? type.BaseType is null && type.Fields.IsEmpty && type.Interfaces.IsEmpty && (type.Attributes & TypeAttributes.Sealed) == 0
+                ? type.BaseType is null && type.Fields.IsEmpty && type.Interfaces.IsEmpty && (type.Attributes & (TypeAttributes.Sealed | TypeAttributes.Abstract)) == 0
                 : Identity(type.BaseType, 0x02), "classes need a canonical base; the selected object base must be fieldless, unsealed and parentless.");
         }
         foreach (var contract in model.Interfaces)
@@ -244,8 +244,9 @@ public static class ObjectModelValidator
         Require(visited.Count == types.Count + interfaces.Count + arrays.Count + stringCount + delegates.Count, "model contains unrelated types.");
     }
 
-    internal static bool ClassAttributes(TypeAttributes attributes) =>
-        (attributes & ~(TypeAttributes.VisibilityMask | TypeAttributes.Sealed | TypeAttributes.SpecialName
+    internal static bool ClassAttributes(TypeAttributes attributes, bool abstractClasses = false) =>
+        (attributes & (TypeAttributes.Abstract | TypeAttributes.Sealed)) != (TypeAttributes.Abstract | TypeAttributes.Sealed)
+        && (attributes & ~((abstractClasses ? TypeAttributes.Abstract : 0) | TypeAttributes.VisibilityMask | TypeAttributes.Sealed | TypeAttributes.SpecialName
             | TypeAttributes.RTSpecialName | TypeAttributes.BeforeFieldInit | SerializableMetadata)) == 0;
 
     internal static bool InterfaceAttributes(TypeAttributes attributes) =>

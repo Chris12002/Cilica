@@ -24,7 +24,7 @@ public static class ScalarBoxedIrValidator
         if (!ObjectInterfaceOperationRules.CatalogMatches(new HeapValueFields(program.Values, rules.Plans.ToDictionary(p => p.Type)).Catalog, program.Flow.Flow.Flow.Types))
             throw new ArgumentException("Scalar boxes must share the exact reference catalog.", nameof(program));
         ObjectIrValidator.Validate(program.Flow.Flow, locations: true, rules, delegates: delegates, exceptions: exceptions);
-        new BoxedTypeRelations(program.Values).ValidateDispatch(program.Flow.Flow.Flow.Methods, program.Flow.Flow.InterfaceDispatch);
+        new BoxedTypeRelations(program.Values).ValidateDispatch(program.Flow.Flow.Flow.Methods, program.Flow.Flow.InterfaceDispatch, program.Flow.Flow.Dispatch);
         return rules;
     }
 }

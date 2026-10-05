@@ -62,8 +62,9 @@ public sealed partial class AssemblyResolver
             var type = current.Definition.Assembly.Image.Reader.GetTypeDefinition(current.Definition.Handle);
             if (MetadataTokens.GetRowNumber(current.Definition.Handle) == 1)
                 throw new BadImageFormatException("The module definition is not a class dispatch receiver or ancestor.");
-            if (validateClosed is null && current.Arguments.Count != 0 || (type.Attributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != 0)
-                throw new UnsupportedBindingException("Exact class dispatch requires concrete nongeneric class ancestors; interfaces and abstract classes need later lowering.");
+            if ((type.Attributes & TypeAttributes.Interface) != 0
+                || validateClosed is null && (current.Arguments.Count != 0 || (type.Attributes & TypeAttributes.Abstract) != 0))
+                throw new UnsupportedBindingException("Exact class dispatch requires class ancestors; abstract/generic ancestry requires the explicit closed dispatch profile.");
             if (hierarchy.Count > 0 && (type.Attributes & TypeAttributes.Sealed) != 0)
                 throw new BadImageFormatException("Class virtual hierarchy extends a sealed class.");
             var owners = new HashSet<TypeDefinitionHandle>();

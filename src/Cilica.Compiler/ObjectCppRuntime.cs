@@ -54,6 +54,7 @@ struct Descriptor {
 };
 [[maybe_unused]] static bool known_type(const Descriptor*) noexcept;
 [[maybe_unused]] static bool string_type(const Descriptor*) noexcept;
+[[maybe_unused]] static bool runtime_type_storage(const Descriptor*) noexcept;
 struct Instance;
 struct Object {
     const Descriptor* type = nullptr;
@@ -164,6 +165,7 @@ struct Instance {
     ArrayObject* empty_arrays = nullptr;
     Object* emergency_exception = nullptr;
     Object* invariant_culture = nullptr;
+    Object** runtime_types = nullptr;
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;
     std::size_t limit = 1048576, object_limit = 4096;
@@ -177,6 +179,7 @@ struct Instance {
         return false;
     }
     ~Instance() noexcept {
+        delete[] runtime_types;
         delete[] initializers;
         delete[] statics;
         delete[] handles;
@@ -278,6 +281,8 @@ struct RootScope {
     if (!context.instance.owns(context.exception) || !context.instance.owns(context.instance.emergency_exception)
         || !context.instance.owns(context.instance.invariant_culture)
         || !context.instance.owns(reinterpret_cast<Object*>(context.instance.integer_texts))) return false;
+    if (context.instance.runtime_types != nullptr) for (std::size_t i = 0; i < runtime_type_count; ++i)
+        if (!context.instance.owns(context.instance.runtime_types[i])) return false;
     for (const Frame* f = context.top; f != nullptr; f = f->previous)
         for (std::size_t i = 0; i < f->count; ++i)
             if (!context.instance.owns(f->slots[i])) return false;
@@ -399,6 +404,36 @@ template<class T> static Object* allocate(Context& context, const Descriptor& de
         heap.head = &value->header; heap.bytes += sizeof(T); ++heap.count;
         return &value->header;
     }
+}
+// Canonical Type objects are permanent instance-local GC roots. Identity slots
+// are generated from closed metadata identities, never host reflection or pointers.
+template<class T> static Object* runtime_type(Context& context, const Descriptor& descriptor, std::size_t identity) noexcept {
+    if (identity >= runtime_type_count || !runtime_type_storage(&descriptor)) { context.pending = 6u; return nullptr; }
+    if (context.instance.runtime_types == nullptr) {
+        bool attempted = false;
+        const auto bytes = runtime_type_count * sizeof(Object*);
+        for (;;) {
+            if (!allocation_room(context, bytes, attempted)) return nullptr;
+            auto** slots = new (std::nothrow) Object*[runtime_type_count]{};
+            if (slots == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
+            context.instance.runtime_types = slots; context.instance.bytes += bytes; break;
+        }
+    }
+    auto*& slot = context.instance.runtime_types[identity];
+    if (slot != nullptr) {
+        if (!context.instance.owns(slot) || slot->owner != &context.instance || slot->type != &descriptor) {
+            context.pending = 6u; return nullptr;
+        }
+        return slot;
+    }
+    auto* value = allocate<T>(context, descriptor);
+    if (value != nullptr) slot = value;
+    return value;
+}
+[[maybe_unused]] static std::uint32_t runtime_type_hash(Context& context, Object* value) noexcept {
+    if (context.instance.runtime_types != nullptr) for (std::size_t i = 0; i < runtime_type_count; ++i)
+        if (context.instance.runtime_types[i] == value) return static_cast<std::uint32_t>(i + 1);
+    context.pending = 6u; return 0;
 }
 // One lazily allocated provider per instance; its cache is a permanent traced root.
 template<class T> static Object* invariant_culture(Context& context, const Descriptor& descriptor) noexcept {

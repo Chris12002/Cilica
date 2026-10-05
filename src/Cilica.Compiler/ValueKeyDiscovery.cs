@@ -48,6 +48,13 @@ public static partial class ValueProgramDiscovery
                 target = Require(resolver.ResolveClosedDeclaration(new(strings, SignatureList<TypeSignature>.Empty), equal ? "Equal" : "Hash", equal ? 2 : 1, _metadata), work, offset);
                 return null;
             }
+            if (key is TypeSignature.Named typeKey && typeKey.Definition == resolver.ResolveType(library, "System", "Type").Value)
+            {
+                _ = RuntimeTypes(work, offset);
+                var helperType = Require(resolver.ResolveType(library, "Cilica.Runtime", "TypeKeyOperations"), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(helperType, SignatureList<TypeSignature>.Empty), equal ? "Equal" : "Hash", equal ? 2 : 1, _metadata), work, offset);
+                return null;
+            }
             if (equal && storage.Kind is IrTypeKind.Int32 or IrTypeKind.Int64)
                 return new(ClosedKeyOperation.Equal, storage);
             ConstructedType? receiver = key switch {

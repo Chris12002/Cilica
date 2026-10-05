@@ -614,5 +614,47 @@
     "Member": "Empty",
     "ParameterCount": null,
     "Capability": "StringEmpty"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Type",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "RuntimeTypeLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "RuntimeTypeHandle",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "RuntimeTypeHandleLayout"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "RuntimeTypeObject",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "RuntimeTypeObjectLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Object",
+    "Member": "GetType",
+    "ParameterCount": 0,
+    "Capability": "ObjectGetType"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "TypeIdentity",
+    "Member": "Hash",
+    "ParameterCount": 1,
+    "Capability": "RuntimeTypeHash"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "TypeIdentity",
+    "Member": "ObjectHash",
+    "ParameterCount": 1,
+    "Capability": "ObjectIdentityHash"
   }
 ]
