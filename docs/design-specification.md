@@ -1112,9 +1112,8 @@ Instances reuse the existing heap/static roots; each call has fresh execution
 frames. A bounded registry rejects overlapping calls and destruction. The
 [ABI contract](embedding-abi.md) records exact widths, ownership, status, version
 and resource rules. A separate C11 consumer links an emitted shared library and
-passes local O0/O2 sanitizer lifecycle tests. Shared multi-export dispatch,
-structured value/error transfer, external object handles and device evidence remain
-planned. [Milestone 7](milestones/07-embedding-and-phone-libraries.md) puts iOS first,
+passes local O0/O2 sanitizer lifecycle tests. Subsequent slices below extend this
+foundation; structured value/error copying and device evidence remain planned. [Milestone 7](milestones/07-embedding-and-phone-libraries.md) puts iOS first,
 then Android; neither phone platform is yet verified.
 
 Milestone 7b adds a v2 shared scalar export module
@@ -1123,14 +1122,21 @@ stable application IDs to public static Int32 methods in one validated closure.
 All exports share the instance's heap/statics; expected interface fingerprints,
 logical signature checks, capability bits and lowerable per-instance quotas are
 implemented. Separate packet helpers keep dispatch stack storage bounded at 64
-exports. V1 is preserved. Independent multi-root discovery, object/value transfer,
+exports. V1 is preserved. Independent multi-root discovery, value/string copying,
 structured exception copying and phone execution remain separate gates.
 
 Specify widths, calling conventions, buffer lifetime/ownership, structured
 errors, handle validity, thread entry, version negotiation and capabilities.
-Private native v14 already uses opaque tokens with nonreused generation identities
-for retained objects; integrating them into this versioned public API remains planned. Stale handles
-must be rejected, not converted to dangling pointers.
+Milestone 7c.1 integrates the existing strong-handle roots into a typed v3 API
+([ADR 0180](decisions/0180-public-retained-object-handles.md)). Exports admit Int32,
+reference handles and void results. Handles identify independent runtime-owned
+leases; zero means null. The shared admission guard covers invoke, retain, release
+and destroy. Inputs are checked for ownership and assignability before managed
+execution. Reference results reserve a handle slot before execution and publish
+without a managed allocation after return. Released/foreign tokens fail; cloning
+creates a distinct lease to the same object. V1/V2 remain available. Local C11 and
+O0/O2 sanitizer checks cover collection, aliases, cycles, quotas and release races;
+this does not establish phone support or a general value/exception SDK.
 
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker

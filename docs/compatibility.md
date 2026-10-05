@@ -23,8 +23,8 @@ stale runtime-token rejection, guarded entry/destruction and copied fault origin
 Only Int32 parameters/results cross the boundary; each artifact has one export
 and a separate registry. Local macOS ARM64 C11/O0/O2 ASan/UBSan lifecycle and race
 tests pass. See the [ABI contract](embedding-abi.md) and [ADR 0178](decisions/0178-persistent-scalar-c-abi.md).
-No public object/value transfer or phone-device support is
-claimed. This boundary does not expand the managed semantics profile.
+This v1 boundary has no object/value transfer or phone-device support and does
+not expand the managed semantics profile.
 
 Milestone 7b adds `embedding-module-int32-v2`: 1..64 explicit public/static scalar
 exports from one validated closure share each runtime's state. Stable IDs,
@@ -33,6 +33,15 @@ heap/object/execution quotas have local C11/O0/O2 evidence. At 64 exports, the n
 2 KiB frame check and concurrent admission tests pass. V1 remains supported.
 Independent-root discovery and cross-program merging remain unimplemented;
 [ADR 0179](decisions/0179-shared-export-module.md) records the precise boundary.
+
+Milestone 7c.1 adds `embedding-object-handles-v3`: typed Int32/reference arguments,
+Int32/reference/void results and explicit strong-handle retain/release. Handles
+are runtime-owned nonreused leases; null is zero. Alias identity, type/owner checks,
+collection and cycle reclamation, preflight handle quotas, fault cleanup and
+release/invoke/retain races pass local C11 and O0/O2 ASan/UBSan checks. Both ordinary
+object and composed exception emitters have native evidence. V1/V2 stay compatible.
+String/64-bit/value copying, detailed exception messages, independent roots and
+phone support remain planned. See [ADR 0180](decisions/0180-public-retained-object-handles.md).
 
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |

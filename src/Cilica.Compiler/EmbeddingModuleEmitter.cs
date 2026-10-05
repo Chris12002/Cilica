@@ -116,52 +116,7 @@ public static class EmbeddingModuleEmitter
             {{EmbeddingCppRegistry.Text}}
             {{helpers}}
             }
-            extern "C" uint32_t {{prefix}}_version(void) noexcept { return 2; }
-            extern "C" uint64_t {{prefix}}_capabilities(void) noexcept { return UINT64_C(63); }
-            extern "C" uint32_t {{prefix}}_create(uint32_t version, const char* contract_hash, const cilica_v2_config* config, uint64_t* runtime) noexcept {
-                if (runtime == nullptr || contract_hash == nullptr) return CILICA_V2_INVALID_ARGUMENT;
-                if (version != 2) return CILICA_V2_UNSUPPORTED_VERSION;
-                // The caller supplies 65 readable bytes, including the terminator.
-                static constexpr char expected[] = "{{hash}}";
-                for (std::size_t i = 0; i < sizeof(expected); ++i)
-                    if (contract_hash[i] != expected[i]) return CILICA_V2_CONTRACT_MISMATCH;
-                cilica_v2_config selected{sizeof(cilica_v2_config), 0, 1048576, 4096, 1048576};
-                if (config != nullptr) {
-                    // Read only the leading size field until its exact shape is established.
-                    if (config->struct_size != sizeof(cilica_v2_config)) return CILICA_V2_INVALID_ARGUMENT;
-                    selected = *config;
-                    if ((selected.flags & ~CILICA_V2_COLLECT_BEFORE_ALLOCATION) != 0
-                        || selected.heap_bytes > 1048576 || selected.object_limit > 4096 || selected.execution_bytes > 1048576)
-                        return CILICA_V2_INVALID_ARGUMENT;
-                }
-                using namespace {{prefix}}_private;
-                auto* heap = new (std::nothrow) Instance;
-                if (heap == nullptr) return CILICA_V2_ALLOCATION_FAILED;
-                heap->collect_before_allocation = (selected.flags & CILICA_V2_COLLECT_BEFORE_ALLOCATION) != 0;
-                heap->limit = selected.heap_bytes; heap->object_limit = selected.object_limit;
-                {
-                    RegistryGuard guard;
-                    if (next_token != std::numeric_limits<std::uint64_t>::max()) {
-                        for (auto& slot : slots) if (slot.token == 0) {
-                            slot = {next_token++, heap, false, selected.execution_bytes};
-                            *runtime = slot.token; return CILICA_V2_OK;
-                        }
-                    }
-                }
-                delete heap; return CILICA_V2_LIMIT;
-            }
-            extern "C" uint32_t {{prefix}}_destroy(uint64_t runtime) noexcept {
-                using namespace {{prefix}}_private;
-                Instance* heap;
-                {
-                    RegistryGuard guard;
-                    auto* slot = find(runtime);
-                    if (slot == nullptr) return CILICA_V2_INVALID_RUNTIME;
-                    if (slot->busy) return CILICA_V2_BUSY;
-                    heap = slot->heap; *slot = {};
-                }
-                delete heap; return CILICA_V2_OK;
-            }
+            {{EmbeddingModuleLifecycle.Emit(prefix, 2, hash, handles: false)}}
             extern "C" uint32_t {{prefix}}_invoke(uint64_t runtime, uint32_t export_id, const int32_t* parameters, uint32_t count, cilica_v2_result* result) noexcept {
                 if (result == nullptr) return CILICA_V2_INVALID_ARGUMENT;
                 std::uint32_t arity;
@@ -196,7 +151,7 @@ public static class EmbeddingModuleEmitter
         return new(prefix, header, header + native.Text + "\n" + implementation + "\n", manifest, hash);
     }
 
-    private static bool ValidName(string? value) => value is { Length: > 0 and <= 48 }
+    internal static bool ValidName(string? value) => value is { Length: > 0 and <= 48 }
         && value[0] is >= 'a' and <= 'z' && value[^1] != '_' && !value.Contains("__", StringComparison.Ordinal)
         && value.All(c => c is >= 'a' and <= 'z' or >= '0' and <= '9' or '_');
 

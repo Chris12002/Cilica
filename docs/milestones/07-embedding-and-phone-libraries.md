@@ -13,7 +13,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | --- | --- | --- |
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
-| 7c | Values, retained objects and structured exceptions | Planned: exact UTF-16/64-bit transfer, caller/engine buffer ownership, retained-handle release, exception type/message/origin and stale/foreign-handle tests |
+| 7c | Values, retained objects and structured exceptions | In progress: 7c.1 typed retained handles and void results implemented; UTF-16/64-bit/value copying and detailed exception transfer remain planned |
 | 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
@@ -94,6 +94,38 @@ heap and execution quotas, token/slot lifetime, GC roots and guarded cleanup. No
 unresolved defect remains in the admitted scope. Local main remains an ancestor;
 the read-only remote query still advertised no branch heads. No push or hosted
 work ran.
+
+## Slice 7c.1 outcome
+
+[ADR 0180](../decisions/0180-public-retained-object-handles.md) implements
+`embedding-object-handles-v3` through `EmbeddingObjectModuleEmitter`. Explicit
+contracts declare reference aliases and Int32/reference/void signatures in one
+validated closure. The C header exposes tagged values and opaque object leases,
+with retain/release sharing the existing runtime admission guard. No managed
+address crosses the boundary. V1/V2 remain available.
+
+Each reference result reserves one strong-handle slot before executing managed
+code, then publishes without an intervening managed allocation. This preserves
+returned roots and rejects quota exhaustion before application effects. Faults
+and null returns cancel reservations. Inputs are validated for kind, runtime
+ownership and assignability before execution. Alias/clone tokens retain the same
+object independently; releasing a token removes only that root. Destroy invalidates
+all leases from the instance. Handle quotas may be lowered from 1,024 to zero.
+
+The focused v1/v2/v3/private-tracing run passed 43 tests. Two additional ordinary
+object-emitter cases passed at O0/O2, bringing the checked scope to 45; the combined
+suite was not rerun after that test-only addition. Native C11 consumers and C++
+race harnesses use ASan/UBSan, disabled C++ exceptions/RTTI and the 2 KiB frame gate.
+Evidence covers .NET alias/mutation equivalence, base-type admission, stale/foreign/
+wrong-type handles, nulls, malformed tagged values, collection under small quotas,
+released cycles, reserved-slot fault cleanup and concurrent invoke/retain/release.
+
+Review covered generated native ownership, allocation safepoints, handle token
+exhaustion, admission/cleanup ordering, contract validation and the shared v2/v3
+lifecycle extraction. No unresolved defect was found in the admitted scope. Local
+main remains an ancestor and the read-only remote query advertised no branch heads.
+No push, hosted work or phone execution ran. String/value copying and richer
+exception transfer remain open before the iOS adapter.
 
 ## Remaining exit gates
 

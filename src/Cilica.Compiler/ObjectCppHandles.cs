@@ -1,6 +1,6 @@
 namespace Cilica.Compiler;
 
-/// <summary>Private instance-owned strong handles; no public embedding ABI.</summary>
+/// <summary>Private strong-handle implementation; embedding adapters enforce host admission.</summary>
 internal static class ObjectCppHandles
 {
     internal const string Text = """
@@ -49,6 +49,17 @@ static std::atomic<std::uint64_t> next_handle_token{1};
     for (std::size_t i = 0; i < handle_capacity; ++i) if (heap.handles[i].token == handle.token) {
         heap.handles[i] = {}; --heap.handle_count;
         return HandleStatus::complete;
+    }
+    return HandleStatus::invalid;
+}
+// Complete a pre-reserved null handle without allocating or reaching a GC safepoint.
+// The caller must keep exclusive instance admission until publication finishes.
+[[maybe_unused, gnu::noinline]] static HandleStatus publish_handle(Instance& heap, Handle handle, Object* value) noexcept {
+    if (heap.marking) return HandleStatus::busy;
+    if (handle.token == 0 || heap.handles == nullptr || !traceable_reference(heap, value)) return HandleStatus::invalid;
+    for (std::size_t i = 0; i < handle_capacity; ++i) if (heap.handles[i].token == handle.token) {
+        if (heap.handles[i].value != nullptr) return HandleStatus::invalid;
+        heap.handles[i].value = value; return HandleStatus::complete;
     }
     return HandleStatus::invalid;
 }

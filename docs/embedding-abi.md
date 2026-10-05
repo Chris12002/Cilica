@@ -1,8 +1,8 @@
-# Embedding ABI: versioned scalar profiles
+# Embedding ABI: versioned scalar and object profiles
 
-The current module profile is `embedding-module-int32-v2`, described below. It
-adds a checked export manifest and shared instances to the original v1 profile.
-Both are locally tested on macOS ARM64; mobile support remains unverified.
+The current module profile is `embedding-object-handles-v3`, described below.
+It adds typed retained object handles and void results to shared export modules.
+V1/V2 remain supported. Local evidence is macOS ARM64; mobile support is unverified.
 
 ## Persistent Int32 profile v1
 
@@ -220,3 +220,98 @@ if (status == CILICA_V2_OK) {
     (void)destroyed;
 }
 ```
+
+## Retained object module v3
+
+`EmbeddingObjectModuleEmitter.EmitProgram` accepts ordinary object IR;
+`EmitExceptions` accepts composed managed-exception IR. Both return the same
+header/source/manifest artifact shape as v2. The prefix is
+`cilica_<module-name>_abi_v3`. Contracts select 1..64 public ordinary static methods
+already in one validated closure; creating the runtime does not execute its root.
+
+`EmbeddingObjectContract` declares stable reference aliases (`Id`, `Name`, bound
+`ObjectTypeId`) and `EmbeddingObjectExport` signatures. Shapes are Int32, Handle
+with a reference alias ID, or Void for results only. Every alias must be used;
+alias IDs, names and bound types are unique. Parameters/results must exactly match
+logical IR signatures before lowering. At invocation, reference arguments accept
+null and runtime types assignable to the declared parameter, including derived
+classes. Unsupported shapes produce compiler-library argument errors.
+
+The canonical manifest hashes ABI version 3, module/schema names, sorted reference
+aliases and sorted typed exports. Physical method/type bindings are listed
+separately and do not participate in that hash. As in v2, the application maintains
+the semantic meaning of its stable IDs/schema; a hash is not a behavioral proof.
+
+### C layout and ownership
+
+`cilica_v3_value` contains UInt32 `kind`, UInt32 `reserved`, UInt64 `payload`, in
+that order (16 bytes, payload offset 8 on the tested target). The kinds are:
+
+| Kind | Payload |
+| --- | --- |
+| `CILICA_V3_INT32` (1) | Raw Int32 bits in the low 32 bits, zero-extended; upper 32 bits must be zero |
+| `CILICA_V3_HANDLE` (2) | Opaque object lease token; zero denotes a null reference |
+| `CILICA_V3_VOID` (0) | Result only; payload zero |
+
+`reserved` must be zero. Negative Int32 inputs are encoded by casting to UInt32
+before widening; sign extension to UInt64 is rejected. Use the low 32 result bits
+as the Int32 representation. No native managed pointer is public.
+
+`cilica_v3_result` contains `value`, then UInt32 `fault_code`, `method_token`,
+`il_offset`, then `char image_hash[65]`. Use the emitted header and native layout;
+do not pack records or serialize padding. Successful calls clear fault fields.
+Execution failures zero the value and copy the fault code/origin, with the same
+origin and lifetime rules as v1/v2. Exception types/messages are not transferred.
+
+Object results grant one strong lease. Returning the same object again or calling
+`retain_handle(runtime, token, &copy)` grants another, distinct token. Tokens
+identify leases, not object identity. Use managed exports for identity comparisons.
+`release_handle(runtime, token)` removes that lease; other handles and managed
+references can keep the object alive. Reclamation occurs at a later collection.
+Neither passing a token as an argument nor an invocation failure consumes it.
+Destroy invalidates every lease belonging to the runtime. Release or reuse of an
+already released token fails. Retain/release of zero succeed with a valid runtime;
+retaining zero writes zero and uses no slot.
+
+Tokens are scoped to the originating emitted module and runtime. Foreign-instance
+and stale tokens are rejected. Never transfer tokens between modules, library
+loads or processes; separate modules can issue the same numeric token. Handle and
+runtime tokens are different domains even when their numeric values happen to
+match. Hosts keep pointer arguments readable/writable and stable during the call;
+the adapter retains no host buffer pointer.
+
+### Calls, quotas and failure order
+
+The API exports version/capabilities/create/invoke/destroy as in v2, using v3 types,
+and adds `retain_handle` and `release_handle`. Capabilities total 255: the six v2
+bits plus `CILICA_V3_CAP_HANDLES` (64) and `CILICA_V3_CAP_VOID` (128).
+`cilica_v3_config` has six UInt32 fields in order: `struct_size`, `flags`,
+`heap_bytes`, `object_limit`, `execution_bytes`, `handle_limit` (24 bytes).
+`CILICA_V3_CONFIG_INIT` gives the v2 budgets plus 1,024 handles. All budgets may
+only be lowered, including to zero. The private handle table is a bounded native
+allocation separate from the managed heap budget. There are at most 64 runtimes
+per emitted module, as in v2.
+
+Statuses 0..9 keep the v2 meanings. V3 adds `INVALID_HANDLE` (10) and
+`TYPE_MISMATCH` (11). Unknown export/arity/pointer checks precede runtime admission;
+then each argument is validated in order for tag/reserved/scalar encoding, handle
+ownership and reference assignability. These errors leave result buffers unchanged
+and do not execute managed code. Invoke, retain, release and destroy share one
+admission guard; overlapping operations return `BUSY`. Hosts must serialize/retry
+as appropriate, including a release that returned `BUSY`.
+
+After argument validation, each reference-returning call reserves a strong-handle
+slot **before managed execution**. Full quotas return `LIMIT` with outputs and
+application state unchanged, even when the method would eventually return null or
+throw. Native allocation failure during reservation returns `ALLOCATION_FAILED`.
+The adapter immediately publishes a nonnull returned object into its reserved
+slot without any managed allocation. Null results use HANDLE/zero and release the
+reservation. Faults and execution-arena failures also release it; ordinary managed
+side effects before an execution failure are not rolled back. Scalar/void exports
+require no output handle slot. Retain is independently quota-limited and leaves
+its output unchanged on failure.
+
+The existing unloading, C linkage and platform rules continue to apply. V3 has
+local C11/shared-library and native race evidence under O0/O2 sanitizers, including
+forced collection and both emitter paths. It does not yet provide string buffers,
+64-bit/value transfer, rich exception copying, iOS or Android device evidence.
