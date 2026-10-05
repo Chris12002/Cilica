@@ -939,8 +939,12 @@ This permits direct IEquatable value bodies against the selected runtime without
 claiming ref struct or constrained-dispatch support.
 Exact constrained value targets can now be selected as metadata evidence, using
 shared interface/constraint validation and direct Object/ValueType override rules
-([ADR 0126](decisions/0126-constrained-value-targets.md)). Boxing/default fallbacks
-remain diagnostic; executable constrained CIL is a separate gate.
+([ADR 0126](decisions/0126-constrained-value-targets.md)). Exact adjacent
+constrained./callvirt CIL now calls admitted bodies through checked writable
+receiver borrows, without boxing or class slots
+([ADR 0127](decisions/0127-constrained-direct-value-cil.md)). Boxing/default
+fallbacks, private bodies across owners, readonly and primitive/reference
+receivers remain diagnostic.
 
 Milestone 6's `integer-arithmetic-ir-v1` profile adds authored Int64 scalar IR
 and C++20 arithmetic with typed calls, locals and block edges

@@ -11,7 +11,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class DirectInterfaceValueTests
 {
     [Theory]
-    [InlineData("Equality")] [InlineData("Generic")] [InlineData("RuntimeContract")]
+    [InlineData("Equality")] [InlineData("Generic")] [InlineData("RuntimeContract")] [InlineData("Constrained")]
     public void Direct_calls_retain_value_interface_declarations(string name)
     {
         var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(DirectInterfaceValues));
@@ -28,11 +28,10 @@ public sealed class DirectInterfaceValueTests
             ("RuntimeContract", DirectInterfaceValues.RuntimeContract)], typeof(DirectInterfaceValues));
 
     [Fact]
-    public void Constrained_calls_remain_diagnostic()
+    public void Constrained_calls_use_exact_direct_value_bodies()
     {
         var result = IntegerObjectTranslationTests.Translate("Constrained", fixture: typeof(DirectInterfaceValues));
-        Assert.False(result.Success);
-        Assert.NotEmpty(result.Diagnostics);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
     }
 
     [Fact]

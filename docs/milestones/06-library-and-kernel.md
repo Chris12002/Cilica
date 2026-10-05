@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.32 and 6d.1–6d.3 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.33 and 6d.1–6d.3 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -586,6 +586,17 @@ fallbacks, forged declarations and newslot impersonation are rejected. Review
 found no remaining actionable issue; see
 [ADR 0126](../decisions/0126-constrained-value-targets.md). Executable constrained
 CIL integration follows; native kernel equivalence remains pending.
+
+## Slice 6c.33 outcome
+
+Exact constrained value calls now execute through checked receiver borrows in
+the integer-object CIL profile. Three probes match .NET in 882 repeated native
+sanitizer results; all 124 distinct focused checks pass. Prefix-control-flow,
+receiver and access regressions remain diagnostic, and no boxes are introduced.
+Review found no remaining actionable issue; see
+[ADR 0127](../decisions/0127-constrained-direct-value-cil.md). Broader constraints,
+private/readonly receivers, required library members and native kernel equivalence
+remain pending.
 
 ## Remaining completion evidence
 

@@ -26,7 +26,9 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, ObjectInterfaceDeclaration> InterfaceOperands { get; init; } = ImmutableDictionary<int, ObjectInterfaceDeclaration>.Empty;
     public ImmutableDictionary<int, IrType> MemoryOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
     public ImmutableDictionary<int, IrType> ReferenceBoxOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
+    public ImmutableDictionary<int, ConstrainedValueCall> ConstrainedCalls { get; init; } = ImmutableDictionary<int, ConstrainedValueCall>.Empty;
 }
+public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receiver);
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
 public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName }
@@ -145,6 +147,8 @@ public static partial class ValueProgramDiscovery
                     var interfaceCalls = ImmutableDictionary.CreateBuilder<int, ObjectInterfaceDeclaration>();
                     var memory = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var referenceBoxes = ImmutableDictionary.CreateBuilder<int, IrType>();
+                    var constrained = ConstrainedPrefixes(work);
+                    var constrainedCalls = ImmutableDictionary.CreateBuilder<int, ConstrainedValueCall>();
                     foreach (var instruction in work.Input.Instructions)
                     {
                         var offset = instruction.Offset;
@@ -198,6 +202,19 @@ public static partial class ValueProgramDiscovery
                                     : resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
                             }
                             var target = _calls[key];
+                            if (constrained.TryGetValue(offset, out var prefix))
+                            {
+                                var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
+                                    MetadataTokens.EntityHandle(Token(work, prefix, 0x01, 0x02, 0x1b))), work, prefix.Offset);
+                                var receiver = signature switch {
+                                    TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
+                                    TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                                    _ => null };
+                                if (receiver is null) Fail(work, "Constrained direct calls require a closed inline value receiver; primitive/reference fallbacks require later lowering.", prefix.Offset);
+                                var exact = Require(resolver.ResolveConstrainedValueTarget(target, receiver!, library, _metadata), work, offset);
+                                target = exact.Implementation;
+                                constrainedCalls.Add(offset, new(prefix.Offset, Include(receiver!, work, prefix.Offset)));
+                            }
                             if (generics)
                             {
                                 try { _ = ClosedGenericKey.Create(target.DeclaringType.Arguments, target.MethodArguments); }
@@ -223,7 +240,7 @@ public static partial class ValueProgramDiscovery
                                 continue;
                             }
                             if (instruction.OpCode == "callvirt" && !integers64) Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
-                            if (integers64 && instruction.OpCode == "callvirt" && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Interface) != 0)
+                            if (integers64 && instruction.OpCode == "callvirt" && !constrainedCalls.ContainsKey(offset) && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Interface) != 0)
                             {
                                 _interfaceSession ??= new(resolver, library, _metadata, closed: true,
                                     signature: (type, allowVoid) => Storage(type, root, 0, borrow: !allowVoid, allowVoid: allowVoid));
@@ -236,7 +253,7 @@ public static partial class ValueProgramDiscovery
                                 interfaceCalls.Add(offset, interfaceDeclaration); continue;
                             }
                             var callee = Discover(target, work, offset);
-                            if (instruction.OpCode == "callvirt" && callee.Binding.Kind != ObjectMethodKind.Instance)
+                            if (instruction.OpCode == "callvirt" && callee.Binding.Kind != (constrainedCalls.ContainsKey(offset) ? ObjectMethodKind.ValueInstance : ObjectMethodKind.Instance))
                                 Fail(work, "callvirt requires a class instance method.", offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null)
                                 _virtualCalls.TryAdd(callee.Binding.Method, (work, offset));
@@ -313,7 +330,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {

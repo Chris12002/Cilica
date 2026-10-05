@@ -199,6 +199,7 @@ public static class ValueTranslator
             var input = method.Input;
             var locals = method.Locals.ToBuilder();
             var constructorTemporaries = new Dictionary<int, int>();
+            var constrainedPrefixes = method.ConstrainedCalls.Values.Select(c => c.PrefixOffset).ToHashSet();
             if (input.Instructions.IsEmpty) Error(0, "Method body is empty.");
             var boundaries = method.ExceptionRegions.SelectMany(r => new[] { r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd, r.FilterStart ?? r.HandlerStart });
             var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code), boundaries, exceptions is not null);
@@ -258,6 +259,7 @@ public static class ValueTranslator
                     else switch (opcode)
                     {
                         case "nop": break;
+                        case "constrained." when types.IntegerCasts && constrainedPrefixes.Contains(offset): break;
                         case "ldstr" when exceptions is not null:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
                         case "isinst" or "castclass" when exceptions is not null:
@@ -423,6 +425,10 @@ public static class ValueTranslator
                         case "callvirt" when types.IntegerCasts:
                         case "call":
                             var target = methods[method.Calls[offset]]; int skip = opcode == "newobj" ? 1 : 0;
+                            bool constrained = method.ConstrainedCalls.TryGetValue(offset, out var constrainedCall);
+                            if (constrained && (target.Binding.Kind != ObjectMethodKind.ValueInstance || target.Binding.Owner != constrainedCall!.Receiver))
+                                Error(offset, "Constrained call does not match its exact checked value receiver.");
+                            bool nullCheck = opcode == "callvirt" && !constrained;
                             var arguments = new int[target.Parameters.Length - skip];
                             for (int i = arguments.Length - 1; i >= 0; i--) arguments[i] = Pop(offset, target.Parameters[i + skip]);
                             if (skip != 0 && target.Binding.Kind == ObjectMethodKind.ValueConstructor)
@@ -439,8 +445,8 @@ public static class ValueTranslator
                                 Push(offset, constructed, new IrExpression.LoadLocation(address), true);
                             }
                             else if (skip != 0) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
-                            else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: opcode == "callvirt", VirtualDispatch: opcode == "callvirt" && target.Binding.VirtualSlot is not null), offset);
-                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: opcode == "callvirt", VirtualDispatch: opcode == "callvirt" && target.Binding.VirtualSlot is not null), true);
+                            else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: nullCheck && target.Binding.VirtualSlot is not null), offset);
+                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: nullCheck && target.Binding.VirtualSlot is not null), true);
                             break;
                         case "ldfld" or "ldflda" or "stfld":
                             var field = fields[method.Fields[offset]]; var fieldType = Storage(field.Storage);

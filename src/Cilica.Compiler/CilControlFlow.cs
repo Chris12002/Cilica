@@ -19,6 +19,8 @@ internal static class CilControlFlow
             {
                 if (offset == input.CodeSize) continue;
                 if (!indices.TryGetValue(offset, out int leader)) fail(DiagnosticIds.InvalidControlTransfer, "Exception boundary is not an instruction boundary.", offset);
+                else if (leader > 0 && input.Instructions[leader - 1].OpCode.EndsWith(".", StringComparison.Ordinal))
+                    fail(DiagnosticIds.InvalidControlTransfer, "Exception boundaries cannot split an instruction prefix sequence.", offset);
                 else leaders.Add(leader);
             }
         for (int index = 0; index < input.Instructions.Length; index++)
@@ -29,6 +31,8 @@ internal static class CilControlFlow
             {
                 if (instruction.Targets.Length != 1 || !indices.TryGetValue(instruction.Targets[0], out int target))
                     fail(DiagnosticIds.InvalidControlTransfer, "Branch target must be an instruction boundary inside this method.", instruction.Offset);
+                else if (target > 0 && input.Instructions[target - 1].OpCode.EndsWith(".", StringComparison.Ordinal))
+                    fail(DiagnosticIds.InvalidControlTransfer, "Branch targets cannot enter an instruction prefix sequence.", instruction.Offset);
                 else leaders.Add(target);
             }
             if ((branch || instruction.OpCode == "ret" || exceptions && instruction.OpCode is ("throw" or "rethrow" or "endfinally" or "endfilter")) && index + 1 < input.Instructions.Length) leaders.Add(index + 1);
