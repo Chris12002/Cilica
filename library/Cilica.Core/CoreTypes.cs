@@ -79,6 +79,7 @@ namespace System
     public sealed class String
     {
         private String() { }
+        [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0);
         public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }
         [IndexerName("Chars")] public extern char this[int index] { [MethodImpl(MethodImplOptions.InternalCall)] get; }
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern bool Equals(string left, string right);

@@ -483,7 +483,21 @@ public static class ValueTranslator
                                 Error(offset, "Constrained call does not match its exact checked value receiver.");
                             bool nullCheck = opcode == "callvirt" && !constrained;
                             var arguments = new int[target.Parameters.Length - skip];
-                            for (int i = arguments.Length - 1; i >= 0; i--) arguments[i] = Pop(offset, target.Parameters[i + skip]);
+                            for (int i = arguments.Length - 1; i >= 0; i--)
+                            {
+                                if (i == 0 && method.BoxedRenderCalls.TryGetValue(offset, out var boxedReceiver))
+                                {
+                                    if (skip != 0 || arguments.Length != 1 || target.Binding.Kind != ObjectMethodKind.ValueInstance
+                                        || target.Binding.Owner != boxedReceiver || target.Parameters[0] != IrType.Location(IrType.Value(boxedReceiver)))
+                                        Error(offset, "Boxed text call requires its exact payload receiver.");
+                                    int box = Pop(offset, IrType.Reference(objectBase));
+                                    arguments[0] = Define(offset, IrType.Location(IrType.Value(boxedReceiver)), new IrExpression.UnboxLocation(boxedReceiver, box), true);
+                                }
+                                else arguments[i] = Pop(offset, target.Parameters[i + skip]);
+                            }
+                            if (method.BoxedFormatCalls.TryGetValue(offset, out var formatBox)
+                                && (arguments.Length != 2 || valueExpressions[arguments[1]] is not IrExpression.BoxValue proof || proof.Type != formatBox))
+                                Error(offset, "String.Format requires the directly proven box in the same control-flow block.", DiagnosticIds.ExecutionUnsupported);
                             if (target.Binding.InvariantProviderOnly && (arguments.Length != 2 || valueExpressions[arguments[1]] is not IrExpression.InvariantCulture))
                                 Error(offset, "ToString(IFormatProvider) currently requires a directly proven CultureInfo.InvariantCulture result; null, other providers and provider aliases need later lowering.", DiagnosticIds.ExecutionUnsupported);
                             if (skip != 0 && target.Binding.Kind == ObjectMethodKind.ValueConstructor)

@@ -1451,3 +1451,12 @@ are typed checked casts; payload storage, identity, unbox copies and precise roo
 retain existing behavior. Three probes provide 882 repeated local O0/O2 results.
 Boxed method dispatch remains diagnostic until its payload receiver is lowered.
 Boxed value IR v2, scalar boxing IR v3 and native v33 retain the added scope.
+
+
+String.Format(String,Object) now has an exactly granted path for a directly boxed
+named non-IFormattable value (ADR 0156). Same-block operand proof selects an ordinary
+managed generic parser and a private exact payload borrow/ToString call. Boxing
+allocation, repeated callback mutation and fault ordering are retained. Four probes
+provide 1,176 local O0/O2 comparisons. Aliases, other argument kinds, providers,
+IFormattable and general boxed dispatch remain diagnostic. The kernel next requires
+StringComparison; native transcript equivalence remains unproven.

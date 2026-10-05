@@ -102,6 +102,11 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Comparison.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.Comparison.cs",
       "sha256": "332e2a21449ad65f2368d672a116246eadf3842dfcb45f35a713d912c51731c5"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/ValueStringBuilder.AppendFormat.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Text/ValueStringBuilder.AppendFormat.cs",
+      "sha256": "d75f3931fc4c5b33afecb92653bd8b89962ca2a281d6f66497f8b4b832c18856"
     }
   ],
   "adaptations": [
@@ -263,6 +268,21 @@
         "Use a fixed zero seed instead of runtime random seeding; hash results remain implementation-specific."
       ],
       "scope": "Private two-component tuple hash combination; no public HashCode API or cross-runtime numeric hash equivalence."
+    },
+    {
+      "path": "library/Cilica.Core/BoxedFormatting.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/ValueStringBuilder.AppendFormat.cs",
+      "algorithms": [
+        "AppendFormatHelper brace, index, alignment and format parsing",
+        "MoveNext position diagnostics and argument callback ordering"
+      ],
+      "changes": [
+        "Use the bounded managed StringBuilder instead of span/stack buffers.",
+        "Specialize one directly boxed named non-IFormattable value, retaining the box and calling its exact ordinary ToString override on the payload.",
+        "Keep invariant pinned error resources; parse ignored format specifiers without allocating their unused text.",
+        "No custom providers, IFormattable/ISpanFormattable, argument arrays, primitive/reference arguments or object aliases are admitted."
+      ],
+      "scope": "Exactly granted String.Format(String,Object) with a same-block direct box witness; no general formatting or boxed virtual/interface dispatch."
     }
   ],
   "ownedAdapters": [

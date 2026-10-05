@@ -586,5 +586,19 @@
     "Member": "get_InnerException",
     "ParameterCount": 0,
     "Capability": "ExceptionInnerException"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "Format",
+    "ParameterCount": 2,
+    "Capability": "BoxedStringFormat"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "BoxedText`1",
+    "Member": "Render",
+    "ParameterCount": 1,
+    "Capability": "BoxedTextRender"
   }
 ]

@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.44 and 6d.1–6d.19 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.44 and 6d.1–6d.20 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.44 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.19 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.20 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -1040,3 +1040,28 @@ descriptor membership, closure bounds, catalog agreement and receiver copies.
 Boxed method dispatch remains explicitly rejected; it is the next prerequisite
 for the formatted kernel error path. Boxed value IR is v2, scalar boxing IR v3,
 and native emission v33. No new native kernel transcript claim is made.
+
+
+## Slice 6d.20 outcome
+
+Exactly granted String.Format(String,Object) now specializes a same-block direct
+box of a named, non-IFormattable value. A managed parser handles escapes, indices,
+alignment and ignored format text, while an exact private rendering grant borrows
+the retained payload for each ordinary ToString callback. General boxed dispatch
+remains diagnostic. See [ADR 0156](../decisions/0156-direct-box-formatting.md).
+
+Four probes provide 1,176 repeated O0/O2 native/.NET comparisons for mutable and
+readonly generic values, UTF-16 text, null callback results, callback order and
+exact malformed-format messages. Seventeen distinct composed checks pass (16 in
+the composed run and the corrected proof test separately); all three formatting
+checks pass again after sharing parser helpers. The full solution builds cleanly.
+Review verified same-block proof, exact grants/private callers, payload roots and
+source provenance. Aliases, IFormattable, primitive/reference arguments, providers
+and other overloads remain unsupported.
+
+The final trial core has 216 inputs and 86 grants. Image SHA-256:
+`639c3981452100bc140989eba23bc86a8d9cfa68c861b82fe28739a3bf277f00`;
+manifest SHA-256:
+`a26dcb28e4b505d8727d999bfe7bf0284e0e005fbe1a0171ee10f334c0f678ae`.
+The unchanged kernel next requires System.StringComparison in PendingDecision.IsLegal.
+Native transcripts and implementation/filter closure remain pending.
