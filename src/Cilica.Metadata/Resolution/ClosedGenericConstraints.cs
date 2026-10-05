@@ -89,7 +89,7 @@ public sealed partial class AssemblyResolver
             }
             return false;
         }
-        void Parameters(ResolvedAssembly assembly, GenericParameterHandleCollection parameters, SignatureList<TypeSignature> arguments)
+        void Parameters(ResolvedAssembly assembly, GenericParameterHandleCollection parameters, SignatureList<TypeSignature> arguments, bool interfaceOwner = false)
         {
             if (parameters.Count != arguments.Count || parameters.Count > 4096)
                 throw new BadImageFormatException("Closed generic constraints have mismatched declaration arity.");
@@ -101,13 +101,15 @@ public sealed partial class AssemblyResolver
                     throw new BadImageFormatException("Generic parameter indices must uniquely cover the declaration.");
                 const GenericParameterAttributes allowed = GenericParameterAttributes.ReferenceTypeConstraint
                     | GenericParameterAttributes.NotNullableValueTypeConstraint | GenericParameterAttributes.DefaultConstructorConstraint;
-                if ((parameter.Attributes & ~allowed) != 0)
-                    throw new UnsupportedBindingException("Variance and additional generic parameter flags require later constraint lowering.");
+                var variance = parameter.Attributes & GenericParameterAttributes.VarianceMask;
+                if ((parameter.Attributes & ~(allowed | GenericParameterAttributes.VarianceMask)) != 0
+                    || variance == GenericParameterAttributes.VarianceMask || !interfaceOwner && variance != GenericParameterAttributes.None)
+                    throw new UnsupportedBindingException("Variance flags require an interface type parameter with one declared direction; additional flags and variant class/method/delegate parameters require later lowering.");
                 bool reference = (parameter.Attributes & GenericParameterAttributes.ReferenceTypeConstraint) != 0;
                 bool value = (parameter.Attributes & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0;
                 bool construct = (parameter.Attributes & GenericParameterAttributes.DefaultConstructorConstraint) != 0;
                 if (reference && value) throw new BadImageFormatException("A generic parameter cannot require both reference and value types.");
-                var traits = parameter.Attributes != GenericParameterAttributes.None ? Traits(arguments[parameter.Index]) : default;
+                var traits = (parameter.Attributes & allowed) != GenericParameterAttributes.None ? Traits(arguments[parameter.Index]) : default;
                 if (reference && traits.Value || value && (!traits.Value || traits.Nullable)
                     || construct && !traits.Value && !PublicDefaultConstructor(traits.Definition))
                     throw new UnsupportedBindingException("Closed argument does not satisfy its class, struct or public parameterless-constructor constraints.");
@@ -130,7 +132,9 @@ public sealed partial class AssemblyResolver
             if (!seen.Add(type)) continue;
             if (seen.Count > 256) throw Failure(DiagnosticIds.TranslationLimit, "Closed argument constraints exceed 256 declarations.");
             CheckOwner(type.Definition.Assembly);
-            Parameters(type.Definition.Assembly, type.Definition.Assembly.Image.Reader.GetTypeDefinition(type.Definition.Handle).GetGenericParameters(), type.Arguments);
+            var declaration = type.Definition.Assembly.Image.Reader.GetTypeDefinition(type.Definition.Handle);
+            Parameters(type.Definition.Assembly, declaration.GetGenericParameters(), type.Arguments,
+                interfaceOwner: (declaration.Attributes & TypeAttributes.Interface) != 0);
         }
         return work;
     }
