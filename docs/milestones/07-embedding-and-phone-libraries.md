@@ -12,7 +12,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | Slice | Deliverable | Evidence / status |
 | --- | --- | --- |
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
-| 7b | Export manifest and shared instance dispatch | Planned: stable application export IDs, signature/schema validation, capabilities and configurable bounded quotas; all exports in one engine share its heap |
+| 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Planned: exact UTF-16/64-bit transfer, caller/engine buffer ownership, retained-handle release, exception type/message/origin and stale/foreign-handle tests |
 | 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
@@ -56,9 +56,48 @@ The local `main` commit `48ecf14` remains an ancestor of the working branch; the
 read-only remote query advertised no branch heads, so no newer main was available
 to integrate. No push or hosted work ran.
 
+## Slice 7b outcome
+
+[ADR 0179](../decisions/0179-shared-export-module.md) implements
+`embedding-module-int32-v2`. `EmbeddingModuleEmitter` emits a C header/source and
+canonical export manifest for 1..64 explicitly selected methods from a single
+validated closure. IDs/names and schema version are application-owned; the host's
+expected contract fingerprint is checked before instance creation. All exports
+share the same managed heap, static roots and initialization state.
+
+Composed export admission checks logical signatures before scalar lowering, so
+flattened structs cannot accidentally cross the Int32 boundary. Explicit capability
+bits and copied configuration describe heap/object/execution limits, which can only
+be reduced from the established defaults. Shared admission covers every export,
+and per-export packet helpers preserve the 2 KiB native-stack gate at full capacity.
+V1's interface remains available and uses the same private registry implementation.
+
+A separate C11 consumer compares 800 step/read outcomes with the authored .NET
+oracle across O0/O2 and ordinary/forced collection. It also verifies reset/recovery,
+instance isolation, manifest negotiation, error order, copied fault state and each
+quota. Native 64-export checks exercise all IDs, concurrent entry and registry
+capacity. Contract tests cover canonical ordering, stable interface hashes when
+bindings change, wrong/private/missing methods and inline-value signature rejection.
+
+No independent-root merger or compiler discovery API is introduced: the selected
+methods must already be reachable through one input root, for example a facade.
+The root is never executed at create time. This keeps one validated metadata
+closure and its existing aggregate limits rather than weakening validation.
+Object/value transfer and rich exception copying remain the next milestone slice.
+
+The final 25-check scope has passing evidence: the combined v1/v2 run passed 23
+checks, then all 16 negative-contract cases passed after adding reserved-identifier
+validation and its two cases. Native code was unchanged by that final name check;
+the combined suite was not rerun. Builds reported no warnings/errors. Review
+covered original versus lowered signatures, manifest stability, output/error order,
+heap and execution quotas, token/slot lifetime, GC roots and guarded cleanup. No
+unresolved defect remains in the admitted scope. Local main remains an ancestor;
+the read-only remote query still advertised no branch heads. No push or hosted
+work ran.
+
 ## Remaining exit gates
 
-- Complete multi-export dispatch, data/handle ownership and rich exception copying
+- Complete data/handle ownership and rich exception copying
   before connecting the real kernel to a host adapter.
 - Pin target toolchains and build/package reproducibly using local tools first.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests

@@ -126,3 +126,4 @@ capability. It becomes accepted once its validation experiment has run.
 | ADR | Title | Status |
 | --- | --- | --- |
 | [0178](0178-persistent-scalar-c-abi.md) | Persistent scalar C ABI foundation | Accepted; bounded Int32 C consumer/lifecycle contract; multi-export and device gates remain |
+| [0179](0179-shared-export-module.md) | Shared scalar export module | Accepted; explicit IDs/manifests, shared state and bounded quotas in one compiled closure |

@@ -1117,6 +1117,15 @@ structured value/error transfer, external object handles and device evidence rem
 planned. [Milestone 7](milestones/07-embedding-and-phone-libraries.md) puts iOS first,
 then Android; neither phone platform is yet verified.
 
+Milestone 7b adds a v2 shared scalar export module
+([ADR 0179](decisions/0179-shared-export-module.md)). An explicit manifest assigns
+stable application IDs to public static Int32 methods in one validated closure.
+All exports share the instance's heap/statics; expected interface fingerprints,
+logical signature checks, capability bits and lowerable per-instance quotas are
+implemented. Separate packet helpers keep dispatch stack storage bounded at 64
+exports. V1 is preserved. Independent multi-root discovery, object/value transfer,
+structured exception copying and phone execution remain separate gates.
+
 Specify widths, calling conventions, buffer lifetime/ownership, structured
 errors, handle validity, thread entry, version negotiation and capabilities.
 Private native v14 already uses opaque tokens with nonreused generation identities
