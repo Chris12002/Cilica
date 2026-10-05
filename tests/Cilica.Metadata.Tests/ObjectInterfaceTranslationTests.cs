@@ -238,7 +238,7 @@ public sealed class ObjectInterfaceTranslationTests
             bindings = bindings.Add(binding with { Method = IrMethodId.From(source) });
         }
         program = program with { Flow = program.Flow with { Methods = methods }, Bindings = bindings };
-        Assert.Contains("256-method limit", Assert.Throws<ArgumentException>(() => ObjectIrValidator.Validate(program)).Message, StringComparison.Ordinal);
+        Assert.Contains("512-method limit", Assert.Throws<ArgumentException>(() => ObjectIrValidator.Validate(program)).Message, StringComparison.Ordinal);
     }
 
     [Theory]

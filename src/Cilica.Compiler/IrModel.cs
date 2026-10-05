@@ -228,7 +228,7 @@ public sealed record ManagedLocationIrProgram(ValueIrProgram Flow)
 
 public static class ProgramLimits
 {
-    public const int MaximumMethods = 256;
+    public const int MaximumMethods = 512;
     public const int MaximumBodyBytes = 1048576;
     public const int MaximumInstructions = 65536;
     public const int MaximumCallArguments = 65536;

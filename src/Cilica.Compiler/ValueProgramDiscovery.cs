@@ -518,7 +518,7 @@ public static partial class ValueProgramDiscovery
             }
             if (_methods.Count + _exceptionDeclarations.Count >= ProgramLimits.MaximumMethods || _bytes >= ProgramLimits.MaximumBodyBytes
                 || _instructions >= ProgramLimits.MaximumInstructions || _metadata.Remaining == 0)
-                Fail(parent, "Aggregate method, IL or metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                Fail(parent, $"Aggregate discovery limit exceeded: {_methods.Count + _exceptionDeclarations.Count}/{ProgramLimits.MaximumMethods} method declarations, {_bytes}/{ProgramLimits.MaximumBodyBytes} IL bytes, {_instructions}/{ProgramLimits.MaximumInstructions} instructions, {_metadata.Remaining} metadata work units remaining.", offset, DiagnosticIds.TranslationLimit);
             var readLimits = limits with
             {
                 MaximumBodyBytes = Math.Min(limits.MaximumBodyBytes, ProgramLimits.MaximumBodyBytes - _bytes),

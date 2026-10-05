@@ -25,7 +25,7 @@ public static class ObjectInterfacePlanValidator
         var contracts = plan.Types.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
         Require(!plan.Declarations.IsDefault && plan.Declarations.Length is > 0 and <= ProgramLimits.MaximumMethods
             && !plan.Methods.IsDefault && plan.Declarations.Length + plan.Methods.Length <= ProgramLimits.MaximumMethods,
-            "declarations and class method facts share the 256-method limit.");
+            "declarations and class method facts share the 512-method limit.");
         bool Signature(System.Collections.Immutable.ImmutableArray<IrType> parameters, IrType result, ObjectTypeId owner) =>
             !parameters.IsDefault && parameters.Length is > 0 and <= IrLimits.MaximumParameters
             && parameters[0] == IrType.Reference(owner) && parameters.All(t => types.Valid(t, true))

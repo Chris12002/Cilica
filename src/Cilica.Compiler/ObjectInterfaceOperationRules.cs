@@ -34,7 +34,7 @@ internal sealed class ObjectInterfaceOperationRules
                     && body.Parameters.SequenceEqual(fact.Parameters), "executable body contradicts its interface method facts.");
         }
         Require(methods.Keys.Concat(_declarations.Keys).Concat(_facts.Keys).Distinct().Count() <= ProgramLimits.MaximumMethods,
-            "executable bodies, declarations and mapping facts share the 256-method limit.");
+            "executable bodies, declarations and mapping facts share the 512-method limit.");
         foreach (var map in plan.Dispatch)
         {
             _maps.Add(map.Declaration, map); TargetCount += map.Targets.Length;

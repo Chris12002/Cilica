@@ -258,13 +258,13 @@ public sealed class ObjectInterfacePlanTests
     }
 
     [Theory]
-    [InlineData(128, true)]
-    [InlineData(129, false)]
+    [InlineData(256, true)]
+    [InlineData(257, false)]
     public void Declarations_and_class_facts_share_the_exact_method_limit(int count, bool success)
     {
         var plan = Expanded(count);
         if (success) ObjectInterfacePlanValidator.Validate(plan);
-        else Assert.Contains("256-method limit", Assert.Throws<ArgumentException>(() => ObjectInterfacePlanValidator.Validate(plan)).Message, StringComparison.Ordinal);
+        else Assert.Contains("512-method limit", Assert.Throws<ArgumentException>(() => ObjectInterfacePlanValidator.Validate(plan)).Message, StringComparison.Ordinal);
     }
 
     [Fact]

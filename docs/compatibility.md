@@ -1625,3 +1625,10 @@ O0/O2 sanitizer tests preserve identity with empty literals, Concat and StringBu
 output, plus bounds faults and collection safety. Writes, missing approval and
 altered field shapes remain diagnostic. The concrete kernel reaches an aggregate
 compiler limit; native transcript equivalence remains unproven.
+
+
+The shared method closure cap is now 512 after the concrete kernel exhausted the
+previous declaration count while remaining within its byte, instruction and metadata
+budgets (ADR 0162). Exact/excess discovery, detached validation and full-capacity
+native O0/O2 checks pass. All other aggregate and runtime limits are unchanged;
+interface declarations, facts and bodies continue to share the method cap.
