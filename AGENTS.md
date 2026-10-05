@@ -13,9 +13,10 @@ feedback before implementation. Explain consequential choices in plain language.
   and managed exceptions/type-test filters; see `docs/milestones/05-managed-semantics.md`.
   Milestone 6 adds the bounded owned core and verified real-kernel native transcripts;
   see `docs/milestones/06-library-and-kernel.md` for exact scope and evidence.
-  Milestone 7a adds a bounded persistent Int32 C boundary; see
+  Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
-  Multi-export instances, public object/value transfer and phone support remain planned.
+  V2 exports share one validated closure; independent multi-root discovery,
+  public object/value transfer and phone support remain planned.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

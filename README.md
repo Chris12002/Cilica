@@ -29,8 +29,10 @@ The [pinned baseline](docs/library-baseline.json) and milestone record define th
 library subset, provenance and filter-closure evidence.
 [Milestone 7](docs/milestones/07-embedding-and-phone-libraries.md) has started with
 a [versioned persistent Int32 C boundary](docs/embedding-abi.md), tested through a
-separate C consumer on macOS ARM64. Multi-export dispatch, public object/value
-transfer and phone libraries remain planned; iOS is the first device target.
+separate C consumer on macOS ARM64. V2 exports share instance state within one
+compiled closure, with stable application IDs, checked manifests and configurable
+bounded quotas. Public object/value transfer and phone libraries remain planned;
+iOS is the first device target.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

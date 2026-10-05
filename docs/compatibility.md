@@ -23,8 +23,16 @@ stale runtime-token rejection, guarded entry/destruction and copied fault origin
 Only Int32 parameters/results cross the boundary; each artifact has one export
 and a separate registry. Local macOS ARM64 C11/O0/O2 ASan/UBSan lifecycle and race
 tests pass. See the [ABI contract](embedding-abi.md) and [ADR 0178](decisions/0178-persistent-scalar-c-abi.md).
-No public object/value transfer, multi-export instance or phone-device support is
+No public object/value transfer or phone-device support is
 claimed. This boundary does not expand the managed semantics profile.
+
+Milestone 7b adds `embedding-module-int32-v2`: 1..64 explicit public/static scalar
+exports from one validated closure share each runtime's state. Stable IDs,
+interface fingerprints, logical signature validation, capabilities and lowerable
+heap/object/execution quotas have local C11/O0/O2 evidence. At 64 exports, the native
+2 KiB frame check and concurrent admission tests pass. V1 remains supported.
+Independent-root discovery and cross-program merging remain unimplemented;
+[ADR 0179](decisions/0179-shared-export-module.md) records the precise boundary.
 
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
