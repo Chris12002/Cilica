@@ -176,7 +176,7 @@ public static class ObjectModelBuilder
                         if (!arrays.Contains(vector) && parents.Count + arrays.Count >= ObjectModelLimits.MaximumTypes) exceeded = true;
                         else arrays.Add(vector); return vector;
                     }, text: () => Reference(Plain(strings.Require(ObjectModelLimits.MaximumMetadataMembers - members))),
-                        closedReference: generic => Reference(new(generic.Definition.Definition, generic.Arguments)));
+                        closedReference: generic => Reference(new(generic.Definition.Definition, generic.Arguments)), integers64: integers64, inline: inline);
                     if (argument is TypeSignature.Vector && storage is null)
                         return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface array arguments require an admitted vector element type.", input.Source.Name);
                     arguments.Add(new(ClosedGenericKey.Create(new([argument]), SignatureList<TypeSignature>.Empty),
@@ -247,7 +247,7 @@ public static class ObjectModelBuilder
                     var text = strings.Require(ObjectModelLimits.MaximumMetadataMembers - members);
                     if (!Include(Plain(text), id, field.Token)) exceeded = true;
                     return Id(text);
-                }, integers64: integers64, closedReference: integers64 ? generic => GenericReference(generic).Class! : null);
+                }, integers64: integers64, closedReference: integers64 ? generic => GenericReference(generic).Class! : null, inline: inline);
                 IrType GenericReference(TypeSignature.Generic generic)
                 {
                     var closed = new ConstructedType(generic.Definition.Definition, generic.Arguments);

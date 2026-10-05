@@ -35,7 +35,16 @@ public static class EmptyArrayProbe
     }
     public static int UnsupportedUnsigned(int input, int mode) => Array.Empty<uint>().Length;
     public static int UnsupportedWide(int input, int mode) => Array.Empty<long>().Length;
-    public static int UnsupportedValue(int input, int mode) => Array.Empty<EmptyArrayValue>().Length;
+    public static int ValueIdentity(int input, int mode)
+    {
+        var first = Array.Empty<EmptyArrayValue>(); var again = Empty<EmptyArrayValue>();
+        var fresh = new EmptyArrayValue[0]; var other = Array.Empty<ValueVectorEmpty>();
+        int result = (first == again ? 1 : 0) + (first != fresh ? 2 : 0) + ((object)first != other ? 4 : 0);
+        try { first[input] = default; return -1; }
+        catch (IndexOutOfRangeException) { }
+        try { return first[mode].Value; }
+        catch (IndexOutOfRangeException) { return result; }
+    }
 }
 public sealed class EmptyArrayBox { public int Value; }
 public struct EmptyArrayValue { public int Value; }

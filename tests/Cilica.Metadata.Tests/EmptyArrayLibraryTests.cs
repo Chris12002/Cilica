@@ -16,7 +16,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class EmptyArrayLibraryTests
 {
     private static readonly (string Name, Func<int, int, int> Oracle)[] Probes = [
-        ("Identity", EmptyArrayProbe.Identity), ("Covariance", EmptyArrayProbe.Covariance), ("Faults", EmptyArrayProbe.Faults)];
+        ("Identity", EmptyArrayProbe.Identity), ("Covariance", EmptyArrayProbe.Covariance), ("Faults", EmptyArrayProbe.Faults), ("ValueIdentity", EmptyArrayProbe.ValueIdentity)];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
         CoreLibraryBuildTests.TranslateFixtures(typeof(EmptyArrayProbe), Probes.Select(p => p.Name).ToArray()));
     [Theory]
@@ -45,7 +45,7 @@ public sealed class EmptyArrayLibraryTests
         var result = ValueTranslator.TranslateIntegerObjects(denied, input, Method("Identity"), implementation);
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        foreach (var name in new[] { "UnsupportedUnsigned", "UnsupportedWide", "UnsupportedValue" })
+        foreach (var name in new[] { "UnsupportedUnsigned", "UnsupportedWide" })
         {
             var unsupported = ValueTranslator.TranslateIntegerObjects(scope, input, Method(name), implementation);
             Assert.False(unsupported.Success);

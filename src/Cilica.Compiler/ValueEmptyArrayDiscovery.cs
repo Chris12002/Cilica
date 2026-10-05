@@ -25,7 +25,7 @@ public static partial class ValueProgramDiscovery
                 || input.Signature.ReturnType is not TypeSignature.Vector { Element: TypeSignature.Variable { IsMethod: true, Index: 0 } })
                 Fail(work, "Only the exact selected Array.Empty<T> declaration is implemented.", offset);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.ArrayEmpty), work, offset);
-            // Vector retains exact reference element identities and rejects value,
+            // Vector retains exact reference/value element identities and rejects
             // unsigned and narrow elements whose runtime descriptors are not distinct.
             return new(ValueIntrinsic.EmptyArray, Vector(target.MethodArguments[0], work, offset), 0);
         }

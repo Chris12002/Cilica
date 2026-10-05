@@ -202,7 +202,7 @@ public static partial class ValueProgramDiscovery
                         }
                         else if (arrays && (instruction.OpCode is ("ldelem.i4" or "stelem.i4") || !integers64 && instruction.OpCode == "ldlen")) _ = IntegerArray();
                         else if (integers64 && instruction.OpCode is ("ldelem.ref" or "stelem.ref")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Object), work, offset);
-                        else if (integers64 && instruction.OpCode is ("ldelem" or "stelem"))
+                        else if (integers64 && instruction.OpCode is ("ldelem" or "stelem" or "ldelema"))
                         {
                             var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
                             vectors.Add(offset, Vector(signature, work, offset));
@@ -682,10 +682,14 @@ public static partial class ValueProgramDiscovery
             {
                 var definition = named.Definition;
                 if (definition == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), caller, offset)) return IntegerArray();
+                foreach (var code in new[] { PrimitiveTypeCode.UInt32, PrimitiveTypeCode.Int64, PrimitiveTypeCode.UInt64,
+                    PrimitiveTypeCode.Boolean, PrimitiveTypeCode.Char, PrimitiveTypeCode.SByte, PrimitiveTypeCode.Byte, PrimitiveTypeCode.Int16, PrimitiveTypeCode.UInt16 })
+                    if (definition == Require(resolver.ResolveRuntimeType(library, code), caller, offset))
+                        Fail(caller, "Composed vector elements require Int32, an admitted nominal reference or a closed inline value; primitive-width-specific arrays require later lowering.", offset);
                 if (definition == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String), caller, offset))
                     signature = new TypeSignature.Primitive(PrimitiveTypeCode.String);
-                else if (named.Kind == SignatureTypeKind.Unknown && !Inline(definition, caller, offset))
-                    signature = named with { Kind = SignatureTypeKind.Class };
+                else if (named.Kind == SignatureTypeKind.Unknown)
+                    signature = named with { Kind = Inline(definition, caller, offset) ? SignatureTypeKind.ValueType : SignatureTypeKind.Class };
             }
             if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }) return IntegerArray();
             if (signature is TypeSignature.Vector or TypeSignature.ByReference)
@@ -697,9 +701,10 @@ public static partial class ValueProgramDiscovery
                 CheckArgumentAccess(signature, caller, offset);
             }
             var element = Storage(signature, caller, offset);
-            if (element.Kind != IrTypeKind.Reference || element.Class!.ArrayElement is not null)
-                Fail(caller, "Composed vector elements require Int32 or an admitted nominal reference; value and other integer arrays require later lowering.", offset);
-            var vector = ObjectTypeId.Vector(ObjectBase(), ObjectArrayElement.Reference(element.Class!));
+            if (element.Kind is not (IrTypeKind.Reference or IrTypeKind.Value) || element.Class!.ArrayElement is not null)
+                Fail(caller, "Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering.", offset);
+            var vector = ObjectTypeId.Vector(ObjectBase(), element.Kind == IrTypeKind.Value
+                ? ObjectArrayElement.Value(element.Class!) : ObjectArrayElement.Reference(element.Class!));
             _vectors.Add(vector);
             if (_vectors.Count + _values.Count + _references.Count > ObjectModelLimits.MaximumTypes)
                 Fail(caller, "Combined vector/value/reference type limit exceeded.", offset, DiagnosticIds.TranslationLimit);

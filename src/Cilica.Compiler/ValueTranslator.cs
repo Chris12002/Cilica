@@ -169,6 +169,7 @@ public static class ValueTranslator
             foreach (var statement in method.Blocks.SelectMany(b => b.Statements))
                 switch (statement)
                 {
+                    case IrStatement.Define { Value.Expression: IrExpression.AddressElement address }: Include(address.ArrayType); break;
                     case IrStatement.Define { Value.Expression: IrExpression.LoadElement load }: Include(load.ArrayType); break;
                     case IrStatement.StoreElement store: Include(store.ArrayType); break;
                 }
@@ -372,18 +373,24 @@ public static class ValueTranslator
                                 Error(offset, "Array length requires an adjacent conv.i4 in the same block; native integer flow requires later lowering.", DiagnosticIds.ExecutionUnsupported);
                             int lengthArray = PopArray(offset); ++index;
                             Push(offset, IrType.Int32, new IrExpression.ArrayLength(lengthArray), true); break;
+                        case "ldelema" when types.IntegerCasts:
+                            int addressIndex = Pop(offset, IrType.Int32), addressArray = PopArray(offset);
+                            var addressView = ArrayView(addressArray, opcode, offset);
+                            if (addressView.ArrayElement!.Kind != ObjectArrayElementKind.Value)
+                                Error(offset, "Element addresses currently require a closed inline value array.", DiagnosticIds.ExecutionUnsupported);
+                            Push(offset, IrType.Location(ElementType(addressView)), new IrExpression.AddressElement(addressView, addressArray, addressIndex), true); break;
                         case "ldelem.ref" or "ldelem" when types.IntegerCasts:
                         case "ldelem.i4" when arrays:
                             int loadIndex = Pop(offset, IrType.Int32), loadArray = PopArray(offset);
                             var loadView = ArrayView(loadArray, opcode, offset);
-                            Push(offset, loadView.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? IrType.Int32 : IrType.Reference(loadView.ArrayElement.Type!),
+                            Push(offset, ElementType(loadView),
                                 new IrExpression.LoadElement(loadView, loadArray, loadIndex), true); break;
                         case "stelem.ref" or "stelem" when types.IntegerCasts:
                         case "stelem.i4" when arrays:
                             int elementValue = Pop(offset), storeIndex = Pop(offset, IrType.Int32), storeArray = PopArray(offset);
                             var storeView = ArrayView(storeArray, opcode, offset);
-                            elementValue = AdaptBox(elementValue, storeView.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? IrType.Int32 : IrType.Reference(storeView.ArrayElement.Type!), offset);
-                            Compatible(values[elementValue], storeView.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? IrType.Int32 : IrType.Reference(storeView.ArrayElement.Type!), offset);
+                            elementValue = AdaptBox(elementValue, ElementType(storeView), offset);
+                            Compatible(values[elementValue], ElementType(storeView), offset);
                             Add(new IrStatement.StoreElement(offset, storeView, storeArray, storeIndex, elementValue), offset); break;
                         case "ldsfld" when types.IntegerCasts && method.DefaultStatics.TryGetValue(offset, out var defaultStatic):
                             if (defaultStatic.Kind == IrTypeKind.Reference) Push(offset, IrType.NullReference, new IrExpression.Null());
@@ -681,6 +688,10 @@ public static class ValueTranslator
                         Error(offset, "Array operation requires an Int32 vector or null.");
                     return array;
                 }
+                static IrType ElementType(ObjectTypeId array) => array.ArrayElement!.Kind switch {
+                    ObjectArrayElementKind.Int32 => IrType.Int32,
+                    ObjectArrayElementKind.Value => IrType.Value(array.ArrayElement.Type!),
+                    _ => IrType.Reference(array.ArrayElement.Type!) };
                 ObjectTypeId ArrayView(int receiver, string opcode, int offset)
                 {
                     if (method.ArrayOperands.TryGetValue(offset, out var declared))

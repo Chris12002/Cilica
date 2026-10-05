@@ -11,12 +11,20 @@ internal static class ObjectSignatureTypes
 
     internal static IrType? Convert(TypeSignature signature, ObjectTypeId objectBase,
         Func<ResolvedType, ObjectTypeId> include, Func<ObjectTypeId, ObjectTypeId> array, bool allowVoid = false,
-        Func<ObjectTypeId>? text = null, bool integers64 = false, Func<TypeSignature.Generic, ObjectTypeId>? closedReference = null)
+        Func<ObjectTypeId>? text = null, bool integers64 = false, Func<TypeSignature.Generic, ObjectTypeId>? closedReference = null, Func<ConstructedType, ObjectTypeId>? inline = null)
     {
         if (signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } closed && closedReference is not null)
             return IrType.Reference(closedReference(closed));
         if (signature is TypeSignature.Vector vector)
         {
+            if (integers64 && inline is not null)
+            {
+                ConstructedType? value = vector.Element switch {
+                    TypeSignature.Named { Kind: SignatureTypeKind.ValueType } named => new(named.Definition, SignatureList<TypeSignature>.Empty),
+                    TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } inlineGeneric => new(inlineGeneric.Definition.Definition, inlineGeneric.Arguments),
+                    _ => null };
+                if (value is not null) return IrType.Reference(array(ObjectTypeId.Vector(objectBase, ObjectArrayElement.Value(inline(value)))));
+            }
             // Deliberately nonrecursive: nested vectors are outside this profile.
             var element = vector.Element is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } generic && closedReference is not null
                 ? IrType.Reference(closedReference(generic)) : Scalar(vector.Element, objectBase, include, text);

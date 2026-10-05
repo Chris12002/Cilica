@@ -209,7 +209,8 @@ public static class ValueModelBuilder
                             : ObjectSignatureTypes.Convert(field.Signature, Id(objectBase), IncludeReference,
                             array => { IncludeId(array); arrays.Add(array); return array; },
                             text: () => IncludeReference(strings.Require()), integers64: integers64,
-                            closedReference: integers64 ? generic => IncludeClosedReference(new(generic.Definition.Definition, generic.Arguments)) : null);
+                            closedReference: integers64 ? generic => IncludeClosedReference(new(generic.Definition.Definition, generic.Arguments)) : null,
+                            inline: integers64 ? type => { IncludeValue(type, location); return ClosedId(type); } : null);
                         if (converted is null)
                             Fail("Value fields require Int32, supported object references/vectors, or named nongeneric inline structs. Byrefs, pointers, other primitives, generic values and value arrays require later lowering.", location, DiagnosticIds.ExecutionSignatureUnsupported);
                         storage = converted == IrType.Int32 ? new ObjectStorage.Int32() : converted == IrType.Int64
