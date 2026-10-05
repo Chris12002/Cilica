@@ -344,6 +344,18 @@ remaining actionable issue; local main remains an ancestor. See
 metadata choices; composing executable dispatch, variance-only targets and array
 helpers remains pending.
 
+## Slice 6c.16 outcome
+
+Explicit value/delegate/exception IR now retains scalar/reference interface plans
+through shared validation, rooting and native lowering. Four authored compositions
+match .NET in 1,176 repeated O0/O2 ASan/UBSan results, including caught argument
+versus null-receiver faults, allocating reference returns and wide value/box/borrow
+flow. All 75 distinct focused checks pass. Review tightened catalog-capability and
+closed-identity agreement; no remaining actionable issue was found. See
+[ADR 0107](../decisions/0107-composed-interface-ir.md). Automatic closed interface
+CIL discovery, struct signatures, variance-only targets and array helpers remain
+pending. Local main remains an ancestor.
+
 ## Remaining completion evidence
 
 - Pin imported source commits, licenses, local patches, reference identities

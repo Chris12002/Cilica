@@ -21,7 +21,8 @@ public static class ValueArrayIrValidator
     }
 
     internal static ValueIrRules ValidateComposition(ManagedLocationIrProgram program,
-        ImmutableArray<ObjectMethodBinding> bindings, bool classes, bool boxing = false, bool delegates = false, ManagedExceptionRules? exceptions = null)
+        ImmutableArray<ObjectMethodBinding> bindings, bool classes, bool boxing = false, bool delegates = false, ManagedExceptionRules? exceptions = null,
+        ObjectInterfaceDispatchPlan? interfaces = null)
     {
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
@@ -34,7 +35,9 @@ public static class ValueArrayIrValidator
             && !((delegates || classes && flow.Types.References.Integer64) && b.Kind == ObjectMethodKind.Instance)
             && !(classes && b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor)))
             throw new ArgumentException("Composed value methods require direct static bindings or explicitly supported class constructors.", nameof(program));
-        var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings), locations: true, values: flow.Types, delegates: delegates);
+        if (interfaces is not null && !flow.Types.References.Integer64)
+            throw new ArgumentException("Composed interface dispatch requires the explicit integer-object catalog.", nameof(program));
+        var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings) { InterfaceDispatch = interfaces }, locations: true, values: flow.Types, delegates: delegates);
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing, exceptions);
         foreach (var method in flow.Methods)
             if (objects.Binding(IrMethodId.From(method.Source)).Kind is not (ObjectMethodKind.Static or ObjectMethodKind.ValueConstructor)

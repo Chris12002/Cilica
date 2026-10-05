@@ -30,6 +30,7 @@ public static class ObjectInterfacePlanValidator
         {
             Require(declaration?.Source is not null && Identity(declaration.Owner, 0x02) && contracts.ContainsKey(declaration.Owner)
                 && declaration.Source.ContentHash == declaration.Owner.ContentHash
+                && declaration.Source.Specialization == declaration.Owner.Specialization
                 && Identity(IrMethodId.From(declaration.Source), 0x06) && declaration.Source.AssemblyIdentity is not null
                 && declaration.Source.Name is not null && !string.IsNullOrEmpty(declaration.Name)
                 && declaration.OwnerExternallyVisible, "invalid interface declaration provenance/owner/name.");
@@ -51,6 +52,7 @@ public static class ObjectInterfacePlanValidator
         {
             Require(method?.Binding is not null && method.Binding.Method is not null && Identity(method.Binding.Owner, 0x02)
                 && classes.ContainsKey(method.Binding.Owner) && method.Binding.Method.ContentHash == method.Binding.Owner.ContentHash
+                && method.Binding.Method.Specialization == method.Binding.Owner.Specialization
                 && Identity(method.Binding.Method, 0x06) && !declarations.ContainsKey(method.Binding.Method)
                 && !string.IsNullOrEmpty(method.Name) && method.Binding.Kind == ObjectMethodKind.Instance
                 && Signature(method.Parameters, method.ReturnType, method.Binding.Owner), "invalid class method facts/identity/signature.");
@@ -150,8 +152,8 @@ public static class ObjectInterfacePlanValidator
 
     private static bool SameSignature(ObjectDispatchMethod left, ObjectDispatchMethod right) =>
         left.ReturnType == right.ReturnType && left.Parameters.Skip(1).SequenceEqual(right.Parameters.Skip(1));
-    private static bool Identity(ObjectTypeId? id, uint table) => id is { ArrayElement: null } && Token(id.ContentHash, id.Token, table);
-    private static bool Identity(IrMethodId? id, uint table) => id is not null && Token(id.ContentHash, id.Token, table);
+    private static bool Identity(ObjectTypeId? id, uint table) => id is { ArrayElement: null } && ObjectModelValidator.Specialization(id.Specialization) && Token(id.ContentHash, id.Token, table);
+    private static bool Identity(IrMethodId? id, uint table) => id is not null && ObjectModelValidator.Specialization(id.Specialization) && Token(id.ContentHash, id.Token, table);
     private static bool Token(string? hash, int token, uint table) => hash is { Length: 64 } && hash.All(char.IsAsciiHexDigit)
         && hash == hash.ToLowerInvariant() && (uint)token >> 24 == table && (token & 0xffffff) > (table == 0x02 ? 1 : 0);
     private static void Require([DoesNotReturnIf(false)] bool condition, string message)

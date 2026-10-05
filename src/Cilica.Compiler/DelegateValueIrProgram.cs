@@ -7,6 +7,7 @@ namespace Cilica.Compiler;
 public sealed record DelegateValueIrProgram(ManagedLocationIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
     public const string Profile = "delegate-values-ir-v1";
+    public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
 }
 
 public static class DelegateValueIrValidator
@@ -16,6 +17,7 @@ public static class DelegateValueIrValidator
     internal static ValueIrRules ValidateAndPlan(DelegateValueIrProgram program)
     {
         ArgumentNullException.ThrowIfNull(program);
-        return ValueArrayIrValidator.ValidateComposition(program.Flow, program.Bindings, classes: true, boxing: true, delegates: true);
+        return ValueArrayIrValidator.ValidateComposition(program.Flow, program.Bindings, classes: true, boxing: true, delegates: true,
+            interfaces: program.InterfaceDispatch);
     }
 }

@@ -911,6 +911,10 @@ direct constructor receiver reloads across conditional branches
 heap/borrow storage remains separate. Nonvirtual class instance calls compose
 value/borrow signatures and caller-owned returns while preserving `callvirt`
 null checks ([ADR 0104](decisions/0104-composed-class-instance-calls.md)).
+Explicit composed IR can also retain scalar/reference interface plans through
+value lowering and managed exception routing
+([ADR 0107](decisions/0107-composed-interface-ir.md)); automatic closed interface
+CIL discovery and struct dispatch signatures remain pending.
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential
