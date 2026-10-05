@@ -423,6 +423,10 @@ public static partial class ValueProgramDiscovery
                 }
                 if (_pending.Count == 0) break;
             }
+            var boxedRelations = new BoxedTypeRelations(catalog);
+            var dispatchOwners = interfacePlan?.Declarations.Select(d => d.Owner).Distinct().ToArray() ?? [];
+            var boxedDispatch = catalog.Types.Select(t => ObjectTypeId.From(t.Source))
+                .Where(t => dispatchOwners.Any(owner => boxedRelations.Accepts(t, owner))).ToHashSet();
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
             var declarations = catalog.Types.SelectMany(t => t.Fields).Concat(catalog.References.Types.SelectMany(t => t.Fields)).ToDictionary(f => f.Id);
             foreach (var method in methods)
@@ -462,8 +466,12 @@ public static partial class ValueProgramDiscovery
                     if (layouts.TryGetValue(operand.Value, out var operandLayout))
                     {
                         CheckType(operand.Value, operand.Key);
-                        if (!operandLayout.Interfaces.IsEmpty && work.Input.Instructions.Any(i => i.Offset == operand.Key && i.OpCode is "box" or "unbox" or "unbox.any"))
-                            Fail(work, "Boxing interface-bearing values requires boxed interface relationships and dispatch before execution.", operand.Key);
+                        if (!operandLayout.Interfaces.IsEmpty && work.Input.Instructions.Any(i => i.Offset == operand.Key && i.OpCode == "box")
+                            && interfacePlan is not null)
+                        {
+                            if (boxedDispatch.Contains(operand.Value))
+                                Fail(work, "Boxed interface method dispatch requires payload receiver lowering before execution.", operand.Key);
+                        }
                     }
 
                 void CheckType(ObjectTypeId type, int offset)

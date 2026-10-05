@@ -1,0 +1,76 @@
+namespace Cilica.Fixtures.Execution
+{
+    public interface IBoxCall { int Read(); }
+    public struct BoxedCallValue : IBoxCall { public int Number; public int Read() => Number; }
+    public sealed class BoxedCallClass : IBoxCall
+    {
+        public int Number;
+        public BoxedCallClass(int number) { Number = number; }
+        public int Read() => Number;
+    }
+    public interface IBoxParent { }
+    public interface IBoxChild : IBoxParent { }
+    public interface IBoxUnrelated { }
+    public interface IBoxOut<out T> { }
+    public struct InterfaceBoxValue : IBoxChild, IBoxOut<string>
+    {
+        public int Number;
+        public string Text;
+    }
+    public struct OtherInterfaceBoxValue : IBoxChild { public int Number; }
+    public sealed class InterfaceBoxHolder { public IBoxParent Value; }
+    public static class BoxedInterfaces
+    {
+        private static IBoxParent Wrap(InterfaceBoxValue value) => value;
+        public static int UnsupportedDispatch(int input, int mode)
+        {
+            var value = new RuntimeEquatableValue(); value.Number = input;
+            System.IEquatable<RuntimeEquatableValue> box = value;
+            return box.Equals(value) ? mode : input;
+        }
+        public static int MixedDispatch(int input, int mode)
+        {
+            IBoxCall value = new BoxedCallClass(input);
+            if (mode < 0) { var boxed = new BoxedCallValue(); boxed.Number = mode; value = boxed; }
+            return value.Read();
+        }
+        public static int Relations(int input, int mode)
+        {
+            var value = new InterfaceBoxValue(); value.Number = input; value.Text = "box";
+            object box = value;
+            object second = value;
+            IBoxChild child = (IBoxChild)box;
+            IBoxParent parent = child;
+            string pressure = string.Concat("allocation", "pressure");
+            return ((object)parent == box ? 1 : 0) + (box == second ? 2 : 0)
+                + (box is IBoxUnrelated ? 4 : 0) + (box is IBoxParent ? 8 : 0)
+                + (box is IBoxOut<object> ? 16 : 0) + ((InterfaceBoxValue)parent).Number + pressure.Length;
+        }
+        public static int Storage(int input, int mode)
+        {
+            var value = new InterfaceBoxValue(); value.Number = input; value.Text = string.Concat("root", "value");
+            var holder = new InterfaceBoxHolder(); holder.Value = value;
+            var array = new IBoxParent[2]; array[0] = holder.Value; array[1] = value;
+            var returned = Wrap(value);
+            value.Number = mode; value.Text = "changed";
+            var copy = (InterfaceBoxValue)array[0];
+            copy.Number++;
+            string pressure = string.Concat("later", "allocation");
+            return copy.Number + ((InterfaceBoxValue)holder.Value).Number + copy.Text.Length + pressure.Length
+                + ((InterfaceBoxValue)array[1]).Number + ((InterfaceBoxValue)returned).Text.Length;
+        }
+        public static int Faults(int input, int mode)
+        {
+            var value = new InterfaceBoxValue(); value.Number = input;
+            object box = value; int result = 0;
+            try { var other = (IBoxUnrelated)box; result += other == null ? 1 : 2; }
+            catch (System.InvalidCastException) { result += 4; }
+            try { var other = (OtherInterfaceBoxValue)box; result += other.Number; }
+            catch (System.InvalidCastException) { result += 8; }
+            object missing = null;
+            try { var other = (InterfaceBoxValue)missing; result += other.Number; }
+            catch (System.NullReferenceException) { result += 16; }
+            return result + ((IBoxChild)missing == null ? 32 : 0);
+        }
+    }
+}

@@ -38,12 +38,12 @@ public sealed class DirectInterfaceValueTests
     public void Boxing_cannot_silently_drop_value_interface_relationships()
     {
         var result = IntegerObjectTranslationTests.Translate("Boxed", fixture: typeof(DirectInterfaceValues));
-        Assert.False(result.Success);
-        Assert.Contains("Boxing interface-bearing values", result.Diagnostics[0].Message, StringComparison.Ordinal);
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
     }
 
     [Fact]
-    public void Detached_box_operations_cannot_discard_interface_evidence()
+    public void Detached_box_operations_retain_interface_evidence()
     {
         var source = BoxedValueIrTests.Model();
         var scalar = ValueScalarLowering.LowerBoxes(source);
@@ -60,9 +60,9 @@ public sealed class DirectInterfaceValueTests
         var copiesOnly = source.Flow.Flow with { Types = catalog, Methods = [entry with { Blocks = [block with {
             Statements = [defined, constant], Terminator = new IrReturn(1, 1) }] }] };
         Assert.Contains("retains the value metadata catalog", Assert.Throws<ArgumentException>(() => ValueIrValidator.Validate(copiesOnly)).Message, StringComparison.Ordinal);
-        Assert.Throws<ArgumentException>(() => BoxedValueIrValidator.Validate(source with { Flow = source.Flow with { Flow = source.Flow.Flow with { Types = catalog } } }));
+        BoxedValueIrValidator.Validate(source with { Flow = source.Flow with { Flow = source.Flow.Flow with { Types = catalog } } });
         scalar = scalar with { Values = catalog, Flow = scalar.Flow with { Flow = scalar.Flow.Flow with { Flow = scalar.Flow.Flow.Flow with { Types = references } } } };
-        Assert.Throws<ArgumentException>(() => ScalarBoxedIrValidator.Validate(scalar));
+        ScalarBoxedIrValidator.Validate(scalar);
     }
 
     [Fact]

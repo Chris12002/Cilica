@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v32";
+    public const string Profile = "object-frames-native-v33";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -42,13 +42,13 @@ public static class ObjectCppEmitter
         var plans = ObjectRootAssignment.AssignLocations(program).ToDictionary(p => p.Method);
         if (values.References != program.Flow.Flow.Types)
             throw new ArgumentException("Boxed payloads must share the scalar program's reference catalog.", nameof(values));
-        return EmitValidated(program.Flow, plans, locations: true, payloads);
+        return EmitValidated(program.Flow, plans, locations: true, payloads, valueLayouts: values.Types);
     }
 
     public static CppArtifact EmitBoxes(ScalarBoxedIrProgram program)
     {
         var plans = ObjectRootAssignment.AssignBoxes(program).ToDictionary(p => p.Method);
-        return EmitValidated(program.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(program.Values));
+        return EmitValidated(program.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(program.Values), valueLayouts: program.Values.Types);
     }
 
     /// <summary>Private storage helpers only; this scalar program cannot contain managed handler IR.</summary>
@@ -65,17 +65,17 @@ public static class ObjectCppEmitter
     {
         var plans = ObjectRootAssignment.AssignExceptions(program).ToDictionary(p => p.Method);
         var boxes = program.Flow.Flow;
-        return EmitValidated(boxes.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(boxes.Values), program.Exceptions, handlers: true, exceptionValues: boxes.Values.Types);
+        return EmitValidated(boxes.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(boxes.Values), program.Exceptions, handlers: true, valueLayouts: boxes.Values.Types);
     }
 
     public static CppArtifact EmitDelegates(ScalarDelegateIrProgram program)
     {
         var plans = ObjectRootAssignment.AssignDelegates(program).ToDictionary(p => p.Method);
-        return EmitValidated(program.Flow.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(program.Flow.Values));
+        return EmitValidated(program.Flow.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(program.Flow.Values), valueLayouts: program.Flow.Values.Types);
     }
 
     private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations,
-        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null, bool handlers = false, ImmutableArray<ValueTypeLayout> exceptionValues = default)
+        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null, bool handlers = false, ImmutableArray<ValueTypeLayout> valueLayouts = default)
     {
         string argumentType = locations ? "LocationArgument" : "Argument";
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
@@ -191,15 +191,17 @@ public static class ObjectCppEmitter
         if (!boxedPayloads.IsEmpty)
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
         if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, program.Flow.Types, TypeSymbol,
-            ManagedExceptionCastMessages.Build(program.Flow.Methods, program.Flow.Types, exceptionValues.IsDefault ? [] : exceptionValues));
+            ManagedExceptionCastMessages.Build(program.Flow.Methods, program.Flow.Types, valueLayouts.IsDefault ? [] : valueLayouts));
+        var boxedRelations = valueLayouts.IsDefault ? null : new BoxedTypeRelations(program.Flow.Types, valueLayouts);
         // Exact membership compares untrusted descriptor addresses without dereferencing them.
         // This covers nominal/interface ancestry, vector covariance and widening to Object.
         foreach (var expected in referenceTypes)
         {
             string name = Predicate(expected);
             var receivers = concrete.Where(t => typeRules.Assignable(IrType.Reference(t), IrType.Reference(expected))).ToArray();
-            var descriptors = receivers.Select(t => "&" + TypeSymbol(t) + "_descriptor").Concat(expected == program.Flow.Types.ObjectBase
-                ? boxedPayloads.Select(p => "&" + ObjectCppBoxing.Symbol(p.Type) + "_descriptor") : []).ToArray();
+            var descriptors = receivers.Select(t => "&" + TypeSymbol(t) + "_descriptor").Concat(
+                boxedPayloads.Where(p => expected == program.Flow.Types.ObjectBase || boxedRelations?.Accepts(p.Type, expected) == true)
+                    .Select(p => "&" + ObjectCppBoxing.Symbol(p.Type) + "_descriptor")).ToArray();
             text.Append("static constexpr std::array<const Descriptor*, ").Append(N(descriptors.Length)).Append("> ")
                 .Append(name).Append("_types = {").Append(string.Join(", ", descriptors)).Append("};\n")
                 .Append("[[maybe_unused, gnu::noinline]] static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n")

@@ -54,7 +54,7 @@ internal sealed class ValueIrRules
         Plans = ValueLayoutPlanner.Build(catalog);
         Catalog = catalog;
         _fields = catalog.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
-        _boxTypes = boxing ? catalog.Types.Where(t => t.Interfaces.IsEmpty).Select(t => ObjectTypeId.From(t.Source)).ToHashSet() : [];
+        _boxTypes = boxing ? catalog.Types.Select(t => ObjectTypeId.From(t.Source)).ToHashSet() : [];
         if (locations) Locations = new(catalog, this);
     }
 

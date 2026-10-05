@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 /// <summary>Scalar boxing operations with exact logical payload plans; not a public struct ABI.</summary>
 public sealed record ScalarBoxedIrProgram(ScalarLocationIrProgram Flow, ValueTypeCatalog Values)
 {
-    public const string Profile = "scalar-boxed-ir-v2";
+    public const string Profile = "scalar-boxed-ir-v3";
 }
 
 public static class ScalarBoxedIrValidator
@@ -24,6 +24,9 @@ public static class ScalarBoxedIrValidator
         if (!ObjectInterfaceOperationRules.CatalogMatches(new HeapValueFields(program.Values, rules.Plans.ToDictionary(p => p.Type)).Catalog, program.Flow.Flow.Flow.Types))
             throw new ArgumentException("Scalar boxes must share the exact reference catalog.", nameof(program));
         ObjectIrValidator.Validate(program.Flow.Flow, locations: true, rules, delegates: delegates, exceptions: exceptions);
+        new BoxedTypeRelations(program.Values).ValidateDispatch(program.Flow.Flow.Flow.Methods
+            .SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression)
+            .OfType<IrExpression.BoxScalars>().Select(b => b.Type), program.Flow.Flow.InterfaceDispatch);
         return rules;
     }
 }
@@ -38,8 +41,7 @@ internal sealed class ScalarBoxingRules
     internal ScalarBoxingRules(ValueTypeCatalog values)
     {
         Plans = ValueLayoutPlanner.Build(values);
-        var allowed = values.Types.Where(t => t.Interfaces.IsEmpty).Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
-        _plans = Plans.Where(p => allowed.Contains(p.Type)).ToDictionary(p => p.Type);
+        _plans = Plans.ToDictionary(p => p.Type);
         InterfaceTypes = [.. values.Types.SelectMany(t => t.Interfaces).Distinct()];
         _object = values.References.ObjectBase;
         _types = new(values.References, locations: true);

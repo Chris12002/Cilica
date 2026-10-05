@@ -125,11 +125,12 @@ public static class ValueTranslator
             var fields = input.Types.Types.SelectMany(t => t.Fields).Concat(classes
                 ? input.Types.References.Types.SelectMany(t => t.Fields) : []).ToDictionary(f => f.Id);
             var types = new IrTypeRules(input.Types.References, input.Types, locations: true);
+            var boxedRelations = integers64 ? new BoxedTypeRelations(input.Types) : null;
             var resources = new ProgramResources(); var translated = new List<IrMethod>();
             foreach (var method in input.Methods)
             {
                 var body = new Body(method, methods, fields, arrays, classes, boxing, input.Types.References.Delegates.ToDictionary(d => ObjectTypeId.From(d.Source)), types, input.Types.References.ObjectBase,
-                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32), input.Exceptions, input.Types.References.String).Translate();
+                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32), input.Exceptions, input.Types.References.String, boxedRelations).Translate();
                 if (!resources.Add(body)) Fail(method, 0, "Aggregate value IR resource limit exceeded.", DiagnosticIds.TranslationLimit);
                 translated.Add(body);
             }
@@ -192,7 +193,7 @@ public static class ValueTranslator
             + " IL_" + offset.ToString("x4", CultureInfo.InvariantCulture)));
 
     private sealed class Body(ValueMethodInput method, Dictionary<IrMethodId, ValueMethodInput> methods,
-        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray, ManagedExceptionTypes? exceptions, ObjectTypeId? stringType)
+        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray, ManagedExceptionTypes? exceptions, ObjectTypeId? stringType, BoxedTypeRelations? boxedRelations)
     {
         private int _statements, _inputs, _edges;
         private void Error(int offset, string message, string code = DiagnosticIds.InconsistentStack) => Fail(method, offset, message, code);
@@ -373,6 +374,7 @@ public static class ValueTranslator
                         case "stelem.i4" when arrays:
                             int elementValue = Pop(offset), storeIndex = Pop(offset, IrType.Int32), storeArray = PopArray(offset);
                             var storeView = ArrayView(storeArray, opcode, offset);
+                            elementValue = AdaptBox(elementValue, storeView.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? IrType.Int32 : IrType.Reference(storeView.ArrayElement.Type!), offset);
                             Compatible(values[elementValue], storeView.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? IrType.Int32 : IrType.Reference(storeView.ArrayElement.Type!), offset);
                             Add(new IrStatement.StoreElement(offset, storeView, storeArray, storeIndex, elementValue), offset); break;
                         case "ldsfld" when types.IntegerCasts && method.DefaultStatics.TryGetValue(offset, out var defaultStatic):
@@ -621,7 +623,14 @@ public static class ValueTranslator
                 {
                     if (stack.Count == 0) Error(offset, "Instruction requires an evaluation-stack operand.");
                     int id = stack[^1]; stack.RemoveAt(stack.Count - 1);
-                    if (expected is not null) Compatible(values[id], expected, offset); return id;
+                    if (expected is not null) { id = AdaptBox(id, expected, offset); Compatible(values[id], expected, offset); } return id;
+                }
+                int AdaptBox(int id, IrType expected, int offset)
+                {
+                    if (expected.Kind == IrTypeKind.Reference && !types.Assignable(values[id], expected)
+                        && valueExpressions[id] is IrExpression.BoxValue box && boxedRelations?.Accepts(box.Type, expected.Class!) == true)
+                        return Define(offset, expected, new IrExpression.CastClass(expected.Class!, id), true);
+                    return id;
                 }
                 int Location(int offset, IrType? element)
                 {

@@ -41,6 +41,8 @@ public static class ValueArrayIrValidator
             throw new ArgumentException("Composed class dispatch requires the explicit integer-object catalog.", nameof(program));
         var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings) { InterfaceDispatch = interfaces, Dispatch = dispatch.IsDefault ? [] : dispatch }, locations: true, values: flow.Types, delegates: delegates);
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing, exceptions);
+        if (boxing) new BoxedTypeRelations(flow.Types).ValidateDispatch(flow.Methods.SelectMany(m => m.Blocks)
+            .SelectMany(b => b.Values).Select(v => v.Expression).OfType<IrExpression.BoxValue>().Select(b => b.Type), interfaces);
         foreach (var method in flow.Methods)
             if (objects.Binding(IrMethodId.From(method.Source)).Kind is not (ObjectMethodKind.Static or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
                 && !(flow.Types.References.Integer64 && objects.Binding(IrMethodId.From(method.Source)).Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor)

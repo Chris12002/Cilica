@@ -1583,3 +1583,11 @@ key consistency without promising cross-runtime numeric hashes. Four probes
 provide 1,176 repeated local O0/O2 results. Object equality, tuple formatting,
 comparison and structural APIs remain diagnostic. The concrete kernel next reaches
 String.Format; no native kernel equivalence is claimed.
+
+
+Boxed interface-bearing values now preserve authenticated interface ancestry and
+variance in native descriptor predicates (ADR 0155). Fresh-box implicit conversions
+are typed checked casts; payload storage, identity, unbox copies and precise roots
+retain existing behavior. Three probes provide 882 repeated local O0/O2 results.
+Boxed method dispatch remains diagnostic until its payload receiver is lowered.
+Boxed value IR v2, scalar boxing IR v3 and native v33 retain the added scope.
