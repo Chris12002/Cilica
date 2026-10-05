@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.31 and 6d.1–6d.3 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.32 and 6d.1–6d.3 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -576,6 +576,16 @@ no remaining actionable issue; see
 [ADR 0125](../decisions/0125-ordinary-arguments-with-byreflike-permission.md).
 Constrained dispatch, framework member mappings and native kernel equivalence
 remain pending.
+
+## Slice 6c.32 outcome
+
+The metadata API now selects exact direct interface bodies and Object/ValueType
+overrides on closed ordinary values, retaining declaration and receiver evidence.
+All 79 distinct focused checks pass; target mappings match .NET and unsupported
+fallbacks, forged declarations and newslot impersonation are rejected. Review
+found no remaining actionable issue; see
+[ADR 0126](../decisions/0126-constrained-value-targets.md). Executable constrained
+CIL integration follows; native kernel equivalence remains pending.
 
 ## Remaining completion evidence
 

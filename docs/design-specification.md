@@ -937,6 +937,10 @@ rejected through bounded marker inspection, and library mappings cannot erase
 their marker ([ADR 0125](decisions/0125-ordinary-arguments-with-byreflike-permission.md)).
 This permits direct IEquatable value bodies against the selected runtime without
 claiming ref struct or constrained-dispatch support.
+Exact constrained value targets can now be selected as metadata evidence, using
+shared interface/constraint validation and direct Object/ValueType override rules
+([ADR 0126](decisions/0126-constrained-value-targets.md)). Boxing/default fallbacks
+remain diagnostic; executable constrained CIL is a separate gate.
 
 Milestone 6's `integer-arithmetic-ir-v1` profile adds authored Int64 scalar IR
 and C++20 arithmetic with typed calls, locals and block edges
