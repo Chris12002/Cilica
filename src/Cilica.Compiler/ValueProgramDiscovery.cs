@@ -68,12 +68,16 @@ public static partial class ValueProgramDiscovery
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
         ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true, exceptions: true);
 
+    public static ValueDiscoveryResult ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null) =>
+        ReadCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true, exceptions: true, integers64: true);
+
     private static ValueDiscoveryResult ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false, bool delegates = false, bool exceptions = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false, bool delegates = false, bool exceptions = false, bool integers64 = false)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(runtimeLibrary);
-        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays, classes, boxing, generics, delegates, exceptions).Read(assembly, entry), []); }
+        try { return new(new Session(resolver, runtimeLibrary, limits ?? new(), arrays, classes, boxing, generics, delegates, exceptions, integers64).Read(assembly, entry), []); }
         catch (Failure failure) { return new(null, [failure.Diagnostic]); }
     }
 
@@ -82,7 +86,7 @@ public static partial class ValueProgramDiscovery
         internal Diagnostic Diagnostic { get; } = diagnostic;
     }
 
-    private sealed partial class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays, bool classes, bool boxing, bool generics, bool delegates, bool exceptions)
+    private sealed partial class Session(AssemblyResolver resolver, ResolvedAssembly library, MethodReadLimits limits, bool arrays, bool classes, bool boxing, bool generics, bool delegates, bool exceptions, bool integers64)
     {
         private sealed record Work(ResolvedAssembly Assembly, ResolvedMethod Resolved, MethodInput Input, ObjectMethodBinding Binding,
             ImmutableArray<IrType> Parameters, IrType ReturnType, ImmutableArray<IrType> Locals, Work? Parent, int Offset) { internal ImmutableArray<IrExceptionRegion> Regions { get; init; } = []; }
@@ -246,7 +250,7 @@ public static partial class ValueProgramDiscovery
                 [.. _references.Values], _snapshots, delegates ? type => {
                     if (exceptions) IncludeExceptionHierarchy(type, root, 0);
                     return DelegateType(type, root, 0);
-                } : null) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
+                } : null, integers64) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                 [.. _references.Values.Select(t => t.Definition)], _snapshots);
             if (built.Catalog is not { } catalog) throw new Failure(built.Diagnostics[0]);
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
@@ -368,6 +372,8 @@ public static partial class ValueProgramDiscovery
         private IrType Storage(TypeSignature signature, Work? caller, int offset, bool borrow = false, bool allowVoid = false) => signature switch
         {
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
+            TypeSignature.Primitive { Code: PrimitiveTypeCode.UInt32 } when integers64 => IrType.Int32,
+            TypeSignature.Primitive { Code: PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 } when integers64 => IrType.Int64,
             TypeSignature.Primitive { Code: PrimitiveTypeCode.String } when exceptions => IrType.Reference(IncludeString(caller, offset)),
             TypeSignature.Primitive { Code: PrimitiveTypeCode.Void } when allowVoid => IrType.Void,
             TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } generic when generics => IrType.Reference(IncludeReference(new ConstructedType(generic.Definition.Definition, generic.Arguments), caller, offset)),

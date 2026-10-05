@@ -54,7 +54,7 @@ public sealed partial class AssemblyResolver
         }
         (bool Value, bool Nullable, ResolvedType? Definition) Traits(TypeSignature signature)
         {
-            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }) return (true, false, null);
+            if (signature is TypeSignature.Primitive integer && ClosedGenericKey.IsIntegerArgument(integer.Code)) return (true, false, null);
             if (signature is TypeSignature.Vector) return (false, false, null);
             if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Object })
                 signature = new TypeSignature.Named(ResolveRuntimeType(library, PrimitiveTypeCode.Object).Value

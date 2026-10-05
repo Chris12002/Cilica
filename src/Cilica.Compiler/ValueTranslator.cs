@@ -43,6 +43,14 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v1";
+    public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
+    {
+        var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true, exceptions: true, integers64: true);
+        return new(result.Program is null ? null : new(new(result.Program, result.Bindings), result.Exceptions!), result.Diagnostics);
+    }
+
     public const string ExceptionProfile = "managed-exceptions-cil-v1";
     public static ManagedExceptionTranslationResult TranslateExceptions(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
@@ -98,9 +106,10 @@ public static class ValueTranslator
         TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: false);
 
     private static ValueTranslationResult TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly,
-        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false, bool delegates = false, bool exceptions = false)
+        MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits, bool arrays, bool classes = false, bool boxing = false, bool generics = false, bool delegates = false, bool exceptions = false, bool integers64 = false)
     {
-        var discovered = exceptions ? ValueProgramDiscovery.ReadExceptions(resolver, assembly, entry, runtimeLibrary, limits)
+        var discovered = integers64 ? ValueProgramDiscovery.ReadIntegerObjects(resolver, assembly, entry, runtimeLibrary, limits)
+            : exceptions ? ValueProgramDiscovery.ReadExceptions(resolver, assembly, entry, runtimeLibrary, limits)
             : delegates ? ValueProgramDiscovery.ReadDelegates(resolver, assembly, entry, runtimeLibrary, limits)
             : generics ? ValueProgramDiscovery.ReadGenerics(resolver, assembly, entry, runtimeLibrary, limits)
             : boxing ? ValueProgramDiscovery.ReadBoxes(resolver, assembly, entry, runtimeLibrary, limits)
@@ -195,8 +204,19 @@ public static class ValueTranslator
                     var instruction = input.Instructions[index]; int offset = instruction.Offset; string opcode = instruction.OpCode;
                     if (Int32Operations.FromOpcode(opcode) is { } operation)
                     {
-                        int right = Pop(offset, IrType.Int32), left = Pop(offset, IrType.Int32);
-                        Push(offset, IrType.Int32, new IrExpression.Binary(operation, left, right), Int32Operations.MayFault(operation));
+                        int right = Pop(offset), left = Pop(offset);
+                        bool shift = operation is Int32Operation.ShiftLeft or Int32Operation.ShiftRightSigned or Int32Operation.ShiftRightUnsigned;
+                        if (!Integer(values[left]) || values[right] != (shift ? IrType.Int32 : values[left]))
+                            Error(offset, "Integer arithmetic requires matching widths and Int32 shift counts.");
+                        Push(offset, values[left], values[left] == IrType.Int64
+                            ? new IrExpression.Binary64(Int64Operations.FromOpcode(opcode), left, right)
+                            : new IrExpression.Binary(operation, left, right), Int32Operations.MayFault(operation));
+                    }
+                    else if (types.IntegerCasts && IntegerCasts.FromOpcode(opcode, -1) is { } cast)
+                    {
+                        int operand = Pop(offset);
+                        if (!Integer(values[operand])) Error(offset, "Integer conversion requires an integer stack value.");
+                        Push(offset, IntegerCasts.Result(cast.Target), cast with { Operand = operand }, cast.Checked);
                     }
                     else switch (opcode)
                     {
@@ -270,12 +290,21 @@ public static class ValueTranslator
                         case "ldc.i4.m1" or "ldc.i4.0" or "ldc.i4.1" or "ldc.i4.2" or "ldc.i4.3" or "ldc.i4.4" or "ldc.i4.5" or "ldc.i4.6" or "ldc.i4.7" or "ldc.i4.8":
                             Push(offset, IrType.Int32, new IrExpression.Constant(opcode == "ldc.i4.m1" ? -1 : opcode[^1] - '0')); break;
                         case "ldc.i4.s" or "ldc.i4": Push(offset, IrType.Int32, new IrExpression.Constant(instruction.IntegerOperand!.Value)); break;
+                        case "ldc.i8" when types.IntegerCasts:
+                            if (instruction.Int64Operand is null) Error(offset, "ldc.i8 requires a complete Int64 operand.", DiagnosticIds.InvalidOperand);
+                            Push(offset, IrType.Int64, new IrExpression.Constant64(instruction.Int64Operand!.Value)); break;
                         case "dup": int duplicate = Pop(offset); stack.Add(duplicate); stack.Add(duplicate); break;
                         case "pop": Pop(offset); break;
-                        case "not": Push(offset, IrType.Int32, new IrExpression.Unary(Int32UnaryOperation.BitwiseNot, Pop(offset, IrType.Int32))); break;
+                        case "not":
+                            int complement = Pop(offset); if (!Integer(values[complement])) Error(offset, "not requires an integer operand.");
+                            Push(offset, values[complement], values[complement] == IrType.Int64 ? new IrExpression.Not64(complement)
+                                : new IrExpression.Unary(Int32UnaryOperation.BitwiseNot, complement)); break;
                         case "neg":
-                            int negated = Pop(offset, IrType.Int32), zero = Define(offset, IrType.Int32, new IrExpression.Constant(0));
-                            Push(offset, IrType.Int32, new IrExpression.Binary(Int32Operation.SubtractWrapping, zero, negated)); break;
+                            int negated = Pop(offset); if (!Integer(values[negated])) Error(offset, "neg requires an integer operand.");
+                            var negatedType = values[negated];
+                            int zero = Define(offset, negatedType, negatedType == IrType.Int64 ? new IrExpression.Constant64(0) : new IrExpression.Constant(0));
+                            Push(offset, negatedType, negatedType == IrType.Int64 ? new IrExpression.Binary64(Int64Operation.SubtractWrapping, zero, negated)
+                                : new IrExpression.Binary(Int32Operation.SubtractWrapping, zero, negated)); break;
                         case "conv.i4": int unchanged = Pop(offset, IrType.Int32); stack.Add(unchanged); break;
                         case "ceq" or "clt" or "clt.un" or "cgt" or "cgt.un":
                             int comparedRight = Pop(offset), comparedLeft = Pop(offset);
@@ -367,12 +396,14 @@ public static class ValueTranslator
                                     : new IrStatement.StoreLocation(offset, destination, stored), offset);
                             }
                             break;
+                        case "ldind.i8" when types.IntegerCasts:
                         case "ldind.i4" or "ldind.ref":
-                            int read = Location(offset, opcode == "ldind.i4" ? IrType.Int32 : null);
+                            int read = Location(offset, opcode == "ldind.i8" ? IrType.Int64 : opcode == "ldind.i4" ? IrType.Int32 : null);
                             if (opcode == "ldind.ref" && values[read].Element!.Kind != IrTypeKind.Reference) Error(offset, "ldind.ref requires reference storage.");
                             Push(offset, values[read].Element!, new IrExpression.LoadLocation(read), true); break;
+                        case "stind.i8" when types.IntegerCasts:
                         case "stind.i4" or "stind.ref":
-                            int writeValue = Pop(offset), write = Location(offset, opcode == "stind.i4" ? IrType.Int32 : null);
+                            int writeValue = Pop(offset), write = Location(offset, opcode == "stind.i8" ? IrType.Int64 : opcode == "stind.i4" ? IrType.Int32 : null);
                             if (opcode == "stind.ref" && values[write].Element!.Kind != IrTypeKind.Reference) Error(offset, "stind.ref requires reference storage.");
                             Compatible(values[writeValue], values[write].Element!, offset); Writable(write, offset);
                             Add(new IrStatement.StoreLocation(offset, write, writeValue), offset); break;
@@ -387,7 +418,7 @@ public static class ValueTranslator
                                 int? right = comparison is Int32Comparison.Zero or Int32Comparison.Nonzero ? null : Pop(offset);
                                 int left = Pop(offset);
                                 if (right is { } comparedRightId) Comparison(comparison, left, comparedRightId, offset);
-                                else if (values[left] != IrType.Int32 && !(arrays && Reference(values[left]))) Error(offset, "Branch requires Int32 or reference truth value.");
+                                else if (!Integer(values[left]) && !(arrays && Reference(values[left]))) Error(offset, "Branch requires integer or reference truth value.");
                                 terminator = new IrBranch(offset, comparison, left, right, Edge(instruction.Targets[0], offset), Edge(offset + instruction.Length, offset));
                             }
                             else Error(offset, "Instruction '" + opcode + "' is outside " + (boxing ? BoxedProfile : classes ? ObjectProfile : arrays ? ArrayProfile : Profile) + "; add a supported lowering before execution.", DiagnosticIds.ExecutionUnsupported);
@@ -436,9 +467,9 @@ public static class ValueTranslator
                 }
                 void Comparison(Int32Comparison comparison, int left, int right, int offset)
                 {
-                    if (values[left] == IrType.Int32 && values[right] == IrType.Int32) return;
+                    if (Integer(values[left]) && values[right] == values[left]) return;
                     if (arrays && comparison is (Int32Comparison.Equal or Int32Comparison.NotEqual) && Reference(values[left]) && Reference(values[right])) return;
-                    Error(offset, "Comparison requires Int32 operands or supported reference identity equality.");
+                    Error(offset, "Comparison requires matching admitted integer widths or supported reference identity equality.");
                 }
                 IrEdge Edge(int offset, int from)
                 {
@@ -476,9 +507,11 @@ public static class ValueTranslator
         private static IrType Storage(ObjectStorage storage) => storage switch
         {
             ObjectStorage.Int32 => IrType.Int32,
+            ObjectStorage.Int64 => IrType.Int64,
             ObjectStorage.Value value => IrType.Value(value.Type),
             ObjectStorage.Reference reference => IrType.Reference(reference.Type),
             _ => throw new InvalidOperationException("Unknown validated storage."),
         };
+        private bool Integer(IrType type) => type == IrType.Int32 || types.IntegerCasts && type == IrType.Int64;
     }
 }

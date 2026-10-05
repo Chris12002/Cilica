@@ -70,6 +70,16 @@ public sealed class ClosedGenericTranslationTests
         Assert.Throws<ArgumentException>(() => ClosedGenericKey.Create(new([]), new([new TypeSignature.Variable(true, 0)])));
     }
 
+    [Fact]
+    public void Integer_specialization_keys_preserve_storage_identity()
+    {
+        PrimitiveTypeCode[] codes = [PrimitiveTypeCode.Boolean, PrimitiveTypeCode.Char,
+            PrimitiveTypeCode.SByte, PrimitiveTypeCode.Byte, PrimitiveTypeCode.Int16, PrimitiveTypeCode.UInt16,
+            PrimitiveTypeCode.Int32, PrimitiveTypeCode.UInt32, PrimitiveTypeCode.Int64, PrimitiveTypeCode.UInt64];
+        var keys = codes.Select(code => ClosedGenericKey.Create(new([new TypeSignature.Primitive(code)]), new([]))).ToArray();
+        Assert.Equal(codes.Length, keys.Distinct().Count());
+    }
+
     [Theory]
     [InlineData("bad")]
     [InlineData("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")]

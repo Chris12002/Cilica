@@ -88,6 +88,21 @@ public sealed class GenericConstraintTests
         Assert.Contains(result.Diagnostics, d => d.Id == Cilica.Metadata.DiagnosticIds.TranslationLimit);
     }
 
+    [Theory]
+    [InlineData(PrimitiveTypeCode.Boolean)] [InlineData(PrimitiveTypeCode.Char)]
+    [InlineData(PrimitiveTypeCode.SByte)] [InlineData(PrimitiveTypeCode.Byte)]
+    [InlineData(PrimitiveTypeCode.Int16)] [InlineData(PrimitiveTypeCode.UInt16)]
+    [InlineData(PrimitiveTypeCode.UInt32)] [InlineData(PrimitiveTypeCode.Int64)] [InlineData(PrimitiveTypeCode.UInt64)]
+    public void Integer_arguments_satisfy_struct_constraints_without_loading_runtime_types(PrimitiveTypeCode code)
+    {
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        var input = resolver.OpenInput(typeof(ConstrainedValue<>).Assembly.Location).Value!;
+        var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
+        var definition = resolver.ResolveType(input, (TypeDefinitionHandle)MetadataTokens.EntityHandle(typeof(ConstrainedValue<>).MetadataToken)).Value!;
+        var result = resolver.ReadClosedTypeInput(new(definition, new([new TypeSignature.Primitive(code)])), library, new());
+        Assert.NotNull(result.Value); Assert.Empty(result.Diagnostics);
+    }
+
     [Fact]
     public void Unused_nested_type_arguments_cannot_bypass_constraints()
     {

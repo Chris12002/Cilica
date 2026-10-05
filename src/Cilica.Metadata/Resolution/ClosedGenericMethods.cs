@@ -21,7 +21,7 @@ public static class ClosedGenericKey
             if (++nodes > 4096 || depth > 64) throw new ArgumentException("Closed specialization exceeds 4096 signature nodes or 64 levels.");
             switch (type)
             {
-                case TypeSignature.Primitive p when p.Code is PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Object:
+                case TypeSignature.Primitive p when IsIntegerArgument(p.Code) || p.Code == PrimitiveTypeCode.Object:
                     text.Append('p').Append((int)p.Code).Append(';'); break;
                 case TypeSignature.Named n when n.Kind is SignatureTypeKind.Class or SignatureTypeKind.ValueType:
                     if (!genericDefinition && n.Definition.Assembly.Image.Reader.GetTypeDefinition(n.Definition.Handle).GetGenericParameters().Count != 0)
@@ -48,6 +48,11 @@ public static class ClosedGenericKey
         text.Append(']');
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(text.ToString())));
     }
+
+    internal static bool IsIntegerArgument(PrimitiveTypeCode code) => code is PrimitiveTypeCode.Boolean
+        or PrimitiveTypeCode.Char or PrimitiveTypeCode.SByte or PrimitiveTypeCode.Byte
+        or PrimitiveTypeCode.Int16 or PrimitiveTypeCode.UInt16 or PrimitiveTypeCode.Int32
+        or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64;
 }
 
 public sealed partial class AssemblyResolver

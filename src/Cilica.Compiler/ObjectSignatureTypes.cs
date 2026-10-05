@@ -11,7 +11,7 @@ internal static class ObjectSignatureTypes
 
     internal static IrType? Convert(TypeSignature signature, ObjectTypeId objectBase,
         Func<ResolvedType, ObjectTypeId> include, Func<ObjectTypeId, ObjectTypeId> array, bool allowVoid = false,
-        Func<ObjectTypeId>? text = null)
+        Func<ObjectTypeId>? text = null, bool integers64 = false)
     {
         if (signature is TypeSignature.Vector vector)
         {
@@ -22,13 +22,15 @@ internal static class ObjectSignatureTypes
                 ? ObjectArrayElement.Int32 : ObjectArrayElement.Reference(element.Class!))));
         }
         return signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Void } && allowVoid
-            ? IrType.Void : Scalar(signature, objectBase, include, text);
+            ? IrType.Void : Scalar(signature, objectBase, include, text, integers64);
     }
 
     private static IrType? Scalar(TypeSignature signature, ObjectTypeId objectBase,
-        Func<ResolvedType, ObjectTypeId> include, Func<ObjectTypeId>? text) => signature switch
+        Func<ResolvedType, ObjectTypeId> include, Func<ObjectTypeId>? text, bool integers64 = false) => signature switch
     {
         TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } => IrType.Int32,
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.UInt32 } when integers64 => IrType.Int32,
+        TypeSignature.Primitive { Code: PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 } when integers64 => IrType.Int64,
         TypeSignature.Primitive { Code: PrimitiveTypeCode.Object } => IrType.Reference(objectBase),
         TypeSignature.Primitive { Code: PrimitiveTypeCode.String } when text is not null => IrType.Reference(text()),
         TypeSignature.Named { Kind: SignatureTypeKind.Class } named => IrType.Reference(include(named.Definition)),

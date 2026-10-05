@@ -104,3 +104,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0096](0096-narrow-scalar-storage.md) | Narrow primitive scalar boundaries | Accepted for parameters, locals, returns and Boolean/Char CIL |
 | [0097](0097-wide-object-storage.md) | Int64 object, frame and borrow storage | Accepted for explicit wide catalogs and native collection/fault probes |
 | [0098](0098-wide-inline-and-boxed-values.md) | Int64 inline and boxed values | Accepted for typed copy/return packets and nested mutable boxing |
+| [0099](0099-wide-managed-object-cil.md) | Wide managed object CIL | Accepted for explicit integer-object composition |

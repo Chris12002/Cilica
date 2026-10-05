@@ -40,12 +40,12 @@ public static class ObjectModelBuilder
 
     internal static ObjectCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, Func<ConstructedType, TypeReadLimits, TypeSnapshot> readType,
-        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null) =>
-        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates);
+        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false) =>
+        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates, integers64);
 
     private static ObjectCatalogResult BuildCatalogCore(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly runtimeLibrary, Func<ConstructedType, TypeReadLimits, TypeSnapshot>? readType, ImmutableArray<ObjectTypeId> arrayRoots,
-        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null)
+        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false)
     {
         strings ??= new(resolver, runtimeLibrary, new(ObjectModelLimits.MaximumMetadataMembers));
         ObjectTypeId? stringType = null;
@@ -197,7 +197,7 @@ public static class ObjectModelBuilder
                     var text = strings.Require(ObjectModelLimits.MaximumMetadataMembers - members);
                     if (!Include(Plain(text), id, field.Token)) exceeded = true;
                     return Id(text);
-                });
+                }, integers64: integers64);
                 IrType GenericReference(TypeSignature.Generic generic)
                 {
                     var closed = new ConstructedType(generic.Definition.Definition, generic.Arguments);
@@ -206,7 +206,8 @@ public static class ObjectModelBuilder
                 }
                 if (exceeded) return Failed(id, DiagnosticIds.TranslationLimit, "Object layout type limit exceeded.", location);
                 if (storageType is null) return Failed(id, DiagnosticIds.ExecutionSignatureUnsupported, ObjectSignatureTypes.Unsupported, location);
-                ObjectStorage storage = storageType == IrType.Int32 ? new ObjectStorage.Int32() : new ObjectStorage.Reference(storageType.Class!);
+                ObjectStorage storage = storageType == IrType.Int32 ? new ObjectStorage.Int32() : storageType == IrType.Int64
+                    ? new ObjectStorage.Int64() : new ObjectStorage.Reference(storageType.Class!);
                 declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
             }
             fields += input.Fields.Length;
@@ -216,7 +217,7 @@ public static class ObjectModelBuilder
             members += strings.CheckInterfaces([.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members);
         var model = new ObjectTypeCatalog([.. roots.Select(ClosedId).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)])
-        { Delegates = [.. delegateTypes], String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
+        { Integer64 = integers64, Delegates = [.. delegateTypes], String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
             Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
         // Metadata can form cycles or extend sealed classes. Surface those as
         // input diagnostics rather than leaking the detached API's exception.

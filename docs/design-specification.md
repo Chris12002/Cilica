@@ -884,10 +884,14 @@ parameters, locals and returns normalize to their declared storage width
 ([ADR 0096](decisions/0096-narrow-scalar-storage.md)). Enum identities and
 array integration remain pending. Explicit wide object catalogs
 now admit Int64 class fields, typed call frames and checked borrows under native
-v18 ([ADR 0097](decisions/0097-wide-object-storage.md)); wide CIL discovery remains
-pending. Int64 leaves now also survive inline copies, return packets and boxed
+v18 ([ADR 0097](decisions/0097-wide-object-storage.md)). Int64 leaves also survive
+inline copies, return packets and boxed
 payloads ([ADR 0098](decisions/0098-wide-inline-and-boxed-values.md)). Catalogs
-without that capability retain their existing admission rules.
+without that capability retain their existing admission rules. The explicit
+`integer-managed-objects-cil-v1` API composes those capabilities with wide CIL,
+closed generic scalar fields and managed exceptions
+([ADR 0099](decisions/0099-wide-managed-object-cil.md)); wide arrays and narrow
+heap storage remain pending.
 
 The class library is a major subsystem. Managed compatibility-library code
 compiles through Cilica; allocation, runtime type inspection and essential
