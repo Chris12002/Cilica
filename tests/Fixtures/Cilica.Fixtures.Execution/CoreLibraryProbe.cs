@@ -4,6 +4,16 @@ namespace Cilica.Fixtures.Execution
 {
     public static class CoreLibraryProbe
     {
+        public static int InvariantIdentity(int input, int mode)
+        {
+            object first = System.Globalization.CultureInfo.InvariantCulture;
+            IFormatProvider provider = System.Globalization.CultureInfo.InvariantCulture;
+            string text = string.Concat(input < 0 ? "negative" : "positive", mode < 0 ? "left" : "right");
+            object second = System.Globalization.CultureInfo.InvariantCulture;
+            return (first == second ? 11 : 17) + (first == provider ? 23 : 29)
+                + (provider is System.Globalization.CultureInfo ? 31 : 37) + text.Length;
+        }
+        public static int UnsupportedCulture(int input, int mode) => System.Globalization.CultureInfo.InvariantCulture.Name.Length + input + mode;
         public static int UnsupportedHash(int input, int mode) => "text".GetHashCode() ^ input ^ mode;
         public static int Text(int input, int mode)
         {

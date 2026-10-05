@@ -397,5 +397,19 @@
     "Member": ".ctor",
     "ParameterCount": 1,
     "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System.Globalization",
+    "Type": "CultureInfo",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "CultureInfoLayout"
+  },
+  {
+    "Namespace": "System.Globalization",
+    "Type": "CultureInfo",
+    "Member": "get_InvariantCulture",
+    "ParameterCount": 0,
+    "Capability": "InvariantCulture"
   }
 ]

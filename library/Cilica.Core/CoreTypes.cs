@@ -31,6 +31,7 @@ namespace System
     public struct Double { }
     public struct IntPtr { }
     public struct UIntPtr { }
+    public interface IFormatProvider { }
 
     public sealed class String
     {
@@ -125,6 +126,15 @@ namespace System
         [MethodImpl(MethodImplOptions.InternalCall)] public extern ArgumentOutOfRangeException();
         [MethodImpl(MethodImplOptions.InternalCall)] public extern ArgumentOutOfRangeException(string paramName);
         [MethodImpl(MethodImplOptions.InternalCall)] public extern ArgumentOutOfRangeException(string paramName, string message);
+    }
+}
+
+namespace System.Globalization
+{
+    public class CultureInfo : System.IFormatProvider
+    {
+        private CultureInfo() { }
+        public static extern CultureInfo InvariantCulture { [MethodImpl(MethodImplOptions.InternalCall)] get; }
     }
 }
 

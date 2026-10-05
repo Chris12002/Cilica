@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Security.Cryptography;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -23,26 +24,34 @@ public sealed class CoreLibraryBuildTests
         Assert.NotNull(root); return Path.Combine(root.FullName, "library", "Cilica.Core", name);
     }
 
-    [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task Built_core_maps_real_reference_declarations_and_executes_native_strings_and_exceptions(bool optimized)
+    internal static async Task<(LibraryBuildResult Built, LibraryBuildRequest Request, AssemblyResolver Resolver, ResolvedAssembly Implementation, LibraryBindingPlan Plan)> BuildAndMap(ResolverFiles files)
     {
-        using var files = new ResolverFiles();
         var requests = LibraryIntrinsicRequests.Read(CorePath("intrinsic-requests.json"));
         var request = LibraryBuildProducerTests.Request(files, CorePath("CoreTypes.cs"));
         string reference = request.References.Single();
         request = request with { AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
         var built = await LibraryBuilder.Build(request);
-        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!,
+        var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!,
             Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;
         var contract = resolver.OpenInput(reference).Value!; Assert.True(contract.IsReferenceAssembly);
         var implementation = resolver.OpenInput(built.AssemblyPath).Value!;
-        Assert.Empty(implementation.References); Assert.False(implementation.IsReferenceAssembly);
-        var names = requests.Select(r => r.Type).Append("Object").Append("ValueType").Distinct().ToArray();
-        var pairs = names.Select(name => new LibraryTypeMapping(resolver.ResolveType(contract, "System", name).Value!,
-            resolver.ResolveType(implementation, "System", name).Value!));
+        var names = requests.Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Distinct().ToArray();
+        var pairs = names.Select(name => new LibraryTypeMapping(resolver.ResolveType(contract, name.Item1, name.Item2).Value!,
+            resolver.ResolveType(implementation, name.Item1, name.Item2).Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);
         Assert.True(plan.Success, string.Join("; ", plan.Diagnostics));
+        return (built, request, resolver, implementation, plan.Value!);
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Built_core_maps_real_reference_declarations_and_executes_native_strings_and_exceptions(bool optimized)
+    {
+        using var files = new ResolverFiles();
+        var (built, request, resolver, implementation, plan) = await BuildAndMap(files);
+        using var resolverLifetime = resolver;
+        var requests = request.Intrinsics;
+        Assert.Empty(implementation.References); Assert.False(implementation.IsReferenceAssembly);
         var bytes = await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken);
         var manifest = JsonSerializer.Deserialize<LibraryBuildManifest>(bytes, new JsonSerializerOptions {
             Converters = { new JsonStringEnumConverter<LibraryIntrinsicCapability>() }
@@ -56,20 +65,32 @@ public sealed class CoreLibraryBuildTests
         Assert.Equal(requests.Length, options.RootElement.GetProperty("IntrinsicRequests").GetArrayLength());
         // Independent approval is simulated only for this reviewed local test build.
         // Neither the producer nor ordinary compilation auto-admits the digest.
-        var admitted = resolver.CreateTrustedLibraryCompilationScope(plan.Value!, bytes, built.ManifestSha256);
+        var admitted = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256);
         Assert.True(admitted.Success, string.Join("; ", admitted.Diagnostics));
         using var scope = admitted.Value!;
-        Assert.False(resolver.CreateTrustedLibraryCompilationScope(plan.Value!, bytes, new string('0', 64)).Success);
+        Assert.False(resolver.CreateTrustedLibraryCompilationScope(plan, bytes, new string('0', 64)).Success);
         var input = resolver.OpenInput(typeof(CoreLibraryProbe).Assembly.Location).Value!;
         var unsupported = ValueTranslator.TranslateIntegerObjects(scope, input,
             (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod("UnsupportedHash")!.MetadataToken), implementation);
         Assert.False(unsupported.Success); Assert.Null(unsupported.Program); Assert.NotEmpty(unsupported.Diagnostics);
-        var probes = new[] { ("Text", (Func<int, int, int>)CoreLibraryProbe.Text), ("Fault", CoreLibraryProbe.Fault), ("Formatting", CoreLibraryProbe.Formatting) };
+        var cultureMethod = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod("InvariantIdentity")!.MetadataToken);
+        foreach (var capability in new[] { LibraryIntrinsicCapability.CultureInfoLayout, LibraryIntrinsicCapability.InvariantCulture })
+        {
+            var narrowed = manifest with { Artifacts = [artifact with { Grants = [.. artifact.Grants.Where(g => g.Capability != capability)] }] };
+            var narrowedBytes = AssemblyResolver.SerializeLibraryBuildManifest(narrowed);
+            using var narrowedScope = resolver.CreateTrustedLibraryCompilationScope(plan, narrowedBytes, Convert.ToHexStringLower(SHA256.HashData(narrowedBytes))).Value!;
+            var denied = ValueTranslator.TranslateIntegerObjects(narrowedScope, input, cultureMethod, implementation);
+            Assert.False(denied.Success); Assert.Contains(denied.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
+        }
+        var otherCultureMember = ValueTranslator.TranslateIntegerObjects(scope, input,
+            (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod("UnsupportedCulture")!.MetadataToken), implementation);
+        Assert.False(otherCultureMember.Success); Assert.NotEmpty(otherCultureMember.Diagnostics);
+        var probes = new[] { ("Text", (Func<int, int, int>)CoreLibraryProbe.Text), ("Fault", CoreLibraryProbe.Fault), ("Formatting", CoreLibraryProbe.Formatting), ("InvariantIdentity", CoreLibraryProbe.InvariantIdentity) };
         var translated = probes.Select(probe => {
             var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(probe.Item1)!.MetadataToken);
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
             Assert.True(result.Success, string.Join("; ", result.Diagnostics));
-            using var unapproved = resolver.CreateLibraryCompilationScope(plan.Value!);
+            using var unapproved = resolver.CreateLibraryCompilationScope(plan);
             var denied = ValueTranslator.TranslateIntegerObjects(unapproved, input, method, implementation);
             Assert.False(denied.Success); Assert.Contains(denied.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
             return (probe.Item1, result.Program!, probe.Item2);

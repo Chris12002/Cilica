@@ -123,6 +123,7 @@ struct Instance {
     StringObject* literals = nullptr;
     StringObject* exception_resources = nullptr;
     Object* emergency_exception = nullptr;
+    Object* invariant_culture = nullptr;
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;
     std::size_t limit = 1048576, object_limit = 4096;
@@ -232,7 +233,8 @@ struct RootScope {
     }
 };
 [[maybe_unused]] static bool valid_roots(const Context& context) noexcept {
-    if (!context.instance.owns(context.exception) || !context.instance.owns(context.instance.emergency_exception)) return false;
+    if (!context.instance.owns(context.exception) || !context.instance.owns(context.instance.emergency_exception)
+        || !context.instance.owns(context.instance.invariant_culture)) return false;
     for (const Frame* f = context.top; f != nullptr; f = f->previous)
         for (std::size_t i = 0; i < f->count; ++i)
             if (!context.instance.owns(f->slots[i])) return false;
@@ -319,6 +321,19 @@ template<class T> static Object* allocate(Context& context, const Descriptor& de
         heap.head = &value->header; heap.bytes += sizeof(T); ++heap.count;
         return &value->header;
     }
+}
+// One lazily allocated provider per instance; its cache is a permanent traced root.
+template<class T> static Object* invariant_culture(Context& context, const Descriptor& descriptor) noexcept {
+    Instance& heap = context.instance;
+    if (heap.invariant_culture != nullptr) {
+        auto* value = heap.invariant_culture;
+        if (!heap.owns(value) || value->owner != &heap || value->type != &descriptor) { context.pending = 6u; return nullptr; }
+        return value;
+    }
+    auto* value = allocate<T>(context, descriptor);
+    // No allocation or observation occurs between allocation and cache publication.
+    heap.invariant_culture = value;
+    return value;
 }
 [[maybe_unused, gnu::noinline]] static Object* allocate_array(Context& context, const Descriptor& descriptor, std::uint32_t length) noexcept {
     if (length > 0x7fffffffu) { context.pending = 2u; return nullptr; }

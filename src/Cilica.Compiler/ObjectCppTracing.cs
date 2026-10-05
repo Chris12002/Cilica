@@ -4,7 +4,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppTracing
 {
     internal const string Text = """
-enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource };
+enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource, invariant_culture };
 enum class TraceResult { complete, stopped, invalid };
 struct ReferenceEdge {
     ReferenceKind kind;
@@ -39,6 +39,21 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
     }
     return TraceResult::complete;
 }
+[[maybe_unused, gnu::noinline]] static TraceResult visit_cached_roots(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
+    if (context.exception != nullptr) {
+        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::pending_exception, context.exception, nullptr, nullptr, 0});
+        if (result != TraceResult::complete) return result;
+    }
+    if (context.instance.emergency_exception != nullptr) {
+        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::emergency_exception, context.instance.emergency_exception, nullptr, nullptr, 0});
+        if (result != TraceResult::complete) return result;
+    }
+    if (context.instance.invariant_culture != nullptr) {
+        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::invariant_culture, context.instance.invariant_culture, nullptr, nullptr, 0});
+        if (result != TraceResult::complete) return result;
+    }
+    return TraceResult::complete;
+}
 [[maybe_unused, gnu::noinline]] static TraceResult visit_roots(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
     if (visitor == nullptr) return TraceResult::invalid;
     std::size_t depth = 0;
@@ -50,14 +65,8 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
         }
     }
     if (depth != context.depth) return TraceResult::invalid;
-    if (context.exception != nullptr) {
-        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::pending_exception, context.exception, nullptr, nullptr, 0});
-        if (result != TraceResult::complete) return result;
-    }
-    if (context.instance.emergency_exception != nullptr) {
-        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::emergency_exception, context.instance.emergency_exception, nullptr, nullptr, 0});
-        if (result != TraceResult::complete) return result;
-    }
+    const auto cached = visit_cached_roots(context, visitor, state);
+    if (cached != TraceResult::complete) return cached;
     std::size_t count = 0;
     for (const StringObject* literal = context.instance.literals; literal != nullptr; literal = literal->literal_next) {
         // Convert the address before reading the header, even for an unreadable pointer.

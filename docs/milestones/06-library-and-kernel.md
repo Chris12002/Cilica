@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.34 and 6d.1–6d.5 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.34 and 6d.1–6d.6 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.34 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.5 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings; numeric API mapping, collections and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.6 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings and invariant-provider identity; numeric API mapping, collections and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -641,6 +641,20 @@ remains separate. See [ADR 0131](../decisions/0131-owned-core-library-bootstrap.
 The latest strict kernel recheck still stops at CanonicalWriter.Append on the
 invariant-formatting path. System formatting APIs, providers, collections and the
 native transcript comparison remain pending.
+
+## Slice 6d.6 outcome
+
+The selected CultureInfo.InvariantCulture getter now returns one instance-owned,
+permanently traced provider. Exact type/member grants are required in mapped
+compilation. Four mapped core probes provide 1,176 repeated native O0/O2 sanitizer
+results, including 294 new provider-identity results; cache lifetime, ownership,
+heap limits, detached IR and missing grants have focused regressions. The private
+native profile advances to v20. Review split cached-root tracing to preserve the
+existing 2 KiB native stack-frame limit. The platform CoreLib's shared
+String/interface gate remains explicit. See
+[ADR 0132](../decisions/0132-invariant-provider-identity.md).
+Numeric formatting methods, general culture behavior and native kernel
+equivalence remain pending.
 
 ## Remaining completion evidence
 

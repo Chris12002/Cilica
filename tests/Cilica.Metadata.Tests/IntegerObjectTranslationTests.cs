@@ -81,6 +81,7 @@ public sealed class IntegerObjectTranslationTests
                         assert(c.used == 0 && c.top == nullptr && c.borrows == nullptr && c.depth == 0);
                         assert(collect(c).status == MarkStatus::complete);
                         std::size_t permanent = 1;
+                        if (heap.invariant_culture != nullptr) ++permanent;
                         for (auto* literal = heap.literals; literal; literal = literal->literal_next) ++permanent;
                         for (auto* resource = heap.exception_resources; resource; resource = resource->literal_next) ++permanent;
                         assert(heap.count == permanent);

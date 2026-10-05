@@ -145,6 +145,7 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.NewDelegate d } => new[] { d.Type },
         IrStatement.Define { Value.Expression: IrExpression.CallDelegate d } => new[] { d.Type },
         IrStatement.InvokeDelegate d => new[] { d.Type },
+        IrStatement.Define { Value.Expression: IrExpression.InvariantCulture c } => new[] { c.Type },
         IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },
         IrStatement.StoreElement a => new[] { a.ArrayType },
@@ -184,6 +185,19 @@ internal sealed class ObjectIrRules
         && arguments.All(a => a >= 0 && a < values.Count && values[a] == IrType.Int32);
 
     internal IrType? StringType => _program.Flow.Types.String is { } text ? IrType.Reference(text) : null;
+
+    private ObjectTypeId? _invariantCulture;
+    internal bool InvariantCulture(ObjectTypeId? type, IrType result)
+    {
+        if (!_program.Flow.Types.Integer64 || type is null || type.ArrayElement is not null || type.Specialization != ""
+            || type.ContentHash != _program.Flow.Types.ObjectBase.ContentHash || result != IrType.Reference(type)
+            || !_layouts.TryGetValue(type, out var layout) || layout.Source.Name != "System.Globalization.CultureInfo"
+            || layout.BaseType != _program.Flow.Types.ObjectBase || !layout.Fields.IsEmpty
+            || layout.Attributes != (TypeAttributes.Public | TypeAttributes.BeforeFieldInit)
+            || _bindings.Values.Any(b => b.Owner == type) || _invariantCulture is not null && _invariantCulture != type) return false;
+        _invariantCulture = type;
+        return true;
+    }
 
     internal bool StringOperand(int operand, IReadOnlyList<IrType> values) => StringType is { } type
         && operand >= 0 && operand < values.Count && _types.Assignable(values[operand], type);
@@ -337,7 +351,7 @@ internal sealed class ObjectIrRules
                             IrExpression.Compare c => !This(c.Left) && !This(c.Right),
                             IrExpression.Call c => c.Arguments.All(a => !This(a)),
                             IrExpression.NewObject n => n.Arguments.All(a => !This(a)),
-                            IrExpression.StringLiteral => true,
+                            IrExpression.StringLiteral or IrExpression.InvariantCulture => true,
                             IrExpression.StringLength s => !This(s.Operand),
                             IrExpression.StringCodeUnit s => !This(s.Operand) && !This(s.Index),
                             IrExpression.StringEquals s => !This(s.Left) && !This(s.Right),

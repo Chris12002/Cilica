@@ -168,6 +168,7 @@ internal static class IrValidator
                             IrExpression.CallDelegate d => objectRules is not null && objectRules.DelegateCall(method, d.Type, d.Delegate, d.Arguments, value.Type, valueTypes),
                             IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),
+                            IrExpression.InvariantCulture culture => objectRules is not null && objectRules.InvariantCulture(culture.Type, value.Type),
                             IrExpression.StringLiteral literal => objectRules is not null && value.Type == objectRules.StringType
                                 && objectRules.StringLiteral(literal.CodeUnits),
                             IrExpression.StringLength text => objectRules is not null && value.Type == IrType.Int32
@@ -222,7 +223,7 @@ internal static class IrValidator
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
-                            or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.LoadLocation
                             or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation

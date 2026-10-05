@@ -1051,7 +1051,11 @@ identity are not claimed.
 The zero-reference Cilica.Core bootstrap now supplies owned runtime declarations
 and explicit intrinsic requests. Exact mappings to the pinned reference image
 execute string/exception probes and the managed formatter through native v19
-([ADR 0131](decisions/0131-owned-core-library-bootstrap.md)). The image is never
+([ADR 0131](decisions/0131-owned-core-library-bootstrap.md)). The selected invariant
+provider now has stable per-instance identity in native v20, with an independently
+authorized fieldless layout, permanent GC root and checked ownership
+([ADR 0132](decisions/0132-invariant-provider-identity.md)). Other culture members
+and numeric formatting APIs remain pending. The image is never
 loaded into the host CLR. Unsupported declarations, including string hashing,
 remain diagnostic; general CoreLib and kernel compatibility are not claimed.
 

@@ -16,6 +16,7 @@ public enum LibraryIntrinsicCapability
 {
     StringLayout, ExceptionLayout, StringLength, StringCodeUnit, StringEqual, StringNotEqual, StringConcat,
     ExceptionConstructor, ExceptionMessage, ExceptionParameterName,
+    CultureInfoLayout, InvariantCulture,
 }
 
 public sealed record LibraryBuildInput(string Role, string Path, string Sha256);
@@ -158,7 +159,7 @@ public sealed partial class AssemblyResolver
     {
         if (!Enum.IsDefined(capability)) throw InvalidLibraryBuild("Unknown intrinsic capability.");
         var reader = image.Image.Reader;
-        bool layout = capability is LibraryIntrinsicCapability.StringLayout or LibraryIntrinsicCapability.ExceptionLayout;
+        bool layout = capability is LibraryIntrinsicCapability.StringLayout or LibraryIntrinsicCapability.ExceptionLayout or LibraryIntrinsicCapability.CultureInfoLayout;
         if (handle.IsNil || handle.Kind != (layout ? HandleKind.TypeDefinition : HandleKind.MethodDefinition))
             throw InvalidLibraryBuild("Intrinsic capability requires the appropriate non-nil type or method definition token.");
         var owner = layout ? (TypeDefinitionHandle)handle : reader.GetMethodDefinition((MethodDefinitionHandle)handle).GetDeclaringType();

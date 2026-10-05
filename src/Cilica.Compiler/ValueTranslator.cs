@@ -297,6 +297,7 @@ public static class ValueTranslator
                                     ? Pop(offset, IrType.Reference(stringType!)) : -1;
                             int operand = intrinsic.Parameters == 0 ? -1 : Pop(offset, IrType.Reference(intrinsic.Kind == ValueIntrinsic.ExceptionMessage ? exceptions!.Base : intrinsic.Kind == ValueIntrinsic.ExceptionParameterName ? intrinsic.Type : stringType!));
                             IrExpression expression = intrinsic.Kind switch {
+                                ValueIntrinsic.InvariantCulture => new IrExpression.InvariantCulture(intrinsic.Type),
                                 ValueIntrinsic.NewException => new IrExpression.NewException(intrinsic.Type, operand < 0 ? null : operand),
                                 ValueIntrinsic.ExceptionParameterName => new IrExpression.ExceptionParameterName(operand),
                                 ValueIntrinsic.ExceptionMessage => new IrExpression.ExceptionMessage(operand),
@@ -311,7 +312,7 @@ public static class ValueTranslator
                                 int falseValue = Define(offset, IrType.Int32, new IrExpression.Constant(0));
                                 expression = new IrExpression.Compare(Int32Comparison.Equal, equal, falseValue);
                             }
-                            Push(offset, intrinsic.Kind == ValueIntrinsic.NewException ? IrType.Reference(intrinsic.Type)
+                            Push(offset, intrinsic.Kind is ValueIntrinsic.NewException or ValueIntrinsic.InvariantCulture ? IrType.Reference(intrinsic.Type)
                                 : intrinsic.Kind is ValueIntrinsic.ExceptionMessage or ValueIntrinsic.ExceptionParameterName or ValueIntrinsic.StringConcat ? IrType.Reference(stringType!) : IrType.Int32, expression, intrinsic.Kind != ValueIntrinsic.StringNotEqual); break;
                         case "newarr" when arrays:
                             var arrayType = method.ArrayOperands[offset];
