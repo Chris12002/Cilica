@@ -25,6 +25,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, ObjectTypeId> ArrayOperands { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ObjectInterfaceDeclaration> InterfaceOperands { get; init; } = ImmutableDictionary<int, ObjectInterfaceDeclaration>.Empty;
     public ImmutableDictionary<int, IrType> MemoryOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
+    public ImmutableDictionary<int, IrType> ReferenceBoxOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
 }
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
@@ -143,6 +144,7 @@ public static partial class ValueProgramDiscovery
                     var literals = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ushort>>();
                     var interfaceCalls = ImmutableDictionary.CreateBuilder<int, ObjectInterfaceDeclaration>();
                     var memory = ImmutableDictionary.CreateBuilder<int, IrType>();
+                    var referenceBoxes = ImmutableDictionary.CreateBuilder<int, IrType>();
                     foreach (var instruction in work.Input.Instructions)
                     {
                         var offset = instruction.Offset;
@@ -270,12 +272,26 @@ public static partial class ValueProgramDiscovery
                                 var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(token)), work, offset);
                                 if (integers64 && instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj")
                                 {
-                                    signature = MemorySignature(signature, work, offset);
+                                    signature = OperandSignature(signature, work, offset);
                                     CheckArgumentAccess(signature, work, offset);
                                     if (IntegerCasts.NarrowStorage(signature) is not null)
                                         Fail(work, "Narrow memory operands require storage-width-aware locations before execution.", offset);
                                     memory.Add(offset, Storage(signature, work, offset));
                                     continue;
+                                }
+                                if (integers64 && boxing)
+                                {
+                                    var normalized = OperandSignature(signature, work, offset);
+                                    bool referenceOperand = normalized is TypeSignature.Primitive { Code: PrimitiveTypeCode.Object or PrimitiveTypeCode.String }
+                                        or TypeSignature.Named { Kind: SignatureTypeKind.Class }
+                                        or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } or TypeSignature.Vector;
+                                    if (referenceOperand)
+                                    {
+                                        if (instruction.OpCode == "unbox") Fail(work, "unbox requires a boxed value type; reference operands support box identity or unbox.any checked casts.", offset);
+                                        CheckArgumentAccess(normalized, work, offset);
+                                        referenceBoxes.Add(offset, Storage(normalized, work, offset));
+                                        continue;
+                                    }
                                 }
                                 var operandType = signature switch
                                 {
@@ -297,7 +313,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {
@@ -377,7 +393,7 @@ public static partial class ValueProgramDiscovery
                             : "Readonly value fields cannot be written by this static-method profile.", access.Key);
                     if (field.Storage is ObjectStorage.Value inline) CheckType(inline.Type, access.Key);
                 }
-                foreach (var type in method.Parameters.Concat(method.Locals).Append(method.ReturnType).Concat(method.MemoryOperands.Values))
+                foreach (var type in method.Parameters.Concat(method.Locals).Append(method.ReturnType).Concat(method.MemoryOperands.Values).Concat(method.ReferenceBoxOperands.Values))
                 {
                     var element = type.Kind == IrTypeKind.ManagedLocation ? type.Element! : type;
                     if (element.Kind == IrTypeKind.Value) CheckType(element.Class!, 0);
@@ -506,7 +522,7 @@ public static partial class ValueProgramDiscovery
             _virtualCache.Add(key, exact); return exact;
         }
 
-        private TypeSignature MemorySignature(TypeSignature signature, Work work, int offset)
+        private TypeSignature OperandSignature(TypeSignature signature, Work work, int offset)
         {
             if (signature is not TypeSignature.Named named) return signature;
             // A TypeDef/TypeRef operand encodes selected primitives as named types.

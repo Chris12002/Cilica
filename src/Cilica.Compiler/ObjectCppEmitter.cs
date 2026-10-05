@@ -178,6 +178,11 @@ public static class ObjectCppEmitter
                 .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : "1, nullptr, nullptr, nullptr").Append(" };\n");
         }
         if (delegates is not null) ObjectCppDelegates.AppendStorage(text, delegateDeclarations, TypeSymbol, program.Flow.Types.ObjectBase);
+        // Interface identities are only cast-message keys, never concrete heap
+        // descriptors: known_type and allocation tables still exclude them.
+        if (handlers && program.Flow.Types.Integer64)
+            foreach (var contract in contracts.OrderBy(t => t.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Token).ThenBy(t => t.Specialization, StringComparer.Ordinal))
+                text.Append("[[maybe_unused]] static constexpr Descriptor ").Append(TypeSymbol(contract)).Append("_descriptor = {};\n");
         if (!boxedPayloads.IsEmpty)
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
         if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, program.Flow.Types, TypeSymbol,

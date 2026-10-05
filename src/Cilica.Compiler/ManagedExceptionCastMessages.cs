@@ -33,7 +33,7 @@ internal static class ManagedExceptionCastMessages
         if (catalog.String is { } text) names.Add(text, "System.String");
         foreach (var array in catalog.Arrays) names.Add(array, array.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? "System.Int32[]" : names[array.ArrayElement.Type!] + "[]");
         var interfaces = catalog.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
-        if (targets.Any(t => !t.Item2 && interfaces.Contains(t.Item1)))
+        if (!catalog.Integer64 && targets.Any(t => !t.Item2 && interfaces.Contains(t.Item1)))
             throw new ArgumentException("Managed exception cast messages currently require class targets; interface cast messages need a supported lowering.");
         var boxes = values.ToDictionary(t => ObjectTypeId.From(t.Source), t => Name(t.Source));
         var sources = names.Where(p => !interfaces.Contains(p.Key)).Select(p => (p.Key, Box: false, p.Value)).Concat(boxes.Select(p => (p.Key, Box: true, p.Value)));

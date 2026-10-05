@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.27 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3 and 6c.1–6c.28 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -499,6 +499,16 @@ sanitizer results; all 107 distinct focused checks pass. Review found no remaini
 actionable issue. See [ADR 0118](../decisions/0118-class-constructor-value-signatures.md).
 The private kernel advances to reference boxing in a generic null test. Local
 main remains an ancestor; native kernel equivalence is still pending.
+
+## Slice 6c.28 outcome
+
+Closed reference box/unbox.any now preserve identity or perform a checked cast,
+including bounded interface cast-message identities. Five probes match .NET in
+1,470 repeated native sanitizer results; all 105 distinct focused checks pass.
+Review confirmed that interface message keys are excluded from concrete runtime
+types. See [ADR 0119](../decisions/0119-closed-reference-boxing.md). The private
+kernel advances to a struct instance call in PlayerId equality; local main remains
+an ancestor and native kernel comparison is still pending.
 
 ## Remaining completion evidence
 

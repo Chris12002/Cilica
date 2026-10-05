@@ -916,6 +916,10 @@ Class constructors also carry inline arguments and borrows through the same
 lowering. Value computations before the base call must remain independent of the
 uninitialized receiver; straight-line initialization and the immediate-base check
 remain ([ADR 0118](decisions/0118-class-constructor-value-signatures.md)).
+Closed reference boxing preserves identity and unbox.any uses checked casts,
+including interface casts with bounded diagnostic identities
+([ADR 0119](decisions/0119-closed-reference-boxing.md)). This does not admit
+reference operands to unbox or make interfaces allocatable.
 
 ## 11. Class library and assembly identity
 

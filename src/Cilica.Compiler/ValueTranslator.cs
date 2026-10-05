@@ -468,6 +468,12 @@ public static class ValueTranslator
                                 else { Writable(address, offset); Add(new IrStatement.StoreLocation(offset, address, fieldValue), offset); }
                             }
                             break;
+                        case "box" or "unbox.any" when boxing && method.ReferenceBoxOperands.TryGetValue(offset, out var referenceBox):
+                            int referenceOperand = Pop(offset, opcode == "box" ? referenceBox : null);
+                            if (!Reference(values[referenceOperand])) Error(offset, "Reference boxing/casting requires an object reference or null.");
+                            if (opcode == "box") stack.Add(referenceOperand);
+                            else Push(offset, referenceBox, new IrExpression.CastClass(referenceBox.Class!, referenceOperand), true);
+                            break;
                         case "box" or "unbox" or "unbox.any" when boxing:
                             var boxedType = method.TypeOperands[offset];
                             int boxedOperand = opcode == "box" ? Pop(offset, IrType.Value(boxedType)) : Pop(offset);
