@@ -1630,8 +1630,27 @@ used to assert compiled closure. Milestone 7 is the separate public ABI/device g
 The follow-on private saved-game baseline restores three full-application games
 on .NET with 3,227 accepted envelopes, exact archived final state hashes and
 repeatable per-command state/event-text traces. This does not establish native
-full-game support: the real engine constructor/step probe stops at an unmapped
+full-game support: the initial real engine constructor/step probe stopped at an unmapped
 `System.Type` dependency, and its conservative inventory exhausts the default
 dispatch-pair budget. See the milestone 6 follow-on record for scope, evidence
 and the bounded local reproduction recipe. JSON/gzip decoding and reflection in
 the authored oracle host are outside the advertised native compiler profile.
+
+
+The follow-on identity slice (ADR 0180) implements bounded closed reference-type
+and vector metadata literals, instance `GetType`, copied traced RuntimeTypeHandle
+values, Type equality/hash and Type dictionary keys. Native runtime instances own
+lazy, heap-budgeted canonical Type caches; caches are precise permanent roots and
+never shared across instances. Type hashes are instance-local implementation
+values, not serialized identifiers or .NET hash-number equivalents. The selected
+fieldless Type/MemberInfo hierarchy and private concrete implementation need exact
+shape checks and layout grants. Object-slot virtual calls require a statically
+known ordinary class receiver; special runtime receivers and Object aliases stay
+diagnostic until their dispatch is implemented. Abstract ancestry is admitted in
+the closed integer-object profile, but abstract allocation/method execution is not.
+
+Four public fixtures match .NET at native O0/O2 with forced collection and
+sanitizers. The unchanged private Alchemy constructor/step metadata probe now
+passes the Type mapping boundary and stops at unmapped `System.Nullable<T>`.
+Full saved-game native replay, general reflection and additional target platforms
+remain unverified. No application-specific logic enters the core or compiler.

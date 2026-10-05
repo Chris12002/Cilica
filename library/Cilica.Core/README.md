@@ -14,6 +14,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --compiler-directory /path/to/dotnet/sdk/10.0.400/Roslyn/bincore \
   --profile core --assembly-name Cilica.Core \
   --source library/Cilica.Core/CoreTypes.cs \
+  --source library/Cilica.Core/RuntimeTypes.cs \
   --source library/Cilica.Core/IntegerText.cs \
   --source library/Cilica.Core/CollectionContracts.cs \
   --source library/Cilica.Core/DelegateContracts.cs \
@@ -37,7 +38,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 88 exact string/exception/provider/numeric/array/key capabilities for review; it does not
+file describes 94 exact string/exception/provider/numeric/array/key/type capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -133,3 +134,12 @@ The exact readonly String.Empty field has its own field-token/signature grant.
 Reads use the canonical per-instance empty literal; writes, explicit storage and
 initializers are rejected. Identity with empty literals/Concat/StringBuilder output
 is tested at O0/O2 with forced collection and sanitizers.
+
+RuntimeTypes.cs adds bounded runtime identity: closed reference-type/vector
+`typeof`, `Object.GetType`, copied `RuntimeTypeHandle` values, `TypeHandle`,
+`GetTypeFromHandle`, Type equality/hash and the supported Dictionary operations
+with Type keys. Each runtime instance lazily roots one canonical Type object per
+closed identity. Type hashes are implementation-specific. Six exact grants bind
+the layouts and native helpers; ordinary equality/handle/key wrappers stay managed.
+General reflection, value/open/method/field tokens and arbitrary Object-slot
+virtual calls remain diagnostic. See ADR 0180 for receiver restrictions and evidence.

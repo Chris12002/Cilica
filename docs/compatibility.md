@@ -6,7 +6,7 @@ the evidence and limits of earlier checkpoints; the current native profile retai
 at milestone 4, with bounded value/generic/delegate/exception capabilities documented
 separately. Historical checkpoint sections retain their original stage-specific limits.
 
-Current milestone 6 composition uses `integer-managed-objects-cil-v2`,
+Milestone 6 completion used `integer-managed-objects-cil-v2`,
 `object-layout-v13`, `object-operations-ir-v14`, `scalar-location-ir-v2`,
 `value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v3`,
 `scalar-boxed-ir-v4` and `object-frames-native-v35`. The bounded owned core and
@@ -1769,3 +1769,27 @@ The final 2,632-test scope is covered by the full local run and passing targeted
 reruns after three stale boundary expectations were corrected; no production
 limits were increased. Public ABI/mobile/browser, general filters and broader
 library/language compatibility remain outside this completion.
+
+
+## Bounded runtime type identity (ADR 0180)
+
+Current follow-on profiles are `object-layout-v14`, `object-operations-ir-v15`
+and `object-frames-native-v36`; other composed profiles retain their versions.
+
+| Surface | Implemented bound |
+| --- | --- |
+| `typeof` / type `ldtoken` | Closed reference classes/interfaces, closed reference generics and admitted vectors; no value/open/method/field tokens |
+| `Object.GetType()` | Exact dynamic descriptor identity, including supported strings, vectors and boxes; null throws; no host reflection |
+| Handles | Traced RuntimeTypeHandle copies, Type.TypeHandle and Type.GetTypeFromHandle; default handle resolves to null |
+| Type equality/hash | Canonical instance-local reference identity, operators and typed/object Equals; stable implementation hash, no numerical .NET parity |
+| `Dictionary<Type, T>` | Existing supported constructor/Count/TryAdd/TryGetValue/ContainsKey/setter surface, subject to existing value-storage bounds; null keys reject |
+| Object virtual equality/hash | Ordinary class receivers with known static class type; Object aliases and special runtime receiver dispatch remain diagnostics |
+| Abstract ancestry | Closed integer-object catalog and inherited ordinary virtual bodies; abstract allocation/method bodies remain rejected |
+
+Four identity fixtures give 1,176 repeated O0/O2 .NET/native comparisons, plus
+exact/short execution-frame checks, forced GC and ASan/UBSan. Cache boundary probes
+cover heap accounting, lifetime roots, instance isolation and corrupted foreign
+slots. Missing grants, unsupported reflection/tokens, abstract allocations and
+forged detached IR fail validation. The unchanged Alchemy engine metadata probe
+now stops at missing `System.Nullable<T>` after passing the former Type mapping
+blocker. This is not a full saved-game native replay or platform-portability claim.

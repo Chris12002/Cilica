@@ -1507,3 +1507,35 @@ live under ignored `artifacts/alchemy-replay-baseline/`. From that directory,
 using its pinned local dependency paths. Python 3.11 was used for archive recovery
 and this recipe. No training, services, hosted jobs or pushes ran. This follow-on
 does not broaden milestone 6's completed kernel scope or milestone 7's ABI scope.
+
+
+### Runtime type identity follow-on (2026-10-06)
+
+ADR 0180 implements the first observed engine blocker: bounded typeof/GetType,
+RuntimeTypeHandle copies/round trips, Type equality/hash and Type dictionary keys.
+The four public fixtures add 1,176 repeated .NET/native O0/O2 comparisons under
+ASan/UBSan and forced collection. Cache ownership, heap limits, missing grants,
+abstract allocation, unsupported receiver dispatch and detached IR are checked.
+The runtime uses per-instance canonical objects and precise roots; no application
+rules or source snapshots were changed.
+
+The same private constructor/step metadata probe, with the newly reviewed local
+core, now stops at CIL3015 for System.Nullable<T> (netstandard token 0x020000af).
+Core SHA-256: `d9b38fd383390a7d1aa3cd9c3b14a28ad5c6e1e2a2fa61f04bfa52dd30dab6d4`.
+Local fixture manifest digest:
+`a93fff8ac6617e180a927fa190ccdb3ba4e9a73f60f277e051771da6fe5c9c91`.
+Its 219 recorded input hashes were verified separately before fixture admission.
+This removes the initial Type mapping barrier, not every dependency of command
+dispatch. The three-game .NET oracle remains the existing 3,227-envelope baseline;
+full-game native transcripts and implementation closure remain pending.
+
+Private new-core build, local approval and metadata-probe evidence live under
+ignored artifacts/alchemy-runtime-types/. Historical baseline evidence remains
+unchanged and retains its original compiler pin. Targeted local regression logs
+are in the worktree's artifacts/runtime-types/. No hosted work or push ran.
+
+Final local validation passed all 241 targeted tests spanning identity, class
+resolution/layout, boxing, core admission, dictionaries, arrays, collection,
+virtual calls and both embedding ABI versions. The Release solution build has
+zero warnings/errors. The complete expensive suite and private kernel transcript
+were not rerun; this follow-on has its own reduced native differential evidence.
