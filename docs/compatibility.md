@@ -17,6 +17,15 @@ closure has no filters; the broader metadata audit retains its unresolved status
 exclusions. The table below retains earlier checkpoint profiles and their limits;
 it does not replace the current composed evidence above and at the end of this file.
 
+Milestone 7a adds `embedding-int32-v1` through `EmbeddingCppEmitter`: generated C
+header/shared-library linkage, persistent isolated instances, version checks,
+stale runtime-token rejection, guarded entry/destruction and copied fault origins.
+Only Int32 parameters/results cross the boundary; each artifact has one export
+and a separate registry. Local macOS ARM64 C11/O0/O2 ASan/UBSan lifecycle and race
+tests pass. See the [ABI contract](embedding-abi.md) and [ADR 0178](decisions/0178-persistent-scalar-c-abi.md).
+No public object/value transfer, multi-export instance or phone-device support is
+claimed. This boundary does not expand the managed semantics profile.
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

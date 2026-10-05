@@ -120,3 +120,9 @@ capability. It becomes accepted once its validation experiment has run.
 | [0175](0175-constructor-entry-prefix-flow.md) | Constructor body control flow | Accepted; stable receivers and validated base initialization |
 | [0176](0176-generated-cast-type-names.md) | Generated cast type names | Accepted; complete native/.NET message comparison |
 | [0177](0177-stage-six-completion.md) | Bounded milestone 6 completion | Accepted; real native transcripts, compiled closure and final regression review |
+
+## Milestone 7 embedding records
+
+| ADR | Title | Status |
+| --- | --- | --- |
+| [0178](0178-persistent-scalar-c-abi.md) | Persistent scalar C ABI foundation | Accepted; bounded Int32 C consumer/lifecycle contract; multi-export and device gates remain |

@@ -1094,7 +1094,7 @@ code; do not assume an existing entire CoreLib can be transplanted unchanged.
 ## 12. Native embedding API
 
 Expose a versioned C ABI; keep C++ implementation details private. Conceptual
-operations (not yet implemented):
+operations for the full SDK (not yet implemented as a complete API):
 
 ```text
 runtime_create(config)
@@ -1103,6 +1103,19 @@ runtime_release_handle(runtime, object_handle)
 runtime_destroy(runtime)
 buffer_release(buffer)
 ```
+
+Milestone 7a now implements a bounded persistent Int32 C boundary
+([ADR 0178](decisions/0178-persistent-scalar-c-abi.md)). `EmbeddingCppEmitter`
+emits a C header and C++ source for one validated export, with version negotiation,
+create/invoke/destroy, nonreused opaque runtime tokens and copied fault origins.
+Instances reuse the existing heap/static roots; each call has fresh execution
+frames. A bounded registry rejects overlapping calls and destruction. The
+[ABI contract](embedding-abi.md) records exact widths, ownership, status, version
+and resource rules. A separate C11 consumer links an emitted shared library and
+passes local O0/O2 sanitizer lifecycle tests. Shared multi-export dispatch,
+structured value/error transfer, external object handles and device evidence remain
+planned. [Milestone 7](milestones/07-embedding-and-phone-libraries.md) puts iOS first,
+then Android; neither phone platform is yet verified.
 
 Specify widths, calling conventions, buffer lifetime/ownership, structured
 errors, handle validity, thread entry, version negotiation and capabilities.
