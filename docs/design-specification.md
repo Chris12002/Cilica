@@ -1008,8 +1008,11 @@ and exact string/exception intrinsic grants at the compiler boundary
 ([ADR 0092](decisions/0092-library-build-admission.md)). The host must pin the
 manifest digest independently of compiler input. A separate local build tool now
 captures actual Roslyn inputs/arguments and emitted image evidence without granting
-approval ([ADR 0123](decisions/0123-library-build-evidence-producer.md)). Mapped
-implementation-audit evidence remains a separate gate. The first source import now adapts
+approval ([ADR 0123](decisions/0123-library-build-evidence-producer.md)). Explicit
+mapped implementation audits now retain both declarations, constructed signatures,
+image hashes and any approved build digest while expanding implementation bodies
+([ADR 0124](decisions/0124-mapped-library-implementation-audits.md)). The actual
+required-library closure remains a milestone gate. The first source import now adapts
 the pinned decimal integer formatting algorithm into a checked managed helper
 ([ADR 0122](decisions/0122-managed-decimal-formatting-trial.md)). Differential
 native evidence covers text only; System numeric member mapping and string-cache

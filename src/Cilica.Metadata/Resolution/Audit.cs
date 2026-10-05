@@ -20,6 +20,24 @@ public sealed partial class AssemblyResolver
         IEnumerable<string> rootTypes, bool publicSurface = false, ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null,
         IEnumerable<ResolvedAssembly>? contractAssemblies = null)
     {
+        CheckAlive(); CheckStrictAnalysis();
+        return AuditCore(assembly, roots, rootTypes, publicSurface, limits, runtimeLibrary, contractAssemblies, mapped: false);
+    }
+
+    /// <summary>Explicit mapped implementation audit. No contract deferral; ordinary audits stay strict.</summary>
+    public AuditReport AuditLibraryImplementation(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots,
+        ReachabilityLimits? limits = null, ResolvedAssembly? runtimeLibrary = null)
+    {
+        CheckAlive();
+        if (_libraryPlan is null) throw new InvalidOperationException("Implementation audits require an explicit library compilation scope.");
+        if (runtimeLibrary is not null) CheckOwner(runtimeLibrary);
+        return AuditCore(assembly, roots, [], false, limits, runtimeLibrary, null, mapped: true);
+    }
+
+    private AuditReport AuditCore(ResolvedAssembly assembly, IEnumerable<EntityHandle> roots,
+        IEnumerable<string> rootTypes, bool publicSurface, ReachabilityLimits? limits, ResolvedAssembly? runtimeLibrary,
+        IEnumerable<ResolvedAssembly>? contractAssemblies, bool mapped)
+    {
         CheckOwner(assembly);
         ArgumentNullException.ThrowIfNull(roots);
         ArgumentNullException.ThrowIfNull(rootTypes);
@@ -54,7 +72,8 @@ public sealed partial class AssemblyResolver
                     DiagnosticSeverity.Error, "Root type must match exactly one input TypeDef: " + type)));
             }
         }
-        ReachabilityReport graph = publicSurface ? AnalyzePublicSurface(assembly, limits, runtimeLibrary, contractAssemblies)
+        ReachabilityReport graph = mapped ? new ReachabilityWalker(this, limits, runtimeLibrary, []).Run(assembly, selected, publicSurface: false)
+            : publicSurface ? AnalyzePublicSurface(assembly, limits, runtimeLibrary, contractAssemblies)
             : AnalyzeReachability(assembly, selected, limits, runtimeLibrary, contractAssemblies);
         issues.AddRange(graph.Issues);
         // Include the complete explicit catalogue, including facades that have no graph
@@ -121,6 +140,22 @@ public sealed partial class AssemblyResolver
             DeferredNodes = graph.DeferredNodes,
             RuntimeLibrary = runtimeLibrary is null ? null : ImageId(runtimeLibrary),
             RuntimeMappings = [.. graph.RuntimeMappings.Select(m => new AuditRuntimeType(m.Primitive.ToString(), ImageId(m.Definition.Assembly), Token(m.Definition.Handle)))],
+            LibraryTypes = !mapped ? [] : [.. _libraryPlan!.Bindings.Select(b => new AuditLibraryType(
+                ids[(b.Contract.Assembly, b.Contract.ContentHash)], Token(MetadataTokens.EntityHandle(b.Contract.Token)),
+                ids[(b.Implementation.Assembly, b.Implementation.ContentHash)], Token(MetadataTokens.EntityHandle(b.Implementation.Token))))],
+            LibraryMembers = [.. graph.LibraryMembers.Select(m => new AuditLibraryMember(
+                m.Contract is ReachableEntity.Method ? "method" : "field", ImageId(m.UseAssembly), Token(m.UseToken),
+                Declaration(m.Contract), Declaration(m.Implementation)))],
+            ApprovedLibraryManifestSha256 = mapped ? ApprovedLibraryManifestSha256 : null,
+        };
+
+        AuditMemberDeclaration Declaration(ReachableEntity entity) => entity switch
+        {
+            ReachableEntity.Method m => new(ImageId(m.Definition.DeclaringType.Definition.Assembly), Token(m.Definition.Handle),
+                formatter.Owner(m.Definition.DeclaringType) + formatter.Arguments(m.Definition.MethodArguments) + " " + formatter.Method(m.Definition.Signature)),
+            ReachableEntity.Field f => new(ImageId(f.Definition.DeclaringType.Definition.Assembly), Token(f.Definition.Handle),
+                formatter.Owner(f.Definition.DeclaringType) + " " + formatter.Type(f.Definition.Signature)),
+            _ => throw new InvalidOperationException("Unknown library member projection."),
         };
     }
 

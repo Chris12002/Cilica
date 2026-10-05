@@ -40,7 +40,7 @@ public sealed partial class AssemblyResolver
     private void CheckStrictAnalysis()
     {
         if (_librarySource is not null)
-            throw new InvalidOperationException("Mapped-library analysis requires a report profile retaining binding evidence; use the strict source session for ordinary contract analysis.");
+            throw new InvalidOperationException("Use AuditLibraryImplementation on this mapped scope, or the strict source session for ordinary contract analysis.");
     }
 
     private ResolutionResult<ResolvedType> MapLibraryScopeType(ResolvedAssembly input, ResolutionResult<ResolvedType> result)

@@ -42,10 +42,19 @@ public static class AuditReportWriter
         };
         // Preserve the ordinary v1 report byte-for-byte. Inventory evidence is
         // additive and always accompanied by its distinct profile and scope.
-        if (!report.IsContractInventory) return JsonSerializer.Serialize(document, JsonOptions) + "\n";
+        if (!report.IsContractInventory && !report.IsLibraryImplementation) return JsonSerializer.Serialize(document, JsonOptions) + "\n";
         var inventory = JsonSerializer.SerializeToNode(document, JsonOptions)!;
-        inventory["contractAssemblies"] = JsonSerializer.SerializeToNode(report.ContractAssemblies, JsonOptions);
-        inventory["deferredNodes"] = JsonSerializer.SerializeToNode(report.DeferredNodes, JsonOptions);
+        if (report.IsLibraryImplementation)
+        {
+            inventory["libraryTypes"] = JsonSerializer.SerializeToNode(report.LibraryTypes, JsonOptions);
+            inventory["libraryMembers"] = JsonSerializer.SerializeToNode(report.LibraryMembers, JsonOptions);
+            inventory["approvedLibraryManifestSha256"] = JsonSerializer.SerializeToNode(report.ApprovedLibraryManifestSha256, JsonOptions);
+        }
+        if (report.IsContractInventory)
+        {
+            inventory["contractAssemblies"] = JsonSerializer.SerializeToNode(report.ContractAssemblies, JsonOptions);
+            inventory["deferredNodes"] = JsonSerializer.SerializeToNode(report.DeferredNodes, JsonOptions);
+        }
         return inventory.ToJsonString(JsonOptions) + "\n";
     }
 
@@ -67,6 +76,17 @@ public static class AuditReportWriter
         foreach (AuditRuntimeType mapping in report.RuntimeMappings)
             text.Append("runtime type ").Append(mapping.Primitive).Append(" -> A").Append(N(mapping.Assembly))
                 .Append(' ').Append(mapping.Token).Append('\n');
+        if (report.IsLibraryImplementation)
+        {
+            text.Append("approved library manifest sha256: ").Append(report.ApprovedLibraryManifestSha256 ?? "not supplied").Append('\n');
+            foreach (var type in report.LibraryTypes)
+                text.Append("library type A").Append(N(type.ContractAssembly)).Append(' ').Append(type.ContractToken)
+                    .Append(" -> A").Append(N(type.ImplementationAssembly)).Append(' ').Append(type.ImplementationToken).Append('\n');
+            foreach (var member in report.LibraryMembers)
+                text.Append("library ").Append(member.Kind).Append(" use=A").Append(N(member.UseAssembly)).Append(' ').Append(member.UseToken)
+                    .Append(" A").Append(N(member.Contract.Assembly)).Append(' ').Append(member.Contract.Token).Append(' ').Append(Q(member.Contract.Instantiation))
+                    .Append(" -> A").Append(N(member.Implementation.Assembly)).Append(' ').Append(member.Implementation.Token).Append(' ').Append(Q(member.Implementation.Instantiation)).Append('\n');
+        }
         if (report.IsContractInventory)
             text.Append("contract assemblies: ").AppendJoin(", ", report.ContractAssemblies.Select(id => "A" + N(id))).Append('\n');
         var deferred = report.DeferredNodes.ToHashSet();

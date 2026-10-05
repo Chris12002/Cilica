@@ -93,8 +93,8 @@ public sealed partial class AssemblyResolver
                     ReachableEntity entity = root.Kind switch
                     {
                         HandleKind.TypeDefinition => new ReachableEntity.Type(_resolver.Owner(assembly, root)),
-                        HandleKind.MethodDefinition => new ReachableEntity.Method(_resolver.Method(assembly, root)),
-                        HandleKind.FieldDefinition => new ReachableEntity.Field(_resolver.Field(assembly, root)),
+                        HandleKind.MethodDefinition => new ReachableEntity.Method(ResolveAuditedMethod(assembly, root)),
+                        HandleKind.FieldDefinition => new ReachableEntity.Field(ResolveAuditedField(assembly, root)),
                         _ => throw new UnsupportedBindingException("Reachability roots must be TypeDef, MethodDef or FieldDef tokens."),
                     };
                     int? id = Add(entity, null, DependencyKind.SelectedTypeMember, null);
@@ -123,6 +123,7 @@ public sealed partial class AssemblyResolver
             }
             return new([.. _nodes], [.. _roots.Distinct()], [.. _edges], [.. _issues])
             {
+                LibraryMembers = [.. _libraryMembers],
                 ContractAssemblies = _contractAssemblies,
                 DeferredNodes = [.. _deferredNodes],
                 RuntimeMappings = [.. _runtimeTypes.Where(p => p.Value.Success).OrderBy(p => p.Key)
@@ -247,14 +248,14 @@ public sealed partial class AssemblyResolver
             // Layout and initialization are conservative: include every field's type and
             // the initializer of every included type, even when execution may not trigger it.
             foreach (FieldDefinitionHandle field in definition.GetFields())
-                Guard(id, null, () => Add(new ReachableEntity.Field(_resolver.Field(assembly, field, context)), id, DependencyKind.FieldLayout, null));
+                Guard(id, null, () => Add(new ReachableEntity.Field(ResolveAuditedField(assembly, field, context)), id, DependencyKind.FieldLayout, null));
             foreach (MethodDefinitionHandle method in definition.GetMethods())
             {
                 Guard(id, null, () =>
                 {
                     bool initializer = reader.StringComparer.Equals(reader.GetMethodDefinition(method).Name, ".cctor");
                     if (initializer || _selectedTypes.Contains(id))
-                        Add(new ReachableEntity.Method(_resolver.Method(assembly, method, context)), id,
+                        Add(new ReachableEntity.Method(ResolveAuditedMethod(assembly, method, context)), id,
                             initializer ? DependencyKind.TypeInitializer : DependencyKind.SelectedTypeMember, null);
                 });
             }
@@ -347,7 +348,7 @@ public sealed partial class AssemblyResolver
             MetadataReader reader = assembly.Image.Reader;
             foreach (MethodDefinitionHandle method in reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1)).GetMethods())
                 if (reader.StringComparer.Equals(reader.GetMethodDefinition(method).Name, ".cctor"))
-                    Guard(id, null, () => Add(new ReachableEntity.Method(_resolver.Method(assembly, method)), id, DependencyKind.ModuleInitializer, null));
+                    Guard(id, null, () => Add(new ReachableEntity.Method(ResolveAuditedMethod(assembly, method)), id, DependencyKind.ModuleInitializer, null));
         }
 
         private void Instruction(int id, ResolvedAssembly assembly, Instruction instruction, BindingContext context,
@@ -389,7 +390,7 @@ public sealed partial class AssemblyResolver
             bool isField = token.Kind == HandleKind.FieldDefinition || token.Kind == HandleKind.MemberReference && !isMethod;
             if (instruction.Code.Operand == OperandKind.MethodToken || instruction.Code.Operand == OperandKind.AnyToken && isMethod)
             {
-                ResolvedMethod target = _resolver.Method(assembly, token, context);
+                ResolvedMethod target = ResolveAuditedMethod(assembly, token, context);
                 calls[offset] = target;
                 if (constraint is not null)
                 {
@@ -409,7 +410,7 @@ public sealed partial class AssemblyResolver
                 if (dispatch) RegisterDispatch(new(id, offset, target));
             }
             else if (instruction.Code.Operand == OperandKind.FieldToken || instruction.Code.Operand == OperandKind.AnyToken && isField)
-                Add(new ReachableEntity.Field(_resolver.Field(assembly, token, context)), id,
+                Add(new ReachableEntity.Field(ResolveAuditedField(assembly, token, context)), id,
                     instruction.Code.Name == "ldtoken" ? DependencyKind.MetadataToken : DependencyKind.FieldAccess, offset);
             else TypeOperand(id, assembly, token, context,
                 instruction.Code.Name == "ldtoken" ? DependencyKind.MetadataToken : DependencyKind.TypeOperand, offset);

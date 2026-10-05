@@ -39,6 +39,7 @@ public sealed record FeatureObservation(int Node, int? ILOffset, string Feature,
 public sealed record ReachabilityReport(ImmutableArray<ReachabilityNode> Nodes,
     ImmutableArray<int> Roots, ImmutableArray<ReachabilityEdge> Edges, ImmutableArray<ReachabilityIssue> Issues)
 {
+    internal ImmutableArray<LibraryMemberUse> LibraryMembers { get; init; } = [];
     public ImmutableArray<RuntimeTypeMapping> RuntimeMappings { get; init; } = [];
     public ImmutableArray<ResolvedAssembly> ContractAssemblies { get; init; } = [];
     /// <summary>Declarations whose implementation/layout expansion was explicitly deferred.</summary>
@@ -46,6 +47,9 @@ public sealed record ReachabilityReport(ImmutableArray<ReachabilityNode> Nodes,
     public bool HasUnresolvedDependencies => !Issues.IsEmpty || !ContractAssemblies.IsEmpty;
     public ImmutableArray<FeatureObservation> Features { get; init; } = [];
 }
+
+internal sealed record LibraryMemberUse(ResolvedAssembly UseAssembly, System.Reflection.Metadata.EntityHandle UseToken,
+    ReachableEntity Contract, ReachableEntity Implementation);
 
 public sealed record ReachabilityLimits(int MaximumNodes = 10000, int MaximumEdges = 50000,
     int MaximumMethodInstances = 128, int MaximumBodyBytes = 1048576, int MaximumTotalBodyBytes = 16777216,

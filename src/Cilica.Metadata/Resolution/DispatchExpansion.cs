@@ -190,7 +190,7 @@ public sealed partial class AssemblyResolver
             {
                 CountDispatchWork();
                 var mapping = reader.GetMethodImplementation(handle);
-                ResolvedMethod declaration = _resolver.Method(type.Definition.Assembly, mapping.MethodDeclaration,
+                ResolvedMethod declaration = ResolveAuditedMethod(type.Definition.Assembly, mapping.MethodDeclaration,
                     new(type, SignatureList<TypeSignature>.Empty));
                 if ((TypeDefinition(declaration.DeclaringType).Attributes & TypeAttributes.Interface) == 0)
                     throw new UnsupportedBindingException("Explicit class virtual-slot remapping requires a later dispatch profile.");
@@ -209,10 +209,10 @@ public sealed partial class AssemblyResolver
                     CountDispatchWork();
                     var mapping = reader.GetMethodImplementation(handle);
                     var context = new BindingContext(type, SignatureList<TypeSignature>.Empty);
-                    ResolvedMethod declaration = _resolver.Method(type.Definition.Assembly, mapping.MethodDeclaration, context);
+                    ResolvedMethod declaration = ResolveAuditedMethod(type.Definition.Assembly, mapping.MethodDeclaration, context);
                     if (declaration.DeclaringType != site.Declaration.DeclaringType || declaration.Handle != site.Declaration.Handle) continue;
                     if (++mappings > 1) throw new BadImageFormatException("Duplicate explicit implementations for one interface declaration.");
-                    ResolvedMethod body = _resolver.Method(type.Definition.Assembly, mapping.MethodBody, context);
+                    ResolvedMethod body = ResolveAuditedMethod(type.Definition.Assembly, mapping.MethodBody, context);
                     if (body.DeclaringType != type || (MethodDefinition(body).Attributes & MethodAttributes.Static) != 0)
                         throw new BadImageFormatException("Explicit interface body must be an instance method on the implementing type.");
                     body = Candidate(type, body.Handle, site.Declaration.MethodArguments);

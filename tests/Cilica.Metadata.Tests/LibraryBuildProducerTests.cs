@@ -64,6 +64,9 @@ public sealed class LibraryBuildProducerTests
         Assert.True(plan.Success, string.Join("; ", plan.Diagnostics));
         var admission = resolver.CreateTrustedLibraryCompilationScope(plan.Value!, evidence, result.ManifestSha256);
         Assert.True(admission.Success, string.Join("; ", admission.Diagnostics));
+        var audit = admission.Value!.AuditLibraryImplementation(reference, [System.Reflection.Metadata.Ecma335.MetadataTokens.MethodDefinitionHandle(1)]);
+        Assert.Equal(result.ManifestSha256, audit.ApprovedLibraryManifestSha256);
+        Assert.Contains(audit.Nodes, n => audit.Assemblies[n.Assembly].ContentHash == artifact.Sha256 && n.Kind == "method");
         admission.Value!.Dispose();
         Assert.False(resolver.CreateTrustedLibraryCompilationScope(plan.Value!, evidence, new string('0', 64)).Success);
         // The caller's independent approval is simulated above only for this authored fixture.
