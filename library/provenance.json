@@ -374,6 +374,15 @@
         "Cilica-owned exception payloads and precise roots replace runtime-private storage; no serialization or HResult surface is admitted."
       ],
       "scope": "Exact granted constructor and property getters in the integer-object profile; initializer execution and failure caching remain separate compiler work."
+    },
+    {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/String.cs",
+      "contracts": [
+        "Exact public static readonly String.Empty declaration is runtime initialized to the canonical empty string.",
+        "Cilica requires an exact field grant and lowers reads to its per-instance canonical empty literal; no managed initializer or ordinary default static folding."
+      ],
+      "scope": "String.Empty reads only; no runtime field mutation or general string static storage."
     }
   ]
 }

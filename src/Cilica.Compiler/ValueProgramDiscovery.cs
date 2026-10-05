@@ -294,6 +294,8 @@ public static partial class ValueProgramDiscovery
                             var field = BoundField(work, token, offset);
                             var owner = SnapshotClosed(field.DeclaringType, work, offset);
                             var declaration = owner.Fields.Single(f => f.Token == MetadataTokens.GetToken(field.Handle));
+                            if (EmptyStringField(work, instruction, field, owner, declaration))
+                            { literals.Add(offset, []); continue; }
                             if (instruction.OpCode == "stsfld" || !DefaultStaticFields.IsDefault(owner, declaration))
                             {
                                 staticFields.Add(offset, StaticField(work, field, owner, declaration, instruction.OpCode == "stsfld", offset));

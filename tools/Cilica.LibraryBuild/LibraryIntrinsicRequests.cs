@@ -45,7 +45,9 @@ public static class LibraryIntrinsicRequests
         foreach (var request in requests)
             if (request is null || request.Namespace is null || request.Namespace.Length > 1024
                 || string.IsNullOrEmpty(request.Type) || request.Type.Length > 1024 || request.Member is { Length: > 1024 }
-                || request.Member is "" || (request.Member is null) != (request.ParameterCount is null)
+                || request.Member is "" || (request.Capability == LibraryIntrinsicCapability.StringEmpty
+                    ? request.Member is null || request.ParameterCount is not null
+                    : (request.Member is null) != (request.ParameterCount is null))
                 || request.ParameterCount is < 0 or > 4096 || !Enum.IsDefined(request.Capability))
                 throw new ArgumentException("Intrinsic requests need a bounded namespace/type and either a type declaration or a member name and parameter count.");
     }
@@ -64,6 +66,8 @@ public static class LibraryIntrinsicRequests
             if (owner.Value!.Assembly != image) throw new InvalidOperationException("Intrinsic owners must be emitted by this build, not forwarded to another image.");
             var described = request.Member is null
                 ? resolver.DescribeLibraryIntrinsic(image, owner.Value!.Handle, request.Capability)
+                : request.Capability == LibraryIntrinsicCapability.StringEmpty
+                ? resolver.DescribeLibraryFieldIntrinsic(owner.Value!, request.Member, request.Capability, budget)
                 : resolver.DescribeLibraryMethodIntrinsic(owner.Value!, request.Member, request.ParameterCount!.Value, request.Capability, budget);
             if (!described.Success) throw new InvalidOperationException("Invalid intrinsic request: " + string.Join("; ", described.Diagnostics));
             var grant = described.Value!;

@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.46 and 6d.1–6d.22 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.46 and 6d.1–6d.23 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.46 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.22 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.23 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -1153,3 +1153,20 @@ complete-scan publication, fresh-budget isolation and unchanged semantic checks.
 With the 6d.22 core/digest, `gate-mapped-6c46-trial.json` reaches missing String.Empty
 in ResolutionHandlerId.WriteCanonical IL_0019. The concrete transcript gate remains
 pending.
+
+
+## Slice 6d.23 outcome
+
+Implemented exact granted String.Empty reads (ADR 0161). The field maps to the
+existing canonical empty literal, preserving allocation/fault handling, identity
+and precise roots. Field capability descriptions retain exact tokens, owners and
+signature hashes. Writes and missing/ambiguous/wrong-kind grants fail explicitly.
+
+79 distinct focused/composed checks and the full solution build pass. Review
+confirmed exact approval, field shape, canonical identity and rooted allocation.
+
+Core evidence `artifacts/milestone6-library/core-6d23-trial` records 218 inputs and
+88 grants, image `1ce29bc14637577934ce7426575e57da0d70fbe920fadc607f63241640b81020`,
+manifest `bd23d3e3bf23aea9b0d4bd052b7f7937b99b54dad1090570bb5ea9a684bb5591`.
+`gate-mapped-6d23-trial.json` reaches an aggregate compiler limit in List.AsReadOnly,
+via ResolutionState.Push. Native transcript equivalence remains pending.

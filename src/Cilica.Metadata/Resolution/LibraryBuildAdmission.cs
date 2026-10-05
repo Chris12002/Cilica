@@ -18,7 +18,7 @@ public enum LibraryIntrinsicCapability
     ExceptionConstructor, ExceptionMessage, ExceptionParameterName,
     CultureInfoLayout, InvariantCulture, InvariantIntegerFormatting, IntegerTextCacheFind, IntegerTextCachePublish,
     ClosedKeyEqual, ClosedKeyHash, ClosedKeyIsNull,
-    ArrayInterfaceCount, ArrayInterfaceGet, ArrayInterfaceFalse, ArrayInterfaceTrue, ArrayInterfaceIdentity, StringFromCodeUnits, ArrayEmpty, ArrayInterfaceAdd, ArrayInterfaceSet, TypeInitializationExceptionConstructor, ExceptionTypeName, ExceptionInnerException, BoxedStringFormat, BoxedTextRender, StringOrdinalEqual,
+    ArrayInterfaceCount, ArrayInterfaceGet, ArrayInterfaceFalse, ArrayInterfaceTrue, ArrayInterfaceIdentity, StringFromCodeUnits, ArrayEmpty, ArrayInterfaceAdd, ArrayInterfaceSet, TypeInitializationExceptionConstructor, ExceptionTypeName, ExceptionInnerException, BoxedStringFormat, BoxedTextRender, StringOrdinalEqual, StringEmpty,
 }
 
 public sealed record LibraryBuildInput(string Role, string Path, string Sha256);
@@ -55,6 +55,29 @@ public sealed partial class AssemblyResolver
     /// <summary>Describes an exact declaration without granting it any capability.</summary>
     public ResolutionResult<LibraryIntrinsicGrant> DescribeLibraryIntrinsic(ResolvedAssembly image, EntityHandle handle,
         LibraryIntrinsicCapability capability) => Bind(image, handle, () => IntrinsicDeclaration(image, handle, capability));
+
+    /// <summary>Selects one emitted field declaration for build evidence; never grants its requested capability.</summary>
+    public ResolutionResult<LibraryIntrinsicGrant> DescribeLibraryFieldIntrinsic(ResolvedType owner, string name,
+        LibraryIntrinsicCapability capability, MemberResolutionBudget? budget = null)
+    {
+        CheckOwner(owner.Assembly); budget ??= new();
+        return Bind(owner.Assembly, owner.Handle, () =>
+        {
+            if (string.IsNullOrEmpty(name) || name.Length > 1024)
+                throw InvalidLibraryBuild("Intrinsic field selector requires a bounded name.");
+            InspectMember(budget);
+            var reader = owner.Assembly.Image.Reader; FieldDefinitionHandle selected = default;
+            foreach (var handle in reader.GetTypeDefinition(owner.Handle).GetFields())
+            {
+                InspectMember(budget);
+                if (!reader.StringComparer.Equals(reader.GetFieldDefinition(handle).Name, name)) continue;
+                if (!selected.IsNil) throw InvalidLibraryBuild("Intrinsic field selector is ambiguous: " + name);
+                selected = handle;
+            }
+            if (selected.IsNil) throw InvalidLibraryBuild("Intrinsic field was not emitted: " + name);
+            return IntrinsicDeclaration(owner.Assembly, selected, capability);
+        });
+    }
 
     /// <summary>Selects one emitted method declaration for build evidence; never grants its requested capability.</summary>
     public ResolutionResult<LibraryIntrinsicGrant> DescribeLibraryMethodIntrinsic(ResolvedType owner, string name, int parameterCount,
@@ -162,11 +185,15 @@ public sealed partial class AssemblyResolver
         if (!Enum.IsDefined(capability)) throw InvalidLibraryBuild("Unknown intrinsic capability.");
         var reader = image.Image.Reader;
         bool layout = capability is LibraryIntrinsicCapability.StringLayout or LibraryIntrinsicCapability.ExceptionLayout or LibraryIntrinsicCapability.CultureInfoLayout;
-        if (handle.IsNil || handle.Kind != (layout ? HandleKind.TypeDefinition : HandleKind.MethodDefinition))
-            throw InvalidLibraryBuild("Intrinsic capability requires the appropriate non-nil type or method definition token.");
-        var owner = layout ? (TypeDefinitionHandle)handle : reader.GetMethodDefinition((MethodDefinitionHandle)handle).GetDeclaringType();
-        string name = layout ? "" : reader.GetString(reader.GetMethodDefinition((MethodDefinitionHandle)handle).Name);
-        var signatureReader = layout ? default : reader.GetBlobReader(reader.GetMethodDefinition((MethodDefinitionHandle)handle).Signature);
+        bool field = capability == LibraryIntrinsicCapability.StringEmpty;
+        if (handle.IsNil || handle.Kind != (layout ? HandleKind.TypeDefinition : field ? HandleKind.FieldDefinition : HandleKind.MethodDefinition))
+            throw InvalidLibraryBuild("Intrinsic capability requires the appropriate non-nil type, method or field definition token.");
+        var owner = layout ? (TypeDefinitionHandle)handle : field ? reader.GetFieldDefinition((FieldDefinitionHandle)handle).GetDeclaringType()
+            : reader.GetMethodDefinition((MethodDefinitionHandle)handle).GetDeclaringType();
+        string name = layout ? "" : field ? reader.GetString(reader.GetFieldDefinition((FieldDefinitionHandle)handle).Name)
+            : reader.GetString(reader.GetMethodDefinition((MethodDefinitionHandle)handle).Name);
+        var signatureReader = layout ? default : reader.GetBlobReader(field ? reader.GetFieldDefinition((FieldDefinitionHandle)handle).Signature
+            : reader.GetMethodDefinition((MethodDefinitionHandle)handle).Signature);
         if (signatureReader.Length > 4096) throw InvalidLibraryBuild("Intrinsic declaration signature exceeds 4096 bytes.");
         byte[] signature = layout ? [] : signatureReader.ReadBytes(signatureReader.Length);
         return new(MetadataTokens.GetToken(handle), MetadataTokens.GetToken(owner), new NameFormatter(reader).TypeDefinitionName(owner), name,

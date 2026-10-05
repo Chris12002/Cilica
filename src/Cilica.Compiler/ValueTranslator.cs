@@ -264,6 +264,7 @@ public static class ValueTranslator
                     {
                         case "nop": break;
                         case "constrained." when types.IntegerCasts && constrainedPrefixes.Contains(offset): break;
+                        case "ldsfld" when exceptions is not null && method.Literals.ContainsKey(offset):
                         case "ldstr" when exceptions is not null:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
                         case "isinst" or "castclass" when exceptions is not null:

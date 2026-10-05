@@ -607,5 +607,12 @@
     "Member": "Equals",
     "ParameterCount": 3,
     "Capability": "StringOrdinalEqual"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "Empty",
+    "ParameterCount": null,
+    "Capability": "StringEmpty"
   }
 ]

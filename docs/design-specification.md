@@ -1477,3 +1477,11 @@ records this admission. Every UTF-16 code unit and mixed/null/empty strings matc
 .NET at O0/O2 with ASan/UBSan and forced collection. No native intrinsic was added.
 The concrete kernel again reaches the unchanged metadata work bound; native
 transcript equivalence and implementation/filter closure remain pending.
+
+
+The exact readonly String.Empty field now requires a declaration-specific field
+grant and maps to the runtime's canonical per-instance empty literal (ADR 0161).
+O0/O2 sanitizer tests preserve identity with empty literals, Concat and StringBuilder
+output, plus bounds faults and collection safety. Writes, missing approval and
+altered field shapes remain diagnostic. The concrete kernel reaches an aggregate
+compiler limit; native transcript equivalence remains unproven.

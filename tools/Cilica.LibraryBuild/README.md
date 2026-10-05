@@ -53,7 +53,8 @@ requires explicit references.
 `--intrinsic-requests /path/to/requests.json` adds requested declaration evidence
 to the manifest. Each JSON array entry must explicitly contain `Namespace`,
 `Type`, `Member`, `ParameterCount` and the string-valued `Capability`. Use null for
-both member fields to select a type layout. Otherwise a name and parameter count
+both member fields to select a type layout. StringEmpty selects one emitted field
+by name with a null parameter count. Otherwise a name and parameter count
 must select exactly one method emitted by this build. Overloads with the same
 count are rejected; no first-match selection occurs. Duplicate requests,
 duplicate JSON properties, unknown capabilities and missing members fail the

@@ -57,6 +57,10 @@ public sealed class LibraryIntrinsicRequestTests
             Intrinsics = [new("System", "String", null, 0, LibraryIntrinsicCapability.StringLayout)] }));
         await Assert.ThrowsAsync<ArgumentException>(() => LibraryBuilder.Build(request with {
             Intrinsics = [new("System", "String", null, null, (LibraryIntrinsicCapability)999)] }));
+        await Assert.ThrowsAsync<ArgumentException>(() => LibraryBuilder.Build(request with {
+            Intrinsics = [new("System", "String", "Empty", 0, LibraryIntrinsicCapability.StringEmpty)] }));
+        await Assert.ThrowsAsync<ArgumentException>(() => LibraryBuilder.Build(request with {
+            Intrinsics = [new("System", "String", null, null, LibraryIntrinsicCapability.StringEmpty)] }));
         Assert.False(Directory.Exists(request.OutputDirectory)); Assert.False(Directory.Exists(files.Root));
     }
 

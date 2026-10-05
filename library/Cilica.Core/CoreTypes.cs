@@ -78,6 +78,8 @@ namespace System
 
     public sealed partial class String
     {
+        // Runtime-owned canonical empty string; requires its exact field grant.
+        public static readonly string Empty;
         private String() { }
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0);
         public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }

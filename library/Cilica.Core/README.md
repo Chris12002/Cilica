@@ -37,7 +37,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 87 exact string/exception/provider/numeric/array/key capabilities for review; it does not
+file describes 88 exact string/exception/provider/numeric/array/key capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -128,3 +128,8 @@ and reuses UTF-16 ordinal equality. Other modes and mode aliases remain diagnost
 StringWhitespace.cs implements IsNullOrWhiteSpace as ordinary managed code with
 pinned BMP whitespace ranges. Exhaustive UTF-16 and mixed-string differential tests
 cover the implementation. No general Unicode classification API is supplied.
+
+The exact readonly String.Empty field has its own field-token/signature grant.
+Reads use the canonical per-instance empty literal; writes, explicit storage and
+initializers are rejected. Identity with empty literals/Concat/StringBuilder output
+is tested at O0/O2 with forced collection and sanitizers.
