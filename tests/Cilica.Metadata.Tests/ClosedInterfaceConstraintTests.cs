@@ -43,7 +43,8 @@ public sealed class ClosedInterfaceConstraintTests
     [InlineData(GenericParameterAttributes.Covariant | GenericParameterAttributes.NotNullableValueTypeConstraint, PrimitiveTypeCode.Int32, true)]
     [InlineData(GenericParameterAttributes.Covariant | GenericParameterAttributes.NotNullableValueTypeConstraint, PrimitiveTypeCode.Object, false)]
     [InlineData(GenericParameterAttributes.Covariant | GenericParameterAttributes.Contravariant, PrimitiveTypeCode.Object, false)]
-    [InlineData((GenericParameterAttributes)32, PrimitiveTypeCode.Object, false)]
+    [InlineData(GenericParameterAttributes.AllowByRefLike, PrimitiveTypeCode.Object, true)]
+    [InlineData((GenericParameterAttributes)64, PrimitiveTypeCode.Object, false)]
     public void Variance_declarations_preserve_special_constraints(GenericParameterAttributes flags, PrimitiveTypeCode argument, bool succeeds)
     {
         var b = new ResolutionAssemblyBuilder(new("VariantDeclarations", new Version(1, 0, 0, 0)));

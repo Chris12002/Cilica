@@ -19,6 +19,7 @@ public sealed partial class AssemblyResolver
         bool nullableRead = false;
         var pending = new Queue<ConstructedType>();
         var seen = new HashSet<ConstructedType>();
+        var interfaceClosures = new Dictionary<ConstructedType, HashSet<ConstructedType>>();
         void Member()
         {
             if (++work > maximumWork)
@@ -98,7 +99,35 @@ public sealed partial class AssemblyResolver
             }
             return false;
         }
-        void Parameters(ResolvedAssembly assembly, GenericParameterHandleCollection parameters, SignatureList<TypeSignature> arguments, bool interfaceOwner = false)
+        void InterfaceConstraint(TypeSignature argument, TypeSignature signature)
+        {
+            if (signature is TypeSignature.Named { Kind: SignatureTypeKind.ValueType }
+                or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType })
+                throw new BadImageFormatException("An interface constraint cannot use a value-type encoding.");
+            var required = Owner(signature);
+            Member();
+            var flags = required.Definition.Assembly.Image.Reader.GetTypeDefinition(required.Definition.Handle).Attributes;
+            if ((flags & TypeAttributes.Interface) == 0)
+                throw new UnsupportedBindingException("Nominal class and dependent parameter constraints require later constraint lowering.");
+            pending.Enqueue(required);
+            if (argument is TypeSignature.Vector)
+                throw new UnsupportedBindingException("Array interface constraints require runtime array helpers.");
+            Traits(argument); // Reject inconsistent class/value encodings before proving ancestry.
+            if (argument is TypeSignature.Primitive primitive)
+                argument = new TypeSignature.Named(ResolveRuntimeType(library, primitive.Code).Value
+                    ?? throw new UnsupportedBindingException("Interface constraints require the selected primitive runtime identity."),
+                    ClosedGenericKey.IsIntegerArgument(primitive.Code) ? SignatureTypeKind.ValueType : SignatureTypeKind.Class);
+            var actual = Owner(argument);
+            if (!interfaceClosures.TryGetValue(actual, out var interfaces))
+            {
+                interfaces = ReadConstraintInterfaces(actual, Member, pending.Enqueue);
+                interfaceClosures.Add(actual, interfaces);
+            }
+            if (!interfaces.Contains(required))
+                throw new UnsupportedBindingException("Closed argument does not implement its exact interface constraint; variance-only conversions require later constraint lowering.");
+        }
+        void Parameters(ResolvedAssembly assembly, GenericParameterHandleCollection parameters, SignatureList<TypeSignature> arguments,
+            SignatureList<TypeSignature> types, SignatureList<TypeSignature> methods, bool interfaceOwner = false)
         {
             if (parameters.Count != arguments.Count || parameters.Count > 4096)
                 throw new BadImageFormatException("Closed generic constraints have mismatched declaration arity.");
@@ -129,15 +158,28 @@ public sealed partial class AssemblyResolver
                     Member(); var constraint = assembly.Image.Reader.GetGenericParameterConstraint(constraintHandle);
                     var signature = new SignatureDecoder(this, assembly).Type(constraint.Type);
                     // C# encodes the struct constraint as both flags and a ValueType row.
-                    if (!value || signature is not TypeSignature.Named named || named.Definition != ValueBase())
-                        throw new UnsupportedBindingException("Nominal base/interface or dependent generic constraints require later constraint lowering.");
+                    if (value && signature is TypeSignature.Named named && named.Definition == ValueBase()) continue;
+                    if (value && signature is TypeSignature.Modified { Required: true, Element: TypeSignature.Named unmanagedBase } modifier
+                        && unmanagedBase.Definition == ValueBase())
+                    {
+                        Member();
+                        var marker = ResolveType(library, "System.Runtime.InteropServices", "UnmanagedType").Value;
+                        if (modifier.Modifier.Definition != marker || arguments[parameter.Index] is not TypeSignature.Primitive scalar
+                            || !ClosedGenericKey.IsIntegerArgument(scalar.Code))
+                            throw new UnsupportedBindingException("Unmanaged constraints require the selected marker and a supported integer primitive; aggregate field proof remains pending.");
+                        continue;
+                    }
+                    if (signature is not (TypeSignature.Named or TypeSignature.Generic))
+                        throw new UnsupportedBindingException($"Dependent or modified parameter constraints require later constraint lowering ({signature.GetType().Name} in {assembly.Identity.Name}).");
+                    InterfaceConstraint(arguments[parameter.Index], Substitute(signature, types, methods));
                 }
             }
             Arguments(arguments);
         }
         pending.Enqueue(owner);
         if (method is not null)
-            Parameters(owner.Definition.Assembly, owner.Definition.Assembly.Image.Reader.GetMethodDefinition(method.Handle).GetGenericParameters(), method.MethodArguments);
+            Parameters(owner.Definition.Assembly, owner.Definition.Assembly.Image.Reader.GetMethodDefinition(method.Handle).GetGenericParameters(),
+                method.MethodArguments, owner.Arguments, method.MethodArguments);
         while (pending.TryDequeue(out var type))
         {
             if (!seen.Add(type)) continue;
@@ -145,7 +187,7 @@ public sealed partial class AssemblyResolver
             CheckOwner(type.Definition.Assembly);
             RejectByRefLike(type.Definition);
             var declaration = type.Definition.Assembly.Image.Reader.GetTypeDefinition(type.Definition.Handle);
-            Parameters(type.Definition.Assembly, declaration.GetGenericParameters(), type.Arguments,
+            Parameters(type.Definition.Assembly, declaration.GetGenericParameters(), type.Arguments, type.Arguments, SignatureList<TypeSignature>.Empty,
                 interfaceOwner: (declaration.Attributes & TypeAttributes.Interface) != 0);
         }
         return work;

@@ -856,7 +856,11 @@ Scalar/reference-only generic closures and the common `class`, nonnullable
 metadata validation and native differential evidence
 ([ADR 0076](decisions/0076-generic-special-constraints.md)). Constraint admission
 never executes constructors and does not implement generic activation helpers.
-Nominal base/interface/dependent constraints remain diagnostics.
+Exact nominal interface constraints are now validated after closed substitution
+through bounded interface and base ancestry; primitive unmanaged constraints
+require the selected marker. Class/dependent constraints, array helpers and
+variance-only constraint conversions remain diagnostics
+([ADR 0128](decisions/0128-exact-interface-constraints.md)).
 
 Concrete closed class hierarchies, scalar/reference fields and exact constructors
 now share the same specialization and runtime path

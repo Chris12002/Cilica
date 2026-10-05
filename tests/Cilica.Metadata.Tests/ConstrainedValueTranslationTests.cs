@@ -14,7 +14,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class ConstrainedValueTranslationTests
 {
     [Theory]
-    [InlineData("Mutation")] [InlineData("Generic")]
+    [InlineData("Mutation")] [InlineData("Generic")] [InlineData("InterfaceOracle")]
     public void Constrained_body_selection_retains_checked_receivers_and_legacy_gates(string name)
     {
         var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(ConstrainedValueProbe));
@@ -29,7 +29,7 @@ public sealed class ConstrainedValueTranslationTests
     [InlineData(false)] [InlineData(true)]
     public Task Constrained_value_calls_preserve_mutation_collection_and_exception_order(bool optimized) =>
         IntegerObjectTranslationTests.Verify(optimized, [("Mutation", ConstrainedValueProbe.Mutation),
-            ("Generic", ConstrainedValueProbe.Generic)], typeof(ConstrainedValueProbe));
+            ("Generic", ConstrainedValueProbe.Generic), ("InterfaceOracle", ConstrainedValueProbe.InterfaceOracle)], typeof(ConstrainedValueProbe));
 
     [Fact]
     public void Unimplemented_boxing_fallback_remains_actionable()

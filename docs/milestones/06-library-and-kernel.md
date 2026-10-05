@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.33 and 6d.1–6d.3 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.3, 6c.1–6c.34 and 6d.1–6d.3 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -17,7 +17,7 @@ fixtures and examples must be independent.
 | 6b.2 | Apply the plan to structural member binding and preserve source/implementation evidence | Complete for metadata plans; ADR 0090; ordinary compiler binding is unchanged |
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit API added in 6d.3 |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.30 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory and reference boxing; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.34 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
 | 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.3 add a pinned-source invariant decimal text helper, actual build evidence producer and mapped audit API; framework member mapping, collections and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -597,6 +597,17 @@ Review found no remaining actionable issue; see
 [ADR 0127](../decisions/0127-constrained-direct-value-cil.md). Broader constraints,
 private/readonly receivers, required library members and native kernel equivalence
 remain pending.
+
+## Slice 6c.34 outcome
+
+Closed type/method snapshots now prove exact implemented-interface constraints,
+including inherited generic interfaces, self constraints and both substitution
+environments. Integer primitives also admit the selected unmanaged marker.
+All 141 focused checks pass. Two additional C# helpers match .NET in 588 repeated native sanitizer results.
+Review added malformed interface-encoding regressions and corrected a stale
+AllowByRefLike expectation; see
+[ADR 0128](../decisions/0128-exact-interface-constraints.md). Library mapping
+correspondence, broader constraints and native kernel equivalence remain pending.
 
 ## Remaining completion evidence
 
