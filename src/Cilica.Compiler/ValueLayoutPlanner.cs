@@ -35,6 +35,8 @@ public static class ValueLayoutPlanner
         var fieldIds = catalog.References.Types.SelectMany(t => t.Fields)
             .Select(f => (f.Id.Owner.ContentHash, f.Id.Owner.Specialization, f.Id.Token)).ToHashSet();
         int fields = fieldIds.Count;
+        int interfaceEdges = 0;
+        var contracts = catalog.References.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         foreach (var type in catalog.Types)
         {
             Require(type?.Source is not null && type.Source.Name is not null && type.Source.AssemblyIdentity is not null
@@ -43,6 +45,12 @@ public static class ValueLayoutPlanner
             Require(ObjectModelValidator.Identity(id, 0x02) && id != catalog.ValueBase
                 && !references.Contains(id) && types.TryAdd(id, type), "invalid, duplicate or reference/value identity collision.");
             Require(AttributesSupported(type.Attributes), "struct attributes require sealed automatic/sequential managed layout.");
+            Require(!type.Interfaces.IsDefault && type.Interfaces.Length <= ObjectModelLimits.MaximumTypes
+                && (catalog.References.Integer64 || type.Interfaces.IsEmpty)
+                && type.Interfaces.Distinct().Count() == type.Interfaces.Length && type.Interfaces.All(contracts.Contains),
+                "value interfaces require distinct included contracts and the integer-object catalog.");
+            interfaceEdges += type.Interfaces.Length;
+            Require(interfaceEdges <= ObjectDispatchLimits.MaximumTargets, "aggregate value interface edge limit exceeded.");
             Require(!type.Fields.IsDefault && type.Fields.Length <= ObjectModelLimits.MaximumFields - fields,
                 "combined field limit exceeded or fields missing.");
             fields += type.Fields.Length;

@@ -82,7 +82,8 @@ internal sealed class ObjectIrRules
             bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
             bool valueInstance = binding.Kind == ObjectMethodKind.ValueInstance;
             Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
-                || (isStatic || valueConstructor || valueInstance) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0
+                || (isStatic || valueConstructor) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0
+                || valueInstance && binding.VirtualSlot is null
                 || flow.Types.Integer64 && binding.Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor,
                 "borrowed parameters require static methods, value constructors or admitted integer-object instance methods.");
             Require(!binding.OwnerExternallyVisible || !_layouts.TryGetValue(binding.Owner, out var layout)
@@ -101,8 +102,9 @@ internal sealed class ObjectIrRules
                     && (valueConstructor ? method.ReturnType == IrType.Void
                         && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final))
                             == (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
-                        : (binding.Attributes & (MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0),
-                    "value constructor/instance method requires an exact writable inline receiver and admitted nonvirtual flags; constructors require void and constructor flags.");
+                        : (binding.Attributes & MethodAttributes.RTSpecialName) == 0
+                            && ((binding.Attributes & MethodAttributes.Virtual) != 0 || (binding.Attributes & (MethodAttributes.NewSlot | MethodAttributes.Final)) == 0)),
+                    "value constructor/instance method requires an exact writable inline receiver and admitted declaration flags; constructors require void and constructor flags.");
             else if (!isStatic)
                 Require(_layouts.ContainsKey(binding.Owner) && method.Parameters.Length > 0
                     && method.Parameters[0] == IrType.Reference(binding.Owner), "instance receiver must have the exact declaring class type.");

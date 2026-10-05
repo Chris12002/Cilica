@@ -147,12 +147,26 @@ public static class ValueModelBuilder
             catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
             if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || input.HasTypeInitializer || input.HasModuleInitializer
                 || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && input.Fields.IsEmpty
-                    && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || input.InterfaceCount != 0
+                    && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || !integers64 && input.InterfaceCount != 0
                 || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
                 || input.BaseType is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } declaredBase
                 || Id(declaredBase.Definition) != Id(valueBase))
                 Fail("Value layouts require sealed nongeneric direct children of the selected System.ValueType, default managed layout, and no interfaces or type/module initialization.", input.Source.Name + "; value inclusion: " + paths[id]);
             var declared = new List<ObjectField>();
+            var contracts = new List<ObjectTypeId>();
+            if (input.Interfaces.IsDefault || input.InterfaceCount != input.Interfaces.Length)
+                Fail("Value interface snapshot does not match its declaration count.", input.Source.Name);
+            foreach (var signature in input.Interfaces)
+            {
+                var contract = signature switch {
+                    TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
+                    TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                    _ => null };
+                if (contract is null) Fail("Value interface declarations require exact closed interface identities.", input.Source.Name);
+                var definition = ReadClosed(contract!, new());
+                if ((definition.Attributes & TypeAttributes.Interface) == 0) Fail("Value interface row names a non-interface type.", input.Source.Name);
+                contracts.Add(IncludeClosedReference(contract!));
+            }
             foreach (var field in input.Fields)
             {
                 string location = paths[id] + " -> " + input.Source.Name + "::" + field.Name + " field 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
@@ -183,7 +197,7 @@ public static class ValueModelBuilder
                 }
                 declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
             }
-            values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible });
+            values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible, Interfaces = [.. contracts] });
         }
         ObjectModelBuilder.TypeSnapshot ReadClosedReference(ConstructedType type, TypeReadLimits limits)
         {

@@ -924,6 +924,10 @@ Direct nonvirtual struct instance calls now borrow their exact inline receiver,
 preserving mutation, copied returns and bounded receiver flow through branches
 ([ADR 0120](decisions/0120-direct-struct-instance-calls.md)). Readonly receivers and
 value virtual/interface dispatch remain separate capabilities.
+Interface-bearing values now retain exact declared contracts for direct calls to
+their admitted bodies, including methods marked virtual/final/newslot. This does
+not admit constrained calls or boxed value dispatch; boxing such values remains
+a diagnostic ([ADR 0121](decisions/0121-direct-interface-value-declarations.md)).
 
 ## 11. Class library and assembly identity
 

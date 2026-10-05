@@ -31,13 +31,16 @@ public static class ScalarBoxedIrValidator
 internal sealed class ScalarBoxingRules
 {
     internal ImmutableArray<ValueTypePlan> Plans { get; }
+    internal ImmutableArray<ObjectTypeId> InterfaceTypes { get; }
     private readonly Dictionary<ObjectTypeId, ValueTypePlan> _plans;
     private readonly IrTypeRules _types;
     private readonly ObjectTypeId _object;
     internal ScalarBoxingRules(ValueTypeCatalog values)
     {
         Plans = ValueLayoutPlanner.Build(values);
-        _plans = Plans.ToDictionary(p => p.Type);
+        var allowed = values.Types.Where(t => t.Interfaces.IsEmpty).Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
+        _plans = Plans.Where(p => allowed.Contains(p.Type)).ToDictionary(p => p.Type);
+        InterfaceTypes = [.. values.Types.SelectMany(t => t.Interfaces).Distinct()];
         _object = values.References.ObjectBase;
         _types = new(values.References, locations: true);
     }

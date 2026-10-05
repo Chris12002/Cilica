@@ -9,6 +9,7 @@ namespace Cilica.Compiler;
 public sealed record ValueTypeLayout(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectField> Fields)
 {
     public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;
+    public ImmutableArray<ObjectTypeId> Interfaces { get; init; } = [];
 }
 
 /// <summary>Detached inline closure plus the existing, separately validated reference catalog.</summary>

@@ -70,7 +70,7 @@ internal sealed class ObjectInterfaceOperationRules
         var types = right.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         return left.Types.All(t => types.TryGetValue(ObjectTypeId.From(t.Source), out var other)
             && t.Source == other.Source && t.Attributes == other.Attributes && t.ExternallyVisible == other.ExternallyVisible
-            && t.Fields.SequenceEqual(other.Fields));
+            && t.Fields.SequenceEqual(other.Fields) && t.Interfaces.SequenceEqual(other.Interfaces));
     }
 
     internal static bool CatalogMatches(ObjectTypeCatalog left, ObjectTypeCatalog right)

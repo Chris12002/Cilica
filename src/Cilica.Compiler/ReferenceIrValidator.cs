@@ -20,6 +20,7 @@ public static class ReferenceIrValidator
             .Where(type => type.Class is not null).Select(type => type.Class!);
         if (objectRules is not null) roots = roots.Concat(program.Methods.SelectMany(objectRules.OperationTypes));
         if (exceptions is not null) roots = roots.Concat(exceptions.Types.Types);
+        if (boxes is not null) roots = roots.Concat(boxes.InterfaceTypes);
         ObjectCatalogUsage.Validate(program.Types, roots);
     }
 }

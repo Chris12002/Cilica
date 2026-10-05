@@ -406,7 +406,12 @@ public static partial class ValueProgramDiscovery
                     }
                 }
                 foreach (var operand in method.TypeOperands)
-                    if (layouts.ContainsKey(operand.Value)) CheckType(operand.Value, operand.Key);
+                    if (layouts.TryGetValue(operand.Value, out var operandLayout))
+                    {
+                        CheckType(operand.Value, operand.Key);
+                        if (!operandLayout.Interfaces.IsEmpty && work.Input.Instructions.Any(i => i.Offset == operand.Key && i.OpCode is "box" or "unbox" or "unbox.any"))
+                            Fail(work, "Boxing interface-bearing values requires boxed interface relationships and dispatch before execution.", operand.Key);
+                    }
 
                 void CheckType(ObjectTypeId type, int offset)
                 {
@@ -482,8 +487,6 @@ public static partial class ValueProgramDiscovery
                 if (!inlineInstance && Inline(owner, parent, offset) || constructor && ((input.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
                     || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }))
                     Fail(parent, "Class constructors require exact constructor flags, a class receiver and void return.", offset);
-                if (inlineInstance && (input.Attributes & (MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) != 0)
-                    Fail(parent, "Struct virtual/interface method declarations require value dispatch metadata before execution.", offset);
                 if (inlineInstance) Include(resolved.DeclaringType, parent, offset);
                 else IncludeReference(resolved.DeclaringType, parent, offset);
             }
@@ -493,7 +496,7 @@ public static partial class ValueProgramDiscovery
             var kind = inlineConstructor ? ObjectMethodKind.ValueConstructor : inlineInstance ? ObjectMethodKind.ValueInstance : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible)
                 { OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible };
-            if (fact is null && (input.Attributes & MethodAttributes.Virtual) != 0)
+            if (fact is null && !inlineInstance && (input.Attributes & MethodAttributes.Virtual) != 0)
             {
                 var exact = ResolveVirtual(resolved, resolved.DeclaringType, parent, offset);
                 binding = binding with { VirtualName = input.DeclaredName, VirtualSlot = new(MethodId(exact.Slot), ObjectModelBuilder.Id(exact.Slot.DeclaringType)) };

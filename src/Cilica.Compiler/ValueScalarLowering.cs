@@ -26,7 +26,8 @@ public static class ValueScalarLowering
     private static ImmutableArray<ObjectMethodBinding> LowerBindings(ImmutableArray<ObjectMethodBinding> bindings) =>
         [.. bindings.Select(binding => binding.Kind is ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance ? binding with {
             Kind = ObjectMethodKind.Static,
-            Attributes = (binding.Attributes & ~(System.Reflection.MethodAttributes.SpecialName | System.Reflection.MethodAttributes.RTSpecialName))
+            Attributes = (binding.Attributes & ~(System.Reflection.MethodAttributes.SpecialName | System.Reflection.MethodAttributes.RTSpecialName
+                | System.Reflection.MethodAttributes.Virtual | System.Reflection.MethodAttributes.NewSlot | System.Reflection.MethodAttributes.Final))
                 | System.Reflection.MethodAttributes.Static } : binding)];
 
     public static ScalarDelegateIrProgram LowerDelegates(DelegateValueIrProgram program)
