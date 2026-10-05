@@ -45,6 +45,10 @@
   "intrinsicGrants": [],
   "ownedSources": [
     {
+      "path": "library/Cilica.Core/DelegateContracts.cs",
+      "scope": "Owned Action<T1,T2> declaration; exact Action<int,int> single-target calls are tested. Reference/wide callback signatures and variance conversions remain unsupported; no new intrinsic grant."
+    },
+    {
       "path": "library/Cilica.Core/CollectionContracts.cs",
       "scope": "Owned read-only collection/enumeration contracts preserve pinned inheritance, variance and members. Exact mapped application dispatch is tested; library collection storage, array helpers and variance-only dispatch remain pending. No new intrinsic grant."
     },

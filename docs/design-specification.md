@@ -823,8 +823,12 @@ O0/O2 sanitizer probes cover .NET parity, captured roots, ownership checks, boun
 argument packets and fault cleanup. The explicit CIL delegate profile now binds
 public named nongeneric declarations, adjacent ldftn/newobj and callvirt Invoke
 ([ADR 0080](decisions/0080-bounded-delegate-cil.md)), including storage in boxed generic
-values and class fields. Generic delegates, private compiler-generated closures,
-virtual capture, multicast, variance and broader signatures remain unsupported.
+values and class fields. The v2 CIL profile now also admits exact closed generic
+delegates and the owned Action<int,int> contract, retaining distinct specialized
+identities and checked declaration variance. Exact type tests/casts are supported
+in the integer-object composition ([ADR 0136](decisions/0136-closed-generic-delegates.md)).
+Private compiler-generated closures, virtual capture, multicast, variance
+conversions and broader signatures remain unsupported.
 
 ## 10. Generics and reachability
 

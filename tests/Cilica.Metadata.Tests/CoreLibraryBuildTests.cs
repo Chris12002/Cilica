@@ -29,14 +29,14 @@ public sealed class CoreLibraryBuildTests
         var requests = LibraryIntrinsicRequests.Read(CorePath("intrinsic-requests.json"));
         var request = LibraryBuildProducerTests.Request(files, CorePath("CoreTypes.cs"));
         string reference = request.References.Single();
-        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs"))], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
+        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), CorePath("DelegateContracts.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs"))], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
         var built = await LibraryBuilder.Build(request);
         var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!, Path.GetDirectoryName(built.AssemblyPath)!,
             Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;
         var contract = resolver.OpenInput(reference).Value!; Assert.True(contract.IsReferenceAssembly);
         var implementation = resolver.OpenInput(built.AssemblyPath).Value!;
         var names = requests.Where(r => r.Namespace != "Cilica.Runtime").Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Concat(new[] { "Int32", "UInt32", "Int64", "UInt64" }.Select(n => ("System", n))).Distinct().ToArray();
-        names = names.Concat(CollectionContractNames).ToArray();
+        names = names.Concat(CollectionContractNames).Concat(new[] { "Delegate", "MulticastDelegate", "Action`2" }.Select(n => ("System", n))).ToArray();
         var pairs = names.Select(name => new LibraryTypeMapping(resolver.ResolveType(contract, name.Item1, name.Item2).Value!,
             resolver.ResolveType(implementation, name.Item1, name.Item2).Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);

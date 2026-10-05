@@ -27,14 +27,15 @@ public static partial class ValueProgramDiscovery
             _multicastDelegate ??= ObjectModelBuilder.Id(Require(resolver.ResolveType(library, "System", "MulticastDelegate"), work, offset));
             if (ObjectModelBuilder.Id(parent.Definition) != _multicastDelegate)
                 Fail(work, "Delegates must derive directly from the selected runtime MulticastDelegate.", offset);
-            if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || type.Arguments.Count != 0
+            if (type.Arguments.Count != 0) input = SnapshotClosed(type, work, offset);
+            if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || !generics && type.Arguments.Count != 0
                 || !input.ExternallyVisible || input.HasTypeInitializer || input.HasModuleInitializer
                 || !input.Fields.IsEmpty || input.InterfaceCount != 0 || input.PackingSize != 0 || input.ClassSize != 0
                 || !ObjectModelValidator.ClassAttributes(input.Attributes) || (input.Attributes & TypeAttributes.Sealed) == 0)
-                Fail(work, "Delegate CIL requires public sealed nongeneric fieldless delegate declarations without initialization, interfaces or native layout.", offset);
+                Fail(work, "Delegate CIL requires public sealed exactly closed fieldless delegate declarations without initialization, interfaces or native layout.", offset);
             MethodDeclarationInput? constructor = null, invoke = null;
             MethodDefinitionHandle constructorHandle = default, invokeHandle = default;
-            foreach (var declaration in Require(resolver.ReadDelegateDeclarations(type.Definition, _metadata), work, offset).Methods)
+            foreach (var declaration in Require(resolver.ReadDelegateDeclarations(type, _metadata), work, offset).Methods)
             {
                 string name = declaration.DeclaredName;
                 var handle = (MethodDefinitionHandle)MetadataTokens.EntityHandle(declaration.Source.Token);

@@ -127,7 +127,7 @@ public sealed partial class AssemblyResolver
                 throw new UnsupportedBindingException("Closed argument does not implement its exact interface constraint; variance-only conversions require later constraint lowering.");
         }
         void Parameters(ResolvedAssembly assembly, GenericParameterHandleCollection parameters, SignatureList<TypeSignature> arguments,
-            SignatureList<TypeSignature> types, SignatureList<TypeSignature> methods, bool interfaceOwner = false)
+            SignatureList<TypeSignature> types, SignatureList<TypeSignature> methods, bool variantOwner = false)
         {
             if (parameters.Count != arguments.Count || parameters.Count > 4096)
                 throw new BadImageFormatException("Closed generic constraints have mismatched declaration arity.");
@@ -141,8 +141,8 @@ public sealed partial class AssemblyResolver
                     | GenericParameterAttributes.NotNullableValueTypeConstraint | GenericParameterAttributes.DefaultConstructorConstraint;
                 var variance = parameter.Attributes & GenericParameterAttributes.VarianceMask;
                 if ((parameter.Attributes & ~(allowed | GenericParameterAttributes.VarianceMask | GenericParameterAttributes.AllowByRefLike)) != 0
-                    || variance == GenericParameterAttributes.VarianceMask || !interfaceOwner && variance != GenericParameterAttributes.None)
-                    throw new UnsupportedBindingException("Variance flags require an interface type parameter with one declared direction; unknown flags and variant class/method/delegate parameters require later lowering.");
+                    || variance == GenericParameterAttributes.VarianceMask || !variantOwner && variance != GenericParameterAttributes.None)
+                    throw new UnsupportedBindingException("Variance flags require an interface type parameter or selected-runtime delegate with one declared direction; unknown flags and variant class/method parameters require later lowering.");
                 // AllowByRefLike broadens declaration admission only. Argument traversal
                 // rejects actual byref-like arguments, including nested/unused ones.
                 bool reference = (parameter.Attributes & GenericParameterAttributes.ReferenceTypeConstraint) != 0;
@@ -187,8 +187,11 @@ public sealed partial class AssemblyResolver
             CheckOwner(type.Definition.Assembly);
             RejectByRefLike(type.Definition);
             var declaration = type.Definition.Assembly.Image.Reader.GetTypeDefinition(type.Definition.Handle);
+            bool isInterface = (declaration.Attributes & TypeAttributes.Interface) != 0;
+            bool isDelegate = !isInterface && declaration.GetGenericParameters().Count != 0 && IsRuntimeDelegate(type.Definition, library, Member);
             Parameters(type.Definition.Assembly, declaration.GetGenericParameters(), type.Arguments, type.Arguments, SignatureList<TypeSignature>.Empty,
-                interfaceOwner: (declaration.Attributes & TypeAttributes.Interface) != 0);
+                variantOwner: isInterface || isDelegate);
+            if (isDelegate) work += ValidateTypeVariance(type.Definition, maximumWork - work, library);
         }
         return work;
     }

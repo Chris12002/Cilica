@@ -50,6 +50,7 @@ separately. Historical checkpoint sections retain their original stage-specific 
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive profiles retain numeric faults; managed exception objects/handlers use the opt-in exception profile; public IR is validated before emission |
 | `object-layout-v5` | Bounded nominal/vector/String metadata and detached catalogs | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String uses an intrinsic shell, without framework layout or interfaces |
 | `delegate-values-ir-v1` | Authored single-target delegate contracts and source root plans | Exact accessible static/instance targets, Int32 parameters and Int32/void returns; native storage/invocation available through the explicit scalar wrapper; CIL via explicit delegate wrapper; no multicast, variance, open-instance or closed-static binding |
+| `delegate-values-cil-v2` | Public sealed nongeneric or exactly closed generic single-target delegates | Owned Action<int,int> and closed application probes; Int32 parameters and Int32/void returns; exact casts/type tests in integer-object composition; broader signatures and variance conversions remain diagnostic (ADR 0136) |
 | `closed-generic-values-cil-v1` | Closed static methods, struct and concrete class layouts/constructors, native specialization and local O0/O2 execution | Scalar/reference/value closures; static closed owners; nested generic fields, struct TypeSpec operations and exact boxes; class/struct/default-constructor constraints; generic dispatch, broader constraints, inline heap struct fields and primitive boxing remain diagnostics |
 | `value-layout-v1` | Metadata discovery, detached inline layouts and bounded copy/reference-path planning | Nongeneric sealed structs with Int32, included references and nested values; exact selected ValueType identity; executable copies use the separate scalar-lowering profile |
 | `typed-value-ir-v1` | Detached value copies, field operations, calls/joins and root plans | Exact struct identity; scalar/reference copy paths; 1,024 roots per method and 65,536 expanded scalar slots per program; managed locations and CIL use the separate wrapper/translator |
@@ -1378,14 +1379,19 @@ remain unsupported at this checkpoint.
 
 ## Bounded delegate CIL
 
-`delegate-values-cil-v1` binds public sealed nongeneric single-target delegates
-through paired ldftn/newobj and callvirt Invoke (ADR 0080). Parameters are Int32;
+`delegate-values-cil-v2` binds public sealed nongeneric or exactly closed generic
+single-target delegates through paired ldftn/newobj and callvirt Invoke (ADRs 0080,
+0136). Parameters are Int32;
 returns are Int32 or void. Exact static/nonvirtual instance captures compose with
 class fields, generic structs and boxing. O0/O2 sanitizer probes verify .NET parity,
 collection of captured cycles, null/target fault provenance and failure cleanup.
-Generic delegate declarations such as Func/Action, private compiler-generated closure
-visibility, virtual capture, multicast and variance remain diagnostic. No CLI or
-public native delegate ABI is added.
+The owned Action<int,int> mapping and generic application delegates add 1,764
+repeated native results. Specialization keys keep identical-shaped delegates
+distinct; the integer-object composition supports exact casts/type tests and
+invalid-cast messages. The explicit delegate-only wrapper retains its cast limit.
+Private compiler-generated closure visibility, virtual capture, multicast,
+reference/wide/value signatures and variance conversions remain diagnostic. No CLI
+or public native delegate ABI is added.
 
 ## Managed exception metadata
 

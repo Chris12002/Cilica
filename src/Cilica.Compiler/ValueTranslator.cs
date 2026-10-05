@@ -65,7 +65,7 @@ public static class ValueTranslator
     public const string ArrayProfile = "value-arrays-cil-v1";
     public const string ObjectProfile = "value-objects-cil-v1";
     public const string GenericProfile = "closed-generic-values-cil-v1";
-    public const string DelegateProfile = "delegate-values-cil-v1";
+    public const string DelegateProfile = "delegate-values-cil-v2";
     public const string BoxedProfile = "boxed-values-cil-v1";
 
     public static DelegateValueTranslationResult TranslateDelegates(AssemblyResolver resolver, ResolvedAssembly assembly,

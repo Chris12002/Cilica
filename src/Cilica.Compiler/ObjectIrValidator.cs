@@ -163,7 +163,8 @@ internal sealed class ObjectIrRules
         && binding.Owner == field.Owner && receiver is IrExpression.Parameter { Index: 0 };
     internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is { ArrayElement: not null }
         ? _program.Flow.Types.Integer64 && ArrayAllocation(method, target)
-        : target is not null && (target == _program.Flow.Types.String || _contracts.Contains(target) || _layouts.TryGetValue(target, out var layout)
+        : target is not null && (target == _program.Flow.Types.String || _contracts.Contains(target)
+            || _delegates.TryGetValue(target, out var callable) && callable.ExternallyVisible || _layouts.TryGetValue(target, out var layout)
             && (Binding(IrMethodId.From(method.Source)).Owner == target
                 || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public));
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch

@@ -16,6 +16,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/CoreTypes.cs \
   --source library/Cilica.Core/IntegerText.cs \
   --source library/Cilica.Core/CollectionContracts.cs \
+  --source library/Cilica.Core/DelegateContracts.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
@@ -46,7 +47,12 @@ mapped calls on application collections, including Int64 elements and reference
 enumeration. This does not implement List storage, array interface helpers or
 variance-only dispatch (ADR 0135).
 
+`DelegateContracts.cs` adds Action<T1,T2>. Exact Action<int,int> calls use the
+checked single-target delegate path. Closed application delegates also retain
+distinct specialization identities; reference/wide callback signatures and
+delegate variance conversions remain unsupported (ADR 0136).
+
 This is a bounded core trial. General formatting/culture/provider members,
 StringBuilder, library collection implementations, full reflection and general CoreLib compatibility
 remain unimplemented. The image is metadata input to Cilica, never loaded into
-the host CLR. See ADRs 0131–0135 for scope and review evidence.
+the host CLR. See ADRs 0131–0136 for scope and review evidence.

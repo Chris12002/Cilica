@@ -96,7 +96,7 @@ public sealed partial class AssemblyResolver
             catch (ArgumentException error) { throw new UnsupportedBindingException(error.Message); }
             int count = ValidateClosedConstraints(type, null, runtimeLibrary, limits.MaximumMembers - value.MetadataMembersRead);
             if ((value.Attributes & TypeAttributes.Interface) != 0)
-                count += ValidateInterfaceVariance(type.Definition, limits.MaximumMembers - value.MetadataMembersRead - count);
+                count += ValidateTypeVariance(type.Definition, limits.MaximumMembers - value.MetadataMembersRead - count, runtimeLibrary);
             var parameters = assembly.Image.Reader.GetTypeDefinition(type.Definition.Handle).GetGenericParameters();
             if (parameters.Count > limits.MaximumMembers - value.MetadataMembersRead - count)
                 throw Failure(DiagnosticIds.TranslationLimit, "Closed parameter attributes exceed the metadata-member limit.");
