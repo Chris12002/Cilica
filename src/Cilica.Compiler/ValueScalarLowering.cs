@@ -346,6 +346,8 @@ public static class ValueScalarLowering
                                 IrExpression.IsInstance e => e with { Operand = One(e.Operand) },
                                 IrExpression.CastClass e => e with { Operand = One(e.Operand) },
                                 IrExpression.StringLength e => e with { Operand = One(e.Operand) },
+                                IrExpression.StringCodeUnit e => e with { Operand = One(e.Operand), Index = One(e.Index) },
+                                IrExpression.StringConcat e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.StringEquals e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.NewDelegate d => d with { Receiver = One(d.Receiver) },
                                 IrExpression.CallDelegate d => d with { Delegate = One(d.Delegate), Arguments = Arguments(d.Arguments, true) },

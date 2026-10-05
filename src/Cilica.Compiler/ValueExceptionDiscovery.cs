@@ -140,7 +140,20 @@ public static partial class ValueProgramDiscovery
             if (instruction.OpCode == "call" && input.DeclaredName is "op_Equality" or "Equals" && signature.Header == 0
                 && signature.Parameters.Count == 2 && signature.Parameters.All(p => Primitive(p, PrimitiveTypeCode.String)) && Primitive(signature.ReturnType, PrimitiveTypeCode.Boolean))
             { Authorize(LibraryIntrinsicCapability.StringEqual); return new(ValueIntrinsic.StringEqual, text, 2); }
-            Fail(work, "This exception profile supports String.Length and static string equality only.", offset); return null;
+            if (integers64 && instruction.OpCode == "callvirt" && input.DeclaredName == "get_Chars" && signature.Header == 0x20
+                && signature.Parameters.Count == 1 && Primitive(signature.Parameters[0], PrimitiveTypeCode.Int32) && Primitive(signature.ReturnType, PrimitiveTypeCode.Char))
+            { Authorize(LibraryIntrinsicCapability.StringCodeUnit); return new(ValueIntrinsic.StringCodeUnit, text, 2); }
+            if (integers64 && instruction.OpCode == "call" && signature.Header == 0 && signature.Parameters.Count == 2
+                && signature.Parameters.All(p => Primitive(p, PrimitiveTypeCode.String)))
+            {
+                if (input.DeclaredName == "Concat" && Primitive(signature.ReturnType, PrimitiveTypeCode.String))
+                { Authorize(LibraryIntrinsicCapability.StringConcat); return new(ValueIntrinsic.StringConcat, text, 2); }
+                if (input.DeclaredName == "op_Inequality" && Primitive(signature.ReturnType, PrimitiveTypeCode.Boolean))
+                { Authorize(LibraryIntrinsicCapability.StringNotEqual); return new(ValueIntrinsic.StringNotEqual, text, 2); }
+            }
+            Fail(work, integers64
+                ? "Supported String calls are Length/Chars, static equality/inequality and Concat(string,string)."
+                : "This exception profile supports String.Length and static string equality only.", offset); return null;
             void Authorize(LibraryIntrinsicCapability capability) =>
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(target.DeclaringType.Definition.Assembly, target.Handle, capability), work, offset);
         }

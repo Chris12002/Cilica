@@ -27,7 +27,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
 }
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
-public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual }
+public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual }
 public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, int Parameters);
 public sealed record ValueProgramInput(IrMethodId Entry, ImmutableArray<ValueMethodInput> Methods, ValueTypeCatalog Types)
 {

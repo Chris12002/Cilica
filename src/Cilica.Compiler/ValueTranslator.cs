@@ -283,15 +283,26 @@ public static class ValueTranslator
                             terminator = new IrEndFilter(offset, accepted); break;
                         case "newobj" or "call" or "callvirt" when method.Intrinsics.ContainsKey(offset):
                             var intrinsic = method.Intrinsics[offset];
-                            int rightText = intrinsic.Kind == ValueIntrinsic.StringEqual ? Pop(offset, IrType.Reference(stringType!)) : -1;
+                            int rightText = intrinsic.Kind == ValueIntrinsic.StringCodeUnit ? Pop(offset, IrType.Int32)
+                                : intrinsic.Kind is ValueIntrinsic.StringEqual or ValueIntrinsic.StringNotEqual or ValueIntrinsic.StringConcat
+                                    ? Pop(offset, IrType.Reference(stringType!)) : -1;
                             int operand = intrinsic.Parameters == 0 ? -1 : Pop(offset, IrType.Reference(intrinsic.Kind == ValueIntrinsic.ExceptionMessage ? exceptions!.Base : stringType!));
                             IrExpression expression = intrinsic.Kind switch {
                                 ValueIntrinsic.NewException => new IrExpression.NewException(intrinsic.Type, operand < 0 ? null : operand),
                                 ValueIntrinsic.ExceptionMessage => new IrExpression.ExceptionMessage(operand),
                                 ValueIntrinsic.StringLength => new IrExpression.StringLength(operand),
-                                _ => new IrExpression.StringEquals(operand, rightText) };
+                                ValueIntrinsic.StringCodeUnit => new IrExpression.StringCodeUnit(operand, rightText),
+                                ValueIntrinsic.StringConcat => new IrExpression.StringConcat(operand, rightText),
+                                ValueIntrinsic.StringEqual or ValueIntrinsic.StringNotEqual => new IrExpression.StringEquals(operand, rightText),
+                                _ => throw new InvalidOperationException("Unvalidated intrinsic kind.") };
+                            if (intrinsic.Kind == ValueIntrinsic.StringNotEqual)
+                            {
+                                int equal = Define(offset, IrType.Int32, expression, true);
+                                int falseValue = Define(offset, IrType.Int32, new IrExpression.Constant(0));
+                                expression = new IrExpression.Compare(Int32Comparison.Equal, equal, falseValue);
+                            }
                             Push(offset, intrinsic.Kind == ValueIntrinsic.NewException ? IrType.Reference(intrinsic.Type)
-                                : intrinsic.Kind == ValueIntrinsic.ExceptionMessage ? IrType.Reference(stringType!) : IrType.Int32, expression, true); break;
+                                : intrinsic.Kind is ValueIntrinsic.ExceptionMessage or ValueIntrinsic.StringConcat ? IrType.Reference(stringType!) : IrType.Int32, expression, intrinsic.Kind != ValueIntrinsic.StringNotEqual); break;
                         case "newarr" when arrays:
                             var arrayType = method.ArrayOperands[offset];
                             Push(offset, IrType.Reference(arrayType), new IrExpression.NewArray(arrayType, Pop(offset, IrType.Int32)), true); break;

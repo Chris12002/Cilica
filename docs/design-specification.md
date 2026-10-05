@@ -889,6 +889,10 @@ class virtual calls now retain exact maps through composed discovery, value
 lowering, rooting and managed fault handling
 ([ADR 0111](decisions/0111-composed-class-dispatch.md)).
 
+Selected UTF-16 indexing, two-string concatenation and inequality also compose
+through this profile's value and exception lowering, using the existing runtime
+operations ([ADR 0112](decisions/0112-composed-string-operations.md)).
+
 ## 11. Class library and assembly identity
 
 Milestone 6's `integer-arithmetic-ir-v1` profile adds authored Int64 scalar IR
