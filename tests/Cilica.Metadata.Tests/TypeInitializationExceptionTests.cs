@@ -115,6 +115,9 @@ public sealed class TypeInitializationExceptionTests
             }
             [[gnu::noinline]] static void construct(Context& c, Object** roots) {
                 auto& heap = c.instance;
+                auto depth = c.depth; c.depth = 64;
+                assert(make_initialization_exception(c, &{{Symbol(program.Exceptions.TypeInitialization!)}}, nullptr, nullptr).status == 8);
+                c.depth = depth;
                 heap.limit = heap.bytes + sizeof(ExceptionObject); c.pending = 2; c.method = 17; c.il = 31;
                 auto failedConstruction = make_initialization_exception(c, &{{Symbol(program.Exceptions.TypeInitialization!)}}, nullptr, nullptr);
                 assert(failedConstruction.status == 5 && failedConstruction.value == nullptr && c.pending == 2 && c.method == 17 && c.il == 31);

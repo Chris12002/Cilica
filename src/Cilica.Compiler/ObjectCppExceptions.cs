@@ -150,6 +150,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
 // Public construction eagerly formats the message; the partially built object
 // remains rooted across that allocation and is never returned on failure.
 [[maybe_unused, gnu::noinline]] static ExceptionResult make_initialization_exception(Context& c, const Descriptor* type, Object* name, Object* inner) noexcept {
+    if (c.depth >= 64) return {8};
     auto result = make_exception(c, type, nullptr, 3, nullptr, inner, name);
     if (result.status != 0) return result;
     Frame frame; Object* root = result.value; RootScope scope(c, frame, &root, 1);
