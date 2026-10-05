@@ -294,7 +294,7 @@ public static partial class ValueProgramDiscovery
                             }
                             var access = declaration.Attributes & FieldAttributes.FieldAccessMask;
                             if (access == FieldAttributes.PrivateScope || work.Binding.Owner != ClosedId(field.DeclaringType, work, offset)
-                                && (access != FieldAttributes.Public || !owner.ExternallyVisible))
+                                && (access != FieldAttributes.Public || !owner.ExternallyVisible && !ObjectLexicalAccess.Visible(work.Binding, ClosedId(field.DeclaringType, work, offset), owner.LexicalOwners)))
                                 Fail(work, "Default static fields require the same owner or a public member on an externally visible type.", offset);
                             defaultStatics.Add(offset, Storage(field.Signature, work, offset));
                         }
@@ -432,7 +432,8 @@ public static partial class ValueProgramDiscovery
                 foreach (var access in method.Fields)
                 {
                     var field = declarations[access.Value];
-                    bool visible = layouts.TryGetValue(field.Id.Owner, out var inlineOwner) ? inlineOwner.ExternallyVisible : _snapshots[field.Id.Owner].ExternallyVisible;
+                    bool visible = layouts.TryGetValue(field.Id.Owner, out var inlineOwner) ? inlineOwner.ExternallyVisible : _snapshots[field.Id.Owner].ExternallyVisible
+                        || integers64 && ObjectLexicalAccess.Visible(method.Binding, field.Id.Owner, _snapshots[field.Id.Owner].LexicalOwners);
                     if ((field.Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.PrivateScope
                         || method.Binding.Owner != field.Id.Owner
                         && ((field.Attributes & FieldAttributes.FieldAccessMask) != FieldAttributes.Public || !visible))
@@ -450,7 +451,8 @@ public static partial class ValueProgramDiscovery
                     if (element.Kind == IrTypeKind.Value) CheckType(element.Class!, 0);
                     else if (classes && element.Kind == IrTypeKind.Reference && element.Class!.ArrayElement is null)
                     {
-                        if (_snapshots.TryGetValue(element.Class, out var reference) && !reference.ExternallyVisible && element.Class != method.Binding.Owner)
+                        if (_snapshots.TryGetValue(element.Class, out var reference) && !reference.ExternallyVisible && element.Class != method.Binding.Owner
+                            && (!integers64 || !ObjectLexicalAccess.Visible(method.Binding, element.Class, reference.LexicalOwners)))
                             Fail(work, "Class type use requires the same declaring owner or a fully externally visible type.");
                         if (generics && _references.TryGetValue(element.Class, out var constructed))
                             foreach (var argument in constructed.Arguments) CheckArgumentAccess(argument, work, 0);
@@ -554,7 +556,7 @@ public static partial class ValueProgramDiscovery
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             var kind = primitive is not null ? ObjectMethodKind.PrimitiveInstance : inlineConstructor ? ObjectMethodKind.ValueConstructor : inlineInstance ? ObjectMethodKind.ValueInstance : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible)
-                { OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible, Primitive = primitive };
+                { LexicalOwners = integers64 ? input.LexicalOwners : [], OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible, Primitive = primitive };
             if (initializer)
             {
                 if (input.Attributes != (MethodAttributes.Private | MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
@@ -41,24 +42,27 @@ public sealed partial class AssemblyResolver
             return new(header.Source, header.Signature, method.Attributes, method.ImplAttributes, header.Arity,
                 assembly.IsReferenceAssembly, Initializer(owner), Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1))),
                 MetadataTokens.GetToken(method.GetDeclaringType()), owner.Attributes, header.Visible,
-                method.RelativeVirtualAddress != 0, reader.GetString(method.Name), work) { OwnerAssemblyVisible = header.AssemblyVisible };
+                method.RelativeVirtualAddress != 0, reader.GetString(method.Name), work) { LexicalOwners = header.Lexical, OwnerAssemblyVisible = header.AssemblyVisible };
         });
     }
 
     // Share provenance/owner inspection with body input while retaining its existing IL/initializer fault order.
-    private (MethodSource Source, MethodSignature Signature, int Arity, bool Visible, bool AssemblyVisible) ReadMethodHeader(
+    private (MethodSource Source, MethodSignature Signature, int Arity, bool Visible, bool AssemblyVisible, ImmutableArray<LexicalTypeOwner> Lexical) ReadMethodHeader(
         ResolvedAssembly assembly, MethodDefinitionHandle handle, int maximumOwnerDepth, Action? inspectOwner = null)
     {
         var reader = assembly.Image.Reader; var method = reader.GetMethodDefinition(handle);
         var signature = MethodDefinitionSignature(assembly, handle);
         bool visible = true, assemblyVisible = true; int arity = 0;
+        var lexical = ImmutableArray.CreateBuilder<LexicalTypeOwner>();
         var owners = new HashSet<TypeDefinitionHandle>();
         for (var current = method.GetDeclaringType(); !current.IsNil;)
         {
             if (!owners.Add(current)) throw Failure(DiagnosticIds.InvalidSignature, "Declaring-type chain is cyclic.");
             if (owners.Count > maximumOwnerDepth) throw Failure(DiagnosticIds.TranslationLimit, "Declaring-type depth limit exceeded.");
             inspectOwner?.Invoke();
-            var definition = reader.GetTypeDefinition(current); arity = checked(arity + definition.GetGenericParameters().Count);
+            var definition = reader.GetTypeDefinition(current);
+            lexical.Add(new(MetadataTokens.GetToken(current), definition.Attributes & TypeAttributes.VisibilityMask, definition.GetGenericParameters().Count));
+            arity = checked(arity + definition.GetGenericParameters().Count);
             var parent = definition.GetDeclaringType();
             visible &= (definition.Attributes & TypeAttributes.VisibilityMask) == (parent.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
             var visibility = definition.Attributes & TypeAttributes.VisibilityMask;
@@ -68,6 +72,6 @@ public sealed partial class AssemblyResolver
         }
         var source = new MethodSource(assembly.Identity.DisplayName, assembly.ContentHash, MetadataTokens.GetToken(handle),
             new NameFormatter(reader).TypeDefinitionName(method.GetDeclaringType()) + "::" + reader.GetString(method.Name));
-        return (source, signature, arity, visible, assemblyVisible);
+        return (source, signature, arity, visible, assemblyVisible, lexical.ToImmutable());
     }
 }

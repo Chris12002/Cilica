@@ -43,6 +43,7 @@ public sealed partial class AssemblyResolver
                 if (++work > limits.MaximumMembers)
                     throw Failure(DiagnosticIds.TranslationLimit, "Type input exceeds the metadata-member limit.");
             }
+            var lexical = ImmutableArray.CreateBuilder<LexicalTypeOwner>();
             var owners = new HashSet<TypeDefinitionHandle>();
             for (var current = handle; !current.IsNil;)
             {
@@ -51,6 +52,7 @@ public sealed partial class AssemblyResolver
                     throw Failure(DiagnosticIds.TranslationLimit, "Declaring-type depth limit exceeded.");
                 Member();
                 var owner = reader.GetTypeDefinition(current);
+                lexical.Add(new(MetadataTokens.GetToken(current), owner.Attributes & TypeAttributes.VisibilityMask, owner.GetGenericParameters().Count));
                 arity = checked(arity + owner.GetGenericParameters().Count);
                 current = owner.GetDeclaringType();
                 externallyVisible &= (owner.Attributes & TypeAttributes.VisibilityMask) ==
@@ -114,7 +116,7 @@ public sealed partial class AssemblyResolver
             return new TypeInput(source, type.Attributes, arity, assembly.IsReferenceAssembly, baseType,
                 type.GetInterfaceImplementations().Count, layout.PackingSize, layout.Size,
                 typeInitializer, moduleInitializer, fields.ToImmutable(), work)
-                { Interfaces = interfaces.ToImmutable(), ExternallyVisible = externallyVisible, IsByRefLike = byRefLike };
+                { LexicalOwners = lexical.ToImmutable(), Interfaces = interfaces.ToImmutable(), ExternallyVisible = externallyVisible, IsByRefLike = byRefLike };
         });
     }
 }

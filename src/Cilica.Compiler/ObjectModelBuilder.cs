@@ -256,7 +256,7 @@ public static class ObjectModelBuilder
                 declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
             }
             fields += input.Fields.Length;
-            layouts.Add(new(input.Source, baseId, input.Attributes, [.. declared]) { Interfaces = [.. contracts] });
+            layouts.Add(new(input.Source, baseId, input.Attributes, [.. declared]) { LexicalOwners = input.LexicalOwners, Interfaces = [.. contracts] });
         }
         if (stringType is not null && interfaces.Count != 0)
             members += strings.CheckInterfaces([.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members);

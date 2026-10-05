@@ -74,6 +74,8 @@ public static class ObjectModelValidator
                 && Hash(type.Source.ContentHash), "invalid type source.");
             var id = ObjectTypeId.From(type.Source);
             Require(Identity(id, 0x02) && types.TryAdd(id, type), "invalid or duplicate TypeDef identity.");
+            Require(ObjectLexicalAccess.Valid(id, type.LexicalOwners) && (type.LexicalOwners.IsEmpty
+                || type.LexicalOwners[0].Visibility == (type.Attributes & TypeAttributes.VisibilityMask)), "lexical visibility contradicts the class layout.");
             Require(ClassAttributes(type.Attributes), "class attributes are outside the layout profile.");
             Require(Edges(type.Interfaces), "class interface edges need distinct canonical identities.");
             Require(!type.Fields.IsDefault && type.Fields.Length <= ObjectModelLimits.MaximumFields, "invalid field array.");
@@ -159,9 +161,13 @@ public static class ObjectModelValidator
                 && (field.Id.Token >> 24) == 0x04 && (field.Id.Token & 0x00ffffff) != 0
                 && staticIds.Add((field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token))
                 && !fieldIdentities.Contains((field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token, -1))
+                && ObjectLexicalAccess.Valid(field.Id.Owner, field.LexicalOwners)
+                && (field.LexicalOwners.IsEmpty || ObjectLexicalAccess.Public(field.LexicalOwners) == field.OwnerExternallyVisible)
                 && (field.Attributes & FieldAttributes.Static) != 0 && FieldAttributesSupported(field.Attributes & ~FieldAttributes.Static)
                 && (field.Type == IrType.Int32 || field.Type is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false }
                     && ReferenceIdentity(field.Type.Class, model.ObjectBase) && Known(field.Type.Class!)), "invalid static field identity, flags or storage.");
+        ObjectLexicalAccess.Consistent(model.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners))
+            .Concat(model.Statics.Select(f => (f.Id.Owner, f.LexicalOwners))));
         foreach (var array in arrays)
             Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element) || element == model.String || delegates.Contains(element),
                 "array reference element is outside the nominal catalog.");

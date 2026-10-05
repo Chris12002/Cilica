@@ -19,7 +19,7 @@ public static partial class ValueProgramDiscovery
                 Fail(work, "Readonly static fields cannot be assigned outside their type initializer.", offset);
             var id = new ObjectFieldId(ClosedId(field.DeclaringType, work, offset), MetadataTokens.GetToken(field.Handle));
             var access = declaration.Attributes & FieldAttributes.FieldAccessMask;
-            if (access == FieldAttributes.PrivateScope || work.Binding.Owner != id.Owner && (access != FieldAttributes.Public || !owner.ExternallyVisible))
+            if (access == FieldAttributes.PrivateScope || work.Binding.Owner != id.Owner && (access != FieldAttributes.Public || !owner.ExternallyVisible && !ObjectLexicalAccess.Visible(work.Binding, id.Owner, owner.LexicalOwners)))
                 Fail(work, "Static fields require the same owner or a public member on an externally visible type.", offset);
             if (_staticFields.TryGetValue(id, out var known)) return known;
             if (_staticFields.Count >= ObjectModelLimits.MaximumFields)
@@ -28,7 +28,7 @@ public static partial class ValueProgramDiscovery
                 or TypeSignature.Named { Kind: SignatureTypeKind.Class } or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } or TypeSignature.Vector))
                 Fail(work, "Static fields currently require Int32 or admitted reference storage; narrow, wide and inline values require later lowering.", offset);
             var storage = Storage(field.Signature, work, offset);
-            var result = new ObjectStaticField(id, storage, declaration.Attributes, owner.ExternallyVisible);
+            var result = new ObjectStaticField(id, storage, declaration.Attributes, owner.ExternallyVisible) { LexicalOwners = owner.LexicalOwners };
             _staticFields.Add(id, result); return result;
         }
     }

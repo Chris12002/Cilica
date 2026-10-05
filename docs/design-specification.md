@@ -1423,3 +1423,13 @@ name while state uses the closed owner identity. Four probes provide 1,176 local
 O0/O2 differential results. Strict type/module initialization, initialized values,
 static addresses and broader static storage remain diagnostic. The concrete kernel
 still requires private nested cache access and has no native transcript evidence.
+
+
+Nongeneric private nested cache owners now use explicit bounded declaring-type
+chains (ADR 0153). Same-image containing/nested callers can access their admitted
+public fields and public/assembly methods. Detached validation rejects contradictory
+chains and visibility claims; missing facts grant no lexical privilege. Object
+layout v11 and object operations IR v12 retain this evidence. Three probes provide
+882 local O0/O2 differential results. Protected/generic lexical access and broader
+private member access remain diagnostic. The unchanged kernel now reaches its
+ValueTuple`2 dependency; native equivalence remains pending.

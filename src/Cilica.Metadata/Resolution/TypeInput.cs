@@ -12,6 +12,8 @@ public sealed record TypeSource(string AssemblyIdentity, string ContentHash, int
 /// <summary>A single TypeDef row's flags, without decoding fields or method bodies.</summary>
 public sealed record TypeDefinitionFlags(TypeAttributes Attributes);
 
+public sealed record LexicalTypeOwner(int Token, TypeAttributes Visibility, int GenericArity);
+
 /// <summary>Structural input; named signatures remain owned by the resolver session.</summary>
 public sealed record FieldInput(int Token, string Name, FieldAttributes Attributes,
     TypeSignature Signature, bool HasExplicitStorage);
@@ -21,6 +23,7 @@ public sealed record TypeInput(TypeSource Source, TypeAttributes Attributes, int
     bool IsReferenceAssembly, TypeSignature? BaseType, int InterfaceCount, int PackingSize, int ClassSize,
     bool HasTypeInitializer, bool HasModuleInitializer, ImmutableArray<FieldInput> Fields, int MetadataMembersRead)
 {
+    public ImmutableArray<LexicalTypeOwner> LexicalOwners { get; init; } = [];
     public ImmutableArray<TypeSignature> Interfaces { get; init; } = [];
     public bool ExternallyVisible { get; init; }
     public bool IsByRefLike { get; init; }

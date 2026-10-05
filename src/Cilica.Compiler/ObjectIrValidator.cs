@@ -76,6 +76,10 @@ internal sealed class ObjectIrRules
                 && binding.Owner.ContentHash == binding.Method.ContentHash
                 && _methods.ContainsKey(binding.Method) && _bindings.TryAdd(binding.Method, binding), "invalid or duplicate method binding identity.");
             Require(binding.Owner != flow.Types.String && !_delegates.ContainsKey(binding.Owner), "selected String methods require explicit intrinsic operations.");
+            Require(ObjectLexicalAccess.Valid(binding.Owner, binding.LexicalOwners)
+                && (binding.LexicalOwners.IsEmpty || ObjectLexicalAccess.Public(binding.LexicalOwners) == binding.OwnerExternallyVisible
+                    && ObjectLexicalAccess.AssemblyVisible(binding.LexicalOwners) == binding.OwnerAssemblyVisible),
+                "lexical owner visibility contradicts the method declaration.");
             var method = _methods[binding.Method];
             Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
                 && method.Parameters.All(p => _types.Valid(p, true)) && (_types.Valid(method.ReturnType, true) || method.ReturnType == IrType.Void)
@@ -157,6 +161,9 @@ internal sealed class ObjectIrRules
             }
             else Require(binding.Owner != flow.Types.ObjectBase, "ordinary selected Object methods require explicit runtime support.");
         }
+        ObjectLexicalAccess.Consistent(program.Bindings.Select(b => (b.Owner, b.LexicalOwners))
+            .Concat(flow.Types.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
+            .Concat(flow.Types.Statics.Select(f => (f.Id.Owner, f.LexicalOwners))));
         _interfaces = new(program, _bindings, _methods, values);
         _dispatch = new(program, _bindings, _methods, _types, _interfaces);
     }
@@ -184,7 +191,8 @@ internal sealed class ObjectIrRules
         : target is not null && (target == _program.Flow.Types.String || _contracts.Contains(target)
             || _delegates.TryGetValue(target, out var callable) && callable.ExternallyVisible || _layouts.TryGetValue(target, out var layout)
             && (Binding(IrMethodId.From(method.Source)).Owner == target
-                || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public));
+                || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public
+                || _program.Flow.Types.Integer64 && ObjectLexicalAccess.Visible(Binding(IrMethodId.From(method.Source)), target, layout.LexicalOwners)));
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch
     {
         IrStatement.InitializeType when _program.Flow.Types.String is { } initializationString => new[] { initializationString },
@@ -343,8 +351,9 @@ internal sealed class ObjectIrRules
         var caller = Binding(IrMethodId.From(method.Source));
         if (write && (field.Attributes & FieldAttributes.InitOnly) != 0 && (caller.Owner != id.Owner || caller.TypeInitializerName is null)) return false;
         var access = field.Attributes & FieldAttributes.FieldAccessMask;
-        if (access == FieldAttributes.PrivateScope || Binding(IrMethodId.From(method.Source)).Owner != id.Owner
-            && (access != FieldAttributes.Public || !field.OwnerExternallyVisible)) return false;
+        if (access == FieldAttributes.PrivateScope || caller.Owner != id.Owner
+            && (access != FieldAttributes.Public || !field.OwnerExternallyVisible
+                && (!_program.Flow.Types.Integer64 || !ObjectLexicalAccess.Visible(caller, id.Owner, field.LexicalOwners)))) return false;
         storage = field.Type; return true;
     }
     internal bool StaticStore(IrMethod method, IrStatement.StoreStatic store, IReadOnlyList<IrType> values) =>
@@ -355,10 +364,11 @@ internal sealed class ObjectIrRules
         storage = null;
         if (id?.Owner is not { ArrayElement: null } || !_fields.TryGetValue(id, out var field) || receiver < 0 || receiver >= values.Count
             || !_types.Assignable(values[receiver], IrType.Reference(id.Owner))) return false;
-        var owner = Binding(IrMethodId.From(method.Source)).Owner;
+        var caller = Binding(IrMethodId.From(method.Source));
         var access = field.Attributes & FieldAttributes.FieldAccessMask;
-        if (access == FieldAttributes.PrivateScope || (owner != id.Owner && (access != FieldAttributes.Public
-            || (_layouts[id.Owner].Attributes & TypeAttributes.VisibilityMask) != TypeAttributes.Public))) return false;
+        if (access == FieldAttributes.PrivateScope || (caller.Owner != id.Owner && (access != FieldAttributes.Public
+            || (_layouts[id.Owner].Attributes & TypeAttributes.VisibilityMask) != TypeAttributes.Public
+                && (!_program.Flow.Types.Integer64 || !ObjectLexicalAccess.Visible(caller, id.Owner, _layouts[id.Owner].LexicalOwners))))) return false;
         storage = field.Storage switch { ObjectStorage.Int32 => IrType.Int32, ObjectStorage.Int64 => IrType.Int64,
             ObjectStorage.Reference reference => IrType.Reference(reference.Type), ObjectStorage.Value value => IrType.Value(value.Type), _ => null! };
         return true;

@@ -54,7 +54,10 @@ public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, b
 public sealed record ObjectFieldId(ObjectTypeId Owner, int Token, int Component = -1);
 
 /// <summary>Per-instance static storage; initialized types are not admitted by this profile.</summary>
-public sealed record ObjectStaticField(ObjectFieldId Id, IrType Type, FieldAttributes Attributes, bool OwnerExternallyVisible);
+public sealed record ObjectStaticField(ObjectFieldId Id, IrType Type, FieldAttributes Attributes, bool OwnerExternallyVisible)
+{
+    public ImmutableArray<LexicalTypeOwner> LexicalOwners { get; init; } = [];
+}
 
 /// <summary>Logical storage kinds; a reference is never an Int32 or an untracked native pointer.</summary>
 public abstract record ObjectStorage
@@ -73,6 +76,7 @@ public sealed record ObjectField(ObjectFieldId Id, string Name, FieldAttributes 
 public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
     TypeAttributes Attributes, ImmutableArray<ObjectField> Fields)
 {
+    public ImmutableArray<LexicalTypeOwner> LexicalOwners { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Interfaces { get; init; } = [];
     // Derived from field kinds so a caller cannot supply a contradictory tracing map.
     public ImmutableArray<int> ReferenceSlots => Fields.IsDefault ? default :
@@ -84,7 +88,7 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 {
     public bool Integer64 { get; init; }
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
-    public const string Profile = "object-layout-v10";
+    public const string Profile = "object-layout-v11";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];
