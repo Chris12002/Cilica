@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.38 and 6d.1–6d.15 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.38 and 6d.1–6d.16 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.38 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.15 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.16 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; List and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -859,3 +859,24 @@ transcript comparison and the final implementation/filter audit remain pending.
 
 The full solution build and 44 composed local checks pass, including native string,
 collection and exception-resource tests. No hosted work ran.
+
+
+## Slice 6d.16 outcome
+
+Array.Empty<T> now preserves instance-local exact closed identity for Int32 and
+reference vectors, with permanent roots and exact intrinsic admission. Eight
+checks include 882 repeated native/.NET results, native cache/quota/corruption
+sanitation and detached IR validation. See [ADR 0146](../decisions/0146-exact-empty-array-cache.md).
+The full solution builds without warnings. Review kept the 2 KiB native stack
+limit by separating cache tracing, and extended the leak-check harness to count
+these permanent roots explicitly.
+
+The trial core has 210 inputs and 78 grants. Image SHA-256:
+`aa25bbb7df1a181c13499d6ece587e5cc30f2b6f3b1b3a42be019415742d8668`;
+manifest SHA-256:
+`65da1c010d446ba63eb7ee74c3559777b5ac6602d3cfd3a0bf8834b5233f578c`.
+The concrete unmodified kernel advances to missing List<T> at Step IL_0069.
+No native transcript comparison is claimed.
+
+All 25 composed local array, dictionary, tracing, exception and collection checks
+pass. No hosted CI or external application changes were made.

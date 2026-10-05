@@ -4,7 +4,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppTracing
 {
     internal const string Text = """
-enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource, invariant_culture, integer_text };
+enum class ReferenceKind { frame, literal, handle, field, element, pending_exception, emergency_exception, exception_resource, invariant_culture, integer_text, empty_array };
 enum class TraceResult { complete, stopped, invalid };
 struct ReferenceEdge {
     ReferenceKind kind;
@@ -65,6 +65,17 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
     }
     return TraceResult::complete;
 }
+[[maybe_unused, gnu::noinline]] static TraceResult visit_empty_arrays(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
+    std::size_t count = 0;
+    for (auto* entry = context.instance.empty_arrays; entry != nullptr; entry = entry->empty_next) {
+        auto* value = reinterpret_cast<Object*>(entry);
+        if (++count > context.instance.count || !traceable_reference(context.instance, value)
+            || value->type->array_kind == 0 || entry->length != 0) return TraceResult::invalid;
+        const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::empty_array, value, nullptr, nullptr, count - 1});
+        if (result != TraceResult::complete) return result;
+    }
+    return TraceResult::complete;
+}
 [[maybe_unused, gnu::noinline]] static TraceResult visit_roots(const Context& context, ReferenceVisitor visitor, void* state) noexcept {
     if (visitor == nullptr) return TraceResult::invalid;
     std::size_t depth = 0;
@@ -87,6 +98,8 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
         const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::literal, value, nullptr, nullptr, literal->literal_id});
         if (result != TraceResult::complete) return result;
     }
+    const auto arrays = visit_empty_arrays(context, visitor, state);
+    if (arrays != TraceResult::complete) return arrays;
     const auto numbers = visit_integer_texts(context, visitor, state);
     if (numbers != TraceResult::complete) return numbers;
     const auto resources = visit_exception_resources(context, visitor, state);

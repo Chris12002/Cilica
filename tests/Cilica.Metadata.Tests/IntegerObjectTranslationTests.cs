@@ -85,6 +85,7 @@ public sealed class IntegerObjectTranslationTests
                         for (auto* literal = heap.literals; literal; literal = literal->literal_next) ++permanent;
                         for (auto* number = heap.integer_texts; number; number = number->literal_next) ++permanent;
                         for (auto* resource = heap.exception_resources; resource; resource = resource->literal_next) ++permanent;
+                        for (auto* entry = heap.empty_arrays; entry != nullptr; entry = entry->empty_next) ++permanent;
                         assert(heap.count == permanent);
                     }
                     const auto peak = c.peak; Context exact(heap, peak);

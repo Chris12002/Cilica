@@ -537,5 +537,12 @@
     "Member": "FromCodeUnits",
     "ParameterCount": 1,
     "Capability": "StringFromCodeUnits"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Array",
+    "Member": "Empty",
+    "ParameterCount": 0,
+    "Capability": "ArrayEmpty"
   }
 ]

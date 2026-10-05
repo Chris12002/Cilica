@@ -417,6 +417,7 @@ public static class ValueScalarLowering
                                 IrExpression.StringEquals e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.NewDelegate d => d with { Receiver = One(d.Receiver) },
                                 IrExpression.CallDelegate d => d with { Delegate = One(d.Delegate), Arguments = Arguments(d.Arguments, true) },
+                                IrExpression.EmptyArray empty => empty,
                                 IrExpression.NewArray array => array with { Length = One(array.Length) },
                                 IrExpression.NewObject allocated => allocated with { Arguments = Arguments(allocated.Arguments, true) },
                                 IrExpression.LoadField loaded => loaded with { Receiver = One(loaded.Receiver) },

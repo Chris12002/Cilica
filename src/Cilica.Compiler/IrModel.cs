@@ -71,6 +71,8 @@ public abstract record IrExpression
     // Vector lengths/indices use bounded Int32 values. Allocation zero-initializes
     // elements; negative length and allocation failure leave via the fault edge.
     public sealed record NewArray(ObjectTypeId ArrayType, int Length) : IrExpression;
+    // One zero-length vector per exact element descriptor and runtime instance.
+    public sealed record EmptyArray(ObjectTypeId ArrayType) : IrExpression;
     public sealed record ArrayLength(int Array) : IrExpression;
     // ArrayType is the static view; access checks null before bounds.
     public sealed record LoadElement(ObjectTypeId ArrayType, int Array, int Index) : IrExpression;
@@ -203,7 +205,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 /// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
-    public const string Profile = "typed-reference-ir-v6";
+    public const string Profile = "typed-reference-ir-v7";
 }
 
 /// <summary>Detached copy semantics; no CIL access checks, mutable managed locations or object operations.</summary>

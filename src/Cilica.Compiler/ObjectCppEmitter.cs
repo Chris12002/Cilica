@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v26";
+    public const string Profile = "object-frames-native-v27";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -430,7 +430,7 @@ public static class ObjectCppEmitter
                 foreach (var statement in block.Statements)
                 {
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
-                        or IrStatement.Define { Value.Expression: IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
+                        or IrStatement.Define { Value.Expression: IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
@@ -536,6 +536,8 @@ public static class ObjectCppEmitter
                                     Check(Value(equal.Left), program.Flow.Types.String!, false, value.ILOffset); Flush();
                                     Check(Value(equal.Right), program.Flow.Types.String!, false, value.ILOffset); Flush();
                                     expression = "string_equals(" + Value(equal.Left) + ", " + Value(equal.Right) + ")"; break;
+                                case IrExpression.EmptyArray empty:
+                                    expression = "empty_array(context, " + TypeSymbol(empty.ArrayType) + "_descriptor)"; break;
                                 case IrExpression.StringFromCodeUnits units:
                                     ArrayCheck(units.Array, ObjectTypeId.Vector(program.Flow.Types.ObjectBase, ObjectArrayElement.Int32), null, value.ILOffset);
                                     expression = "string_from_code_units(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + Value(units.Array) + ")"; break;
@@ -591,7 +593,7 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
-                            else if (value.Expression is IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat)
+                            else if (value.Expression is IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat)
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
                             else if (value.Expression is IrExpression.LoadElement && value.Type.Kind == IrTypeKind.Reference)
                             {

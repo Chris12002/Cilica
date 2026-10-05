@@ -74,11 +74,14 @@ The complete kernel/native equivalence gate remains pending.
 
 
 This is a bounded core trial. General formatting/culture/provider members,
-Broader StringBuilder and collection members, full reflection and general CoreLib compatibility
+broader StringBuilder and collection members, full reflection and general CoreLib compatibility
 remain unimplemented. The image is metadata input to Cilica, never loaded into
-the host CLR. See ADRs 0131–0145 for scope and review evidence.
+the host CLR. See ADRs 0131–0146 for scope and review evidence.
 
 StringBuilder.cs adapts pinned chunk growth and append/snapshot behavior. It uses
 private Int32 buffers for UTF-16, with one exactly granted string construction
 helper. Default construction, Append(string/char), getters and ToString are covered;
 other members remain build errors. No application canonicalization rules live here.
+
+Array.Empty<T> uses an exact grant and per-instance descriptor-keyed cache for
+Int32/reference vectors. Other element storage remains diagnostic.

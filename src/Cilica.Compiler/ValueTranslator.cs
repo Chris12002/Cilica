@@ -310,6 +310,8 @@ public static class ValueTranslator
                                 constructorIntrinsic.MessageArgument < 0 ? null : constructorArguments[constructorIntrinsic.MessageArgument],
                                 constructorIntrinsic.ParameterArgument < 0 ? null : constructorArguments[constructorIntrinsic.ParameterArgument]), true);
                             break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var emptyArray) && emptyArray.Kind == ValueIntrinsic.EmptyArray:
+                            Push(offset, IrType.Reference(emptyArray.Type), new IrExpression.EmptyArray(emptyArray.Type), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var stringConstruction) && stringConstruction.Kind == ValueIntrinsic.StringFromCodeUnits:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringFromCodeUnits(
                                 Pop(offset, IrType.Reference(ObjectTypeId.Vector(objectBase, ObjectArrayElement.Int32)))), true); break;

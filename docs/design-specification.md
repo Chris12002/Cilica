@@ -1364,3 +1364,11 @@ and fresh nonempty snapshots. Narrow vectors and broader builder APIs remain
 unsupported. Typed reference IR v6/native v26 include this operation. Exception
 resource cache bounds derive from the emitted resource set, including System and
 Arithmetic messages. The real kernel's next gate is Array.Empty<T>.
+
+
+Selected Array.Empty<T> calls use an exactly granted typed operation and a native
+per-instance cache keyed by the exact vector descriptor (ADR 0146). Int32 and
+reference vectors retain identity across collection without conflating covariant
+element types. Unsigned, narrow, wide and inline-value vector caches remain
+diagnostic. Typed reference IR v7/native v27 encode the operation and traced roots.
+The real kernel next requires List<T>.

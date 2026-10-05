@@ -16,6 +16,7 @@ namespace System
     public abstract class Array
     {
         protected Array() { }
+        [MethodImpl(MethodImplOptions.InternalCall)] public static extern T[] Empty<T>();
         // Roslyn emits ldlen for vector.Length. Other Array APIs and interface
         // relationships require separate admitted runtime implementations.
         public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }

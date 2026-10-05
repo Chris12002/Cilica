@@ -66,6 +66,7 @@ struct ArrayObject {
     std::uint32_t length = 0;
     std::uint32_t* integers = nullptr;
     Object** references = nullptr;
+    ArrayObject* empty_next = nullptr;
 };
 static_assert(std::is_standard_layout_v<ArrayObject> && offsetof(ArrayObject, header) == 0);
 [[maybe_unused]] static void destroy_array(Object* value) noexcept {
@@ -123,6 +124,7 @@ struct Instance {
     StringObject* literals = nullptr;
     StringObject* exception_resources = nullptr;
     StringObject* integer_texts = nullptr;
+    ArrayObject* empty_arrays = nullptr;
     Object* emergency_exception = nullptr;
     Object* invariant_culture = nullptr;
     Object* head = nullptr;
@@ -396,6 +398,24 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
         heap.head = &value->header; heap.bytes += charged; ++heap.count;
         return &value->header;
     }
+}
+[[maybe_unused]] static bool traceable_reference(const Instance&, const Object*) noexcept;
+// Exact descriptors preserve different closed generic cache identities even
+// when reference arrays admit covariant assignments. Cache publication cannot GC.
+[[maybe_unused, gnu::noinline]] static Object* empty_array(Context& context, const Descriptor& descriptor) noexcept {
+    if (context.instance.marking) { context.pending = 6; return nullptr; }
+    std::size_t count = 0;
+    for (auto* entry = context.instance.empty_arrays; entry != nullptr; entry = entry->empty_next) {
+        auto* value = reinterpret_cast<Object*>(entry);
+        if (++count > context.instance.count || !traceable_reference(context.instance, value)
+            || value->type->array_kind == 0 || entry->length != 0) { context.pending = 6; return nullptr; }
+        if (value->type == &descriptor) return value;
+    }
+    auto* value = allocate_array(context, descriptor, 0);
+    if (value == nullptr) return nullptr;
+    auto* entry = reinterpret_cast<ArrayObject*>(value);
+    entry->empty_next = context.instance.empty_arrays; context.instance.empty_arrays = entry;
+    return value;
 }
 // Receivers have passed exact descriptor membership before these helpers run.
 // Keep pointer arithmetic on actual new[] elements, never a fabricated flexible member.

@@ -151,6 +151,18 @@
         "Admit only the default constructor, string/char append, Length/Capacity/MaxCapacity getters and ToString; setters/serialization and other members remain build errors."
       ],
       "scope": "Text, code units, capacity growth, snapshot/return identity and null behavior; no general formatting, mutation, serialization or full StringBuilder compatibility."
+    },
+    {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Array.cs",
+      "algorithms": [
+        "Array.Empty<T> and EmptyArray<T>.Value exact closed cache identity"
+      ],
+      "changes": [
+        "Replace initialized generic static storage with an exactly granted per-instance native cache of zero-length vectors.",
+        "Trace permanent cache roots; preserve exact element descriptors independently of reference covariance."
+      ],
+      "scope": "Int32 and admitted nominal reference arrays only; unsigned, wide, narrow and inline value element arrays remain diagnostic."
     }
   ],
   "ownedAdapters": [
