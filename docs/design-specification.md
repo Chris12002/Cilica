@@ -1654,3 +1654,17 @@ sanitizers. The unchanged private Alchemy constructor/step metadata probe now
 passes the Type mapping boundary and stops at unmapped `System.Nullable<T>`.
 Full saved-game native replay, general reflection and additional target platforms
 remain unverified. No application-specific logic enters the core or compiler.
+
+
+The follow-on saved-game gap audit reuses the incomplete broad graph and adds five
+bounded method-root inventories plus 52 focused probes. Nine probes pass native
+O0/O2 differential execution (2,646 repeated comparisons); 43 remain diagnostic.
+The 260 observed framework declarations include 135 unmatched/unmapped declarations,
+which are not a count of independent missing features or a complete closure.
+Nullable values are the first recommended package, followed by reference-returning
+delegates, required collection operations/enumeration, numeric/enum/data APIs,
+iterators/LINQ and string/encoding/hash support. SHA-256 also appears inside the
+engine's semantic fingerprint path, so moving save decoding to a host does not
+remove that dependency. See the milestone 6 prioritized audit record for evidence,
+remaining analysis bounds and the private reproducible probe recipe. This audit
+changes no implemented compiler/library or platform-compatibility claim.

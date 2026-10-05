@@ -1539,3 +1539,97 @@ resolution/layout, boxing, core admission, dictionaries, arrays, collection,
 virtual calls and both embedding ABI versions. The Release solution build has
 zero warnings/errors. The complete expensive suite and private kernel transcript
 were not rerun; this follow-on has its own reduced native differential evidence.
+
+
+### Prioritized saved-game compatibility audit (2026-10-06)
+
+The bounded audit uses compiler implementation `a662904` / documentation baseline
+`03c6109`, the unchanged source snapshot `c18d1a53dca8bdc48f78f4e53aaf89185963e6d7`,
+and the reviewed runtime-type core/manifest recorded above. Compiler DLL hashes
+match that reviewed build; all 895 frozen source files still match the source
+archive. No application rules, production compiler code or library code changed.
+The separate milestone 7 checkout was left alone; local main `48ecf14` remains an
+ancestor of this branch. This inventory does not claim the newer ABI features
+were integrated or tested on this branch.
+
+The existing broad engine contract inventory was reused, with five new bounded
+method-root audits: command-handler construction, participant lookup, canonical
+state hashing, grid distance and deterministic random generation. Each new audit
+is capped at 3,000 nodes, 15,000 edges and 12,000 dispatch pairs, with a 45-second
+process timeout. All completed without increasing their bounds. Handler discovery
+hits the node bound; state hashing hits the dispatch-pair bound. Participant lookup
+retains nine dispatch-analysis issues without exhausting a bound. Grid distance
+and random generation have zero audit issues, but still defer framework contracts.
+The original broad audit remains incomplete at its 100,000-pair bound.
+
+Across the six inventories, 260 distinct observed framework declarations were
+checked against the current explicit binding plan: 125 map and 135 do not (31
+types, 90 methods and 14 fields). These are declaration counts, not 135 independent
+features. Mapping proves neither an executable body nor supported semantics:
+Dictionary.Add and the indexer getter map but reach explicit unsupported stubs.
+Conversely, intrinsic and interface declarations can legitimately have no managed
+body. Unmapped ancestry interfaces and reference primitive declarations are not
+all runtime blockers. Evidence retains incoming-edge kinds, exact tokens, scope,
+constructed instances and call-site witnesses to keep these distinctions visible.
+
+A separate metadata body scan decoded 1,775 of 1,825 observed application method
+definitions; 50 have no managed IL body. It observed 106 finally regions, five
+catch regions and one filter region. The original audit classifies that filter as
+a type-test filter. These bounded results do not prove the absence of general
+filters, unsupported dispatch or additional operations beyond the observed graph.
+Reflection/unsafe name/opcode signals are review leads, not automatic feature gaps.
+
+Fifty-two focused translation probes produced nine valid C++ artifacts and 43
+build diagnostics. The nine working cases were also compared with a separate .NET
+oracle: 49 input pairs, three repeats and O0/O2 give 2,646 passing comparisons with
+ASan/UBSan, a 2 KiB native-frame warning and collection before each allocation.
+They cover arithmetic, wide multiplication, existing Type keys/list operations,
+Int32 delegates, enum locals/fields, reference delegate arguments returning Int32,
+and the unchanged real deterministic-random helper. This is reduced conformance,
+not execution of full saved games. The two additional mapping-only experiments
+add already-existing Byte/Char declarations solely to a private plan: byte vectors
+still reject as unsupported storage; String(char[]) still lacks its constructor.
+No production mapping or trusted manifest changed.
+
+Prioritized implementation packages:
+
+| Order | Package | Confirmed gap and likely benefit |
+| --- | --- | --- |
+| 1 | Nullable values | 486 distinct observed constructor/accessor call sites across 27 closed Nullable types in the broad graph. Engine Step, participant lookup and state hashing all stop here. Cover closed structs, reference-bearing payloads, default/HasValue/Value/GetValueOrDefault and explicitly bound nullable boxing semantics; an Int32-only special case is insufficient. |
+| 2 | Reference-returning delegates | The real command handler returns EngineStepResult. An isolated reference-returning delegate is rejected while a reference-argument/Int32-return delegate passes natively. Extend rooted return handling and exact Func/Action/Predicate/Comparison contracts as required, rather than treating all delegate support as absent. |
+| 3 | Collection operations and enumeration | Dictionary Add/read/remove, keys/enumeration; List enumeration, enumerable constructor, RemoveAt/Contains/AddRange/Sort/ToArray; HashSet and comparer contracts. Some are missing declarations, others intentional unsupported bodies. Observed engine uses include Dictionary.Add (11 sites), List enumerable construction (39), List.Sort (13) and HashSet.Add (19). Supplementary probes also cover nearby collection APIs not observed in this bounded graph. |
+| 4 | Numeric, enum and constant-data APIs | Math Abs/Min/Max, integer CompareTo, Enum.IsDefined, Guid text construction, larger ValueTuple shapes and RuntimeHelpers.InitializeArray. The real grid-distance helper stops at Math; enum locals/fields already pass, while enum vectors reject. Implement measured operations, not broad enum/reflection claims. |
+| 5 | Iterators and LINQ | Missing Enumerable/Func contracts and collection enumerators; 80 observed LINQ call sites. Array IEnumerable iteration rejects its helper contract. A yield iterator reaches Environment.CurrentManagedThreadId; this compiler-generated bookkeeping is not evidence that Alchemy requires multithreading. Re-probe after collection/delegate work. |
+| 6 | String, encoding and hashing path | Additional Concat/Format/comparison/constructor APIs, byte-vector storage, UTF-8 and SHA-256. SHA256.Create is reached through handler -> spell-draft admission -> spell compilation -> SemanticFingerprint.Hash, so crypto cannot be excluded as replay-host-only work. Schedule the buffer/encoding/hash design alongside the earlier packages. |
+
+This order is an architectural recommendation based on observed dependencies, not
+an effort estimate or a promise that each package alone unlocks the full engine.
+Nullable has the broadest measured immediate reach. Keep the remaining confirmed
+gaps in the backlog and re-run the same focused probes after each coherent slice;
+do not repeatedly enlarge the whole-program analysis budget.
+
+The existing three-game oracle contains 3,227 accepted envelopes, 14 top-level
+command types and six nested UnitAction kinds. It remains useful for integration
+coverage, but does not cover every registered command, branch, rejection or filter.
+Recorded decoding/IDs/seeds and host replay maintenance must be preserved in the
+future native adapter. Keeping JSON/gzip in the host does not remove the engine's
+own semantic fingerprinting dependency. No full replay was rerun or claimed native.
+
+Review verified that declaration matches are not counted as execution support,
+repeated issues are not counted as features, positive probes have native evidence,
+missing Byte mapping is separated from unsupported byte storage, and all source
+inputs remain unchanged. No remaining defect was found in this bounded audit
+procedure. Full implementation closure and unknown paths remain open.
+
+Private tools, raw results, witnesses, source hashes and logs are under ignored
+`artifacts/alchemy-gap-audit/` in the primary checkout. `summary.json` is the grouped
+inventory; `declarations.json` and `witnesses.json` retain auditable evidence;
+`probes.json`, `mapping-only-probes.json` and `native-results.json` retain exact
+outcomes. `run_audit.py` repeats the bounded metadata/translation work using the
+pinned binaries, `summarize.py` groups it, and `native_probe.py` runs the existing
+positive fixtures against `oracle.json`. `verify_evidence.py` checks the final
+input/output hashes and assertions without rerunning builds. Restore/build the
+private Harness, Probes and Oracle projects with the recorded local SDK if their
+binaries are absent; their project files reference the frozen built images, never
+modify or execute assemblies inside the metadata compiler. No services, training,
+hosted jobs, pushes or additional agents were used.
