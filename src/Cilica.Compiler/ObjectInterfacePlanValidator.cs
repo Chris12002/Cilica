@@ -56,6 +56,29 @@ public static class ObjectInterfacePlanValidator
         var bodies = new Dictionary<(ObjectVirtualSlot, ObjectTypeId), ObjectDispatchMethod>();
         foreach (var method in plan.Methods)
         {
+            if (method is { ArrayHelper: true })
+            {
+                var helper = method.Binding;
+                Require(plan.Types.Integer64 && helper is not null && Identity(helper.Owner, 0x02)
+                    && Identity(helper.Method, 0x06) && helper.Owner.ContentHash == plan.Types.ObjectBase.ContentHash
+                    && helper.Method.ContentHash == helper.Owner.ContentHash && helper.Method.Specialization == helper.Owner.Specialization
+                    && helper.Owner.Specialization.Length == 64 && helper.Kind == ObjectMethodKind.Static
+                    && helper.VirtualSlot is null && helper.VirtualName is null && helper.Primitive is null && !helper.InvariantProviderOnly
+                    && helper.Attributes == (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
+                    && !helper.OwnerExternallyVisible && helper.OwnerAssemblyVisible
+                    && !method.Parameters.IsDefaultOrEmpty && method.Parameters[0].Class is { ArrayElement: not null } vector
+                    && plan.Types.Arrays.Contains(vector) && Signature(method.Parameters, method.ReturnType, vector),
+                    "invalid selected array helper facts/identity/signature.");
+                var element = method.Parameters[0].Class!.ArrayElement!;
+                Require(method.Name == "Count" && method.Parameters.Length == 1 && method.ReturnType == IrType.Int32
+                    || method.Name == "Get" && method.Parameters.Length == 2 && method.Parameters[1] == IrType.Int32
+                        && method.ReturnType == (element.Type is { } reference ? IrType.Reference(reference) : IrType.Int32),
+                    "unsupported array helper operation/signature.");
+                Require(methods.TryAdd(helper.Method, method), "duplicate array helper identity.");
+                parameters += method.Parameters.Length;
+                Require(parameters <= ProgramLimits.MaximumCallArguments, "aggregate declaration parameter limit exceeded.");
+                continue;
+            }
             Require(method?.Binding is not null && method.Binding.Method is not null && Identity(method.Binding.Owner, 0x02)
                 && classes.ContainsKey(method.Binding.Owner) && method.Binding.Method.ContentHash == method.Binding.Owner.ContentHash
                 && method.Binding.Method.Specialization == method.Binding.Owner.Specialization
@@ -106,14 +129,29 @@ public static class ObjectInterfacePlanValidator
                 && maps.Add(map.Declaration) && !map.Targets.IsDefault && map.Targets.Length <= ObjectModelLimits.MaximumTypes,
                 "invalid/duplicate interface map.");
             var declaration = declarations[map.Declaration];
-            var expected = classes.Keys.Where(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();
+            var expected = classes.Keys.Concat(plan.Types.Arrays).Where(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();
             var receivers = new Dictionary<ObjectTypeId, ObjectInterfaceTarget>();
             foreach (var target in map.Targets)
             {
-                Require(target?.Receiver is { ArrayElement: null } && expected.Contains(target.Receiver) && receivers.TryAdd(target.Receiver, target)
+                Require(target?.Receiver is not null && expected.Contains(target.Receiver) && receivers.TryAdd(target.Receiver, target)
                     && target.Mapping is not null && methods.ContainsKey(target.Mapping)
                     && target.Implementation is not null && methods.ContainsKey(target.Implementation), "invalid/duplicate receiver or missing method facts.");
                 var mapping = methods[target.Mapping]; var implementation = methods[target.Implementation];
+                if (target.Receiver.ArrayElement is not null)
+                {
+                    var kind = contracts[declaration.Owner].ArrayContract;
+                    Require(mapping.ArrayHelper && target.Mapping == target.Implementation && !target.IsExplicit
+                        && mapping.Parameters[0] == IrType.Reference(target.Receiver)
+                        && declaration.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1))
+                        && types.Assignable(mapping.ReturnType, declaration.ReturnType)
+                        && (mapping.Name == "Count" && declaration.Name == "get_Count"
+                                && kind is ObjectArrayInterfaceKind.Collection or ObjectArrayInterfaceKind.ReadOnlyCollection
+                            || mapping.Name == "Get" && declaration.Name == "get_Item"
+                                && kind is ObjectArrayInterfaceKind.List or ObjectArrayInterfaceKind.ReadOnlyList),
+                        "array mapping requires the exact selected helper and matching interface operation.");
+                    used.Add(target.Implementation); continue;
+                }
+                Require(!mapping.ArrayHelper && !implementation.ArrayHelper, "class mapping cannot use array helpers.");
                 Require(types.Assignable(IrType.Reference(target.Receiver), IrType.Reference(mapping.Binding.Owner))
                     && declaration.ReturnType == mapping.ReturnType && declaration.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1)),
                     "mapping owner/signature does not implement its contract.");
@@ -139,7 +177,7 @@ public static class ObjectInterfacePlanValidator
                 used.Add(target.Mapping); used.Add(target.Implementation);
             }
             Require(expected.SetEquals(receivers.Keys), "map must cover every compatible catalog class exactly once.");
-            foreach (var target in map.Targets)
+            foreach (var target in map.Targets.Where(t => t.Receiver.ArrayElement is null))
             {
                 var receiver = classes[target.Receiver];
                 bool reimplements = receiver.Interfaces.Any(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner)));

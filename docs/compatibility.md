@@ -1486,3 +1486,11 @@ cover closed integer and IEquatable struct keys, including mutable callbacks and
 exceptions. Exact private helper grants select managed key bodies. System.Dictionary
 reference mapping and collection/array interfaces remain pending; the trial's own
 name prevents a partial collection contract from being advertised as compatible.
+
+
+Selected-runtime vector interfaces now support casts, Count and indexed reads
+through exact granted managed helpers (ADR 0142). Int32/reference vectors preserve
+reference covariance, Int32/UInt32 bit identity, bounds messages and null checks.
+Object layout v7, interface plan v2 and native v24 carry explicit array assertions.
+Enum elements and unimplemented interface operations remain diagnostic. This does
+not yet provide public collection implementations or native kernel equivalence.

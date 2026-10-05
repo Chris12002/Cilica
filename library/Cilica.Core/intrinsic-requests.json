@@ -495,5 +495,19 @@
     "Member": "IsNull",
     "ParameterCount": 1,
     "Capability": "ClosedKeyIsNull"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Count",
+    "ParameterCount": 1,
+    "Capability": "ArrayInterfaceCount"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Get",
+    "ParameterCount": 2,
+    "Capability": "ArrayInterfaceGet"
   }
 ]

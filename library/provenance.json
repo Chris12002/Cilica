@@ -52,6 +52,11 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/HashHelpers.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/HashHelpers.cs",
       "sha256": "498f12bd53366f09d1babab8f95af01088643ef941d23cdea31e6178a59773f4"
+    },
+    {
+      "upstreamPath": "src/coreclr/System.Private.CoreLib/src/System/Array.CoreCLR.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/coreclr/System.Private.CoreLib/src/System/Array.CoreCLR.cs",
+      "sha256": "25df8e8b93aca34d704e98738af690d22f90ed02dbc87818d30b90c64bed3ea3"
     }
   ],
   "adaptations": [
@@ -102,6 +107,19 @@
         "Omit removal, enumeration, comparer/capacity constructors, read indexers and unimplemented members."
       ],
       "scope": "Direct-core trial for 32/64-bit integer and exact IEquatable struct keys. Count, TryAdd, TryGetValue and overwrite are locally compared; reference/string keys and public System.Dictionary mappings remain unsupported."
+    },
+    {
+      "path": "library/Cilica.Core/ArrayInterface.cs",
+      "upstreamPath": "src/coreclr/System.Private.CoreLib/src/System/Array.CoreCLR.cs",
+      "algorithms": [
+        "SZArrayHelper.get_Count<T> and get_Item<T>"
+      ],
+      "changes": [
+        "Replace unsafe receiver reinterpretation with a compiler-selected closed T[] argument.",
+        "Preserve unsigned index bounds and the pinned IndexMustBeLess message/parameter.",
+        "Require independent exact Count/Get helper grants; other interface members remain unsupported."
+      ],
+      "scope": "Int32 and reference vectors; exact selected-runtime array contracts and covariant reference reads only."
     }
   ],
   "ownedAdapters": [

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
+using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
@@ -57,7 +59,7 @@ internal sealed class ObjectTypeRelations
                         ancestors.Add(target);
             Ancestors.Add(array, ancestors);
         }
-        if (!catalog.Interfaces.Any(i => !i.Arguments.IsEmpty)) return;
+        if (catalog.Interfaces.IsEmpty) return;
         var candidates = catalog.Interfaces.Where(i => !i.Arguments.IsEmpty)
             .GroupBy(i => (i.Source.ContentHash, i.Source.Token))
             .SelectMany(instances => from source in instances from target in instances
@@ -83,6 +85,8 @@ internal sealed class ObjectTypeRelations
             }
             return true;
         }
+        string integerArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int32)]), SignatureList<TypeSignature>.Empty);
+        string unsignedArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.UInt32)]), SignatureList<TypeSignature>.Empty);
         // Monotone bounded fixed point: interface variance can enable class and
         // array conversions which in turn enable outer generic conversions.
         bool changed;
@@ -102,6 +106,20 @@ internal sealed class ObjectTypeRelations
                         if (target.ArrayElement!.Type is { } targetElement && Ancestors[element].Contains(targetElement))
                             changed |= Ancestors[array].Add(target);
                     }
+            foreach (var array in catalog.Arrays)
+                foreach (var contract in catalog.Interfaces.Where(i => i.ArrayContract != ObjectArrayInterfaceKind.None))
+                {
+                    Step();
+                    bool compatible = contract.ArrayContract == ObjectArrayInterfaceKind.Enumerable;
+                    if (!compatible)
+                    {
+                        var argument = contract.Arguments[0];
+                        compatible = array.ArrayElement!.Type is { } element
+                            ? argument.Reference is { } reference && Ancestors[element].Contains(reference)
+                            : argument.Identity == integerArgument || argument.Identity == unsignedArgument;
+                    }
+                    if (compatible) changed |= Ancestors[array].Add(ObjectTypeId.From(contract.Source));
+                }
             foreach (var ancestors in Ancestors.Values)
                 foreach (var parent in ancestors.ToArray())
                     foreach (var ancestor in Ancestors[parent].ToArray())

@@ -28,9 +28,12 @@ public sealed record ObjectArrayElement(ObjectArrayElementKind Kind, ObjectTypeI
 }
 
 /// <summary>A fieldless interface contract; it has no instance allocation layout.</summary>
+public enum ObjectArrayInterfaceKind { None, Enumerable, GenericEnumerable, Collection, List, ReadOnlyCollection, ReadOnlyList }
+
 public sealed record ObjectInterface(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectTypeId> Parents)
 {
     public ImmutableArray<ObjectInterfaceArgument> Arguments { get; init; } = [];
+    public ObjectArrayInterfaceKind ArrayContract { get; init; }
     // Top-level visibility follows the flags. Nested contracts require an explicit
     // assertion from the bounded owner walk; detached validation cannot reread metadata.
     public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;
@@ -75,7 +78,7 @@ public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
     public bool Integer64 { get; init; }
-    public const string Profile = "object-layout-v6";
+    public const string Profile = "object-layout-v7";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];

@@ -1,6 +1,6 @@
 // Cilica-owned declarations matching the pinned read-only collection contracts.
-// Implementations remain ordinary managed code; these interfaces grant no
-// intrinsic array behavior, storage, or variance-only dispatch support.
+// Implementations remain ordinary managed code. Runtime vector relationships
+// require selected identities; executable array helpers need separate grants.
 namespace System
 {
     public interface IDisposable { void Dispose(); }

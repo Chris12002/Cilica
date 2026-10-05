@@ -11,7 +11,10 @@ public sealed record ObjectInterfaceDeclaration(MethodSource Source, ObjectTypeI
 
 /// <summary>Class method facts needed for mapping/slot validation, without IL or executable IR.</summary>
 public sealed record ObjectDispatchMethod(ObjectMethodBinding Binding, string Name,
-    ImmutableArray<IrType> Parameters, IrType ReturnType);
+    ImmutableArray<IrType> Parameters, IrType ReturnType)
+{
+    public bool ArrayHelper { get; init; }
+}
 
 public sealed record ObjectInterfaceTarget(ObjectTypeId Receiver, IrMethodId Mapping, IrMethodId Implementation, bool IsExplicit);
 public sealed record ObjectInterfaceDispatch(IrMethodId Declaration, ImmutableArray<ObjectInterfaceTarget> Targets);
@@ -21,7 +24,7 @@ public sealed record ObjectInterfaceDispatchPlan(ObjectTypeCatalog Types,
     ImmutableArray<ObjectInterfaceDeclaration> Declarations, ImmutableArray<ObjectDispatchMethod> Methods,
     ImmutableArray<ObjectInterfaceDispatch> Dispatch)
 {
-    public const string Profile = "interface-dispatch-plan-v1";
+    public const string Profile = "interface-dispatch-plan-v2";
     public ValueTypeCatalog? Values { get; init; }
 }
 

@@ -1,16 +1,18 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Collections.Generic;
 using Cilica.Metadata;
 using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-/// <summary>Rejects unmodeled runtime array contracts before nominal-only type tests can silently return false.</summary>
+/// <summary>Authenticates runtime-provided vector contracts; other array interfaces remain diagnostic.</summary>
 internal static class ObjectArrayInterfaces
 {
     internal static int Check(AssemblyResolver resolver, ResolvedAssembly library,
-        ImmutableArray<ObjectInterface> contracts, int maximumWork, MemberResolutionBudget shared)
+        List<ObjectInterface> contracts, IReadOnlyDictionary<ObjectTypeId, ConstructedType> types, int maximumWork, MemberResolutionBudget shared, bool closed)
     {
         maximumWork = Math.Min(maximumWork, shared.Remaining);
         if (maximumWork <= 0) throw Error(DiagnosticIds.TranslationLimit, "Array interface metadata budget exhausted.");
@@ -24,19 +26,53 @@ internal static class ObjectArrayInterfaces
             if (result.Diagnostics.All(d => d.Id == DiagnosticIds.TypeNotFound)) return null;
             throw new ObjectStringType.Failure(result.Diagnostics[0]);
         }
+        var inspectedValues = new HashSet<ResolvedType>();
+        var enumBase = Optional(resolver.ResolveType(library, "System", "Enum"));
+        var enumerable = Optional(resolver.ResolveType(library, "System.Collections", "IEnumerable"));
+        void Mark(ResolvedType? type, ObjectArrayInterfaceKind kind)
+        {
+            if (type is null) return;
+            for (int index = 0; index < contracts.Count; ++index)
+                if (contracts[index].Source.ContentHash == type.Assembly.ContentHash
+                    && contracts[index].Source.Token == System.Reflection.Metadata.Ecma335.MetadataTokens.GetToken(type.Handle))
+                {
+                    if (!closed) throw Unsupported();
+                    var arguments = types[ObjectTypeId.From(contracts[index].Source)].Arguments;
+                    if (arguments.Count == 1)
+                    {
+                        var definition = arguments[0] switch {
+                            TypeSignature.Named { Kind: SignatureTypeKind.ValueType } named => named.Definition,
+                            TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => generic.Definition.Definition,
+                            _ => null };
+                        if (definition is not null && inspectedValues.Add(definition))
+                        {
+                            if (budget.Remaining == 0) throw Error(DiagnosticIds.TranslationLimit, "Array argument metadata budget exhausted.");
+                            var read = resolver.ReadTypeInput(definition.Assembly, definition.Handle, new(MaximumMembers: budget.Remaining));
+                            if (read.Value is not { } input) throw new ObjectStringType.Failure(read.Diagnostics[0]);
+                            if (!budget.TryConsume(input.MetadataMembersRead)) throw Error(DiagnosticIds.TranslationLimit, "Array argument metadata budget exhausted.");
+                            if (input.BaseType is TypeSignature.Named parent && parent.Definition == enumBase)
+                                throw Error(DiagnosticIds.ExecutionUnsupported, "Array interface enum element equivalence requires explicit underlying storage lowering.");
+                        }
+                    }
+                    contracts[index] = contracts[index] with { ArrayContract = kind };
+                }
+        }
+        Mark(enumerable, ObjectArrayInterfaceKind.Enumerable);
         var array = Optional(resolver.ResolveRuntimeArrayBase(library));
         if (array is not null)
         {
             var inherited = resolver.ReadIntrinsicInterfaceDefinitions(array, budget);
             if (inherited.Value is not { } value) throw new ObjectStringType.Failure(inherited.Diagnostics[0]);
-            if (value.Types.Any(Mentioned)) throw Unsupported();
+            if (value.Types.Any(t => Mentioned(t) && (!closed || t != enumerable))) throw Unsupported();
         }
         // These vector contracts are supplied by the runtime rather than ordinary
         // InterfaceImpl rows on System.Array. Resolve against the selected image;
         // an application type with the same name receives no special treatment.
-        foreach (string name in new[] { "IEnumerable`1", "ICollection`1", "IList`1", "IReadOnlyCollection`1", "IReadOnlyList`1" })
-            if (Optional(resolver.ResolveType(library, "System.Collections.Generic", name)) is { } type && Mentioned(type))
-                throw Unsupported();
+        foreach (var (name, kind) in new[] {
+            ("IEnumerable`1", ObjectArrayInterfaceKind.GenericEnumerable), ("ICollection`1", ObjectArrayInterfaceKind.Collection),
+            ("IList`1", ObjectArrayInterfaceKind.List), ("IReadOnlyCollection`1", ObjectArrayInterfaceKind.ReadOnlyCollection),
+            ("IReadOnlyList`1", ObjectArrayInterfaceKind.ReadOnlyList) })
+            Mark(Optional(resolver.ResolveType(library, "System.Collections.Generic", name)), kind);
         int used = maximumWork - budget.Remaining;
         if (!shared.TryConsume(used)) throw Error(DiagnosticIds.TranslationLimit, "Array interface metadata budget exhausted.");
         return used;

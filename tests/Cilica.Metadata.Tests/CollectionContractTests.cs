@@ -71,7 +71,7 @@ public sealed class CollectionContractTests
     }
 
     [Fact]
-    public async Task Array_and_variance_only_dispatch_stay_diagnostic()
+    public async Task Class_variance_only_dispatch_stays_diagnostic()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -79,7 +79,7 @@ public sealed class CollectionContractTests
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
             await System.IO.File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(CollectionContractProbe).Assembly.Location).Value!;
-        foreach (string name in new[] { "ArrayCall", "VariantCall" })
+        foreach (string name in new[] { "VariantCall" })
         {
             var result = ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CollectionContractProbe).GetMethod(name)!.MetadataToken), implementation);

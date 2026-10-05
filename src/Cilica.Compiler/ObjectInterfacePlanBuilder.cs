@@ -58,6 +58,7 @@ public static class ObjectInterfacePlanBuilder
         private readonly Dictionary<IrMethodId, ResolvedMethod> _resolved = [];
         private readonly Dictionary<ObjectTypeId, TypeInput> _typeInputs = [];
         private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ClosedInterfaceMethodTarget> _choices = [];
+        private readonly Dictionary<(IrMethodId, ObjectTypeId), IrMethodId> _arrayChoices = [];
         private ObjectTypeId _object = null!;
         private int _parameters;
         private ValueTypeCatalog? _values;
@@ -141,6 +142,15 @@ public static class ObjectInterfacePlanBuilder
                     Method(exact.Mapping, slot, catalog); Method(exact.Implementation, slot, catalog);
                     targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit));
                 }
+                foreach (var receiver in catalog.Arrays)
+                {
+                    if (!types.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Owner))) continue;
+                    if (++targetCount > ObjectDispatchLimits.MaximumTargets) Fail("Interface dispatch target limit exceeded.", limit: true);
+                    IrMethodId helper;
+                    try { helper = ArrayMethod(declaration, receiver, catalog); }
+                    catch (PlanFailure failure) { throw new PlanFailure(failure.Diagnostic, id); }
+                    targets.Add(new(receiver, helper, helper, false));
+                }
                 maps.Add(new(id, [.. targets]));
             }
             var plan = new ObjectInterfaceDispatchPlan(catalog,
@@ -185,7 +195,7 @@ public static class ObjectInterfacePlanBuilder
             if (!_roots.ContainsKey(id) && _roots.Count + _arrays.Count >= ObjectModelLimits.MaximumTypes) Fail("Interface catalog root limit exceeded.", limit: true);
             _roots.TryAdd(id, type); return id;
         }
-        private MethodDeclarationInput Read(ResolvedMethod method)
+        private MethodDeclarationInput Read(ResolvedMethod method, bool arrayHelper = false)
         {
             ArgumentNullException.ThrowIfNull(method);
             var owner = method.DeclaringType.Definition;
@@ -197,7 +207,7 @@ public static class ObjectInterfacePlanBuilder
             var input = Value(resolver.ReadMethodDeclarationInput(owner.Assembly, method.Handle, new(MaximumMembers: Remaining())));
             Consume(input.MetadataMembersRead);
             if (input.OwnerToken != MetadataTokens.GetToken(owner.Handle)) Fail("Resolved method owner contradicts its declaration.", input.Source.Name);
-            if (input.OwnerGenericArity != method.DeclaringType.Arguments.Count || input.Signature.GenericArity != 0 || input.Signature.Header != 0x20
+            if (input.OwnerGenericArity != method.DeclaringType.Arguments.Count || input.Signature.GenericArity != 0 || input.Signature.Header != (arrayHelper ? 0 : 0x20)
                 || input.IsReferenceAssembly || input.HasTypeInitializer || input.HasModuleInitializer)
                 Fail("Interface dispatch preparation requires exact admitted instance owners without generic method parameters or initialization.", input.Source.Name);
             if (closed)
@@ -227,6 +237,51 @@ public static class ObjectInterfacePlanBuilder
             _methods.Add(id, new(new(id, owner, ObjectMethodKind.Instance, input.Attributes, input.OwnerExternallyVisible)
                 { VirtualSlot = slot, VirtualName = slot is null ? null : input.DeclaredName,
                     OwnerAssemblyVisible = closed && input.OwnerAssemblyVisible }, input.DeclaredName, parameters, returned));
+        }
+        private IrMethodId ArrayMethod(ObjectInterfaceDeclaration declaration, ObjectTypeId receiver, ObjectTypeCatalog catalog)
+        {
+            var key = (IrMethodId.From(declaration.Source), receiver);
+            if (_arrayChoices.TryGetValue(key, out var cached)) return cached;
+            var contract = catalog.Interfaces.Single(i => ObjectTypeId.From(i.Source) == declaration.Owner);
+            bool count = contract.ArrayContract is ObjectArrayInterfaceKind.Collection or ObjectArrayInterfaceKind.ReadOnlyCollection
+                && declaration.Name == "get_Count" && declaration.Parameters.Length == 1 && declaration.ReturnType == IrType.Int32;
+            bool get = contract.ArrayContract is ObjectArrayInterfaceKind.List or ObjectArrayInterfaceKind.ReadOnlyList
+                && declaration.Name == "get_Item" && declaration.Parameters.Length == 2 && declaration.Parameters[1] == IrType.Int32;
+            if (!closed || !catalog.Integer64 || !(count || get))
+                Fail("Array interface member requires an explicit runtime helper contract; only Count and indexed reads are admitted.", declaration.Source.Name);
+            TypeSignature element;
+            if (receiver.ArrayElement!.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
+            else if (receiver.ArrayElement.Type == catalog.ObjectBase) element = new TypeSignature.Primitive(PrimitiveTypeCode.Object);
+            else if (receiver.ArrayElement.Type == catalog.String) element = new TypeSignature.Primitive(PrimitiveTypeCode.String);
+            else
+            {
+                if (!_knownTypes.TryGetValue(receiver.ArrayElement.Type!, out var type))
+                    throw new PlanFailure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error, "Missing closed vector element metadata."));
+                var named = new TypeSignature.Named(type.Definition, SignatureTypeKind.Class);
+                element = type.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, type.Arguments);
+            }
+            var owner = Value(resolver.ResolveType(runtimeLibrary, "Cilica.Runtime", "ArrayInterface`1"));
+            var method = Value(resolver.ResolveClosedDeclaration(new(owner, new([element])), count ? "Count" : "Get", count ? 1 : 2, budget));
+            _ = Value(resolver.AuthorizeLibraryIntrinsic(runtimeLibrary, method.Handle,
+                count ? LibraryIntrinsicCapability.ArrayInterfaceCount : LibraryIntrinsicCapability.ArrayInterfaceGet));
+            var input = Read(method, arrayHelper: true); var id = Id(method);
+            var parameters = input.Signature.Parameters.Select(p => Type(p)).ToImmutableArray();
+            var returned = Type(input.Signature.ReturnType, true);
+            var elementStorage = receiver.ArrayElement.Type is { } reference ? IrType.Reference(reference) : IrType.Int32;
+            if (!input.HasBody || input.Implementation != MethodImplAttributes.IL
+                || input.Attributes != (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
+                || input.OwnerGenericArity != 1 || parameters.Length != (count ? 1 : 2)
+                || parameters[0] != IrType.Reference(receiver) || get && parameters[1] != IrType.Int32
+                || returned != (count ? IrType.Int32 : elementStorage))
+                Fail("Invalid selected array interface helper declaration.", input.Source.Name);
+            if (!_methods.ContainsKey(id))
+            {
+                Count(parameters.Length);
+                _methods.Add(id, new(new(id, ObjectModelBuilder.Id(method.DeclaringType), ObjectMethodKind.Static,
+                    input.Attributes, input.OwnerExternallyVisible) { OwnerAssemblyVisible = input.OwnerAssemblyVisible },
+                    input.DeclaredName, parameters, returned) { ArrayHelper = true });
+            }
+            _arrayChoices.Add(key, id); return id;
         }
         private ImmutableArray<IrType> Parameters(MethodDeclarationInput input, ObjectTypeId owner)
         {

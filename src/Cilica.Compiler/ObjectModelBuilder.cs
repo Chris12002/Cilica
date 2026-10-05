@@ -62,6 +62,7 @@ public static class ObjectModelBuilder
         ConstructedType Plain(ResolvedType type) => new(type, SignatureList<TypeSignature>.Empty);
         var layouts = new List<ObjectTypeLayout>();
         var interfaces = new List<ObjectInterface>();
+        var interfaceTypes = new Dictionary<ObjectTypeId, ConstructedType>();
         var delegateTypes = new List<ObjectDelegateType>();
         int fields = 0, members = 0;
         string Path(ObjectTypeId id)
@@ -183,6 +184,7 @@ public static class ObjectModelBuilder
                         input.ClosedParameterAttributes[index] & System.Reflection.GenericParameterAttributes.VarianceMask));
                 }
                 if (exceeded) return Failed(id, DiagnosticIds.TranslationLimit, "Interface argument type closure exceeds the catalog limit.", input.Source.Name);
+                interfaceTypes.Add(id, type);
                 interfaces.Add(new(input.Source, input.Attributes, [.. contracts]) { ExternallyVisible = input.ExternallyVisible, Arguments = arguments.ToImmutable() });
                 continue;
             }
@@ -259,7 +261,7 @@ public static class ObjectModelBuilder
         if (stringType is not null && interfaces.Count != 0)
             members += strings.CheckInterfaces([.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members);
         if (arrays.Count != 0 && interfaces.Count != 0)
-            members += ObjectArrayInterfaces.Check(resolver, runtimeLibrary, [.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members, strings.MetadataBudget);
+            members += ObjectArrayInterfaces.Check(resolver, runtimeLibrary, interfaces, interfaceTypes, ObjectModelLimits.MaximumMetadataMembers - members, strings.MetadataBudget, integers64);
         var model = new ObjectTypeCatalog([.. roots.Select(ClosedId).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)])
         { Integer64 = integers64, Delegates = [.. delegateTypes], String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],

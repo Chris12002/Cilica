@@ -59,6 +59,7 @@ public static class ObjectModelValidator
         var types = new Dictionary<ObjectTypeId, ObjectTypeLayout>();
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
         var interfaceParameters = new Dictionary<(string Hash, int Token), GenericParameterAttributes[]>();
+        var arrayContracts = new Dictionary<(string Hash, int Token), ObjectArrayInterfaceKind>();
         var argumentReferences = new Dictionary<string, ObjectTypeId?>();
         int argumentCount = 0;
         var fieldIdentities = new HashSet<(string Hash, string Specialization, int Token, int Component)>();
@@ -104,6 +105,25 @@ public static class ObjectModelValidator
             Require(!contract.Arguments.IsDefault && contract.Arguments.Length <= ObjectModelLimits.MaximumInterfaceArguments - argumentCount
                 && (contract.Arguments.IsEmpty ? id.Specialization.Length == 0 : model.Integer64 && id.Specialization.Length == 64),
                 "closed interface arguments require the explicit profile, a specialized identity and bounded argument facts.");
+            Require(Enum.IsDefined(contract.ArrayContract) && (contract.ArrayContract == ObjectArrayInterfaceKind.None
+                || model.Integer64 && id.ContentHash == model.ObjectBase.ContentHash
+                    && contract.Arguments.Length == (contract.ArrayContract == ObjectArrayInterfaceKind.Enumerable ? 0 : 1)),
+                "runtime vector contracts require selected-library identity and exact argument arity.");
+            if (contract.ArrayContract != ObjectArrayInterfaceKind.None)
+            {
+                string expectedName = contract.ArrayContract switch {
+                    ObjectArrayInterfaceKind.Enumerable => "System.Collections.IEnumerable",
+                    ObjectArrayInterfaceKind.GenericEnumerable => "System.Collections.Generic.IEnumerable`1",
+                    ObjectArrayInterfaceKind.Collection => "System.Collections.Generic.ICollection`1",
+                    ObjectArrayInterfaceKind.List => "System.Collections.Generic.IList`1",
+                    ObjectArrayInterfaceKind.ReadOnlyCollection => "System.Collections.Generic.IReadOnlyCollection`1",
+                    _ => "System.Collections.Generic.IReadOnlyList`1" };
+                Require(contract.Source.Name == expectedName, "runtime vector contract name contradicts its selected operation.");
+            }
+            var arrayKey = (id.ContentHash, id.Token);
+            Require(!arrayContracts.TryGetValue(arrayKey, out var priorArrayContract) || priorArrayContract == contract.ArrayContract,
+                "closed instances disagree on their runtime vector contract.");
+            arrayContracts[arrayKey] = contract.ArrayContract;
             argumentCount += contract.Arguments.Length;
             foreach (var argument in contract.Arguments)
             {
