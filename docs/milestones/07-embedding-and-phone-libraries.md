@@ -13,7 +13,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | --- | --- | --- |
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
-| 7c | Values, retained objects and structured exceptions | In progress: 7c.1 typed retained handles/void and 7c.2 exact UTF-16 copying implemented; 64-bit/value copying and detailed exception transfer remain planned |
+| 7c | Values, retained objects and structured exceptions | In progress: retained handles/void, exact UTF-16 copying and Integer64 transfer implemented; structured value copying and detailed exception transfer remain planned |
 | 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
@@ -157,6 +157,31 @@ this slice. The initial sandbox blocked MSBuild IPC; the bounded local tests pas
 with approved local execution. Local main remains an ancestor; the successful
 read-only remote query advertised no branch heads. No push or hosted work ran.
 Wide/value transfer and richer exceptions remain ahead of the iOS adapter.
+
+## Slice 7c.3 outcome
+
+[ADR 0182](../decisions/0182-exact-integer64-embedding.md) adds Integer64 export
+shapes to v3. The existing UInt64 payload carries every bit; mixed-width signatures
+are checked before lowering. Since the compiler uses one storage type for `long`
+and `ulong`, the boundary specifies bit patterns, while managed operations retain
+signed/unsigned arithmetic. Wide exports add capability bit 512 and their manifest
+signatures affect the hash. Existing records and contracts remain compatible.
+
+The focused wide/string/handle/module run passed 50 checks. Two additional O0/O2
+ordinary-object packet checks passed separately, bringing the validated scope to
+52; the combined suite was not rerun after that test-only addition. A C11 consumer
+supplies 2,704 .NET/native comparisons across eight operations and a 13-by-13 edge
+matrix, including values beyond 2^53, signed/unsigned limits, checked/wrapping
+addition, division and mixed-width shifts. Additional cases cover object fields,
+mixed handle/wide calls, void setters, zero-arity results, malformed tags before
+side effects, zero handle quotas and execution-arena failure. Native builds use
+ASan/UBSan, disabled C++ exceptions/RTTI and the 2 KiB frame gate.
+
+Review covered signature width before lowering, manifest/capability selection,
+full-width packet/result storage, unsigned bit preservation and error cleanup.
+No unresolved defect remains in this slice. Local main remains an ancestor; the
+read-only remote query advertised no branch heads. No push or hosted work ran.
+Structured value and richer exception transfer remain ahead of iOS packaging.
 
 ## Remaining exit gates
 

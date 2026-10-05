@@ -17,8 +17,9 @@ feedback before implementation. Explain consequential choices in plain language.
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles
   and void results; an optional capability copies exact UTF-16 through host-owned
-  buffers. Independent multi-root discovery, wide/value copying, rich error
-  transfer and phone support remain planned.
+  buffers, and Integer64 exports preserve all 64 bits. Independent multi-root
+  discovery, structured value copying, rich error transfer and phone support
+  remain planned.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

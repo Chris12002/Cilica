@@ -52,6 +52,15 @@ length/index/concatenation, lifetime/quotas, collection and copy/import/release
 races. No encoding normalization, interning or phone support is promised. See
 [ADR 0181](decisions/0181-host-owned-utf16-copying.md).
 
+Milestone 7c.3 extends v3 with `integer64` signatures and capability bit 512 when
+wide parameters/results are exported. The unchanged tagged record carries every
+bit; logical width is checked before lowering, while signedness remains a managed
+operation rule. C11 O0/O2 .NET/native comparisons cover 2,704 boundary outcomes,
+wide fields, mixed handle/scalar calls, malformed inputs and quota faults. Ordinary
+and composed packet paths have sanitizer evidence. Structured value copying,
+richer exception transfer and phone support remain planned. See
+[ADR 0182](decisions/0182-exact-integer64-embedding.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

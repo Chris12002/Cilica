@@ -1,7 +1,7 @@
 # Embedding ABI: versioned scalar and object profiles
 
 The current module profile is `embedding-object-handles-v3`, described below.
-It adds typed retained object handles, void results and optional UTF-16 copying
+It adds typed retained object handles, exact Integer64 values, void results and optional UTF-16 copying
 to shared export modules.
 V1/V2 remain supported. Local evidence is macOS ARM64; mobile support is unverified.
 
@@ -231,7 +231,7 @@ header/source/manifest artifact shape as v2. The prefix is
 already in one validated closure; creating the runtime does not execute its root.
 
 `EmbeddingObjectContract` declares stable reference aliases (`Id`, `Name`, bound
-`ObjectTypeId`) and `EmbeddingObjectExport` signatures. Shapes are Int32, Handle
+`ObjectTypeId`) and `EmbeddingObjectExport` signatures. Shapes are Int32, Integer64, Handle
 with a reference alias ID, or Void for results only. Every alias must be used;
 alias IDs, names and bound types are unique. Parameters/results must exactly match
 logical IR signatures before lowering. At invocation, reference arguments accept
@@ -252,6 +252,7 @@ that order (16 bytes, payload offset 8 on the tested target). The kinds are:
 | --- | --- |
 | `CILICA_V3_INT32` (1) | Raw Int32 bits in the low 32 bits, zero-extended; upper 32 bits must be zero |
 | `CILICA_V3_HANDLE` (2) | Opaque object lease token; zero denotes a null reference |
+| `CILICA_V3_INTEGER64` (3) | All 64 raw integer bits; managed operations determine signedness |
 | `CILICA_V3_VOID` (0) | Result only; payload zero |
 
 `reserved` must be zero. Negative Int32 inputs are encoded by casting to UInt32
@@ -315,7 +316,7 @@ its output unchanged on failure.
 The existing unloading, C linkage and platform rules continue to apply. V3 has
 local C11/shared-library and native race evidence under O0/O2 sanitizers, including
 forced collection and both emitter paths. The optional string extension below adds
-host-buffer copying. 64-bit/value transfer, rich exception copying, iOS and Android
+host-buffer copying. Structured value transfer, rich exception copying, iOS and Android
 device evidence remain planned.
 
 ### Optional UTF-16 copying (7c.2)
@@ -386,3 +387,32 @@ Import/copy share the same guard as invoke/retain/release/destroy. `BUSY` leaves
 outputs unchanged. Hosts must keep the string lease until copying finishes and
 handle/retry concurrent calls explicitly. This extension does not add a separate
 buffer-release API or expose an internal managed pointer.
+
+### Exact Integer64 transfer (7c.3)
+
+Use `EmbeddingValueKind.Integer64` in an export shape for a logical Int64 parameter
+or result. It must have `ReferenceTypeId = 0`. The manifest spells the kind
+`integer64`; it participates in the existing contract hash. A module advertises
+`CILICA_V3_CAP_INTEGER64` (512) if any export uses this shape, independently of the
+UTF-16 feature. Base plus wide capabilities total 767; adding UTF-16 totals 1023.
+Internal wide operations alone do not advertise wide host transfer.
+
+The value tag is `CILICA_V3_INTEGER64` (3), `reserved` must be zero, and all 64 bits
+of `payload` are significant. No bit pattern is excluded. The compiler represents
+both managed `long` and `ulong` with this storage type: the manifest does not
+separately certify declaration signedness. Application contracts decide how hosts
+interpret the bits; managed operations preserve their signed/unsigned behavior.
+To send a signed C Int64 value, cast it to UInt64 (defined modulo 2^64). On the
+tested target, recover signed result bits with `memcpy` into Int64; in C++20 use
+`std::bit_cast<int64_t>`. Unsigned values use the payload directly. Preserve all
+bits in future JavaScript adapters using an exact representation such as BigInt;
+do not route wide values through a floating-point number.
+
+Width tags must match exactly, even when a numeric value would fit both widths.
+There is no implicit widening/truncation or handle-to-integer conversion. Invalid
+tags/reserved fields return `INVALID_ARGUMENT` before managed effects and leave
+outputs unchanged. Successful results use kind 3 with cleared fault fields;
+execution failure has the existing zero-value/copied-fault behavior. Checked
+arithmetic and division retain managed fault ordering. Wide values need no handle
+slots but remain subject to the execution budget. Structured/borrowed values still
+cannot be disguised as wide scalars after lowering.

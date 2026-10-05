@@ -28,7 +28,7 @@ internal static class EmbeddingObjectAbi
                 if (value.reserved != 0 || value.kind != schema[i].kind) return CILICA_V3_INVALID_ARGUMENT;
                 if (value.kind == 1u) {
                     if (value.payload > UINT32_MAX) return CILICA_V3_INVALID_ARGUMENT;
-                } else if (value.payload != 0) {
+                } else if (value.kind == 2u && value.payload != 0) {
                     const auto resolved = resolve_handle(heap, {value.payload});
                     if (resolved.status != HandleStatus::complete) return handle_status(resolved.status);
                     if (resolved.value != nullptr && !schema[i].accepts(resolved.value->type)) return CILICA_V3_TYPE_MISMATCH;
@@ -115,6 +115,12 @@ internal static class EmbeddingObjectAbi
             #endif
             #ifndef CILICA_V3_CAP_UTF16
             #define CILICA_V3_CAP_UTF16 UINT64_C(256)
+            #endif
+            #ifndef CILICA_V3_INTEGER64
+            #define CILICA_V3_INTEGER64 UINT32_C(3)
+            #endif
+            #ifndef CILICA_V3_CAP_INTEGER64
+            #define CILICA_V3_CAP_INTEGER64 UINT64_C(512)
             #endif
             #define {{macro}}_CONTRACT_HASH "{{hash}}"
             #define {{macro}}_SCHEMA_VERSION UINT32_C({{schemaVersion.ToString(CultureInfo.InvariantCulture)}})

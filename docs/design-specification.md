@@ -1149,6 +1149,16 @@ use the same instance admission and quotas. No additional external buffer-releas
 API is needed. Local C11/O0/O2 sanitizer and race evidence does not establish phone
 support. Wide/value copying and richer exception transfer remain open.
 
+Milestone 7c.3 adds Integer64 export shapes and capability bit 512
+([ADR 0182](decisions/0182-exact-integer64-embedding.md)). The existing tagged record
+carries all 64 bits through native wide argument slots and bit-cast results. Logical
+widths are checked before lowering; no Int32 or struct coercion is implied. The IR
+uses the same storage type for signed and unsigned integers, so the public kind
+specifies bits rather than declaration signedness. Managed operations keep their
+signed/unsigned semantics. Local C11 O0/O2 comparisons cover wide limits, values
+above 2^53, overflow, division and mixed handle/scalar calls. Structured values,
+rich exception copying and phone execution remain open.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

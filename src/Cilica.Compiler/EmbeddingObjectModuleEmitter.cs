@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Cilica.Compiler;
 
-public enum EmbeddingValueKind { Void = 0, Int32 = 1, Handle = 2 }
+public enum EmbeddingValueKind { Void = 0, Int32 = 1, Handle = 2, Integer64 = 3 }
 public sealed record EmbeddingValueShape(EmbeddingValueKind Kind, uint ReferenceTypeId = 0);
 public sealed record EmbeddingReferenceBinding(uint Id, string Name, ObjectTypeId Type);
 public sealed record EmbeddingObjectExport(uint Id, string Name, IrMethodId Method,
@@ -18,7 +18,7 @@ public sealed record EmbeddingObjectContract(string Name, uint SchemaVersion,
     ImmutableArray<EmbeddingReferenceBinding> References, ImmutableArray<EmbeddingObjectExport> Exports,
     uint Utf16StringTypeId = 0);
 
-/// <summary>Version 3: Int32, void and runtime-owned strong handles, from one validated closure.</summary>
+/// <summary>Version 3: integer bits, void and runtime-owned strong handles, from one validated closure.</summary>
 public static class EmbeddingObjectModuleEmitter
 {
     public const string Profile = "embedding-object-handles-v3";
@@ -70,8 +70,8 @@ public static class EmbeddingObjectModuleEmitter
                 return IrType.Reference(references[shape.ReferenceTypeId].Type);
             }
             Require(shape.ReferenceTypeId == 0, "scalar/void shape cannot name a reference type.");
-            Require(shape.Kind == EmbeddingValueKind.Int32 || result && shape.Kind == EmbeddingValueKind.Void, "unsupported value kind.");
-            return shape.Kind == EmbeddingValueKind.Int32 ? IrType.Int32 : IrType.Void;
+            Require(shape.Kind is EmbeddingValueKind.Int32 or EmbeddingValueKind.Integer64 || result && shape.Kind == EmbeddingValueKind.Void, "unsupported value kind.");
+            return shape.Kind switch { EmbeddingValueKind.Int32 => IrType.Int32, EmbeddingValueKind.Integer64 => IrType.Int64, _ => IrType.Void };
         }
         foreach (var export in contract.Exports) {
             Require(bodies.ContainsKey(export.Method) && declarations.ContainsKey(export.Method), "export is outside this compiled closure.");
@@ -95,7 +95,7 @@ public static class EmbeddingObjectModuleEmitter
         var references = contract.References.OrderBy(r => r.Id).ToArray();
         var types = references.ToDictionary(r => r.Id, r => r.Type);
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
-        object Shape(EmbeddingValueShape s) => new { kind = s.Kind switch { EmbeddingValueKind.Int32 => "int32", EmbeddingValueKind.Handle => "handle", _ => "void" }, referenceTypeId = s.ReferenceTypeId };
+        object Shape(EmbeddingValueShape s) => new { kind = s.Kind switch { EmbeddingValueKind.Int32 => "int32", EmbeddingValueKind.Integer64 => "integer64", EmbeddingValueKind.Handle => "handle", _ => "void" }, referenceTypeId = s.ReferenceTypeId };
         var schema = new { abiVersion = 3, name = contract.Name, schemaVersion = contract.SchemaVersion,
             references = references.Select(r => new { id = r.Id, name = r.Name }).ToArray(),
             exports = exports.Select(e => new { id = e.Id, name = e.Name, parameters = e.Parameters.Select(Shape).ToArray(), result = Shape(e.Result) }).ToArray() };
@@ -113,6 +113,7 @@ public static class EmbeddingObjectModuleEmitter
         string packet = locations ? "LocationArgument" : "Argument";
         string Predicate(EmbeddingValueShape s) => ObjectCppEmitter.ReferencePredicate(program.Flow.Types, types[s.ReferenceTypeId]);
         bool utf16 = contract.Utf16StringTypeId != 0;
+        bool integer64 = exports.Any(e => e.Result.Kind == EmbeddingValueKind.Integer64 || e.Parameters.Any(p => p.Kind == EmbeddingValueKind.Integer64));
         string header = EmbeddingObjectAbi.Header(prefix, hash, contract.SchemaVersion, exports, references, utf16);
         var helpers = new StringBuilder(); var arities = new StringBuilder(); var dispatch = new StringBuilder();
         foreach (var export in exports) {
@@ -125,6 +126,7 @@ public static class EmbeddingObjectModuleEmitter
             string call = CppEmitter.Symbol(export.Method) + "(context, arguments.value->data())";
             string result = export.Result.Kind switch {
                 EmbeddingValueKind.Int32 => "const auto value = " + call + ";\nif (context.pending == 0) result = {1u, 0u, std::bit_cast<std::uint32_t>(value)};",
+                EmbeddingValueKind.Integer64 => "const auto value = " + call + ";\nif (context.pending == 0) result = {3u, 0u, std::bit_cast<std::uint64_t>(value)};",
                 EmbeddingValueKind.Void => call + ";\nif (context.pending == 0) result = {};",
                 _ => "Object* value = " + call + ";\nif (context.pending == 0) {\n"
                     + "    if (!traceable_reference(context.instance, value) || (value != nullptr && !" + Predicate(export.Result) + "(value->type))) context.pending = 6u;\n"
@@ -144,6 +146,7 @@ public static class EmbeddingObjectModuleEmitter
                         // Admission excludes releases; validated handles remain strong roots.
                         for (std::size_t i = 0; i < {{export.Parameters.Length}}u; ++i) {
                             if (parameters[i].kind == 1u) (*arguments.value)[i].bits = static_cast<std::uint32_t>(parameters[i].payload);
+                            else if (parameters[i].kind == 3u) (*arguments.value)[i].wide_bits = parameters[i].payload;
                             else (*arguments.value)[i].reference = parameters[i].payload == 0 ? nullptr : resolve_handle(context.instance, {parameters[i].payload}).value;
                         }
                         {{result}}
@@ -159,7 +162,7 @@ public static class EmbeddingObjectModuleEmitter
             {{EmbeddingObjectAbi.Runtime}}
             {{helpers}}
             }
-            {{EmbeddingModuleLifecycle.Emit(prefix, 3, hash, handles: true, utf16)}}
+            {{EmbeddingModuleLifecycle.Emit(prefix, 3, hash, handles: true, utf16, integer64)}}
             {{(utf16 ? EmbeddingStringAbi.Emit(prefix, ObjectCppEmitter.ReferenceDescriptor(program.Flow.Types.String!)) : "")}}
             extern "C" uint32_t {{prefix}}_invoke(uint64_t runtime, uint32_t export_id, const cilica_v3_value* parameters, uint32_t count, cilica_v3_result* result) noexcept {
                 if (result == nullptr) return CILICA_V3_INVALID_ARGUMENT;
