@@ -14,7 +14,8 @@ using Cilica.Metadata.Resolution;
 namespace Cilica.LibraryBuild;
 
 public sealed record LibraryBuildRequest(string CompilerDirectory, ImmutableArray<string> Sources,
-    ImmutableArray<string> References, string OutputDirectory, string AssemblyName = "Cilica.Library");
+    ImmutableArray<string> References, string OutputDirectory, string AssemblyName = "Cilica.Library",
+    bool CoreLibrary = false, ImmutableArray<LibraryIntrinsicRequest> Intrinsics = default);
 public sealed record LibraryBuildResult(string AssemblyPath, string ManifestPath, string ManifestSha256);
 
 /// <summary>Build-host tool for trusted source; never part of input-assembly compilation or automatic approval.</summary>
@@ -26,11 +27,14 @@ public static class LibraryBuilder
 
     public static async Task<LibraryBuildResult> Build(LibraryBuildRequest request)
     {
-        if (request.Sources.IsDefaultOrEmpty || request.Sources.Length > 256 || request.References.IsDefaultOrEmpty
+        if (request.Sources.IsDefaultOrEmpty || request.Sources.Length > 256 || request.References.IsDefault
+            || (request.CoreLibrary ? request.References.Length != 0 : request.References.Length == 0)
             || request.References.Length > 64 || string.IsNullOrEmpty(request.AssemblyName) || request.AssemblyName.Length > 128
             || !char.IsAsciiLetter(request.AssemblyName[0])
             || request.AssemblyName.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not ('.' or '_' or '-')))
-            throw new ArgumentException("Supply 1..256 source files, 1..64 references and a simple assembly name.");
+            throw new ArgumentException("Supply 1..256 source files, 1..64 references (zero for the explicit core profile) and a simple assembly name.");
+        var intrinsicRequests = request.Intrinsics.IsDefault ? ImmutableArray<LibraryIntrinsicRequest>.Empty : request.Intrinsics;
+        LibraryIntrinsicRequests.Validate(intrinsicRequests);
         string output = Path.GetFullPath(request.OutputDirectory);
         if (Path.Exists(output)) throw new IOException("Output directory already exists; build evidence is never overwritten.");
         string parent = Path.GetDirectoryName(output) ?? throw new ArgumentException("Output must have a parent directory.");
@@ -60,7 +64,8 @@ public static class LibraryBuilder
             string assembly = request.AssemblyName + ".dll";
             string[] arguments = ["exec", "--fx-version", runtimeVersion, "compiler/csc.dll", "-noconfig", "-nostdlib+",
                 "-nologo", "-target:library", "-deterministic+", "-optimize+", "-debug-", "-langversion:9.0", "-nullable:disable",
-                "-unsafe-", "-warnaserror+", "-out:" + assembly, "-pathmap:" + stage + "=/_/cilica-library",
+                "-unsafe-", "-warnaserror+", .. request.CoreLibrary ? new[] { "-runtimemetadataversion:v4.0.30319" } : [],
+                "-out:" + assembly, "-pathmap:" + stage + "=/_/cilica-library",
                 .. references.Select(p => "-reference:" + p), .. sources];
             if (arguments.Length > 1024 || arguments.Any(a => a.Length > 4096))
                 throw new ArgumentException("Effective compiler arguments exceed admission bounds.");
@@ -74,6 +79,7 @@ public static class LibraryBuilder
                 Host = host, RuntimeVersion = runtimeVersion, Platform = RuntimeInformation.RuntimeIdentifier,
                 WorkingDirectory = stage, Environment = environment, Arguments = arguments,
                 SourceOrigins = request.Sources.Select(Path.GetFullPath), ReferenceOrigins = request.References.Select(Path.GetFullPath),
+                request.CoreLibrary, IntrinsicRequests = intrinsicRequests,
                 Scope = "Fixed Roslyn invocation; no analyzers, generators, response files, MSBuild targets or automatic intrinsic approval."
             }));
             Record("options", options, "build-options.json");
@@ -91,7 +97,8 @@ public static class LibraryBuilder
             var image = resolver.OpenInput(Path.Combine(stage, assembly));
             if (!image.Success) throw new InvalidOperationException("Compiler output is not a valid assembly: " + string.Join("; ", image.Diagnostics));
             var manifest = new LibraryBuildManifest(LibraryBuildManifest.FormatName, 1, LibraryBuildManifest.CurrentRuntimeProfile,
-                [new(image.Value!.Identity.DisplayName, image.Value.ContentHash, [.. inputs], [.. arguments], [])]);
+                [new(image.Value!.Identity.DisplayName, image.Value.ContentHash, [.. inputs], [.. arguments],
+                    LibraryIntrinsicRequests.Describe(resolver, image.Value, intrinsicRequests))]);
             byte[] evidence = AssemblyResolver.SerializeLibraryBuildManifest(manifest);
             if (evidence.Length > AssemblyResolver.MaximumLibraryManifestBytes) throw new InvalidOperationException("Build evidence exceeds admission bounds.");
             await File.WriteAllBytesAsync(Path.Combine(stage, "library-build.json"), evidence);

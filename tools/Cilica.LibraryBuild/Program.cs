@@ -10,7 +10,7 @@ public static class Program
     {
         try
         {
-            string? compiler = null, output = null;
+            string? compiler = null, output = null, intrinsicPath = null, profile = null;
             string name = "Cilica.Library";
             var sources = new List<string>(); var references = new List<string>();
             for (int i = 0; i < args.Length; i += 2)
@@ -23,19 +23,22 @@ public static class Program
                     case "--assembly-name": name = args[i + 1]; break;
                     case "--source": sources.Add(args[i + 1]); break;
                     case "--reference": references.Add(args[i + 1]); break;
+                    case "--profile" when profile is null && args[i + 1] is "library" or "core": profile = args[i + 1]; break;
+                    case "--intrinsic-requests" when intrinsicPath is null: intrinsicPath = args[i + 1]; break;
                     default: throw new ArgumentException("Unknown or repeated option: " + args[i]);
                 }
             }
             if (compiler is null || output is null)
-                throw new ArgumentException("Supply --compiler-directory, --output-directory, --source and --reference. Optional: --assembly-name.");
-            var result = await LibraryBuilder.Build(new(compiler, [.. sources], [.. references], output, name));
+                throw new ArgumentException("Supply --compiler-directory, --output-directory, --source and --reference (omit references for --profile core). Optional: --assembly-name, --intrinsic-requests.");
+            var result = await LibraryBuilder.Build(new(compiler, [.. sources], [.. references], output, name, profile == "core",
+                intrinsicPath is null ? [] : LibraryIntrinsicRequests.Read(intrinsicPath)));
             Console.WriteLine("Built " + result.AssemblyPath);
             Console.WriteLine("Evidence " + result.ManifestPath);
             Console.WriteLine("Manifest SHA-256 " + result.ManifestSha256 + " (not an approval)");
             return 0;
         }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or System.IO.IOException
-            or UnauthorizedAccessException or TimeoutException)
+            or UnauthorizedAccessException or TimeoutException or System.Text.Json.JsonException)
         { Console.Error.WriteLine(error.Message); return 1; }
     }
 }

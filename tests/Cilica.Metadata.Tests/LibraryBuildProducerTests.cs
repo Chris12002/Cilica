@@ -16,7 +16,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class LibraryBuildProducerTests
 {
     private static string Hash(byte[] bytes) => Convert.ToHexStringLower(SHA256.HashData(bytes));
-    private static LibraryBuildRequest Request(ResolverFiles files, string source, string output = "build")
+    internal static LibraryBuildRequest Request(ResolverFiles files, string source, string output = "build")
     {
         string root = Path.GetFullPath(Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "../../.."));
         var repository = new DirectoryInfo(AppContext.BaseDirectory);

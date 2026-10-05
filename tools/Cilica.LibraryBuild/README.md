@@ -40,7 +40,23 @@ compiler; it is not a hermetic sandbox or protection against a hostile host.
 Input counts, byte sizes, captured output and process duration are bounded. A
 failure cleans its own staging directory and publishes no successful evidence.
 
-The empty grant list and displayed digest are **not approval**. A separate review
-must approve the exact manifest digest and any future declaration-specific grants
+The default empty grant list and displayed digest are **not approval**. A separate review
+must approve the exact manifest digest and any declaration-specific grants
 before `CreateTrustedLibraryCompilationScope` may grant intrinsic capabilities.
 The tool never updates the trusted-artifact baseline automatically.
+
+`--profile core` explicitly builds with zero references and a fixed CLI metadata
+version. It requires source declarations for the compiler's needed core types;
+it does not substitute an installed CoreLib. The default `library` profile still
+requires explicit references.
+
+`--intrinsic-requests /path/to/requests.json` adds requested declaration evidence
+to the manifest. Each JSON array entry must explicitly contain `Namespace`,
+`Type`, `Member`, `ParameterCount` and the string-valued `Capability`. Use null for
+both member fields to select a type layout. Otherwise a name and parameter count
+must select exactly one method emitted by this build. Overloads with the same
+count are rejected; no first-match selection occurs. Duplicate requests,
+duplicate JSON properties, unknown capabilities and missing members fail the
+build without publishing output. The effective requests are included in hashed
+`build-options.json`; tokens and signature hashes come from the emitted image.
+These requests describe the evidence for later review and do not approve it.

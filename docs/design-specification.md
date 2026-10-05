@@ -1034,7 +1034,11 @@ and exact string/exception intrinsic grants at the compiler boundary
 ([ADR 0092](decisions/0092-library-build-admission.md)). The host must pin the
 manifest digest independently of compiler input. A separate local build tool now
 captures actual Roslyn inputs/arguments and emitted image evidence without granting
-approval ([ADR 0123](decisions/0123-library-build-evidence-producer.md)). Explicit
+approval ([ADR 0123](decisions/0123-library-build-evidence-producer.md)). Its explicit
+core profile builds without platform references; bounded intrinsic requests are
+hashed into build options and resolved to exact emitted declarations, still
+requiring independent approval
+([ADR 0130](decisions/0130-core-build-and-intrinsic-requests.md)). Explicit
 mapped implementation audits now retain both declarations, constructed signatures,
 image hashes and any approved build digest while expanding implementation bodies
 ([ADR 0124](decisions/0124-mapped-library-implementation-audits.md)). The actual

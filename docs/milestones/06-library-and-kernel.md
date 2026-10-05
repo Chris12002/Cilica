@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.34 and 6d.1–6d.3 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.34 and 6d.1–6d.4 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -619,6 +619,16 @@ no remaining actionable issue. See
 [ADR 0129](../decisions/0129-library-constraint-correspondence.md). This closes a
 mapping prerequisite; it does not provide the required framework bodies or the
 native kernel result.
+
+## Slice 6d.4 outcome
+
+The build producer now supports explicit zero-reference core builds and exact
+intrinsic declaration requests, retaining both in hashed options. Missing,
+ambiguous, duplicate and malformed requests fail without publishing output.
+The combined library/core validation run passes 136 checks; selector budget
+accounting was tightened during review. See
+[ADR 0130](../decisions/0130-core-build-and-intrinsic-requests.md). Independent
+approval remains required; core source and native conformance follow in 6d.5.
 
 ## Remaining completion evidence
 

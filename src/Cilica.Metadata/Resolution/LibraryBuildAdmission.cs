@@ -53,6 +53,30 @@ public sealed partial class AssemblyResolver
     public ResolutionResult<LibraryIntrinsicGrant> DescribeLibraryIntrinsic(ResolvedAssembly image, EntityHandle handle,
         LibraryIntrinsicCapability capability) => Bind(image, handle, () => IntrinsicDeclaration(image, handle, capability));
 
+    /// <summary>Selects one emitted method declaration for build evidence; never grants its requested capability.</summary>
+    public ResolutionResult<LibraryIntrinsicGrant> DescribeLibraryMethodIntrinsic(ResolvedType owner, string name, int parameterCount,
+        LibraryIntrinsicCapability capability, MemberResolutionBudget? budget = null)
+    {
+        CheckOwner(owner.Assembly); budget ??= new();
+        return Bind(owner.Assembly, owner.Handle, () =>
+        {
+            if (string.IsNullOrEmpty(name) || name.Length > 1024 || parameterCount is < 0 or > 4096)
+                throw InvalidLibraryBuild("Intrinsic selector requires a bounded name and parameter count.");
+            InspectMember(budget);
+            var reader = owner.Assembly.Image.Reader; MethodDefinitionHandle selected = default;
+            foreach (var handle in reader.GetTypeDefinition(owner.Handle).GetMethods())
+            {
+                InspectMember(budget);
+                if (!reader.StringComparer.Equals(reader.GetMethodDefinition(handle).Name, name)) continue;
+                if (MethodDefinitionSignature(owner.Assembly, handle).Parameters.Count != parameterCount) continue;
+                if (!selected.IsNil) throw InvalidLibraryBuild("Intrinsic member selector is ambiguous: " + name);
+                selected = handle;
+            }
+            if (selected.IsNil) throw InvalidLibraryBuild("Intrinsic member was not emitted: " + name);
+            return IntrinsicDeclaration(owner.Assembly, selected, capability);
+        });
+    }
+
     /// <summary>
     /// Admits an independently approved build record. The caller must obtain approvedSha256
     /// from its trusted build/release policy, never from compiler input or its adjacent manifest.
