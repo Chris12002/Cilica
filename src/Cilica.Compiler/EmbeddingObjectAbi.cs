@@ -58,7 +58,7 @@ internal static class EmbeddingObjectAbi
         };
         """;
 
-    internal static string Header(string prefix, string hash, uint schemaVersion, EmbeddingObjectExport[] exports, EmbeddingReferenceBinding[] references)
+    internal static string Header(string prefix, string hash, uint schemaVersion, EmbeddingObjectExport[] exports, EmbeddingReferenceBinding[] references, bool utf16)
     {
         string macro = prefix.ToUpperInvariant();
         return $$"""
@@ -109,6 +109,13 @@ internal static class EmbeddingObjectAbi
             #endif
             #define CILICA_V3_API __attribute__((visibility("default")))
             #endif
+            /* Additive constants also work when an older v3 header came first. */
+            #ifndef CILICA_V3_BUFFER_TOO_SMALL
+            #define CILICA_V3_BUFFER_TOO_SMALL UINT32_C(12)
+            #endif
+            #ifndef CILICA_V3_CAP_UTF16
+            #define CILICA_V3_CAP_UTF16 UINT64_C(256)
+            #endif
             #define {{macro}}_CONTRACT_HASH "{{hash}}"
             #define {{macro}}_SCHEMA_VERSION UINT32_C({{schemaVersion.ToString(CultureInfo.InvariantCulture)}})
             {{string.Join("\n", exports.Select(e => "#define " + macro + "_EXPORT_" + e.Name.ToUpperInvariant() + " UINT32_C(" + e.Id.ToString(CultureInfo.InvariantCulture) + ")"))}}
@@ -123,6 +130,7 @@ internal static class EmbeddingObjectAbi
             CILICA_V3_API uint32_t {{prefix}}_retain_handle(uint64_t runtime, uint64_t handle, uint64_t* retained) CILICA_V3_NOEXCEPT;
             CILICA_V3_API uint32_t {{prefix}}_release_handle(uint64_t runtime, uint64_t handle) CILICA_V3_NOEXCEPT;
             CILICA_V3_API uint32_t {{prefix}}_destroy(uint64_t runtime) CILICA_V3_NOEXCEPT;
+            {{(utf16 ? EmbeddingStringAbi.Declarations(prefix) : "")}}
             #ifdef __cplusplus
             }
             #endif

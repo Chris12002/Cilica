@@ -43,6 +43,15 @@ object and composed exception emitters have native evidence. V1/V2 stay compatib
 String/64-bit/value copying, detailed exception messages, independent roots and
 phone support remain planned. See [ADR 0180](decisions/0180-public-retained-object-handles.md).
 
+Milestone 7c.2 extends v3 with optional UTF-16 capability bit 256. Exact String
+alias binding and enabled feature selection participate in contract negotiation;
+disabled contracts preserve their fingerprints. Import returns a retained managed
+string; copy writes only caller-owned buffers, with length queries and no partial
+writes. Local C11/O0/O2 ASan/UBSan evidence covers every UInt16 code unit, managed
+length/index/concatenation, lifetime/quotas, collection and copy/import/release
+races. No encoding normalization, interning or phone support is promised. See
+[ADR 0181](decisions/0181-host-owned-utf16-copying.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

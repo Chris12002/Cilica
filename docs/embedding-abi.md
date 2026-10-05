@@ -1,7 +1,8 @@
 # Embedding ABI: versioned scalar and object profiles
 
 The current module profile is `embedding-object-handles-v3`, described below.
-It adds typed retained object handles and void results to shared export modules.
+It adds typed retained object handles, void results and optional UTF-16 copying
+to shared export modules.
 V1/V2 remain supported. Local evidence is macOS ARM64; mobile support is unverified.
 
 ## Persistent Int32 profile v1
@@ -283,7 +284,7 @@ the adapter retains no host buffer pointer.
 ### Calls, quotas and failure order
 
 The API exports version/capabilities/create/invoke/destroy as in v2, using v3 types,
-and adds `retain_handle` and `release_handle`. Capabilities total 255: the six v2
+and adds `retain_handle` and `release_handle`. Base capabilities total 255: the six v2
 bits plus `CILICA_V3_CAP_HANDLES` (64) and `CILICA_V3_CAP_VOID` (128).
 `cilica_v3_config` has six UInt32 fields in order: `struct_size`, `flags`,
 `heap_bytes`, `object_limit`, `execution_bytes`, `handle_limit` (24 bytes).
@@ -313,5 +314,75 @@ its output unchanged on failure.
 
 The existing unloading, C linkage and platform rules continue to apply. V3 has
 local C11/shared-library and native race evidence under O0/O2 sanitizers, including
-forced collection and both emitter paths. It does not yet provide string buffers,
-64-bit/value transfer, rich exception copying, iOS or Android device evidence.
+forced collection and both emitter paths. The optional string extension below adds
+host-buffer copying. 64-bit/value transfer, rich exception copying, iOS and Android
+device evidence remain planned.
+
+### Optional UTF-16 copying (7c.2)
+
+Set `EmbeddingObjectContract.Utf16StringTypeId` to the ID of a declared reference
+alias bound to the closure's exact intrinsic String type. That alias must be used
+by an export, as with other reference aliases. Its default value zero disables
+this capability. Enabled contracts add `utf16StringTypeId` to the canonical schema
+and hash, and advertise `CILICA_V3_CAP_UTF16` (256; total capabilities 511). Disabled
+contracts retain the original v3 schema/hash and omit these function declarations.
+Existing v3 record layouts are unchanged.
+
+The enabled header adds:
+
+```c
+uint32_t cilica_example_abi_v3_string_create(
+    uint64_t runtime, const uint16_t* units, uint32_t length, uint64_t* handle);
+uint32_t cilica_example_abi_v3_string_copy(
+    uint64_t runtime, uint64_t handle, uint16_t* units,
+    uint32_t capacity, uint32_t* length);
+```
+
+Replace `example` with the module name. The UInt16 elements are numeric UTF-16 code
+units in native memory, not encoded bytes, C `wchar_t`, Unicode scalar values or a
+serialized endianness. Every unit is preserved, including zero and unpaired
+surrogates. There is no normalization, validation of surrogate pairing or appended
+terminator. Counts always mean code units, not bytes or displayed characters.
+
+`string_create` copies `length` units before returning. For zero length, `units`
+may be null and the result is a nonnull empty string handle. No interning or
+identity relationship with managed string literals is promised. The host may
+release/reuse the source buffer after return. The returned handle follows the
+ordinary retain/release rules and may be passed to compatible exported methods.
+Passing a null managed string still uses handle zero through `invoke`; import
+never creates that null value.
+
+`string_copy` requires a live nonzero string handle. Zero/stale/foreign-instance
+handles return `INVALID_HANDLE`; a live non-string handle returns `TYPE_MISMATCH`.
+A null `units` pointer is permitted only with zero capacity. On success, it writes
+exactly the string's code units and stores their count in `*length`, leaving spare
+buffer capacity untouched. With insufficient capacity it returns
+`CILICA_V3_BUFFER_TOO_SMALL` (12), writes the required count in `*length`, and writes
+no text. This is the only failure that modifies an output. Other failures leave
+both outputs untouched.
+
+To query the length, pass null/zero for the buffer/capacity. Empty strings return
+`OK` and zero; nonempty strings return `BUFFER_TOO_SMALL` and their length. Allocate
+that many UInt16 elements and call again. Strings are immutable, so their required
+length remains stable while the lease remains live. The caller owns the copied
+buffer even after releasing the handle or destroying the runtime.
+
+All pointer arguments must address appropriately aligned readable/writable storage
+of the declared extent for the duration of a call. Keep output fields and buffers
+separate and non-overlapping. Source buffers must remain stable during import;
+output buffers must not be accessed concurrently while the runtime writes them.
+Neither function retains host pointers. Copies require no managed allocation or
+execution arena. They do not create new object leases.
+
+Both calls validate pointer shape before runtime admission. Import additionally
+rejects lengths above Int32.MaxValue with `LIMIT` before admission or input reads.
+It then reserves a handle slot before attempting managed allocation. Handle quota
+or token exhaustion returns `LIMIT`. Failure to allocate the string within the
+heap/object budget, or native allocation failure, returns `ALLOCATION_FAILED`.
+The existing allocator can collect and retry; cancellation releases the reserved
+slot on failure. The output handle stays unchanged on every failed import.
+
+Import/copy share the same guard as invoke/retain/release/destroy. `BUSY` leaves
+outputs unchanged. Hosts must keep the string lease until copying finishes and
+handle/retry concurrent calls explicitly. This extension does not add a separate
+buffer-release API or expose an internal managed pointer.

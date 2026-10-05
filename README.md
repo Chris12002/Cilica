@@ -32,7 +32,8 @@ a [versioned persistent Int32 C boundary](docs/embedding-abi.md), tested through
 separate C consumer on macOS ARM64. V2 exports share instance state within one
 compiled closure, with stable application IDs, checked manifests and configurable
 bounded quotas. V3 adds typed retained object handles and void results.
-String/value copying, rich error transfer and phone libraries remain planned;
+An optional v3 capability copies exact UTF-16 strings through host-owned buffers.
+Wide/value copying, rich error transfer and phone libraries remain planned;
 iOS is the first device target.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)

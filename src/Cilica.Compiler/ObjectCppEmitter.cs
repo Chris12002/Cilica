@@ -792,5 +792,6 @@ public static class ObjectCppEmitter
     private static string ContractSymbol(ObjectTypeId type) => TypeSymbol(type) + "_implements";
     internal static string ReferencePredicate(ObjectTypeCatalog catalog, ObjectTypeId type) =>
         catalog.Interfaces.Any(i => ObjectTypeId.From(i.Source) == type) ? ContractSymbol(type) : TypeSymbol(type) + "_accepts";
+    internal static string ReferenceDescriptor(ObjectTypeId type) => TypeSymbol(type) + "_descriptor";
     private static string FieldSymbol(ObjectFieldId field) => "f_" + field.Token.ToString("x8", CultureInfo.InvariantCulture) + (field.Component < 0 ? "" : "_c" + N(field.Component));
 }

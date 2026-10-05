@@ -5,12 +5,12 @@ namespace Cilica.Compiler;
 /// <summary>Common create/destroy contract; versions choose their public config and capabilities.</summary>
 internal static class EmbeddingModuleLifecycle
 {
-    internal static string Emit(string prefix, uint version, string hash, bool handles)
+    internal static string Emit(string prefix, uint version, string hash, bool handles, bool utf16 = false)
     {
         string v = version.ToString(CultureInfo.InvariantCulture), macro = "CILICA_V" + v;
         return $$"""
             extern "C" uint32_t {{prefix}}_version(void) noexcept { return {{v}}; }
-            extern "C" uint64_t {{prefix}}_capabilities(void) noexcept { return UINT64_C({{(handles ? "255" : "63")}}); }
+            extern "C" uint64_t {{prefix}}_capabilities(void) noexcept { return UINT64_C({{(utf16 ? "511" : handles ? "255" : "63")}}); }
             extern "C" uint32_t {{prefix}}_create(uint32_t version, const char* contract_hash, const cilica_v{{v}}_config* config, uint64_t* runtime) noexcept {
                 if (runtime == nullptr || contract_hash == nullptr) return {{macro}}_INVALID_ARGUMENT;
                 if (version != {{v}}) return {{macro}}_UNSUPPORTED_VERSION;

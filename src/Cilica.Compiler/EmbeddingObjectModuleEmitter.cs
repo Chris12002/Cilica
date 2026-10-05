@@ -15,7 +15,8 @@ public sealed record EmbeddingReferenceBinding(uint Id, string Name, ObjectTypeI
 public sealed record EmbeddingObjectExport(uint Id, string Name, IrMethodId Method,
     ImmutableArray<EmbeddingValueShape> Parameters, EmbeddingValueShape Result);
 public sealed record EmbeddingObjectContract(string Name, uint SchemaVersion,
-    ImmutableArray<EmbeddingReferenceBinding> References, ImmutableArray<EmbeddingObjectExport> Exports);
+    ImmutableArray<EmbeddingReferenceBinding> References, ImmutableArray<EmbeddingObjectExport> Exports,
+    uint Utf16StringTypeId = 0);
 
 /// <summary>Version 3: Int32, void and runtime-owned strong handles, from one validated closure.</summary>
 public static class EmbeddingObjectModuleEmitter
@@ -34,13 +35,13 @@ public static class EmbeddingObjectModuleEmitter
     {
         ArgumentNullException.ThrowIfNull(program);
         _ = ValueRootAssignment.Assign(program);
-        Validate(program.Flow.Flow.Flow.Methods, program.Flow.Bindings, contract);
+        Validate(program.Flow.Flow.Flow.Methods, program.Flow.Bindings, program.Flow.Flow.Flow.Types.References, contract);
         var scalar = ValueScalarLowering.LowerExceptions(program);
         var native = ObjectCppEmitter.EmitExceptions(scalar);
         return Wrap(native, scalar.Flow.Flow.Flow.Flow, contract, locations: true);
     }
 
-    private static void Validate(ImmutableArray<IrMethod> methods, ImmutableArray<ObjectMethodBinding> bindings, EmbeddingObjectContract contract)
+    private static void Validate(ImmutableArray<IrMethod> methods, ImmutableArray<ObjectMethodBinding> bindings, ObjectTypeCatalog catalog, EmbeddingObjectContract contract)
     {
         ArgumentNullException.ThrowIfNull(contract);
         void Require(bool condition, string reason) { if (!condition) throw new ArgumentException("Invalid object export contract: " + reason, nameof(contract)); }
@@ -52,6 +53,9 @@ public static class EmbeddingObjectModuleEmitter
             && contract.References.Select(r => r.Name).Distinct(StringComparer.Ordinal).Count() == contract.References.Length
             && contract.References.Select(r => r.Type).Distinct().Count() == contract.References.Length, "duplicate reference ID/name/type.");
         var references = contract.References.ToDictionary(r => r.Id);
+        if (contract.Utf16StringTypeId != 0)
+            Require(references.TryGetValue(contract.Utf16StringTypeId, out var text) && text.Type == catalog.String,
+                "UTF-16 capability must bind the closure's exact String type.");
         Require(contract.Exports.All(e => e is not null && e.Id != 0 && EmbeddingModuleEmitter.ValidName(e.Name) && e.Method is not null && !e.Parameters.IsDefault), "export declaration.");
         Require(contract.Exports.Select(e => e.Id).Distinct().Count() == contract.Exports.Length
             && contract.Exports.Select(e => e.Name).Distinct(StringComparer.Ordinal).Count() == contract.Exports.Length
@@ -86,7 +90,7 @@ public static class EmbeddingObjectModuleEmitter
 
     private static EmbeddingModuleArtifact Wrap(CppArtifact native, ObjectIrProgram program, EmbeddingObjectContract contract, bool locations)
     {
-        Validate(program.Flow.Methods, program.Bindings, contract);
+        Validate(program.Flow.Methods, program.Bindings, program.Flow.Types, contract);
         var exports = contract.Exports.OrderBy(e => e.Id).ToArray();
         var references = contract.References.OrderBy(r => r.Id).ToArray();
         var types = references.ToDictionary(r => r.Id, r => r.Type);
@@ -95,8 +99,12 @@ public static class EmbeddingObjectModuleEmitter
         var schema = new { abiVersion = 3, name = contract.Name, schemaVersion = contract.SchemaVersion,
             references = references.Select(r => new { id = r.Id, name = r.Name }).ToArray(),
             exports = exports.Select(e => new { id = e.Id, name = e.Name, parameters = e.Parameters.Select(Shape).ToArray(), result = Shape(e.Result) }).ToArray() };
-        string hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(schema))));
-        string manifest = JsonSerializer.Serialize(new { profile = Profile, contractHash = hash, contract = schema,
+        // Preserve the original v3 fingerprint when this optional capability is disabled.
+        object publicSchema = contract.Utf16StringTypeId == 0 ? schema : new {
+            schema.abiVersion, schema.name, schema.schemaVersion, schema.references, schema.exports,
+            utf16StringTypeId = contract.Utf16StringTypeId };
+        string hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(publicSchema))));
+        string manifest = JsonSerializer.Serialize(new { profile = Profile, contractHash = hash, contract = publicSchema,
             bindings = exports.Select(e => new { id = e.Id, imageHash = e.Method.ContentHash, methodToken = e.Method.Token, specialization = e.Method.Specialization }).ToArray(),
             referenceBindings = references.Select(r => new { id = r.Id, type = r.Type }).ToArray()
         }, new JsonSerializerOptions { WriteIndented = true }) + "\n";
@@ -104,7 +112,8 @@ public static class EmbeddingObjectModuleEmitter
         string scope = CppEmitter.Symbol(program.Flow.Entry) + "_objects_packed_closure";
         string packet = locations ? "LocationArgument" : "Argument";
         string Predicate(EmbeddingValueShape s) => ObjectCppEmitter.ReferencePredicate(program.Flow.Types, types[s.ReferenceTypeId]);
-        string header = EmbeddingObjectAbi.Header(prefix, hash, contract.SchemaVersion, exports, references);
+        bool utf16 = contract.Utf16StringTypeId != 0;
+        string header = EmbeddingObjectAbi.Header(prefix, hash, contract.SchemaVersion, exports, references, utf16);
         var helpers = new StringBuilder(); var arities = new StringBuilder(); var dispatch = new StringBuilder();
         foreach (var export in exports) {
             var method = methods[export.Method];
@@ -150,7 +159,8 @@ public static class EmbeddingObjectModuleEmitter
             {{EmbeddingObjectAbi.Runtime}}
             {{helpers}}
             }
-            {{EmbeddingModuleLifecycle.Emit(prefix, 3, hash, handles: true)}}
+            {{EmbeddingModuleLifecycle.Emit(prefix, 3, hash, handles: true, utf16)}}
+            {{(utf16 ? EmbeddingStringAbi.Emit(prefix, ObjectCppEmitter.ReferenceDescriptor(program.Flow.Types.String!)) : "")}}
             extern "C" uint32_t {{prefix}}_invoke(uint64_t runtime, uint32_t export_id, const cilica_v3_value* parameters, uint32_t count, cilica_v3_result* result) noexcept {
                 if (result == nullptr) return CILICA_V3_INVALID_ARGUMENT;
                 std::uint32_t arity;

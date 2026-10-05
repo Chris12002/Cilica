@@ -1138,6 +1138,17 @@ creates a distinct lease to the same object. V1/V2 remain available. Local C11 a
 O0/O2 sanitizer checks cover collection, aliases, cycles, quotas and release races;
 this does not establish phone support or a general value/exception SDK.
 
+Milestone 7c.2 adds optional UTF-16 import/copy to v3
+([ADR 0181](decisions/0181-host-owned-utf16-copying.md)). A declared alias must bind
+the closure's exact String type; enabling it changes the contract fingerprint and
+adds a capability bit. Imports copy host-owned UInt16 units into managed immutable
+storage and return retained handles. Copies query length or fill a caller-owned
+buffer without partial writes or a terminator. Embedded zero and lone surrogates
+are preserved; null handles remain distinct from empty strings. Both operations
+use the same instance admission and quotas. No additional external buffer-release
+API is needed. Local C11/O0/O2 sanitizer and race evidence does not establish phone
+support. Wide/value copying and richer exception transfer remain open.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

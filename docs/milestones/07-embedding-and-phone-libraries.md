@@ -13,7 +13,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | --- | --- | --- |
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
-| 7c | Values, retained objects and structured exceptions | In progress: 7c.1 typed retained handles and void results implemented; UTF-16/64-bit/value copying and detailed exception transfer remain planned |
+| 7c | Values, retained objects and structured exceptions | In progress: 7c.1 typed retained handles/void and 7c.2 exact UTF-16 copying implemented; 64-bit/value copying and detailed exception transfer remain planned |
 | 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
@@ -126,6 +126,37 @@ lifecycle extraction. No unresolved defect was found in the admitted scope. Loca
 main remains an ancestor and the read-only remote query advertised no branch heads.
 No push, hosted work or phone execution ran. String/value copying and richer
 exception transfer remain open before the iOS adapter.
+
+## Slice 7c.2 outcome
+
+[ADR 0181](../decisions/0181-host-owned-utf16-copying.md) adds optional UTF-16
+import/copy functions to v3. A declared alias must match the compiled closure's
+exact String type. Enabling it changes the contract fingerprint and adds capability
+bit 256. Disabled contracts preserve their old fingerprints and C layouts.
+
+Imports copy into managed immutable strings and return retained handles. Copies
+query required length or fill caller-owned buffers, preserving every UTF-16 unit,
+with no partial writes or terminators. Empty strings have nonzero handles; null
+handles are rejected for copying. Allocation/handle budgets and the existing
+admission guard cover imports, copies, invocation, release and destruction.
+
+The focused string/handle/module run passed 42 checks. The two subsequently added
+O0/O2 string race cases passed separately (44 checked cases total); the combined
+suite was not rerun after that test-only addition. C11 consumers exercise all
+65,536 code units against an authored .NET sequence, managed concatenation/length/
+indexing, source/output ownership, short buffers, aliases, stale/foreign/wrong-type
+handles, handle/heap quotas, reservation cancellation and collection pressure.
+Native race harnesses cover copy/import/release with forced collection and explicit
+BUSY rejection. Native builds use ASan/UBSan, no C++ exceptions/RTTI and the 2 KiB
+frame warning gate.
+
+Review covered descriptor checks, host/native ownership, publication without an
+intervening managed allocation, length overflow bounds, output/error ordering,
+cleanup and optional capability negotiation. No unresolved defect was found in
+this slice. The initial sandbox blocked MSBuild IPC; the bounded local tests passed
+with approved local execution. Local main remains an ancestor; the successful
+read-only remote query advertised no branch heads. No push or hosted work ran.
+Wide/value transfer and richer exceptions remain ahead of the iOS adapter.
 
 ## Remaining exit gates
 
