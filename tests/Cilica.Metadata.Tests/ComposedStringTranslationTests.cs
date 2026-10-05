@@ -9,7 +9,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class ComposedStringTranslationTests
 {
     [Theory]
-    [InlineData("CodeUnits")] [InlineData("ArgumentFault")] [InlineData("Concat")] [InlineData("Rooted")]
+    [InlineData("IntrinsicPrecedence")] [InlineData("CodeUnits")] [InlineData("ArgumentFault")] [InlineData("Concat")] [InlineData("Rooted")]
     public void String_operations_compose_without_framework_bodies(string name)
     {
         var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(ComposedStringProbe));
@@ -22,7 +22,7 @@ public sealed class ComposedStringTranslationTests
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public Task Utf16_nulls_allocations_and_caught_faults_match_dotnet(bool optimized) => IntegerObjectTranslationTests.Verify(optimized,
-        [(nameof(ComposedStringProbe.CodeUnits), ComposedStringProbe.CodeUnits), (nameof(ComposedStringProbe.ArgumentFault), ComposedStringProbe.ArgumentFault),
+        [(nameof(ComposedStringProbe.IntrinsicPrecedence), ComposedStringProbe.IntrinsicPrecedence), (nameof(ComposedStringProbe.CodeUnits), ComposedStringProbe.CodeUnits), (nameof(ComposedStringProbe.ArgumentFault), ComposedStringProbe.ArgumentFault),
             (nameof(ComposedStringProbe.Concat), ComposedStringProbe.Concat), (nameof(ComposedStringProbe.Rooted), ComposedStringProbe.Rooted)], typeof(ComposedStringProbe));
 
     [Fact]

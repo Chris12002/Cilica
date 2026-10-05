@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.55 and 6d.1–6d.23 complete. Recorded 2026-10-06.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.56 and 6d.1–6d.23 complete. Recorded 2026-10-06.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -18,7 +18,7 @@ fixtures and examples must be independent.
 | 6b.2a | Explicit mapped compilation view, isolated from strict inspection, with a native probe | Complete; ADR 0091; mapped audit API added in 6d.3 |
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
-| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.55 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; closed value arrays and Int32 enum storage now admitted; primitive-width arrays, value-array interfaces and broader instance/generic integration pending |
+| 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.56 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; closed value arrays and Int32 enum storage now admitted; primitive-width arrays, value-array interfaces and broader instance/generic integration pending |
 | 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.23 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty supports Int32/reference vectors; bounded List/live read-only views are implemented; initialized static delegate caches and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
@@ -1300,3 +1300,14 @@ The real kernel passes the metadata failure and now reaches the existing boxed
 interface dispatch restriction in `ResolutionHandlerRegistry.Get IL_0016`, via
 `DriveAutomatic IL_0121`. Evidence: `gate-mapped-6c55.json` with the unchanged 6d.23
 core. Native transcripts and the remaining semantic/library closure are pending.
+
+
+## Slice 6c.56 outcome
+
+Review of the boxed-formatting gate exposed an earlier String discovery regression:
+ordinary static-body fallback preceded known String intrinsics. Exact intrinsic
+matching/authorization now runs first (ADR 0171), restoring framework-fixture
+Concat/equality without changing ported IsNullOrWhiteSpace execution. A reduced
+C# probe checks absence of framework String bodies and native results; existing
+composed string and exhaustive whitespace tests pass. This is a regression repair;
+boxed use validation and the remaining kernel gate are still being completed.

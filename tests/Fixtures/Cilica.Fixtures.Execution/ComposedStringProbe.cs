@@ -4,6 +4,12 @@ namespace Cilica.Fixtures.Execution
 {
     public static class ComposedStringProbe
     {
+        public static int IntrinsicPrecedence(int input, int mode)
+        {
+            string left = input < 0 ? null : "x";
+            string result = string.Concat(left, "");
+            return (string.Equals(result, left) ? 1 : 0) + (result != left ? 2 : 0);
+        }
         public static int CodeUnits(int index, int mode)
         {
             string text = mode == 0 ? null : "A\0\ud800X\udfff";
