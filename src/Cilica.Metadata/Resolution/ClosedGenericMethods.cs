@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -21,7 +22,7 @@ public static class ClosedGenericKey
             if (++nodes > 4096 || depth > 64) throw new ArgumentException("Closed specialization exceeds 4096 signature nodes or 64 levels.");
             switch (type)
             {
-                case TypeSignature.Primitive p when IsIntegerArgument(p.Code) || p.Code == PrimitiveTypeCode.Object:
+                case TypeSignature.Primitive p when IsIntegerArgument(p.Code) || p.Code is PrimitiveTypeCode.Object or PrimitiveTypeCode.String:
                     text.Append('p').Append((int)p.Code).Append(';'); break;
                 case TypeSignature.Named n when n.Kind is SignatureTypeKind.Class or SignatureTypeKind.ValueType:
                     if (!genericDefinition && n.Definition.Assembly.Image.Reader.GetTypeDefinition(n.Definition.Handle).GetGenericParameters().Count != 0)
@@ -92,6 +93,12 @@ public sealed partial class AssemblyResolver
             try { key = ClosedGenericKey.Create(type.Arguments, SignatureList<TypeSignature>.Empty); }
             catch (ArgumentException error) { throw new UnsupportedBindingException(error.Message); }
             int count = ValidateClosedConstraints(type, null, runtimeLibrary, limits.MaximumMembers - value.MetadataMembersRead);
+            if ((value.Attributes & TypeAttributes.Interface) != 0)
+                count += ValidateInterfaceVariance(type.Definition, limits.MaximumMembers - value.MetadataMembersRead - count);
+            var parameters = assembly.Image.Reader.GetTypeDefinition(type.Definition.Handle).GetGenericParameters();
+            if (parameters.Count > limits.MaximumMembers - value.MetadataMembersRead - count)
+                throw Failure(DiagnosticIds.TranslationLimit, "Closed parameter attributes exceed the metadata-member limit.");
+            var attributes = parameters.Select(h => assembly.Image.Reader.GetGenericParameter(h)).OrderBy(p => p.Index).Select(p => p.Attributes).ToImmutableArray();
             TypeSignature Sub(TypeSignature signature) => Substitute(signature, type.Arguments, SignatureList<TypeSignature>.Empty);
             return value with
             {
@@ -99,7 +106,8 @@ public sealed partial class AssemblyResolver
                 BaseType = value.BaseType is null ? null : Sub(value.BaseType),
                 Fields = [.. value.Fields.Select(field => field with { Signature = Sub(field.Signature) })],
                 Interfaces = [.. value.Interfaces.Select(Sub)],
-                MetadataMembersRead = checked(value.MetadataMembersRead + count),
+                ClosedParameterAttributes = attributes,
+                MetadataMembersRead = checked(value.MetadataMembersRead + count + parameters.Count),
             };
         });
     }

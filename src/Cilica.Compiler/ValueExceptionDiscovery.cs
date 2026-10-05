@@ -55,10 +55,15 @@ public static partial class ValueProgramDiscovery
         {
             TypeSignature.Vector vector when integers64 => Vector(vector.Element, work, offset),
             TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.Unknown } type => IncludeReference(type.Definition, work, offset),
-            TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } type => IncludeReference(new ConstructedType(type.Definition.Definition, type.Arguments), work, offset),
+            TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } type => ClosedReferenceOperand(type, work, offset),
             _ => throw new Failure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error,
                 "Exception/type-test operands require nominal reference classes." + Path(work), Location(work, offset))),
         };
+        private ObjectTypeId ClosedReferenceOperand(TypeSignature.Generic type, Work work, int offset)
+        {
+            CheckArgumentAccess(type, work, offset);
+            return IncludeReference(new ConstructedType(type.Definition.Definition, type.Arguments), work, offset);
+        }
         private void IncludeExceptionHierarchy(ConstructedType type, Work? work, int offset)
         {
             var chain = new List<(ResolvedType Type, TypeInput Input)>(); var seen = new HashSet<ObjectTypeId>();

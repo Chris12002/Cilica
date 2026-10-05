@@ -13,6 +13,8 @@ internal static class ObjectSignatureTypes
         Func<ResolvedType, ObjectTypeId> include, Func<ObjectTypeId, ObjectTypeId> array, bool allowVoid = false,
         Func<ObjectTypeId>? text = null, bool integers64 = false, Func<TypeSignature.Generic, ObjectTypeId>? closedReference = null)
     {
+        if (signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } closed && closedReference is not null)
+            return IrType.Reference(closedReference(closed));
         if (signature is TypeSignature.Vector vector)
         {
             // Deliberately nonrecursive: nested vectors are outside this profile.

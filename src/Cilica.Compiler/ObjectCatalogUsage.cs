@@ -24,7 +24,10 @@ internal static class ObjectCatalogUsage
                     if (id.ArrayElement!.Type is { } element) pending.Push(element);
                 }
                 else if (interfaces.TryGetValue(id, out var contract))
+                {
                     foreach (var parent in contract.Parents) pending.Push(parent);
+                    foreach (var argument in contract.Arguments) if (argument.Reference is { } reference) pending.Push(reference);
+                }
                 else
                 {
                     if (layouts[id].BaseType is { } parent) pending.Push(parent);

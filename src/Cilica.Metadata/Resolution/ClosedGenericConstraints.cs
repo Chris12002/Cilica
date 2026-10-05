@@ -56,9 +56,9 @@ public sealed partial class AssemblyResolver
         {
             if (signature is TypeSignature.Primitive integer && ClosedGenericKey.IsIntegerArgument(integer.Code)) return (true, false, null);
             if (signature is TypeSignature.Vector) return (false, false, null);
-            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Object })
-                signature = new TypeSignature.Named(ResolveRuntimeType(library, PrimitiveTypeCode.Object).Value
-                    ?? throw new UnsupportedBindingException("Generic reference constraints require the selected Object."), SignatureTypeKind.Class);
+            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Object or PrimitiveTypeCode.String } reference)
+                signature = new TypeSignature.Named(ResolveRuntimeType(library, reference.Code).Value
+                    ?? throw new UnsupportedBindingException("Generic reference constraints require the selected Object/String."), SignatureTypeKind.Class);
             var named = signature switch { TypeSignature.Named n => n, TypeSignature.Generic g => g.Definition, _ => null };
             if (named is null) throw new UnsupportedBindingException("Generic constraints require a supported closed argument.");
             CheckOwner(named.Definition.Assembly); Member();

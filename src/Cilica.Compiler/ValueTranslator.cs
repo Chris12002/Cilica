@@ -171,6 +171,7 @@ public static class ValueTranslator
         }
         foreach (var field in flow.Types.Types.SelectMany(t => t.Fields).Concat(flow.Types.References.Types.SelectMany(t => t.Fields)))
             if (field.Storage is ObjectStorage.Reference reference) Include(reference.Type);
+        foreach (var argument in flow.Types.References.Interfaces.SelectMany(i => i.Arguments)) Include(argument.Reference);
         var catalog = flow.Types.References;
         return program with { Flow = flow with { Types = flow.Types with { References = catalog with {
             Arrays = [.. catalog.Arrays.Where(used.Contains)], Roots = [.. catalog.Roots.Where(t => t.ArrayElement is null || used.Contains(t))] } } } };

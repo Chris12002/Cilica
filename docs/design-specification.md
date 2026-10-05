@@ -869,8 +869,11 @@ Pathological generic expansion yields a diagnostic with an instantiation chain,
 not a compiler hang or omitted code. Generic sharing and runtime generic
 dictionaries are later optimisations. Closed interface snapshots now validate
 variance flags independently from special constraints
-([ADR 0101](decisions/0101-closed-interface-variance-declarations.md)); executable
-variance conversions and generic interface dispatch remain pending.
+([ADR 0101](decisions/0101-closed-interface-variance-declarations.md)). The explicit
+integer-object profile now admits closed reference variance and nested array
+assignment through a bounded type-relation closure, after declaration-position
+validation ([ADR 0105](decisions/0105-closed-interface-assignments.md)). Value
+arguments remain exact; generic interface dispatch remains pending.
 
 ## 11. Class library and assembly identity
 

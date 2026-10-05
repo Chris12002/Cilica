@@ -322,6 +322,17 @@ confirming that generic interface dispatch is the next concrete call gate.
 Virtual/interface dispatch and broader struct instance/storage behavior remain
 subsequent gates.
 
+## Slice 6c.14 outcome
+
+Closed generic interface catalogs now retain exact argument identities and apply
+reference covariance/contravariance through a bounded closure shared with vector
+covariance. Metadata variance positions and detached catalog facts are validated;
+invariant/value arguments remain exact. Four C# probes match .NET in 1,176
+repeated O0/O2 ASan/UBSan results. All 173 focused checks pass. Review found no
+remaining actionable issue; local main remains an ancestor. See
+[ADR 0105](../decisions/0105-closed-interface-assignments.md). Interface method
+dispatch and array interface helpers remain subsequent gates.
+
 ## Remaining completion evidence
 
 - Pin imported source commits, licenses, local patches, reference identities

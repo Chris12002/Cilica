@@ -132,28 +132,56 @@ public static class ObjectModelBuilder
             if (isInterface && !input.ExternallyVisible)
                 return Failed(id, DiagnosticIds.ExecutionUnsupported,
                     "Interface contracts require public visibility and public enclosing types.", input.Source.Name);
-            if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || isInterface && type.Arguments.Count != 0
+            if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || isInterface && type.Arguments.Count != 0 && !integers64
                 || input.PackingSize != 0 || input.ClassSize != 0 || input.HasTypeInitializer || input.HasModuleInitializer
                 || !(isInterface ? ObjectModelValidator.InterfaceAttributes(input.Attributes) : ObjectModelValidator.ClassAttributes(input.Attributes)))
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, ObjectModel.Profile +
-                    (generics ? " requires concrete closed automatic-layout classes or public nongeneric fieldless interfaces without native layout or initialization."
+                    (generics ? " requires concrete closed automatic-layout classes or admitted public fieldless interfaces without native layout or initialization."
                         : " requires concrete nongeneric automatic-layout classes or public fieldless interfaces without native layout or type/module initialization."), input.Source.Name);
             if (input.Interfaces.IsDefault || input.Interfaces.Length != input.InterfaceCount || input.Interfaces.Length > ObjectModelLimits.MaximumTypes)
                 return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface snapshots must retain every bounded declaration edge.", input.Source.Name);
             var contracts = new List<ObjectTypeId>();
             foreach (var signature in input.Interfaces)
             {
-                if (signature is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } contract)
-                    return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface edges require named nongeneric interface definitions.", input.Source.Name);
-                if (!Include(Plain(contract.Definition), id, interfaceEdge: true))
+                ConstructedType? contract = signature switch {
+                    TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } named => Plain(named.Definition),
+                    TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } generic when integers64 => new(generic.Definition.Definition, generic.Arguments),
+                    _ => null };
+                if (contract is null)
+                    return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface edges require admitted exact nominal or closed interface definitions.", input.Source.Name);
+                if (!Include(contract, id, interfaceEdge: true))
                     return Failed(id, DiagnosticIds.TranslationLimit, "Object catalog type limit exceeded while including an interface.", input.Source.Name);
-                contracts.Add(Id(contract.Definition));
+                contracts.Add(ClosedId(contract));
             }
             if (isInterface)
             {
                 if (input.BaseType is not null || !input.Fields.IsEmpty)
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface contracts must be fieldless and have no class base.", input.Source.Name);
-                interfaces.Add(new(input.Source, input.Attributes, [.. contracts]) { ExternallyVisible = input.ExternallyVisible });
+                if (input.ClosedParameterAttributes.Length != type.Arguments.Count)
+                    return Failed(id, DiagnosticIds.ExecutionUnsupported, "Closed interface parameter attributes must match the declared arguments.", input.Source.Name);
+                var arguments = ImmutableArray.CreateBuilder<ObjectInterfaceArgument>();
+                bool exceeded = false;
+                ObjectTypeId Reference(ConstructedType reference)
+                {
+                    if (!Include(reference, id)) exceeded = true;
+                    return ClosedId(reference);
+                }
+                for (int index = 0; index < type.Arguments.Count; ++index)
+                {
+                    var argument = type.Arguments[index];
+                    var storage = ObjectSignatureTypes.Convert(argument, Id(objectBase), reference => Reference(Plain(reference)), vector => {
+                        if (!arrays.Contains(vector) && parents.Count + arrays.Count >= ObjectModelLimits.MaximumTypes) exceeded = true;
+                        else arrays.Add(vector); return vector;
+                    }, text: () => Reference(Plain(strings.Require(ObjectModelLimits.MaximumMetadataMembers - members))),
+                        closedReference: generic => Reference(new(generic.Definition.Definition, generic.Arguments)));
+                    if (argument is TypeSignature.Vector && storage is null)
+                        return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface array arguments require an admitted vector element type.", input.Source.Name);
+                    arguments.Add(new(ClosedGenericKey.Create(new([argument]), SignatureList<TypeSignature>.Empty),
+                        storage?.Kind == IrTypeKind.Reference ? storage.Class : null,
+                        input.ClosedParameterAttributes[index] & System.Reflection.GenericParameterAttributes.VarianceMask));
+                }
+                if (exceeded) return Failed(id, DiagnosticIds.TranslationLimit, "Interface argument type closure exceeds the catalog limit.", input.Source.Name);
+                interfaces.Add(new(input.Source, input.Attributes, [.. contracts]) { ExternallyVisible = input.ExternallyVisible, Arguments = arguments.ToImmutable() });
                 continue;
             }
             ConstructedType? baseType = input.BaseType switch

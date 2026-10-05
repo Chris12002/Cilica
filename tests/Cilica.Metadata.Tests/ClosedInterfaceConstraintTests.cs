@@ -24,9 +24,9 @@ public sealed class ClosedInterfaceConstraintTests
     }
 
     [Fact]
-    public void Metadata_variance_admission_does_not_enable_unimplemented_runtime_conversions()
+    public void Legacy_execution_profile_does_not_enable_closed_variance_conversions()
     {
-        var result = IntegerObjectTranslationTests.Translate(nameof(VariantContracts.Test), fixture: typeof(VariantContracts));
+        var result = IntegerObjectTranslationTests.Translate(nameof(VariantContracts.Test), enabled: false, fixture: typeof(VariantContracts));
         Assert.False(result.Success); Assert.Null(result.Program);
         Assert.Contains(result.Diagnostics, d => d.Message.Contains("interface", StringComparison.OrdinalIgnoreCase));
         Assert.Equal(7, VariantContracts.Test(7, 11));

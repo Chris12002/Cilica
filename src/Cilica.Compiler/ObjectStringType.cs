@@ -44,7 +44,7 @@ internal sealed class ObjectStringType(AssemblyResolver resolver, ResolvedAssemb
             if (result.Value is null) throw new Failure(result.Diagnostics[0]);
             _interfaces = [.. result.Value.Types.Select(ObjectModelBuilder.Id)];
         }
-        if (interfaces.Any(i => _interfaces.Contains(ObjectTypeId.From(i.Source))))
+        if (interfaces.Any(i => _interfaces.Any(id => id.ContentHash == i.Source.ContentHash && id.Token == i.Source.Token)))
             throw new Failure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error,
                 "This program uses an interface implemented by the selected String. String interface conversions and array stores require later lowering."));
         return work;

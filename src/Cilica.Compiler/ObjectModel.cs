@@ -30,10 +30,14 @@ public sealed record ObjectArrayElement(ObjectArrayElementKind Kind, ObjectTypeI
 /// <summary>A fieldless interface contract; it has no instance allocation layout.</summary>
 public sealed record ObjectInterface(TypeSource Source, TypeAttributes Attributes, ImmutableArray<ObjectTypeId> Parents)
 {
+    public ImmutableArray<ObjectInterfaceArgument> Arguments { get; init; } = [];
     // Top-level visibility follows the flags. Nested contracts require an explicit
     // assertion from the bounded owner walk; detached validation cannot reread metadata.
     public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;
 }
+
+/// <summary>Exact argument identity plus its reference type when variance can apply; value arguments have no reference identity.</summary>
+public sealed record ObjectInterfaceArgument(string Identity, ObjectTypeId? Reference, GenericParameterAttributes Variance);
 
 /// <summary>Intrinsic single-target delegate shape; the receiver is private traced runtime storage.</summary>
 public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, bool ReturnsVoid)
@@ -105,6 +109,8 @@ public static class ObjectModelLimits
     public const int MaximumFields = 4096;
     public const int MaximumMetadataMembers = 65536;
     public const int MaximumOwnerDepth = TypeReadLimits.MaximumSupportedOwnerDepth;
+    public const int MaximumInterfaceArguments = 4096;
+    public const int MaximumTypeRelationWork = 1048576;
 }
 
 public sealed record ObjectModelResult(ObjectModel? Model, ImmutableArray<Diagnostic> Diagnostics)

@@ -56,6 +56,9 @@ public static class ObjectModelValidator
         var arrays = model.Arrays.ToHashSet();
         var types = new Dictionary<ObjectTypeId, ObjectTypeLayout>();
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
+        var interfaceParameters = new Dictionary<(string Hash, int Token), GenericParameterAttributes[]>();
+        var argumentReferences = new Dictionary<string, ObjectTypeId?>();
+        int argumentCount = 0;
         var fieldIdentities = new HashSet<(string Hash, string Specialization, int Token)>();
         int fieldCount = 0;
         foreach (var type in model.Types)
@@ -93,6 +96,24 @@ public static class ObjectModelValidator
             Require(Identity(id, 0x02) && !types.ContainsKey(id) && interfaces.TryAdd(id, contract), "invalid or duplicate class/interface identity.");
             Require(InterfaceAttributes(contract.Attributes) && contract.ExternallyVisible && Edges(contract.Parents),
                 "interfaces require public visibility, public enclosing types and valid parent identities.");
+            Require(!contract.Arguments.IsDefault && contract.Arguments.Length <= ObjectModelLimits.MaximumInterfaceArguments - argumentCount
+                && (contract.Arguments.IsEmpty ? id.Specialization.Length == 0 : model.Integer64 && id.Specialization.Length == 64),
+                "closed interface arguments require the explicit profile, a specialized identity and bounded argument facts.");
+            argumentCount += contract.Arguments.Length;
+            foreach (var argument in contract.Arguments)
+            {
+                Require(argument is not null && argument.Identity is { Length: 64 } && Specialization(argument.Identity)
+                    && argument.Variance is GenericParameterAttributes.None or GenericParameterAttributes.Covariant or GenericParameterAttributes.Contravariant
+                    && (argument.Reference is null || ReferenceIdentity(argument.Reference, model.ObjectBase)), "invalid interface argument identity/variance.");
+                if (argumentReferences.TryGetValue(argument.Identity, out var prior))
+                    Require(prior == argument.Reference, "one argument identity cannot describe different reference types.");
+                else argumentReferences.Add(argument.Identity, argument.Reference);
+            }
+            var parameterKey = (id.ContentHash, id.Token);
+            var variance = contract.Arguments.Select(a => a.Variance).ToArray();
+            if (interfaceParameters.TryGetValue(parameterKey, out var priorParameters))
+                Require(priorParameters.SequenceEqual(variance), "closed instances disagree on interface parameter declarations.");
+            else interfaceParameters.Add(parameterKey, variance);
         }
         Require(model.String is null || !types.ContainsKey(model.String) && !interfaces.ContainsKey(model.String),
             "selected String cannot also declare class fields or interface contracts.");
@@ -112,7 +133,10 @@ public static class ObjectModelValidator
             Require(type.Interfaces.All(interfaces.ContainsKey), "class interface edges must name included interface contracts.");
         }
         foreach (var contract in interfaces.Values)
+        {
             Require(contract.Parents.All(interfaces.ContainsKey), "interface parents must name included interface contracts.");
+            Require(contract.Arguments.All(a => a.Reference is null || Known(a.Reference)), "interface argument reference is outside the catalog.");
+        }
         _ = new ObjectTypeRelations(model); // Iterative cycle check and bounded assignment closure.
         var visited = new HashSet<ObjectTypeId>();
         var pending = new Stack<ObjectTypeId>();
@@ -127,7 +151,10 @@ public static class ObjectModelValidator
                     if (id.ArrayElement!.Type is { } element) pending.Push(element);
                 }
                 else if (interfaces.TryGetValue(id, out var contract))
+                {
                     foreach (var parent in contract.Parents) pending.Push(parent);
+                    foreach (var argument in contract.Arguments) if (argument.Reference is { } reference) pending.Push(reference);
+                }
                 else
                 {
                     if (types[id].BaseType is { } parent) pending.Push(parent);

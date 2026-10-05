@@ -23,6 +23,8 @@ public sealed record TypeInput(TypeSource Source, TypeAttributes Attributes, int
 {
     public ImmutableArray<TypeSignature> Interfaces { get; init; } = [];
     public bool ExternallyVisible { get; init; }
+    // Populated by the closed snapshot reader in declaration-index order.
+    public ImmutableArray<GenericParameterAttributes> ClosedParameterAttributes { get; init; } = [];
 }
 
 public sealed record TypeReadLimits(int MaximumFields = 4096, int MaximumMembers = 65536, int MaximumOwnerDepth = 64,

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Cilica.Compiler;
 
@@ -56,5 +57,57 @@ internal sealed class ObjectTypeRelations
                         ancestors.Add(target);
             Ancestors.Add(array, ancestors);
         }
+        if (!catalog.Interfaces.Any(i => !i.Arguments.IsEmpty)) return;
+        var candidates = catalog.Interfaces.Where(i => !i.Arguments.IsEmpty)
+            .GroupBy(i => (i.Source.ContentHash, i.Source.Token))
+            .SelectMany(instances => from source in instances from target in instances
+                where source != target select (Source: source, Target: target)).ToArray();
+        int work = 0;
+        void Step()
+        {
+            if (++work > ObjectModelLimits.MaximumTypeRelationWork)
+                throw new ArgumentException("Closed interface/array assignment closure exceeds the type-relation work limit.");
+        }
+        bool Compatible(ObjectInterface source, ObjectInterface target)
+        {
+            for (int index = 0; index < source.Arguments.Length; ++index)
+            {
+                Step(); var from = source.Arguments[index]; var to = target.Arguments[index];
+                if (from.Identity == to.Identity) continue;
+                if (from.Reference is null || to.Reference is null) return false;
+                bool assigned = from.Variance switch {
+                    GenericParameterAttributes.Covariant => Ancestors[from.Reference].Contains(to.Reference),
+                    GenericParameterAttributes.Contravariant => Ancestors[to.Reference].Contains(from.Reference),
+                    _ => false };
+                if (!assigned) return false;
+            }
+            return true;
+        }
+        // Monotone bounded fixed point: interface variance can enable class and
+        // array conversions which in turn enable outer generic conversions.
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (var (source, target) in candidates)
+            {
+                Step(); var from = Ancestors[ObjectTypeId.From(source.Source)]; var to = ObjectTypeId.From(target.Source);
+                if (!from.Contains(to) && Compatible(source, target)) changed |= from.Add(to);
+            }
+            foreach (var array in catalog.Arrays)
+                if (array.ArrayElement!.Type is { } element)
+                    foreach (var target in catalog.Arrays)
+                    {
+                        Step();
+                        if (target.ArrayElement!.Type is { } targetElement && Ancestors[element].Contains(targetElement))
+                            changed |= Ancestors[array].Add(target);
+                    }
+            foreach (var ancestors in Ancestors.Values)
+                foreach (var parent in ancestors.ToArray())
+                    foreach (var ancestor in Ancestors[parent].ToArray())
+                    {
+                        Step(); changed |= ancestors.Add(ancestor);
+                    }
+        } while (changed);
     }
 }
