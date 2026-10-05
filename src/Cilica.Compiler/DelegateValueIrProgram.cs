@@ -8,6 +8,7 @@ public sealed record DelegateValueIrProgram(ManagedLocationIrProgram Flow, Immut
 {
     public const string Profile = "delegate-values-ir-v1";
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
+    public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
 }
 
 public static class DelegateValueIrValidator
@@ -18,6 +19,6 @@ public static class DelegateValueIrValidator
     {
         ArgumentNullException.ThrowIfNull(program);
         return ValueArrayIrValidator.ValidateComposition(program.Flow, program.Bindings, classes: true, boxing: true, delegates: true,
-            interfaces: program.InterfaceDispatch);
+            interfaces: program.InterfaceDispatch, dispatch: program.Dispatch);
     }
 }

@@ -21,6 +21,7 @@ public sealed record ValueTranslationResult(ManagedLocationIrProgram? Program,
     public bool Success => Program is not null;
     public ManagedExceptionTypes? Exceptions { get; init; }
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
+    public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
 }
 
 public sealed record ValueArrayTranslationResult(ValueArrayIrProgram? Program, ImmutableArray<Diagnostic> Diagnostics)
@@ -49,7 +50,7 @@ public static class ValueTranslator
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
         var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true, exceptions: true, integers64: true);
-        return new(result.Program is null ? null : new(new(result.Program, result.Bindings) { InterfaceDispatch = result.InterfaceDispatch }, result.Exceptions!), result.Diagnostics);
+        return new(result.Program is null ? null : new(new(result.Program, result.Bindings) { InterfaceDispatch = result.InterfaceDispatch, Dispatch = result.Dispatch }, result.Exceptions!), result.Diagnostics);
     }
 
     public const string ExceptionProfile = "managed-exceptions-cil-v1";
@@ -138,7 +139,7 @@ public static class ValueTranslator
             ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
             try
             {
-                if (exceptions) _ = ValueRootAssignment.Assign(new ManagedExceptionIrProgram(new(program, bindings) { InterfaceDispatch = interfacePlan }, input.Exceptions!));
+                if (exceptions) _ = ValueRootAssignment.Assign(new ManagedExceptionIrProgram(new(program, bindings) { InterfaceDispatch = interfacePlan, Dispatch = input.Dispatch }, input.Exceptions!));
                 else if (delegates) _ = ValueRootAssignment.Assign(new DelegateValueIrProgram(program, bindings));
                 else if (boxing) _ = ValueRootAssignment.Assign(new BoxedValueIrProgram(program, bindings));
                 else if (classes) _ = ValueRootAssignment.Assign(new ValueObjectIrProgram(program, bindings));
@@ -146,7 +147,7 @@ public static class ValueTranslator
                 else _ = ValueRootAssignment.Assign(program);
             }
             catch (ArgumentException error) { Fail(methods[input.Entry], 0, error.Message); }
-            return new(program, bindings, []) { Exceptions = input.Exceptions, InterfaceDispatch = interfacePlan };
+            return new(program, bindings, []) { Exceptions = input.Exceptions, InterfaceDispatch = interfacePlan, Dispatch = input.Dispatch };
         }
         catch (Failure failure) { return new(null, [], [failure.Diagnostic]); }
     }
@@ -412,8 +413,8 @@ public static class ValueTranslator
                                 Push(offset, constructed, new IrExpression.LoadLocation(address), true);
                             }
                             else if (skip != 0) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
-                            else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: opcode == "callvirt"), offset);
-                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: opcode == "callvirt"), true);
+                            else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: opcode == "callvirt", VirtualDispatch: opcode == "callvirt" && target.Binding.VirtualSlot is not null), offset);
+                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: opcode == "callvirt", VirtualDispatch: opcode == "callvirt" && target.Binding.VirtualSlot is not null), true);
                             break;
                         case "ldfld" or "ldflda" or "stfld":
                             var field = fields[method.Fields[offset]]; var fieldType = Storage(field.Storage);

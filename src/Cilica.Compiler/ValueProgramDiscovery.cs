@@ -33,6 +33,7 @@ public sealed record ValueProgramInput(IrMethodId Entry, ImmutableArray<ValueMet
 {
     public ManagedExceptionTypes? Exceptions { get; init; }
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
+    public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
 }
 public sealed record ValueDiscoveryResult(ValueProgramInput? Input, ImmutableArray<Diagnostic> Diagnostics)
 {
@@ -102,6 +103,10 @@ public static partial class ValueProgramDiscovery
         private readonly Dictionary<ObjectTypeId, ConstructedType> _knownTypes = [];
         private readonly Dictionary<IrMethodId, (ResolvedMethod Method, Work Caller, int Offset)> _interfaces = [];
         private ObjectInterfacePlanBuilder.Session? _interfaceSession;
+        private readonly Dictionary<IrMethodId, (Work Caller, int Offset)> _virtualCalls = [];
+        private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ClosedClassVirtualTarget> _virtualCache = [];
+        private readonly Dictionary<IrMethodId, Dictionary<ObjectTypeId, IrMethodId>> _dispatch = [];
+        private int _dispatchTargetCount;
         private readonly Dictionary<(string Hash, int Token), ResolvedMethod> _calls = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedField> _fields = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedType> _types = [];
@@ -225,8 +230,10 @@ public static partial class ValueProgramDiscovery
                                 interfaceCalls.Add(offset, interfaceDeclaration); continue;
                             }
                             var callee = Discover(target, work, offset);
-                            if (instruction.OpCode == "callvirt" && (callee.Binding.Kind != ObjectMethodKind.Instance || callee.Binding.VirtualSlot is not null))
-                                Fail(work, "Direct callvirt requires a nonvirtual class instance method.", offset);
+                            if (instruction.OpCode == "callvirt" && callee.Binding.Kind != ObjectMethodKind.Instance)
+                                Fail(work, "callvirt requires a class instance method.", offset);
+                            if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null)
+                                _virtualCalls.TryAdd(callee.Binding.Method, (work, offset));
                             if (instruction.OpCode == "newobj" && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
                                 Fail(work, "newobj requires an exact supported constructor declaration.", offset);
                             if (work.Binding.Owner != callee.Binding.Owner
@@ -316,6 +323,25 @@ public static partial class ValueProgramDiscovery
                             Discover(_interfaceSession.Resolved(target.Implementation), site.Caller, site.Offset, facts[target.Implementation]);
                     }
                 }
+                var relations = new IrTypeRules(catalog.References);
+                int interfaceTargets = interfacePlan?.Dispatch.Sum(m => m.Targets.Length) ?? 0;
+                if (_dispatchTargetCount + interfaceTargets > ObjectDispatchLimits.MaximumTargets)
+                    Fail(root, "Aggregate class/interface dispatch target limit exceeded.", code: DiagnosticIds.TranslationLimit);
+                foreach (var site in _virtualCalls.ToArray())
+                {
+                    var declaration = _methods[site.Key];
+                    if (!_dispatch.TryGetValue(site.Key, out var targets)) _dispatch.Add(site.Key, targets = []);
+                    foreach (var layout in catalog.References.Types)
+                    {
+                        var receiver = ObjectTypeId.From(layout.Source);
+                        if (!relations.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Binding.Owner)) || targets.ContainsKey(receiver)) continue;
+                        if (_dispatchTargetCount + interfaceTargets >= ObjectDispatchLimits.MaximumTargets)
+                            Fail(site.Value.Caller, "Aggregate class/interface dispatch target limit exceeded.", site.Value.Offset, DiagnosticIds.TranslationLimit);
+                        var exact = ResolveVirtual(declaration.Resolved, _knownTypes[receiver], site.Value.Caller, site.Value.Offset);
+                        var implementation = Discover(exact.Implementation, site.Value.Caller, site.Value.Offset);
+                        targets.Add(receiver, implementation.Binding.Method); _dispatchTargetCount++;
+                    }
+                }
                 if (_pending.Count == 0) break;
             }
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
@@ -363,7 +389,11 @@ public static partial class ValueProgramDiscovery
                 }
             }
             return new(root.Binding.Method, [.. methods.OrderBy(m => m.Binding.Method.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Binding.Method.Token).ThenBy(m => m.Binding.Method.Specialization, StringComparer.Ordinal)], catalog)
-                { InterfaceDispatch = interfacePlan, Exceptions = exceptions ? new(_exceptionBase!, [.. catalog.References.Types.Where(t => IsException(ObjectTypeId.From(t.Source))).Select(t => ObjectTypeId.From(t.Source))], [.. _runtimeFaults]) : null };
+                { InterfaceDispatch = interfacePlan,
+                    Dispatch = [.. _dispatch.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).ThenBy(p => p.Key.Specialization, StringComparer.Ordinal)
+                        .Select(p => new ObjectVirtualDispatch(p.Key, [.. p.Value.OrderBy(t => t.Key.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Key.Token).ThenBy(t => t.Key.Specialization, StringComparer.Ordinal)
+                            .Select(t => new ObjectVirtualTarget(t.Key, t.Value))]))],
+                    Exceptions = exceptions ? new(_exceptionBase!, [.. catalog.References.Types.Where(t => IsException(ObjectTypeId.From(t.Source))).Select(t => ObjectTypeId.From(t.Source))], [.. _runtimeFaults]) : null };
         }
 
         private Work Discover(ResolvedMethod resolved, Work? parent, int offset, ObjectDispatchMethod? fact = null)
@@ -402,11 +432,9 @@ public static partial class ValueProgramDiscovery
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(parent, "Aggregate metadata-member limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             bool constructor = classes && input.DeclaredName == ".ctor";
             bool instance = constructor || delegates && (input.Attributes & MethodAttributes.Static) == 0;
-            if (integers64 && fact is null && (input.Attributes & MethodAttributes.Virtual) != 0)
-                Fail(parent, "Class virtual calls require a prepared exact dispatch map; this profile currently prepares interface call targets only.", offset);
             var allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | (integers64 ? MethodAttributes.SpecialName : 0)
-                | (fact is not null ? MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final : 0)
+                | (integers64 || fact is not null ? MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final : 0)
                 | (constructor ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
             if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != (instance ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
                 || input.HasTypeInitializer || input.HasModuleInitializer || !exceptions && input.ExceptionRegionCount != 0
@@ -433,11 +461,18 @@ public static partial class ValueProgramDiscovery
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             var kind = inlineConstructor ? ObjectMethodKind.ValueConstructor : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible);
+            if (fact is null && (input.Attributes & MethodAttributes.Virtual) != 0)
+            {
+                var exact = ResolveVirtual(resolved, resolved.DeclaringType, parent, offset);
+                binding = binding with { VirtualName = input.DeclaredName, VirtualSlot = new(MethodId(exact.Slot), ObjectModelBuilder.Id(exact.Slot.DeclaringType)) };
+            }
             var work = new Work(owner.Assembly, resolved, input, binding,
                 [.. (instance ? new[] { inlineConstructor ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
                 [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);
+            if (binding.VirtualSlot is not null && work.Parameters.Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
+                Fail(parent, "Composed virtual signatures require scalar/reference parameters and returns; struct/borrow dispatch needs later lowering.", offset);
             if (fact is not null && (binding.Kind != kind || binding.Owner != ownerId || binding.Attributes != input.Attributes
                 || work.ReturnType != fact.ReturnType || !work.Parameters.SequenceEqual(fact.Parameters)))
                 Fail(parent, "Closed method signature contradicts its interface mapping facts.", offset);
@@ -447,6 +482,17 @@ public static partial class ValueProgramDiscovery
                 r.Kind switch { ExceptionRegionKind.Catch => IrExceptionClause.Catch, ExceptionRegionKind.Filter => IrExceptionClause.Filter, ExceptionRegionKind.Finally => IrExceptionClause.Finally, _ => IrExceptionClause.Fault },
                 r.CatchType is null ? null : ReferenceOperand(r.CatchType, work, r.HandlerStart), r.FilterStart))] };
             _methods.Add(id, work); _pending.Enqueue(work); return work;
+        }
+
+        private static IrMethodId MethodId(ResolvedMethod method) => new(method.DeclaringType.Definition.Assembly.ContentHash,
+            MetadataTokens.GetToken(method.Handle), ClosedGenericKey.Create(method.DeclaringType.Arguments, method.MethodArguments));
+
+        private ClosedClassVirtualTarget ResolveVirtual(ResolvedMethod declaration, ConstructedType receiver, Work? caller, int offset)
+        {
+            var key = (MethodId(declaration), ObjectModelBuilder.Id(receiver));
+            if (_virtualCache.TryGetValue(key, out var known)) return known;
+            var exact = Require(resolver.ResolveClosedClassVirtualTarget(declaration, receiver, library, _metadata), caller, offset);
+            _virtualCache.Add(key, exact); return exact;
         }
 
         private IrType Storage(TypeSignature signature, Work? caller, int offset, bool borrow = false, bool allowVoid = false) => signature switch

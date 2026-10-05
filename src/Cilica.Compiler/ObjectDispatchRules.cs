@@ -33,13 +33,18 @@ internal sealed class ObjectDispatchRules
                     "nonvirtual methods cannot carry slot flags or names.");
                 continue;
             }
+            var signature = methods[binding.Method];
+            Require(!signature.Parameters.Append(signature.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation),
+                "virtual signatures require scalar/reference parameters and returns.");
+            Require(binding.Method.Specialization == binding.Owner.Specialization,
+                "virtual methods must preserve their exact closed owner specialization.");
             var slot = binding.VirtualSlot!;
             Require(binding.Kind == ObjectMethodKind.Instance && ((binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
                     || interfaces.Mapped(binding))
                 && (binding.Attributes & MethodAttributes.RTSpecialName) == 0 && !string.IsNullOrEmpty(binding.VirtualName),
                 "class virtual declarations require public instance methods or validated interface slots, with names.");
             Require(slot.Method is not null && slot.Owner is { ArrayElement: null } && _layouts.ContainsKey(slot.Owner)
-                && slot.Method.ContentHash == slot.Owner.ContentHash && (uint)slot.Method.Token >> 24 == 0x06 && (slot.Method.Token & 0xffffff) != 0
+                && slot.Method.ContentHash == slot.Owner.ContentHash && slot.Method.Specialization == slot.Owner.Specialization && (uint)slot.Method.Token >> 24 == 0x06 && (slot.Method.Token & 0xffffff) != 0
                 && types.Assignable(IrType.Reference(binding.Owner), IrType.Reference(slot.Owner)), "invalid canonical virtual slot identity/owner.");
             if ((binding.Attributes & MethodAttributes.NewSlot) != 0)
                 Require(slot.Method == binding.Method && slot.Owner == binding.Owner, "newslot must introduce its own canonical slot.");

@@ -30,7 +30,7 @@ public sealed class ClosedInterfaceTranslationTests
             (nameof(ClosedDispatchProbe.Faults), ClosedDispatchProbe.Faults), (nameof(ClosedDispatchProbe.SameWidth), ClosedDispatchProbe.SameWidth)], typeof(ClosedDispatchProbe));
 
     [Theory]
-    [InlineData("ValueSignature")] [InlineData("VariantCall")] [InlineData("ClassVirtual")]
+    [InlineData("ValueSignature")] [InlineData("VariantCall")]
     public void Unimplemented_dispatch_extensions_remain_actionable(string name)
     {
         var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(ClosedDispatchProbe));
