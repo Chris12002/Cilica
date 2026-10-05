@@ -530,5 +530,12 @@
     "Member": "Identity",
     "ParameterCount": 1,
     "Capability": "ArrayInterfaceIdentity"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "StringConstruction",
+    "Member": "FromCodeUnits",
+    "ParameterCount": 1,
+    "Capability": "StringFromCodeUnits"
   }
 ]

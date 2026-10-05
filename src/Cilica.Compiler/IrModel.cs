@@ -88,6 +88,8 @@ public abstract record IrExpression
     // Null is empty. Reuse the nonempty operand if the other is empty; otherwise
     // return a new immutable string, or the canonical empty string if both empty.
     public sealed record StringConcat(int Left, int Right) : IrExpression;
+    // Fresh immutable snapshot of the low UTF-16 units in an Int32 vector; empty is canonical.
+    public sealed record StringFromCodeUnits(int Array) : IrExpression;
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
     public sealed record CastClass(ObjectTypeId Target, int Operand) : IrExpression;
     public sealed record IsInstance(ObjectTypeId Target, int Operand) : IrExpression;
@@ -201,7 +203,7 @@ public sealed record IrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Method
 /// <summary>Typed value-flow contract; object declaration/access validation is supplied by ObjectIrProgram.</summary>
 public sealed record ReferenceIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> Methods, ObjectTypeCatalog Types)
 {
-    public const string Profile = "typed-reference-ir-v5";
+    public const string Profile = "typed-reference-ir-v6";
 }
 
 /// <summary>Detached copy semantics; no CIL access checks, mutable managed locations or object operations.</summary>

@@ -78,7 +78,7 @@ public static class ObjectRootAssignment
                     if (statement is IrStatement.Define define)
                     {
                         Add(ObjectRootKind.Value, define.Value.Id, define.Value.Type, block.Id);
-                        if (define.Value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.NewObject or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringConcat or IrExpression.BoxScalars or IrExpression.NewDelegate)
+                        if (define.Value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.NewObject or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.BoxScalars or IrExpression.NewDelegate)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Allocation, block.Id));
                         else if (define.Value.Expression is IrExpression.Call or IrExpression.CallDelegate)
                             points.Add(new(i, define.Value.ILOffset, ObjectSafepointKind.Call, block.Id));

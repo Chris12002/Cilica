@@ -181,6 +181,8 @@ internal static class IrValidator
                                 && objectRules.StringOperand(text.Operand, valueTypes) && Earlier(text.Index) && valueTypes[text.Index] == IrType.Int32,
                             IrExpression.StringEquals text => objectRules is not null && value.Type == IrType.Int32
                                 && objectRules.StringOperand(text.Left, valueTypes) && objectRules.StringOperand(text.Right, valueTypes),
+                            IrExpression.StringFromCodeUnits text => types.IntegerCasts && objectRules is not null && value.Type == objectRules.StringType
+                                && Earlier(text.Array) && types.Assignable(valueTypes[text.Array], IrType.Reference(ObjectTypeId.Vector(catalog!.ObjectBase, ObjectArrayElement.Int32))),
                             IrExpression.StringConcat text => objectRules is not null && value.Type == objectRules.StringType
                                 && objectRules.StringOperand(text.Left, valueTypes) && objectRules.StringOperand(text.Right, valueTypes),
                             IrExpression.NewArray a => objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType)
@@ -227,7 +229,7 @@ internal static class IrValidator
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadField
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.LoadLocation
                             or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation

@@ -1,6 +1,6 @@
 # Milestone 6: Required library subset and real turn kernel
 
-Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.38 and 6d.1–6d.14 complete. Recorded 2026-10-05.
+Status: in progress; slices 6a, 6b.1–6b.4, 6c.1–6c.38 and 6d.1–6d.15 complete. Recorded 2026-10-05.
 
 The exit gate is equivalent deterministic command traces from the real kernel
 on .NET and Cilica's native runtime. Milestone 5 supplies bounded semantic
@@ -19,7 +19,7 @@ fixtures and examples must be independent.
 | 6b.3 | Validate build provenance and exact intrinsic grants at the compiler boundary | Complete for independently approved build attestations; ADR 0092; real build producer/outputs accompany 6d |
 | 6b.4 | Preserve generic type/method constraints across explicit library mappings | Complete for structural correspondence; ADR 0129; executable constraint proof remains separate |
 | 6c | Extend compiler semantics needed by the concrete kernel path: Int64, narrow scalars/enums, Guid-backed/inline values, value instance calls and closed generic interface/instance/array calls | In progress; 6c.1–6c.38 supply integer/narrow scalar, composed wide object/value, constructors, direct instance and reference-vector CIL plus closed interface/class calls with values, same-image helpers, generic memory, reference boxing, constrained value calls and exact interface constraints; wide/narrow/value arrays, enum storage and broader instance/generic integration pending |
-| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.14 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; library collection storage, StringBuilder and further dependencies remain pending |
+| 6d | Implement the required library members and their runtime prerequisites | In progress; 6d.1–6d.15 add the decimal helper, evidence producer, mapped audit API and an owned core image with string/exception mappings, invariant-provider identity, integer hashing, bounded invariant ToString APIs, read-only collection contracts, exact closed delegates/Action<int,int> and bounded Guid values/formatting; bounded dictionary storage and StringBuilder append/snapshots are implemented; Array.Empty and further dependencies remain pending |
 | 6e | Compile the unmodified kernel with a concrete adapter and run bounded deterministic command transcripts against .NET | .NET baseline captured from a fresh source build; native comparison pending |
 | 6f | Audit the trial ported implementation closure, resolve the general-filter gate, run composed collection/exception stress and complete the milestone review | Planned; must precede milestone completion |
 
@@ -833,3 +833,29 @@ run pass. Review added access checks and linear predecessor indexing. See
 - Keep unsupported members actionable, update compatibility claims and review
   composed behavior before marking milestone 6 complete. Public embedding,
   mobile and browser evidence belong to later milestones.
+
+
+## Slice 6d.15 outcome
+
+The pinned chunked StringBuilder adaptation supports default construction, char
+and string append, length/capacity getters and immutable ToString snapshots. An
+exact private grant copies Int32-buffer code units into native UTF-16 strings;
+empty strings are canonical, nonempty snapshots are fresh and independent. See
+[ADR 0145](../decisions/0145-bounded-string-builder.md).
+
+Eight focused checks include 4,362 repeated native/.NET comparisons at O0/O2,
+allocation-time collection, exact surrogate/code-unit observations, large chunk
+growth, private capability boundaries and malformed IR rejection. Review found
+and fixed the stale fixed exception-resource cache capacity; its native sanitizer
+regression now retains all 15 resources and detects cache cycles.
+
+The trial core has 210 inputs and 77 grants. Image SHA-256:
+`92197b414762e7b3e4c2022464f906668514a0baec496a5a482183fbf1b18bfd`;
+manifest SHA-256:
+`cc93b9f27b84e5b287b58bbe2c966cc2ddf1e51dc7ae98c53aca145cf7cdd52e`.
+These are local evidence, not production trust approval. The unchanged concrete
+kernel now reaches missing mapped Array.Empty<T> in KernelState.Create. Native
+transcript comparison and the final implementation/filter audit remain pending.
+
+The full solution build and 44 composed local checks pass, including native string,
+collection and exception-resource tests. No hosted work ran.

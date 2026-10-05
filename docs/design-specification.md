@@ -1355,3 +1355,12 @@ before body discovery (ADR 0144). Canonical slots, typed receivers and null chec
 remain intact. Branch/handler entry, nonpublic declarations and unproven Object
 parameters do not establish a proof. This supports managed overrides without
 claiming a general Object.ToString implementation.
+
+
+The owned StringBuilder now adapts pinned managed chunk append and immutable
+snapshot algorithms (ADR 0145). A private granted construction operation copies
+low UTF-16 units from rooted Int32 vectors; it preserves canonical empty strings
+and fresh nonempty snapshots. Narrow vectors and broader builder APIs remain
+unsupported. Typed reference IR v6/native v26 include this operation. Exception
+resource cache bounds derive from the emitted resource set, including System and
+Arithmetic messages. The real kernel's next gate is Array.Empty<T>.

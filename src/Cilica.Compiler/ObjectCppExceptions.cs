@@ -82,10 +82,10 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     if (text.cache_id == 0) return allocate_string(c, type, text.units, text.length, nullptr, 0);
     std::size_t count = 0;
     for (auto* value = c.instance.exception_resources; value != nullptr; value = value->literal_next) {
-        if (++count > 13 || !traceable_reference(c.instance, reinterpret_cast<Object*>(value)) || value->header.type != &type) { c.pending = 6; return nullptr; }
+        if (++count > exception_resource_capacity || !traceable_reference(c.instance, reinterpret_cast<Object*>(value)) || value->header.type != &type) { c.pending = 6; return nullptr; }
         if (value->literal_id == text.cache_id) return &value->header;
     }
-    if (count == 13) { c.pending = 6; return nullptr; }
+    if (count == exception_resource_capacity) { c.pending = 6; return nullptr; }
     auto* result = allocate_string(c, type, text.units, text.length, nullptr, 0);
     if (result == nullptr) return nullptr;
     auto* value = reinterpret_cast<StringObject*>(result);

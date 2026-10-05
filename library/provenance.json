@@ -62,6 +62,11 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Array.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Array.cs",
       "sha256": "3beb7a940a8ff7b4949141fa8934167c346c047b776a6b250426ba04fc34aae3"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/StringBuilder.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Text/StringBuilder.cs",
+      "sha256": "4852f4b57d749bbfb9d5b865e0784974ee5f056de4427c6e584fb4ecd193c751"
     }
   ],
   "adaptations": [
@@ -130,6 +135,22 @@
       "additionalUpstreamPaths": [
         "src/libraries/System.Private.CoreLib/src/System/Array.cs"
       ]
+    },
+    {
+      "path": "library/Cilica.Core/StringBuilder.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/StringBuilder.cs",
+      "algorithms": [
+        "Default 16-unit capacity and 8000-unit chunk growth threshold",
+        "Append(char), Append(string), AppendWithExpansion and ExpandByABlock",
+        "Reverse chunk traversal and fresh ToString snapshot"
+      ],
+      "changes": [
+        "Use zero-extended UTF-16 in private Int32 vectors until narrow vector storage is implemented.",
+        "Replace span/unsafe memmove operations with checked managed indexing and retain allocation-before-link mutation order.",
+        "Copy chunks into an exact temporary Int32 vector, then invoke an exactly granted immutable string allocation helper.",
+        "Admit only the default constructor, string/char append, Length/Capacity/MaxCapacity getters and ToString; setters/serialization and other members remain build errors."
+      ],
+      "scope": "Text, code units, capacity growth, snapshot/return identity and null behavior; no general formatting, mutation, serialization or full StringBuilder compatibility."
     }
   ],
   "ownedAdapters": [

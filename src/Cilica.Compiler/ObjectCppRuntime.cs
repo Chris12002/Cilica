@@ -248,7 +248,7 @@ struct RootScope {
 // Callers validate the owned, exact String descriptors before reading operands.
 [[maybe_unused, gnu::noinline]] static Object* allocate_string(Context& context, const Descriptor& descriptor,
     const std::uint16_t* left, std::uint32_t first, const std::uint16_t* right, std::uint32_t second,
-    const std::uint16_t* extra = nullptr, std::uint32_t third = 0, const std::uint16_t* tail = nullptr, std::uint32_t fourth = 0) noexcept {
+    const std::uint16_t* extra = nullptr, std::uint32_t third = 0, const std::uint16_t* tail = nullptr, std::uint32_t fourth = 0, const std::uint32_t* code_units = nullptr) noexcept {
     if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
     if (context.observe != nullptr) context.observe(context);
     Instance& heap = context.instance;
@@ -264,7 +264,7 @@ struct RootScope {
         if (value == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
         auto* units = length == 0 ? nullptr : new (std::nothrow) std::uint16_t[length];
         if (length != 0 && units == nullptr) { delete value; if (collect_for_allocation(context, attempted)) continue; return nullptr; }
-        for (std::uint32_t i = 0; i < first; ++i) units[i] = left[i];
+        for (std::uint32_t i = 0; i < first; ++i) units[i] = code_units == nullptr ? left[i] : static_cast<std::uint16_t>(code_units[i]);
         for (std::uint32_t i = 0; i < second; ++i) units[first + i] = right[i];
         for (std::uint32_t i = 0; i < third; ++i) units[first + second + i] = extra[i];
         for (std::uint32_t i = 0; i < fourth; ++i) units[first + second + third + i] = tail[i];
@@ -308,6 +308,13 @@ struct RootScope {
     if (first == 0) return right;
     if (second == 0) return left;
     return allocate_string(context, descriptor, a->units, first, b->units, second);
+}
+// The owned Int32 source stays rooted across collection; publication copies its
+// low UTF-16 units and never aliases mutable vector storage.
+[[maybe_unused, gnu::noinline]] static Object* string_from_code_units(Context& context, const Descriptor& descriptor, Object* source) noexcept {
+    const auto* array = reinterpret_cast<ArrayObject*>(source);
+    if (array->length == 0) return string_literal(context, descriptor, 0, nullptr, 0);
+    return allocate_string(context, descriptor, nullptr, array->length, nullptr, 0, nullptr, 0, nullptr, 0, array->integers);
 }
 // Private bounded decimal cache. Formatting stays in managed code; publication
 // copies its text so numeric cache identity never aliases a string literal.

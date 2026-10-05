@@ -412,6 +412,7 @@ public static class ValueScalarLowering
                                 IrExpression.StringCodeUnit e => e with { Operand = One(e.Operand), Index = One(e.Index) },
                                 IrExpression.IntegerTextFind e => e with { Index = One(e.Index) },
                                 IrExpression.IntegerTextPublish e => e with { Index = One(e.Index), Text = One(e.Text) },
+                                IrExpression.StringFromCodeUnits e => e with { Array = One(e.Array) },
                                 IrExpression.StringConcat e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.StringEquals e => e with { Left = One(e.Left), Right = One(e.Right) },
                                 IrExpression.NewDelegate d => d with { Receiver = One(d.Receiver) },

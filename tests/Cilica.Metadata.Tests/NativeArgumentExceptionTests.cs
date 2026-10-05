@@ -70,7 +70,15 @@ public sealed class NativeArgumentExceptionTests
                     roots[2] = make_exception(c, type, nullptr, 1).value;
                     assert(exception_message(c, roots[2]).status == 0);
                 }
-                roots[2] = nullptr; assert(collect(c).status == MarkStatus::complete && heap.count == 14);
+                // All selected cached resources survive repeated collection. System
+                // and Arithmetic resources exceed the former fixed 13-entry cache.
+                assert(exception_resource_capacity == 15);
+                roots[2] = nullptr; assert(collect(c).status == MarkStatus::complete && heap.count == 16);
+                auto* first = heap.exception_resources;
+                auto* saved = first->literal_next; first->literal_next = first;
+                assert(collect(c).status == MarkStatus::invalid);
+                first->literal_next = saved;
+                assert(collect(c).status == MarkStatus::complete && heap.count == 16);
             }
             int main() { parameter_payload(); resources(); }
             """;

@@ -32,7 +32,7 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
     std::size_t count = 0;
     for (const StringObject* resource = context.instance.exception_resources; resource != nullptr; resource = resource->literal_next) {
         auto* value = reinterpret_cast<Object*>(const_cast<StringObject*>(resource));
-        if (++count > 13 || count > context.instance.count || !traceable_reference(context.instance, value)
+        if (++count > exception_resource_capacity || count > context.instance.count || !traceable_reference(context.instance, value)
             || !string_type(value->type)) return TraceResult::invalid;
         const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::exception_resource, value, nullptr, nullptr, resource->literal_id});
         if (result != TraceResult::complete) return result;

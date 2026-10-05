@@ -179,6 +179,8 @@ internal sealed class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.NewArray a } => new[] { a.ArrayType },
         IrStatement.Define { Value.Expression: IrExpression.LoadElement a } => new[] { a.ArrayType },
         IrStatement.StoreElement a => new[] { a.ArrayType },
+        IrStatement.Define { Value.Expression: IrExpression.StringFromCodeUnits } when _program.Flow.Types.String is { } created =>
+            new[] { created, ObjectTypeId.Vector(_program.Flow.Types.ObjectBase, ObjectArrayElement.Int32) },
         IrStatement.Define { Value.Expression: IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit
             or IrExpression.StringEquals or IrExpression.StringConcat or IrExpression.IntegerTextFind or IrExpression.IntegerTextPublish } when _program.Flow.Types.String is { } text => new[] { text },
         IrStatement.Define { Value.Expression: IrExpression.Call c } when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
@@ -389,6 +391,7 @@ internal sealed class ObjectIrRules
                             IrExpression.StringLength s => !This(s.Operand),
                             IrExpression.StringCodeUnit s => !This(s.Operand) && !This(s.Index),
                             IrExpression.StringEquals s => !This(s.Left) && !This(s.Right),
+                            IrExpression.StringFromCodeUnits s => !This(s.Array),
                             IrExpression.StringConcat s => !This(s.Left) && !This(s.Right),
                             IrExpression.NewArray a => !This(a.Length),
                             IrExpression.ArrayLength a => !This(a.Array),

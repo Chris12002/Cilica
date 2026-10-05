@@ -29,7 +29,7 @@ public sealed class CoreLibraryBuildTests
         var requests = LibraryIntrinsicRequests.Read(CorePath("intrinsic-requests.json"));
         var request = LibraryBuildProducerTests.Request(files, CorePath("CoreTypes.cs"));
         string reference = request.References.Single();
-        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), CorePath("DelegateContracts.cs"), CorePath("Guid.cs"), CorePath("KeyOperations.cs"), CorePath("Dictionary.cs"), CorePath("DictionaryContracts.cs"), CorePath("ArrayInterface.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs")), .. additionalSources], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
+        request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("IntegerText.cs"), CorePath("CollectionContracts.cs"), CorePath("DelegateContracts.cs"), CorePath("Guid.cs"), CorePath("KeyOperations.cs"), CorePath("Dictionary.cs"), CorePath("DictionaryContracts.cs"), CorePath("ArrayInterface.cs"), CorePath("StringBuilder.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs")), .. additionalSources], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
         var built = await LibraryBuilder.Build(request);
         var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!, Path.GetDirectoryName(built.AssemblyPath)!,
             Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;
@@ -45,7 +45,7 @@ public sealed class CoreLibraryBuildTests
     }
 
     internal static readonly (string Namespace, string Name)[] DictionaryContractNames = [
-        ("System", "Array"), ("System.Collections", "ICollection"), ("System.Collections", "IList"), ("System.Collections", "IDictionary"),
+        ("System.Text", "StringBuilder"), ("System", "Array"), ("System.Collections", "ICollection"), ("System.Collections", "IList"), ("System.Collections", "IDictionary"),
         ("System.Collections", "IDictionaryEnumerator"), ("System.Collections", "DictionaryEntry"),
         ("System.Collections.Generic", "ICollection`1"), ("System.Collections.Generic", "IList`1"),
         ("System.Collections.Generic", "IDictionary`2"), ("System.Collections.Generic", "IReadOnlyDictionary`2"),

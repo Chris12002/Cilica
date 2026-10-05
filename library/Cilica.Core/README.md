@@ -22,13 +22,14 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/Dictionary.cs \
   --source library/Cilica.Core/DictionaryContracts.cs \
   --source library/Cilica.Core/ArrayInterface.cs \
+  --source library/Cilica.Core/StringBuilder.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 76 exact string/exception/provider/numeric/array/key capabilities for review; it does not
+file describes 77 exact string/exception/provider/numeric/array/key capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -73,6 +74,11 @@ The complete kernel/native equivalence gate remains pending.
 
 
 This is a bounded core trial. General formatting/culture/provider members,
-StringBuilder, broader collection members, full reflection and general CoreLib compatibility
+Broader StringBuilder and collection members, full reflection and general CoreLib compatibility
 remain unimplemented. The image is metadata input to Cilica, never loaded into
-the host CLR. See ADRs 0131–0143 for scope and review evidence.
+the host CLR. See ADRs 0131–0145 for scope and review evidence.
+
+StringBuilder.cs adapts pinned chunk growth and append/snapshot behavior. It uses
+private Int32 buffers for UTF-16, with one exactly granted string construction
+helper. Default construction, Append(string/char), getters and ToString are covered;
+other members remain build errors. No application canonicalization rules live here.
