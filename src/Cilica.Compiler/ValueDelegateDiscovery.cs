@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -16,11 +17,13 @@ public static partial class ValueProgramDiscovery
         private sealed record DelegateFacts(ObjectDelegateType Type, MethodDefinitionHandle Constructor, MethodDefinitionHandle Invoke);
         private readonly Dictionary<ObjectTypeId, DelegateFacts> _delegateFacts = [];
         private ObjectTypeId? _multicastDelegate;
+        private readonly HashSet<ObjectTypeId> _readingDelegateSignatures = [];
 
         private ObjectDelegateType? DelegateType(ConstructedType type, Work? work, int offset)
         {
             var id = ClosedId(type, work, offset);
             if (_delegateFacts.TryGetValue(id, out var cached)) return cached.Type;
+            if (_readingDelegateSignatures.Contains(id)) Fail(work, "Recursive delegate parameter signatures require later closure lowering.", offset);
             var input = Snapshot(type.Definition, work, offset);
             if (input.BaseType is not TypeSignature.Named parent) return null;
             if (Snapshot(parent.Definition, work, offset).Source.Name != "System.MulticastDelegate") return null;
@@ -61,11 +64,16 @@ public static partial class ValueProgramDiscovery
                 || constructor.Signature.Parameters[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Object }
                 || constructor.Signature.Parameters[1] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.IntPtr }
                 || invoke is null || invoke.Attributes != invokeFlags
-                || invoke.Signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 })
+                || invoke.Signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }
+                    && (!integers64 || p is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
+                        or TypeSignature.Named { Kind: SignatureTypeKind.Class } or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } or TypeSignature.Vector)))
                 || invoke.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Void })
-                Fail(work, "Delegate requires .ctor(Object, native int) and exact Int32-parameter Invoke returning Int32 or void.", offset);
+                Fail(work, "Delegate requires .ctor(Object, native int) and exact Int32/reference-parameter Invoke returning Int32 or void; wide, value and byref parameters require later lowering.", offset);
+            _readingDelegateSignatures.Add(id);
+            var parameterTypes = invoke!.Signature.Parameters.Select(p => Storage(p, work, offset)).ToImmutableArray();
+            _readingDelegateSignatures.Remove(id);
             var callable = new ObjectDelegateType(input.Source, invoke!.Signature.Parameters.Count,
-                invoke.Signature.ReturnType is TypeSignature.Primitive { Code: PrimitiveTypeCode.Void });
+                invoke.Signature.ReturnType is TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }) { Parameters = parameterTypes };
             if (callable.ParameterCount >= IrLimits.MaximumParameters || _delegateFacts.Values.Sum(d => d.Type.ParameterCount) + callable.ParameterCount > IrLimits.MaximumParameters)
                 Fail(work, "Aggregate delegate signature limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             _delegateFacts.Add(id, new(callable, constructorHandle, invokeHandle));

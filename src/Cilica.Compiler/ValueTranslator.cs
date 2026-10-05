@@ -443,7 +443,7 @@ public static class ValueTranslator
                         case "callvirt" when method.DelegateOperands.ContainsKey(offset):
                             var delegateId = method.DelegateOperands[offset]; var declaration = delegates[delegateId];
                             var delegateArguments = new int[declaration.ParameterCount];
-                            for (int i = delegateArguments.Length - 1; i >= 0; --i) delegateArguments[i] = Pop(offset, IrType.Int32);
+                            for (int i = delegateArguments.Length - 1; i >= 0; --i) delegateArguments[i] = Pop(offset, declaration.Parameters[i]);
                             int calledDelegate = Pop(offset, IrType.Reference(delegateId));
                             if (declaration.ReturnsVoid) Add(new IrStatement.InvokeDelegate(offset, delegateId, calledDelegate, [.. delegateArguments]), offset);
                             else Push(offset, IrType.Int32, new IrExpression.CallDelegate(delegateId, calledDelegate, [.. delegateArguments]), true);

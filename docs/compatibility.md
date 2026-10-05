@@ -1510,3 +1510,20 @@ before body discovery (ADR 0144). Canonical slots, typed receivers and null chec
 remain intact. Branch/handler entry, nonpublic declarations and unproven Object
 parameters do not establish a proof. This supports managed overrides without
 claiming a general Object.ToString implementation.
+
+
+Milestone 6 library additions (ADRs 0145–0147) now include bounded StringBuilder
+char/string append and UTF-16 snapshots, exact Array.Empty<T> identity for Int32/
+reference vectors, and managed List<T> growth/indexing with live read-only views.
+Array interface Set and fixed-size Add preserve bounds, covariance and exception
+semantics. Unsupported collection members remain build errors. These changes
+have targeted O0/O2 .NET differential and native sanitizer evidence; they do not
+establish real-kernel native equivalence.
+
+Exact single-target delegates now accept Int32/reference parameters (ADR 0148),
+including strings, interfaces and supported vectors, while retaining Int32/void
+returns. Caller/callee managed roots protect arguments across allocations. Target
+signatures match exactly; wide/value/byref parameters, reference returns, recursive
+parameter closures and binding variance remain diagnostic. Current profiles are
+object-layout-v9, typed-reference-ir-v7, interface-dispatch-plan-v3 and
+object-frames-native-v29. Initialized static callback caches remain pending.

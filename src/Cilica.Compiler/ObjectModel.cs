@@ -45,6 +45,8 @@ public sealed record ObjectInterfaceArgument(string Identity, ObjectTypeId? Refe
 /// <summary>Intrinsic single-target delegate shape; the receiver is private traced runtime storage.</summary>
 public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, bool ReturnsVoid)
 {
+    public ImmutableArray<IrType> Parameters { get; init; } = ParameterCount is >= 0 and < IrLimits.MaximumParameters
+        ? [.. Enumerable.Repeat(IrType.Int32, ParameterCount)] : [];
     public bool ExternallyVisible { get; init; } = true;
 }
 
@@ -78,7 +80,7 @@ public sealed record ObjectTypeLayout(TypeSource Source, ObjectTypeId? BaseType,
 public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, ImmutableArray<ObjectTypeLayout> Types)
 {
     public bool Integer64 { get; init; }
-    public const string Profile = "object-layout-v8";
+    public const string Profile = "object-layout-v9";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];

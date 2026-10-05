@@ -203,7 +203,7 @@ internal sealed class ObjectIrRules
         var body = _methods[capture.Target];
         int skip = target.Kind == ObjectMethodKind.Instance ? 1 : 0;
         return body.ReturnType == DelegateReturn(capture.Type) && body.Parameters.Length == declaration.ParameterCount + skip
-            && body.Parameters.Skip(skip).All(p => p == IrType.Int32)
+            && body.Parameters.Skip(skip).SequenceEqual(declaration.Parameters)
             && (skip == 0 ? values[capture.Receiver] == IrType.NullReference
                 : _types.Assignable(values[capture.Receiver], IrType.Reference(target.Owner)));
     }
@@ -215,7 +215,7 @@ internal sealed class ObjectIrRules
         && result == DelegateReturn(type) && receiver >= 0 && receiver < values.Count
         && _types.Assignable(values[receiver], IrType.Reference(type)) && !arguments.IsDefault
         && arguments.Length == declaration.ParameterCount
-        && arguments.All(a => a >= 0 && a < values.Count && values[a] == IrType.Int32);
+        && arguments.Select((a, i) => a >= 0 && a < values.Count && _types.Assignable(values[a], declaration.Parameters[i])).All(valid => valid);
 
     internal IrType? StringType => _program.Flow.Types.String is { } text ? IrType.Reference(text) : null;
 

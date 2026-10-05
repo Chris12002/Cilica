@@ -18,7 +18,12 @@ internal static class ObjectCatalogUsage
         while (pending.TryPop(out var id))
             if (visited.Add(id))
             {
-                if (id == catalog.String || delegates.Contains(id)) pending.Push(catalog.ObjectBase);
+                if (id == catalog.String || delegates.Contains(id))
+                {
+                    pending.Push(catalog.ObjectBase);
+                    if (delegates.Contains(id)) foreach (var p in catalog.Delegates.Single(d => ObjectTypeId.From(d.Source) == id).Parameters)
+                        if (p.Class is { } reference) pending.Push(reference);
+                }
                 else if (arrays.Contains(id))
                 {
                     if (id.ArrayElement!.Type is { } element) pending.Push(element);

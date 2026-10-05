@@ -1380,3 +1380,10 @@ preserve fixed-size Add faults and bounds-before-covariant-store checks. Interfa
 plan v3/native v28 carry validated mutable array views. Int32/reference element
 storage is admitted; broad collection APIs remain diagnostic. The concrete kernel
 next requires compiler-generated initialized static delegate caches.
+
+
+Exact single-target delegates admit typed Int32/reference parameters in the
+integer-object profile (ADR 0148). Object layout v9/native v29 retain parameter
+identities, structural catalog checks and managed reference argument packets.
+Targets match exactly; wide/value/byref parameters, reference returns and binding
+variance remain diagnostic. Static callback initialization is still pending.

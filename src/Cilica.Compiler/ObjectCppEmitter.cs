@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v28";
+    public const string Profile = "object-frames-native-v29";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -375,7 +375,7 @@ public static class ObjectCppEmitter
                 code.Append("    f->arguments[0].reference = reinterpret_cast<DelegateObject*>(f->delegate_result.value)->receiver;\n");
                 for (int i = 0; i < arguments.Length; ++i)
                 {
-                    code.Append("    f->arguments[").Append(N(i + 1)).Append("].bits = ").Append(Value(arguments[i])).Append(";\n");
+                    code.Append("    f->arguments[").Append(N(i + 1)).Append("].").Append(PacketMember(delegateDeclarations.Single(d => ObjectTypeId.From(d.Source) == type).Parameters[i])).Append(" = ").Append(Value(arguments[i])).Append(";\n");
                     if ((i + 1) % CopiesPerStep == 0) Flush();
                 }
                 Flush();

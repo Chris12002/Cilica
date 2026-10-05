@@ -49,7 +49,10 @@ public static class ObjectModelValidator
             Require(declaration?.Source is not null && declaration.Source.Name is not null
                 && declaration.Source.AssemblyIdentity is not null && Hash(declaration.Source.ContentHash), "invalid delegate source.");
             Require(Identity(ObjectTypeId.From(declaration.Source), 0x02) && delegates.Add(ObjectTypeId.From(declaration.Source))
-                && declaration.ParameterCount is >= 0 and < IrLimits.MaximumParameters, "invalid delegate identity or signature.");
+                && declaration.ParameterCount is >= 0 and < IrLimits.MaximumParameters
+                && !declaration.Parameters.IsDefault && declaration.Parameters.Length == declaration.ParameterCount
+                && declaration.Parameters.All(p => p == IrType.Int32 || model.Integer64 && p is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false }
+                    && ReferenceIdentity(p.Class, model.ObjectBase)), "invalid delegate identity or signature.");
             delegateParameters += declaration.ParameterCount;
             Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
         }
@@ -147,6 +150,8 @@ public static class ObjectModelValidator
         Require(delegates.All(id => !types.ContainsKey(id) && !interfaces.ContainsKey(id) && id != model.String),
             "delegate identity collides with another storage kind.");
         bool Known(ObjectTypeId id) => delegates.Contains(id) || types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id) || id == model.String;
+        foreach (var declaration in model.Delegates)
+            Require(declaration.Parameters.All(p => p.Class is null || Known(p.Class)), "delegate parameter type is outside the catalog.");
         foreach (var array in arrays)
             Require(array.ArrayElement!.Type is not { } element || types.ContainsKey(element) || interfaces.ContainsKey(element) || element == model.String || delegates.Contains(element),
                 "array reference element is outside the nominal catalog.");
@@ -172,7 +177,12 @@ public static class ObjectModelValidator
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))
             {
-                if (id == model.String || delegates.Contains(id)) pending.Push(model.ObjectBase);
+                if (id == model.String || delegates.Contains(id))
+                {
+                    pending.Push(model.ObjectBase);
+                    if (delegates.Contains(id)) foreach (var p in model.Delegates.Single(d => ObjectTypeId.From(d.Source) == id).Parameters)
+                        if (p.Class is { } reference) pending.Push(reference);
+                }
                 else if (arrays.Contains(id))
                 {
                     if (id.ArrayElement!.Type is { } element) pending.Push(element);

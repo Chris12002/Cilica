@@ -55,6 +55,7 @@ public sealed class GenericDelegateTests
     public async Task Closed_delegates_and_mapped_actions_match_dotnet(bool optimized)
     {
         var probes = new (string Name, Func<int, int, int> Oracle)[] {
+            (nameof(GenericDelegateProbe.ReferenceParameter), GenericDelegateProbe.ReferenceParameter),
             (nameof(GenericDelegateProbe.Capture), GenericDelegateProbe.Capture),
             (nameof(GenericDelegateProbe.Static), GenericDelegateProbe.Static),
             (nameof(GenericDelegateProbe.Return), GenericDelegateProbe.Return),
@@ -81,12 +82,12 @@ public sealed class GenericDelegateTests
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
             await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(GenericDelegateProbe).Assembly.Location).Value!;
-        foreach (string name in new[] { "UnsupportedReference", "UnsupportedWide" })
+        foreach (string name in new[] { "UnsupportedWide" })
         {
             var result = ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(GenericDelegateProbe).GetMethod(name)!.MetadataToken), implementation);
             Assert.False(result.Success); Assert.Null(result.Program);
-            Assert.Contains(result.Diagnostics, d => d.Message.Contains("exact Int32-parameter Invoke", StringComparison.Ordinal));
+            Assert.Contains(result.Diagnostics, d => d.Message.Contains("exact Int32/reference-parameter Invoke", StringComparison.Ordinal));
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Cilica.Fixtures.Execution
             try { return ((TaggedFunction<uint>)value)(input); }
             catch (InvalidCastException error) { return error.Message.Length + mode; }
         }
-        public static int UnsupportedReference(int input, int mode)
+        public static int ReferenceParameter(int input, int mode)
         {
             var callable = new Action<string, int>(ReferenceTarget);
             callable("text", input);
