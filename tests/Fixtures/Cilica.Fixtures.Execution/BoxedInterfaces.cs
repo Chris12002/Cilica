@@ -21,6 +21,19 @@ namespace Cilica.Fixtures.Execution
     public sealed class InterfaceBoxHolder { public IBoxParent Value; }
     public static class BoxedInterfaces
     {
+        public static int ReadConfined(object value) => ((BoxedCallValue)value).Number;
+        private static IBoxCall Escape(object value) => (IBoxCall)value;
+        public static int ConfinedWithDispatch(int input, int mode)
+        {
+            IBoxCall other = new BoxedCallClass(input);
+            var value = new BoxedCallValue(); value.Number = mode;
+            return unchecked(ReadConfined(value) + other.Read());
+        }
+        public static int EscapedDispatch(int input, int mode)
+        {
+            var value = new BoxedCallValue(); value.Number = mode;
+            return Escape(value).Read();
+        }
         private static IBoxParent Wrap(InterfaceBoxValue value) => value;
         public static int UnsupportedDispatch(int input, int mode)
         {

@@ -29,18 +29,26 @@ internal sealed class BoxedTypeRelations
     }
     internal bool Accepts(ObjectTypeId value, ObjectTypeId target) => _ancestors[value].Contains(target);
 
-    internal void ValidateDispatch(IEnumerable<ObjectTypeId> boxedTypes, ObjectInterfaceDispatchPlan? dispatch)
+    internal void ValidateDispatch(IEnumerable<IrMethod> methods, ObjectInterfaceDispatchPlan? dispatch)
     {
         if (dispatch is null) return;
-        var used = boxedTypes.Distinct().ToArray();
+        var bodies = methods.ToArray(); var proof = new BoxedUseProof(bodies);
+        var owners = dispatch.Declarations.Select(d => d.Owner).Distinct().ToArray();
         int work = 0;
-        foreach (var owner in dispatch.Declarations.Select(d => d.Owner).Distinct())
-            foreach (var type in used)
+        foreach (var method in bodies)
+        foreach (var block in method.Blocks)
+        foreach (var value in block.Values)
+        {
+            var type = value.Expression switch { IrExpression.BoxValue box => box.Type,
+                IrExpression.BoxScalars box => box.Type, _ => null };
+            if (type is null) continue;
+            foreach (var owner in owners)
             {
                 if (++work > ObjectModelLimits.MaximumTypeRelationWork)
                     throw new ArgumentException("Boxed dispatch closure exceeds the type-relation work limit.");
-                if (Accepts(type, owner))
+                if (Accepts(type, owner) && !proof.Safe(block, value.Id))
                     throw new ArgumentException("Boxed interface method dispatch requires payload receiver lowering before execution.");
             }
+        }
     }
 }

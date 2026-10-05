@@ -16,7 +16,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class BoxedFormattingTests
 {
     private static readonly (string Name, Func<int,int,int> Oracle)[] Probes = [
-        ("Text", BoxedFormattingProbe.Text), ("Faults", BoxedFormattingProbe.Faults), ("Callback", BoxedFormattingProbe.Callback), ("Generic", BoxedFormattingProbe.Generic)];
+        ("Text", BoxedFormattingProbe.Text), ("Faults", BoxedFormattingProbe.Faults), ("Callback", BoxedFormattingProbe.Callback), ("Generic", BoxedFormattingProbe.Generic), ("UnrelatedDispatch", BoxedFormattingProbe.UnrelatedDispatch)];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
         CoreLibraryBuildTests.TranslateFixtures(typeof(BoxedFormattingProbe), Probes.Select(p => p.Name).ToArray()));
     [Theory]

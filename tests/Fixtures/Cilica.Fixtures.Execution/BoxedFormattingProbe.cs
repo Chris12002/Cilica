@@ -13,6 +13,10 @@ namespace Cilica.Fixtures.Execution
             return Text;
         }
     }
+    public sealed class FormattingComparison : IEquatable<FormattingValue>
+    {
+        public bool Equals(FormattingValue value) => value.Text == "match";
+    }
     public readonly struct GenericFormattingValue<T>
     {
         public readonly T Value;
@@ -45,6 +49,14 @@ namespace Cilica.Fixtures.Execution
             if (mode == -1) return "";
             if (mode == int.MinValue) return "{00 , -12 :anything}";
             return "{0}{0}{0}";
+        }
+        public static int UnrelatedDispatch(int input, int mode)
+        {
+            IEquatable<FormattingValue> comparison = new FormattingComparison();
+            string text = input < 0 ? "match" : "other";
+            var value = new FormattingValue(); value.Text = text;
+            int equal = comparison.Equals(value) ? 1 : 0;
+            return Observe(string.Format(Pattern(mode), value)) + equal;
         }
         public static int Text(int input, int mode)
         {

@@ -1680,3 +1680,12 @@ outcomes against .NET with sanitizers and forced collection. Primitive-width,
 enum/nested arrays and readonly-prefixed element borrows remain diagnostic.
 The concrete kernel passed PlayerId allocation and reached its bounded metadata
 ledger in PriorityWindowRequest construction; native transcripts remain pending.
+
+
+Boxes confined to comparisons, unboxing and proven ordinary helper parameters can
+now coexist with unrelated interface dispatch (ADR 0172; boxed value IR v3/scalar
+boxed IR v4). Detached logical and scalar validators independently check all uses
+within bounded work. Escaping aliases and actual boxed interface calls remain
+diagnostic. Two probes add 588 repeated O0/O2 .NET/native outcomes. The concrete
+kernel next requires value-array interface assignment; native transcripts remain
+unproven.
