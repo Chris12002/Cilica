@@ -1,12 +1,40 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// Bounded adaptation of pinned AnyAll.cs and Count.cs; see provenance.
+// Bounded adaptation of pinned LINQ sources; see provenance.
 using System.Collections;
 using System.Collections.Generic;
 namespace System.Linq
 {
     public static partial class Enumerable
     {
+        public static TSource FirstOrDefault<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate) =>
+            TryGetFirst(source, predicate, out _);
+        public static TSource First<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            TSource value = TryGetFirst(source, predicate, out int found);
+            if (found == 0) throw new InvalidOperationException("Sequence contains no matching element");
+            return value;
+        }
+        // Int32 flag keeps this private helper within the admitted by-reference carriers.
+        private static TSource TryGetFirst<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate, out int found)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (source is TSource[] array)
+            {
+                for (int i = 0; i < array.Length; i++)
+                {
+                    TSource item = array[i];
+                    if (predicate(item)) { found = 1; return item; }
+                }
+            }
+            else
+            {
+                foreach (TSource item in source)
+                    if (predicate(item)) { found = 1; return item; }
+            }
+            found = 0; return default;
+        }
         public static TSource[] ToArray<TSource>(IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException("source");

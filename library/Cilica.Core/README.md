@@ -394,3 +394,15 @@ Profiles/grants are unchanged. Object-array/enumerable and three/four-string
 concatenation remain unsupported; concurrent mutation is not validated. Frozen
 engine discovery next needs predicate FirstOrDefault; state remains over its type
 quota. Full replay is unverified. See ADR AC0045.
+
+### Predicate first-element queries (AC6.5)
+
+Predicate First/FirstOrDefault share managed search logic with source-before-predicate
+null checks, loaded-element return, array traversal and reference-enumerator cleanup.
+An internal Int32 found flag preserves matching zero/null without requiring narrow
+by-reference support. Eleven probes pass 3,234 repeated O0/O2 native/.NET comparisons
+with ASan/UBSan, forced collection and strict cleanup; 30 adjacent LINQ tests pass.
+Nonpredicate overloads, boxed List factories and value-payload predicates remain
+diagnostic. Profiles and grants are unchanged. Frozen engine discovery next reaches
+Func<GameState,PlayerId,bool> at PrepareForfeit IL_0395; state still exceeds its type
+quota. Discovery progress is not engine execution or saved-game replay. See ADR AC0046.
