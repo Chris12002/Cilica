@@ -19,7 +19,8 @@ public static class ValueLayoutPlanner
         }
         Require(catalog.References is not null, "reference catalog is missing.");
         ObjectModelValidator.Validate(catalog.References, inlineFields: catalog.References.Integer64);
-        Require(catalog.References.Types.SelectMany(t => t.Fields).All(f => f.Id.Component == -1),
+        Require(catalog.References.Types.SelectMany(t => t.Fields).All(f => f.Id.Component == -1)
+            && catalog.References.Statics.All(f => f.Id.Component == -1),
             "logical value catalogs require unexpanded heap FieldDef identities.");
         var references = catalog.References.Types.Select(t => ObjectTypeId.From(t.Source))
             .Concat(catalog.References.Interfaces.Select(t => ObjectTypeId.From(t.Source)))
@@ -35,7 +36,8 @@ public static class ValueLayoutPlanner
             && catalog.Roots.Distinct().Count() == catalog.Roots.Length, "invalid or duplicate roots.");
         var types = new Dictionary<ObjectTypeId, ValueTypeLayout>();
         var fieldIds = catalog.References.Types.SelectMany(t => t.Fields)
-            .Select(f => (f.Id.Owner.ContentHash, f.Id.Owner.Specialization, f.Id.Token)).ToHashSet();
+            .Select(f => (f.Id.Owner.ContentHash, f.Id.Owner.Specialization, f.Id.Token))
+            .Concat(catalog.References.Statics.Select(f => (f.Id.Owner.ContentHash, f.Id.Owner.Specialization, f.Id.Token))).ToHashSet();
         int fields = fieldIds.Count;
         int interfaceEdges = 0;
         var contracts = catalog.References.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
@@ -91,7 +93,9 @@ public static class ValueLayoutPlanner
         Require(arrayValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "array element is outside the value catalog.");
         var argumentValues = catalog.References.Interfaces.SelectMany(i => i.Arguments).Where(a => a.Value is not null).Select(a => a.Value!).ToArray();
         Require(argumentValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "interface argument is outside the value catalog.");
-        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues).Concat(arrayValues).Concat(argumentValues));
+        var staticValues = catalog.References.Statics.Where(f => f.Type.Kind == IrTypeKind.Value).Select(f => f.Type.Class!).ToArray();
+        Require(staticValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "static inline field target is outside the value catalog.");
+        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues).Concat(arrayValues).Concat(argumentValues).Concat(staticValues));
         while (pending.TryPop(out var id))
             if (included.Add(id)) foreach (var child in children[id]) pending.Push(child);
         Require(included.Count == types.Count, "catalog contains unrelated inline types.");

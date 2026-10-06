@@ -25,8 +25,8 @@ public static partial class ValueProgramDiscovery
             if (_staticFields.Count >= ObjectModelLimits.MaximumFields)
                 Fail(work, "Static field storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             if (IntegerCasts.NarrowStorage(field.Signature) is null && !EnumScalar(field.Signature, work, offset) && field.Signature is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 or PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
-                or TypeSignature.Named { Kind: SignatureTypeKind.Class } or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } or TypeSignature.Vector))
-                Fail(work, "Static fields currently require admitted integer scalars or reference storage; inline values require later lowering.", offset);
+                or TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.ValueType } or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class or SignatureTypeKind.ValueType } or TypeSignature.Vector))
+                Fail(work, "Static fields require admitted integer, reference or closed inline-value storage.", offset);
             var storage = Storage(field.Signature, work, offset);
             var result = new ObjectStaticField(id, storage, declaration.Attributes, owner.ExternallyVisible) { LexicalOwners = owner.LexicalOwners };
             _staticFields.Add(id, result); return result;

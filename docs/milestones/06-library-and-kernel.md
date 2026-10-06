@@ -2446,3 +2446,14 @@ static/default checks, 25 initialization/packet checks and 21 public baseline ch
 pass. Native profile v42 and layout v16 account for the wider private slot. Inline
 static structs and full replay remain unfinished. See
 [ADR AC0030](../decisions/AC0030-wide-static-storage.md).
+
+
+### Static inline-value copies (AC5b.5)
+
+Whole static struct loads/stores now expand through validated value layouts into
+per-instance scalar and traced reference slots. Eight probes pass 2,352 repeated
+O0/O2 native/.NET comparisons; four GC scenarios, eight packet mutations, the
+address boundary, 90 existing regressions and 21 baseline checks pass. Layout v17,
+native v42. Frozen EngineStep advances to a nonpublic generic argument; state
+lookup still reaches the type limit. Static addresses and full replay remain
+unfinished. See [ADR AC0031](../decisions/AC0031-static-inline-value-copies.md).

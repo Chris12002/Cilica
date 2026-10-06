@@ -205,8 +205,8 @@ internal sealed class ObjectIrRules
     internal IEnumerable<ObjectTypeId> OperationTypes(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).SelectMany(s => s switch
     {
         IrStatement.InitializeType when _program.Flow.Types.String is { } initializationString => new[] { initializationString },
-        IrStatement.Define { Value.Expression: IrExpression.LoadStatic f } when _statics.TryGetValue(f.Field, out var slot) && slot.Type.Class is { } type => new[] { type },
-        IrStatement.StoreStatic f when _statics.TryGetValue(f.Field, out var slot) && slot.Type.Class is { } type => new[] { type },
+        IrStatement.Define { Value.Expression: IrExpression.LoadStatic f } when _statics.TryGetValue(f.Field, out var slot) && slot.Type is { Kind: IrTypeKind.Reference, Class: { } type } => new[] { type },
+        IrStatement.StoreStatic f when _statics.TryGetValue(f.Field, out var slot) && slot.Type is { Kind: IrTypeKind.Reference, Class: { } type } => new[] { type },
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
         IrStatement.Define { Value.Expression: IrExpression.AddressField f } => new[] { f.Field.Owner },
         IrStatement.StoreField f => new[] { f.Field.Owner },

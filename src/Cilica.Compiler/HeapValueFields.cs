@@ -12,14 +12,34 @@ internal sealed class HeapValueFields
     internal ObjectTypeCatalog Catalog { get; }
     internal Dictionary<ObjectFieldId, ImmutableArray<ObjectField>> Fields { get; } = [];
 
+    internal Dictionary<ObjectFieldId, ImmutableArray<ObjectStaticField>> Statics { get; } = [];
+
     internal HeapValueFields(ValueTypeCatalog values, IReadOnlyDictionary<ObjectTypeId, ValueTypePlan> plans)
     {
         var arrays = values.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value)
             .Select(a => a.ArrayElement!.Type!).Distinct().Select(type => new ObjectValueArrayLayout(type,
                 plans[type].Slots.IsEmpty ? [new ObjectStorage.Int32()] : [.. plans[type].Slots.Select(s => s.Storage)]) { Empty = plans[type].Slots.IsEmpty }).ToImmutableArray();
-        if (!values.References.Types.Any(t => t.Fields.Any(f => f.Storage is ObjectStorage.Value)))
-        { Catalog = values.References with { ValueArrays = arrays }; ObjectModelValidator.Validate(Catalog); return; }
         int count = 0;
+        var statics = ImmutableArray.CreateBuilder<ObjectStaticField>();
+        foreach (var field in values.References.Statics)
+        {
+            if (field.Id.Component != -1) throw new ArgumentException("Logical static fields cannot contain expanded components.");
+            if (field.Type.Kind != IrTypeKind.Value) { statics.Add(field); ++count; continue; }
+            var slots = plans[field.Type.Class!].Slots;
+            int size = Math.Max(1, slots.Length);
+            if (size > ObjectModelLimits.MaximumFields - count) throw new ArgumentException("Expanded static field limit exceeded.");
+            count += size;
+            var expanded = Enumerable.Range(0, size).Select(i => field with {
+                Id = field.Id with { Component = i },
+                Type = slots.IsEmpty ? IrType.Int32 : slots[i].Storage switch {
+                    ObjectStorage.Int32 => IrType.Int32,
+                    ObjectStorage.Int64 => IrType.Int64,
+                    ObjectStorage.Reference reference => IrType.Reference(reference.Type),
+                    _ => throw new ArgumentException("Static payload leaf is not scalar.")
+                }
+            }).ToImmutableArray();
+            Statics.Add(field.Id, expanded); statics.AddRange(expanded);
+        }
         var layouts = ImmutableArray.CreateBuilder<ObjectTypeLayout>();
         foreach (var layout in values.References.Types)
         {
@@ -44,7 +64,7 @@ internal sealed class HeapValueFields
             if (count > ObjectModelLimits.MaximumFields) throw new ArgumentException("Expanded heap field limit exceeded.");
             layouts.Add(layout with { Fields = fields.ToImmutable() });
         }
-        Catalog = values.References with { Types = layouts.ToImmutable(), ValueArrays = arrays };
+        Catalog = values.References with { Types = layouts.ToImmutable(), ValueArrays = arrays, Statics = statics.ToImmutable() };
         ObjectModelValidator.Validate(Catalog);
     }
 }

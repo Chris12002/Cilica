@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v42",
-    "nativeProfileEvidence": "Public baseline revalidated at AC5b.4 on native v42 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC5b.5 on native v42/layout v17 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 29,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "793b5676fd91239edde20ab023807b3eb113b3246c73443cb86bbf1763d008c9",
-    "latestSlice": "AC5b.4",
+    "fixtureSha256": "0afc59a15807040dfc9bd100573cfe05f25c6e9f640e4688b7a67e27182c53cd",
+    "latestSlice": "AC5b.5",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -193,7 +193,7 @@
     "AC5b": {
       "prerequisites": ["AC0"],
       "status": "in-progress",
-      "completedSubslices": ["AC5b.1", "AC5b.2", "AC5b.3", "AC5b.4"],
+      "completedSubslices": ["AC5b.1", "AC5b.2", "AC5b.3", "AC5b.4", "AC5b.5"],
       "remaining": "Enum arrays and operations, tuples, static array data and remaining real-closure storage gaps."
     },
     "AC5b.1": {
@@ -215,6 +215,11 @@
       "prerequisites": ["AC0"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0030-wide-static-storage.md"
+    },
+    "AC5b.5": {
+      "prerequisites": ["AC5b.4"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0031-static-inline-value-copies.md"
     },
     "AC6": {
       "prerequisites": [
@@ -594,7 +599,7 @@
     {"id": "ByteArray", "slice": "AC7a", "publicFixture": "Probe_ByteArray", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering."}, "privateWitness": "probes.json; Probe_ByteArray", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200002f in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "baselineNote": "The public fixture retains an array local; storage validation rejects before the original audit fixture's newarr operand. Both IL bodies were inspected. No implementation support changed."},
     {"id": "Utf8", "slice": "AC7b", "publicFixture": "Probe_Utf8", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020002c2 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_Utf8"},
     {"id": "Sha256", "slice": "AC7c", "publicFixture": "Probe_Sha256", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200034c in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_Sha256"},
-    {"id": "EngineStep", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_EngineStep", "currentDiagnostic": "CIL2001", "currentEvidence": "artifacts/alchemy-nullable/Probe_EngineStep.json", "currentStatus": "nullable-mapping-passed; next blocker remains", "nextSlice": "AC8"},
+    {"id": "EngineStep", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_EngineStep", "currentDiagnostic": "CIL2001", "currentEvidence": "artifacts/alchemy-static-values/engine-and-state.json", "currentStatus": "static-inline-value-storage-passed; nonpublic generic argument at Step IL_055f", "nextSlice": "AC8"},
     {"id": "StateLookup", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_StateLookup", "currentDiagnostic": "CIL2003", "currentEvidence": "artifacts/alchemy-nested-enums/state-lookup.json", "currentStatus": "nested-enum-storage-passed; configured combined type limit reached", "nextSlice": "AC8"},
     {"id": "CanonicalHash", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_CanonicalHash", "currentDiagnostic": "CIL3015", "currentEvidence": "artifacts/alchemy-nullable/Probe_CanonicalHash.json", "currentStatus": "nullable-mapping-passed; next blocker remains", "nextSlice": "AC7c"},
     {"id": "RealRandom", "slice": "AC0", "publicFixture": null, "status": "native-validated-at-audit", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_RealRandom"},
@@ -623,7 +628,7 @@
     {"id": "NullableBoxingAndConversions", "slice": "AC1b", "status": "partially-implemented", "reason": "AC1b.1–AC1b.3 admit named-struct and selected integer/Boolean/Char/public Int32-enum nullable box/unbox.any, direct operators, representative lifted/checked expressions and exact boxed type tests including nullable targets. AC1b.4 permits proven confined scalar boxes alongside independent interface operations (13 further native probes). Raw scalar/nullable unbox, direct scalar interface views/dispatch and unproven box escapes in those compositions remain unsupported. There are 31 nullable, 18 scalar and 29 boxed type-test native probes plus allocation-budget checks; private replay roots were not rerun."},
     {"id": "NullableKeyOperations", "slice": "AC3", "status": "confirmed-blocker", "reason": "Nullable null/equality/hash selection must not use ordinary nonnull value-key semantics; an isolated owned-core IsNull regression verifies the diagnostic."},
     {"id": "DirectValueReturnToHeapField", "slice": "AC8", "status": "confirmed-blocker", "reason": "Existing destination/exception-order limitation, now pinned by NullableProbe.UnsupportedHeapReturn; materialized field copies work."},
-    {"id": "StaticInlineValues", "slice": "AC8", "status": "confirmed-blocker", "reason": "Engine Step advances to a static application-ID field; NullableProbe.UnsupportedStaticInline reproduces the general static inline-value storage rejection."},
+    {"id": "StaticInlineValues", "slice": "AC8", "status": "native-validated-bounded", "reason": "AC5b.5 admits whole static inline-value copies, including reference and wide leaves. NullableProbe.StaticInline and seven additional probes execute natively. Static addresses remain unsupported; real Step advances to a nonpublic generic argument."},
     {"id": "EnumPayloadBounds", "slice": "AC5b", "status": "confirmed-blocker", "reason": "AC5b.1 admits top-level internal Int32 enum storage. Non-Int32 payloads and generic/boxed nonpublic operands remain rejected; the internal field fixture now stops at its separate member-access gate."}
   ]
 }

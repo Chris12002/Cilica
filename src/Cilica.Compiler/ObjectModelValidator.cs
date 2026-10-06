@@ -159,17 +159,31 @@ public static class ObjectModelValidator
         foreach (var declaration in model.Delegates)
             Require(declaration.Parameters.Append(declaration.ReturnType).All(p => p.Class is null || Known(p.Class)), "delegate signature type is outside the catalog.");
         Require(!model.Statics.IsDefault && model.Statics.Length <= ObjectModelLimits.MaximumFields - fieldIdentities.Count && (model.Integer64 || model.Statics.IsEmpty), "invalid static field count/profile.");
-        var staticIds = new HashSet<(string Hash, string Specialization, int Token)>();
+        var staticIds = new HashSet<(string Hash, string Specialization, int Token, int Component)>();
+        var staticDeclarations = new Dictionary<(string Hash, string Specialization, int Token), ObjectStaticField>();
+        var instanceDeclarations = fieldIdentities.Select(f => (f.Hash, f.Specialization, f.Token)).ToHashSet();
         foreach (var field in model.Statics)
-            Require(field is not null && field.Id is { Component: -1 } && Identity(field.Id.Owner, 0x02)
+        {
+            Require(field is not null && field.Id is { Component: >= -1 and < ObjectModelLimits.MaximumFields } && Identity(field.Id.Owner, 0x02)
                 && (field.Id.Token >> 24) == 0x04 && (field.Id.Token & 0x00ffffff) != 0
-                && staticIds.Add((field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token))
-                && !fieldIdentities.Contains((field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token, -1))
+                && staticIds.Add((field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token, field.Id.Component))
+                && !instanceDeclarations.Contains((field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token))
                 && ObjectLexicalAccess.Valid(field.Id.Owner, field.LexicalOwners)
                 && (field.LexicalOwners.IsEmpty || ObjectLexicalAccess.Public(field.LexicalOwners) == field.OwnerExternallyVisible)
                 && (field.Attributes & FieldAttributes.Static) != 0 && FieldAttributesSupported(field.Attributes & ~FieldAttributes.Static)
-                && (field.Type == IrType.Int32 || field.Type == IrType.Int64 || field.Type is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false }
-                    && ReferenceIdentity(field.Type.Class, model.ObjectBase) && Known(field.Type.Class!)), "invalid static field identity, flags or storage.");
+                && (field.Type == IrType.Int32 || field.Type == IrType.Int64
+                    || inlineFields && field.Id.Component == -1 && field.Type is { Kind: IrTypeKind.Value, Element: null, ReadOnly: false }
+                        && Identity(field.Type.Class, 0x02)
+                    || field.Type is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false }
+                        && ReferenceIdentity(field.Type.Class, model.ObjectBase) && Known(field.Type.Class!)), "invalid static field identity, flags or storage.");
+            var key = (field.Id.Owner.ContentHash, field.Id.Owner.Specialization, field.Id.Token);
+            if (staticDeclarations.TryGetValue(key, out var prior))
+                Require(prior.Id.Component >= 0 && field.Id.Component == prior.Id.Component + 1
+                    && ObjectLexicalAccess.SameStatic(prior with { Id = prior.Id with { Component = field.Id.Component }, Type = field.Type }, field),
+                    "expanded static components must preserve one declaration and contiguous leaf order.");
+            else Require(field.Id.Component is -1 or 0, "expanded static components must start at zero.");
+            staticDeclarations[key] = field;
+        }
         ObjectLexicalAccess.Consistent(model.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners))
             .Concat(model.Statics.Select(f => (f.Id.Owner, f.LexicalOwners))));
         Require(!model.ValueArrays.IsDefault && model.ValueArrays.Length <= ObjectModelLimits.MaximumTypes
@@ -215,7 +229,7 @@ public static class ObjectModelValidator
         var visited = new HashSet<ObjectTypeId>();
         var pending = new Stack<ObjectTypeId>();
         foreach (var root in model.Roots) pending.Push(root);
-        foreach (var field in model.Statics) if (field.Type.Class is { } reference) pending.Push(reference);
+        foreach (var field in model.Statics) if (field.Type is { Kind: IrTypeKind.Reference, Class: { } reference }) pending.Push(reference);
         pending.Push(model.ObjectBase);
         while (pending.TryPop(out ObjectTypeId? id))
             if (visited.Add(id))

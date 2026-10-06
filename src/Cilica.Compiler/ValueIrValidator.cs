@@ -28,6 +28,7 @@ public static class ValueIrValidator
             if (box is not null) pending.Push(box);
         }
         foreach (var field in program.Types.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>()) pending.Push(field.Type);
+        foreach (var field in program.Types.References.Statics.Where(f => f.Type.Kind == IrTypeKind.Value)) pending.Push(field.Type.Class!);
         foreach (var array in program.Types.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value)) pending.Push(array.ArrayElement!.Type!);
         foreach (var argument in program.Types.References.Interfaces.SelectMany(i => i.Arguments)) if (argument.Value is { } value) pending.Push(value);
         var visited = new HashSet<ObjectTypeId>();

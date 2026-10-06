@@ -289,7 +289,19 @@ public static class ValueScalarLowering
                         continue;
                     }
                     if (statement is IrStatement.StoreStatic staticStore)
-                    { Emit(staticStore with { Value = One(staticStore.Value) }); continue; }
+                    {
+                        if (heap.Statics.TryGetValue(staticStore.Field, out var components))
+                        {
+                            var sources = values[staticStore.Value];
+                            for (int i = 0; i < components.Length; ++i)
+                            {
+                                int source = sources.IsEmpty ? Define(IrType.Int32, staticStore.ILOffset, new IrExpression.Constant(0)) : sources[i];
+                                Emit(staticStore with { Field = components[i].Id, Value = source });
+                            }
+                        }
+                        else Emit(staticStore with { Value = One(staticStore.Value) });
+                        continue;
+                    }
                     if (statement is IrStatement.StoreField fieldStore)
                     {
                         if (heap.Fields.TryGetValue(fieldStore.Field, out var components))
@@ -311,6 +323,14 @@ public static class ValueScalarLowering
                     var ids = ImmutableArray.CreateBuilder<int>();
                     switch (value.Expression)
                     {
+                        case IrExpression.LoadStatic field when heap.Statics.TryGetValue(field.Field, out var loadedStatics):
+                            for (int i = 0; i < loadedStatics.Length; ++i)
+                            {
+                                int loaded = Define(expanded.IsEmpty ? IrType.Int32 : expanded[i], value.ILOffset,
+                                    new IrExpression.LoadStatic(loadedStatics[i].Id), definition.Exceptional);
+                                if (!expanded.IsEmpty) ids.Add(loaded);
+                            }
+                            break;
                         case IrExpression.LoadElement vectorElement when vectorElement.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Value:
                             for (int i = 0; i < Math.Max(1, expanded.Length); ++i)
                             {

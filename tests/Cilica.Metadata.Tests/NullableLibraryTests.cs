@@ -61,7 +61,7 @@ public sealed class NullableLibraryTests
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = resolver.OpenInput(typeof(NullableProbe).Assembly.Location).Value!;
         var results = Probes.Select(p => p.Name).Where(n => n != "DirectOperators").Concat(MemberGaps)
-            .Append(nameof(NullableProbe.UnsupportedHeapReturn)).Append(nameof(NullableProbe.UnsupportedStaticInline))
+            .Append(nameof(NullableProbe.UnsupportedHeapReturn))
             .Append(nameof(NullableProbe.UnsupportedEnumWidth)).Append(nameof(NullableProbe.UnsupportedEnumVisibility)).ToDictionary(name => name, name =>
             ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(NullableProbe).GetMethod(name)!.MetadataToken), implementation));
@@ -109,9 +109,6 @@ public sealed class NullableLibraryTests
         var heapReturn = results[nameof(NullableProbe.UnsupportedHeapReturn)];
         Assert.False(heapReturn.Success);
         Assert.Contains("Direct struct-return calls stored into heap fields", Assert.Single(heapReturn.Diagnostics).Message, StringComparison.Ordinal);
-        var staticValue = results[nameof(NullableProbe.UnsupportedStaticInline)];
-        Assert.False(staticValue.Success);
-        Assert.Contains("Static fields currently require", Assert.Single(staticValue.Diagnostics).Message, StringComparison.Ordinal);
         var enumWidth = results[nameof(NullableProbe.UnsupportedEnumWidth)];
         Assert.False(enumWidth.Success);
         Assert.Contains("NullableSmallKind", Assert.Single(enumWidth.Diagnostics).Message, StringComparison.Ordinal);

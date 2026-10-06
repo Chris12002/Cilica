@@ -292,7 +292,7 @@ namespace Cilica.Fixtures.Execution
             return holder.Value.Value.Value;
         }
         private static int ReadId(NullableId value) => value.Value;
-        public static int UnsupportedStaticInline(int a, int b) => ReadId(NullableStaticValues.Value);
+        public static int StaticInline(int a, int b) => ReadId(NullableStaticValues.Value);
         public static int UnsupportedEnumVisibility(int a, int b) { var holder = new NullableInternalEnumHolder(); holder.Value = (NullableInternalKind)a; return (int)holder.Value; }
         public static int UnsupportedEnumWidth(int a, int b) { NullableSmallKind? value = new NullableSmallKind?((NullableSmallKind)a); return (int)value.Value; }
         public static int ScalarBox(int a, int b) { int? value = a; object boxed = value; return boxed == null ? a : b; }
