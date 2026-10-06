@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Single.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Single.cs",
+      "sha256": "70fac6471bcb2868638b5b73ee58bb5b0a913cd08ef514d6c1420fed9468bfbb"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/OfType.SpeedOpt.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/OfType.SpeedOpt.cs",
       "sha256": "924bd49846d36dd55af0b1855cf302d8e2912370609b5c856543d2baabc47f99"
@@ -676,6 +681,18 @@
         "Reference-result OfType.Select currently fails closed on the existing variance-only interface-dispatch boundary; value/nullable projection has native evidence."
       ],
       "scope": "AC6.8 direct OfType over admitted nongeneric reference enumerators and bounded vectors; reference, Int32, nullable and named-value results tested. Full boxed collection factories, reference-result projection composition, general variance and remaining LINQ methods are not added."
+    },
+    {
+      "path": "library/Cilica.Core/Enumerable.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Single.cs",
+      "scope": "AC6.9 predicate overloads for admitted array/reference-enumerator sources; parameterless/default-value overloads and boxed collection factories remain unsupported.",
+      "algorithms": [
+        "Predicate Single/SingleOrDefault null order, first loaded match, remainder scan, exact match-count messages and fallback disposal."
+      ],
+      "changes": [
+        "Use direct array indexing in place of the array span; List span access is not admitted.",
+        "Use a private Int32 found flag within admitted by-reference carriers."
+      ]
     }
   ],
   "ownedAdapters": [

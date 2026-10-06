@@ -538,3 +538,21 @@ logical/scalar dispatch packet checks, adjacent boxing and the public baseline p
 Integer-object CIL is v13 and interface plan v9; native v49/layout v20 are unchanged.
 Two exact grants are added. Frozen engine discovery advances to predicate Single
 in ZombieSiege.AdvanceRound IL_0063; state remains 257/256 identities. See ADR AC0054.
+
+
+### Predicate Single and SingleOrDefault (AC6.9)
+
+The two-argument predicate overloads now preserve eager null checks, first loaded
+match identity/copies, remainder scanning and exact no/multiple-match messages.
+Arrays use direct indexing; supported reference cursors retain using disposal,
+including disposal faults that replace earlier results or exceptions. Named inline
+and nullable results use existing rooted copy/return lowering. Parameterless and
+explicit-default overloads, List span access and boxed factories remain diagnostic.
+
+Sixteen probes pass 4,704 repeated native/.NET comparisons at O0/O2 with forced GC,
+ASan/UBSan and exact cleanup. All 43 selected Single, adjacent First and public
+baseline tests pass. No compiler profile, intrinsic grant or resource limit changes.
+Frozen EngineStep advances to a metadata-classification limit in FinalizeAccepted
+IL_0165; StateLookup remains at 257/256 discovered identities. These are partial
+closure failures, not measured emitted layouts. Full replay remains unverified.
+See ADR AC0055 and artifacts/alchemy-single.

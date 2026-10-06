@@ -27,6 +27,49 @@ namespace System.Linq
                 return Cilica.Runtime.SelectIterator<TSource, TResult>.FromArray(array, selector, array.Length);
             return new Cilica.Runtime.SelectIterator<TSource, TResult>(source, null, selector);
         }
+        public static TSource SingleOrDefault<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate) =>
+            TryGetSingle(source, predicate, out _);
+        public static TSource Single<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            TSource value = TryGetSingle(source, predicate, out int found);
+            if (found == 0) throw new InvalidOperationException("Sequence contains no matching element");
+            return value;
+        }
+        private static TSource TryGetSingle<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate, out int found)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (source is TSource[] array)
+            {
+                for (int i = 0; i < array.Length; i++)
+                {
+                    TSource result = array[i];
+                    if (predicate(result))
+                    {
+                        for (i++; i < array.Length; i++)
+                            if (predicate(array[i])) throw new InvalidOperationException("Sequence contains more than one matching element");
+                        found = 1; return result;
+                    }
+                }
+            }
+            else
+            {
+                using (IEnumerator<TSource> e = source.GetEnumerator())
+                {
+                    while (e.MoveNext())
+                    {
+                        TSource result = e.Current;
+                        if (predicate(result))
+                        {
+                            while (e.MoveNext())
+                                if (predicate(e.Current)) throw new InvalidOperationException("Sequence contains more than one matching element");
+                            found = 1; return result;
+                        }
+                    }
+                }
+            }
+            found = 0; return default;
+        }
         public static TSource FirstOrDefault<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate) =>
             TryGetFirst(source, predicate, out _);
         public static TSource First<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
