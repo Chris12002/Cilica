@@ -109,8 +109,10 @@ public static class ObjectModelValidator
                 && Hash(contract.Source.ContentHash), "invalid interface source.");
             var id = ObjectTypeId.From(contract.Source);
             Require(Identity(id, 0x02) && !types.ContainsKey(id) && interfaces.TryAdd(id, contract), "invalid or duplicate class/interface identity.");
-            Require(InterfaceAttributes(contract.Attributes) && contract.ExternallyVisible && Edges(contract.Parents),
-                "interfaces require public visibility, public enclosing types and valid parent identities.");
+            Require(InterfaceAttributes(contract.Attributes, model.Integer64)
+                && (contract.ExternallyVisible ? (contract.Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic
+                    : model.Integer64 && (contract.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.NotPublic)
+                && Edges(contract.Parents), "interfaces require public or admitted top-level internal visibility and valid parent identities.");
             Require(!contract.Arguments.IsDefault && contract.Arguments.Length <= ObjectModelLimits.MaximumInterfaceArguments - argumentCount
                 && (contract.Arguments.IsEmpty ? id.Specialization.Length == 0 : model.Integer64 && id.Specialization.Length == 64),
                 "closed interface arguments require the explicit profile, a specialized identity and bounded argument facts.");
@@ -271,9 +273,10 @@ public static class ObjectModelValidator
         && (attributes & ~((abstractClasses ? TypeAttributes.Abstract : 0) | TypeAttributes.VisibilityMask | TypeAttributes.Sealed | TypeAttributes.SpecialName
             | TypeAttributes.RTSpecialName | TypeAttributes.BeforeFieldInit | SerializableMetadata)) == 0;
 
-    internal static bool InterfaceAttributes(TypeAttributes attributes) =>
+    internal static bool InterfaceAttributes(TypeAttributes attributes, bool internalTopLevel = false) =>
         (attributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) == (TypeAttributes.Interface | TypeAttributes.Abstract)
-        && (attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic
+        && ((attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic
+            || internalTopLevel && (attributes & TypeAttributes.VisibilityMask) == TypeAttributes.NotPublic)
         && (attributes & ~(TypeAttributes.VisibilityMask | TypeAttributes.Interface | TypeAttributes.Abstract
             | TypeAttributes.SpecialName | TypeAttributes.RTSpecialName | TypeAttributes.BeforeFieldInit)) == 0;
 

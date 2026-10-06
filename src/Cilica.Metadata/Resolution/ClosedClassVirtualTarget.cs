@@ -6,7 +6,7 @@ namespace Cilica.Metadata.Resolution;
 public sealed record ClosedClassVirtualTarget(ResolvedMethod Declaration, ResolvedMethod Slot,
     ConstructedType Receiver, ResolvedMethod Implementation)
 {
-    public const string Profile = "closed-class-virtual-target-v1";
+    public const string Profile = "closed-class-virtual-target-v2";
 }
 
 public sealed partial class AssemblyResolver

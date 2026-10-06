@@ -2487,3 +2487,20 @@ or enum parameters, struct results, byrefs and multicast remain unsupported. Fro
 engine discovery next rejects internal IEffectScope metadata while resolving
 GameStateScope.set_CurrentRound; state still exceeds 256 identities. Full replay
 remains unfinished. See ADR AC0047.
+
+### Top-level internal interface dispatch (AC8.8)
+
+The explicit closed/integer-object profiles admit top-level internal abstract
+interfaces with public instance members. Catalog/declaration visibility stays
+consistent; calls and type tests require the caller's image to match an internal
+contract at both logical and scalar stages. Public contracts retain external use.
+Seven probes pass 2,058 O0/O2 native/.NET comparisons, including explicit/inherited
+mappings, class slots, generic value payloads, nulls and interface casts/arrays.
+119 selected checks pass initially; the corrected detached assertion and foreign
+CIL check pass separately. Exact metadata work exhaustion and the old public-only
+resolver boundary remain tested. Profiles advance to object layout v19, object IR
+v20, interface plan v8, integer-object CIL v10 and native v47; physical storage is
+unchanged. Closed interface/class/constrained metadata targets are v2. Nonpublic
+nested contracts, friend assemblies, default/static interface bodies and cross-image
+internal calls remain unsupported. Frozen engine discovery next needs protected
+DomainEvent base construction; state remains over its type quota. See ADR AC0048.

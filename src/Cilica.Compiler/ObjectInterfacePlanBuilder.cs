@@ -170,7 +170,8 @@ public static class ObjectInterfacePlanBuilder
             const MethodAttributes required = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract;
             const MethodAttributes allowed = required | MethodAttributes.NewSlot | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
             if ((input.OwnerAttributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
-                || (input.Attributes & required) != required || (input.Attributes & ~allowed) != 0 || input.HasBody || !input.OwnerExternallyVisible)
+                || (input.Attributes & required) != required || (input.Attributes & ~allowed) != 0 || input.HasBody || !input.OwnerExternallyVisible && !(closed && input.OwnerAssemblyVisible
+                    && (input.OwnerAttributes & TypeAttributes.VisibilityMask) == TypeAttributes.NotPublic))
                 Fail("Interface declarations require public abstract instance contracts without a body.", input.Source.Name);
             var parameters = Parameters(input, owner); var returned = Type(input.Signature.ReturnType, true);
             var declaration = new ObjectInterfaceDeclaration(input.Source, owner, input.DeclaredName,

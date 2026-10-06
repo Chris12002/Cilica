@@ -39,7 +39,10 @@ public static class ObjectInterfacePlanValidator
                 && declaration.Source.Specialization == declaration.Owner.Specialization
                 && Identity(IrMethodId.From(declaration.Source), 0x06) && declaration.Source.AssemblyIdentity is not null
                 && declaration.Source.Name is not null && !string.IsNullOrEmpty(declaration.Name)
-                && declaration.OwnerExternallyVisible, "invalid interface declaration provenance/owner/name.");
+                && declaration.OwnerExternallyVisible == contracts[declaration.Owner].ExternallyVisible
+                && (declaration.OwnerExternallyVisible || plan.Types.Integer64
+                    && (contracts[declaration.Owner].Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.NotPublic),
+                "invalid interface declaration provenance/owner/name.");
             const MethodAttributes required = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract;
             const MethodAttributes allowed = required | MethodAttributes.NewSlot | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
             Require((declaration.Attributes & required) == required && (declaration.Attributes & ~allowed) == 0

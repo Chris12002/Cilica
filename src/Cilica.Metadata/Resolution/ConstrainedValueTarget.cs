@@ -8,7 +8,7 @@ namespace Cilica.Metadata.Resolution;
 public sealed record ConstrainedValueTarget(ResolvedMethod Declaration, ConstructedType Receiver,
     ResolvedMethod Implementation, bool IsExplicit)
 {
-    public const string Profile = "constrained-value-method-target-v1";
+    public const string Profile = "constrained-value-method-target-v2";
 }
 
 public sealed partial class AssemblyResolver

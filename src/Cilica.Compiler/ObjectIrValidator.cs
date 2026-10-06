@@ -199,6 +199,8 @@ internal sealed partial class ObjectIrRules
     internal bool TypeTest(IrMethod method, ObjectTypeId? target) => target is { ArrayElement: not null }
         ? _program.Flow.Types.Integer64 && ArrayAllocation(method, target)
         : target is not null && (target == _program.Flow.Types.String || _contracts.Contains(target)
+            && (_program.Flow.Types.Interfaces.Single(i => ObjectTypeId.From(i.Source) == target).ExternallyVisible
+                || _program.Flow.Types.Integer64 && method.Source.ContentHash == target.ContentHash)
             || _delegates.TryGetValue(target, out var callable) && callable.ExternallyVisible || _layouts.TryGetValue(target, out var layout)
             && (Binding(IrMethodId.From(method.Source)).Owner == target
                 || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public
@@ -360,7 +362,8 @@ internal sealed partial class ObjectIrRules
         if (_interfaces.Has(target))
         {
             var declaration = _interfaces.Declaration(target);
-            return !allocation && nullCheck && virtualDispatch && arguments.Length == declaration.Parameters.Length
+            return (declaration.OwnerExternallyVisible || _program.Flow.Types.Integer64 && caller.Source.ContentHash == declaration.Owner.ContentHash)
+                && !allocation && nullCheck && virtualDispatch && arguments.Length == declaration.Parameters.Length
                 && arguments.Select((argument, index) => argument >= 0 && argument < values.Count
                     && _types.Assignable(values[argument], declaration.Parameters[index])).All(valid => valid);
         }

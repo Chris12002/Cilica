@@ -180,9 +180,10 @@ public sealed partial class AssemblyResolver
     private void ValidateInterfaceType(ConstructedType owner, MemberResolutionBudget budget, bool closed = false)
     {
         var type = owner.Definition.Assembly.Image.Reader.GetTypeDefinition(owner.Definition.Handle);
+        bool internalOwner = closed && (type.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.NotPublic && type.GetDeclaringType().IsNil;
         if (MetadataTokens.GetRowNumber(owner.Definition.Handle) == 1 || !closed && owner.Arguments.Count != 0
             || (type.Attributes & (TypeAttributes.Interface | TypeAttributes.Abstract | TypeAttributes.Sealed)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
-            || (type.Attributes & TypeAttributes.VisibilityMask) is not (TypeAttributes.Public or TypeAttributes.NestedPublic)
+            || !internalOwner && (type.Attributes & TypeAttributes.VisibilityMask) is not (TypeAttributes.Public or TypeAttributes.NestedPublic)
             || !type.BaseType.IsNil || type.GetMethodImplementations().Count != 0)
             throw new UnsupportedBindingException("Interface dispatch requires admitted public abstract interfaces without default remapping or class bases.");
         InspectOwner(owner.Definition, budget);
@@ -193,7 +194,8 @@ public sealed partial class AssemblyResolver
             if (!closed && definition.GetGenericParameters().Count != 0)
                 throw new UnsupportedBindingException("Generic interface declaring owners require later lowering.");
             enclosing = definition.GetDeclaringType();
-            if ((definition.Attributes & TypeAttributes.VisibilityMask) != (enclosing.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic))
+            if ((definition.Attributes & TypeAttributes.VisibilityMask) != (enclosing.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic)
+                && !(internalOwner && enclosing.IsNil && (definition.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.NotPublic))
                 throw new UnsupportedBindingException("Interface dispatch requires public interfaces with public enclosing types.");
         }
         foreach (var field in type.GetFields())
