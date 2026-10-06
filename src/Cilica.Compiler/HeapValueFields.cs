@@ -76,10 +76,18 @@ internal sealed class HeapValueFields
                     throw new ArgumentException("Expanded delegate parameter limit exceeded.");
                 parameters.AddRange(expanded);
             }
+            bool valueResult = declaration.ReturnType.Kind == IrTypeKind.Value;
+            if (valueResult)
+            {
+                var resultSlots = ValueScalarLowering.ExpandSignatureType(declaration.ReturnType, plans);
+                if (resultSlots.Length >= IrLimits.MaximumParameters - parameters.Count)
+                    throw new ArgumentException("Expanded delegate result parameter limit exceeded.");
+                parameters.AddRange(resultSlots.Select(t => IrType.Location(t)));
+            }
             if (parameters.Count > IrLimits.MaximumParameters - delegateParameters)
                 throw new ArgumentException("Aggregate expanded delegate signature limit exceeded.");
             delegateParameters += parameters.Count;
-            delegates.Add(declaration with { Parameters = parameters.ToImmutable(), ParameterCount = parameters.Count });
+            delegates.Add(declaration with { Parameters = parameters.ToImmutable(), ParameterCount = parameters.Count, ReturnType = valueResult ? IrType.Void : declaration.ReturnType });
         }
         Catalog = values.References with { Types = layouts.ToImmutable(), ValueArrays = arrays, Statics = statics.ToImmutable(), Delegates = delegates.ToImmutable() };
         ObjectModelValidator.Validate(Catalog);

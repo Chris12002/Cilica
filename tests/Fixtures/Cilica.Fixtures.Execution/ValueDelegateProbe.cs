@@ -88,7 +88,7 @@ namespace Cilica.Fixtures.Execution
         }
         public static int Count(int a, int b) => LinqPredicateProbe.ValuePredicate(a,b);
         public static int DefaultQuery(int a, int b) => LinqFirstProbe.ValuePredicate(a,b);
-        public static int UnsupportedResult(int a, int b) { Func<int,int,ValueVectorCell> callback = Cell; return callback(a,b).Number; }
+        public static int ValueResult(int a, int b) { Func<int,int,ValueVectorCell> callback = Cell; return callback(a,b).Number; }
         private static void Ref(ref ValueVectorCell value) { value.Number++; }
         public static int UnsupportedByRef(int a, int b) { RefValueCallback callback = Ref; var value = Cell(a,b); callback(ref value); return value.Number; }
     }

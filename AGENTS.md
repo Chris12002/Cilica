@@ -455,3 +455,22 @@ cross-image access checks pass. General protected members and constructor chaini
 remain unsupported. Integer-object CIL v11, object IR v21 and native v48; layout v19
 is unchanged. Frozen engine discovery next needs Select in ReleaseFinished, whose
 selector returns SpellId; state still exceeds its identity quota. See ADR AC0049.
+
+
+### Inline-value delegate results (AC2.4)
+
+Single-target delegates can return admitted named inline values, including nested,
+empty, nullable and reference-bearing structs. The logical signature retains the
+exact value identity. Lowering appends writable caller-owned result slots and uses
+the existing struct-return path; reference leaves stay rooted across the call and
+no callee-frame address escapes. Empty results still invoke the target and preserve
+null/fault behavior. Expanded arguments and results share the existing budget.
+
+Eleven probes pass 3,234 repeated native/.NET comparisons at O0/O2 with forced GC,
+ASan/UBSan and exact cleanup. Focused malformed-IR checks reject invalid nominal
+results, hidden slots and fault exits; the public baseline remains 31 native
+controls and 16 gaps. Native v49, object IR v22, object layout v20, integer-object
+CIL v12 and both delegate profiles v4 record the new calling convention. Direct
+wide/narrow/enum results, byrefs and multicast remain outside this slice. No core
+mapping or intrinsic grant changes. Frozen engine discovery still needs Select
+(and then Distinct); full saved-game execution remains unverified. See ADR AC0050.

@@ -31,7 +31,7 @@ public static class ValueIrValidator
         foreach (var field in program.Types.References.Statics.Where(f => f.Type.Kind == IrTypeKind.Value)) pending.Push(field.Type.Class!);
         foreach (var array in program.Types.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value)) pending.Push(array.ArrayElement!.Type!);
         foreach (var argument in program.Types.References.Interfaces.SelectMany(i => i.Arguments)) if (argument.Value is { } value) pending.Push(value);
-        foreach (var type in program.Types.References.Delegates.SelectMany(d => d.Parameters).Where(p => p.Kind == IrTypeKind.Value)) pending.Push(type.Class!);
+        foreach (var type in program.Types.References.Delegates.SelectMany(d => d.Parameters.Append(d.ReturnType)).Where(p => p.Kind == IrTypeKind.Value)) pending.Push(type.Class!);
         var visited = new HashSet<ObjectTypeId>();
         var layouts = program.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         while (pending.TryPop(out var id))

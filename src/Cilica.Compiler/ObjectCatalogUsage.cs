@@ -24,7 +24,7 @@ internal static class ObjectCatalogUsage
                     if (delegates.Contains(id))
                     {
                         var declaration = catalog.Delegates.Single(d => ObjectTypeId.From(d.Source) == id);
-                        foreach (var type in declaration.Parameters.Append(declaration.ReturnType))
+                        foreach (var type in declaration.Parameters.Append(declaration.ReturnType).Select(p => p.Kind == IrTypeKind.ManagedLocation ? p.Element! : p))
                             if (type.Kind == IrTypeKind.Reference && type.Class is { } reference) pending.Push(reference);
                     }
                 }

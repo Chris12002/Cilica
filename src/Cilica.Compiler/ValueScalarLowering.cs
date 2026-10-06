@@ -394,7 +394,7 @@ public static class ValueScalarLowering
                                 ids.Add(loaded);
                             }
                             break;
-                        case IrExpression.Call call when value.Type.Kind == IrTypeKind.Value:
+                        case IrExpression.Call or IrExpression.CallDelegate when value.Type.Kind == IrTypeKind.Value:
                             // Caller-owned typed result slots are rooted before the
                             // callee starts; no pointer into a popped frame returns.
                             Require(expanded.Length <= IrLimits.MaximumLocals - locals.Count, "return packet local limit exceeded.");
@@ -402,8 +402,14 @@ public static class ValueScalarLowering
                             var destinations = ImmutableArray.CreateBuilder<int>();
                             for (int i = 0; i < expanded.Length; ++i)
                                 destinations.Add(Define(IrType.Location(expanded[i]), value.ILOffset, new IrExpression.AddressLocal(resultStart + i)));
-                            Emit(new IrStatement.Invoke(value.ILOffset, call.Target, Arguments(call.Arguments, true, destinations.ToImmutable()),
-                                NullCheckReceiver: call.NullCheckReceiver, VirtualDispatch: call.VirtualDispatch));
+                            if (value.Expression is IrExpression.Call directResultCall)
+                                Emit(new IrStatement.Invoke(value.ILOffset, directResultCall.Target, Arguments(directResultCall.Arguments, true, destinations.ToImmutable()),
+                                    NullCheckReceiver: directResultCall.NullCheckReceiver, VirtualDispatch: directResultCall.VirtualDispatch));
+                            else
+                            {
+                                var callable = (IrExpression.CallDelegate)value.Expression;
+                                Emit(new IrStatement.InvokeDelegate(value.ILOffset, callable.Type, One(callable.Delegate), Arguments(callable.Arguments, true, destinations.ToImmutable())));
+                            }
                             for (int i = 0; i < expanded.Length; ++i)
                                 ids.Add(Define(expanded[i], value.ILOffset, new IrExpression.LoadLocation(destinations[i]), IrExceptionTarget.MethodExit));
                             break;

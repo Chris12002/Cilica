@@ -53,10 +53,14 @@ public static class ObjectModelValidator
                 && !declaration.Parameters.IsDefault && declaration.Parameters.Length == declaration.ParameterCount
                 && declaration.Parameters.All(p => p == IrType.Int32 || model.Integer64 && (p == IrType.Int64
                     || p is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false } && ReferenceIdentity(p.Class, model.ObjectBase)
-                    || inlineFields && p is { Kind: IrTypeKind.Value, Element: null, ReadOnly: false } && Identity(p.Class, 0x02)))
+                    || inlineFields && p is { Kind: IrTypeKind.Value, Element: null, ReadOnly: false } && Identity(p.Class, 0x02)
+                    || !inlineFields && p is { Kind: IrTypeKind.ManagedLocation, Class: null, ReadOnly: false, Element: { Element: null, ReadOnly: false } slot }
+                        && (slot == IrType.Int32 || slot == IrType.Int64 || slot.Kind == IrTypeKind.Reference && ReferenceIdentity(slot.Class, model.ObjectBase))))
                 && (declaration.ReturnType == IrType.Void || declaration.ReturnType == IrType.Int32
                     || model.Integer64 && declaration.ReturnType is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false } result
-                    && ReferenceIdentity(result.Class, model.ObjectBase)), "invalid delegate identity or signature.");
+                    && ReferenceIdentity(result.Class, model.ObjectBase)
+                    || inlineFields && model.Integer64 && declaration.ReturnType is { Kind: IrTypeKind.Value, Element: null, ReadOnly: false } returned
+                        && Identity(returned.Class, 0x02)), "invalid delegate identity or signature.");
             delegateParameters += declaration.ParameterCount;
             Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
         }
@@ -160,7 +164,7 @@ public static class ObjectModelValidator
             "delegate identity collides with another storage kind.");
         bool Known(ObjectTypeId id) => delegates.Contains(id) || types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id) || id == model.String;
         foreach (var declaration in model.Delegates)
-            Require(declaration.Parameters.Append(declaration.ReturnType).All(p => p.Class is null || (p.Kind == IrTypeKind.Value ? inlineFields && !Known(p.Class) : Known(p.Class))), "delegate signature type is outside the catalog.");
+            Require(declaration.Parameters.Append(declaration.ReturnType).Select(p => p.Kind == IrTypeKind.ManagedLocation ? p.Element! : p).All(p => p.Class is null || (p.Kind == IrTypeKind.Value ? inlineFields && !Known(p.Class) : Known(p.Class))), "delegate signature type is outside the catalog.");
         Require(!model.Statics.IsDefault && model.Statics.Length <= ObjectModelLimits.MaximumFields - fieldIdentities.Count && (model.Integer64 || model.Statics.IsEmpty), "invalid static field count/profile.");
         var staticIds = new HashSet<(string Hash, string Specialization, int Token, int Component)>();
         var staticDeclarations = new Dictionary<(string Hash, string Specialization, int Token), ObjectStaticField>();
@@ -243,7 +247,7 @@ public static class ObjectModelValidator
                     if (delegates.Contains(id))
                     {
                         var declaration = model.Delegates.Single(d => ObjectTypeId.From(d.Source) == id);
-                        foreach (var type in declaration.Parameters.Append(declaration.ReturnType))
+                        foreach (var type in declaration.Parameters.Append(declaration.ReturnType).Select(p => p.Kind == IrTypeKind.ManagedLocation ? p.Element! : p))
                             if (type.Kind == IrTypeKind.Reference && type.Class is { } reference) pending.Push(reference);
                     }
                 }

@@ -32,7 +32,7 @@ public sealed class ReferenceResultDelegateTests
         using var lifetime = resolver;
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(ReferenceResultDelegateProbe).Assembly.Location).Value!;
-        foreach (string suffix in new[] { "Covariance", "Wide", "Value", "ByRef", "Recursive" })
+        foreach (string suffix in new[] { "Covariance", "Wide", "ByRef", "Recursive" })
         {
             var method = typeof(ReferenceResultDelegateProbe).GetMethod("Unsupported" + suffix)!;
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, (MethodDefinitionHandle)MetadataTokens.EntityHandle(method.MetadataToken), implementation);

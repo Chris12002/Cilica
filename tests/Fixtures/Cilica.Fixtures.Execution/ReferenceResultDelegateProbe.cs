@@ -154,7 +154,7 @@ public static class ReferenceResultDelegateProbe
     public static long Wide(int value) => value;
     public static int UnsupportedWide(int input, int mode) => (int)new WideFactory(Wide)(input);
     public static DictionaryLeaf Value(int value) => default;
-    public static int UnsupportedValue(int input, int mode) => (int)new ValueFactory(Value)(input).Number;
+    public static int ValueResult(int input, int mode) => (int)new ValueFactory(Value)(input).Number;
     public static ref int ByRef(DelegateBox value) => ref value.Value;
     public static int UnsupportedByRef(int input, int mode) => new ByRefFactory(ByRef)(Make(input));
     public static RecursiveFactory Recursive(int value) => null;

@@ -23,7 +23,7 @@ public sealed class ValueDelegateTests
             (name, programs[i], typeof(ValueDelegateProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray(), persistentRoots: group == 4);
     }
     [Theory]
-    [InlineData("UnsupportedResult")] [InlineData("UnsupportedByRef")]
+    [InlineData("UnsupportedByRef")]
     public async Task Unsupported_value_delegate_shapes_remain_diagnostic(string name)
     {
         using var files = new ResolverFiles();

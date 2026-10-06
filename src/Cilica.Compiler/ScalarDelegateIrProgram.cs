@@ -5,7 +5,7 @@ namespace Cilica.Compiler;
 /// <summary>Checked delegate operations on the scalar boxed/location backend.</summary>
 public sealed record ScalarDelegateIrProgram(ScalarBoxedIrProgram Flow)
 {
-    public const string Profile = "scalar-delegates-ir-v3";
+    public const string Profile = "scalar-delegates-ir-v4";
 }
 
 public static class ScalarDelegateIrValidator
