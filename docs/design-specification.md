@@ -2623,3 +2623,13 @@ adjacent Select/First, core and public-baseline checks pass. No intrinsic, compi
 profile or resource limit changes. Frozen EngineStep still needs IOrderedEnumerable
 for OrderBy; StateLookup remains at 257/256 discovered identities. Full replay is
 unverified. See ADR AC0061 and artifacts/alchemy-concat.
+
+### Closed generic interface method metadata (AC8.14)
+
+Closed interface target v4 authenticates exact method arguments and selects final
+newslot generic implementations using open method signatures within closed owners.
+Implicit/explicit, inherited and reimplemented mappings preserve separate owner and
+method arguments, constraints and bounded metadata work. Generic override/class
+calls remain unsupported; executable interface dispatch is the next slice.
+135 selected metadata checks pass; no native compatibility claim or quota changes.
+See [ADR AC0062](decisions/AC0062-generic-interface-method-metadata.md).

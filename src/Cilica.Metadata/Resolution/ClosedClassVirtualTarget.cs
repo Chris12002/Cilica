@@ -24,6 +24,8 @@ public sealed partial class AssemblyResolver
             validate(declaration.DeclaringType);
             var authenticated = Method(assembly, declaration.Handle,
                 new(declaration.DeclaringType, SignatureList<TypeSignature>.Empty), declaredOnly: true, budget: budget);
+            if (authenticated.Signature.GenericArity != 0 || authenticated.MethodArguments.Count != 0)
+                throw new UnsupportedBindingException("Generic class calls require later dispatch lowering; only closed generic interface final slots are admitted.");
             if (authenticated != declaration)
                 throw new BadImageFormatException("Closed class declaration must match its exact metadata owner and signature.");
             ValidateClassVirtual(authenticated, closed: true);

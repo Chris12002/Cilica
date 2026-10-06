@@ -172,9 +172,11 @@ public sealed partial class AssemblyResolver
         const MethodAttributes allowed = required | MethodAttributes.NewSlot | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
         var flags = MethodFlags(method);
         if ((type.Attributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
-            || (flags & required) != required || (flags & ~allowed) != 0 || method.Signature.Header != 0x20
-            || method.Signature.GenericArity != 0 || !closed && owner.Arguments.Count != 0 || method.MethodArguments.Count != 0)
-            throw new UnsupportedBindingException("Exact interface dispatch requires public abstract instance declarations on admitted owners; generic methods and default/static members require later lowering.");
+            || (flags & required) != required || (flags & ~allowed) != 0
+            || method.Signature.Header != (closed && method.Signature.GenericArity > 0 ? 0x30 : 0x20)
+            || !closed && (owner.Arguments.Count != 0 || method.Signature.GenericArity != 0)
+            || method.MethodArguments.Count != method.Signature.GenericArity)
+            throw new UnsupportedBindingException("Exact interface dispatch requires public abstract instance declarations on admitted owners; generic methods require closed dispatch and final implementations; default/static members require later lowering.");
     }
 
     private void ValidateInterfaceType(ConstructedType owner, MemberResolutionBudget budget, bool closed = false)
@@ -251,7 +253,7 @@ public sealed partial class AssemblyResolver
             var flags = reader.GetMethodDefinition(handle).Attributes;
             if (!reader.StringComparer.Equals(reader.GetMethodDefinition(handle).Name, name)
                 || (flags & MethodAttributes.MemberAccessMask) != MethodAttributes.Public || (flags & MethodAttributes.Static) != 0
-                || reader.GetMethodDefinition(handle).GetGenericParameters().Count != 0) continue;
+                || reader.GetMethodDefinition(handle).GetGenericParameters().Count != declaration.Signature.GenericArity) continue;
             var candidate = Method(owner.Definition.Assembly, handle, closed ? new(owner, SignatureList<TypeSignature>.Empty) : null, declaredOnly: true, budget: budget);
             if (candidate.Signature != declaration.Signature)
             {
@@ -265,7 +267,7 @@ public sealed partial class AssemblyResolver
             if ((flags & ~(allowed | (closed ? MethodAttributes.Abstract : 0))) != 0
                 || (flags & MethodAttributes.Virtual) == 0 && (flags & (MethodAttributes.NewSlot | MethodAttributes.Final | MethodAttributes.Abstract)) != 0)
                 throw new UnsupportedBindingException("Implicit interface mappings require ordinary public instance methods; abstract slots need the closed dispatch profile.");
-            if ((flags & MethodAttributes.Abstract) != 0) ValidateClassVirtual(candidate, closed: closed);
+            if ((flags & MethodAttributes.Abstract) != 0 || candidate.Signature.GenericArity != 0) ValidateClassVirtual(candidate, closed: closed);
             match = candidate;
         }
         return match;

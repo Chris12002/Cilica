@@ -110,8 +110,8 @@ public sealed partial class AssemblyResolver
                 InspectMember(budget);
                 var definition = metadata.GetMethodDefinition(candidateHandle);
                 if (!metadata.StringComparer.Equals(definition.Name, name)) continue;
-                // Generic overloads cannot override the nongeneric declaration.
-                if (definition.GetGenericParameters().Count != 0) continue;
+                // Match before substituting method arguments, including generic overload arity.
+                if (definition.GetGenericParameters().Count != declaration.Signature.GenericArity) continue;
                 var candidate = Method(image, candidateHandle, closed ? new(owner, SignatureList<TypeSignature>.Empty) : null, declaredOnly: true, budget: budget);
                 if (candidate.Signature != declaration.Signature)
                 {
@@ -159,13 +159,17 @@ public sealed partial class AssemblyResolver
             || (definition.Attributes & MethodAttributes.Final) != 0
             || (method.DeclaringType.Definition.Assembly.Image.Reader.GetTypeDefinition(method.DeclaringType.Definition.Handle).Attributes & TypeAttributes.Abstract) == 0))
             throw new UnsupportedBindingException("Abstract class slots require a bodyless managed IL declaration on an abstract owner and cannot be final.");
+        bool genericFinalSlot = closed && method.Signature.GenericArity > 0
+            && method.MethodArguments.Count == method.Signature.GenericArity && method.Signature.Header == 0x30
+            && (definition.Attributes & (MethodAttributes.Final | MethodAttributes.NewSlot | MethodAttributes.Abstract))
+                == (MethodAttributes.Final | MethodAttributes.NewSlot);
         var admitted = allowed | (closed ? MethodAttributes.Abstract : 0);
         if ((definition.Attributes & MethodAttributes.Virtual) == 0 || (definition.Attributes & ~admitted) != 0
             || (definition.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public && !privateFinalSlot
-            || !closed && method.DeclaringType.Arguments.Count != 0 || method.MethodArguments.Count != 0
-            || method.Signature.Header != 0x20 || method.Signature.GenericArity != 0)
+            || !closed && method.DeclaringType.Arguments.Count != 0
+            || !genericFinalSlot && (method.MethodArguments.Count != 0 || method.Signature.Header != 0x20 || method.Signature.GenericArity != 0))
             throw new UnsupportedBindingException(allowPrivateFinalSlots
-                ? "Exact interface mapping bodies require public virtual or private final newslot nongeneric instance declarations without abstract or special runtime semantics."
+                ? "Exact interface mapping bodies require public virtual or private final newslot instance declarations; generic methods require final newslots without abstract or special runtime semantics."
                 : "Exact class dispatch requires public nongeneric instance virtual declarations without abstract or special runtime semantics.");
     }
 }
