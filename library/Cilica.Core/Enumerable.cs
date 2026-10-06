@@ -7,6 +7,12 @@ namespace System.Linq
 {
     public static partial class Enumerable
     {
+        public static IEnumerable<TSource> Distinct<TSource>(IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (source is TSource[] array) return Cilica.Runtime.DistinctIterator<TSource>.FromArray(array, array.Length);
+            return new Cilica.Runtime.DistinctIterator<TSource>(source);
+        }
         public static IEnumerable<TResult> Select<TSource, TResult>(IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
             if (source == null) throw new ArgumentNullException("source");

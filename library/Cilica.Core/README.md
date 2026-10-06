@@ -30,6 +30,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/Enumerable.cs \
   --source library/Cilica.Core/WhereIterator.cs \
   --source library/Cilica.Core/SelectIterator.cs \
+  --source library/Cilica.Core/DistinctIterator.cs \
   --source library/Cilica.Core/StringBuilder.cs \
   --source library/Cilica.Core/StringConcatenation.cs \
   --source library/Cilica.Core/List.cs \
@@ -492,3 +493,23 @@ public-baseline checks pass. No compiler profile or intrinsic grants change.
 Boxed collection factories, indexed Select and nongeneric Current remain outside
 scope. Frozen engine discovery advances to Distinct at ReleaseFinished IL_004e;
 state remains 257/256 identities. Complete replay remains unverified. See ADR AC0051.
+
+
+### Default-comparer Distinct (AC6.7)
+
+Enumerable.Distinct now preserves lazy acquisition, first-iterator reuse/cloning,
+cached Current, insertion/fault order and cleanup for admitted sources. Any uses
+first-element query paths without hashing. Count/ToArray build independent sets;
+materialization copies stored values, including mutable hash results. Public
+HashSet and private query sets share one non-enumerable SetStorage helper, keeping
+unsupported collection factories out of closures that only need internal storage.
+The public wrapper owns one additional managed storage object.
+
+Eighteen probes pass 5,292 repeated O0/O2 native/.NET comparisons with forced GC,
+ASan/UBSan and exact cleanup, including the value Where/Select/Distinct/ToArray
+pipeline. The composed run passes 59 tests; all 11 existing HashSet checks also
+pass after the extraction. Explicit comparers, DistinctBy, boxed collection
+factories and HashSet enumeration remain diagnostic. No compiler profile, grant
+or limit changes. Frozen engine discovery now needs OfType in ZombieSiege.
+AdvanceRound IL_0009; state still reaches 257/256 identities. Full replay remains
+unverified. See ADR AC0052.

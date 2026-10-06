@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // Bounded default-comparer adaptation of the pinned HashSet algorithms.
+using System;
 namespace Cilica.Runtime
 {
     public struct HashSetEntry<T>
@@ -28,15 +29,50 @@ namespace System.Collections.Generic
     }
     public class HashSet<T> : ISet<T>, IReadOnlyCollection<T>, Runtime.Serialization.ISerializable, Runtime.Serialization.IDeserializationCallback
     {
+        private readonly Cilica.Runtime.SetStorage<T> storage;
+        public HashSet() { storage = new Cilica.Runtime.SetStorage<T>(); }
+        public int Count => storage.Count;
+        bool ICollection<T>.IsReadOnly => false;
+        public bool Contains(T item) => storage.Contains(item);
+        public bool TryGetValue(T equalValue, out T actualValue) => storage.TryGetValue(equalValue, out actualValue);
+        public bool Add(T item) => storage.Add(item);
+        void ICollection<T>.Add(T item) { storage.Add(item); }
+        public bool Remove(T item) => storage.Remove(item);
+        public void Clear() { storage.Clear(); }
+        public void CopyTo(T[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
+        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+        public void UnionWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void IntersectWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void ExceptWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void SymmetricExceptWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public bool IsSubsetOf(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public bool IsSupersetOf(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public bool IsProperSupersetOf(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public bool IsProperSubsetOf(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public bool Overlaps(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public bool SetEquals(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public virtual extern void GetObjectData(Runtime.Serialization.SerializationInfo info, Runtime.Serialization.StreamingContext context);
+        [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public virtual extern void OnDeserialization(object sender);
+    }
+}
+
+namespace Cilica.Runtime
+{
+    // Shared owned storage has no collection interfaces. Internal query sets must
+    // not become candidates for unrelated IEnumerable dispatch in a closure.
+    public sealed class SetStorage<T>
+    {
         private int[] buckets;
         private Cilica.Runtime.HashSetEntry<T>[] entries;
         private int count;
         private int freeList;
         private int freeCount;
         private int version;
-        public HashSet() { }
+        public SetStorage() { }
         public int Count => count - freeCount;
-        bool ICollection<T>.IsReadOnly => false;
         private static int Hash(ref T item) => Cilica.Runtime.KeyOperations<T>.IsNull(item) ? 0 : Cilica.Runtime.KeyOperations<T>.Hash(ref item);
         private static bool Equal(T left, T right) => Cilica.Runtime.KeyOperations<T>.Equal(ref left, right);
         private static void Concurrent()
@@ -66,7 +102,6 @@ namespace System.Collections.Generic
             actualValue = default; return false;
         }
         public bool Add(T item) => Insert(item);
-        void ICollection<T>.Add(T item) { Insert(item); }
         private bool Insert(T item)
         {
             if (buckets == null) Initialize();
@@ -138,10 +173,26 @@ namespace System.Collections.Generic
             count = 0; freeList = -1; freeCount = 0;
             for (int i = 0; i < oldCount; i++) entries[i] = default;
         }
-        private void Initialize()
+        private void Initialize() { InitializeCapacity(3); }
+        private void InitializeCapacity(int capacity)
         {
-            var newBuckets = new int[3]; var newEntries = new Cilica.Runtime.HashSetEntry<T>[3];
+            int size = Cilica.Runtime.DictionaryPrimes.GetPrime(capacity);
+            var newBuckets = new int[size]; var newEntries = new Cilica.Runtime.HashSetEntry<T>[size];
             freeList = -1; buckets = newBuckets; entries = newEntries;
+        }
+        internal static SetStorage<T> ForQuery(int capacity)
+        {
+            var result = new SetStorage<T>();
+            if (capacity > 0) result.InitializeCapacity(capacity);
+            return result;
+        }
+        internal T[] QueryArray()
+        {
+            int length = Count;
+            if (length == 0) return Array.Empty<T>();
+            var result = new T[length]; int output = 0;
+            for (int i = 0; i < count; i++) if (entries[i].Next >= -1) result[output++] = entries[i].Value;
+            return result;
         }
         private void Resize()
         {
@@ -158,22 +209,5 @@ namespace System.Collections.Generic
             }
             buckets = newBuckets; entries = replacement;
         }
-        public void CopyTo(T[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
-        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
-        public void UnionWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        public void IntersectWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        public void ExceptWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        public void SymmetricExceptWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        public bool IsSubsetOf(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        public bool IsSupersetOf(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        public bool IsProperSupersetOf(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        public bool IsProperSubsetOf(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        public bool Overlaps(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        public bool SetEquals(IEnumerable<T> other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
-        public virtual extern void GetObjectData(Runtime.Serialization.SerializationInfo info, Runtime.Serialization.StreamingContext context);
-        [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
-        public virtual extern void OnDeserialization(object sender);
     }
 }

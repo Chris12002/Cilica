@@ -9,6 +9,16 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Distinct.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Distinct.SpeedOpt.cs",
+      "sha256": "7e54529da44e9c2ed6ad809e9ac892c3190f077f3be8cff2fecff1582219fbe0"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Distinct.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Distinct.cs",
+      "sha256": "bdb2fa64a65c97eadf5ef0390ab91ac3699779b32dbd0af8f723e7ac238db251"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs",
       "sha256": "a3e09c23816443ff0fd8ed654fc1d976ec9e82804cdabdac79dad1aa40e21495"
@@ -233,7 +243,8 @@
       "changes": [
         "Traced inline generic entry arrays use existing bounded value storage. Share the existing pinned prime helper.",
         "Fold an exact private ContainsReferences grant from validated layouts to preserve primitive freed payloads while releasing managed references.",
-        "Cilica default string hashing retains its bounded deterministic profile; randomized collision hardening is not implemented."
+        "Cilica default string hashing retains its bounded deterministic profile; randomized collision hardening is not implemented.",
+        "AC6.7 shares fields and algorithms in non-enumerable SetStorage<T>; public HashSet owns one storage object and delegates implemented members. Query helpers prepare capacities and copy stored values without rehashing."
       ],
       "scope": "Only default construction and the listed key/mutation operations. Custom comparers, other constructors, enumeration/copy, set algebra and serialization remain unsupported."
     },
@@ -593,6 +604,36 @@
         "Use existing Int32 length helpers and explicit managed value-copy calls for inline results."
       ],
       "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
+    },
+    {
+      "path": "library/Cilica.Core/DistinctIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Distinct.cs",
+      "algorithms": [
+        "Deferred source acquisition; first-item hash insertion, state transition, cached Current, reuse/cloning and disposal.",
+        "Count/ToArray build an independent set, reading ICollection.Count before enumeration; result snapshots copy stored values.",
+        "Any delegates to first-element queries and avoids hashing, including IList indexing and Where/Select source shortcuts."
+      ],
+      "changes": [
+        "Share a managed SetStorage<T> without enumerable interfaces with the public HashSet wrapper so internal query storage adds no irrelevant interface candidates.",
+        "Use owned IQueryFirst<T> and an Int32 found flag instead of private virtual Iterator helpers.",
+        "Retain capacity selection and initial seven-slot enumeration set; omit private final capacity trimming of the temporary terminal set."
+      ],
+      "scope": "AC6.7 default-comparer non-indexed Distinct only. Explicit comparer overloads, DistinctBy, public HashSet enumeration and boxed collection factories remain unsupported."
+    },
+    {
+      "path": "library/Cilica.Core/DistinctIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Distinct.SpeedOpt.cs",
+      "algorithms": [
+        "Deferred source acquisition; first-item hash insertion, state transition, cached Current, reuse/cloning and disposal.",
+        "Count/ToArray build an independent set, reading ICollection.Count before enumeration; result snapshots copy stored values.",
+        "Any delegates to first-element queries and avoids hashing, including IList indexing and Where/Select source shortcuts."
+      ],
+      "changes": [
+        "Share a managed SetStorage<T> without enumerable interfaces with the public HashSet wrapper so internal query storage adds no irrelevant interface candidates.",
+        "Use owned IQueryFirst<T> and an Int32 found flag instead of private virtual Iterator helpers.",
+        "Retain capacity selection and initial seven-slot enumeration set; omit private final capacity trimming of the temporary terminal set."
+      ],
+      "scope": "AC6.7 default-comparer non-indexed Distinct only. Explicit comparer overloads, DistinctBy, public HashSet enumeration and boxed collection factories remain unsupported."
     }
   ],
   "ownedAdapters": [
