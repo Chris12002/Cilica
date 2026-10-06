@@ -215,7 +215,7 @@ public static class ObjectModelBuilder
             var declared = new List<ObjectField>();
             foreach (var field in input.Fields)
             {
-                if (integers64 && DefaultStaticFields.IsStorage(input, field)) continue;
+                if (integers64 && (field.IsMetadataConstant || DefaultStaticFields.IsStorage(input, field))) continue;
                 string location = input.Source.Name + "::" + field.Name + " token 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
                 if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                     return Failed(id, DiagnosticIds.ExecutionUnsupported, "Static, literal, marshalled, RVA, constant and explicit-offset field storage require later lowering.", location);

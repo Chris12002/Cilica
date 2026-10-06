@@ -2230,3 +2230,13 @@ nonpublic generic/box access and cross-owner internal fields remain checked.
 The frozen state-lookup probe advances to a metadata-constant layout rejection;
 it is not yet executable. No profiles/grants change; public counts remain 18 gaps
 and 29 controls. See [ADR AC0026](decisions/AC0026-internal-int32-enums.md).
+
+
+### Metadata constant layouts (AC5b.2)
+
+Validated primitive constant declarations no longer occupy class or struct storage.
+Five probes pass 1,470 repeated O0/O2 native/.NET comparisons with sanitizers and
+forced GC; 12 metadata boundaries, 97 layout/enum regressions and 21 baseline checks
+pass. Direct field operations and malformed constants remain rejected. The frozen
+state probe now reaches a private nested enum; replay remains incomplete. See
+[ADR AC0027](decisions/AC0027-metadata-constant-layouts.md).

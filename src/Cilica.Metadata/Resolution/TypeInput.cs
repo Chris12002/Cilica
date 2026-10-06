@@ -16,7 +16,12 @@ public sealed record LexicalTypeOwner(int Token, TypeAttributes Visibility, int 
 
 /// <summary>Structural input; named signatures remain owned by the resolver session.</summary>
 public sealed record FieldInput(int Token, string Name, FieldAttributes Attributes,
-    TypeSignature Signature, bool HasExplicitStorage);
+    TypeSignature Signature, bool HasExplicitStorage)
+{
+    // Exact primitive literal metadata, without RVA, offset or marshal storage.
+    // This grants no permission to load/address/write the field through IL.
+    public bool IsMetadataConstant { get; init; }
+}
 
 /// <summary>Bounded type input for layout analysis, not permission to execute its methods.</summary>
 public sealed record TypeInput(TypeSource Source, TypeAttributes Attributes, int OwnerGenericArity,

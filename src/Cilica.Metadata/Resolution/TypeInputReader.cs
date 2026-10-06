@@ -23,6 +23,44 @@ public sealed partial class AssemblyResolver
         });
     }
 
+    private static bool PrimitiveLiteral(MetadataReader reader, FieldDefinitionHandle handle,
+        FieldDefinition field, TypeSignature signature)
+    {
+        const FieldAttributes required = FieldAttributes.Static | FieldAttributes.Literal | FieldAttributes.HasDefault;
+        if ((field.Attributes & ~FieldAttributes.FieldAccessMask) != required
+            || (field.Attributes & FieldAttributes.FieldAccessMask) is FieldAttributes.PrivateScope or > FieldAttributes.Public
+            || field.GetDefaultValue().IsNil || signature is not TypeSignature.Primitive primitive)
+            return false;
+        var constant = reader.GetConstant(field.GetDefaultValue());
+        if (constant.Parent != handle) return false;
+        var (type, size) = primitive.Code switch {
+            PrimitiveTypeCode.Boolean => (ConstantTypeCode.Boolean, 1),
+            PrimitiveTypeCode.Char => (ConstantTypeCode.Char, 2),
+            PrimitiveTypeCode.SByte => (ConstantTypeCode.SByte, 1),
+            PrimitiveTypeCode.Byte => (ConstantTypeCode.Byte, 1),
+            PrimitiveTypeCode.Int16 => (ConstantTypeCode.Int16, 2),
+            PrimitiveTypeCode.UInt16 => (ConstantTypeCode.UInt16, 2),
+            PrimitiveTypeCode.Int32 => (ConstantTypeCode.Int32, 4),
+            PrimitiveTypeCode.UInt32 => (ConstantTypeCode.UInt32, 4),
+            PrimitiveTypeCode.Int64 => (ConstantTypeCode.Int64, 8),
+            PrimitiveTypeCode.UInt64 => (ConstantTypeCode.UInt64, 8),
+            PrimitiveTypeCode.Single => (ConstantTypeCode.Single, 4),
+            PrimitiveTypeCode.Double => (ConstantTypeCode.Double, 8),
+            PrimitiveTypeCode.String when constant.TypeCode == ConstantTypeCode.String => (ConstantTypeCode.String, -1),
+            PrimitiveTypeCode.Object or PrimitiveTypeCode.String => (ConstantTypeCode.NullReference, 4),
+            _ => ((ConstantTypeCode)0, 0)
+        };
+        if (size == 0 || constant.TypeCode != type) return false;
+        var blob = reader.GetBlobReader(constant.Value);
+        if (size == -1) return blob.Length % 2 == 0;
+        if (blob.Length != size) return false;
+        return type switch {
+            ConstantTypeCode.NullReference => blob.ReadUInt32() == 0,
+            ConstantTypeCode.Boolean => blob.ReadByte() <= 1,
+            _ => true
+        };
+    }
+
     /// <summary>Snapshots bounded structural metadata without loading or running the type.</summary>
     public ResolutionResult<TypeInput> ReadTypeInput(ResolvedAssembly assembly, TypeDefinitionHandle handle,
         TypeReadLimits? limits = null)
@@ -76,9 +114,15 @@ public sealed partial class AssemblyResolver
                     var field = reader.GetFieldDefinition(fieldHandle);
                     if (field.GetDeclaringType() != handle)
                         throw Failure(DiagnosticIds.InvalidSignature, "Field is listed by a different declaring type.");
+                    var signature = decoder.Field(field.Signature);
+                    bool explicitStorage = field.GetOffset() != -1 || field.GetRelativeVirtualAddress() != 0
+                        || !field.GetMarshallingDescriptor().IsNil;
+                    var constant = field.GetDefaultValue();
+                    if (!constant.IsNil) Member();
                     fields.Add(new(token, reader.GetString(field.Name), field.Attributes,
-                        decoder.Field(field.Signature), field.GetOffset() != -1 || field.GetRelativeVirtualAddress() != 0
-                            || !field.GetMarshallingDescriptor().IsNil || !field.GetDefaultValue().IsNil));
+                        signature, explicitStorage || !constant.IsNil) {
+                        IsMetadataConstant = !explicitStorage && PrimitiveLiteral(reader, fieldHandle, field, signature)
+                    });
                 }
                 catch (BindingFailureException failure)
                 {
