@@ -30,8 +30,8 @@
     "positiveControlCount": 29,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "a8130a277ef4f890fc46b2ddfeb08cbdb27b2c04c8710b7e16bd44f8abca6f2f",
-    "latestSlice": "AC5b.2",
+    "fixtureSha256": "ab0517b82513078aaac432b7c7857c5cf07958941042b2b8b76c6d823f78e3db",
+    "latestSlice": "AC7b.3",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -243,7 +243,7 @@
     "AC7b": {
       "prerequisites": ["AC7a"],
       "status": "in-progress",
-      "completedSubslices": ["AC7b.1", "AC7b.2"],
+      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3"],
       "remaining": "Ordinal prefix checks, substring, formatting, encoding and remaining text APIs. AC7b.1 uses existing UTF-16 string storage independently of the remaining AC7a array work."
     },
     "AC7b.1": {
@@ -255,6 +255,11 @@
       "prerequisites": ["AC0"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0015-invariant-numeric-append.md"
+    },
+    "AC7b.3": {
+      "prerequisites": ["AC0"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0028-direct-string-instance-calls.md"
     },
     "AC7c": {
       "prerequisites": [

@@ -87,9 +87,9 @@ public static partial class ObjectTranslator
                 _ => StringIntrinsic.None,
             };
             bool receiver = intrinsic is StringIntrinsic.Length or StringIntrinsic.CodeUnit;
-            if (intrinsic == StringIntrinsic.None || instruction.OpCode != (receiver ? "callvirt" : "call"))
+            if (intrinsic == StringIntrinsic.None || !(instruction.OpCode == "call" || receiver && instruction.OpCode == "callvirt"))
                 Fail(caller, "Unsupported String member or call form: " + input.DeclaredName
-                    + ". Supported: callvirt Length/Chars; call Equals(string,string), op_Equality, op_Inequality and Concat(string,string).", instruction.Offset);
+                    + ". Supported: call/callvirt Length/Chars; call Equals(string,string), op_Equality, op_Inequality and Concat(string,string).", instruction.Offset);
             var capability = intrinsic switch
             {
                 StringIntrinsic.Length => LibraryIntrinsicCapability.StringLength,

@@ -206,13 +206,13 @@ public sealed class StringMetadataBoundaryTests
     }
 
     [Theory]
-    [InlineData("length")]
-    [InlineData("chars")]
-    [InlineData("equal")]
-    [InlineData("not_equal")]
-    [InlineData("equals")]
-    [InlineData("concat")]
-    public void Exact_members_lower_without_reading_their_unsupported_bodies(string kind)
+    [InlineData("length", false)] [InlineData("length", true)]
+    [InlineData("chars", false)] [InlineData("chars", true)]
+    [InlineData("equal", false)]
+    [InlineData("not_equal", false)]
+    [InlineData("equals", false)]
+    [InlineData("concat", false)]
+    public void Exact_members_lower_without_reading_their_unsupported_bodies(string kind, bool direct)
     {
         var (b, _) = Core("Intrinsic" + kind);
         bool receiver = kind is "length" or "chars";
@@ -226,7 +226,7 @@ public sealed class StringMetadataBoundaryTests
         {
             il.LoadString(literal);
             if (kind == "chars") il.LoadConstantI4(0); else if (!receiver) il.LoadString(literal);
-            il.OpCode(receiver ? ILOpCode.Callvirt : ILOpCode.Call); il.Token(intrinsic);
+            il.OpCode(receiver && !direct ? ILOpCode.Callvirt : ILOpCode.Call); il.Token(intrinsic);
             if (kind == "concat") { il.OpCode(ILOpCode.Pop); il.LoadConstantI4(1); }
             il.OpCode(ILOpCode.Ret);
         });
@@ -244,7 +244,6 @@ public sealed class StringMetadataBoundaryTests
 
     [Theory]
     [InlineData("overload")]
-    [InlineData("call")]
     [InlineData("static")]
     [InlineData("private")]
     [InlineData("generic")]
@@ -260,7 +259,7 @@ public sealed class StringMetadataBoundaryTests
         var root = b.Method("Run", [0, 0, 8], emit: il =>
         {
             if (kind == "parameter") il.LoadConstantI4(0); else il.OpCode(ILOpCode.Ldnull);
-            il.OpCode(kind == "newobj" ? ILOpCode.Newobj : kind == "call" ? ILOpCode.Call : ILOpCode.Callvirt); il.Token(method); il.OpCode(ILOpCode.Ret);
+            il.OpCode(kind == "newobj" ? ILOpCode.Newobj : ILOpCode.Callvirt); il.Token(method); il.OpCode(ILOpCode.Ret);
         });
         var result = Translate(b, root); Assert.False(result.Success); Assert.Contains("IL_", Assert.Single(result.Diagnostics).Location, StringComparison.Ordinal);
     }

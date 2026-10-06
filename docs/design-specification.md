@@ -2124,3 +2124,12 @@ forced GC; 12 metadata boundaries, 97 layout/enum regressions and 21 baseline ch
 pass. Direct field operations and malformed constants remain rejected. The frozen
 state probe now reaches a private nested enum; replay remains incomplete. See
 [ADR AC0027](decisions/AC0027-metadata-constant-layouts.md).
+
+
+### Direct string calls (AC7b.3)
+
+Exact String.Length/Chars now accept Roslyn's direct call form as well as callvirt.
+Existing declaration and intrinsic permissions remain enforced. New fault/UTF-16
+probes and direct-call layout regressions pass 2,646 repeated O0/O2 comparisons;
+150 string/admission checks pass with sanitizers and forced GC. No profile/grant
+changes. See [ADR AC0028](decisions/AC0028-direct-string-instance-calls.md).

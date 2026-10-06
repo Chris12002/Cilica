@@ -165,13 +165,13 @@ public static partial class ValueProgramDiscovery
                 Fail(work, "Only verified exception constructors and selected Exception.Message are supported; other members or overrides need explicit lowering.", offset);
             }
             var text = IncludeString(work, offset);
-            if (instruction.OpCode == "callvirt" && input.DeclaredName == "get_Length" && signature.Header == 0x20
+            if (instruction.OpCode is ("call" or "callvirt") && input.DeclaredName == "get_Length" && signature.Header == 0x20
                 && signature.Parameters.Count == 0 && Primitive(signature.ReturnType, PrimitiveTypeCode.Int32))
             { Authorize(LibraryIntrinsicCapability.StringLength); return new(ValueIntrinsic.StringLength, text, 1); }
             if (instruction.OpCode == "call" && input.DeclaredName is "op_Equality" or "Equals" && signature.Header == 0
                 && signature.Parameters.Count == 2 && signature.Parameters.All(p => Primitive(p, PrimitiveTypeCode.String)) && Primitive(signature.ReturnType, PrimitiveTypeCode.Boolean))
             { Authorize(LibraryIntrinsicCapability.StringEqual); return new(ValueIntrinsic.StringEqual, text, 2); }
-            if (integers64 && instruction.OpCode == "callvirt" && input.DeclaredName == "get_Chars" && signature.Header == 0x20
+            if (integers64 && instruction.OpCode is ("call" or "callvirt") && input.DeclaredName == "get_Chars" && signature.Header == 0x20
                 && signature.Parameters.Count == 1 && Primitive(signature.Parameters[0], PrimitiveTypeCode.Int32) && Primitive(signature.ReturnType, PrimitiveTypeCode.Char))
             { Authorize(LibraryIntrinsicCapability.StringCodeUnit); return new(ValueIntrinsic.StringCodeUnit, text, 2); }
             if (integers64 && instruction.OpCode == "call" && signature.Header == 0 && signature.Parameters.Count == 2
