@@ -24,13 +24,12 @@ public static partial class ValueProgramDiscovery
             var id = ClosedId(type, work, offset);
             if (_delegateFacts.TryGetValue(id, out var cached)) return cached.Type;
             if (_readingDelegateSignatures.Contains(id)) Fail(work, "Recursive delegate signatures require later closure lowering.", offset);
-            var input = Snapshot(type.Definition, work, offset);
-            if (input.BaseType is not TypeSignature.Named parent) return null;
-            if (Snapshot(parent.Definition, work, offset).Source.Name != "System.MulticastDelegate") return null;
+            if (TypeBase(type.Definition, work, offset).BaseType is not TypeSignature.Named parent) return null;
+            if (TypeAccess(parent.Definition, work, offset).Source.Name != "System.MulticastDelegate") return null;
             _multicastDelegate ??= ObjectModelBuilder.Id(Require(resolver.ResolveType(library, "System", "MulticastDelegate"), work, offset));
             if (ObjectModelBuilder.Id(parent.Definition) != _multicastDelegate)
                 Fail(work, "Delegates must derive directly from the selected runtime MulticastDelegate.", offset);
-            if (type.Arguments.Count != 0) input = SnapshotClosed(type, work, offset);
+            var input = type.Arguments.Count != 0 ? SnapshotClosed(type, work, offset) : Snapshot(type.Definition, work, offset);
             if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || !generics && type.Arguments.Count != 0
                 || !input.ExternallyVisible || input.HasTypeInitializer || input.HasModuleInitializer
                 || !input.Fields.IsEmpty || input.InterfaceCount != 0 || input.PackingSize != 0 || input.ClassSize != 0

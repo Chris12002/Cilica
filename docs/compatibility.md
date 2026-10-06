@@ -2798,3 +2798,14 @@ String/culture defaults and wide/unsigned/narrow delegate keys remain diagnostic
 No compiler/native profiles or grants change. Frozen engine reaches its metadata
 snapshot limit; state remains at its catalog limit. Full replay is unverified.
 See [ADR AC0066](decisions/AC0066-stable-integer-ordering.md).
+
+### Declaration-only runtime classification (AC8.17)
+
+Delegate and exception classification now reads bounded direct-base/name facts
+before requesting structural metadata. Actual delegate/exception admission keeps
+its full validation and exact runtime identities. Unused static-owner fields no
+longer consume layout snapshots. A 257-owner regression passes 294 repeated O0/O2
+native comparisons; all 105 selected metadata, delegate, exception and baseline
+checks pass. Structural/runtime-type and work limits are unchanged. Frozen engine
+advances to missing Enumerable.Contains<String>; state remains at its catalog
+limit. Full replay is unverified. See [ADR AC0067](decisions/AC0067-base-only-classification.md).

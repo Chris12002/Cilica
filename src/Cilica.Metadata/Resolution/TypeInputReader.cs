@@ -23,6 +23,20 @@ public sealed partial class AssemblyResolver
         });
     }
 
+    /// <summary>Reads one owned TypeDef base signature without fields, interfaces or initializers.</summary>
+    public ResolutionResult<TypeBaseInput> ReadTypeBase(ResolvedType type, MemberResolutionBudget budget)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(budget);
+        return Bind(type.Assembly, type.Handle, () =>
+        {
+            InspectMember(budget);
+            var declaration = type.Assembly.Image.Reader.GetTypeDefinition(type.Handle);
+            return new TypeBaseInput(declaration.BaseType.IsNil ? null
+                : new SignatureDecoder(this, type.Assembly).Type(declaration.BaseType));
+        });
+    }
+
     /// <summary>Reads bounded declaration nesting without inspecting fields, interfaces or initializers.</summary>
     public ResolutionResult<TypeAccessInput> ReadTypeAccess(ResolvedType type, MemberResolutionBudget budget,
         int maximumOwnerDepth = TypeReadLimits.MaximumSupportedOwnerDepth)

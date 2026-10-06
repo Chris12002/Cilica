@@ -71,18 +71,19 @@ public static partial class ValueProgramDiscovery
         }
         private void IncludeExceptionHierarchy(ConstructedType type, Work? work, int offset)
         {
-            var chain = new List<(ResolvedType Type, TypeInput Input)>(); var seen = new HashSet<ObjectTypeId>();
+            var chain = new List<ResolvedType>(); var seen = new HashSet<ObjectTypeId>();
             var current = type.Definition;
             while (true)
             {
                 var id = ObjectModelBuilder.Id(current);
                 if (!seen.Add(id) || seen.Count > ObjectModelLimits.MaximumOwnerDepth) Fail(work, "Cyclic or excessive exception class ancestry.", offset);
                 if (_exceptionTypes.Contains(id)) break;
-                var input = Snapshot(current, work, offset);
-                if (integers64 && input.Source.Name is ("System.FormatException" or "System.TypeInitializationException" or "System.Collections.Generic.KeyNotFoundException")
-                    && current == Require(resolver.ResolveType(library, input.Source.Name == "System.Collections.Generic.KeyNotFoundException" ? "System.Collections.Generic" : "System",
-                        input.Source.Name[(input.Source.Name.LastIndexOf('.') + 1)..]), work, offset))
+                string name = TypeAccess(current, work, offset).Source.Name;
+                if (integers64 && name is ("System.FormatException" or "System.TypeInitializationException" or "System.Collections.Generic.KeyNotFoundException")
+                    && current == Require(resolver.ResolveType(library, name == "System.Collections.Generic.KeyNotFoundException" ? "System.Collections.Generic" : "System",
+                        name[(name.LastIndexOf('.') + 1)..]), work, offset))
                 {
+                    var input = Snapshot(current, work, offset);
                     _ = Require(resolver.AuthorizeLibraryIntrinsic(current.Assembly, current.Handle, LibraryIntrinsicCapability.ExceptionLayout), work, offset);
                     if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || !input.ExternallyVisible
                         || input.BaseType is not TypeSignature.Named formatBase
@@ -97,12 +98,13 @@ public static partial class ValueProgramDiscovery
                     else _exceptionResources.Add(new(id, input.Source.Name == "System.Collections.Generic.KeyNotFoundException" ? ExceptionResourceKind.KeyNotFound : ExceptionResourceKind.Format));
                     break;
                 }
-                chain.Add((current, input));
-                if (input.BaseType is not TypeSignature.Named parent) return;
+                chain.Add(current);
+                if (TypeBase(current, work, offset).BaseType is not TypeSignature.Named parent) return;
                 current = parent.Definition;
             }
-            foreach (var (definition, input) in chain)
+            foreach (var definition in chain)
             {
+                var input = Snapshot(definition, work, offset);
                 if (type.Arguments.Count != 0 || input.OwnerGenericArity != 0 || !input.ExternallyVisible || input.Source.Name.Any(ch => !char.IsLetterOrDigit(ch) && ch is not ('.' or '_'))
                     || input.HasTypeInitializer || input.HasModuleInitializer || !input.Fields.IsEmpty || input.InterfaceCount != 0
                     || input.PackingSize != 0 || input.ClassSize != 0 || input.IsReferenceAssembly || !ObjectModelValidator.ClassAttributes(input.Attributes))

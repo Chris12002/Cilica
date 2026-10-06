@@ -87,7 +87,7 @@ public sealed class GenericDelegateTests
             var result = ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(GenericDelegateProbe).GetMethod(name)!.MetadataToken), implementation);
             Assert.False(result.Success); Assert.Null(result.Program);
-            Assert.Contains(result.Diagnostics, d => d.Message.Contains("exact Int32/reference-parameter Invoke", StringComparison.Ordinal));
+            Assert.Contains(result.Diagnostics, d => d.Message.Contains("direct wide/narrow parameters/results and byref signatures require later lowering.", StringComparison.Ordinal));
         }
     }
 }

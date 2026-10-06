@@ -12,6 +12,9 @@ public sealed record TypeSource(string AssemblyIdentity, string ContentHash, int
 /// <summary>A single TypeDef row's flags, without decoding fields or method bodies.</summary>
 public sealed record TypeDefinitionFlags(TypeAttributes Attributes);
 
+/// <summary>Direct base signature only; not a layout, delegate shape or execution grant.</summary>
+public sealed record TypeBaseInput(TypeSignature? BaseType);
+
 /// <summary>Declaration nesting and visibility only; not a structural layout or execution grant.</summary>
 public sealed record TypeAccessInput(TypeSource Source, int OwnerGenericArity,
     bool ExternallyVisible, ImmutableArray<LexicalTypeOwner> LexicalOwners);

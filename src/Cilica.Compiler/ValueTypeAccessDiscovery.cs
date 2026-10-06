@@ -17,8 +17,21 @@ public static partial class ValueProgramDiscovery
         private readonly Dictionary<(string Image, int Token), OperandTypeUses> _sourceTypeUses = [];
 
         private readonly Dictionary<ObjectTypeId, TypeAccessInput> _typeAccess = [];
+        private readonly Dictionary<ObjectTypeId, TypeBaseInput> _typeBases = [];
 
-        private TypeAccessInput TypeAccess(ResolvedType type, Work work, int offset)
+        private TypeBaseInput TypeBase(ResolvedType type, Work? work, int offset)
+        {
+            var id = ObjectModelBuilder.Id(type);
+            if (_snapshots.TryGetValue(id, out var structural)) return new(structural.BaseType);
+            if (_typeBases.TryGetValue(id, out var cached)) return cached;
+            var declaration = Require(resolver.ReadTypeBase(type, _metadata), work, offset);
+            // As with lexical facts, bounded caching is independent of admission.
+            // Uncached declarations charge the existing shared work ledger on each read.
+            if (_typeBases.Count < ObjectModelLimits.MaximumTypes) _typeBases.Add(id, declaration);
+            return declaration;
+        }
+
+        private TypeAccessInput TypeAccess(ResolvedType type, Work? work, int offset)
         {
             var id = ObjectModelBuilder.Id(type);
             if (_snapshots.TryGetValue(id, out var structural))
