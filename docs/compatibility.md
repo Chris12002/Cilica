@@ -2762,3 +2762,13 @@ calls, overridable generic methods and method pointers remain unsupported.
 Integer-object CIL v15, object IR v24, delegate-value IR v6 and interface plan v11;
 native v49/layout v20 and resource limits remain unchanged. Frozen engine ordering
 and the state catalog bound remain unresolved. See [ADR AC0063](decisions/AC0063-generic-interface-method-calls.md).
+
+### Default integer comparers (AC5a.2)
+
+Comparer<T>.Default supports exact Int32, UInt32, Int64 and UInt64 with one cached
+object per closed type per runtime instance. Two exact private helper grants select
+managed factories and existing typed CompareTo bodies. Eight probes pass 2,352
+repeated native/.NET comparisons, plus exact two-instance root checks and grant /
+unsupported-scope tests; all 59 selected local checks pass. Culture/string, nullable,
+enum and other defaults remain diagnostic. Compiler/native/layout profiles and
+resource limits are unchanged. See [ADR AC0064](decisions/AC0064-integer-default-comparers.md).

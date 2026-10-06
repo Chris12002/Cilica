@@ -43,6 +43,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/BoxedFormatting.cs \
   --source library/Cilica.Core/StringComparison.cs \
   --source library/Cilica.Core/StringComparer.cs \
+  --source library/Cilica.Core/Comparer.cs \
   --source library/Cilica.Core/StringWhitespace.cs \
   --source library/Cilica.Core/Math.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
@@ -599,3 +600,13 @@ adjacent Select/First, core and public-baseline checks pass. No intrinsic, compi
 profile or resource limit changes. Frozen EngineStep still needs IOrderedEnumerable
 for OrderBy; StateLookup remains at 257/256 discovered identities. Full replay is
 unverified. See ADR AC0061 and artifacts/alchemy-concat.
+
+### Default integer comparers (AC5a.2)
+
+Comparer<T>.Default supports exact Int32, UInt32, Int64 and UInt64 with one cached
+object per closed type per runtime instance. Two exact private helper grants select
+managed factories and existing typed CompareTo bodies. Eight probes pass 2,352
+repeated native/.NET comparisons, plus exact two-instance root checks and grant /
+unsupported-scope tests; all 59 selected local checks pass. Culture/string, nullable,
+enum and other defaults remain diagnostic. Compiler/native/layout profiles and
+resource limits are unchanged. See [ADR AC0064](../../docs/decisions/AC0064-integer-default-comparers.md).

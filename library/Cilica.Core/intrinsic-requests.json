@@ -810,5 +810,19 @@
     "Member": "EnumerateObjects",
     "ParameterCount": 1,
     "Capability": "ArrayInterfaceEnumerateObjects"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ComparerOperations`1",
+    "Member": "Create",
+    "ParameterCount": 0,
+    "Capability": "IntegerComparerCreate"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ComparerOperations`1",
+    "Member": "Compare",
+    "ParameterCount": 2,
+    "Capability": "IntegerComparerCompare"
   }
 ]
