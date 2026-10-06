@@ -9,6 +9,8 @@ namespace Cilica.Runtime
     // Fresh traversal preserves the cursor of a preceding Where/Select. Terminal
     // traversal additionally preserves indexed IList behavior through Select chains.
     // These owned helpers avoid generic virtual methods and are not framework APIs.
+    // Terminal 1 may request a cheap materialization count; terminal 2 counts by
+    // evaluating selectors and must not add a count-getter callback.
     public interface IQueryTraversal<T>
     {
         IEnumerator<T> GetQueryEnumerator(int terminal, out int count);
@@ -89,7 +91,7 @@ namespace Cilica.Runtime
                 if (array != null) count = array.Length;
                 else if (source is IQueryTraversal<TSource> query)
                 {
-                    result.enumerator = query.GetQueryEnumerator(1, out count); result.state = 2;
+                    result.enumerator = query.GetQueryEnumerator(terminal, out count); result.state = 2;
                 }
                 else if (source is IList<TSource> list)
                 {
@@ -101,6 +103,10 @@ namespace Cilica.Runtime
         }
         public TResult TryFirst(out int found)
         {
+            if (source is IQueryFirstProjection<TSource> query)
+            {
+                TSource item = query.TryFirst(out found); return found != 0 ? selector(item) : default(TResult);
+            }
             using (var e = GetQueryEnumerator(1, out _))
             {
                 if (e.MoveNext()) { found = 1; return e.Current; }
@@ -111,12 +117,13 @@ namespace Cilica.Runtime
         {
             int count = GetCheapCount();
             if (count >= 0) return count != 0;
+            if (source is IQueryFirstProjection<TSource>) { TryFirst(out int found); return found != 0; }
             using (var e = GetQueryEnumerator(1, out _)) return e.MoveNext();
         }
         public int Count()
         {
             int count = 0;
-            using (var e = GetQueryEnumerator(1, out _)) while (e.MoveNext()) count = checked(count + 1);
+            using (var e = GetQueryEnumerator(2, out _)) while (e.MoveNext()) count = checked(count + 1);
             return count;
         }
         public TResult[] ToArray()

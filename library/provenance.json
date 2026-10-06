@@ -9,6 +9,26 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Concat.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Concat.cs",
+      "sha256": "a9dae7514bc3d8766cf58ec2d96a3a92622f0d2ea8c6bcdd2896fdcbda79d296"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs",
+      "sha256": "8ef1e6a68540d1f8eac7d42bb86ee1b51e837b94e47d75999d7cf5fa19aaa79d"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SegmentedArrayBuilder.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/SegmentedArrayBuilder.cs",
+      "sha256": "31dcc2eff1902c68c1925c9c8ff83bdb74652b4d44c26e60b8d7062134ef7d32"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Iterator.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Iterator.SpeedOpt.cs",
+      "sha256": "94649f61cb8aeec9b7a2ffa7532eaf33dd715df60a4969efcbba2bf50072bdbf"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IEqualityComparer.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IEqualityComparer.cs",
       "sha256": "c6c925f9d073913bb8566e573f699270867beef798031fe0d3b010c5f8fa7b2b"
@@ -618,7 +638,8 @@
       "changes": [
         "Replace generic virtual Select fusion with owned fresh/terminal traversal interfaces; retain callback ordering and original query state.",
         "Use traced arrays and the existing managed MaterializationBuffer instead of span/pool scratch storage.",
-        "Use existing Int32 length helpers and explicit managed value-copy calls for inline results."
+        "Use existing Int32 length helpers and explicit managed value-copy calls for inline results.",
+        "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched."
       ],
       "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
     },
@@ -633,7 +654,8 @@
       "changes": [
         "Replace generic virtual Select fusion with owned fresh/terminal traversal interfaces; retain callback ordering and original query state.",
         "Use traced arrays and the existing managed MaterializationBuffer instead of span/pool scratch storage.",
-        "Use existing Int32 length helpers and explicit managed value-copy calls for inline results."
+        "Use existing Int32 length helpers and explicit managed value-copy calls for inline results.",
+        "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched."
       ],
       "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
     },
@@ -750,6 +772,82 @@
         "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
       ],
       "scope": "Bounded typed ordinal compare/equality and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+    },
+    {
+      "path": "library/Cilica.Core/ConcatIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Concat.cs",
+      "algorithms": [
+        "Deferred concatenation cursor, linked source chains, cardinality, first-element and collection materialization decisions."
+      ],
+      "changes": [
+        "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
+        "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+      ],
+      "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
+    },
+    {
+      "path": "library/Cilica.Core/ConcatIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs",
+      "algorithms": [
+        "Deferred concatenation cursor, linked source chains, cardinality, first-element and collection materialization decisions."
+      ],
+      "changes": [
+        "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
+        "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+      ],
+      "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
+    },
+    {
+      "path": "library/Cilica.Core/ConcatIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SegmentedArrayBuilder.cs",
+      "algorithms": [
+        "Deferred concatenation cursor, linked source chains, cardinality, first-element and collection materialization decisions."
+      ],
+      "changes": [
+        "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
+        "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+      ],
+      "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
+    },
+    {
+      "path": "library/Cilica.Core/ConcatIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Iterator.cs",
+      "algorithms": [
+        "Deferred concatenation cursor, linked source chains, cardinality, first-element and collection materialization decisions."
+      ],
+      "changes": [
+        "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
+        "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+      ],
+      "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
+    },
+    {
+      "path": "library/Cilica.Core/ConcatIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Iterator.SpeedOpt.cs",
+      "algorithms": [
+        "Deferred concatenation cursor, linked source chains, cardinality, first-element and collection materialization decisions."
+      ],
+      "changes": [
+        "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
+        "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+      ],
+      "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
+    },
+    {
+      "path": "library/Cilica.Core/Enumerable.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Concat.cs",
+      "algorithms": [
+        "Eager first/second null validation, empty-array identity shortcuts and left-chain concatenation."
+      ],
+      "changes": [
+        "Use the owned closed ConcatIterator helper and explicit Int32 array-length adapter."
+      ],
+      "scope": "The two-source Concat overload for admitted enumerable shapes."
     }
   ],
   "ownedAdapters": [

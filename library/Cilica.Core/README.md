@@ -31,6 +31,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/WhereIterator.cs \
   --source library/Cilica.Core/SelectIterator.cs \
   --source library/Cilica.Core/DistinctIterator.cs \
+  --source library/Cilica.Core/ConcatIterator.cs \
   --source library/Cilica.Core/OfTypeIterator.cs \
   --source library/Cilica.Core/StringBuilder.cs \
   --source library/Cilica.Core/StringConcatenation.cs \
@@ -578,3 +579,23 @@ forced GC and ASan/UBSan. No new intrinsic, compiler profile or resource limit.
 Frozen EngineStep still needs IOrderedEnumerable/OrderBy; StateLookup still reaches
 257/256 discovered identities. Full replay remains unverified. See ADR AC0060 and
 artifacts/alchemy-ordinal-comparer.
+
+
+### Deferred concatenation (AC6.10)
+
+Concat now supports admitted arrays and reference-class enumerable cursors, including
+linked chains, deferred acquisition, cursor reuse/cloning and exact disposal order.
+Count/Any and ToArray preserve pinned cheap-count, first-element, checked-overflow
+and collection callback order. Mixed chains use traced managed segments with the
+pinned scratch/copy thresholds. Select integration distinguishes effectful counting
+from materialization counts; a known empty result leaves the source cursor untouched.
+Boxed List/Dictionary/HashSet enumerator factories remain unsupported.
+
+Twenty-one probes pass 15,372 repeated native/.NET comparisons at O0/O2, including
+all authored get/move/current/dispose/count/copy fault modes, zero-count identity,
+reverse collection-copy order and reference-bearing segmented values. Forced GC,
+ASan/UBSan, exact cleanup and frame bounds remain enabled. All 59 selected Concat,
+adjacent Select/First, core and public-baseline checks pass. No intrinsic, compiler
+profile or resource limit changes. Frozen EngineStep still needs IOrderedEnumerable
+for OrderBy; StateLookup remains at 257/256 discovered identities. Full replay is
+unverified. See ADR AC0061 and artifacts/alchemy-concat.

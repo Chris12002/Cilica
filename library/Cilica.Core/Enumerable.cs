@@ -7,6 +7,15 @@ namespace System.Linq
 {
     public static partial class Enumerable
     {
+        private static bool NoElements(int length) => length == 0;
+        public static IEnumerable<TSource> Concat<TSource>(IEnumerable<TSource> first, IEnumerable<TSource> second)
+        {
+            if (first == null) throw new ArgumentNullException("first");
+            if (second == null) throw new ArgumentNullException("second");
+            if (first is TSource[] left && NoElements(left.Length)) return second;
+            if (second is TSource[] right && NoElements(right.Length)) return first;
+            return first is Cilica.Runtime.ConcatIterator<TSource> chain ? chain.Append(second) : new Cilica.Runtime.ConcatIterator<TSource>(first, second);
+        }
         public static IEnumerable<TResult> OfType<TResult>(IEnumerable source)
         {
             if (source == null) throw new ArgumentNullException("source");
