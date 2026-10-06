@@ -2402,3 +2402,18 @@ O0/O2 native/.NET comparisons with ASan/UBSan, forced collection and strict clea
 58 adjacent regression checks and the final empty-list pair pass. General
 Array.Copy, section/nongeneric copying and List(IEnumerable) remain unsupported;
 full Alchemy engine/state/replay remains unverified. See ADR AC0041.
+
+### Proven collection construction (AC3.8)
+
+List<T>(IEnumerable<T>) supports sources statically proven to implement the exact
+ICollection<T> contract, including admitted arrays/lists and custom collections.
+An independently granted managed bridge preserves allocation-before-validation,
+Count once, zero-count CopyTo suppression, exact capacity, copied identity and
+version zero. Its narrower typed parameter is checked during translation and both
+detached stages. IEnumerable/IReadOnlyList aliases and general iterator sources
+remain diagnostic. Integer-object CIL v7; native v45 and layout v17 unchanged.
+Eight authored probes plus the advanced public control pass 2,646 repeated O0/O2
+native/.NET comparisons with ASan/UBSan and forced collection. The baseline now has
+30 native controls and 17 known gaps. Frozen engine discovery reaches missing
+Enumerable.ToArray; state discovery still exceeds 256 identities. Full replay is
+unverified. See ADR AC0042 and artifacts/alchemy-list-construction.

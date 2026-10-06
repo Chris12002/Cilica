@@ -782,5 +782,12 @@
     "Member": "CopyTo",
     "ParameterCount": 3,
     "Capability": "ArrayInterfaceCopyTo"
+  },
+  {
+    "Namespace": "System.Collections.Generic",
+    "Type": "List`1",
+    "Member": "CopyCollection",
+    "ParameterCount": 1,
+    "Capability": "ListCollectionConstruction"
   }
 ]

@@ -12,6 +12,25 @@ namespace System.Collections.Generic
         private static T[] emptySnapshot;
         public List() { items = Array.Empty<T>(); }
         public List(int capacity) { items = CreateStorage(capacity); }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public extern List(IEnumerable<T> collection);
+        private List(bool uninitialized) { }
+        // Public metadata bridge for compiler-proven collection sources. Allocating
+        // first preserves newobj order without allocating empty storage before null.
+        public static List<T> CopyCollection(ICollection<T> collection)
+        {
+            var result = new List<T>(true);
+            if (collection == null) throw new ArgumentNullException("collection");
+            int count = collection.Count;
+            if (count == 0) result.items = Array.Empty<T>();
+            else
+            {
+                result.items = new T[count];
+                collection.CopyTo(result.items, 0);
+                result.size = count;
+            }
+            return result;
+        }
         private static T[] CreateStorage(int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("capacity", "Non-negative number required.");
