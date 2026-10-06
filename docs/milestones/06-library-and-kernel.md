@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.2 complete within their tested bounds; remaining AC1b, AC3 and AC4–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.3 complete within their tested bounds; remaining AC1b, AC3 and AC4–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.2 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.3 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -2194,3 +2194,17 @@ the public ledger stays at 33 gaps and 14 controls. Continue AC3 with copying,
 search, bulk operations and remaining dictionary/set APIs; enumeration joins AC4.
 Full AC3 and private saved-game replay remain incomplete. No private root was
 rerun, and no hosted work, additional agents or services were used.
+
+
+### Dictionary removal and clearing (AC3.3)
+
+Owned Dictionary Remove (with/without out value) and Clear now unlink bucket
+chains, release payload roots and reuse freed entry slots before growing. Mutable
+key hashes preserve the pinned receiver semantics; throwing callbacks leave out
+storage and dictionary contents unchanged. Ten probes plus public DictionaryRemove
+supply 3,234 repeated O0/O2 .NET/native comparisons, four live-dictionary GC checks
+and 38 existing library/baseline checks. The ledger has 32 gaps and 15 controls.
+No compiler/runtime profile, grant or ABI changes. Copying requires rich range
+faults and precise array downcast semantics; Add/getter/constructors, other
+collections and enumeration remain planned. Full replay remains incomplete.
+See [ADR AC0011](../decisions/AC0011-dictionary-removal-and-clear.md).

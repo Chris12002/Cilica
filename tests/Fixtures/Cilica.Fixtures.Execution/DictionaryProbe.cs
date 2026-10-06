@@ -130,7 +130,7 @@ namespace Cilica.Fixtures.Execution
             return unchecked((int)value + (int)missing + count.Count + readable.Count + bits
                 + (found ? 17 : 19) + (absent ? 23 : 29) + (dictionary.ContainsKey(input) ? 31 : 37));
         }
-        public static int UnsupportedRemoval(int input, int mode)
+        public static int Removal(int input, int mode)
         {
             var dictionary = new Dictionary<int, int>();
             dictionary.TryAdd(input, mode);

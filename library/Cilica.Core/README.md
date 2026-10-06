@@ -79,7 +79,8 @@ APIs remain unsupported (ADR 0138). Boxed Guid type tests are admitted by AC1b.3
 ([ADR AC0005](../../docs/decisions/AC0005-boxed-type-tests.md)).
 
 `Dictionary.cs` maps the bounded public Dictionary constructor, Count, TryAdd,
-TryGetValue, ContainsKey and indexer setter, using the previously tested storage
+TryGetValue, ContainsKey and indexer setter, plus AC3.3 Remove (with/without out
+value), Clear and free-slot reuse, using the previously tested storage
 algorithms. DictionaryContracts.cs preserves generic, nongeneric and serialization
 interface declarations. Unimplemented members reach UnsupportedLibraryMember and
 fail compilation; no default-valued or throwing runtime substitute is provided.

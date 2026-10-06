@@ -30,7 +30,9 @@ feedback before implementation. Explain consequential choices in plain language.
   identity and releasing reference/value-element roots. AC3.2 adds exact array
   Insert/RemoveAt/Clear helpers, unblocking bounded list/read-only interface
   mutations. Generic array Clear throws; nongeneric Clear resets elements.
-  Broader collections and replay remain incomplete; see ADRs AC0009/AC0010.
+  AC3.3 adds Dictionary Remove/Clear and free-slot reuse, preserving mutating key
+  callbacks and releasing value roots. Broader collections and replay remain
+  incomplete; see ADRs AC0009–AC0011.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

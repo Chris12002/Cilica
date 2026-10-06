@@ -1915,3 +1915,17 @@ checks, exact grant denial, detached signature checks and 125 existing regressio
 pass. The supplemental interface blocker advances; the public ledger remains
 33 gaps and 14 controls. Copying, search, bulk operations and enumeration remain
 planned; full AC3 and private saved-game replay are not complete.
+
+
+### Dictionary removal and clearing (AC3.3)
+
+Owned Dictionary Remove (with/without out value) and Clear now unlink bucket
+chains, release payload roots and reuse freed entry slots before growing. Mutable
+key hashes preserve the pinned receiver semantics; throwing callbacks leave out
+storage and dictionary contents unchanged. Ten probes plus public DictionaryRemove
+supply 3,234 repeated O0/O2 .NET/native comparisons, four live-dictionary GC checks
+and 38 existing library/baseline checks. The ledger has 32 gaps and 15 controls.
+No compiler/runtime profile, grant or ABI changes. Copying requires rich range
+faults and precise array downcast semantics; Add/getter/constructors, other
+collections and enumeration remain planned. Full replay remains incomplete.
+See [ADR AC0011](decisions/AC0011-dictionary-removal-and-clear.md).

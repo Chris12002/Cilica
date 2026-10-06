@@ -167,6 +167,7 @@
         "FindValue bucket-chain lookup",
         "TryInsert duplicate/overwrite/new-entry behavior",
         "Resize entry order and bucket chain rebuilding",
+        "AC3.3 Remove/Clear, free-list links and slot reuse",
         "Prime capacities from System/Collections/HashHelpers.cs"
       ],
       "changes": [
@@ -174,10 +175,10 @@
         "Replace inline entry arrays and unsafe/ref helpers with managed reference-entry vectors and checked indexing; entries remain private to collection operations.",
         "Use exact compiler-selected closed integer/value key operations instead of runtime reflection and EqualityComparer factory selection.",
         "Retain distinct value-key hash receiver semantics in FindValue and TryInsert.",
-        "Leave removal, enumeration, comparer/capacity constructors, read indexers and further members without executable support.",
+        "AC3.3 adds Remove with/without out value and Clear; clear key/value payloads and reuse private entry slots. Enumeration, comparer/capacity constructors, read indexers and further members remain unsupported.",
         "Preserve the public generic/nongeneric/serialization interface declarations; unimplemented members remain compile-time errors."
       ],
-      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; no removal/enumeration/indexer-read or serialization implementation."
+      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no enumeration/indexer-read or serialization implementation."
     },
     {
       "path": "library/Cilica.Core/ArrayInterface.cs",

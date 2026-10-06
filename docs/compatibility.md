@@ -2031,3 +2031,17 @@ native v41 and public ABIs stay unchanged. The public ledger remains 33 gaps and
 14 controls; its supplemental interface mutation blocker advances. Broader
 collections and private replay remain incomplete. See
 [ADR AC0010](decisions/AC0010-array-interface-mutations.md).
+
+
+### Dictionary removal and clearing (AC3.3)
+
+Owned Dictionary Remove (with/without out value) and Clear now unlink bucket
+chains, release payload roots and reuse freed entry slots before growing. Mutable
+key hashes preserve the pinned receiver semantics; throwing callbacks leave out
+storage and dictionary contents unchanged. Ten probes plus public DictionaryRemove
+supply 3,234 repeated O0/O2 .NET/native comparisons, four live-dictionary GC checks
+and 38 existing library/baseline checks. The ledger has 32 gaps and 15 controls.
+No compiler/runtime profile, grant or ABI changes. Copying requires rich range
+faults and precise array downcast semantics; Add/getter/constructors, other
+collections and enumeration remain planned. Full replay remains incomplete.
+See [ADR AC0011](decisions/AC0011-dictionary-removal-and-clear.md).

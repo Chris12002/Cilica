@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // Cilica bounded adaptation: retain prime capacities, hash/bucket chains and
-// insertion order; use reference entries until value vectors are implemented.
+// entry-slot order and free-slot reuse; private reference entries carry typed fields.
 // See ../provenance.json for the pinned originals and deliberately omitted APIs.
 namespace Cilica.Runtime
 {
@@ -119,8 +119,10 @@ namespace System.Collections.Generic
         private int[] buckets;
         private Cilica.Runtime.DictionaryEntry<TKey, TValue>[] entries;
         private int count;
-        public Dictionary() { }
-        public int Count => count;
+        private int freeList;
+        private int freeCount;
+        public Dictionary() { freeList = -1; }
+        public int Count => count - freeCount;
         // FindValue and equality preserve EqualityComparer<T>'s by-value receiver
         // semantics. TryInsert deliberately hashes its own key parameter byref,
         // matching the pinned source even when a value key mutates its receiver.
@@ -157,8 +159,50 @@ namespace System.Collections.Generic
         }
         public bool ContainsKey(TKey key) => Find(key) != null;
         public void Add(TKey key, TValue value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        public bool Remove(TKey key) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        public void Clear() { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public bool Remove(TKey key) => Remove(key, out _);
+        public bool Remove(TKey key, out TValue value)
+        {
+            CheckKey(key);
+            if (buckets != null)
+            {
+                // Remove, like TryInsert, hashes its own key parameter before comparison.
+                uint hash = unchecked((uint)Cilica.Runtime.KeyOperations<TKey>.Hash(ref key));
+                int bucket = (int)(hash % (uint)buckets.Length);
+                int previous = -1;
+                int index = buckets[bucket] - 1;
+                int collisions = 0;
+                while ((uint)index < (uint)entries.Length)
+                {
+                    var entry = entries[index];
+                    if (entry.Hash == hash && Equal(entry.Key, key))
+                    {
+                        if (previous < 0) buckets[bucket] = entry.Next + 1;
+                        else entries[previous].Next = entry.Next;
+                        value = entry.Value;
+                        entry.Next = -3 - freeList;
+                        entry.Key = default;
+                        entry.Value = default;
+                        freeList = index;
+                        freeCount++;
+                        return true;
+                    }
+                    previous = index;
+                    index = entry.Next;
+                    if (++collisions > entries.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
+                }
+            }
+            value = default;
+            return false;
+        }
+        public void Clear()
+        {
+            if (count == 0) return;
+            for (int i = 0; i < buckets.Length; ++i) buckets[i] = 0;
+            for (int i = 0; i < count; ++i) entries[i] = null;
+            count = 0;
+            freeList = -1;
+            freeCount = 0;
+        }
         [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         public virtual extern void GetObjectData(Runtime.Serialization.SerializationInfo info, Runtime.Serialization.StreamingContext context);
         [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
@@ -213,6 +257,19 @@ namespace System.Collections.Generic
                 index = entry.Next;
                 if (++collisions > entries.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
             }
+            if (freeCount > 0)
+            {
+                int slot = freeList;
+                var reused = entries[slot];
+                freeList = -3 - reused.Next;
+                freeCount--;
+                reused.Hash = hash;
+                reused.Next = buckets[bucket] - 1;
+                reused.Key = key;
+                reused.Value = value;
+                buckets[bucket] = slot + 1;
+                return true;
+            }
             if (count == entries.Length)
             {
                 Resize();
@@ -233,6 +290,7 @@ namespace System.Collections.Generic
             for (int i = 0; i < count; ++i)
             {
                 var entry = newEntries[i];
+                if (entry.Next < -1) continue;
                 int bucket = (int)(entry.Hash % (uint)size);
                 entry.Next = newBuckets[bucket] - 1;
                 newBuckets[bucket] = i + 1;
