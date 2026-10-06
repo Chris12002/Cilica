@@ -20,18 +20,18 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v41",
-    "nativeProfileEvidence": "Public baseline revalidated at AC6.2 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC4.6 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
     "updatePolicy": "When a gap advances, update its diagnostic and owning slice; claim native validation only after an oracle/native comparison. No silent blanket baseline regeneration.",
     "publicProbeCount": 47,
-    "knownGapCount": 20,
-    "positiveControlCount": 27,
+    "knownGapCount": 19,
+    "positiveControlCount": 28,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "3c9dedcbf54374fe29a11f982e5e0d688d959861f82c6b5204efd887621b93c5",
-    "latestSlice": "AC6.2",
+    "fixtureSha256": "0bde5800278c23b0c4eea83f9c9edc659cf696715bddcbd6d5eb62164ffbd7cc",
+    "latestSlice": "AC4.6",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -134,7 +134,7 @@
     "AC4": {
       "prerequisites": ["AC3"],
       "status": "in-progress",
-      "completedSubslices": ["AC4.1", "AC4.2", "AC4.3", "AC4.4", "AC4.5"],
+      "completedSubslices": ["AC4.1", "AC4.2", "AC4.3", "AC4.4", "AC4.5", "AC4.6"],
       "remaining": "Boxed list/dictionary/view interface enumeration, variant class dispatch, nongeneric Current and required disposal/closure coverage."
     },
     "AC4.1": {
@@ -161,6 +161,11 @@
       "prerequisites": ["AC3.2"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0021-generic-array-enumeration.md"
+    },
+    "AC4.6": {
+      "prerequisites": ["AC4.5"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0024-single-thread-yield-iterators.md"
     },
     "AC5a": {
       "prerequisites": ["AC0"],
@@ -557,7 +562,7 @@
     {"id": "IntCompareTo", "slice": "AC5a", "publicFixture": "Probe_IntCompareTo", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_IntCompareTo", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: CompareTo"}, "currentEvidence": "AC5a.1 exact integer Math/CompareTo managed bodies, tested at O0/O2 on macOS ARM64 with sanitizers and forced GC."},
     {"id": "GuidTextConstructor", "slice": "AC5a", "publicFixture": "Probe_GuidTextConstructor", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: .ctor"}, "privateWitness": "probes.json; Probe_GuidTextConstructor"},
     {"id": "StaticArrayData", "slice": "AC5b", "publicFixture": "Probe_StaticArrayData", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020004d0 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_StaticArrayData"},
-    {"id": "Iterator", "slice": "AC4", "publicFixture": "Probe_Iterator", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000050 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_Iterator"},
+    {"id": "Iterator", "slice": "AC4", "publicFixture": "Probe_Iterator", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_Iterator", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000050 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC4.6 single-managed-thread Environment identity unlocks unchanged Roslyn yield state machines. Reuse/clone, Current state, disposal/finally and reference/value payloads match same-thread .NET. Native serial host-thread changes preserve the same managed identity."},
     {"id": "ArrayEnumeration", "slice": "AC4", "publicFixture": "Probe_ArrayEnumeration", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ArrayEnumeration", "auditDiagnostic": {"id": "CIL2001", "contains": "Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, IndexOf/Contains, fixed-size Add/Insert/Remove/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags and SyncRoot are admitted."}, "currentEvidence": "AC4.5 generic array enumeration: exact logical T, live Current, reset/disposal, mutable empty singleton, covariance and precise GC checks at O0/O2. Mixed variant class closures and nongeneric Current remain diagnostic."},
     {"id": "CharArrayString", "slice": "AC7b", "publicFixture": "Probe_CharArrayString", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: .ctor"}, "privateWitness": "probes.json; Probe_CharArrayString"}
   ],

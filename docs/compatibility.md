@@ -2195,3 +2195,15 @@ boundary checks pass with forced GC and sanitizers. Int32/reference callbacks ar
 supported; value-payload delegates, boxed collection factories, deferred operators
 and full replay remain unfinished. The ledger stays at 20 gaps and 27 controls;
 no grants or profiles changed.
+
+
+### Single-thread yield iterators (AC4.6)
+
+The selected core now exposes a stable positive managed-thread identity scoped to
+each single-threaded runtime instance, independent of the host OS thread. Unchanged
+Roslyn yield state machines pass 2,646 repeated O0/O2 native/.NET comparisons,
+including reuse/clones, suspended values and finally cleanup. Two GC/serialized-host
+thread runs, 24 existing core/baseline checks and the negative environment/thread
+check pass with sanitizers. Other threading APIs remain unsupported; no async or
+multithreaded profile is claimed. The ledger has 19 gaps and 28 controls. No new
+grants/native profiles; full replay remains unfinished.
