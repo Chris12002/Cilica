@@ -9,6 +9,21 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IEqualityComparer.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IEqualityComparer.cs",
+      "sha256": "c6c925f9d073913bb8566e573f699270867beef798031fe0d3b010c5f8fa7b2b"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IComparer.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IComparer.cs",
+      "sha256": "c8a7e756adcd35ccba492cd5e3a37dc35c1c4879f19259fba3dd93d9ba7ae6e4"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringComparer.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/StringComparer.cs",
+      "sha256": "a2aa1c99846b51a3b85e469fd33b110d81661f1e571f73422bcc97e8f00004cd"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Single.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Single.cs",
       "sha256": "70fac6471bcb2868638b5b73ee58bb5b0a913cd08ef514d6c1420fed9468bfbb"
@@ -693,6 +708,48 @@
         "Use direct array indexing in place of the array span; List span access is not admitted.",
         "Use a private Int32 found flag within admitted by-reference carriers."
       ]
+    },
+    {
+      "path": "library/Cilica.Core/StringComparer.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringComparer.cs",
+      "algorithms": [
+        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison and typed equality."
+      ],
+      "changes": [
+        "Retain only the selected case-sensitive ordinal implementation; use the existing owned CompareOrdinal and string equality.",
+        "Store the runtime-instance-owned singleton in a separate initialization helper, leaving comparer class dispatch facts fieldless and initializer-free.",
+        "Nongeneric methods, comparer-object equality and randomized hash APIs fail through UnsupportedLibraryMember.",
+        "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
+      ],
+      "scope": "Bounded typed ordinal compare/equality and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+    },
+    {
+      "path": "library/Cilica.Core/StringComparer.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IComparer.cs",
+      "algorithms": [
+        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison and typed equality."
+      ],
+      "changes": [
+        "Retain only the selected case-sensitive ordinal implementation; use the existing owned CompareOrdinal and string equality.",
+        "Store the runtime-instance-owned singleton in a separate initialization helper, leaving comparer class dispatch facts fieldless and initializer-free.",
+        "Nongeneric methods, comparer-object equality and randomized hash APIs fail through UnsupportedLibraryMember.",
+        "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
+      ],
+      "scope": "Bounded typed ordinal compare/equality and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+    },
+    {
+      "path": "library/Cilica.Core/StringComparer.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IEqualityComparer.cs",
+      "algorithms": [
+        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison and typed equality."
+      ],
+      "changes": [
+        "Retain only the selected case-sensitive ordinal implementation; use the existing owned CompareOrdinal and string equality.",
+        "Store the runtime-instance-owned singleton in a separate initialization helper, leaving comparer class dispatch facts fieldless and initializer-free.",
+        "Nongeneric methods, comparer-object equality and randomized hash APIs fail through UnsupportedLibraryMember.",
+        "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
+      ],
+      "scope": "Bounded typed ordinal compare/equality and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
     }
   ],
   "ownedAdapters": [

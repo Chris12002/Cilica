@@ -2698,3 +2698,24 @@ advances to v14, object IR to v23, delegate/value IR to v5 and interface plans t
 v10. Native v49/layout v20 are unchanged. Full replay remains unverified; ordinal
 comparers and ordering are subsequent slices. See ADR AC0059 and
 artifacts/alchemy-abstract-slots/ac8m-*.
+
+
+### Typed ordinal comparer (AC7b.6)
+
+StringComparer.Ordinal now provides typed string Compare and Equals through the
+abstract class and exact IComparer<string>/IEqualityComparer<string> contracts.
+The fieldless comparer uses existing exact UTF-16 operations. A separate managed
+cache owns one singleton per runtime instance. Exact application comparer contracts
+also support the existing scalar/inline interface-call path. Generic variance is
+not added. Hash APIs, comparer-object equality, nongeneric operations, other
+factories and default comparers remain diagnostic.
+
+Seven probes pass 8,376 repeated O0/O2 native/.NET comparisons, including nulls,
+embedded NULs, unpaired surrogates, exact numeric comparison results, distinct
+string snapshots and inline argument copies. Two-instance tests prove one comparer
+root per instance beyond the runtime emergency exception and collection after
+clearing that root. All 38 selected comparer/core/text/baseline checks pass with
+forced GC and ASan/UBSan. No new intrinsic, compiler profile or resource limit.
+Frozen EngineStep still needs IOrderedEnumerable/OrderBy; StateLookup still reaches
+257/256 discovered identities. Full replay remains unverified. See ADR AC0060 and
+artifacts/alchemy-ordinal-comparer.
