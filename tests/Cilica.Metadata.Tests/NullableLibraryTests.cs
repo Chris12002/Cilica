@@ -117,7 +117,8 @@ public sealed class NullableLibraryTests
         Assert.Contains("NullableSmallKind", Assert.Single(enumWidth.Diagnostics).Message, StringComparison.Ordinal);
         var enumVisibility = results[nameof(NullableProbe.UnsupportedEnumVisibility)];
         Assert.False(enumVisibility.Success);
-        Assert.Contains("NullableInternalKind", Assert.Single(enumVisibility.Diagnostics).Message, StringComparison.Ordinal);
+        // Scalar shape is now admitted; the separate internal field access remains outside this profile.
+        Assert.Contains("Fields require the same declaring owner", Assert.Single(enumVisibility.Diagnostics).Message, StringComparison.Ordinal);
         foreach (string name in MemberGaps)
         {
             var result = results[name];

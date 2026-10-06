@@ -12,17 +12,17 @@ namespace Cilica.Metadata.Tests;
 public sealed class EnumStorageTests
 {
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
-        CoreLibraryBuildTests.TranslateFixtures(typeof(EnumStorageProbe), "Storage", "GenericAndDispatch"));
+        CoreLibraryBuildTests.TranslateFixtures(typeof(EnumStorageProbe), "Storage", "GenericAndDispatch", "Box"));
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task Int32_enum_fields_copies_borrows_and_closed_dispatch_match_dotnet(bool optimized)
     {
         var programs = await Programs.Value;
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,
-            [("EnumStorage", programs[0], EnumStorageProbe.Storage), ("EnumDispatch", programs[1], EnumStorageProbe.GenericAndDispatch)]);
+            [("EnumStorage", programs[0], EnumStorageProbe.Storage), ("EnumDispatch", programs[1], EnumStorageProbe.GenericAndDispatch), ("EnumBox", programs[2], EnumStorageProbe.Box)]);
     }
     [Theory]
-    [InlineData("Small")] [InlineData("Wide")] [InlineData("Box")] [InlineData("Array")]
+    [InlineData("Small")] [InlineData("Wide")] [InlineData("Array")]
     public void Unsupported_enum_representations_remain_diagnostic(string name)
     {
         var result = IntegerObjectTranslationTests.Translate(name,fixture:typeof(EnumStorageProbe));
@@ -30,7 +30,7 @@ public sealed class EnumStorageTests
     }
     [Theory]
     [InlineData("name")] [InlineData("flags")] [InlineData("wide")] [InlineData("extra")]
-    [InlineData("static")] [InlineData("private")] [InlineData("initializer")]
+    [InlineData("static")] [InlineData("initializer")]
     public void Malformed_or_out_of_profile_enum_shapes_fail_before_scalar_lowering(string shape)
     {
         using var files = new ResolverFiles();
@@ -39,7 +39,7 @@ public sealed class EnumStorageTests
         var b = new ResolutionAssemblyBuilder(new("EnumShape",new Version(1,0,0,0)));
         var parent = b.TypeReference("System","Enum",b.Reference(library.Identity));
         var type = b.Type("Test","Status",baseType:parent,
-            attributes: TypeAttributes.Sealed | (shape == "private" ? TypeAttributes.NotPublic : TypeAttributes.Public));
+            attributes: TypeAttributes.Sealed | TypeAttributes.Public);
         b.FieldWithAttributes(shape == "name" ? "bits" : "value__",
             shape == "flags" ? FieldAttributes.Public : FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName,
             6,shape == "wide" ? (byte)10 : (byte)8);

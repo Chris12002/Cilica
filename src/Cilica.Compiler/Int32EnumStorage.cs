@@ -15,7 +15,13 @@ internal static class Int32EnumStorage
         var input = read(named.Definition);
         if (input.BaseType is not TypeSignature.Named parent || parent.Definition != enumBase) return false;
         var fields = input.Fields.Where(f => (f.Attributes & FieldAttributes.Static) == 0).ToArray();
-        if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || !input.ExternallyVisible || input.IsByRefLike
+        // Visibility is an access property, not a scalar representation property.
+        // Admit top-level internal enums in stored object/value layouts. Direct
+        // operands still check their caller, and generic/boxed paths keep their
+        // existing stricter nominal access rules.
+        bool internalTopLevel = input.LexicalOwners.Length == 1
+            && input.LexicalOwners[0].Visibility == TypeAttributes.NotPublic;
+        if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || (!input.ExternallyVisible && !internalTopLevel) || input.IsByRefLike
             || input.HasTypeInitializer || input.HasModuleInitializer || input.InterfaceCount != 0
             || input.PackingSize != 0 || input.ClassSize != 0 || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
             || (input.Attributes & TypeAttributes.LayoutMask) != TypeAttributes.AutoLayout
@@ -25,7 +31,7 @@ internal static class Int32EnumStorage
             || input.Fields.Any(f => (f.Attributes & FieldAttributes.Static) != 0
                 && (f.Attributes != (FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.Literal | FieldAttributes.HasDefault)
                     || f.Signature is not TypeSignature.Named literal || literal.Definition != named.Definition)))
-            throw new ArgumentException("Enum scalar storage requires an externally visible nongeneric Int32 enum with exact value__ storage, literal constants, and no interfaces, layout or initialization. Type: " + input.Source.Name + ".");
+            throw new ArgumentException("Enum scalar storage requires a public or top-level internal nongeneric Int32 enum with exact value__ storage, literal constants, and no interfaces, layout or initialization. Type: " + input.Source.Name + ".");
         return true;
     }
 }

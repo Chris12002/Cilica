@@ -157,3 +157,14 @@ native/.NET comparisons; four precise query/cache GC checks and 36 existing
 regressions pass. The public lambda's two static cache objects are explicitly
 validated. The ledger has 18 gaps and 29 controls. Indexed operators, boxed
 collection factories, value predicates and full replay remain unfinished.
+
+
+### Internal Int32 enums (AC5b.1)
+
+Top-level internal Int32 enums now use scalar storage in admitted layouts and
+same-assembly direct memory operands. Five probes pass 1,470 repeated O0/O2
+native/.NET comparisons with sanitizers and forced GC. Cross-assembly operands,
+nonpublic generic/box access and cross-owner internal fields remain checked.
+The frozen state-lookup probe advances to a metadata-constant layout rejection;
+it is not yet executable. No profiles/grants change; public counts remain 18 gaps
+and 29 controls. See [ADR AC0026](docs/decisions/AC0026-internal-int32-enums.md).

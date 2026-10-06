@@ -2397,3 +2397,14 @@ at the internal Int32 SpellPreparationPhases enum; canonical hashing still requi
 SHA256. Prior public probes do not establish full application admission. Next work
 prioritizes contextual enum access and static value storage, preserving the frozen
 engine and recorded games. AC8/AC9 remain incomplete.
+
+
+### Internal Int32 enums (AC5b.1)
+
+Top-level internal Int32 enums now use scalar storage in admitted layouts and
+same-assembly direct memory operands. Five probes pass 1,470 repeated O0/O2
+native/.NET comparisons with sanitizers and forced GC. Cross-assembly operands,
+nonpublic generic/box access and cross-owner internal fields remain checked.
+The frozen state-lookup probe advances to a metadata-constant layout rejection;
+it is not yet executable. No profiles/grants change; public counts remain 18 gaps
+and 29 controls. See [ADR AC0026](../decisions/AC0026-internal-int32-enums.md).

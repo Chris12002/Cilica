@@ -376,7 +376,9 @@ public static partial class ValueProgramDiscovery
                                 if (integers64 && instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj")
                                 {
                                     signature = OperandSignature(signature, work, offset);
-                                    CheckArgumentAccess(signature, work, offset);
+                                    // OperandSignature validates nominal enum access against the calling assembly.
+                                    // Keep the stricter generic-argument rule for other memory operand shapes.
+                                    if (!EnumScalar(signature, work, offset)) CheckArgumentAccess(signature, work, offset);
                                     if (IntegerCasts.NarrowStorage(signature) is not null)
                                         Fail(work, "Narrow memory operands require storage-width-aware locations before execution.", offset);
                                     memory.Add(offset, Storage(signature, work, offset));
@@ -672,7 +674,13 @@ public static partial class ValueProgramDiscovery
         private TypeSignature OperandSignature(TypeSignature signature, Work work, int offset)
         {
             if (signature is not TypeSignature.Named named) return signature;
-            if (EnumScalar(signature, work, offset)) return named with { Kind = SignatureTypeKind.ValueType };
+            if (EnumScalar(signature, work, offset))
+            {
+                var declaration = Snapshot(named.Definition, work, offset);
+                if (!declaration.ExternallyVisible && declaration.Source.ContentHash != work.Binding.Owner.ContentHash)
+                    Fail(work, "Internal Int32 enum operands require a declaration in the calling assembly.", offset);
+                return named with { Kind = SignatureTypeKind.ValueType };
+            }
             // A TypeDef/TypeRef operand encodes selected primitives as named types.
             // Compare resolver-owned identities; a matching spelling is insufficient.
             foreach (var code in new[] { PrimitiveTypeCode.Int32, PrimitiveTypeCode.UInt32, PrimitiveTypeCode.Int64, PrimitiveTypeCode.UInt64,
