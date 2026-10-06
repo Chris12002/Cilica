@@ -209,3 +209,7 @@ AC4.3 concrete dictionary enumeration requires the exact nested
 ``System.Collections.Generic.Dictionary`2/Enumerator`` mapping. New insertion
 invalidates iteration; clear, remove and overwrite do not. Interface factories
 and boxed nongeneric enumeration members remain diagnostic.
+
+AC4.4 also maps the nested Enumerator inside each dictionary KeyCollection and
+ValueCollection. Concrete MoveNext/Current/Dispose retain only the selected
+current key or value; boxed interface factories remain unsupported.

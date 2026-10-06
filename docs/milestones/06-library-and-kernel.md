@@ -2313,3 +2313,15 @@ current-value survival across forced GC after clearing the dictionary. Forty-thr
 existing regressions pass with sanitizers enabled. The ledger has 22 gaps and 25
 controls. No new grants/profiles; boxed interface enumeration, view enumeration
 and full replay remain unfinished. See [ADR AC0019](../decisions/AC0019-concrete-dictionary-enumeration.md).
+
+
+### Concrete dictionary view enumeration (AC4.4)
+
+KeyCollection and ValueCollection now expose their exact nested enumerator types.
+They retain only the selected current key or value, preserve dictionary mutation
+rules, copy independently and reset current at completion. Eight probes supply
+2,352 repeated O0/O2 native/.NET comparisons; four precise GC checks prove the
+key/value retention difference after clear and release at iteration end. All 35
+view/baseline regressions pass with sanitizers and forced GC. No new grants or
+profiles. The ledger remains 22 gaps and 25 controls; interface/array enumeration
+and full replay remain unfinished. See [ADR AC0020](../decisions/AC0020-concrete-view-enumeration.md).

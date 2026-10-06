@@ -87,7 +87,7 @@ public sealed class DictionaryViewTests
             var actual = targetReader.GetTypeDefinition(target.Handle).GetInterfaceImplementations().Select(h =>
                 resolver.ResolveSignatureType(implementation, targetReader.GetInterfaceImplementation(h).Interface).Value).ToHashSet();
             Assert.DoesNotContain(null, expected); Assert.True(expected.SetEquals(actual));
-            foreach (string member in new[] { ".ctor", "get_Count", "CopyTo" })
+            foreach (string member in new[] { ".ctor", "get_Count", "CopyTo", "GetEnumerator" })
             {
                 var method = Assert.Single(sourceReader.GetTypeDefinition(source.Handle).GetMethods(), h => sourceReader.GetString(sourceReader.GetMethodDefinition(h).Name) == member);
                 var mapped = resolver.ResolveLibraryMethod(plan, contract, method);

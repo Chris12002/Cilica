@@ -107,7 +107,8 @@ String.CompareOrdinal and IsNullOrEmpty with pinned UTF-16 results. AC7b.2 adds
 AC3.5 adds live Array.AsReadOnly views and shared empty-view identity. AC4.1 adds
 concrete list enumeration; generic interface enumeration remains open. AC4.2 adds
 live dictionary key/value views and bounded value lookup. AC4.3 adds concrete
-dictionary enumeration with the pinned removal/overwrite rules.
+dictionary enumeration with the pinned removal/overwrite rules. AC4.4 adds
+concrete dictionary key/value enumeration with exact payload retention.
 
 ## Development
 

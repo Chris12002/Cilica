@@ -45,7 +45,8 @@ feedback before implementation. Explain consequential choices in plain language.
   (ADR AC0017); boxed interface enumeration remains unsupported. AC4.2 adds
   cached dictionary key/value views and copied value equality lookup (ADR AC0018).
   AC4.3 concrete dictionary enumeration invalidates only on new-key insertion;
-  removal/clear/overwrite preserve its version (ADR AC0019).
+  removal/clear/overwrite preserve its version (ADR AC0019). AC4.4 adds concrete
+  key/value view enumerators with distinct current payload roots (ADR AC0020).
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

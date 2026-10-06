@@ -320,6 +320,48 @@ namespace System.Collections.Generic
                 if (dictionary == null) throw new ArgumentNullException("dictionary");
                 return dictionary;
             }
+            public Enumerator GetEnumerator() => new Enumerator(dictionary);
+            public struct Enumerator : IEnumerator<TKey>, Collections.IEnumerator
+            {
+                private readonly Dictionary<TKey, TValue> dictionary;
+                private readonly int version;
+                private int index;
+                private TKey current;
+                internal Enumerator(Dictionary<TKey, TValue> dictionary)
+                {
+                    this.dictionary = dictionary;
+                    version = dictionary.EnumerationVersion;
+                    index = 0;
+                    current = default;
+                }
+                public bool MoveNext()
+                {
+                    if (version != dictionary.EnumerationVersion)
+                        throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                    while ((uint)index < (uint)dictionary.EnumerationCount)
+                    {
+                        var entry = dictionary.EnumerationEntry(index++);
+                        if (entry.Next >= -1)
+                        {
+                            current = entry.Key;
+                            return true;
+                        }
+                    }
+                    index = unchecked(dictionary.EnumerationCount + 1);
+                    current = default;
+                    return false;
+                }
+                public TKey Current => current;
+                public void Dispose() { }
+                void Collections.IEnumerator.Reset()
+                {
+                    if (version != dictionary.EnumerationVersion)
+                        throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                    index = 0;
+                    current = default;
+                }
+                object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+            }
             public int Count => dictionary.Count;
             bool ICollection<TKey>.IsReadOnly => true;
             bool Collections.ICollection.IsSynchronized => false;
@@ -341,6 +383,48 @@ namespace System.Collections.Generic
             {
                 if (dictionary == null) throw new ArgumentNullException("dictionary");
                 return dictionary;
+            }
+            public Enumerator GetEnumerator() => new Enumerator(dictionary);
+            public struct Enumerator : IEnumerator<TValue>, Collections.IEnumerator
+            {
+                private readonly Dictionary<TKey, TValue> dictionary;
+                private readonly int version;
+                private int index;
+                private TValue current;
+                internal Enumerator(Dictionary<TKey, TValue> dictionary)
+                {
+                    this.dictionary = dictionary;
+                    version = dictionary.EnumerationVersion;
+                    index = 0;
+                    current = default;
+                }
+                public bool MoveNext()
+                {
+                    if (version != dictionary.EnumerationVersion)
+                        throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                    while ((uint)index < (uint)dictionary.EnumerationCount)
+                    {
+                        var entry = dictionary.EnumerationEntry(index++);
+                        if (entry.Next >= -1)
+                        {
+                            current = entry.Value;
+                            return true;
+                        }
+                    }
+                    index = unchecked(dictionary.EnumerationCount + 1);
+                    current = default;
+                    return false;
+                }
+                public TValue Current => current;
+                public void Dispose() { }
+                void Collections.IEnumerator.Reset()
+                {
+                    if (version != dictionary.EnumerationVersion)
+                        throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                    index = 0;
+                    current = default;
+                }
+                object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
             }
             public int Count => dictionary.Count;
             bool ICollection<TValue>.IsReadOnly => true;

@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v41",
-    "nativeProfileEvidence": "Public baseline revalidated at AC4.3 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC4.4 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 25,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "b89e9090af63089d4f2f1c4ab01b610d916729df56c9fa098189f3c05557187a",
-    "latestSlice": "AC4.3",
+    "fixtureSha256": "228c9f560a1f0a6fee1517310f2dc5bf9f3dc31b810e53a650182b75a5cda8c0",
+    "latestSlice": "AC4.4",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -134,8 +134,8 @@
     "AC4": {
       "prerequisites": ["AC3"],
       "status": "in-progress",
-      "completedSubslices": ["AC4.1", "AC4.2", "AC4.3"],
-      "remaining": "Interface and array enumerators, dictionary interface and key/value enumeration, nongeneric Current and required disposal/closure coverage."
+      "completedSubslices": ["AC4.1", "AC4.2", "AC4.3", "AC4.4"],
+      "remaining": "Interface and array enumerators, dictionary/view interface enumeration, nongeneric Current and required disposal/closure coverage."
     },
     "AC4.1": {
       "prerequisites": ["AC3.4"],
@@ -151,6 +151,11 @@
       "prerequisites": ["AC4.2"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0019-concrete-dictionary-enumeration.md"
+    },
+    "AC4.4": {
+      "prerequisites": ["AC4.3"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0020-concrete-view-enumeration.md"
     },
     "AC5a": {
       "prerequisites": ["AC0"],

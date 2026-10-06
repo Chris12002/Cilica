@@ -46,6 +46,10 @@ public sealed class CoreLibraryBuildTests
             pairs = pairs.Append(new LibraryTypeMapping(
                 resolver.ResolveType(contract, "System.Collections.Generic", "Dictionary`2", nested).Value!,
                 resolver.ResolveType(implementation, "System.Collections.Generic", "Dictionary`2", nested).Value!));
+        foreach (string view in new[] { "KeyCollection", "ValueCollection" })
+            pairs = pairs.Append(new LibraryTypeMapping(
+                resolver.ResolveType(contract, "System.Collections.Generic", "Dictionary`2", view, "Enumerator").Value!,
+                resolver.ResolveType(implementation, "System.Collections.Generic", "Dictionary`2", view, "Enumerator").Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);
         Assert.True(plan.Success, string.Join("; ", plan.Diagnostics));
         return (built, request, resolver, implementation, plan.Value!);
