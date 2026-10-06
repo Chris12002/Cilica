@@ -64,7 +64,16 @@ public static class ValueModelBuilder
         void IncludeId(ObjectTypeId id)
         {
             if (identities.Add(id) && identities.Count > ObjectModelLimits.MaximumTypes)
-                Fail("Combined value/reference type limit exceeded.", code: DiagnosticIds.TranslationLimit);
+                {
+                int vectors = identities.Count(t => t.ArrayElement is not null);
+                int closed = identities.Count(t => t.ArrayElement is null && t.Specialization.Length != 0);
+                int declarations = identities.Where(t => t.ArrayElement is null).Select(t => (t.ContentHash, t.Token)).Distinct().Count();
+                var images = identities.GroupBy(t => t.ContentHash).OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.Ordinal).ToArray();
+                string distribution = string.Join(", ", images.Take(8).Select(g => g.Key + "=" + g.Count().ToString(CultureInfo.InvariantCulture)))
+                    + (images.Length > 8 ? ", additional images=" + (images.Length - 8).ToString(CultureInfo.InvariantCulture) : "");
+                Fail(FormattableString.Invariant($"Combined value/reference type limit exceeded. Observed {identities.Count}/{ObjectModelLimits.MaximumTypes} discovered identities: {declarations} distinct nominal declarations, {closed} closed generic identities, {vectors} vector identities; {inputs.Count} cached snapshots and {fields} field declarations read. Partial closure only; these counts are not emitted runtime layouts. Per-image identities: {distribution}."),
+                    id.ContentHash + ":0x" + id.Token.ToString("x8", CultureInfo.InvariantCulture) + ":" + id.Specialization, DiagnosticIds.TranslationLimit);
+            }
         }
         TypeInput ReadClosed(ConstructedType type, TypeReadLimits limits)
         {

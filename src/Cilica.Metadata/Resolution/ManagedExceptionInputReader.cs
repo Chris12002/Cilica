@@ -61,7 +61,14 @@ public sealed partial class AssemblyResolver
                 if (!calls.TryGetValue(instruction.Token, out var target))
                 {
                     var resolved = ResolveClosedCall(method, MetadataTokens.EntityHandle(instruction.Token), budget);
-                    if (resolved.Value is not { } declaration) { diagnostics.AddRange(resolved.Diagnostics); return null; }
+                    if (resolved.Value is not { } declaration)
+                    {
+                        string site = value.Source.Name + " token 0x" + value.Source.Token.ToString("x8", System.Globalization.CultureInfo.InvariantCulture)
+                            + (value.Source.Specialization.Length == 0 ? "" : " specialization " + value.Source.Specialization)
+                            + " IL_" + instruction.Offset.ToString("x4", System.Globalization.CultureInfo.InvariantCulture);
+                        diagnostics.AddRange(resolved.Diagnostics.Select(d => d with { Location = d.Location is null ? site : site + "; " + d.Location }));
+                        return null;
+                    }
                     calls.Add(instruction.Token, target = declaration);
                 }
                 var signature = target.Signature;

@@ -47,7 +47,8 @@ public sealed partial class AssemblyResolver
         }
         catch (BindingFailureException exception)
         {
-            return ResolutionResult<T>.Failed(exception.Diagnostics.Select(d => d with { Location = location }));
+            return ResolutionResult<T>.Failed(exception.Diagnostics.Select(d => d with { Location = d.Location is null ? location
+                : d.Location.Contains(location, StringComparison.Ordinal) ? d.Location : d.Location + "; resolving " + location }));
         }
         catch (Exception exception) when (MalformedInput.IsMalformed(exception) || exception is UnsupportedBindingException)
         {

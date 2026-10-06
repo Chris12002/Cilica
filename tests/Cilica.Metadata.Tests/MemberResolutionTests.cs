@@ -264,6 +264,7 @@ public sealed class MemberResolutionTests
         var result = resolver.ResolveMethod(Open(builder, files, resolver), member);
         Assert.Equal(DiagnosticIds.AssemblyNotFound, Assert.Single(result.Diagnostics).Id);
         Assert.Contains("token 0x0a", result.Diagnostics[0].Location, StringComparison.Ordinal);
+        Assert.Contains("type reference .Absent", result.Diagnostics[0].Location, StringComparison.Ordinal);
     }
 
     [Fact]

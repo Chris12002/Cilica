@@ -2480,3 +2480,14 @@ Eleven mutations fail in both stages; array permission does not authorize casts
 or explicit foreign names. 117 broad and 46 post-review checks pass. Object IR v16
 and integer-object CIL v4; native v42/layout v17 unchanged. Engine/state closure
 and full replay remain incomplete. See ADR AC0035.
+
+
+### Closure failure evidence (AC8.5)
+
+Nested resolution now preserves inner IL locations and requesting calls. Type-limit
+errors report bounded partial identity counts. 85 focused checks and 21 baseline
+checks pass; limits are unchanged. Engine formatting is specifically the two-object
+String.Format call in GameState.GetPlayer IL_0020. State discovery reaches 257
+identities (143 distinct nominal declarations, 122 closed generic identities), not
+a measured final runtime catalog. Capacity and full replay remain unresolved.
+See ADR AC0036 and artifacts/alchemy-closure-diagnostics.

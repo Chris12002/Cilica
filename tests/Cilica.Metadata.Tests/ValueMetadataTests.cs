@@ -199,7 +199,15 @@ public sealed class ValueMetadataTests
         for (int i = 0; i < count; i++) builder.Type("Example", "Reference" + i, baseType: MetadataTokens.TypeDefinitionHandle(2));
         var result = Build(builder, root);
         Assert.Equal(!excess, result.Success);
-        if (excess) Assert.Equal(DiagnosticIds.TranslationLimit, Assert.Single(result.Diagnostics).Id);
+        if (excess)
+        {
+            var diagnostic = Assert.Single(result.Diagnostics);
+            Assert.Equal(DiagnosticIds.TranslationLimit, diagnostic.Id);
+            Assert.Contains("Observed 257/256 discovered identities", diagnostic.Message, StringComparison.Ordinal);
+            Assert.Contains("257 distinct nominal declarations, 0 closed generic identities, 0 vector identities", diagnostic.Message, StringComparison.Ordinal);
+            Assert.Contains("Partial closure only", diagnostic.Message, StringComparison.Ordinal);
+            Assert.Contains("Per-image identities:", diagnostic.Message, StringComparison.Ordinal);
+        }
     }
 
     [Fact]

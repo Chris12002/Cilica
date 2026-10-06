@@ -886,7 +886,8 @@ public static partial class ValueProgramDiscovery
         }
         private static T Require<T>(ResolutionResult<T> result, Work? work = null, int offset = 0) where T : class =>
             result.Value ?? throw new Failure(result.Diagnostics[0] with
-            { Message = result.Diagnostics[0].Message + Path(work), Location = work is null ? result.Diagnostics[0].Location : Location(work, offset) });
+            { Message = result.Diagnostics[0].Message + Path(work), Location = work is null ? result.Diagnostics[0].Location
+                : result.Diagnostics[0].Location is { } detail ? detail + "; requested from " + Location(work, offset) : Location(work, offset) });
         private static string Location(Work? work, int offset) => work is null ? "entry" :
             work.Input.Source.Name + " token 0x" + work.Input.Source.Token.ToString("x8", CultureInfo.InvariantCulture)
             + (work.Input.Source.Specialization.Length == 0 ? "" : " specialization " + work.Input.Source.Specialization)
