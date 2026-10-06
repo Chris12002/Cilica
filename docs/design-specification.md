@@ -1857,3 +1857,24 @@ controls. Framework delegate declarations/signatures remain AC2.2; covariance,
 multicast, wide/value/byref results and recursive delegate signatures remain
 outside the bound. Neither the public embedding ABI nor private replay evidence
 changes, and full AC2 and saved-game replay remain incomplete.
+
+
+### Required framework delegates (AC2.2)
+
+[ADR AC0008](decisions/AC0008-framework-delegate-contracts.md) adds owned
+Action<T>, Func<T,TResult>, Func<T1,T2,TResult>, Predicate<T> and Comparison<T>
+alongside Action<T1,T2>, preserving pinned generic variance and exact method
+mappings. The integer-object composition also admits Boolean delegate results
+through the existing normalized Int32 carrier. Discovery checks declared scalar
+target identities before lowering, preventing bool/int and signed/unsigned
+mismatches from disappearing into that shared carrier. Parameters remain exact
+Int32 or admitted references; wider/inline/byref signatures and variance conversions
+remain unsupported.
+
+The composed CIL profile is v3; object layout v15, delegate IR v2 and native v41
+are unchanged. Fifteen new probes plus public FuncDelegate provide 4,704 repeated
+O0/O2 .NET/native comparisons with forced GC and sanitizers. Twelve focused tests
+and 112 distinct existing regressions pass. The public ledger now has 35 expected
+gaps and 12 native controls; Where passes its Func mapping and next reports the
+missing Enumerable contract. AC2.1/AC2.2 have bounded evidence, while actual private
+closed callbacks, full command closure and saved-game replay remain unverified.

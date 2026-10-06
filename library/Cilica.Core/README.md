@@ -63,10 +63,13 @@ mapped calls on application collections, including Int64 elements and reference
 enumeration. This does not implement List storage, array interface helpers or
 variance-only dispatch (ADR 0135).
 
-`DelegateContracts.cs` adds Action<T1,T2>. Exact Action<int,int> calls use the
-checked single-target delegate path. Closed application delegates also retain
-distinct specialization identities; reference/wide callback signatures and
-delegate variance conversions remain unsupported (ADR 0136).
+`DelegateContracts.cs` supplies Action<T>, Action<T1,T2>, Func<T,TResult>,
+Func<T1,T2,TResult>, Predicate<T> and Comparison<T>. Exact Int32/reference
+parameters and Int32/Boolean/reference/void results use the checked single-target
+path in the integer-object profile (ADRs AC0007/AC0008). Declared variance flags
+match the pinned reference; variance conversions and multicast invocation remain
+unsupported. Boolean parameters, other narrow/wide/value/byref signatures and
+additional delegate arities remain outside this bound. No new intrinsic grants.
 
 `Guid.cs` supplies numeric constructors, Empty, typed equality/hash/comparison
 and D/N/B/P/X formatting, adapted from the pinned source with four Int32 words.

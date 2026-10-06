@@ -14,7 +14,7 @@ public static partial class ValueProgramDiscovery
 {
     private sealed partial class Session
     {
-        private sealed record DelegateFacts(ObjectDelegateType Type, MethodDefinitionHandle Constructor, MethodDefinitionHandle Invoke);
+        private sealed record DelegateFacts(ObjectDelegateType Type, MethodDefinitionHandle Constructor, MethodDefinitionHandle Invoke, MethodSignature Signature);
         private readonly Dictionary<ObjectTypeId, DelegateFacts> _delegateFacts = [];
         private ObjectTypeId? _multicastDelegate;
         private readonly HashSet<ObjectTypeId> _readingDelegateSignatures = [];
@@ -68,9 +68,10 @@ public static partial class ValueProgramDiscovery
                     && (!integers64 || p is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
                         or TypeSignature.Named { Kind: SignatureTypeKind.Class } or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } or TypeSignature.Vector)))
                 || invoke.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Void }
+                    && !(integers64 && invoke.Signature.ReturnType is TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean })
                     && (!integers64 || invoke.Signature.ReturnType is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
                         or TypeSignature.Named { Kind: SignatureTypeKind.Class } or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } or TypeSignature.Vector)))
-                Fail(work, "Delegate requires .ctor(Object, native int) and exact Int32/reference-parameter Invoke returning Int32, reference or void; wide, value and byref signatures require later lowering.", offset);
+                Fail(work, "Delegate requires .ctor(Object, native int) and exact Int32/reference-parameter Invoke returning Int32, Boolean, reference or void; wide, value and byref signatures require later lowering.", offset);
             _readingDelegateSignatures.Add(id);
             var parameterTypes = invoke!.Signature.Parameters.Select(p => Storage(p, work, offset)).ToImmutableArray();
             var returnType = Storage(invoke.Signature.ReturnType, work, offset, allowVoid: true);
@@ -78,7 +79,7 @@ public static partial class ValueProgramDiscovery
             var callable = new ObjectDelegateType(input.Source, invoke.Signature.Parameters.Count, returnType) { Parameters = parameterTypes };
             if (callable.ParameterCount >= IrLimits.MaximumParameters || _delegateFacts.Values.Sum(d => d.Type.ParameterCount) + callable.ParameterCount > IrLimits.MaximumParameters)
                 Fail(work, "Aggregate delegate signature limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-            _delegateFacts.Add(id, new(callable, constructorHandle, invokeHandle));
+            _delegateFacts.Add(id, new(callable, constructorHandle, invokeHandle, invoke.Signature));
             return callable;
         }
     }

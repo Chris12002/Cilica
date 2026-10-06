@@ -46,7 +46,7 @@
   "ownedSources": [
     {
       "path": "library/Cilica.Core/DelegateContracts.cs",
-      "scope": "Owned Action<T1,T2> declaration; exact Action<int,int> single-target calls are tested. Reference/wide callback signatures and variance conversions remain unsupported; no new intrinsic grant."
+      "scope": "Owned Action<T>, Action<T1,T2>, Func<T,TResult>, Func<T1,T2,TResult>, Predicate<T> and Comparison<T> declarations preserve pinned variance and constructor/Invoke mappings. Exact Int32/reference parameters with Int32/Boolean/reference/void results have bounded single-target native evidence (AC2.1/AC2.2). Variance conversions, multicast and wider/value/byref signatures remain unsupported; no new intrinsic grant."
     },
     {
       "path": "library/Cilica.Core/CollectionContracts.cs",

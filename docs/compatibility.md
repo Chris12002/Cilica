@@ -1969,3 +1969,25 @@ comparisons on macOS ARM64 at O0/O2 with ASan/UBSan, forced collection and frame
 root/heap cleanup checks. The public baseline has 36 expected gaps and 11 native
 controls. See [ADR AC0007](decisions/AC0007-reference-delegate-results.md). These
 results do not establish private command closure or full saved-game replay support.
+
+
+## Required framework delegate contracts (AC2.2)
+
+Owned Action<T>, Func<T,TResult>, Func<T1,T2,TResult>, Predicate<T> and Comparison<T>
+now join Action<T1,T2>. Their pinned variance declarations and constructor/Invoke
+mappings are verified. The integer-object composition admits exact Int32/reference
+parameters and Int32/Boolean/reference/void results. Boolean uses the ordinary
+normalized Int32 carrier, with declared scalar target identity checked before
+lowering. No delegate variance conversions, multicast, Boolean parameters, other
+narrow/wide/value/byref signatures or additional arities are claimed.
+
+The composed CIL profile is integer-managed-objects-cil-v3. Native v41, layout v15,
+delegate value/scalar IR v2 and public embedding ABIs are unchanged. Core source
+and approved manifest bytes change, but intrinsic requests do not. Fifteen new
+framework probes plus public FuncDelegate provide 4,704 repeated native/.NET
+comparisons at O0/O2 with sanitizers and forced collection on macOS ARM64. Twelve
+focused test cases and 112 distinct existing regressions pass.
+
+The ledger has 35 gaps and 12 native controls. Where now reaches the missing
+Enumerable declaration after Func`2 maps; LINQ and full private saved-game replay
+remain incomplete. See [ADR AC0008](decisions/AC0008-framework-delegate-contracts.md).

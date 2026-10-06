@@ -22,8 +22,10 @@ feedback before implementation. Explain consequential choices in plain language.
   Raw scalar/nullable unbox, scalar interface views/dispatch, unproven box escapes
   in those compositions and nullable keys remain diagnosed; see ADR AC0006.
   AC2.1 adds exact managed reference results to single-target application delegates
-  through normal rooted returns; framework Func/Action/Predicate/Comparison
-  additions remain AC2.2. See ADR AC0007; full saved-game replay is not verified.
+  through normal rooted returns. AC2.2 adds the required framework
+  Func/Action/Predicate/Comparison declarations and Boolean results with exact
+  scalar target checks before lowering. See ADRs AC0007/AC0008; private closed
+  callbacks and full saved-game replay are not verified.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

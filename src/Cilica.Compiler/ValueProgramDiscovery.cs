@@ -177,8 +177,9 @@ public static partial class ValueProgramDiscovery
                     var boxedRenderCalls = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                     var boxedFormatCalls = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                     var keyOperations = ImmutableDictionary.CreateBuilder<int, ClosedKeyIntrinsic>();
-                    foreach (var instruction in work.Input.Instructions)
+                    for (int instructionIndex = 0; instructionIndex < work.Input.Instructions.Length; ++instructionIndex)
                     {
+                        var instruction = work.Input.Instructions[instructionIndex];
                         var offset = instruction.Offset;
                         if (integers64 && instruction.OpCode == "ldtoken") runtimeTokens.Add(offset, RuntimeToken(work, instruction));
                         else if (exceptions && instruction.OpCode == "ldstr")
@@ -276,6 +277,21 @@ public static partial class ValueProgramDiscovery
                                 if (!(instruction.OpCode == "newobj" && target.Handle == facts.Constructor
                                     || instruction.OpCode == "callvirt" && target.Handle == facts.Invoke))
                                     Fail(work, "Delegate members require paired ldftn/newobj construction or callvirt Invoke; multicast and other members are unsupported.", offset);
+                                // Int32 is also the lowered carrier for Boolean and narrow integers.
+                                // Authenticate declared scalar identity before that distinction is erased.
+                                if (instruction.OpCode == "newobj" && instructionIndex > 0
+                                    && work.Input.Instructions[instructionIndex - 1] is { OpCode: "ldftn" } pointer
+                                    && calls.TryGetValue(pointer.Offset, out var captured))
+                                {
+                                    var signature = _methods[captured].Input.Signature;
+                                    bool scalarResult = facts.Signature.ReturnType is TypeSignature.Primitive {
+                                        Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Boolean or PrimitiveTypeCode.Void };
+                                    if (scalarResult && signature.ReturnType != facts.Signature.ReturnType
+                                        || signature.Parameters.Count != facts.Signature.Parameters.Count
+                                        || facts.Signature.Parameters.Zip(signature.Parameters).Any(pair =>
+                                            pair.First is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } && pair.First != pair.Second))
+                                        Fail(work, "Delegate scalar target signature must match exact declared parameter and return types before lowering.", offset);
+                                }
                                 _arguments += instruction.OpCode == "newobj" ? 1 : declaration.ParameterCount + 1;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate delegate argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                                 callable.Add(offset, IncludeReference(target.DeclaringType, work, offset));

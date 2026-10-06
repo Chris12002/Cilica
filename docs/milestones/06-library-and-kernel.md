@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1 complete; remaining AC1b, AC2.2 and AC3–AC10 planned.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 complete within their tested bounds; remaining AC1b and AC3–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0, AC1a, AC1b.1–AC1b.4 and AC2.1 are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -2116,3 +2116,32 @@ negative test was corrected for the earlier signature-discovery rejection.
 AC2.2 will add only required framework delegate contracts and tested signatures.
 Full AC2, remaining AC1b and private saved-game replay stay open; no private root
 was rerun and no hosted work or additional agents were used.
+
+
+### AC2.2 required framework delegate contract outcome
+
+The owned core now declares Action<T>, Func<T,TResult>, Func<T1,T2,TResult>,
+Predicate<T> and Comparison<T> beside Action<T1,T2>. Pinned variance and exact
+constructor/Invoke mappings pass. Boolean results use ordinary normalized scalar
+returns; discovery checks scalar target identities before carrier lowering.
+Supported parameters remain Int32/reference, and results Int32/Boolean/reference/
+void. Variance conversions, multicast and broader signatures remain diagnostic.
+See [ADR AC0008](../decisions/AC0008-framework-delegate-contracts.md).
+
+Fifteen new probes plus public FuncDelegate provide 4,704 repeated native/.NET
+comparisons at O0/O2 with ASan/UBSan, forced GC and frame/root/heap checks. Coverage
+includes captured callbacks, Boolean predicates, comparison delegates and a
+Type-to-Func handler dictionary returning a shared object. Twelve focused tests
+and 112 distinct existing regressions pass. Four authored IL mismatches prove
+that bool/int and signed/unsigned scalar aliases cannot bypass target validation.
+
+The ledger advances to 35 known gaps and 12 native controls. Where no longer fails
+at Func`2; its next exact blocker is Enumerable. Composed CIL is v3, while native
+v41, object layout v15 and delegate IR v2 remain unchanged. The approved core
+manifest changes with the owned declarations; intrinsic grants and public ABI do
+not. Review covered metadata identity, normalization, existing receiver/reference
+checks and bounded claims. No private replay root was rerun.
+
+AC2.1/AC2.2 are complete within tested bounds. Actual private closed callback
+signatures and the full command closure remain for AC8. Continue with AC3
+collection operations; do not treat this as full replay or LINQ support.
