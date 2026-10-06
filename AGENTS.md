@@ -32,7 +32,9 @@ feedback before implementation. Explain consequential choices in plain language.
   mutations. Generic array Clear throws; nongeneric Clear resets elements.
   AC3.3 adds Dictionary Remove/Clear and free-slot reuse, preserving mutating key
   callbacks and releasing value roots. Broader collections and replay remain
-  incomplete; see ADRs AC0009–AC0011.
+  incomplete; see ADRs AC0009–AC0011. AC5a.1 adds managed 32/64-bit integer
+  Math Abs/Min/Max and typed CompareTo (ADR AC0012); object comparison and
+  comparer-interface execution remain outside this slice.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

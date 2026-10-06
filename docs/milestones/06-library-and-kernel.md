@@ -2208,3 +2208,16 @@ No compiler/runtime profile, grant or ABI changes. Copying requires rich range
 faults and precise array downcast semantics; Add/getter/constructors, other
 collections and enumeration remain planned. Full replay remains incomplete.
 See [ADR AC0011](../decisions/AC0011-dictionary-removal-and-clear.md).
+
+
+### Integer math and typed comparisons (AC5a.1)
+
+Owned managed Math implements signed Int32/Int64 Abs and signed/unsigned 32/64-bit
+Min/Max. Typed CompareTo methods preserve exact IComparable<T> declaration flags
+and use existing scalar receiver lowering. Explicit minimum-value guards preserve
+Abs overflow and its message; comparisons avoid overflowing subtraction.
+Eleven authored plus three public probes supply 4,116 repeated O0/O2 .NET/native
+comparisons; exact overload checks and 35 existing regressions pass. The ledger
+has 29 gaps and 18 controls. No profile, grant or ABI changes. Broader math,
+object comparison, comparer execution, Guid helpers and full replay remain open.
+See [ADR AC0012](../decisions/AC0012-integer-math-and-comparison.md).

@@ -33,13 +33,14 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/BoxedFormatting.cs \
   --source library/Cilica.Core/StringComparison.cs \
   --source library/Cilica.Core/StringWhitespace.cs \
+  --source library/Cilica.Core/Math.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 94 exact string/exception/provider/numeric/array/key/type capabilities for review; it does not
+file describes 99 exact string/exception/provider/numeric/array/key/type capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -176,3 +177,8 @@ nullable boxing helper results, are not proven in those compositions. No new
 intrinsic grants are required. Raw scalar/nullable unbox, scalar interface views,
 nullable key operations and equality/hash/text members remain diagnostics. See
 [ADR AC0006](../../docs/decisions/AC0006-confined-scalar-box-uses.md).
+
+Math.cs adds signed Int32/Int64 Abs and signed/unsigned 32/64-bit Min/Max.
+CoreTypes.cs adds typed CompareTo with exact IComparable<T> declarations. These
+are ordinary managed bodies, with no new grants. Narrow/floating/decimal Math
+and object comparison overloads remain unmapped (ADR AC0012).

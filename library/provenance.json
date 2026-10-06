@@ -399,6 +399,15 @@
         "Managed nullable box/unbox.any helpers preserve null/present rules for already boxable named structs; conversion operators reuse construction and Value. AC1b.2 extends the compiler to selected integer/Boolean/Char and public Int32-enum boxes. AC1b.3 adds exact boxed isinst/castclass for these and admitted named-value/nullable targets; direct nullable castclass faults name T, unlike nullable unbox.any. Raw scalar/nullable unbox, scalar interface views, key selection and remaining members remain diagnostics."
       ],
       "scope": "Bounded AC1a storage/accessors, AC1b.1 conversions and AC1b.2 scalar/enum boxes and AC1b.3 exact boxed type tests with native differential evidence; no new intrinsic grants."
+    },
+    {
+      "path": "library/Cilica.Core/Math.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/Resources/Strings.resx",
+      "contracts": [
+        "Cilica-owned managed integer Abs/Min/Max; signed minimum Abs throws OverflowException with pinned Overflow_NegateTwosCompNum text.",
+        "Typed Int32/UInt32/Int64/UInt64 CompareTo bodies in CoreTypes.cs use exact IComparable<T> method flags and existing primitive receiver lowering."
+      ],
+      "scope": "Signed Int32/Int64 Abs, signed/unsigned 32/64-bit Min/Max and typed CompareTo. No floating, decimal, object comparison or general comparer-interface execution."
     }
   ]
 }

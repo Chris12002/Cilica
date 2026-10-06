@@ -41,8 +41,9 @@ namespace System
     public struct Byte { }
     public struct Int16 { }
     public struct UInt16 { }
-    public struct Int32 : IConvertible
+    public struct Int32 : IConvertible, IComparable<int>
     {
+        public int CompareTo(int value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => this;
         public string ToString(IFormatProvider provider)
         {
@@ -50,8 +51,9 @@ namespace System
             return Cilica.Runtime.IntegerText.Int32(this);
         }
     }
-    public struct UInt32 : IConvertible
+    public struct UInt32 : IConvertible, IComparable<uint>
     {
+        public int CompareTo(uint value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this);
         public string ToString(IFormatProvider provider)
         {
@@ -59,8 +61,9 @@ namespace System
             return Cilica.Runtime.IntegerText.UInt32(this);
         }
     }
-    public struct Int64 : IConvertible
+    public struct Int64 : IConvertible, IComparable<long>
     {
+        public int CompareTo(long value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
         public string ToString(IFormatProvider provider)
         {
@@ -68,8 +71,9 @@ namespace System
             return Cilica.Runtime.IntegerText.Int64(this);
         }
     }
-    public struct UInt64 : IConvertible
+    public struct UInt64 : IConvertible, IComparable<ulong>
     {
+        public int CompareTo(ulong value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
         public string ToString(IFormatProvider provider)
         {
