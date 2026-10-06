@@ -269,3 +269,13 @@ GC/cache-isolation runs, exact grant/packet boundaries and 60 existing regressio
 pass with sanitizers and forced collection. Interface plan v6; native v41 unchanged.
 The ledger has 21 gaps and 26 controls. Boxed collection enumerators, mixed variant
 class dispatch, nongeneric Current and full replay remain unfinished.
+
+
+### Parameterless LINQ cardinality (AC6.1)
+
+Enumerable.Any/Count now preserve generic/nongeneric collection shortcuts and
+reference-enumerator fallback disposal. Eight authored probes plus public LinqAny
+supply 6,438 repeated O0/O2 native/.NET comparisons; 35 existing regressions and
+the negative overload/factory check pass with forced GC and sanitizers. The ledger
+has 20 gaps and 27 controls. Predicate/deferred operators, boxed collection
+factories and full replay remain unfinished. No grants or profiles changed.

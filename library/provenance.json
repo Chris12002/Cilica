@@ -132,6 +132,16 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Array.Enumerators.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Array.Enumerators.cs",
       "sha256": "98205fa16b5e6f9c3b2f321ac4f98cef967e0df02ee2b0b8de934020326e8b5c"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/AnyAll.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/AnyAll.cs",
+      "sha256": "c84a1b02977de312a0ad7df0a81bdced2c9118ee85849a15c2d5c80f42f1103a"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Count.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Count.cs",
+      "sha256": "f3b44cb0b9ca5eef7d14b233391a99c6d77898615dc942b9475925371d569908"
     }
   ],
   "adaptations": [
@@ -363,6 +373,32 @@
         "Preserve pinned current-state fault messages in managed bodies; nongeneric Current remains an unsupported marker."
       ],
       "scope": "AC4.5 generic Int32/reference/admitted inline-value vector enumeration. No private runtime layout compatibility, scalar aliases, mixed variant class dispatch or nongeneric array enumeration."
+    },
+    {
+      "path": "library/Cilica.Core/Enumerable.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/AnyAll.cs",
+      "algorithms": [
+        "Parameterless Any/Count generic collection, nongeneric collection and enumerator fallback order.",
+        "Using/finally disposal and checked fallback Count increment."
+      ],
+      "changes": [
+        "Omit private Iterator optimizations because owned LINQ iterator types are not implemented.",
+        "Keep only parameterless overloads. Static signatures do not need the source-language extension marker for metadata binding."
+      ],
+      "scope": "AC6.1 arrays and admitted custom collections/reference enumerators. Reachable boxed list/dictionary/view factories and predicate overloads remain diagnostics."
+    },
+    {
+      "path": "library/Cilica.Core/Enumerable.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Count.cs",
+      "algorithms": [
+        "Parameterless Any/Count generic collection, nongeneric collection and enumerator fallback order.",
+        "Using/finally disposal and checked fallback Count increment."
+      ],
+      "changes": [
+        "Omit private Iterator optimizations because owned LINQ iterator types are not implemented.",
+        "Keep only parameterless overloads. Static signatures do not need the source-language extension marker for metadata binding."
+      ],
+      "scope": "AC6.1 arrays and admitted custom collections/reference enumerators. Reachable boxed list/dictionary/view factories and predicate overloads remain diagnostics."
     }
   ],
   "ownedAdapters": [
