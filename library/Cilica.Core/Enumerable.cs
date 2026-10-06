@@ -7,10 +7,19 @@ namespace System.Linq
 {
     public static partial class Enumerable
     {
+        public static IEnumerable<TSource> Where<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (source is Cilica.Runtime.WhereIterator<TSource> iterator) return iterator.Filter(predicate);
+            if (source is TSource[] array) return Cilica.Runtime.WhereIterator<TSource>.FromArray(array, predicate, array.Length);
+            return new Cilica.Runtime.WhereIterator<TSource>(source, null, predicate);
+        }
         public static bool Any<TSource>(IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException("source");
             if (source is ICollection<TSource> generic) return generic.Count != 0;
+            if (source is Cilica.Runtime.IQueryCardinality query) return query.Any();
             if (source is ICollection legacy) return legacy.Count != 0;
             using (IEnumerator<TSource> e = source.GetEnumerator()) return e.MoveNext();
         }
@@ -61,6 +70,7 @@ namespace System.Linq
         {
             if (source == null) throw new ArgumentNullException("source");
             if (source is ICollection<TSource> generic) return generic.Count;
+            if (source is Cilica.Runtime.IQueryCardinality query) return query.Count();
             if (source is ICollection legacy) return legacy.Count;
             int count = 0;
             using (IEnumerator<TSource> e = source.GetEnumerator())

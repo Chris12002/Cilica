@@ -142,6 +142,21 @@
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Count.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Count.cs",
       "sha256": "f3b44cb0b9ca5eef7d14b233391a99c6d77898615dc942b9475925371d569908"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Where.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Where.cs",
+      "sha256": "badeaf96aa902970073dbcfbb773810e5831fd2a12fce9eae8ad0304bdde2a8a"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Where.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Where.SpeedOpt.cs",
+      "sha256": "cee0b414fcf1d76e47c38b81f70b6bc3992d2bb744c83052ba5f378f8e222109"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Iterator.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Iterator.cs",
+      "sha256": "8644d8a8bda66ab24c04d9b3fcbdf625cd0c48739ec4956e118a7589ff83454b"
     }
   ],
   "adaptations": [
@@ -386,7 +401,7 @@
         "Omit private Iterator optimizations because owned LINQ iterator types are not implemented.",
         "Use direct managed array indexing instead of spans; reference-array covariance also uses this loop (same callbacks, reads and no-op disposal). Static metadata methods omit source-language extension markers."
       ],
-      "scope": "AC6.1 parameterless Any/Count and AC6.2 predicate Any/All/Count for Int32/reference callbacks, arrays and admitted reference enumerators. Boxed collection factories and value-payload delegates remain diagnostic. No private Iterator fast paths or span/CollectionsMarshal List support."
+      "scope": "AC6.1 parameterless Any/Count and AC6.2 predicate Any/All/Count for Int32/reference callbacks, arrays and admitted reference enumerators. Boxed collection factories and value-payload delegates remain diagnostic. No private Iterator fast paths or span/CollectionsMarshal List support. AC6.3 adds exact Where with owned query Any/Count paths; earlier omitted private fast paths are now represented for these owned queries."
     },
     {
       "path": "library/Cilica.Core/Enumerable.cs",
@@ -400,7 +415,55 @@
         "Omit private Iterator optimizations because owned LINQ iterator types are not implemented.",
         "Use direct managed array indexing instead of spans; reference-array covariance also uses this loop (same callbacks, reads and no-op disposal). Static metadata methods omit source-language extension markers."
       ],
-      "scope": "AC6.1 parameterless Any/Count and AC6.2 predicate Any/All/Count for Int32/reference callbacks, arrays and admitted reference enumerators. Boxed collection factories and value-payload delegates remain diagnostic. No private Iterator fast paths or span/CollectionsMarshal List support."
+      "scope": "AC6.1 parameterless Any/Count and AC6.2 predicate Any/All/Count for Int32/reference callbacks, arrays and admitted reference enumerators. Boxed collection factories and value-payload delegates remain diagnostic. No private Iterator fast paths or span/CollectionsMarshal List support. AC6.3 adds exact Where with owned query Any/Count paths; earlier omitted private fast paths are now represented for these owned queries."
+    },
+    {
+      "path": "library/Cilica.Core/WhereIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Where.cs",
+      "algorithms": [
+        "Deferred Where array/generic-enumerable state machines, first-thread reuse and clones, cached Current and disposal.",
+        "Nested predicate combination and independent Count/Any traversal."
+      ],
+      "changes": [
+        "Flatten private iterator inheritance into one owned class carrying array or generic source shape.",
+        "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
+        "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
+        "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
+        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice."
+      ],
+      "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
+    },
+    {
+      "path": "library/Cilica.Core/WhereIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Where.SpeedOpt.cs",
+      "algorithms": [
+        "Deferred Where array/generic-enumerable state machines, first-thread reuse and clones, cached Current and disposal.",
+        "Nested predicate combination and independent Count/Any traversal."
+      ],
+      "changes": [
+        "Flatten private iterator inheritance into one owned class carrying array or generic source shape.",
+        "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
+        "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
+        "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
+        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice."
+      ],
+      "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
+    },
+    {
+      "path": "library/Cilica.Core/WhereIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Iterator.cs",
+      "algorithms": [
+        "Deferred Where array/generic-enumerable state machines, first-thread reuse and clones, cached Current and disposal.",
+        "Nested predicate combination and independent Count/Any traversal."
+      ],
+      "changes": [
+        "Flatten private iterator inheritance into one owned class carrying array or generic source shape.",
+        "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
+        "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
+        "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
+        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice."
+      ],
+      "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
     }
   ],
   "ownedAdapters": [

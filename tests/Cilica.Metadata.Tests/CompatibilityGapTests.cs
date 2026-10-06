@@ -114,7 +114,10 @@ public sealed class CompatibilityGapTests
         try
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            await IntegerObjectTranslationTests.VerifyTranslated(optimized, controls);
+            // Roslyn caches the noncapturing Where predicate in traced static fields.
+            // Keep the stricter no-extra-roots check for all other controls.
+            await IntegerObjectTranslationTests.VerifyTranslated(optimized, controls.Where(p => p.name != "Probe_LinqWhere").ToArray());
+            await IntegerObjectTranslationTests.VerifyTranslated(optimized, controls.Where(p => p.name == "Probe_LinqWhere").ToArray(), persistentRoots: true);
         }
         finally { CultureInfo.CurrentCulture = savedCulture; }
     }

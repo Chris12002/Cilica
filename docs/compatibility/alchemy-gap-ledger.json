@@ -20,18 +20,18 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v41",
-    "nativeProfileEvidence": "Public baseline revalidated at AC4.6 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC6.3 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
     "updatePolicy": "When a gap advances, update its diagnostic and owning slice; claim native validation only after an oracle/native comparison. No silent blanket baseline regeneration.",
     "publicProbeCount": 47,
-    "knownGapCount": 19,
-    "positiveControlCount": 28,
+    "knownGapCount": 18,
+    "positiveControlCount": 29,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "0bde5800278c23b0c4eea83f9c9edc659cf696715bddcbd6d5eb62164ffbd7cc",
-    "latestSlice": "AC4.6",
+    "fixtureSha256": "b6c777ebe36aa9dcd6813344a680cc94917dc565c8ad2a1856674248472d0c34",
+    "latestSlice": "AC6.3",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -192,9 +192,10 @@
       "status": "in-progress",
       "completedSubslices": [
         "AC6.1",
-        "AC6.2"
+        "AC6.2",
+        "AC6.3"
       ],
-      "remaining": "Deferred operators, iterator fast paths, boxed collection factories, value-payload predicates and full replay closure."
+      "remaining": "Remaining deferred/terminal operators, indexed overloads, List specializations, boxed collection factories, value-payload predicates and full replay closure."
     },
     "AC6.1": {
       "prerequisites": ["AC4.5"],
@@ -205,6 +206,11 @@
       "prerequisites": ["AC6.1", "AC2.2"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0023-linq-predicate-terminals.md"
+    },
+    "AC6.3": {
+      "prerequisites": ["AC6.2", "AC4.6"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0025-deferred-where.md"
     },
     "AC7a": {
       "prerequisites": [
@@ -537,7 +543,7 @@
     {"id": "RefDelegate", "slice": "AC2", "publicFixture": "Probe_RefDelegate", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_RefDelegate", "auditDiagnostic": {"id": "CIL2001", "contains": "Delegate requires .ctor(Object, native int) and exact Int32/reference-parameter Invoke returning Int32 or void; wide, value and byref parameters require later lowering."}, "currentEvidence": "AC2.1 ReferenceResultDelegateTests and CompatibilityGapTests; macOS ARM64 O0/O2, ASan/UBSan, forced collection; public fixture only"},
     {"id": "FuncDelegate", "slice": "AC2", "publicFixture": "Probe_FuncDelegate", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_FuncDelegate", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200005f in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC2.2 FrameworkDelegateTests and CompatibilityGapTests; macOS ARM64 O0/O2, forced GC and ASan/UBSan; exact Int32 Func<int,int,int> public probe"},
     {"id": "LinqAny", "slice": "AC6", "publicFixture": "Probe_LinqAny", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_LinqAny", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200066a in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC6.1 parameterless Any/Count: array and custom collection shortcuts plus generic reference-enumerator fallback; disposal and fault precedence match pinned .NET. Boxed collection factories remain diagnostic."},
-    {"id": "LinqWhere", "slice": "AC6", "publicFixture": "Probe_LinqWhere", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Where"}, "privateWitness": "probes.json; Probe_LinqWhere", "prerequisites": ["AC2", "AC4"], "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200005e in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC6.1 maps Enumerable and implements only parameterless Any/Count; Where and predicate overloads remain unmapped. Historical audit retained."},
+    {"id": "LinqWhere", "slice": "AC6", "publicFixture": "Probe_LinqWhere", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_LinqWhere", "prerequisites": ["AC2", "AC4"], "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200005e in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC6.3 deferred Where for admitted Int32/reference predicate arrays and reference enumerables. Preserves iterator reuse/clones, exact state/disposal, combined predicates and state-independent Any/Count. Indexed overloads and boxed collection factories remain unsupported."},
     {"id": "ArrayAsReadOnly", "slice": "AC3", "publicFixture": "Probe_ArrayAsReadOnly", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ArrayAsReadOnly", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: AsReadOnly"}, "currentEvidence": "AC3.5 live array views, shared per-type empty views, instance-owned roots, faults and covariance; native O0/O2 with forced collection and sanitizers."},
     {"id": "MathAbs64", "slice": "AC5a", "publicFixture": "Probe_MathAbs64", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_MathAbs64", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000099 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC5a.1 exact integer Math/CompareTo managed bodies, tested at O0/O2 on macOS ARM64 with sanitizers and forced GC."},
     {"id": "MathMinMax", "slice": "AC5a", "publicFixture": "Probe_MathMinMax", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_MathMinMax", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000099 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC5a.1 exact integer Math/CompareTo managed bodies, tested at O0/O2 on macOS ARM64 with sanitizers and forced GC."},

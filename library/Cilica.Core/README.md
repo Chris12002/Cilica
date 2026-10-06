@@ -27,6 +27,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/ArrayInterface.cs \
   --source library/Cilica.Core/ArrayEnumerator.cs \
   --source library/Cilica.Core/Enumerable.cs \
+  --source library/Cilica.Core/WhereIterator.cs \
   --source library/Cilica.Core/StringBuilder.cs \
   --source library/Cilica.Core/List.cs \
   --source library/Cilica.Core/ReadOnlyCollection.cs \
@@ -261,3 +262,15 @@ thread runs, 24 existing core/baseline checks and the negative environment/threa
 check pass with sanitizers. Other threading APIs remain unsupported; no async or
 multithreaded profile is claimed. The ledger has 19 gaps and 28 controls. No new
 grants/native profiles; full replay remains unfinished.
+
+
+### Deferred Where (AC6.3)
+
+Where now preserves eager validation, deferred source access, iterator reuse/clones,
+Current/disposal state and nested predicate order. Query Any/Count leave an active
+cursor unchanged and use a nongeneric owned contract to preserve struct-array
+cardinality support. Ten probes plus public Where supply 4,614 repeated O0/O2
+native/.NET comparisons; four precise query/cache GC checks and 36 existing
+regressions pass. The public lambda's two static cache objects are explicitly
+validated. The ledger has 18 gaps and 29 controls. Indexed operators, boxed
+collection factories, value predicates and full replay remain unfinished.
