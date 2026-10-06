@@ -2046,3 +2046,15 @@ key/value retention difference after clear and release at iteration end. All 35
 view/baseline regressions pass with sanitizers and forced GC. No new grants or
 profiles. The ledger remains 22 gaps and 25 controls; interface/array enumeration
 and full replay remain unfinished. See [ADR AC0020](decisions/AC0020-concrete-view-enumeration.md).
+
+
+### Generic array enumeration (AC4.5)
+
+Generic array GetEnumerator now uses an exact-granted managed helper and a traced
+reference enumerator. It preserves live Current, reset/disposal, mutable per-T
+empty identity and widened reference-array views. Seven authored probes plus the
+public array probe supply 2,352 repeated O0/O2 native/.NET comparisons; four native
+GC/cache-isolation runs, exact grant/packet boundaries and 60 existing regressions
+pass with sanitizers and forced collection. Interface plan v6; native v41 unchanged.
+The ledger has 21 gaps and 26 controls. Boxed collection enumerators, mixed variant
+class dispatch, nongeneric Current and full replay remain unfinished.

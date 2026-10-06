@@ -139,7 +139,7 @@ public static class ObjectInterfacePlanValidator
                     Require(mapping.ArrayHelper && target.Mapping == target.Implementation && !target.IsExplicit
                         && types.Assignable(IrType.Reference(target.Receiver), mapping.Parameters[0])
                         && declaration.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1))
-                        && (mapping.ReturnType == declaration.ReturnType || types.Assignable(mapping.ReturnType, declaration.ReturnType))
+                        && (mapping.ReturnType == declaration.ReturnType || mapping.Name != "Enumerate" && types.Assignable(mapping.ReturnType, declaration.ReturnType))
                         && mapping.Name == ObjectArrayInterfaceRecipes.Select(declaration, kind, plan.Types.ObjectBase,
                             scalarValue: plan.Values is null && target.Receiver.ArrayElement.Kind == ObjectArrayElementKind.Value),
                         "array mapping requires the exact selected helper and matching interface operation.");

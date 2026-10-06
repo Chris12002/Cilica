@@ -719,5 +719,12 @@
     "Member": "ObjectHash",
     "ParameterCount": 1,
     "Capability": "ObjectIdentityHash"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Enumerate",
+    "ParameterCount": 1,
+    "Capability": "ArrayInterfaceEnumerate"
   }
 ]

@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Reflection.Metadata;
+using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
@@ -7,6 +9,8 @@ internal static class ObjectArrayInterfaceRecipes
 {
     internal static string? Select(ObjectInterfaceDeclaration declaration, ObjectArrayInterfaceKind kind, ObjectTypeId objectBase, bool scalarValue = false)
     {
+        if (declaration.Name == "GetEnumerator" && kind == ObjectArrayInterfaceKind.GenericEnumerable
+            && declaration.Parameters.Length == 1 && declaration.ReturnType.Kind == IrTypeKind.Reference) return "Enumerate";
         if (declaration.ReturnType == IrType.Int32 && (scalarValue || declaration.Parameters.Length == 2))
         {
             if (declaration.Name == "IndexOf" && kind == ObjectArrayInterfaceKind.List) return "IndexOf";
@@ -42,11 +46,23 @@ internal static class ObjectArrayInterfaceRecipes
         return declaration.Name == "get_SyncRoot" && kind == ObjectArrayInterfaceKind.NonGenericCollection
             && declaration.ReturnType == IrType.Reference(objectBase) ? "Identity" : null;
     }
-    internal static IrType? Result(string name, ObjectTypeId vector) => name switch {
+    internal static IrType? Result(string name, ObjectTypeId vector, ObjectTypeCatalog? catalog = null) => name switch {
+        "Enumerate" => EnumeratorResult(vector, catalog),
         "Count" or "False" or "True" or "IndexOf" or "Contains" or "Remove" => IrType.Int32,
         "Add" or "Set" or "Insert" or "InsertObject" or "RemoveAt" or "ClearReadOnly" or "Clear" => IrType.Void,
         "Get" => vector.ArrayElement!.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : IrType.Int32,
         "Identity" => IrType.Reference(vector), _ => null };
+    private static IrType? EnumeratorResult(ObjectTypeId vector, ObjectTypeCatalog? catalog)
+    {
+        if (catalog is null) return null;
+        string integer = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int32)]), SignatureList<TypeSignature>.Empty);
+        var matches = catalog.Interfaces.Where(i => i.Source.ContentHash == catalog.ObjectBase.ContentHash
+            && i.Source.Name == "System.Collections.Generic.IEnumerator`1" && i.Arguments.Length == 1
+            && (vector.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? i.Arguments[0].Identity == integer
+                : vector.ArrayElement.Kind == ObjectArrayElementKind.Reference ? i.Arguments[0].Reference == vector.ArrayElement.Type
+                : i.Arguments[0].Value == vector.ArrayElement.Type)).ToArray();
+        return matches.Length == 1 ? IrType.Reference(ObjectTypeId.From(matches[0].Source)) : null;
+    }
     internal static int Arity(string name) => name is "Set" or "Insert" or "InsertObject" ? 3 : name is "Get" or "Add" or "RemoveAt" or "IndexOf" or "Contains" or "Remove" ? 2 : 1;
     internal static bool Signature(ObjectDispatchMethod method, ObjectInterfaceDispatchPlan plan)
     {
@@ -69,6 +85,6 @@ internal static class ObjectArrayInterfaceRecipes
             && (method.Name is not ("Get" or "Set" or "Insert" or "InsertObject" or "RemoveAt") || method.Parameters[1] == IrType.Int32)
             && (method.Name is not ("Add" or "Set" or "Insert" or "IndexOf" or "Contains" or "Remove") || method.Parameters[^1] == element)
             && (method.Name != "InsertObject" || method.Parameters[2] == IrType.Reference(plan.Types.ObjectBase))
-            && Result(method.Name, vector) == method.ReturnType;
+            && Result(method.Name, vector, plan.Types) == method.ReturnType;
     }
 }

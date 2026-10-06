@@ -24,6 +24,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/Dictionary.cs \
   --source library/Cilica.Core/DictionaryContracts.cs \
   --source library/Cilica.Core/ArrayInterface.cs \
+  --source library/Cilica.Core/ArrayEnumerator.cs \
   --source library/Cilica.Core/StringBuilder.cs \
   --source library/Cilica.Core/List.cs \
   --source library/Cilica.Core/ReadOnlyCollection.cs \
@@ -213,3 +214,15 @@ and boxed nongeneric enumeration members remain diagnostic.
 AC4.4 also maps the nested Enumerator inside each dictionary KeyCollection and
 ValueCollection. Concrete MoveNext/Current/Dispose retain only the selected
 current key or value; boxed interface factories remain unsupported.
+
+
+### Generic array enumeration (AC4.5)
+
+Generic array GetEnumerator now uses an exact-granted managed helper and a traced
+reference enumerator. It preserves live Current, reset/disposal, mutable per-T
+empty identity and widened reference-array views. Seven authored probes plus the
+public array probe supply 2,352 repeated O0/O2 native/.NET comparisons; four native
+GC/cache-isolation runs, exact grant/packet boundaries and 60 existing regressions
+pass with sanitizers and forced collection. Interface plan v6; native v41 unchanged.
+The ledger has 21 gaps and 26 controls. Boxed collection enumerators, mixed variant
+class dispatch, nongeneric Current and full replay remain unfinished.

@@ -4,6 +4,7 @@ namespace Cilica.Runtime
 {
     internal static class ArrayInterface<T>
     {
+        internal static System.Collections.Generic.IEnumerator<T> Enumerate(T[] array) => System.SZGenericArrayEnumerator<T>.Create(array, array.Length);
         internal static bool False(T[] array) => false;
         internal static bool True(T[] array) => true;
         internal static T[] Identity(T[] array) => array;

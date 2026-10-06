@@ -127,6 +127,11 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/CharUnicodeInfo.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Globalization/CharUnicodeInfo.cs",
       "sha256": "421b42928c7feb79870bc238487893a3d75e32620c63e0aa33190b27cf96d629"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Array.Enumerators.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Array.Enumerators.cs",
+      "sha256": "98205fa16b5e6f9c3b2f321ac4f98cef967e0df02ee2b0b8de934020326e8b5c"
     }
   ],
   "adaptations": [
@@ -344,6 +349,20 @@
         "Replace runtime-private Unicode lookup tables with the exact bounded whitespace ranges; verify all 65,536 UTF-16 code units against pinned .NET."
       ],
       "scope": "Managed String.IsNullOrWhiteSpace only; no general Unicode classification API."
+    },
+    {
+      "path": "library/Cilica.Core/ArrayEnumerator.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Array.Enumerators.cs",
+      "algorithms": [
+        "SZGenericArrayEnumerator<T> and base index state, live Current, Reset and no-op Dispose.",
+        "Per-closed-T mutable empty enumerator with null array storage."
+      ],
+      "changes": [
+        "Flatten the private runtime base into the owned class; use a lazy instance-owned static cache.",
+        "Pass an explicit Int32 array length through the exact-granted ArrayInterface<T>.Enumerate helper.",
+        "Preserve pinned current-state fault messages in managed bodies; nongeneric Current remains an unsupported marker."
+      ],
+      "scope": "AC4.5 generic Int32/reference/admitted inline-value vector enumeration. No private runtime layout compatibility, scalar aliases, mixed variant class dispatch or nongeneric array enumeration."
     }
   ],
   "ownedAdapters": [
