@@ -99,6 +99,13 @@ physical-device gates remain separate.
 
 JNI buffer handling follows Android's [JNI guidance](https://developer.android.com/ndk/guides/jni-tips).
 
+The additional [ownership regression](../../tests/Android/README.md) passes 80
+close/recreate cycles and two complete 64-runtime registry exhaustion/recovery
+checks with CheckJNI. It verifies pre-mutation capture quota failure, cancelled
+handle/pause operations, independent close observations, failed-startup cleanup
+and zero surviving owner workers. This strengthens the stated lifetime policy;
+it does not change cancellation semantics or establish physical-device behavior.
+
 ## Activity host
 
 Add `--activity-host` to `generate.py` to include `<Module>ActivityHost`. Construct

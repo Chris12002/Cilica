@@ -565,6 +565,33 @@ The requested device details and final application command contract are still
 awaiting user input. No support claim is made for API-26/16-KB execution, OS
 suspension, configuration/process restoration or physical devices.
 
+## Slice 7f.1 ownership recovery outcome
+
+The new [Swift](../../tests/Apple/Ownership.swift.in) and
+[Kotlin](../../tests/Android/Ownership.kt) consumers exercise the public session
+through the existing adapters and unchanged native packages. Each passes **80
+close/recreate cycles**, split across normal/forced collection. Full handle quotas
+reject captured calls before their mutation, releasing a slot restores admission,
+and old/foreign owner leases remain invalid. Cancelled clone and pause operations
+still take effect as documented; cancellation does not prevent close. Android
+specifically cancels pending future observations; Swift cancels tasks before
+adapter entry and observes cooperative completion.
+
+Each platform also fills all 64 native runtime slots twice, observes LIMIT on the
+next create, releases one instance and successfully creates a replacement while
+other instances remain usable. This proves registry capacity is recovered after
+the repeated closes. Android closes its failed-startup owner and finishes with
+zero owner workers. Swift links for arm64 device/simulator with warnings as errors
+and executes on the existing iOS 26.1 simulator. Android uses CheckJNI on the same
+API-36/4-KB image and removes its private emulator/adb/temp data afterward.
+
+Review covered deterministic cancellation ordering, quota-error side effects,
+retained roots, failed-startup cleanup, stale identity, explicit close and bounded
+test resources. No implementation defect was found; compiler/runtime, ABI,
+adapters and game rules are unchanged. Native packages were reused. No broader
+suite, hosted work, downloads, publication or physical-device work ran. Evidence:
+`artifacts/milestone7-ownership/evidence-7f1.json`.
+
 ## Remaining exit gates
 
 - Define the actual mobile application command contract and connect its native

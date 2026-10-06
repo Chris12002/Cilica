@@ -1,0 +1,104 @@
+import Foundation
+
+private actor CancellationGate {
+    private var opened = false
+    private var pending: CheckedContinuation<Void, Never>?
+    func wait() async {
+        if opened { return }
+        await withCheckedContinuation { pending = $0 }
+    }
+    func open() { opened = true; pending?.resume(); pending = nil }
+}
+
+@main struct Ownership {
+    typealias Runtime = @MODULE@Runtime
+    static func handle(_ outcome: Runtime.Outcome) -> Runtime.Handle {
+        guard outcome.fault == nil, case .handle(let handle?) = outcome.value else { fatalError("Expected handle") }
+        return handle
+    }
+    static func read(_ runtime: Runtime, _ session: Runtime.Handle) async throws -> Runtime.Value {
+        let result = try await runtime.invoke(3, arguments: [.handle(session)])
+        precondition(result.fault == nil)
+        return result.value
+    }
+    static func rejects(_ expected: Runtime.Failure, _ operation: @Sendable () async throws -> Void) async throws {
+        do { try await operation(); fatalError("Expected \(expected)") }
+        catch let actual as Runtime.Failure { precondition(actual == expected) }
+    }
+    // Cancellation is set before adapter entry; the gate itself is intentionally not cancellation-aware.
+    static func cancelled<T: Sendable>(_ body: @escaping @Sendable () async throws -> T) async throws -> T {
+        let gate = CancellationGate()
+        let task = Task {
+            await gate.wait()
+            precondition(Task.isCancelled)
+            return try await body()
+        }
+        task.cancel(); await gate.open()
+        return try await task.value
+    }
+    static func main() async throws {
+        var cycles = 0
+        var stale: Runtime.Handle?
+        for stress in [false, true] {
+            for _ in 0..<40 {
+                var options = Runtime.Options(); options.collectBeforeAllocation = stress; options.handleLimit = 4
+                let runtime = try await Runtime.open(options: options)
+                do {
+                    if let previous = stale { try await rejects(.invalidHandle) { _ = try await runtime.clone(previous) } }
+                    let label = try await runtime.importUTF16([113, 0, 0xd800])
+                    let session = handle(try await runtime.invoke(1, arguments: [.handle(label)]))
+                    let alias = try await runtime.clone(session)
+                    let spare = try await runtime.clone(session)
+                    let before = try await read(runtime, session)
+                    try await rejects(.native(5)) {
+                        _ = try await runtime.invoke(2, arguments: [.handle(session), .int32(7)], captureException: true)
+                    }
+                    let after = try await read(runtime, session)
+                    precondition(after == before)
+                    try await rejects(.native(5)) { _ = try await runtime.importUTF16([120]) }
+                    try await runtime.release(spare)
+                    let fault = try await runtime.invoke(2, arguments: [.handle(session), .int32(-1)], captureException: true)
+                    precondition(fault.fault != nil)
+                    let exception = fault.exception!
+                    let detail = try await runtime.exceptionDetails(exception)
+                    precondition(detail.message == Array("negative delta".utf16))
+                    try await runtime.release(exception)
+                    _ = try await cancelled { try await runtime.clone(session) }
+                    try await rejects(.native(5)) { _ = try await runtime.clone(session) }
+                    try await runtime.release(alias)
+                    let recovered = try await runtime.clone(session)
+                    try await runtime.release(recovered)
+                    let units = try await runtime.copyUTF16(label)
+                    precondition(units == [113, 0, 0xd800])
+                    _ = try await cancelled { try await runtime.pause() }
+                    let lifecycle = await runtime.lifecycle
+                    precondition(lifecycle == .paused)
+                    try await rejects(.paused) { _ = try await runtime.invoke(3, arguments: [.handle(session)]) }
+                    try await cancelled { try await runtime.close() }
+                    try await runtime.close()
+                    try await rejects(.closed) { _ = try await runtime.clone(session) }
+                    stale = session; cycles += 1
+                } catch { try? await runtime.close(); throw error }
+            }
+        }
+        var recoveries = 0
+        for _ in 0..<2 {
+            var owners: [Runtime] = []
+            do {
+                for _ in 0..<64 { owners.append(try await Runtime.open()) }
+                try await rejects(.native(5)) { _ = try await Runtime.open() }
+                try await rejects(.native(5)) { _ = try await Runtime.open() }
+                let retired = owners.removeFirst(); try await retired.close()
+                let replacement = try await Runtime.open(); owners.append(replacement)
+                let text = try await replacement.importUTF16([114])
+                let copied = try await replacement.copyUTF16(text); precondition(copied == [114])
+                let survivor = owners[0]
+                let existing = try await survivor.importUTF16([115])
+                let observed = try await survivor.copyUTF16(existing); precondition(observed == [115])
+                for runtime in owners { try await runtime.close() }
+                recoveries += 1
+            } catch { for runtime in owners { try? await runtime.close() }; throw error }
+        }
+        print("PASS Swift ownership cycles=\(cycles) registry_recoveries=\(recoveries) cancelled_clones=80 cancelled_pauses=80 cancelled_closes=80")
+    }
+}

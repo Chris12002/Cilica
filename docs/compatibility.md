@@ -168,6 +168,14 @@ details remain intact. This is same-instance lifecycle evidence on API 36/4 KB,
 not configuration/process restoration, OS suspension or physical-device support.
 See [ADR 0194](decisions/0194-android-activity-host.md).
 
+Milestone 7f.1 adds paired Swift/Kotlin ownership recovery evidence: 80
+close/recreate cycles and two complete 64-runtime registry recoveries per adapter.
+Both check capture quota failure before mutation, stale leases and cancellation
+without rollback. Android additionally verifies failed-startup close and zero
+surviving owner workers. Existing native libraries are reused; Swift device output
+is linked only. These tests strengthen simulator evidence without changing the
+open physical-device/application gates.
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

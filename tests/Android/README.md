@@ -15,6 +15,16 @@ The public capacity test deliberately holds a worker completion with a latch to
 prove bounded admission and the reserved close slot. This is controlled test
 synchronization; application completion callbacks must never block the worker.
 
+`Ownership.kt` adds a focused quota/recovery consumer (`dev.cilica.Ownership`).
+It runs 80 close/recreate cycles across both collection modes, proving that full
+handle quotas reject capture before mutation, released slots can be reused and
+cancelled clone/pause futures still take effect. Cancelling a close observation
+cannot cancel destruction. It then fills all 64 native runtime slots twice,
+checks failed-startup cleanup and slot recovery, and waits for zero owner workers.
+Select it with `build.py --source tests/Android/Ownership.kt --main-class dev.cilica.Ownership`
+and the same public-session package and remaining build arguments. It uses the
+existing bounded CheckJNI runner.
+
 Local generator/evidence checks:
 
 ```bash

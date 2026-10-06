@@ -5,6 +5,25 @@
 shell; `SessionSceneScenario.swift.in` supplies checks for the public
 `EmbeddingSessionProbe` package. Neither runs in hosted CI.
 
+`Ownership.swift.in` is a focused quota/cancellation/recovery consumer for the
+same public-session package. It runs 80 close/recreate cycles in normal/forced
+collection, checks capture failure before mutation, released handle-slot reuse,
+stale lease rejection and cancellation before clone/pause/close. It then fills
+all 64 native runtime slots twice and proves failed-open recovery without losing
+the remaining instances. Its cancellation gate deliberately allows continuation
+after cancellation, matching the adapter's documented cooperative policy.
+
+```bash
+python3 -B examples/Apple/check_package.py \
+  --package out/session/package --output out/ownership-run \
+  --adapter --consumer tests/Apple/Ownership.swift.in \
+  --simulator YOUR-BOOTED-SIMULATOR-UUID
+```
+
+The same source links for device/simulator, but this command executes only on the
+explicit already-booted simulator. No device execution, app installation or
+native-library rebuild is implied.
+
 For UIKit, first retain a public session package by running `AppleAdapterTests`
 with `CILICA_APPLE_OUTPUT` set to an absolute new directory (see
 [adapter instructions](../../adapters/Apple/README.md)). Then link the app against

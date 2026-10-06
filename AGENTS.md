@@ -48,6 +48,9 @@ feedback before implementation. Explain consequential choices in plain language.
   opt-in Activity host; public/kernel APKs pass 40 emulator background/resume cycles
   with explicit close and removal. Restoration, OS suspension, API-26/16-KB runtime
   behavior and physical devices remain unverified.
+  Slice 7f.1 adds paired Swift/Kotlin quota/cancellation recovery checks: each
+  adapter passes 80 close/recreate cycles and two full 64-runtime registry recoveries
+  on its measured simulator. Native/runtime implementation is unchanged.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not
