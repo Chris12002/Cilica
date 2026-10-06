@@ -358,7 +358,7 @@ public static class ValueScalarLowering
                             // Keep a rooted checked receiver even when expansion has zero
                             // leaves. Its owning frame stays live across synchronous calls.
                             int owner = Define(IrType.Reference(program.Types.References.ObjectBase), value.ILOffset,
-                                new IrExpression.CheckBox(boxType, One(boxOperand)), definition.Exceptional);
+                                new IrExpression.CheckBox(boxType, One(boxOperand)) { NullableTarget = value.Expression is IrExpression.UnboxValue { NullableTarget: true } }, definition.Exceptional);
                             for (int i = 0; i < expanded.Length; ++i)
                             {
                                 int location = Define(borrow ? expanded[i] : IrType.Location(expanded[i]), value.ILOffset,

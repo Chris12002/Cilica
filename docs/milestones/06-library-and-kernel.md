@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0 and AC1a complete; AC1b and AC2–AC10 planned.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a and AC1b.1 complete; remaining AC1b and AC2–AC10 planned.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0 and AC1a are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a and the AC1b.1 sub-slice are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -1915,3 +1915,46 @@ this slice; its later numeric-record work remains independent.
 Next is AC1b's nullable boxing/conversion contract; nullable text belongs to AC7b
 and nullable key selection to AC3. The ledger records those residuals and the
 newly exposed application blockers without changing the original audit evidence.
+
+
+### AC1b.1 named-value boxing and conversions outcome
+
+Implemented [ADR AC0003](../decisions/AC0003-nullable-boxing-and-conversions.md).
+The exact selected Nullable<T> box/unbox.any operations use managed helpers and
+existing boxes, roots and copy-return packets. Empty becomes null without a box;
+present becomes the underlying value's box. Null unboxing gives default and
+non-null unboxing requires the exact payload type. Direct implicit/explicit
+operator methods now execute; representative lifted arithmetic/comparison and
+checked/unchecked integer conversions have differential coverage.
+
+Code inspection exposed a prerequisite within the original AC1b plan: primitive
+and enum boxing lack nominal payload descriptors independently of Nullable.
+This slice therefore admits the already supported named-struct payloads and
+keeps scalar/enum boxing explicit errors. Remaining AC1b delivery is split into
+nominal primitive/enum boxing and any required nullable type-test/raw-unbox forms;
+forms omitted from the final replay closure need evidence of absence. Full AC1b
+is not complete. Nullable key semantics still belong to AC3.
+
+Review and a local .NET probe caught a wrong-target cast-message distinction:
+nullable unbox names Nullable<T>, ordinary unbox names T. A diagnostic flag
+preserves this through scalar lowering and the private exception payload without
+changing box identity. The first native O0 sanitizer compile exposed a 2,112-byte
+exception-message frame. Moving nonallocating resource selection to a small helper
+passes the original 2,048-byte limit. Boxed IR v4, scalar boxed IR v5 and native
+v38 identify these changes. Public embedding signatures and grants are unchanged.
+
+Validation: 120 focused local tests pass. The nullable suite now has 27 probes
+and 7,938 repeated .NET/native comparisons at O0/O2 with forced collection and
+ASan/UBSan. New evidence covers fresh/empty boxes, underlying GetType identity,
+value/reference copies, Guid, generic payloads, object arrays, exact mixed cast
+messages, conversion operators and checked/lifted expressions. Separate heap
+limits verify no extra allocation for empty nullable boxes, clean failure, and
+instance reuse. Existing boxing, exceptions, exception embedding and the 37-gap
+rejection baseline pass. Public native control counts remain the AC1a evidence;
+private Alchemy probes were not rerun and full saved-game replay remains open.
+
+Local logs and toolchain evidence are preserved under ignored
+`artifacts/alchemy-nullable-boxing/validation/` in the primary checkout. No hosted
+work, services or additional agents were used. Main remains at 48ecf14; the
+independent milestone branch was inspected through e6dfa31 (Apple packaging) and
+was not merged into this compatibility slice.

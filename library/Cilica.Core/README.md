@@ -152,6 +152,9 @@ and both GetValueOrDefault overloads as owned managed code. Add the exact
 requires no new intrinsic grant. Integer/Boolean/Char, public Int32 enum, Guid,
 application-value and reference-bearing payloads have native differential evidence.
 Ordinary value copying/return/rooting rules apply, including materialized heap
-fields and value arrays. Direct Nullable boxing/unboxing, nullable key operations,
-equality/hash/text members and direct operator-method calls remain diagnostics;
-see [ADR AC0002](../../docs/decisions/AC0002-nullable-value-storage.md).
+fields and value arrays. The same file now supplies managed conversion operators
+and compiler-selected NullableBoxing<T> helpers for named-struct box/unbox.any.
+Empty boxes are null; present boxes use the underlying type's ordinary box.
+Primitive/enum boxes, raw nullable unbox, nullable key operations and
+equality/hash/text members remain diagnostics. See
+[ADR AC0003](../../docs/decisions/AC0003-nullable-boxing-and-conversions.md).

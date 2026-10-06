@@ -111,12 +111,19 @@ public abstract record IrExpression
     public sealed record BoxValue(ObjectTypeId Type, int Operand) : IrExpression;
     // Both check null, then exact payload identity. Copy and mutable borrow differ:
     // UnboxValue returns an independent value; UnboxLocation retains the box owner.
-    public sealed record UnboxValue(ObjectTypeId Type, int Operand) : IrExpression;
+    public sealed record UnboxValue(ObjectTypeId Type, int Operand) : IrExpression
+    {
+        // The checked payload remains T; only InvalidCastException names Nullable<T>.
+        public bool NullableTarget { get; init; }
+    }
     public sealed record UnboxLocation(ObjectTypeId Type, int Operand) : IrExpression;
     // Explicit scalar boxing backend contract; accepted only with a validated
     // boxed payload catalog. CheckBox also retains empty-payload owner roots.
     public sealed record BoxScalars(ObjectTypeId Type, ImmutableArray<int> Values) : IrExpression;
-    public sealed record CheckBox(ObjectTypeId Type, int Operand) : IrExpression;
+    public sealed record CheckBox(ObjectTypeId Type, int Operand) : IrExpression
+    {
+        public bool NullableTarget { get; init; }
+    }
     public sealed record AddressBoxSlot(ObjectTypeId Type, int Receiver, int Slot) : IrExpression;
     public sealed record AddressLocal(int Index) : IrExpression;
     public sealed record AddressParameter(int Index) : IrExpression;

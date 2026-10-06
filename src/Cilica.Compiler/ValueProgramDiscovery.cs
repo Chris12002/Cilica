@@ -18,6 +18,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     ImmutableDictionary<int, IrMethodId> Calls, ImmutableDictionary<int, ObjectFieldId> Fields,
     ImmutableDictionary<int, ObjectTypeId> TypeOperands)
 {
+    public ImmutableHashSet<int> NullableUnboxOperands { get; init; } = ImmutableHashSet<int>.Empty;
     public ImmutableDictionary<int, RuntimeTypeToken> RuntimeTypeTokens { get; init; } = ImmutableDictionary<int, RuntimeTypeToken>.Empty;
     public ImmutableArray<IrExceptionRegion> ExceptionRegions { get; init; } = [];
     public ImmutableDictionary<int, ValueIntrinsicCall> Intrinsics { get; init; } = ImmutableDictionary<int, ValueIntrinsicCall>.Empty;
@@ -150,6 +151,7 @@ public static partial class ValueProgramDiscovery
             {
                 while (_pending.TryDequeue(out var work))
                 {
+                    var nullableUnboxOperands = ImmutableHashSet.CreateBuilder<int>();
                     var runtimeTokens = ImmutableDictionary.CreateBuilder<int, RuntimeTypeToken>();
                     var calls = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
                     var fields = ImmutableDictionary.CreateBuilder<int, ObjectFieldId>();
@@ -341,7 +343,10 @@ public static partial class ValueProgramDiscovery
                             {
                                 var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(token)), work, offset);
                                 if (instruction.OpCode is "box" or "unbox" or "unbox.any" && IsNullable(signature, work, offset))
-                                    Fail(work, "Nullable boxing and unboxing require null/underlying-value semantics; ordinary struct boxing is not valid. Implement the nullable boxing profile before executing this operation.", offset);
+                                {
+                                    calls.Add(offset, NullableBoxCall(signature, instruction.OpCode, work, offset));
+                                    continue;
+                                }
                                 if (integers64 && instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj")
                                 {
                                     signature = OperandSignature(signature, work, offset);
@@ -367,6 +372,8 @@ public static partial class ValueProgramDiscovery
                                         continue;
                                     }
                                 }
+                                if (instruction.OpCode == "unbox.any" && NullableUnboxHelper(work, signature, offset))
+                                    nullableUnboxOperands.Add(offset);
                                 var operandType = signature switch
                                 {
                                     TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
@@ -387,7 +394,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {

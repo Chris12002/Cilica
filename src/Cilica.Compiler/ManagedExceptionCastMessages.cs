@@ -6,17 +6,17 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-internal sealed record ExceptionCastText(ObjectTypeId From, bool FromBox, ObjectTypeId To, bool ToBox, string Text);
+internal sealed record ExceptionCastText(ObjectTypeId From, bool FromBox, ObjectTypeId To, bool ToBox, bool NullableTarget, string Text);
 internal static class ManagedExceptionCastMessages
 {
     internal static ImmutableArray<ExceptionCastText> Build(IEnumerable<IrMethod> methods, ObjectTypeCatalog catalog, ImmutableArray<ValueTypeLayout> values)
     {
         var targets = methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression switch
         {
-            IrExpression.CastClass cast => (cast.Target, false), IrExpression.UnboxValue box => (box.Type, true),
-            IrExpression.UnboxLocation box => (box.Type, true), IrExpression.CheckBox box => (box.Type, true),
-            IrExpression.AddressBoxSlot box => (box.Type, true), _ => ((ObjectTypeId?)null, false),
-        }).Where(p => p.Item1 is not null).Select(p => (p.Item1!, p.Item2)).Distinct().ToArray();
+            IrExpression.CastClass cast => (cast.Target, false, false), IrExpression.UnboxValue box => (box.Type, true, box.NullableTarget),
+            IrExpression.UnboxLocation box => (box.Type, true, false), IrExpression.CheckBox box => (box.Type, true, box.NullableTarget),
+            IrExpression.AddressBoxSlot box => (box.Type, true, false), _ => ((ObjectTypeId?)null, false, false),
+        }).Where(p => p.Item1 is not null).Select(p => (p.Item1!, p.Item2, p.Item3)).Distinct().ToArray();
         if (targets.Length == 0) return [];
         string Name(TypeSource source)
         {
@@ -45,13 +45,15 @@ internal static class ManagedExceptionCastMessages
             throw new ArgumentException("Managed exception cast messages currently require class targets; interface cast messages need a supported lowering.");
         var sources = names.Where(p => !interfaces.Contains(p.Key)).Select(p => (p.Key, Box: false, p.Value)).Concat(boxes.Select(p => (p.Key, Box: true, p.Value)));
         var result = ImmutableArray.CreateBuilder<ExceptionCastText>(); int units = 0;
-        foreach (var (target, boxed) in targets)
+        foreach (var (target, boxed, nullableTarget) in targets)
         foreach (var (source, sourceBox, sourceName) in sources)
         {
-            string message = "Unable to cast object of type '" + sourceName + "' to type '" + (boxed ? boxes[target] : names[target]) + "'.";
+            string targetName = boxed ? boxes[target] : names[target];
+            if (nullableTarget) targetName = "System.Nullable`1[" + targetName + "]";
+            string message = "Unable to cast object of type '" + sourceName + "' to type '" + targetName + "'.";
             if ((units += message.Length) > ObjectStringLimits.MaximumTotalLiteralCodeUnits)
                 throw new ArgumentException("Cast exception message resources exceed the UTF-16 budget.");
-            result.Add(new(source, sourceBox, target, boxed, message));
+            result.Add(new(source, sourceBox, target, boxed, nullableTarget, message));
         }
         return result.ToImmutable();
     }

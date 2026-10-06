@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v37";
+    public const string Profile = "object-frames-native-v38";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -361,11 +361,11 @@ public static class ObjectCppEmitter
             }
             void CheckLocationResult(int offset) => Guard("f->location_result.status != LocationStatus::complete",
                 "f->location_result.status == LocationStatus::null_reference ? 4u : f->location_result.status == LocationStatus::index_bounds ? 10u : 6u", offset);
-            void CastFault(string condition, string receiver, string target, int offset)
+            void CastFault(string condition, string receiver, string target, int offset, bool nullableTarget = false)
             {
                 code.Append("    if (").Append(condition).Append(") {\n        raise_cast_exception(context, ").Append(receiver).Append(", &")
                     .Append(target).Append("_descriptor, {7u, \"").Append(method.Source.ContentHash).Append("\", ")
-                    .Append(N(method.Source.Token)).Append("u, ").Append(N(offset)).Append("u});\n        ").Append(Exit()).Append("\n    }\n");
+                    .Append(N(method.Source.Token)).Append("u, ").Append(N(offset)).Append("u}, ").Append(nullableTarget ? "true" : "false").Append(");\n        ").Append(Exit()).Append("\n    }\n");
             }
             void CheckBoxResult(int offset) => Guard("f->box_result.status != BoxStatus::complete",
                 "context.pending != 0u ? context.pending : f->box_result.status == BoxStatus::null_reference ? 4u : "
@@ -542,7 +542,7 @@ public static class ObjectCppEmitter
                                 case IrExpression.CheckBox boxed:
                                     code.Append("    f->box_result = unbox(context, ").Append(Value(boxed.Operand)).Append(", &")
                                         .Append(ObjectCppBoxing.Symbol(boxed.Type)).Append("_descriptor);\n");
-                                    if (handlers) CastFault("f->box_result.status == BoxStatus::wrong_type", Value(boxed.Operand), ObjectCppBoxing.Symbol(boxed.Type), value.ILOffset);
+                                    if (handlers) CastFault("f->box_result.status == BoxStatus::wrong_type", Value(boxed.Operand), ObjectCppBoxing.Symbol(boxed.Type), value.ILOffset, boxed.NullableTarget);
                                     CheckBoxResult(value.ILOffset); expression = "f->box_result.value"; break;
                                 case IrExpression.AddressBoxSlot slot:
                                     code.Append("    f->box_result = unbox(context, ").Append(Value(slot.Receiver)).Append(", &")

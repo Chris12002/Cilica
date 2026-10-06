@@ -390,9 +390,9 @@
       "contracts": [
         "Cilica-owned ordinary managed nullable presence/payload storage and exact .NET Standard 2.1 member contracts; no upstream Nullable implementation code copied.",
         "Empty Value uses the pinned InvalidOperation_NoValue resource: Nullable object must have a value.",
-        "Special nullable boxing, key selection and remaining members are build-time diagnostics rather than ordinary struct fallbacks."
+        "Managed nullable box/unbox.any helpers preserve null/present rules for already boxable named structs; conversion operators reuse construction and Value. Primitive/enum boxes, raw nullable unbox, key selection and remaining members remain diagnostics."
       ],
-      "scope": "Bounded AC1a storage and accessors with native differential evidence; no new intrinsic grants."
+      "scope": "Bounded AC1a storage/accessors and AC1b.1 named-struct boxing/conversions with native differential evidence; no new intrinsic grants."
     }
   ]
 }

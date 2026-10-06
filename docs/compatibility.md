@@ -8,8 +8,8 @@ separately. Historical checkpoint sections retain their original stage-specific 
 
 Milestone 6 completion used `integer-managed-objects-cil-v2`,
 `object-layout-v13`, `object-operations-ir-v14`, `scalar-location-ir-v2`,
-`value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v3`,
-`scalar-boxed-ir-v4` and `object-frames-native-v35`. The bounded owned core and
+`value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v4`,
+`scalar-boxed-ir-v5` and `object-frames-native-v38`. The bounded owned core and
 unchanged private kernel pass 10,752 .NET/native transcript comparisons on macOS
 ARM64, with O0/O2 sanitizers and forced collection. The exact compiled/source-body
 closure has no filters; the broader metadata audit retains its unresolved status.
@@ -1857,11 +1857,30 @@ Boolean/Char, public Int32 enums, Guid, IDs and reference-bearing structs;
 copy/return semantics, materialized heap fields and value arrays reuse the existing
 value profile. The empty Value exception matches the selected invariant resource.
 
-Direct nullable boxing/unboxing, key null/equality/hash selection, Equals,
-GetHashCode, ToString and direct operator-method bodies are still diagnostics.
+AC1b.1 subsequently admits nullable box/unbox.any for already boxable named
+structs and implements direct conversion-operator bodies. Primitive/enum boxes,
+raw nullable unbox, key null/equality/hash selection, Equals, GetHashCode and
+ToString remain diagnostics.
 Existing internal/non-Int32 enum, static inline-field and direct-return-to-heap
 limits remain. An ordinary struct containing a nullable field can still use
 ordinary boxing. [ADR AC0002](decisions/AC0002-nullable-value-storage.md) records
 these boundaries and tests. The 47-probe public baseline now has ten native
 controls and 37 explicit rejection expectations; historical AC0 counts above
 remain its original evidence.
+
+
+## Nullable named-value boxing and conversions (AC1b.1)
+
+Empty nullable boxes produce null without an allocation; present boxes retain the
+underlying value's identity. Null unboxing produces an empty nullable, while
+non-null unboxing checks the underlying type and copies its payload. Wrong-type
+messages distinguish Nullable<T> from direct T casts. Named empty/wide structs,
+Guid, closed generic/reference-bearing values and object arrays have native
+evidence, alongside representative lifted integer expressions and direct operator
+calls. Primitive/enum boxes and raw nullable unbox remain explicitly unsupported.
+
+[ADR AC0003](decisions/AC0003-nullable-boxing-and-conversions.md) records the
+managed-helper design, diagnostic flag and exact limits. The 27-probe nullable
+suite passes 7,938 repeated comparisons on macOS ARM64 at O0/O2 with forced GC
+and ASan/UBSan; heap-budget tests cover no-allocation empty boxes and failure
+recovery. This extends the nullable suite, not the private saved-game replay claim.

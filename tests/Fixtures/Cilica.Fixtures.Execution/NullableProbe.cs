@@ -7,6 +7,8 @@ namespace Cilica.Fixtures.Execution
     internal enum NullableInternalKind { Zero, One }
     public sealed class NullableInternalEnumHolder { internal NullableInternalKind Value; }
     public static class NullableStaticValues { public static readonly NullableId Value = new NullableId(17); }
+    public struct NullableEmpty { }
+    public struct NullableWide { public long Value; }
     public struct NullableId
     {
         public int Value;
@@ -156,6 +158,133 @@ namespace Cilica.Fixtures.Execution
             object value = new Decoy.Nullable<int> { Value = a };
             return unchecked(((Decoy.Nullable<int>)value).Value + b);
         }
+        public static int NamedBoxRoundtrip(int a, int b)
+        {
+            NullableId? value = a == 0 ? default(NullableId?) : new NullableId(a);
+            object boxed = value;
+            value = null;
+            var noise = new NullableNode(b);
+            NullableId? copy = (NullableId?)boxed;
+            return unchecked((boxed == null ? 1 : 0) + (copy.HasValue ? 2 : 0)
+                + copy.GetValueOrDefault().Value + noise.Value);
+        }
+        public static int NamedBoxIdentity(int a, int b)
+        {
+            NullableId? value = new NullableId(a);
+            object first = value;
+            object second = value;
+            object ordinary = new NullableId(b);
+            return first != second && first.GetType() == ordinary.GetType()
+                ? unchecked(((NullableId)first).Value + ((NullableId?)ordinary).Value.Value) : 999;
+        }
+        public static int ReferenceBoxRoundtrip(int a, int b)
+        {
+            var value = Make(a);
+            object boxed = value;
+            value = null;
+            var noise = new NullableNode(b);
+            var copy = ((NullablePayload?)boxed).Value;
+            copy.Value = b;
+            copy.Node.Value = unchecked(a + b);
+            var again = ((NullablePayload?)boxed).Value;
+            return unchecked(again.Value + again.Node.Value + copy.Value + noise.Value);
+        }
+        public static int NullableBoxArray(int a, int b)
+        {
+            var array = new object[3];
+            array[0] = Make(a);
+            array[1] = default(NullablePayload?);
+            array[2] = new NullablePayload(new NullableNode(b), b);
+            var first = (NullablePayload?)array[0];
+            var empty = (NullablePayload?)array[1];
+            var second = (NullablePayload?)array[2];
+            array[0] = null; array[2] = null;
+            var noise = new NullableNode(a);
+            return unchecked(first.Value.Node.Value + second.Value.Node.Value + noise.Value + (empty.HasValue ? 1 : 0));
+        }
+        public static int EmptyBoxIdentity(int a, int b)
+        {
+            NullableEmpty? present = new NullableEmpty();
+            object first = present;
+            object second = present;
+            object empty = default(NullableEmpty?);
+            return first != null && first != second && empty == null
+                && ((NullableEmpty?)first).HasValue && !((NullableEmpty?)empty).HasValue ? a : b;
+        }
+        public static int WideBoxRoundtrip(int a, int b)
+        {
+            NullableWide? value = new NullableWide { Value = unchecked(((long)a << 32) | (uint)b) };
+            object boxed = value;
+            var copy = (NullableWide?)boxed;
+            return unchecked((int)(copy.Value.Value >> 32) + (int)copy.Value.Value);
+        }
+        public static int WrongNullableBox(int a, int b)
+        {
+            object boxed = a == 0 ? (object)new NullableNode(b) : (object)new NullableWide { Value = a };
+            try { return ((NullableId?)boxed).Value.Value; }
+            catch (InvalidCastException error)
+            {
+                string expected = a == 0
+                    ? "Unable to cast object of type 'Cilica.Fixtures.Execution.NullableNode' to type 'System.Nullable`1[Cilica.Fixtures.Execution.NullableId]'."
+                    : "Unable to cast object of type 'Cilica.Fixtures.Execution.NullableWide' to type 'System.Nullable`1[Cilica.Fixtures.Execution.NullableId]'.";
+                return error.Message == expected ? b : unchecked(b + 1);
+            }
+        }
+        public static int NullableGuidBox(int a, int b)
+        {
+            var expected = new Guid(a, unchecked((short)b), 17, 1, 2, 3, 4, 5, 6, 7, 8);
+            Guid? value = expected;
+            object boxed = value;
+            value = null;
+            return ((Guid?)boxed).Value == expected && (Guid)boxed == expected ? a : b;
+        }
+        public static int LiftedConversions(int a, int b)
+        {
+            int? input = a == 0 ? default(int?) : a;
+            long? widened = input;
+            int? narrowed = unchecked((int?)widened);
+            int? sum = input + b;
+            bool less = input < b;
+            return unchecked(narrowed.GetValueOrDefault(b) + sum.GetValueOrDefault()
+                + (less ? 1 : 0) + (input == narrowed ? 2 : 0));
+        }
+        public static int CheckedNullableConversion(int a, int b)
+        {
+            long? value = a == 0 ? default(long?) : unchecked(((long)a << 32) | (uint)b);
+            try { return checked((int?)value).GetValueOrDefault(b); }
+            catch (OverflowException) { return a; }
+        }
+        public static int MixedCastMessages(int a, int b)
+        {
+            object boxed = new NullableWide { Value = a };
+            int result = 0;
+            try { result = ((NullableId)boxed).Value; }
+            catch (InvalidCastException error)
+            {
+                if (error.Message == "Unable to cast object of type 'Cilica.Fixtures.Execution.NullableWide' to type 'Cilica.Fixtures.Execution.NullableId'.") result = a;
+            }
+            try { result = ((NullableId?)boxed).Value.Value; }
+            catch (InvalidCastException error)
+            {
+                if (error.Message == "Unable to cast object of type 'Cilica.Fixtures.Execution.NullableWide' to type 'System.Nullable`1[Cilica.Fixtures.Execution.NullableId]'.") result = unchecked(result + b);
+            }
+            return result;
+        }
+        public static int GenericNullableBox(int a, int b)
+        {
+            NullableContainer<NullablePayload>? value = new NullableContainer<NullablePayload> { Value = Make(a) };
+            object boxed = value;
+            value = null;
+            var noise = new NullableNode(b);
+            var copy = ((NullableContainer<NullablePayload>?)boxed).Value;
+            return unchecked(copy.Value.Value.Node.Value + noise.Value);
+        }
+        public static int NullableBoxBudget(int a, int b)
+        {
+            NullableEmpty? value = b == 0 ? default(NullableEmpty?) : new NullableEmpty();
+            return (object)value == null ? a : ~a;
+        }
+        public static int UnsupportedNullableEnumBox(int a, int b) { NullableKind? value = (NullableKind)a; return (object)value == null ? a : b; }
         public static int UnsupportedHeapReturn(int a, int b)
         {
             var holder = new NullableHolder();

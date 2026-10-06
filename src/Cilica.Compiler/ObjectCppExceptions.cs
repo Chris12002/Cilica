@@ -9,7 +9,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppExceptions
 {
     internal static void AppendStorage(StringBuilder text) => text.Append("""
-struct ExceptionObject { Object header; Object* message = nullptr; Object* parameter_name = nullptr; Object* inner = nullptr; Object* type_name = nullptr; std::uint32_t message_kind = 0; const Descriptor* cast_from = nullptr; const Descriptor* cast_to = nullptr; };
+struct ExceptionObject { Object header; Object* message = nullptr; Object* parameter_name = nullptr; Object* inner = nullptr; Object* type_name = nullptr; std::uint32_t message_kind = 0; const Descriptor* cast_from = nullptr; const Descriptor* cast_to = nullptr; bool cast_nullable = false; };
 static_assert(std::is_standard_layout_v<ExceptionObject> && std::is_trivially_destructible_v<ExceptionObject> && offsetof(ExceptionObject, header) == 0);
 static constexpr std::size_t exception_references[] = {offsetof(ExceptionObject, message), offsetof(ExceptionObject, parameter_name), offsetof(ExceptionObject, inner), offsetof(ExceptionObject, type_name)};
 [[gnu::noinline]] static void* exception_field(Object* value, [[maybe_unused]] std::size_t offset) noexcept {
@@ -58,7 +58,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
                 .Append((pair.Value.StartsWith("Exception of type '", StringComparison.Ordinal) ? 0 : resources[pair.Value] + 1).ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
         text.Append("};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_text(const Descriptor* type, std::uint32_t kind) noexcept {\n")
             .Append("    for (const auto& entry : exception_texts) if (entry.type == type && entry.kind == kind) return entry.text;\n    return {};\n}\n");
-        text.Append("struct ExceptionCastTextEntry { const Descriptor* from; const Descriptor* to; ExceptionText text; };\n");
+        text.Append("struct ExceptionCastTextEntry { const Descriptor* from; const Descriptor* to; bool nullable_target; ExceptionText text; };\n");
         for (int i = 0; i < casts.Length; ++i)
             text.Append("static constexpr std::uint16_t cast_text_").Append(i.ToString(CultureInfo.InvariantCulture)).Append("[] = {")
                 .AppendJoin(", ", casts[i].Text.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture))).Append("};\n");
@@ -67,11 +67,11 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         {
             var cast = casts[i];
             text.Append("{&").Append(cast.FromBox ? ObjectCppBoxing.Symbol(cast.From) : symbol(cast.From)).Append("_descriptor, &")
-                .Append(cast.ToBox ? ObjectCppBoxing.Symbol(cast.To) : symbol(cast.To)).Append("_descriptor, {cast_text_")
+                .Append(cast.ToBox ? ObjectCppBoxing.Symbol(cast.To) : symbol(cast.To)).Append("_descriptor, ").Append(cast.NullableTarget ? "true" : "false").Append(", {cast_text_")
                 .Append(i.ToString(CultureInfo.InvariantCulture)).Append(", ").Append(cast.Text.Length.ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
         }
-        text.Append("}};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_cast_text(const Descriptor* from, const Descriptor* to) noexcept {\n")
-            .Append("    for (const auto& entry : exception_cast_texts) if (entry.from == from && entry.to == to) return entry.text;\n    return {};\n}\n");
+        text.Append("}};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_cast_text(const Descriptor* from, const Descriptor* to, bool nullable_target) noexcept {\n")
+            .Append("    for (const auto& entry : exception_cast_texts) if (entry.from == from && entry.to == to && entry.nullable_target == nullable_target) return entry.text;\n    return {};\n}\n");
         text.Append("[[maybe_unused, gnu::noinline]] static bool argument_exception(const Descriptor* type) noexcept {\n");
         if (types.ArgumentBase is { } argumentBase) text.Append("    return derives_from(type, &").Append(symbol(argumentBase)).Append("_descriptor);\n");
         else text.Append("    (void)type; return false;\n");
@@ -170,6 +170,14 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         if (message == nullptr) return {failure == 0 ? 5u : failure};
         return {0, message};
 }
+// Keep resource selection outside the allocation/validation frame, including at
+// O0 with sanitizers. This does not allocate or dereference managed text storage.
+[[gnu::noinline]] static ExceptionText selected_exception_text(Object* value) noexcept {
+    const auto* payload = reinterpret_cast<ExceptionObject*>(value);
+    if (payload->cast_from == nullptr && payload->cast_to == nullptr) return exception_text(value->type, payload->message_kind);
+    if (value->type == runtime_exception(7)) return exception_cast_text(payload->cast_from, payload->cast_to, payload->cast_nullable);
+    return {};
+}
 [[maybe_unused, gnu::noinline]] static ExceptionResult exception_message(Context& c, Object* value) noexcept {
     if (c.instance.marking) return {6};
     if (value == nullptr) return {4};
@@ -184,8 +192,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     if (!traceable_reference(c.instance, payload->type_name) || (payload->type_name != nullptr && !string_type(payload->type_name->type))) return {6};
     if (payload->message_kind == 3) return message == nullptr ? initialization_message(c, payload) : ExceptionResult{0, message};
     if (message == nullptr) {
-        const auto text = payload->cast_from == nullptr && payload->cast_to == nullptr ? exception_text(value->type, payload->message_kind)
-            : value->type == runtime_exception(7) ? exception_cast_text(payload->cast_from, payload->cast_to) : ExceptionText{};
+        const auto text = selected_exception_text(value);
         if (text.units == nullptr) return {6};
         const auto origin = exception_origin(c); c.pending = 0;
         message = exception_message_string(c, text);
@@ -246,12 +253,12 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     else { c.exception = nullptr; c.pending = result.status == 5 ? 5u : 6u; }
     return c.pending;
 }
-[[maybe_unused, gnu::noinline]] static void raise_cast_exception(Context& c, Object* value, const Descriptor* target, ExceptionOrigin origin) noexcept {
+[[maybe_unused, gnu::noinline]] static void raise_cast_exception(Context& c, Object* value, const Descriptor* target, ExceptionOrigin origin, bool nullable_target = false) noexcept {
     set_exception_origin(c, origin);
     (void)materialize_exception(c);
     if (c.pending == 7 && c.exception != nullptr) {
         auto* payload = reinterpret_cast<ExceptionObject*>(c.exception);
-        payload->cast_from = value->type; payload->cast_to = target;
+        payload->cast_from = value->type; payload->cast_to = target; payload->cast_nullable = nullable_target;
     }
 }
 [[maybe_unused, gnu::noinline]] static std::uint32_t raise_exception(Context& c, Object* value, const char* image, std::uint32_t method, std::uint32_t il) noexcept {

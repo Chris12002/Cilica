@@ -142,4 +142,5 @@ and historical evidence are unchanged.
 | ADR | Title | Status |
 | --- | --- | --- |
 | [AC0001](AC0001-runtime-type-identity.md) | Bounded runtime type identity | Accepted; canonical Type/handles and Type keys; next engine gap is Nullable<T> |
-| [AC0002](AC0002-nullable-value-storage.md) | Bounded nullable value storage | Accepted; managed members and traced inline payloads; special boxing/key semantics remain gated |
+| [AC0002](AC0002-nullable-value-storage.md) | Bounded nullable value storage | Accepted; managed members and traced inline payloads; boxing extended by AC0003, nullable keys remain gated |
+| [AC0003](AC0003-nullable-boxing-and-conversions.md) | Nullable named-value boxing and conversions | Accepted; AC1b.1 complete, primitive/enum boxing remains open |

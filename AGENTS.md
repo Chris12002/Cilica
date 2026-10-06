@@ -14,8 +14,9 @@ feedback before implementation. Explain consequential choices in plain language.
   Milestone 6 adds the bounded owned core and verified real-kernel native transcripts;
   see `docs/milestones/06-library-and-kernel.md` for exact scope and evidence.
   AC1a adds bounded owned Nullable<T> storage/members through ordinary value
-  copies and roots. Special nullable boxing/key semantics remain diagnosed; see
-  docs/decisions/AC0002-nullable-value-storage.md for the exact boundary.
+  copies and roots. AC1b.1 adds nullable conversions and named-struct box/copy
+  unboxing; primitive/enum boxes, raw nullable unbox and nullable keys remain
+  diagnosed. See docs/decisions/AC0003-nullable-boxing-and-conversions.md.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

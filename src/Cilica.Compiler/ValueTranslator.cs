@@ -513,6 +513,7 @@ public static class ValueTranslator
                         case "newobj" when classes:
                         case "callvirt" when types.IntegerCasts:
                         case "call":
+                        case "box" or "unbox.any" when boxing && method.Calls.ContainsKey(offset):
                             var target = methods[method.Calls[offset]]; int skip = opcode == "newobj" ? 1 : 0;
                             bool constrained = method.ConstrainedCalls.TryGetValue(offset, out var constrainedCall);
                             if (constrained && (target.Binding.Kind != ObjectMethodKind.ValueInstance || target.Binding.Owner != constrainedCall!.Receiver))
@@ -597,7 +598,7 @@ public static class ValueTranslator
                             if (opcode != "box" && !Reference(values[boxedOperand])) Error(offset, "Unboxing requires an object reference or null.");
                             if (opcode == "box") Push(offset, IrType.Reference(objectBase), new IrExpression.BoxValue(boxedType, boxedOperand), true);
                             else if (opcode == "unbox") Push(offset, IrType.Location(IrType.Value(boxedType)), new IrExpression.UnboxLocation(boxedType, boxedOperand), true);
-                            else Push(offset, IrType.Value(boxedType), new IrExpression.UnboxValue(boxedType, boxedOperand), true);
+                            else Push(offset, IrType.Value(boxedType), new IrExpression.UnboxValue(boxedType, boxedOperand) { NullableTarget = method.NullableUnboxOperands.Contains(offset) }, true);
                             break;
                         case "initobj" or "ldobj" or "stobj" or "cpobj":
                             var valueType = method.MemoryOperands.TryGetValue(offset, out var memoryType) ? memoryType : IrType.Value(method.TypeOperands[offset]);

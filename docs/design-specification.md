@@ -1737,3 +1737,26 @@ operator bodies remain unsupported. Full Alchemy replay and untested platforms
 remain open; current private roots now expose static inline fields, internal-enum
 storage and SHA-256 as subsequent blockers. See the milestone 6 AC1a outcome and
 the assigned gap ledger for exact scope.
+
+
+### Nullable boxing and conversion follow-on (AC1b.1)
+
+[ADR AC0003](decisions/AC0003-nullable-boxing-and-conversions.md) advances AC1b
+for already boxable named structs. Exact selected nullable box/unbox.any operands
+call verified managed helpers: empty becomes null, present boxes T, null unboxing
+returns default, and a present copy requires T's exact descriptor. Ordinary
+allocator/root/return-packet paths preserve reference-bearing payloads. Direct
+conversion operators now have managed bodies; representative lifted and checked
+integer expressions have differential evidence.
+
+A diagnostic-only nullable target flag preserves InvalidCastException's target
+name while retaining T's runtime identity check. It flows through boxed IR v4,
+scalar boxed IR v5 and native v38; the private exception payload carries the flag.
+Native resource selection uses a small helper to stay within the unchanged
+2,048-byte O0 sanitizer frame limit. No public ABI or intrinsic grant is added.
+
+Primitive/enum payload descriptors, raw nullable unbox locations and remaining
+nullable type-test forms are not implemented by this slice. Nullable keys and
+text/equality/hash remain assigned work. Twenty-seven native probes provide
+7,938 O0/O2 comparisons plus heap-budget/failure-recovery checks; the affected
+local suite passes 120 tests. Full AC1b and full Alchemy replay remain open.
