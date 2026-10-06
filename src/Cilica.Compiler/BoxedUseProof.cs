@@ -120,6 +120,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
         IrExpression.ExceptionInnerException e => [e.Operand], IrExpression.ExceptionTypeName e => [e.Operand],
         IrExpression.NewDelegate d => [d.Receiver], IrExpression.CallDelegate d => d.Arguments.Prepend(d.Delegate),
         IrExpression.NewObject n => n.Arguments, IrExpression.NewArray n => [n.Length], IrExpression.ArrayLength a => [a.Array],
+        IrExpression.ArrayCopyCompatible c => [c.Source, c.Destination],
         IrExpression.LoadElement a => [a.Array, a.Index], IrExpression.AddressElement a => [a.Array, a.Index],
         IrExpression.AddressArraySlot a => [a.Array, a.Index],
         IrExpression.IntegerTextFind t => [t.Index], IrExpression.IntegerTextPublish t => [t.Index, t.Text],

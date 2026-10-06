@@ -34,7 +34,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         .Append("[](Object* p) noexcept { delete reinterpret_cast<ExceptionObject*>(p); }, &").Append(parent)
         .Append("_descriptor, nullptr, 0, nullptr, exception_field};\n");
 
-    internal static void AppendHelpers(StringBuilder text, ManagedExceptionTypes types, ObjectTypeCatalog catalog, Func<ObjectTypeId, string> symbol, ImmutableArray<ExceptionCastText> casts, ImmutableArray<ValueTypeLayout> values)
+    internal static void AppendHelpers(StringBuilder text, ManagedExceptionTypes types, ObjectTypeCatalog catalog, Func<ObjectTypeId, string> symbol, ImmutableArray<ExceptionCastText> casts, ImmutableArray<ValueTypeLayout> values, bool arrayCopies)
     {
         text.Append("[[gnu::noinline]] static bool known_exception(const Descriptor* type) noexcept {\n");
         foreach (var type in types.Types) text.Append("    if (type == &").Append(symbol(type)).Append("_descriptor) return true;\n");
@@ -94,6 +94,26 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         foreach (var array in catalog.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Reference))
             text.Append("    if (type == &").Append(symbol(array)).Append("_descriptor) return &").Append(symbol(array.ArrayElement!.Type!)).Append("_descriptor;\n");
         text.Append("    return nullptr;\n}\n");
+        if (arrayCopies)
+        {
+            var relations = new ObjectTypeRelations(catalog);
+            var interfaces = catalog.Interfaces.Select(i => ObjectTypeId.From(i.Source)).ToHashSet();
+            var arrays = catalog.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Reference).ToArray();
+            var pairs = new System.Collections.Generic.List<(ObjectTypeId First, ObjectTypeId Second)>();
+            // The checked catalog bounds this static table to 256*255/2 pairs.
+            for (int i = 0; i < arrays.Length; i++)
+            for (int j = i + 1; j < arrays.Length; j++)
+            {
+                var first = arrays[i].ArrayElement!.Type!; var second = arrays[j].ArrayElement!.Type!;
+                if (interfaces.Contains(first) || interfaces.Contains(second) || relations.Ancestors[first].Contains(second) || relations.Ancestors[second].Contains(first))
+                    pairs.Add((arrays[i], arrays[j]));
+            }
+            text.Append("struct CopyArrayPair { const Descriptor* first; const Descriptor* second; };\nstatic constexpr std::array<CopyArrayPair, ")
+                .Append(pairs.Count.ToString(CultureInfo.InvariantCulture)).Append("> copy_array_pairs = {{\n");
+            foreach (var pair in pairs)
+                text.Append("    {&").Append(symbol(pair.First)).Append("_descriptor, &").Append(symbol(pair.Second)).Append("_descriptor},\n");
+            text.Append("}};\n[[maybe_unused, gnu::noinline]] static bool copy_arrays_compatible(const Descriptor* source, const Descriptor* destination) noexcept {\n    if (source == destination) return true;\n    for (const auto& pair : copy_array_pairs) if ((source == pair.first && destination == pair.second) || (source == pair.second && destination == pair.first)) return true;\n    return false;\n}\n");
+        }
         text.Append(ResourceHelper);
         text.Append("[[maybe_unused, gnu::noinline]] static Object* exception_message_string(Context& c, ExceptionText text) noexcept {\n");
         if (catalog.String is { } stringType) text.Append("    return exception_resource(c, ").Append(symbol(stringType)).Append("_descriptor, text);\n");

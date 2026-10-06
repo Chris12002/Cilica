@@ -6,6 +6,21 @@ namespace Cilica.Runtime
     {
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         internal static extern void CopyStore(T[] array, int index, T value);
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern bool CopyCompatible(T[] source, T[] destination);
+        internal static void CopyTo(T[] source, T[] destination, int index) => CopyPrefix(source, source.Length, destination, index);
+        internal static void CopyPrefix(T[] source, int count, T[] destination, int index)
+        {
+            if (destination == null) throw new System.ArgumentNullException("destinationArray");
+            if (index < 0)
+                throw new System.ArgumentOutOfRangeException("destinationIndex", index,
+                    string.Concat(string.Concat("destinationIndex ('", IntegerText.Int32(index)), "') must be greater than or equal to '0'."));
+            if (index > destination.Length || count > destination.Length - index)
+                throw new System.ArgumentException("Destination array was not long enough. Check the destination index, length, and the array's lower bounds.", "destinationArray");
+            if (!CopyCompatible(source, destination))
+                throw new System.ArrayTypeMismatchException("Source array type cannot be assigned to destination array type.");
+            for (int i = 0; i < count; i++) CopyStore(destination, index + i, source[i]);
+        }
         internal static System.Collections.Generic.IEnumerator<T> Enumerate(T[] array) => System.SZGenericArrayEnumerator<T>.Create(array, array.Length);
         internal static bool False(T[] array) => false;
         internal static bool True(T[] array) => true;

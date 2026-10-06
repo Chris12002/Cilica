@@ -198,6 +198,8 @@ internal static class IrValidator
                                 && value.Type == IrType.Reference(a.ArrayType),
                             IrExpression.NewArray a => objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType, value.ILOffset)
                                 && value.Type == IrType.Reference(a.ArrayType) && Earlier(a.Length) && valueTypes[a.Length] == IrType.Int32,
+                            IrExpression.ArrayCopyCompatible a => exceptions is not null && types.IntegerCasts && value.Type == IrType.Int32
+                                && objectRules is not null && objectRules.CopyCompatible(a, valueTypes),
                             IrExpression.ArrayLength a => objectRules is not null && value.Type == IrType.Int32
                                 && objectRules.ArrayLength(a.Array, valueTypes),
                             IrExpression.LoadElement a => objectRules is not null && objectRules.Element(a.ArrayType, a.Array, a.Index, valueTypes)
@@ -247,7 +249,7 @@ internal static class IrValidator
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadStatic or IrExpression.LoadField
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
-                            or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.EmptyArray or IrExpression.ArrayLength or IrExpression.LoadElement
+                            or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.EmptyArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.AddressElement or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation
                             or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot ||

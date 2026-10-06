@@ -26,14 +26,14 @@ public sealed class ListCopyTests
             (name, programs[i], typeof(ListCopyProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Fact]
-    public async Task Sections_and_interface_copy_stay_diagnostic()
+    public async Task Sections_and_nongeneric_copy_stay_diagnostic()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
         using var lifetime = resolver;
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = resolver.OpenInput(typeof(ListCopyProbe).Assembly.Location).Value!;
-        foreach (string name in new[] { "UnsupportedSection", "UnsupportedLegacy", "UnsupportedInterface" })
+        foreach (string name in new[] { "UnsupportedSection", "UnsupportedLegacy" })
         {
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ListCopyProbe).GetMethod(name)!.MetadataToken), implementation);
             Assert.False(result.Success); Assert.NotEmpty(result.Diagnostics);

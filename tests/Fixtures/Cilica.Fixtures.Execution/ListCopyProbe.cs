@@ -52,7 +52,6 @@ namespace Cilica.Fixtures.Execution
             var list = new List<ValueVectorEmpty>(); list.Add(default); list.Add(default);
             var target = new ValueVectorEmpty[2]; list.CopyTo(target); return list.Count + target.Length + a + b;
         }
-        public static int UnsupportedInterface(int a, int b) { ((ICollection<int>)new List<int>()).CopyTo(new int[1], 0); return a; }
         public static int UnsupportedSection(int a, int b) { new List<int>().CopyTo(0, new int[1], 0, 0); return a; }
         public static int UnsupportedLegacy(int a, int b) { ((System.Collections.ICollection)new List<int>()).CopyTo(new int[1], 0); return b; }
     }

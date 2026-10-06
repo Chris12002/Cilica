@@ -489,6 +489,7 @@ public static class ValueScalarLowering
                                 IrExpression.NewArray array => array with { Length = One(array.Length) },
                                 IrExpression.NewObject allocated => allocated with { Arguments = Arguments(allocated.Arguments, true) },
                                 IrExpression.LoadField loaded => loaded with { Receiver = One(loaded.Receiver) },
+                                IrExpression.ArrayCopyCompatible copyCheck => copyCheck with { Source = One(copyCheck.Source), Destination = One(copyCheck.Destination) },
                                 IrExpression.ArrayLength length => length with { Array = One(length.Array) },
                                 IrExpression.LoadElement loadElement => loadElement with { Array = One(loadElement.Array), Index = One(loadElement.Index) },
                                 _ => throw new InvalidOperationException("Unsupported validated value expression."),

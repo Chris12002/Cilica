@@ -18,6 +18,9 @@ internal static class ObjectArrayInterfaceRecipes
         }
         if (declaration.ReturnType == IrType.Void)
         {
+            if (declaration.Name == "CopyTo" && kind == ObjectArrayInterfaceKind.Collection
+                && declaration.Parameters.Length == 3 && declaration.Parameters[1].Class?.ArrayElement is not null
+                && declaration.Parameters[2] == IrType.Int32) return "CopyTo";
             if (declaration.Name == "Clear" && declaration.Parameters.Length == 1)
                 return kind == ObjectArrayInterfaceKind.Collection ? "ClearReadOnly" : kind == ObjectArrayInterfaceKind.NonGenericList ? "Clear" : null;
             if (declaration.Name == "RemoveAt" && kind is ObjectArrayInterfaceKind.List or ObjectArrayInterfaceKind.NonGenericList
@@ -49,7 +52,7 @@ internal static class ObjectArrayInterfaceRecipes
     internal static IrType? Result(string name, ObjectTypeId vector, ObjectTypeCatalog? catalog = null) => name switch {
         "Enumerate" => EnumeratorResult(vector, catalog),
         "Count" or "False" or "True" or "IndexOf" or "Contains" or "Remove" => IrType.Int32,
-        "Add" or "Set" or "Insert" or "InsertObject" or "RemoveAt" or "ClearReadOnly" or "Clear" => IrType.Void,
+        "CopyTo" or "Add" or "Set" or "Insert" or "InsertObject" or "RemoveAt" or "ClearReadOnly" or "Clear" => IrType.Void,
         "Get" => vector.ArrayElement!.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : IrType.Int32,
         "Identity" => IrType.Reference(vector), _ => null };
     private static IrType? EnumeratorResult(ObjectTypeId vector, ObjectTypeCatalog? catalog)
@@ -63,7 +66,7 @@ internal static class ObjectArrayInterfaceRecipes
                 : i.Arguments[0].Value == vector.ArrayElement.Type)).ToArray();
         return matches.Length == 1 ? IrType.Reference(ObjectTypeId.From(matches[0].Source)) : null;
     }
-    internal static int Arity(string name) => name is "Set" or "Insert" or "InsertObject" ? 3 : name is "Get" or "Add" or "RemoveAt" or "IndexOf" or "Contains" or "Remove" ? 2 : 1;
+    internal static int Arity(string name) => name is "CopyTo" or "Set" or "Insert" or "InsertObject" ? 3 : name is "Get" or "Add" or "RemoveAt" or "IndexOf" or "Contains" or "Remove" ? 2 : 1;
     internal static bool Signature(ObjectDispatchMethod method, ObjectInterfaceDispatchPlan plan)
     {
         if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector)
@@ -82,6 +85,7 @@ internal static class ObjectArrayInterfaceRecipes
                 && method.Parameters.SequenceEqual(prefix.Concat(tail));
         }
         return method.Parameters.Length == Arity(method.Name)
+            && (method.Name != "CopyTo" || method.Parameters[1] == IrType.Reference(vector) && method.Parameters[2] == IrType.Int32)
             && (method.Name is not ("Get" or "Set" or "Insert" or "InsertObject" or "RemoveAt") || method.Parameters[1] == IrType.Int32)
             && (method.Name is not ("Add" or "Set" or "Insert" or "IndexOf" or "Contains" or "Remove") || method.Parameters[^1] == element)
             && (method.Name != "InsertObject" || method.Parameters[2] == IrType.Reference(plan.Types.ObjectBase))

@@ -232,7 +232,8 @@
         "SZArrayHelper.IsReadOnly and System.Array collection flags/SyncRoot",
         "SZArrayHelper.set_Item<T> and fixed-size Add<T>",
         "SZArrayHelper Insert/RemoveAt fixed-size faults, generic Clear read-only faults and System.Array IList.Clear element resetting",
-        "AC3.4 SZArrayHelper IndexOf/Contains and unconditional fixed-size Remove"
+        "AC3.4 SZArrayHelper IndexOf/Contains and unconditional fixed-size Remove",
+        "AC3.7 SZArrayHelper CopyTo and Array.Copy argument/whole-array compatibility order"
       ],
       "changes": [
         "Replace unsafe receiver reinterpretation with a compiler-selected closed T[] argument.",
@@ -579,7 +580,7 @@
         "Exactly granted private CopyStore<T> has a typed vector/index/element signature and lowers to a copy-specific StoreElement operation.",
         "Reference copy stores preserve bounds-before-cast order and use actual destination element descriptors with existing exact cast messages; earlier writes remain committed."
       ],
-      "scope": "Only per-element stores for selected managed copying; no general Array.Copy, interface CopyTo, widening primitives, boxing copies or unrelated reference-array compatibility."
+      "scope": "Selected managed list/generic-interface copying only. CopyCompatible adds exact private signature/caller/grant validation and a static table of related class/interface array descriptors; unrelated class arrays fail before iteration. No general Array.Copy, widening primitives or boxing copies."
     }
   ]
 }

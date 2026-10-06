@@ -336,6 +336,12 @@ internal sealed partial class ObjectIrRules
             || _valueLayouts.TryGetValue(array.ArrayElement.Type!, out var layout)
                 && (layout.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == array.ArrayElement.Type));
 
+    internal bool CopyCompatible(IrExpression.ArrayCopyCompatible copy, IReadOnlyList<IrType> values) =>
+        copy.ArrayType is not null && _arrays.Contains(copy.ArrayType)
+        && copy.Source >= 0 && copy.Source < values.Count && copy.Destination >= 0 && copy.Destination < values.Count
+        && _types.Assignable(values[copy.Source], IrType.Reference(copy.ArrayType))
+        && _types.Assignable(values[copy.Destination], IrType.Reference(copy.ArrayType));
+
     internal bool ArrayLength(int array, IReadOnlyList<IrType> values) => array >= 0 && array < values.Count
         && (values[array] == IrType.NullReference || values[array].Class is { } type && _arrays.Contains(type));
 

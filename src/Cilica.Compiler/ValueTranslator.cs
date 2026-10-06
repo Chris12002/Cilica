@@ -45,7 +45,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v5";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v6";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -173,6 +173,7 @@ public static class ValueTranslator
                     case IrStatement.Define { Value.Expression: IrExpression.AddressElement address }: Include(address.ArrayType); break;
                     case IrStatement.Define { Value.Expression: IrExpression.LoadElement load }: Include(load.ArrayType); break;
                     case IrStatement.StoreElement store: Include(store.ArrayType); break;
+                    case IrStatement.Define { Value.Expression: IrExpression.ArrayCopyCompatible copy }: Include(copy.ArrayType); break;
                 }
         }
         foreach (var field in flow.Types.Types.SelectMany(t => t.Fields).Concat(flow.Types.References.Types.SelectMany(t => t.Fields)))
@@ -363,6 +364,10 @@ public static class ValueTranslator
                             int ordinalRight = Pop(offset, IrType.Reference(stringType!));
                             int ordinalLeft = Pop(offset, IrType.Reference(stringType!));
                             Push(offset, IrType.Int32, new IrExpression.StringEquals(ordinalLeft, ordinalRight), true); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var copyCheck) && copyCheck.Kind == ValueIntrinsic.ArrayCopyCompatible:
+                            int copyDestination = Pop(offset, IrType.Reference(copyCheck.Type));
+                            int copySource = Pop(offset, IrType.Reference(copyCheck.Type));
+                            Push(offset, IrType.Int32, new IrExpression.ArrayCopyCompatible(copyCheck.Type, copySource, copyDestination), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var copyStore) && copyStore.Kind == ValueIntrinsic.ArrayCopyStore:
                             int copyValue = Pop(offset, ElementType(copyStore.Type));
                             int copyIndex = Pop(offset, IrType.Int32);

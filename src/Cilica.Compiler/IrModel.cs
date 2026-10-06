@@ -77,6 +77,7 @@ public abstract record IrExpression
     // One zero-length vector per exact element descriptor and runtime instance.
     public sealed record EmptyArray(ObjectTypeId ArrayType) : IrExpression;
     public sealed record ArrayLength(int Array) : IrExpression;
+    public sealed record ArrayCopyCompatible(ObjectTypeId ArrayType, int Source, int Destination) : IrExpression;
     // ArrayType is the static view; access checks null before bounds.
     public sealed record LoadElement(ObjectTypeId ArrayType, int Array, int Index) : IrExpression;
     // UTF-16 code units, including embedded zero and unpaired surrogates. Equal

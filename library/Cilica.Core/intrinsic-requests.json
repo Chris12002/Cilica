@@ -768,5 +768,19 @@
     "Member": "CopyStore",
     "ParameterCount": 3,
     "Capability": "ArrayCopyStore"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "CopyCompatible",
+    "ParameterCount": 2,
+    "Capability": "ArrayCopyCompatible"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "CopyTo",
+    "ParameterCount": 3,
+    "Capability": "ArrayInterfaceCopyTo"
   }
 ]

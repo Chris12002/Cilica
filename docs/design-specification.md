@@ -2271,3 +2271,18 @@ grant/private-caller checks and four packet mutations in both IR stages pass;
 47 selected copy/array-mutation/baseline checks pass. See ADR AC0040.
 Interface CopyTo still requires array dispatch support; section/nongeneric copies
 and List(IEnumerable) remain unsupported. Full engine/state/replay is unverified.
+
+### Generic collection copies (AC3.7)
+
+ICollection<T>.CopyTo now supports admitted arrays and lists. A shared managed
+prefix helper preserves argument validation, whole-array compatibility, partial
+writes and exact cast messages. Unrelated class arrays fail even when empty;
+related or interface element types permit checked element copies. A private exact
+CopyCompatible grant uses a bounded static descriptor table without allocation.
+Both detached stages and array helper signatures remain validated. Native v45,
+object IR v18, integer-object CIL v6 and interface plan v7; layout v17 unchanged.
+Nine new probes and prior direct-list/null-receiver probes pass 4,704 repeated
+O0/O2 native/.NET comparisons with ASan/UBSan, forced collection and strict cleanup.
+58 adjacent regression checks and the final empty-list pair pass. General
+Array.Copy, section/nongeneric copying and List(IEnumerable) remain unsupported;
+full Alchemy engine/state/replay remains unverified. See ADR AC0041.

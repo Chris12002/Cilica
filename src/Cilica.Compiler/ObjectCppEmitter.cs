@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v44";
+    public const string Profile = "object-frames-native-v45";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -213,7 +213,7 @@ public static class ObjectCppEmitter
         if (!boxedPayloads.IsEmpty)
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
         if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, program.Flow.Types, TypeSymbol,
-            ManagedExceptionCastMessages.Build(program.Flow.Methods, program.Flow.Types, valueLayouts.IsDefault ? [] : valueLayouts), valueLayouts);
+            ManagedExceptionCastMessages.Build(program.Flow.Methods, program.Flow.Types, valueLayouts.IsDefault ? [] : valueLayouts), valueLayouts, program.Flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Any(v => v.Expression is IrExpression.ArrayCopyCompatible));
         var boxedRelations = valueLayouts.IsDefault ? null : new BoxedTypeRelations(program.Flow.Types, valueLayouts);
         // Exact membership compares untrusted descriptor addresses without dereferencing them.
         // This covers nominal/interface ancestry, vector covariance and widening to Object.
@@ -478,7 +478,7 @@ public static class ObjectCppEmitter
                 foreach (var statement in block.Statements)
                 {
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
-                        or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
+                        or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
@@ -635,6 +635,10 @@ public static class ObjectCppEmitter
                                     expression = "allocate<" + type + ">(context, " + type + "_descriptor)"; break;
                                 case IrExpression.NewArray array:
                                     expression = "allocate_array(context, " + TypeSymbol(array.ArrayType) + "_descriptor, " + Value(array.Length) + ")"; break;
+                                case IrExpression.ArrayCopyCompatible copy:
+                                    ArrayCheck(copy.Source, copy.ArrayType, null, value.ILOffset);
+                                    ArrayCheck(copy.Destination, copy.ArrayType, null, value.ILOffset);
+                                    expression = "copy_arrays_compatible(" + Value(copy.Source) + "->type, " + Value(copy.Destination) + "->type) ? 1u : 0u"; break;
                                 case IrExpression.ArrayLength length:
                                     ArrayCheck(length.Array, null, null, value.ILOffset);
                                     expression = "array_length(" + Value(length.Array) + ")"; break;
