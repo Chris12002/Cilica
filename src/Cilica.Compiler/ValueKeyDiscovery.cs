@@ -27,6 +27,26 @@ public static partial class ValueProgramDiscovery
             var input = Require(resolver.ReadMethodDeclarationInput(library, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Key operation metadata budget exceeded.", offset, DiagnosticIds.TranslationLimit);
             var variable = new TypeSignature.Variable(false, 0);
+            if (input.DeclaredName == "IndexOf")
+            {
+                if (input.IsReferenceAssembly || input.OwnerGenericArity != 1
+                    || input.Attributes != (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
+                    || input.Implementation != MethodImplAttributes.InternalCall || input.Signature.Header != 0 || input.Signature.GenericArity != 0
+                    || input.Signature.ReturnType != new TypeSignature.Primitive(PrimitiveTypeCode.Int32)
+                    || input.Signature.Parameters.Count != 3 || input.Signature.Parameters[0] != new TypeSignature.Vector(variable)
+                    || input.Signature.Parameters[1] != variable || input.Signature.Parameters[2] != new TypeSignature.Primitive(PrimitiveTypeCode.Int32))
+                    Fail(work, "Invalid selected closed array search declaration.", offset);
+                _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.ClosedArraySearch), work, offset);
+                var element = target.DeclaringType.Arguments[0];
+                CheckArgumentAccess(element, work, offset);
+                if (IsNullable(element, work, offset))
+                    Fail(work, "Nullable array search requires nullable equality semantics before execution.", offset);
+                var elementStorage = Storage(element, work, offset);
+                var selected = Require(resolver.ResolveType(library, "Cilica.Runtime",
+                    elementStorage.Kind == IrTypeKind.Value ? "ValueArraySearch`1" : "CopiedArraySearch`1"), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(selected, new([element])), "IndexOf", 3, _metadata), work, offset);
+                return null;
+            }
             bool equal = input.DeclaredName == "Equal", hash = input.DeclaredName == "Hash", isNull = input.DeclaredName == "IsNull";
             if (!(equal || hash || isNull) || input.IsReferenceAssembly || input.OwnerGenericArity != 1
                 || input.Attributes != (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)

@@ -7,6 +7,11 @@ internal static class ObjectArrayInterfaceRecipes
 {
     internal static string? Select(ObjectInterfaceDeclaration declaration, ObjectArrayInterfaceKind kind, ObjectTypeId objectBase, bool scalarValue = false)
     {
+        if (declaration.ReturnType == IrType.Int32 && (scalarValue || declaration.Parameters.Length == 2))
+        {
+            if (declaration.Name == "IndexOf" && kind == ObjectArrayInterfaceKind.List) return "IndexOf";
+            if (declaration.Name is "Contains" or "Remove" && kind == ObjectArrayInterfaceKind.Collection) return declaration.Name;
+        }
         if (declaration.ReturnType == IrType.Void)
         {
             if (declaration.Name == "Clear" && declaration.Parameters.Length == 1)
@@ -38,30 +43,31 @@ internal static class ObjectArrayInterfaceRecipes
             && declaration.ReturnType == IrType.Reference(objectBase) ? "Identity" : null;
     }
     internal static IrType? Result(string name, ObjectTypeId vector) => name switch {
-        "Count" or "False" or "True" => IrType.Int32,
+        "Count" or "False" or "True" or "IndexOf" or "Contains" or "Remove" => IrType.Int32,
         "Add" or "Set" or "Insert" or "InsertObject" or "RemoveAt" or "ClearReadOnly" or "Clear" => IrType.Void,
         "Get" => vector.ArrayElement!.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : IrType.Int32,
         "Identity" => IrType.Reference(vector), _ => null };
-    internal static int Arity(string name) => name is "Set" or "Insert" or "InsertObject" ? 3 : name is "Get" or "Add" or "RemoveAt" ? 2 : 1;
+    internal static int Arity(string name) => name is "Set" or "Insert" or "InsertObject" ? 3 : name is "Get" or "Add" or "RemoveAt" or "IndexOf" or "Contains" or "Remove" ? 2 : 1;
     internal static bool Signature(ObjectDispatchMethod method, ObjectInterfaceDispatchPlan plan)
     {
         if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector)
             return false;
         var element = Result("Get", vector)!;
-        if (element.Kind == IrTypeKind.Value && plan.Values is null && method.Name is "Get" or "Set" or "Add" or "Insert")
+        if (element.Kind == IrTypeKind.Value && plan.Values is null && method.Name is "Get" or "Set" or "Add" or "Insert" or "IndexOf" or "Contains" or "Remove")
         {
             var shape = plan.Types.ValueArrays.Single(s => s.Type == element.Class);
             IrType Scalar(ObjectStorage storage) => storage switch {
                 ObjectStorage.Int32 => IrType.Int32, ObjectStorage.Int64 => IrType.Int64,
                 ObjectStorage.Reference r => IrType.Reference(r.Type), _ => throw new System.ArgumentException("Invalid value-array leaf.") };
             var leaves = shape.Empty ? System.Array.Empty<IrType>() : shape.Slots.Select(Scalar).ToArray();
-            var prefix = method.Name == "Add" ? new[] { IrType.Reference(vector) } : [IrType.Reference(vector), IrType.Int32];
+            var prefix = method.Name is "Add" or "IndexOf" or "Contains" or "Remove" ? new[] { IrType.Reference(vector) } : [IrType.Reference(vector), IrType.Int32];
             var tail = method.Name == "Get" ? leaves.Select(t => IrType.Location(t)) : leaves;
-            return method.ReturnType == IrType.Void && method.Parameters.SequenceEqual(prefix.Concat(tail));
+            return method.ReturnType == (method.Name == "Get" ? IrType.Void : Result(method.Name, vector))
+                && method.Parameters.SequenceEqual(prefix.Concat(tail));
         }
         return method.Parameters.Length == Arity(method.Name)
             && (method.Name is not ("Get" or "Set" or "Insert" or "InsertObject" or "RemoveAt") || method.Parameters[1] == IrType.Int32)
-            && (method.Name is not ("Add" or "Set" or "Insert") || method.Parameters[^1] == element)
+            && (method.Name is not ("Add" or "Set" or "Insert" or "IndexOf" or "Contains" or "Remove") || method.Parameters[^1] == element)
             && (method.Name != "InsertObject" || method.Parameters[2] == IrType.Reference(plan.Types.ObjectBase))
             && Result(method.Name, vector) == method.ReturnType;
     }

@@ -40,7 +40,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 99 exact string/exception/provider/numeric/array/key/type capabilities for review; it does not
+file describes 103 exact string/exception/provider/numeric/array/key/type capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
@@ -109,8 +109,10 @@ Empty snapshots share per closed type and remain distinct from Array.Empty<T>.
 ArrayInterface supplies indexed writes and fixed-size Add/Insert/RemoveAt faults.
 AC3.2 separately grants generic read-only Clear and nongeneric element-resetting
 Clear; bounded list/read-only interface mutation compositions now execute.
-Enumeration, equality-based search/removal, CopyTo and bulk APIs remain diagnostic
-(ADRs AC0009/AC0010).
+AC3.4 adds Contains/IndexOf/Remove for admitted equality types, including live
+read-only search. Value equality borrows the stored element; integer/reference
+search uses copied receivers. Nullable/arbitrary-reference equality, range/copy/
+bulk APIs and enumeration remain diagnostic (ADRs AC0009/AC0010/AC0013).
 
 
 The exact TypeInitializationException(String, Exception), TypeName and base

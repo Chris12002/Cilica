@@ -86,7 +86,7 @@ public static class ListLibraryProbe
         return result;
     }
     public static int UnsupportedEnumeration(int input, int mode) => new List<int>().GetEnumerator().MoveNext() ? 1 : 0;
-    public static int UnsupportedContains(int input, int mode) => new List<int>().Contains(input) ? 1 : 0;
+    public static int EmptyContains(int input, int mode) => new List<int>().Contains(input) ? 1 : 0;
 }
 public sealed class ListLibraryBox { public int Value; }
 }

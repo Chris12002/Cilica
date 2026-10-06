@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.3 complete within their tested bounds; remaining AC1b, AC3 and AC4–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.4 complete within their tested bounds; remaining AC1b, AC3 and AC4–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.3 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.4 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -2221,3 +2221,18 @@ comparisons; exact overload checks and 35 existing regressions pass. The ledger
 has 29 gaps and 18 controls. No profile, grant or ABI changes. Broader math,
 object comparison, comparer execution, Guid helpers and full replay remain open.
 See [ADR AC0012](../decisions/AC0012-integer-math-and-comparison.md).
+
+
+### List and array search (AC3.4)
+
+List Contains/IndexOf/Remove and live read-only search now use exactly selected
+managed loops. Value equality borrows the stored array element, preserving its
+observable mutations and roots across allocating/throwing callbacks; integer and
+admitted reference search uses copied receivers. Array IndexOf/Contains/Remove
+have exact grants and interface-plan-v5 packet checks. ClosedArraySearch is a
+separate private grant; scalar/reference element addresses remain unsupported.
+Twelve authored plus one public probe supply 3,822 repeated O0/O2 .NET/native
+comparisons, two live-list GC checks and 48 existing regression checks. The ledger
+has 28 gaps and 19 controls. Native v41 and public ABIs remain unchanged. Nullable/
+unknown-reference equality, range/copy/bulk APIs and full replay remain unfinished.
+See [ADR AC0013](../decisions/AC0013-list-and-array-search.md).

@@ -28,7 +28,7 @@ public sealed class ListLibraryTests
             Probes.Select((p, i) => (p.Name, programs[i], p.Oracle)).ToArray());
     }
     [Fact]
-    public async Task Unimplemented_list_members_are_build_diagnostics()
+    public async Task Array_mutation_helpers_require_exact_grants()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -36,9 +36,6 @@ public sealed class ListLibraryTests
         var bytes = await System.IO.File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken);
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(ListLibraryProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ListLibraryProbe).GetMethod("UnsupportedContains")!.MetadataToken);
-        var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("no implemented managed body", StringComparison.Ordinal));
         var manifest = JsonSerializer.Deserialize<LibraryBuildManifest>(bytes, new JsonSerializerOptions { Converters = { new JsonStringEnumConverter<LibraryIntrinsicCapability>() } })!;
         var artifact = Assert.Single(manifest.Artifacts);
         var mutation = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ListLibraryProbe).GetMethod("ArrayMutations")!.MetadataToken);

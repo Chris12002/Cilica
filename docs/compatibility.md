@@ -2058,3 +2058,18 @@ comparisons; exact overload checks and 35 existing regressions pass. The ledger
 has 29 gaps and 18 controls. No profile, grant or ABI changes. Broader math,
 object comparison, comparer execution, Guid helpers and full replay remain open.
 See [ADR AC0012](decisions/AC0012-integer-math-and-comparison.md).
+
+
+### List and array search (AC3.4)
+
+List Contains/IndexOf/Remove and live read-only search now use exactly selected
+managed loops. Value equality borrows the stored array element, preserving its
+observable mutations and roots across allocating/throwing callbacks; integer and
+admitted reference search uses copied receivers. Array IndexOf/Contains/Remove
+have exact grants and interface-plan-v5 packet checks. ClosedArraySearch is a
+separate private grant; scalar/reference element addresses remain unsupported.
+Twelve authored plus one public probe supply 3,822 repeated O0/O2 .NET/native
+comparisons, two live-list GC checks and 48 existing regression checks. The ledger
+has 28 gaps and 19 controls. Native v41 and public ABIs remain unchanged. Nullable/
+unknown-reference equality, range/copy/bulk APIs and full replay remain unfinished.
+See [ADR AC0013](decisions/AC0013-list-and-array-search.md).

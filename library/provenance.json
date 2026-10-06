@@ -187,13 +187,15 @@
         "SZArrayHelper.get_Count<T> and get_Item<T>",
         "SZArrayHelper.IsReadOnly and System.Array collection flags/SyncRoot",
         "SZArrayHelper.set_Item<T> and fixed-size Add<T>",
-        "SZArrayHelper Insert/RemoveAt fixed-size faults, generic Clear read-only faults and System.Array IList.Clear element resetting"
+        "SZArrayHelper Insert/RemoveAt fixed-size faults, generic Clear read-only faults and System.Array IList.Clear element resetting",
+        "AC3.4 SZArrayHelper IndexOf/Contains and unconditional fixed-size Remove"
       ],
       "changes": [
         "Replace unsafe receiver reinterpretation with a compiler-selected closed T[] argument.",
         "Preserve unsigned index bounds and the pinned IndexMustBeLess message/parameter.",
         "Require exact Count/Get/Set/Add/False/True/Identity and AC3.2 Insert/InsertObject/RemoveAt/ClearReadOnly/Clear grants. Generic element arguments use the interface view; nongeneric Insert retains object without an element cast.",
-        "Implement nongeneric Clear as a typed managed default-value loop, preserving identity and releasing reference-bearing element roots; other members remain unsupported."
+        "Implement nongeneric Clear as a typed managed default-value loop, preserving identity and releasing reference-bearing element roots; other members remain unsupported.",
+        "Require separate IndexOf/Contains/Remove grants; search delegates to the exact private ClosedArraySearch selection."
       ],
       "scope": "Int32, admitted reference and supported inline-value vectors; exact selected-runtime contracts, indexed reads/writes, fixed-size mutation faults and distinct generic/nongeneric Clear semantics.",
       "additionalUpstreamPaths": [
@@ -233,7 +235,8 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs",
       "algorithms": [
         "List construction, capacity, indexed access, Add and geometric growth",
-        "Concrete Insert, RemoveAt, Clear and ToArray with overlap-safe shifts and pinned empty snapshot identity"
+        "Concrete Insert, RemoveAt, Clear and ToArray with overlap-safe shifts and pinned empty snapshot identity",
+        "AC3.4 Contains/IndexOf/Remove with array-search equality receiver semantics"
       ],
       "changes": [
         "Replace Array.Copy with typed managed loops; retain allocation-before-publication and exception ordering.",
@@ -241,9 +244,10 @@
         "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile.",
         "Read growth length through Capacity to retain explicit Int32 length conversion in supported IL.",
         "AC3.1 uses a separate lazily published per-closed-type managed static empty snapshot, distinct from Array.Empty<T>; existing runtime instances own and trace the cache.",
-        "Clear all admitted element shapes and vacated slots through typed loops; this also zeroes primitive elements instead of adding a reference-shape intrinsic."
+        "Clear all admitted element shapes and vacated slots through typed loops; this also zeroes primitive elements instead of adding a reference-shape intrinsic.",
+        "Select ordinary copied or borrowed-element search loops through an exact private grant; preserve mutation of value equality receivers observed on .NET 10.0.11."
       ],
-      "scope": "Int32, admitted reference and supported inline-value elements. AC3.1 concrete mutation/snapshot methods and AC3.2 bounded interface mutation compositions are tested. Equality/search/copy/bulk APIs and enumeration remain bounded gaps."
+      "scope": "Int32, admitted reference and supported inline-value elements for storage. AC3.1 mutation/snapshots, AC3.2 interface mutation and AC3.4 search/removal for admitted equality types are tested. Nullable/arbitrary-reference equality, range/copy/bulk APIs and enumeration remain gaps."
     },
     {
       "path": "library/Cilica.Core/ReadOnlyCollection.cs",
@@ -256,7 +260,7 @@
         "Omit static Empty factory and enumeration optimizations until separately implemented.",
         "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile."
       ],
-      "scope": "Int32 and reference elements only; exact public/explicit interface members in the bounded implementation; no general collection or enumeration support."
+      "scope": "Bounded live Count/index views, flags, mutation faults and AC3.4 Contains/IndexOf forwarding for admitted equality types; no enumeration/copy implementation."
     },
     {
       "path": "library/Cilica.Core/ValueTuple.cs",
@@ -358,9 +362,10 @@
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs",
       "contracts": [
         "Exact private granted helpers select ordinary closed value equality/hash bodies or integer equality.",
-        "Managed wrappers preserve the pinned caller-specific receiver copies; unsupported reference fallbacks remain diagnostics."
+        "Managed wrappers preserve the pinned caller-specific receiver copies; unsupported reference fallbacks remain diagnostics.",
+        "AC3.4 exactly granted IndexOf selects copied integer/admitted-reference search or borrowed inline-value search. The element Equals receiver mutation and allocating callbacks match .NET 10.0.11; no scalar/reference array addresses are enabled."
       ],
-      "scope": "Compile-time key operations for the bounded dictionary; no public EqualityComparer.Default or shared singleton identity claim."
+      "scope": "Compile-time key equality/hash/null and bounded array-search selection; nullable/arbitrary-reference equality, public EqualityComparer.Default and shared singleton identity remain unsupported."
     },
     {
       "path": "library/Cilica.Core/DictionaryContracts.cs",

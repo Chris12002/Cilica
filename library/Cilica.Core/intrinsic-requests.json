@@ -595,6 +595,34 @@
     "Capability": "ArrayInterfaceClear"
   },
   {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "IndexOf",
+    "ParameterCount": 2,
+    "Capability": "ArrayInterfaceIndexOf"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Contains",
+    "ParameterCount": 2,
+    "Capability": "ArrayInterfaceContains"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Remove",
+    "ParameterCount": 2,
+    "Capability": "ArrayInterfaceRemove"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "KeyOperations`1",
+    "Member": "IndexOf",
+    "ParameterCount": 3,
+    "Capability": "ClosedArraySearch"
+  },
+  {
     "Namespace": "System",
     "Type": "TypeInitializationException",
     "Member": null,

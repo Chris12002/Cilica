@@ -89,10 +89,16 @@ namespace System.Collections.Generic
             for (int i = 0; i < size; ++i) snapshot[i] = items[i];
             return snapshot;
         }
-        public bool Contains(T value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
+        public bool Contains(T value) => IndexOf(value) >= 0;
         public void CopyTo(T[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        public bool Remove(T value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        public int IndexOf(T value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
+        public bool Remove(T value)
+        {
+            int index = IndexOf(value);
+            if (index < 0) return false;
+            RemoveAt(index);
+            return true;
+        }
+        public int IndexOf(T value) => Cilica.Runtime.KeyOperations<T>.IndexOf(items, value, size);
         public void Insert(int index, T value)
         {
             if ((uint)index > (uint)size)

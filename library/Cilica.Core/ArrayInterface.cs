@@ -7,6 +7,9 @@ namespace Cilica.Runtime
         internal static bool False(T[] array) => false;
         internal static bool True(T[] array) => true;
         internal static T[] Identity(T[] array) => array;
+        internal static int IndexOf(T[] array, T value) => KeyOperations<T>.IndexOf(array, value, array.Length);
+        internal static bool Contains(T[] array, T value) => IndexOf(array, value) >= 0;
+        internal static bool Remove(T[] array, T value) { throw new System.NotSupportedException("Collection was of a fixed size."); }
         internal static void Add(T[] array, T value) { throw new System.NotSupportedException("Collection was of a fixed size."); }
         internal static void Insert(T[] array, int index, T value) { throw new System.NotSupportedException("Collection was of a fixed size."); }
         // Nongeneric IList.Insert must reject fixed-size arrays without casting value to T.

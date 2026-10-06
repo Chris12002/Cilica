@@ -245,12 +245,12 @@ public static class ObjectInterfacePlanBuilder
             var contract = catalog.Interfaces.Single(i => ObjectTypeId.From(i.Source) == declaration.Owner);
             var recipe = ObjectArrayInterfaceRecipes.Select(declaration, contract.ArrayContract, catalog.ObjectBase);
             if (!closed || !catalog.Integer64 || recipe is null)
-                Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, fixed-size Add/Insert/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags and SyncRoot are admitted.", declaration.Source.Name);
+                Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, IndexOf/Contains, fixed-size Add/Insert/Remove/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags and SyncRoot are admitted.", declaration.Source.Name);
             // Element-taking generic helpers use the interface view to match its packet.
             // Set retains the actual receiver's covariance check after bounds checks;
             // Add/Insert throw fixed-size faults without trying a store.
             var view = receiver;
-            if (recipe is "Add" or "Set" or "Insert")
+            if (recipe is "Add" or "Set" or "Insert" or "IndexOf" or "Contains" or "Remove")
             {
                 var item = declaration.Parameters[^1];
                 if (item != IrType.Int32 && item.Kind is not (IrTypeKind.Reference or IrTypeKind.Value))
@@ -276,6 +276,8 @@ public static class ObjectInterfacePlanBuilder
                     "Insert" => LibraryIntrinsicCapability.ArrayInterfaceInsert, "InsertObject" => LibraryIntrinsicCapability.ArrayInterfaceInsertObject,
                     "RemoveAt" => LibraryIntrinsicCapability.ArrayInterfaceRemoveAt, "ClearReadOnly" => LibraryIntrinsicCapability.ArrayInterfaceClearReadOnly,
                     "Clear" => LibraryIntrinsicCapability.ArrayInterfaceClear,
+                    "IndexOf" => LibraryIntrinsicCapability.ArrayInterfaceIndexOf, "Contains" => LibraryIntrinsicCapability.ArrayInterfaceContains,
+                    "Remove" => LibraryIntrinsicCapability.ArrayInterfaceRemove,
                     "False" => LibraryIntrinsicCapability.ArrayInterfaceFalse, "True" => LibraryIntrinsicCapability.ArrayInterfaceTrue,
                     "Identity" => LibraryIntrinsicCapability.ArrayInterfaceIdentity, _ => throw new System.InvalidOperationException("Unknown array helper recipe.") }));
             var input = Read(method, arrayHelper: true); var id = Id(method);
@@ -285,7 +287,7 @@ public static class ObjectInterfacePlanBuilder
                 || input.Attributes != (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
                 || input.OwnerGenericArity != 1 || parameters.Length != (ObjectArrayInterfaceRecipes.Arity(recipe!))
                 || parameters[0] != IrType.Reference(view) || recipe is ("Get" or "Set" or "Insert" or "InsertObject" or "RemoveAt") && parameters[1] != IrType.Int32
-                || recipe is ("Add" or "Set" or "Insert") && parameters[^1] != ObjectArrayInterfaceRecipes.Result("Get", view)
+                || recipe is ("Add" or "Set" or "Insert" or "IndexOf" or "Contains" or "Remove") && parameters[^1] != ObjectArrayInterfaceRecipes.Result("Get", view)
                 || recipe == "InsertObject" && parameters[2] != IrType.Reference(catalog.ObjectBase)
                 || returned != ObjectArrayInterfaceRecipes.Result(recipe!, view))
                 Fail("Invalid selected array interface helper declaration.", input.Source.Name);

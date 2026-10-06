@@ -24,7 +24,7 @@ public sealed record ObjectInterfaceDispatchPlan(ObjectTypeCatalog Types,
     ImmutableArray<ObjectInterfaceDeclaration> Declarations, ImmutableArray<ObjectDispatchMethod> Methods,
     ImmutableArray<ObjectInterfaceDispatch> Dispatch)
 {
-    public const string Profile = "interface-dispatch-plan-v4";
+    public const string Profile = "interface-dispatch-plan-v5";
     public ValueTypeCatalog? Values { get; init; }
 }
 

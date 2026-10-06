@@ -33,8 +33,8 @@ namespace System.Collections.ObjectModel
         void IList.Insert(int index, object value) { throw new NotSupportedException("Collection is read-only."); }
         void IList.Remove(object value) { throw new NotSupportedException("Collection is read-only."); }
         void IList.RemoveAt(int index) { throw new NotSupportedException("Collection is read-only."); }
-        public bool Contains(T value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        public int IndexOf(T value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
+        public bool Contains(T value) => list.Contains(value);
+        public int IndexOf(T value) => list.IndexOf(value);
         public void CopyTo(T[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         public IEnumerator<T> GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
         IEnumerator IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator>.Invoke();
