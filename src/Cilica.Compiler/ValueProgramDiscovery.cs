@@ -817,7 +817,7 @@ public static partial class ValueProgramDiscovery
                         if (integers64 && (named.Kind == SignatureTypeKind.Class
                             || named.Kind == SignatureTypeKind.Unknown && !Inline(named.Definition, work, offset) && !EnumScalar(named, work, offset)))
                             break;
-                        var input = Snapshot(named.Definition, work, offset);
+                        var input = TypeAccess(named.Definition, work, offset);
                         if (!input.ExternallyVisible && (input.Source.ContentHash != work.Binding.Owner.ContentHash || input.Source.Token != work.Binding.Owner.Token))
                             Fail(work, "Generic arguments require the same declaring owner or externally visible types.", offset);
                         break;
@@ -861,7 +861,9 @@ public static partial class ValueProgramDiscovery
 
         private bool Inline(ResolvedType type, Work? work, int offset)
         {
-            var input = Snapshot(type, work, offset);
+            // Classification needs only the selected direct base. A closed receiver
+            // validates its constructed layout later, without retaining an open layout.
+            var input = TypeBase(type, work, offset);
             _valueBase ??= ObjectModelBuilder.Id(Require(resolver.ResolveType(library, "System", "ValueType"), work, offset));
             return input.BaseType is TypeSignature.Named parent && ObjectModelBuilder.Id(parent.Definition) == _valueBase;
         }

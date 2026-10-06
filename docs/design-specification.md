@@ -2704,3 +2704,14 @@ and unchanged frame limits. Comparer/nullable and reference OfType.Select varian
 compositions remain diagnostic. No new grants or profiles. Frozen engine passes
 the missing declaration and reaches its metadata snapshot limit; state retains its
 catalog limit. Full replay is unverified. See [ADR AC0068](decisions/AC0068-default-contains.md).
+
+### Generic classification without unused layouts (AC8.18)
+
+Closed receiver classification now uses exact direct-base facts; generic argument
+visibility uses declaration facts. Executable closed layouts keep full validation.
+Two reduced probes (130 closed owners and 257 unused value arguments) pass 588
+repeated native comparisons, and all 101 distinct selected checks pass. Malformed
+actual storage, hidden arguments and excessive executable types still fail. No
+resource bounds or profiles change. Frozen engine advances to physical-damage
+selection before its snapshot limit; state remains at its catalog limit. Full
+replay is unverified. See [ADR AC0069](decisions/AC0069-generic-classification-facts.md).
