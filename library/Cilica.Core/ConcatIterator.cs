@@ -10,7 +10,7 @@ namespace Cilica.Runtime
     // IteratorSelect obtains this first result before invoking its selector.
     public interface IQueryFirstProjection<T> { T TryFirst(out int found); }
     public sealed class ConcatIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryFirst<T>, IQueryFirstProjection<T>,
-        IQueryCardinality, IQueryCheapCount, IQueryMaterialization<T>, IQueryTraversal<T>
+        IQueryCardinality, IQueryCheapCount, IQueryMaterialization<T>, IQueryTraversal<T>, IQueryContains<T>
     {
         private readonly IEnumerable<T> first;
         private readonly IEnumerable<T> second;
@@ -98,6 +98,13 @@ namespace Cilica.Runtime
                 count = checked(count + next); node = node.tail;
             }
             return checked(count + node.GetCount(cheap));
+        }
+        public bool Contains(T value)
+        {
+            var node = this;
+            while (node.tail != null)
+            { if (Enumerable.Contains(node.head, value)) return true; node = node.tail; }
+            return Enumerable.Contains(node.first, value) || Enumerable.Contains(node.second, value);
         }
         public int Count() => GetCount(false);
         public int GetCheapCount() => GetCount(true);

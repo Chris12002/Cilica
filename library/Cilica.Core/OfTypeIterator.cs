@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Cilica.Runtime
 {
     public sealed class OfTypeIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryCardinality,
-        IQueryMaterialization<T>, IQueryFirst<T>, IQueryTraversal<T>
+        IQueryMaterialization<T>, IQueryFirst<T>, IQueryTraversal<T>, IQueryContains<T>, IQueryContainsTraversal<T>
     {
         private readonly IEnumerable source;
         private readonly int threadId;
@@ -39,6 +39,18 @@ namespace Cilica.Runtime
                 Dispose();
             }
             return false;
+        }
+        public bool Contains(T value)
+        {
+            foreach (object item in source)
+                if (item is T candidate && KeyOperations<T>.Equal(ref candidate, value)) return true;
+            return false;
+        }
+        public IEnumerator<T> GetContainsEnumerator()
+        {
+            if (!KeyOperations<T>.IsValueType() && source is IEnumerable<object> objects)
+                return new ObjectTypeQueryEnumerator<T>(objects);
+            return null;
         }
         public int Count()
         {

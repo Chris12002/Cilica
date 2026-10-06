@@ -616,3 +616,14 @@ restricted. Sixty-one focused metadata checks pass. Closed class and interface
 target profiles advance to v3. This is metadata foundation only: executable
 abstract class calls still require a bodyless IR declaration path. No placeholder
 implementation is emitted. Full replay remains unverified. See ADR AC0058.
+
+### Default-equality Contains (AC6.12)
+
+The two-argument terminal preserves collection dispatch, pinned iterator shortcuts,
+callback order, cursor state and disposal. Seventeen probes pass 12,240 repeated
+O0/O2 native/.NET comparisons; reduced String/Object generic type-test operands add
+588. All 66 selected slice/adjacent/baseline checks pass with forced GC, ASan/UBSan
+and unchanged frame limits. Comparer/nullable and reference OfType.Select variance
+compositions remain diagnostic. No new grants or profiles. Frozen engine passes
+the missing declaration and reaches its metadata snapshot limit; state retains its
+catalog limit. Full replay is unverified. See [ADR AC0068](docs/decisions/AC0068-default-contains.md).

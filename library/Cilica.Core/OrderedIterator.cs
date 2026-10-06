@@ -38,7 +38,7 @@ namespace Cilica.Runtime
     public interface IOrderSorter<T> : IMapComparison { void ComputeKeys(T[] elements); }
     public interface IOrderCache<T> { void SetElement(T item); int Compare(T item); }
     public sealed class OrderedIterator<T, TKey> : System.Linq.IOrderedEnumerable<T>, IOrdering<T>, IEnumerator<T>,
-        IQueryMaterialization<T>, IQueryCardinality, IQueryCheapCount, IQueryTraversal<T>, IQueryFirst<T>, IQueryFirstProjection<T>
+        IQueryMaterialization<T>, IQueryCardinality, IQueryCheapCount, IQueryTraversal<T>, IQueryFirst<T>, IQueryFirstProjection<T>, IQueryContains<T>
     {
         private readonly IEnumerable<T> source;
         private readonly Func<T, TKey> selector;
@@ -117,6 +117,7 @@ namespace Cilica.Runtime
             if (source is ICollection legacy) return legacy.Count;
             return -1;
         }
+        public bool Contains(T value) => System.Linq.Enumerable.Contains(source, value);
         public int Count() => System.Linq.Enumerable.Count(source);
         public bool Any() { int count = GetCheapCount(); if (count >= 0) return count != 0; TryFirst(out int found); return found != 0; }
         public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)

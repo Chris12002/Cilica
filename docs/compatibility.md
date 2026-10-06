@@ -2809,3 +2809,14 @@ native comparisons; all 105 selected metadata, delegate, exception and baseline
 checks pass. Structural/runtime-type and work limits are unchanged. Frozen engine
 advances to missing Enumerable.Contains<String>; state remains at its catalog
 limit. Full replay is unverified. See [ADR AC0067](decisions/AC0067-base-only-classification.md).
+
+### Default-equality Contains (AC6.12)
+
+The two-argument terminal preserves collection dispatch, pinned iterator shortcuts,
+callback order, cursor state and disposal. Seventeen probes pass 12,240 repeated
+O0/O2 native/.NET comparisons; reduced String/Object generic type-test operands add
+588. All 66 selected slice/adjacent/baseline checks pass with forced GC, ASan/UBSan
+and unchanged frame limits. Comparer/nullable and reference OfType.Select variance
+compositions remain diagnostic. No new grants or profiles. Frozen engine passes
+the missing declaration and reaches its metadata snapshot limit; state retains its
+catalog limit. Full replay is unverified. See [ADR AC0068](decisions/AC0068-default-contains.md).

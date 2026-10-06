@@ -28,6 +28,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/ArrayInterface.cs \
   --source library/Cilica.Core/ArrayEnumerator.cs \
   --source library/Cilica.Core/Enumerable.cs \
+  --source library/Cilica.Core/EnumerableContains.cs \
   --source library/Cilica.Core/WhereIterator.cs \
   --source library/Cilica.Core/SelectIterator.cs \
   --source library/Cilica.Core/DistinctIterator.cs \

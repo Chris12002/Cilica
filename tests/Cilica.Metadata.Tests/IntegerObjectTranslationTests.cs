@@ -57,7 +57,7 @@ public sealed class IntegerObjectTranslationTests
     }
 
     internal static async Task VerifyTranslated(bool optimized, (string Name, ManagedExceptionIrProgram Program, Func<int, int, int> Oracle)[] probes,
-        (int First, int Second)[]? pairs = null, bool persistentRoots = false)
+        (int First, int Second)[]? pairs = null, bool persistentRoots = false, int expectedStaticRoots = 0)
     {
         pairs ??= (from first in new[] { 0, 1, -1, 127, 32768, int.MinValue, int.MaxValue }
                    from second in new[] { 0, 1, 2, 3, -1, int.MinValue, int.MaxValue } select (first, second)).ToArray();
@@ -81,7 +81,7 @@ public sealed class IntegerObjectTranslationTests
                         assert(c.pending == 0 && result == expected && c.exception == nullptr);
                         assert(c.used == 0 && c.top == nullptr && c.borrows == nullptr && c.depth == 0);
                         assert(collect(c).status == MarkStatus::complete);
-                        std::size_t permanent = 1;
+                        std::size_t permanent = {{1 + expectedStaticRoots}};
                         if (heap.invariant_culture != nullptr) ++permanent;
                         for (auto* literal = heap.literals; literal; literal = literal->literal_next) ++permanent;
                         for (auto* number = heap.integer_texts; number; number = number->literal_next) ++permanent;

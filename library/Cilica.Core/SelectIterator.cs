@@ -18,7 +18,7 @@ namespace Cilica.Runtime
     public interface IQueryCheapCount { int GetCheapCount(); }
 
     public sealed class SelectIterator<TSource, TResult> : IEnumerable<TResult>, IEnumerator<TResult>,
-        IQueryTraversal<TResult>, IQueryFirst<TResult>, IQueryCheapCount, IQueryCardinality, IQueryMaterialization<TResult>
+        IQueryTraversal<TResult>, IQueryFirst<TResult>, IQueryCheapCount, IQueryCardinality, IQueryMaterialization<TResult>, IQueryContains<TResult>, IQueryContainsTraversal<TResult>
     {
         private readonly IEnumerable<TSource> source;
         private readonly TSource[] array;
@@ -74,6 +74,23 @@ namespace Cilica.Runtime
                 Dispose();
             }
             return false;
+        }
+        public IEnumerator<TResult> GetContainsEnumerator()
+        {
+            if (array != null) return GetQueryEnumerator(0, out _);
+            IEnumerator<TSource> traversal = null;
+            if (source is IQueryContainsTraversal<TSource> fused) traversal = fused.GetContainsEnumerator();
+            else if (!(source is IQueryTraversal<TSource>) && source is IList<TSource> list)
+                traversal = new IndexedQueryEnumerator<TSource>(list, list.Count);
+            if (traversal == null) return null;
+            var result = new SelectIterator<TSource, TResult>(source, null, selector);
+            result.enumerator = traversal; result.state = 2; return result;
+        }
+        public bool Contains(TResult value)
+        {
+            IEnumerator<TResult> traversal = GetContainsEnumerator();
+            if (traversal == null) return QueryContains<TResult>.Iterate(this, value);
+            using (traversal) return QueryContains<TResult>.Read(traversal, value);
         }
         public int GetCheapCount()
         {

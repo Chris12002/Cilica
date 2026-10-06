@@ -58,6 +58,9 @@ public static partial class ValueProgramDiscovery
         }
         private ObjectTypeId ReferenceOperand(TypeSignature signature, Work work, int offset) => signature switch
         {
+            TypeSignature.Primitive { Code: PrimitiveTypeCode.String } => IncludeString(work, offset),
+            TypeSignature.Primitive { Code: PrimitiveTypeCode.Object } when classes => IncludeReference(
+                Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object), work, offset), work, offset),
             TypeSignature.Vector vector when integers64 => Vector(vector.Element, work, offset),
             TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.Unknown } type => IncludeReference(type.Definition, work, offset),
             TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } type => ClosedReferenceOperand(type, work, offset),

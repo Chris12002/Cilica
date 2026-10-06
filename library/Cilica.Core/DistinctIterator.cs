@@ -24,7 +24,7 @@ namespace Cilica.Runtime
             found = 0; return default(T);
         }
     }
-    public sealed class DistinctIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryFirst<T>, IQueryCardinality, IQueryMaterialization<T>
+    public sealed class DistinctIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryFirst<T>, IQueryCardinality, IQueryMaterialization<T>, IQueryContains<T>
     {
         private readonly IEnumerable<T> source;
         private readonly int threadId;
@@ -74,6 +74,7 @@ namespace Cilica.Runtime
         // Iterator.TryGetFirst intentionally bypasses all set/hash work.
         public T TryFirst(out int found) => QueryFirst<T>.Read(source, out found);
         public bool Any() { TryFirst(out int found); return found != 0; }
+        public bool Contains(T value) => System.Linq.Enumerable.Contains(source, value);
         public int Count() => BuildSet().Count;
         public T[] ToArray() => BuildSet().QueryArray();
         private SetStorage<T> BuildSet()
