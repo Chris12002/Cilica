@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v43";
+    public const string Profile = "object-frames-native-v44";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -361,10 +361,10 @@ public static class ObjectCppEmitter
             }
             void CheckLocationResult(int offset) => Guard("f->location_result.status != LocationStatus::complete",
                 "f->location_result.status == LocationStatus::null_reference ? 4u : f->location_result.status == LocationStatus::index_bounds ? 10u : 6u", offset);
-            void CastFault(string condition, string receiver, string target, int offset, bool nullableTarget = false)
+            void CastFault(string condition, string receiver, string target, int offset, bool nullableTarget = false, bool dynamicTarget = false)
             {
-                code.Append("    if (").Append(condition).Append(") {\n        raise_cast_exception(context, ").Append(receiver).Append(", &")
-                    .Append(target).Append("_descriptor, {7u, \"").Append(method.Source.ContentHash).Append("\", ")
+                code.Append("    if (").Append(condition).Append(") {\n        raise_cast_exception(context, ").Append(receiver).Append(", ")
+                    .Append(dynamicTarget ? target : "&" + target + "_descriptor").Append(", {7u, \"").Append(method.Source.ContentHash).Append("\", ")
                     .Append(N(method.Source.Token)).Append("u, ").Append(N(offset)).Append("u}, ").Append(nullableTarget ? "true" : "false").Append(");\n        ").Append(Exit()).Append("\n    }\n");
             }
             void CheckBoxResult(int offset) => Guard("f->box_result.status != BoxStatus::complete",
@@ -714,6 +714,12 @@ public static class ObjectCppEmitter
                             if (store.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Int32)
                                 code.Append("    store_integer_element(").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ")
                                     .Append(Value(store.Value)).Append(");\n");
+                            else if (store.CopyCast)
+                            {
+                                code.Append("    if (!store_reference_element(context, ").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ").Append(Value(store.Value)).Append(")) {\n");
+                                CastFault("context.pending == 11u", Value(store.Value), "copy_element_type(" + Value(store.Array) + "->type)", store.ILOffset, dynamicTarget: true);
+                                Fault("context.pending", store.ILOffset); code.Append("    }\n");
+                            }
                             else
                                 Guard("!store_reference_element(context, " + Value(store.Array) + ", " + Value(store.Index) + ", " + Value(store.Value) + ")", "context.pending", store.ILOffset);
                             break;

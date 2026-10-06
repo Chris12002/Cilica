@@ -305,3 +305,19 @@ Four probes pass 1,176 repeated O0/O2 native/.NET comparisons; additional O0/O2
 native checks cover retained-box collection, intermediate allocation failure,
 origin preservation and corrupted roots. Existing confinement and public baseline
 checks pass. See ADR AC0039. Full engine/state/replay execution remains unverified.
+
+### Direct list copies (AC3.6)
+
+List<T>.CopyTo(T[]) and CopyTo(T[],Int32) support admitted integer, reference and
+inline-value elements. Source fields are read before destination checks; validation
+preserves null/range/space order, exact parameter messages and unchanged list version.
+A separately granted private CopyStore operation preserves actual reference cast
+names and completed writes when a covariant destination fails. Ordinary array stores
+retain ArrayTypeMismatchException. Native v44, object operations IR v17 and
+integer-object CIL v5 record the new operation; exception IR v5/layout v17 remain.
+Six probes plus one raw null-receiver probe pass 2,058 repeated O0/O2 native/oracle
+or explicit CIL-fault comparisons with ASan/UBSan and forced collection. Exact
+grant/private-caller checks and four packet mutations in both IR stages pass;
+47 selected copy/array-mutation/baseline checks pass. See ADR AC0040.
+Interface CopyTo still requires array dispatch support; section/nongeneric copies
+and List(IEnumerable) remain unsupported. Full engine/state/replay is unverified.

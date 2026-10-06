@@ -11,12 +11,16 @@ internal static class ManagedExceptionCastMessages
 {
     internal static ImmutableArray<ExceptionCastText> Build(IEnumerable<IrMethod> methods, ObjectTypeCatalog catalog, ImmutableArray<ValueTypeLayout> values)
     {
-        var targets = methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression switch
+        var bodies = methods.ToArray();
+        var copyTargets = bodies.SelectMany(m => m.Blocks).SelectMany(b => b.Statements).Any(s => s is IrStatement.StoreElement { CopyCast: true, ArrayType.ArrayElement.Kind: ObjectArrayElementKind.Reference })
+            ? catalog.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Reference).Select(a => (a.ArrayElement!.Type!, false, false))
+            : Enumerable.Empty<(ObjectTypeId, bool, bool)>();
+        var targets = bodies.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression switch
         {
             IrExpression.CastClass cast => (cast.Target, cast.BoxedTarget, false), IrExpression.UnboxValue box => (box.Type, true, box.NullableTarget),
             IrExpression.UnboxLocation box => (box.Type, true, false), IrExpression.CheckBox box => (box.Type, true, box.NullableTarget),
             IrExpression.AddressBoxSlot box => (box.Type, true, false), _ => ((ObjectTypeId?)null, false, false),
-        }).Where(p => p.Item1 is not null).Select(p => (p.Item1!, p.Item2, p.Item3)).Distinct().ToArray();
+        }).Where(p => p.Item1 is not null).Select(p => (p.Item1!, p.Item2, p.Item3)).Concat(copyTargets).Distinct().ToArray();
         if (targets.Length == 0) return [];
         string Name(TypeSource source)
         {

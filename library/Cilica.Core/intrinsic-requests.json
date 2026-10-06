@@ -761,5 +761,12 @@
     "Member": ".ctor",
     "ParameterCount": 3,
     "Capability": "ArgumentOutOfRangeActualConstructor"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "CopyStore",
+    "ParameterCount": 3,
+    "Capability": "ArrayCopyStore"
   }
 ]

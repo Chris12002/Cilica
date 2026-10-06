@@ -45,7 +45,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v4";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v5";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -363,6 +363,11 @@ public static class ValueTranslator
                             int ordinalRight = Pop(offset, IrType.Reference(stringType!));
                             int ordinalLeft = Pop(offset, IrType.Reference(stringType!));
                             Push(offset, IrType.Int32, new IrExpression.StringEquals(ordinalLeft, ordinalRight), true); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var copyStore) && copyStore.Kind == ValueIntrinsic.ArrayCopyStore:
+                            int copyValue = Pop(offset, ElementType(copyStore.Type));
+                            int copyIndex = Pop(offset, IrType.Int32);
+                            int copyArray = Pop(offset, IrType.Reference(copyStore.Type));
+                            Add(new IrStatement.StoreElement(offset, copyStore.Type, copyArray, copyIndex, copyValue, CopyCast: true), offset); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var emptyArray) && emptyArray.Kind == ValueIntrinsic.EmptyArray:
                             Push(offset, IrType.Reference(emptyArray.Type), new IrExpression.EmptyArray(emptyArray.Type), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var stringConstruction) && stringConstruction.Kind == ValueIntrinsic.StringFromCodeUnits:

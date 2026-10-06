@@ -164,7 +164,7 @@ public abstract record IrStatement
     // Reference stores additionally check the allocation's actual element type,
     // after null/bounds checks; static covariance never removes that obligation.
     public sealed record StoreElement(int ILOffset, ObjectTypeId ArrayType, int Array, int Index, int Value,
-        IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
+        IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit, bool CopyCast = false) : IrStatement;
     public sealed record StoreLocation(int ILOffset, int Location, int Value,
         IrExceptionTarget Exceptional = IrExceptionTarget.MethodExit) : IrStatement;
     public sealed record InitializeLocation(int ILOffset, int Location,

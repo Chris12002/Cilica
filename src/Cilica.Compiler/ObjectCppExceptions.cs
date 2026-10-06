@@ -90,6 +90,10 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
                 .Append(box).Append("*>(value)->s0; return true; }\n");
         }
         text.Append("    return false;\n}\n");
+        text.Append("[[maybe_unused, gnu::noinline]] static const Descriptor* copy_element_type([[maybe_unused]] const Descriptor* type) noexcept {\n");
+        foreach (var array in catalog.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Reference))
+            text.Append("    if (type == &").Append(symbol(array)).Append("_descriptor) return &").Append(symbol(array.ArrayElement!.Type!)).Append("_descriptor;\n");
+        text.Append("    return nullptr;\n}\n");
         text.Append(ResourceHelper);
         text.Append("[[maybe_unused, gnu::noinline]] static Object* exception_message_string(Context& c, ExceptionText text) noexcept {\n");
         if (catalog.String is { } stringType) text.Append("    return exception_resource(c, ").Append(symbol(stringType)).Append("_descriptor, text);\n");

@@ -4,6 +4,8 @@ namespace Cilica.Runtime
 {
     internal static class ArrayInterface<T>
     {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern void CopyStore(T[] array, int index, T value);
         internal static System.Collections.Generic.IEnumerator<T> Enumerate(T[] array) => System.SZGenericArrayEnumerator<T>.Create(array, array.Length);
         internal static bool False(T[] array) => false;
         internal static bool True(T[] array) => true;

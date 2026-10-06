@@ -90,7 +90,21 @@ namespace System.Collections.Generic
             return snapshot;
         }
         public bool Contains(T value) => IndexOf(value) >= 0;
-        public void CopyTo(T[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void CopyTo(T[] array) => CopyTo(array, 0);
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            var source = items;
+            int count = size;
+            // Pinned Array.Copy validation order for a full, exact-T list backing
+            // vector. The destination may be a covariant reference vector.
+            if (array == null) throw new ArgumentNullException("destinationArray");
+            if (arrayIndex < 0)
+                throw new ArgumentOutOfRangeException("destinationIndex", arrayIndex,
+                    string.Concat(string.Concat("destinationIndex ('", Cilica.Runtime.IntegerText.Int32(arrayIndex)), "') must be greater than or equal to '0'."));
+            if (arrayIndex > array.Length || count > array.Length - arrayIndex)
+                throw new ArgumentException("Destination array was not long enough. Check the destination index, length, and the array's lower bounds.", "destinationArray");
+            for (int i = 0; i < count; i++) Cilica.Runtime.ArrayInterface<T>.CopyStore(array, arrayIndex + i, source[i]);
+        }
         public bool Remove(T value)
         {
             int index = IndexOf(value);

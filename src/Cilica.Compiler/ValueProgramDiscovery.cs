@@ -43,7 +43,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
 public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receiver);
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
-public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, NewArgumentOutOfRangeActual, StringOrdinalEqual, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash }
+public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, NewArgumentOutOfRangeActual, ArrayCopyStore, StringOrdinalEqual, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash }
 public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, int Parameters,
     int MessageArgument = -1, int ParameterArgument = -1)
 {
@@ -269,7 +269,7 @@ public static partial class ValueProgramDiscovery
                                 foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
                                     CheckArgumentAccess(argument, work, offset);
                             }
-                            if (exceptions && (RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
+                            if (exceptions && (ArrayCopyStoreCall(work, instruction, target) ?? RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
                             {
                                 _arguments += intrinsic.Parameters;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);

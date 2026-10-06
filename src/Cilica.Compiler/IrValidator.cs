@@ -308,7 +308,7 @@ internal static class IrValidator
                         Require(objectRules is not null && objectRules.Store(method, store, valueTypes, expressions), "invalid field store, access or readonly receiver."); break;
                     case IrStatement.StoreElement store:
                         Offset(store.ILOffset);
-                        Require(objectRules is not null && objectRules.StoreElement(store, valueTypes), "invalid array element store or missing fault edge."); break;
+                        Require(objectRules is not null && (!store.CopyCast || exceptions is not null && types.IntegerCasts) && objectRules.StoreElement(store, valueTypes), "invalid array element store or missing fault edge."); break;
                     case IrStatement.StoreLocation store:
                         Offset(store.ILOffset);
                         Require(locations is not null && store.Exceptional == IrExceptionTarget.MethodExit

@@ -19,8 +19,8 @@
   },
   "baseline": {
     "integrationCommit": "e317e93",
-    "nativeProfile": "object-frames-native-v43",
-    "nativeProfileEvidence": "Public baseline revalidated at AC8.7 on native v43/layout v17; exact bounded Int32 actual-value range messages use traced exception payloads.",
+    "nativeProfile": "object-frames-native-v44",
+    "nativeProfileEvidence": "Public baseline revalidated at AC3.6 on native v44/layout v17; copy-specific reference stores preserve Array.Copy cast faults.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 29,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "a57fb0892f1aad6c130030516db17af603f76953a46732e8420e13655bd71e60",
-    "latestSlice": "AC8.7",
+    "fixtureSha256": "8c49615004bf02926a07ef722d77f251bdfb62bdcf57bc33e5194b6f29c488ec",
+    "latestSlice": "AC3.6",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -115,7 +115,7 @@
     "AC3": {
       "prerequisites": ["AC0"],
       "status": "in-progress",
-      "completedSubslices": ["AC3.1", "AC3.2", "AC3.3", "AC3.4", "AC3.5"],
+      "completedSubslices": ["AC3.1", "AC3.2", "AC3.3", "AC3.4", "AC3.5", "AC3.6"],
       "remaining": "Copying (including rich range faults and dynamic array downcasts), broader list equality types/range overloads, bulk operations, Dictionary Add/getter/constructors, HashSet APIs and exact required overloads. Enumeration joins AC4."
     },
     "AC3.1": {
@@ -142,6 +142,11 @@
       "prerequisites": ["AC3.4"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0016-array-readonly-views.md"
+    },
+    "AC3.6": {
+      "prerequisites": ["AC8.7"],
+      "status": "complete-bounded-direct-list-copy",
+      "decision": "docs/decisions/AC0040-list-copy-and-cast-stores.md"
     },
     "AC4": {
       "prerequisites": ["AC3"],
