@@ -2073,3 +2073,15 @@ comparisons, two live-list GC checks and 48 existing regression checks. The ledg
 has 28 gaps and 19 controls. Native v41 and public ABIs remain unchanged. Nullable/
 unknown-reference equality, range/copy/bulk APIs and full replay remain unfinished.
 See [ADR AC0013](decisions/AC0013-list-and-array-search.md).
+
+
+### Ordinal text comparison (AC7b.1)
+
+String.CompareOrdinal and IsNullOrEmpty now have owned managed bodies. Comparison
+preserves the pinned .NET 10.0.11 numeric result, including short-string zero
+padding and odd-prefix terminators, using safe UTF-16 indexing. Four authored
+probes plus the public comparison provide 7,794 repeated O0/O2 native/.NET results
+with forced GC and ASan/UBSan. All 71 relevant baseline/string regressions pass.
+The ledger has 27 gaps and 20 controls. No profile, grant or ABI changes; cultural,
+ignore-case and other text APIs remain separate work. Private replay is unverified.
+See [ADR AC0014](decisions/AC0014-ordinal-text-comparison.md).

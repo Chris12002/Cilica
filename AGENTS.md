@@ -36,7 +36,8 @@ feedback before implementation. Explain consequential choices in plain language.
   Math Abs/Min/Max and typed CompareTo (ADR AC0012); object comparison and
   comparer-interface execution remain outside this slice. AC3.4 adds bounded
   list/array search and value removal. Value equality can mutate the stored
-  element; preserve its managed borrow (ADR AC0013).
+  element; preserve its managed borrow (ADR AC0013). AC7b.1 adds exact pinned
+  ordinal comparison and IsNullOrEmpty (ADR AC0014); no culture-aware text claim.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

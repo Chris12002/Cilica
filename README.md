@@ -101,7 +101,8 @@ bounded list/read-only interface mutations. AC3.3 adds dictionary removal, clear
 and slot reuse. AC5a.1 adds bounded integer math and typed comparisons. Broader
 collections and full
 saved-game replay remain unfinished. AC3.4 adds list/array search and value removal
-for admitted equality types, preserving mutating value equality.
+for admitted equality types, preserving mutating value equality. AC7b.1 adds
+String.CompareOrdinal and IsNullOrEmpty with pinned UTF-16 results.
 
 ## Development
 

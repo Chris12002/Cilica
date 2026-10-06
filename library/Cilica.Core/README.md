@@ -184,3 +184,6 @@ Math.cs adds signed Int32/Int64 Abs and signed/unsigned 32/64-bit Min/Max.
 CoreTypes.cs adds typed CompareTo with exact IComparable<T> declarations. These
 are ordinary managed bodies, with no new grants. Narrow/floating/decimal Math
 and object comparison overloads remain unmapped (ADR AC0012).
+
+StringComparison.cs also supplies CompareOrdinal and IsNullOrEmpty as managed
+code, preserving pinned UTF-16 comparison results (ADR AC0014). No new grants.

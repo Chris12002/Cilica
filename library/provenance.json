@@ -321,9 +321,10 @@
         "Exact StringComparison enum names and values"
       ],
       "changes": [
-        "No source changes; only directly proven Ordinal equality is executable in the selected compiler profile."
+        "Preserve the enum unchanged; existing ordinal equality still requires its exact grant and proven Ordinal constant.",
+        "AC7b.1 adds managed CompareOrdinal and IsNullOrEmpty, with behavior sourced from pinned String.Comparison.cs and String.cs. Replace unsafe padded reads with checked UTF-16 indexing and explicit zero units; preserve first-two and paired remainder comparisons."
       ],
-      "scope": "Nominal comparison contract; no cultural or ignore-case comparison implementation."
+      "scope": "Nominal comparison enum plus bounded ordinal equality/comparison and null-or-empty check; no cultural or ignore-case comparison."
     },
     {
       "path": "library/Cilica.Core/StringWhitespace.cs",
