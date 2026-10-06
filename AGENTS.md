@@ -17,8 +17,9 @@ feedback before implementation. Explain consequential choices in plain language.
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles
   and void results; an optional capability copies exact UTF-16 through host-owned
-  buffers, and Integer64 exports preserve all 64 bits. Independent multi-root
-  discovery, structured value copying and phone support remain planned. Optional
+  buffers, and Integer64 exports preserve all 64 bits. Numeric records copy nested
+  public Int32/Integer64 fields; reference-bearing records, independent multi-root
+  discovery and phone support remain planned. Optional
   managed-exception capture retains a handle and copies type/message UTF-16 plus
   declaration identity; inner traversal and stack traces remain planned.
   The broader runtime/library and full public embedding SDK remain planned. Never describe

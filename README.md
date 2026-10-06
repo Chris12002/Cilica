@@ -33,8 +33,9 @@ separate C consumer on macOS ARM64. V2 exports share instance state within one
 compiled closure, with stable application IDs, checked manifests and configurable
 bounded quotas. V3 adds typed retained object handles and void results.
 An optional v3 capability copies exact UTF-16 strings through host-owned buffers.
-Integer64 exports preserve exact signed/unsigned bit patterns. Structured value
-copying and phone libraries remain planned. Optional exception capture preserves
+Integer64 exports preserve exact signed/unsigned bit patterns. Bounded numeric
+records copy nested public Int32/Integer64 fields through host-owned buffers.
+Reference-bearing records and phone libraries remain planned. Optional exception capture preserves
 a retained exception for type/message copying without reexecuting the failed call;
 iOS is the first device target.
 Broader platform and language support are planned capabilities,

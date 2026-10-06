@@ -71,6 +71,18 @@ can fail under resource limits; original copied faults remain available. Inner
 traversal, stack traces, structured values and phone support remain planned. See
 [ADR 0183](decisions/0183-retained-exception-capture.md).
 
+Milestone 7c.5 adds numeric record capability bit 2048 to v3. Up to 32 record
+declarations bind public values with 1..64 public Int32/Integer64 scalar leaves,
+including nested fields. Stable field IDs define host order independently of
+metadata layout. `invoke_records` copies flattened inputs, preflights output
+capacity and copies result fields only on success; optional exception capture
+and existing quotas/admission apply. Local C11 .NET comparisons and O0/O2
+ASan/UBSan checks cover reordered fields, mixed handles, allocations, forced
+collection, failures and the full 64-field bound with the 2 KiB native-frame gate.
+Reference-bearing/empty records, public ref/out parameters, independent roots
+and phone support remain unimplemented. See
+[ADR 0184](decisions/0184-numeric-record-embedding.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

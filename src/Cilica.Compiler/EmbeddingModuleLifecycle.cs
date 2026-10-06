@@ -5,11 +5,11 @@ namespace Cilica.Compiler;
 /// <summary>Common create/destroy contract; versions choose their public config and capabilities.</summary>
 internal static class EmbeddingModuleLifecycle
 {
-    internal static string Emit(string prefix, uint version, string hash, bool handles, bool utf16 = false, bool integer64 = false, bool captureExceptions = false)
+    internal static string Emit(string prefix, uint version, string hash, bool handles, bool utf16 = false, bool integer64 = false, bool captureExceptions = false, bool records = false)
     {
         string v = version.ToString(CultureInfo.InvariantCulture), macro = "CILICA_V" + v;
         string capabilities = ((handles ? 255u : 63u) | (utf16 ? 256u : 0u) | (integer64 ? 512u : 0u)
-            | (captureExceptions ? 1024u : 0u)).ToString(CultureInfo.InvariantCulture);
+            | (captureExceptions ? 1024u : 0u) | (records ? 2048u : 0u)).ToString(CultureInfo.InvariantCulture);
         return $$"""
             extern "C" uint32_t {{prefix}}_version(void) noexcept { return {{v}}; }
             extern "C" uint64_t {{prefix}}_capabilities(void) noexcept { return UINT64_C({{capabilities}}); }

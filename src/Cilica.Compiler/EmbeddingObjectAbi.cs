@@ -58,7 +58,7 @@ internal static class EmbeddingObjectAbi
         };
         """;
 
-    internal static string Header(string prefix, string hash, uint schemaVersion, EmbeddingObjectExport[] exports, EmbeddingReferenceBinding[] references, bool utf16, bool captureExceptions)
+    internal static string Header(string prefix, string hash, uint schemaVersion, EmbeddingObjectExport[] exports, EmbeddingReferenceBinding[] references, bool utf16, bool captureExceptions, EmbeddingRecordPlan.Record[] records)
     {
         string macro = prefix.ToUpperInvariant();
         return $$"""
@@ -123,10 +123,12 @@ internal static class EmbeddingObjectAbi
             #define CILICA_V3_CAP_INTEGER64 UINT64_C(512)
             #endif
             {{(captureExceptions ? EmbeddingExceptionAbi.Types : "")}}
+            {{(records.Length != 0 ? EmbeddingRecordAbi.Types : "")}}
             #define {{macro}}_CONTRACT_HASH "{{hash}}"
             #define {{macro}}_SCHEMA_VERSION UINT32_C({{schemaVersion.ToString(CultureInfo.InvariantCulture)}})
             {{string.Join("\n", exports.Select(e => "#define " + macro + "_EXPORT_" + e.Name.ToUpperInvariant() + " UINT32_C(" + e.Id.ToString(CultureInfo.InvariantCulture) + ")"))}}
             {{string.Join("\n", references.Select(r => "#define " + macro + "_TYPE_" + r.Name.ToUpperInvariant() + " UINT32_C(" + r.Id.ToString(CultureInfo.InvariantCulture) + ")"))}}
+            {{string.Join("\n", records.Select(r => "#define " + macro + "_RECORD_" + r.Binding.Name.ToUpperInvariant() + " UINT32_C(" + r.Binding.Id.ToString(CultureInfo.InvariantCulture) + ")"))}}
             #ifdef __cplusplus
             extern "C" {
             #endif
@@ -139,6 +141,7 @@ internal static class EmbeddingObjectAbi
             CILICA_V3_API uint32_t {{prefix}}_destroy(uint64_t runtime) CILICA_V3_NOEXCEPT;
             {{(utf16 ? EmbeddingStringAbi.Declarations(prefix) : "")}}
             {{(captureExceptions ? EmbeddingExceptionAbi.Declarations(prefix) : "")}}
+            {{(records.Length != 0 ? EmbeddingRecordAbi.Declaration(prefix) : "")}}
             #ifdef __cplusplus
             }
             #endif

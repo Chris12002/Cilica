@@ -1113,7 +1113,7 @@ frames. A bounded registry rejects overlapping calls and destruction. The
 [ABI contract](embedding-abi.md) records exact widths, ownership, status, version
 and resource rules. A separate C11 consumer links an emitted shared library and
 passes local O0/O2 sanitizer lifecycle tests. Subsequent slices below extend this
-foundation; structured value/error copying and device evidence remain planned. [Milestone 7](milestones/07-embedding-and-phone-libraries.md) puts iOS first,
+foundation with bounded value/error copying; device evidence remains planned. [Milestone 7](milestones/07-embedding-and-phone-libraries.md) puts iOS first,
 then Android; neither phone platform is yet verified.
 
 Milestone 7b adds a v2 shared scalar export module
@@ -1172,6 +1172,19 @@ hash and adds capability bit 1024; ordinary invoke behavior remains available.
 Local C11/O0/O2 sanitizer and race evidence covers ownership and quota failures.
 Structured application values, inner traversal, stack traces and phone execution
 remain outside this slice.
+
+Milestone 7c.5 adds bounded numeric records
+([ADR 0184](decisions/0184-numeric-record-embedding.md)). Stable record/field IDs
+describe 1..64 public Int32/Integer64 leaves, including nested values, independently
+of metadata ordering and native padding. `invoke_records` flattens copied inputs
+in declared field-ID order, checks output capacity before execution and publishes
+record fields only on success. Existing value lowering supplies scalar inputs and
+checked hidden return locations backed by execution-budget storage. No public
+borrow or managed pointer escapes. Record capability bit 2048 and canonical schemas
+participate in negotiation; wide leaves also require bit 512. Optional exception
+capture composes with this path. Local C11/O0/O2 sanitizer evidence includes the
+64-field bound under the existing 2 KiB native-frame gate. Reference-bearing and
+empty records, public ref/out parameters and phone execution remain unsupported.
 
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker

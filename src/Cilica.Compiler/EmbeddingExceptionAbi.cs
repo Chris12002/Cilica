@@ -41,7 +41,7 @@ internal static class EmbeddingExceptionAbi
             }
             extern "C" uint32_t {{prefix}}_invoke_capture(uint64_t runtime, uint32_t export_id, const cilica_v3_value* parameters, uint32_t count, cilica_v3_result* result, uint64_t* exception) noexcept {
                 if (exception == nullptr) return CILICA_V3_INVALID_ARGUMENT;
-                return {{prefix}}_invoke_core(runtime, export_id, parameters, count, result, exception);
+                return {{prefix}}_invoke_core(runtime, export_id, parameters, count, result, exception, nullptr, 0, false);
             }
             extern "C" uint32_t {{prefix}}_exception_copy(uint64_t runtime, uint64_t exception, uint16_t* type_name, uint32_t type_capacity, uint16_t* message, uint32_t message_capacity, cilica_v3_exception_info* info) noexcept {
                 if (info == nullptr || (type_capacity != 0 && type_name == nullptr) || (message_capacity != 0 && message == nullptr)) return CILICA_V3_INVALID_ARGUMENT;

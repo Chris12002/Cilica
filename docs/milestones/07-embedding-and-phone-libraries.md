@@ -13,7 +13,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | --- | --- | --- |
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
-| 7c | Values, retained objects and structured exceptions | In progress: retained handles/void, exact UTF-16/Integer64 transfer and captured type/message details implemented; structured application value copying remains planned |
+| 7c | Values, retained objects and structured exceptions | In progress: retained handles/void, exact UTF-16/Integer64 transfer, numeric records and captured type/message details implemented; reference-bearing records and real-kernel ABI composition remain open |
 | 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
@@ -215,6 +215,35 @@ slice. Local main remains an ancestor; the read-only remote query advertised no
 branch heads. No push, hosted work or phone execution ran. Structured application
 values remain before iOS packaging; inner traversal and stack traces are not
 provided by this bounded capture API.
+
+## Slice 7c.5 outcome
+
+[ADR 0184](../decisions/0184-numeric-record-embedding.md) adds bounded numeric
+records with stable record/field IDs. Public nested values containing 1..64
+Int32/Integer64 leaves copy through flattened tagged fields; the host never
+depends on managed/native struct layout. A record-aware invocation checks output
+capacity before running managed code and copies fields only after success. It
+reuses existing scalar value lowering and checked internal return locations,
+with execution-budget storage and optional retained exception capture.
+
+The combined record/exception/wide/string/handle/module run passed 70 checks and
+found one new O0 return-adapter frame exceeding the existing 2 KiB limit. Splitting
+return handling into a helper and using loops for field setup fixed the issue
+without raising the limit. The final focused record run passed all 16 checks,
+including two additional full-64-field regressions. This provides passing evidence
+for 73 distinct cases across the runs; the combined suite was not rerun after the
+record-only fix. Native O0/O2 ASan/UBSan builds keep C++ exceptions/RTTI disabled.
+C11 consumers compare nested copies, reordered field IDs, wide wrapping and
+mixed handle/scalar/record calls with .NET. Other checks cover forced collection,
+copy ownership, private/reference leaf rejection, short buffers before effects,
+malformed tags, exception capture, zero quotas and execution-arena failure.
+
+Review covered logical and lowered signatures, field-order mapping, return
+borrow lifetime, publication after success, cleanup, capabilities/fingerprints
+and stack/resource bounds. No unresolved defect remains in this slice. Local
+main remains an ancestor; the remote advertised no branch heads. No push, hosted
+work or phone execution ran. Reference-bearing records, public ref/out and empty
+records remain unsupported; kernel composition and iOS packaging are still ahead.
 
 ## Remaining exit gates
 

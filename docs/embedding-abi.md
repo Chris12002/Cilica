@@ -2,7 +2,7 @@
 
 The current module profile is `embedding-object-handles-v3`, described below.
 It adds typed retained object handles, exact Integer64 values, void results and optional UTF-16 copying
-to shared export modules, with optional retained exception capture.
+to shared export modules, with optional retained exception capture and bounded numeric records.
 V1/V2 remain supported. Local evidence is macOS ARM64; mobile support is unverified.
 
 ## Persistent Int32 profile v1
@@ -232,7 +232,8 @@ already in one validated closure; creating the runtime does not execute its root
 
 `EmbeddingObjectContract` declares stable reference aliases (`Id`, `Name`, bound
 `ObjectTypeId`) and `EmbeddingObjectExport` signatures. Shapes are Int32, Integer64, Handle
-with a reference alias ID, or Void for results only. Every alias must be used;
+with a reference alias ID, Record with a record alias ID, or Void for results only.
+Record declarations and invocation are described under 7c.5 below. Every alias must be used;
 alias IDs, names and bound types are unique. Parameters/results must exactly match
 logical IR signatures before lowering. At invocation, reference arguments accept
 null and runtime types assignable to the declared parameter, including derived
@@ -253,6 +254,7 @@ that order (16 bytes, payload offset 8 on the tested target). The kinds are:
 | `CILICA_V3_INT32` (1) | Raw Int32 bits in the low 32 bits, zero-extended; upper 32 bits must be zero |
 | `CILICA_V3_HANDLE` (2) | Opaque object lease token; zero denotes a null reference |
 | `CILICA_V3_INTEGER64` (3) | All 64 raw integer bits; managed operations determine signedness |
+| `CILICA_V3_RECORD` (4) | Record result only; stable record ID, with fields copied to a separate buffer |
 | `CILICA_V3_VOID` (0) | Result only; payload zero |
 
 `reserved` must be zero. Negative Int32 inputs are encoded by casting to UInt32
@@ -317,7 +319,7 @@ its output unchanged on failure.
 The existing unloading, C linkage and platform rules continue to apply. V3 has
 local C11/shared-library and native race evidence under O0/O2 sanitizers, including
 forced collection and both emitter paths. The optional string extension below adds
-host-buffer copying. Structured value transfer, inner-exception traversal, stack traces, iOS and Android
+host-buffer copying. Reference-bearing record transfer, inner-exception traversal, stack traces, iOS and Android
 device evidence remain planned. Optional exception type/message copying is described
 below.
 
@@ -505,3 +507,86 @@ retain/release or destruction on the same runtime returns `BUSY`; hosts serializ
 or retry accordingly. This profile copies type and message, not stack traces or
 an inner-exception graph. Its evidence is local macOS ARM64, with no phone-device
 compatibility claim.
+
+### Bounded numeric records (7c.5)
+
+`EmbeddingObjectContract.Records` optionally declares up to 32
+`EmbeddingRecordBinding(Id, Name, Type, Fields)` entries. Each field is an
+`EmbeddingRecordField(Id, Name, Path, Kind)`: `Path` is the exact sequence of
+`ObjectFieldId` values leading to an Int32 or Integer64 scalar leaf. Include every
+leaf exactly once. A record must have 1..64 leaves; empty and reference-bearing
+records are rejected. The record type, nested declaring types and all fields
+along each path must be externally visible/public. IDs are nonzero; record
+IDs/names/types are unique within the module, and field IDs/names/paths are unique
+within their record. Every record declaration must be used by an export.
+
+Use `new EmbeddingValueShape(EmbeddingValueKind.Record, RecordTypeId: id)` for a
+by-value parameter or result. Its reference ID must be zero; non-record shapes
+must have record ID zero. Logical types must match before lowering, and expanded
+native signatures must also match afterwards. Only `EmitExceptions` supplies
+this validated value-lowering path; capture itself may remain disabled. Public
+`ref`/`out` signatures remain unsupported.
+
+The canonical `contract.records` lists declarations by record ID and fields by
+field ID, with stable names and numeric shapes. Actual types and metadata paths
+appear in separate `recordBindings` outside the fingerprint. Changes to stable
+IDs, names or kinds change the hash; metadata layout alone does not. The
+application owns the semantic meaning of each ID. Modules with records advertise
+`CILICA_V3_CAP_RECORDS` (2048) and emit record ID macros; Integer64 leaves also
+enable capability 512. Modules without records keep their earlier contract hashes
+and symbols. Existing C layouts do not change.
+
+Record modules additionally export:
+
+```c
+uint32_t prefix_invoke_records(
+    uint64_t runtime, uint32_t export_id,
+    const cilica_v3_value* arguments, uint32_t count,
+    cilica_v3_value* fields, uint32_t capacity,
+    cilica_v3_result* result, uint64_t* exception);
+```
+
+Replace `prefix` with the generated symbol prefix. Build `arguments` in logical
+parameter order: each scalar or handle occupies one element; each record expands
+to its scalar fields in ascending field-ID order. `count` is the expanded element
+count, not the logical parameter count. Record inputs have no Record tag, ID or
+native struct padding; their expected schema comes from the export signature.
+All numeric tag/reserved/bit-width rules apply to each leaf. Input fields are
+copied into execution storage; the host retains ownership and may reuse the
+buffer after the call.
+
+For a record result, `capacity` is the number of tagged elements available in
+`fields`. The required size is the declared field count. On success the adapter
+writes that many fields in ascending field-ID order and sets `result.value` to
+`{ CILICA_V3_RECORD, 0, record_id }`; extra elements remain untouched. A scalar,
+handle or void result uses the ordinary `result.value` and writes no fields, so
+`fields = NULL, capacity = 0` is valid. This function supports all module exports.
+Ordinary `invoke` and `invoke_capture` reject exports having any record parameter
+or result with `INVALID_ARGUMENT`.
+
+`result` must be nonnull. Nonzero `count` requires `arguments`; nonzero `capacity`
+requires `fields`. Supply valid, suitably aligned buffers whose advertised sizes
+are accessible for the call, and keep outputs disjoint from inputs and one
+another. Host memory is never retained. An undersized field buffer returns
+`BUFFER_TOO_SMALL` before managed execution and leaves all outputs untouched;
+read the required count from the manifest instead of rerunning an export to
+discover it. Capacity is checked before runtime admission and input tag checking.
+Other admission/input failures also leave outputs untouched.
+
+Passing a nonnull `exception` requests capture and requires the optional capture
+feature; otherwise the call returns `INVALID_ARGUMENT`. Passing null avoids a
+capture reservation. Enabled capture follows the same preflight reservation,
+lease ownership and fatal-fault rules as `invoke_capture`. No successful numeric
+record result consumes a handle. On `EXECUTION_FAILED`, fields remain untouched
+and the ordinary fault result plus requested exception output are written.
+Managed effects already performed are not rolled back. Do not retry execution
+to retrieve details; inspect the captured exception instead.
+
+Result scratch and expanded arguments consume the existing execution-byte quota.
+Return scratch is held by an additional internal frame/borrow scope through the
+managed call and cleaned up on success or failure. Allocation/borrow failures use
+the existing copied execution fault codes. No raw host borrow enters managed
+code and no allocation occurs while publishing successful numeric fields.
+The 64-leaf bound has local O0/O2 ASan/UBSan evidence under the existing 2 KiB
+native-frame warning gate. Reference-bearing records and phone platforms remain
+unverified/unsupported by this slice.
