@@ -187,3 +187,12 @@ Existing declaration and intrinsic permissions remain enforced. New fault/UTF-16
 probes and direct-call layout regressions pass 2,646 repeated O0/O2 comparisons;
 150 string/admission checks pass with sanitizers and forced GC. No profile/grant
 changes. See [ADR AC0028](docs/decisions/AC0028-direct-string-instance-calls.md).
+
+
+### Nested enum storage (AC5b.3)
+
+Exact nested Int32 enum payloads now use admitted layouts with separate lexical
+operand access. Three probes pass 882 repeated O0/O2 native/.NET comparisons;
+eight boundary checks and 30 previous enum/lexical checks pass. The frozen state
+probe now reaches the unchanged 256-type catalog limit. Static value storage and
+full replay remain unfinished. See [ADR AC0029](docs/decisions/AC0029-nested-enum-storage.md).
