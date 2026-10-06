@@ -513,3 +513,21 @@ factories and HashSet enumeration remain diagnostic. No compiler profile, grant
 or limit changes. Frozen engine discovery now needs OfType in ZombieSiege.
 AdvanceRound IL_0009; state still reaches 257/256 identities. Full replay remains
 unverified. See ADR AC0052.
+
+
+### Scalar boxes beside typed interface operations (AC1b.5)
+
+Scalar-box confinement is now required when a closure converts an unconstrained
+reference to an interface. Already interface-typed receivers rely on ordinary IR
+assignment/cast validation, so unrelated scalar boxes may be returned, stored in
+locals/arrays/fields, forwarded recursively or passed through managed locations.
+Object-to-interface tests/casts still require the existing confinement proof;
+primitive interface contracts and boxed dispatch have not been added.
+
+Twenty-one probes pass 6,174 repeated O0/O2 native/.NET comparisons with forced GC,
+ASan/UBSan and exact cleanup. Logical/scalar checks reject escaping test aliases
+when an unconstrained interface conversion exists and reject forged interface
+parameter types. The proof uses block-local value identities. Boxed value IR v8
+and scalar boxed IR v9 record the admission change; native v49 is unchanged.
+See ADR AC0053. This prerequisite enables nongeneric cursor boxing; full replay
+remains unverified.

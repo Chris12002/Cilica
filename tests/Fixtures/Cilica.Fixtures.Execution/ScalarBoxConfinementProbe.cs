@@ -54,6 +54,11 @@ namespace Cilica.Fixtures.Execution
             IBoxCall other = new BoxedCallClass(b);
             return unchecked(Read((BoxEnum)a) + other.Read());
         }
+        public static int MixedNominal(int a, int b)
+        {
+            object other = new BoxedCallClass(b);
+            return unchecked(IsInteger(a) + (other is IBoxCall ? b : 0));
+        }
         public static int NominalTest(int a, int b)
         {
             IBoxCall other = new BoxedCallClass(b);
@@ -92,38 +97,38 @@ namespace Cilica.Fixtures.Execution
         }
         public static int UnsupportedInterfaceTest(int a, int b) => IsComparable(a) + b;
         public static int UnsupportedInterfaceCast(int a, int b) => CastComparable(a) + b;
-        public static int UnsupportedReturn(int a, int b)
+        public static int Returned(int a, int b)
         {
             IBoxCall other = new BoxedCallClass(b);
             return unchecked((int)Make(a) + other.Read());
         }
-        public static int UnsupportedNullableBox(int a, int b)
+        public static int NullableBox(int a, int b)
         {
             IBoxCall other = new BoxedCallClass(b);
             return unchecked(Read(MakeNullable(a)) + other.Read());
         }
-        public static int UnsupportedLocal(int a, int b)
+        public static int Local(int a, int b)
         {
             IBoxCall other = new BoxedCallClass(b); object value = a;
             int read = other.Read();
             return unchecked((int)value + (int)value + read);
         }
-        public static int UnsupportedArray(int a, int b)
+        public static int Array(int a, int b)
         {
             IBoxCall other = new BoxedCallClass(b); var values = new object[1]; values[0] = a;
             return unchecked((int)values[0] + other.Read());
         }
-        public static int UnsupportedField(int a, int b)
+        public static int Field(int a, int b)
         {
             IBoxCall other = new BoxedCallClass(b); var holder = new ScalarEscapeHolder(); holder.Value = a;
             return unchecked((int)holder.Value + other.Read());
         }
-        public static int UnsupportedRecursive(int a, int b)
+        public static int Recursive(int a, int b)
         {
             IBoxCall other = new BoxedCallClass(b);
             return unchecked(RecursiveRead(a, 1) + other.Read());
         }
-        public static int UnsupportedParameterAddress(int a, int b)
+        public static int ParameterAddress(int a, int b)
         {
             IBoxCall other = new BoxedCallClass(b);
             return unchecked(AddressedRead(a) + other.Read());

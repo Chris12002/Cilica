@@ -24,17 +24,18 @@ public sealed partial class ScalarBoxConfinementTests
         (nameof(ScalarBoxConfinementProbe.UnrelatedCast), ScalarBoxConfinementProbe.UnrelatedCast),
         (nameof(ScalarBoxConfinementProbe.UnrelatedTest), ScalarBoxConfinementProbe.UnrelatedTest),
         (nameof(ScalarBoxConfinementProbe.TargetOnly), ScalarBoxConfinementProbe.TargetOnly),
-        (nameof(ScalarBoxConfinementProbe.Fault), ScalarBoxConfinementProbe.Fault)];
+        (nameof(ScalarBoxConfinementProbe.MixedNominal), ScalarBoxConfinementProbe.MixedNominal),
+        (nameof(ScalarBoxConfinementProbe.Fault), ScalarBoxConfinementProbe.Fault),
+        (nameof(ScalarBoxConfinementProbe.Returned), ScalarBoxConfinementProbe.Returned),
+        (nameof(ScalarBoxConfinementProbe.NullableBox), ScalarBoxConfinementProbe.NullableBox),
+        (nameof(ScalarBoxConfinementProbe.Local), ScalarBoxConfinementProbe.Local),
+        (nameof(ScalarBoxConfinementProbe.Array), ScalarBoxConfinementProbe.Array),
+        (nameof(ScalarBoxConfinementProbe.Field), ScalarBoxConfinementProbe.Field),
+        (nameof(ScalarBoxConfinementProbe.Recursive), ScalarBoxConfinementProbe.Recursive),
+        (nameof(ScalarBoxConfinementProbe.ParameterAddress), ScalarBoxConfinementProbe.ParameterAddress)];
     private static readonly string[] Unsupported = [
         nameof(ScalarBoxConfinementProbe.UnsupportedInterfaceTest),
-        nameof(ScalarBoxConfinementProbe.UnsupportedInterfaceCast),
-        nameof(ScalarBoxConfinementProbe.UnsupportedReturn),
-        nameof(ScalarBoxConfinementProbe.UnsupportedNullableBox),
-        nameof(ScalarBoxConfinementProbe.UnsupportedLocal),
-        nameof(ScalarBoxConfinementProbe.UnsupportedArray),
-        nameof(ScalarBoxConfinementProbe.UnsupportedField),
-        nameof(ScalarBoxConfinementProbe.UnsupportedRecursive),
-        nameof(ScalarBoxConfinementProbe.UnsupportedParameterAddress)];
+        nameof(ScalarBoxConfinementProbe.UnsupportedInterfaceCast)];
     private static readonly Lazy<Task<Dictionary<string, ManagedExceptionTranslationResult>>> Results = new(Translate);
     private static async Task<Dictionary<string, ManagedExceptionTranslationResult>> Translate()
     {
@@ -74,6 +75,7 @@ public sealed partial class ScalarBoxConfinementTests
     [Theory]
     [InlineData(false, 0)] [InlineData(false, 1)]
     [InlineData(true, 0)] [InlineData(true, 1)]
+    [InlineData(false, 2)] [InlineData(true, 2)] [InlineData(false, 3)] [InlineData(true, 3)]
     public async Task Confined_boxes_match_dotnet_with_interfaces(bool optimized, int batch)
     {
         var results = await Results.Value;

@@ -38,13 +38,21 @@ internal sealed class BoxedTypeRelations
     internal void ValidateDispatch(IEnumerable<IrMethod> methods, ObjectInterfaceDispatchPlan? dispatch, ImmutableArray<ObjectVirtualDispatch> classes = default)
     {
         var bodies = methods.ToArray();
-        // Primitive contracts are incomplete, so ancestry cannot prove that a
-        // scalar box is unrelated to an interface. Instead prove every scalar
-        // allocation is confined when any interface operation is present.
-        bool scalarInterfaceProof = _scalarBoxes.Count != 0 && (dispatch is not null && !dispatch.Declarations.IsEmpty
-            || bodies.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Any(v => v.Expression switch {
-                IrExpression.CastClass cast => _interfaces.Contains(cast.Target),
-                IrExpression.IsInstance test => _interfaces.Contains(test.Target), _ => false }));
+        // Primitive contracts are incomplete. A cast from an unconstrained
+        // reference to an interface therefore still needs scalar confinement.
+        // An already interface-typed receiver has passed the IR's assignment or
+        // cast checks: unrelated scalar allocations cannot flow into it without
+        // an earlier object-to-interface conversion, which is checked here too.
+        bool NeedsScalarFacts(IrBlock block)
+        {
+            var types = block.Values.ToDictionary(v => v.Id, v => v.Type);
+            bool InterfaceReceiver(int operand) => types.TryGetValue(operand, out var type)
+                && type.Kind == IrTypeKind.Reference && type.Class is not null && _interfaces.Contains(type.Class);
+            return block.Values.Any(v => v.Expression switch {
+                IrExpression.CastClass cast => _interfaces.Contains(cast.Target) && !InterfaceReceiver(cast.Operand),
+                IrExpression.IsInstance test => _interfaces.Contains(test.Target) && !InterfaceReceiver(test.Operand), _ => false });
+        }
+        bool scalarInterfaceProof = _scalarBoxes.Count != 0 && bodies.SelectMany(m => m.Blocks).Any(NeedsScalarFacts);
         if (!scalarInterfaceProof && dispatch is null && classes.IsDefaultOrEmpty) return;
         var proof = new BoxedUseProof(bodies);
         var byId = bodies.ToDictionary(m => IrMethodId.From(m.Source));

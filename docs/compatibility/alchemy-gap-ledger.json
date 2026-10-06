@@ -31,7 +31,7 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "9ec25f4ff1ff4b0937d2f3f85d18f2c25c157a08e6d91790173b8a6435e1fa3e",
-    "latestSlice": "AC6.7",
+    "latestSlice": "AC1b.5",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -73,8 +73,8 @@
         "AC1a"
       ],
       "status": "in-progress",
-      "completedSubslices": ["AC1b.1", "AC1b.2", "AC1b.3", "AC1b.4"],
-      "remaining": "Required raw-unbox forms and scalar uses beyond the bounded confinement proof (including returned boxes and primitive interface contracts/dispatch), or proof of absence from the accepted replay closure."
+      "completedSubslices": ["AC1b.1", "AC1b.2", "AC1b.3", "AC1b.4", "AC1b.5"],
+      "remaining": "Required raw-unbox forms, unconstrained scalar-box interface contracts/dispatch and remaining unsafe escapes, or proof of absence from the accepted replay closure."
     },
     "AC1b.1": {
       "prerequisites": ["AC1a"],
@@ -95,6 +95,11 @@
       "prerequisites": ["AC1b.3"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0006-confined-scalar-box-uses.md"
+    },
+    "AC1b.5": {
+      "prerequisites": ["AC1b.4"],
+      "status": "complete-bounded-typed-interface-receivers",
+      "decision": "docs/decisions/AC0053-typed-interface-box-uses.md"
     },
     "AC2": {
       "prerequisites": ["AC0"],
