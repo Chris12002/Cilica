@@ -1,0 +1,9 @@
+{
+  "xcodeVersion": "26.1.1",
+  "xcodeBuild": "17B100",
+  "sdkVersion": "26.1",
+  "sdkBuild": "23B77",
+  "clangVersion": "Apple clang version 17.0.0 (clang-1700.4.4.1)",
+  "minimumIOS": "17.0",
+  "architecture": "arm64"
+}

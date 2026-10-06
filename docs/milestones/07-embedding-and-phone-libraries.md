@@ -14,7 +14,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
-| 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
+| 7d | iOS library and native adapter | In progress: pinned arm64 device/simulator XCFramework, C kernel transcript and Swift lifecycle simulator checks; full native adapter and physical-device evidence remain open |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
 
@@ -285,16 +285,58 @@ work or phone execution ran. This is a scripted integration, not a general app
 adapter. Reference-bearing records are unnecessary for this measured contract
 and remain unsupported; iOS packaging is the next delivery slice.
 
+## Slice 7d.1 outcome
+
+[ADR 0186](../decisions/0186-apple-static-packaging.md) adds a local package builder
+for emitted v3 modules. It pins Xcode 26.1.1 (17B100), Apple Clang 17.0.0
+(clang-1700.4.4.1), iOS/iOS Simulator SDK 26.1 (23B77) and arm64. It creates separate
+static device/simulator archives with a C header, Apple typed-constant bridge,
+Clang module map and a build receipt containing commands and hashes. The iOS 17.0
+deployment floor is not evidence of runtime compatibility with that OS.
+
+The existing kernel module packages successfully. Both objects have the correct
+IOS/IOSSIMULATOR build metadata; the original header and archives are verified
+inside the XCFramework. Native O2 builds retain the 2 KiB frame warning gate,
+warnings as errors and disabled C++ exceptions/RTTI. Package archives do not link
+sanitizers. Initial/final native archives have identical hashes.
+
+A C11 consumer linked against the packaged simulator archive passes **5,376 exact
+comparisons** on the already-booted arm64 iPhone 17 Pro simulator running iOS 26.1
+(23B86).
+The unchanged kernel transcript runs three recreation cycles each with normal and
+forced collection. Swift 6.2.1 imports the C module, links both device/simulator
+executables and passes six simulator lifecycle cycles, layout/negotiation checks,
+unknown-export handling and stale-runtime rejection. The first Swift build exposed
+unimportable numeric macros; the Apple header now supplies typed aliases without
+changing the core ABI. Explicit SDK selection removed the initial Swift linker's
+sysroot warning. Final consumer build logs are clean.
+
+Three focused Python checks pass for schema/artifact mismatches, output protection,
+invalid module names and incompatible toolchain preflight. Review covered input
+validation, subprocess bounds, slice separation, linkage, C ownership and package
+provenance. No unresolved defect remains. Private receipt/log hashes and simulator
+evidence are in `artifacts/milestone7-ios/evidence-7d1.json`; public instructions
+are in [tools/Apple](../../tools/Apple/README.md) and
+[examples/Apple](../../examples/Apple/README.md).
+
+No connected physical device was found. Device builds were cross-compiled/linked
+only; no signing, app installation, simulator startup/shutdown, hosted work or push
+ran. Local main remains an ancestor; the remote advertised no branch heads. The
+Swift consumer is a lifecycle smoke test, not the complete native application
+adapter. Physical-device and UI/background lifecycle validation remain open.
+
 ## Remaining exit gates
 
 - Define the actual mobile application command contract and connect its native
   host adapter, using the validated numeric/handle/string boundary where sufficient.
   Reference-bearing records require a separate design if that contract needs them.
-- Pin target toolchains and build/package reproducibly using local tools first.
+- Keep the Apple pin/package checks current; pin and validate the Android toolchain
+  when beginning that separate slice.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests
   alone do not close this milestone.
 - Review rooting, resource bounds, C layout, error order and lifecycle races for
   each slice, and keep compatibility claims limited to measured targets.
 
 No hosted jobs, external publication, paid services or additional agents are
-authorized by this plan. No mobile execution has been verified yet.
+authorized by this plan. iOS simulator execution is verified only in the scope
+above; no physical-device execution has been verified.

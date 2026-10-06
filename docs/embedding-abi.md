@@ -3,7 +3,8 @@
 The current module profile is `embedding-object-handles-v3`, described below.
 It adds typed retained object handles, exact Integer64 values, void results and optional UTF-16 copying
 to shared export modules, with optional retained exception capture and bounded numeric records.
-V1/V2 remain supported. Local evidence is macOS ARM64; mobile support is unverified.
+V1/V2 remain supported. Local evidence covers macOS ARM64 and the bounded iOS
+simulator checks below; physical-device support remains unverified.
 
 ## Persistent Int32 profile v1
 
@@ -609,3 +610,22 @@ composes wide record fields and captured exception recovery. The
 [7c.6 outcome](milestones/07-embedding-and-phone-libraries.md#slice-7c6-outcome)
 records exact local scope and counts. This is evidence for existing operations;
 it adds no ABI capability or general command adapter and makes no phone claim.
+
+### Apple static package (7d.1)
+
+[The Apple builder](../tools/Apple/README.md) consumes the generated v3 source,
+header and manifest and emits an arm64 device/simulator XCFramework. The original
+C ABI and fingerprint are unchanged. Each library is static: its registry belongs
+to the host image where it is linked; module tokens must remain within that image.
+Use the platform's matching slice and link libc++ (the Clang module map requests
+it for Swift clients). Package receipts record exact input/output/toolchain hashes.
+
+Swift imports functions and layouts from the C module. Numeric macros expressed
+through UINT32_C/UINT64_C are exposed by `cilica_apple.h` as typed constants named
+`<Module>_<OriginalMacro>`. Inline `cilica_<name>_apple_default_config()` and
+`cilica_<name>_apple_contract_hash()` helpers avoid duplicating config defaults or
+hash strings in Swift. These helpers own no state and add no ABI capability.
+Keep existing host serialization, handle lifetime and buffer ownership rules.
+The [Swift smoke](../examples/Apple/README.md) validates import/link/lifecycle;
+it is not a full application or retained-handle wrapper. Device cross-linking and
+simulator execution remain separate evidence; physical-device validation is open.

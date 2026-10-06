@@ -93,6 +93,16 @@ profile and does not establish a general command adapter, reference-bearing
 record support or phone compatibility. See
 [ADR 0185](decisions/0185-persistent-kernel-abi-composition.md).
 
+Milestone 7d.1 adds `apple-static-v3-arm64-v1` packaging: separate arm64 device and
+simulator static archives in an XCFramework, unchanged C ABI, typed Swift constants
+and a module map linking libc++. The pinned Xcode 26.1.1/iOS SDK 26.1 build targets
+iOS 17.0; only an iOS 26.1 arm64 simulator has execution evidence. The packaged C11
+kernel consumer passes 5,376 exact comparisons; Swift 6.2.1 links both targets and
+passes six simulator lifecycle cycles. Device linking is not physical-device
+execution. No full Swift app adapter, UIKit/background lifecycle, earlier-iOS or
+Intel simulator compatibility is established. See
+[ADR 0186](decisions/0186-apple-static-packaging.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

@@ -1,0 +1,25 @@
+// Generated local smoke consumer, not an application SDK or Swift handle wrapper.
+import @MODULE@
+
+@main struct LifecycleSmoke {
+    static func main() {
+        precondition(@PREFIX@_version() == 3)
+        precondition(@PREFIX@_capabilities() & 255 == 255)
+        precondition(MemoryLayout<cilica_v3_value>.size == 16)
+        precondition(MemoryLayout<cilica_v3_config>.size == 24)
+        for stress: UInt32 in [0, 1] {
+            for _ in 0..<3 {
+                var config = @APPLE_PREFIX@_default_config()
+                config.flags = stress
+                var runtime: UInt64 = 0
+                let status = @PREFIX@_create(3, @APPLE_PREFIX@_contract_hash(), &config, &runtime)
+                precondition(status == @MODULE@_CILICA_V3_OK && runtime != 0)
+                var result = cilica_v3_result()
+                precondition(@PREFIX@_invoke(runtime, 0, nil, 0, &result) == @MODULE@_CILICA_V3_UNKNOWN_EXPORT)
+                precondition(@PREFIX@_destroy(runtime) == @MODULE@_CILICA_V3_OK)
+                precondition(@PREFIX@_destroy(runtime) == @MODULE@_CILICA_V3_INVALID_RUNTIME)
+            }
+        }
+        print("PASS Swift C-module import, configuration, negotiation and six lifecycle cycles")
+    }
+}

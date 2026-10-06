@@ -1196,6 +1196,15 @@ details across later calls. This requires no new ABI shape: reference-bearing
 records remain unsupported. The scripted probe is not a general mobile command
 adapter, and platform packaging/device lifecycle validation is still required.
 
+Milestone 7d.1 packages an emitted v3 module as an Apple static XCFramework
+([ADR 0186](decisions/0186-apple-static-packaging.md)). Device/simulator arm64
+slices remain distinct; pinned local tools, matched input artifacts and bundle
+hashes provide build provenance. Swift imports a C module with typed numeric
+aliases/default-config accessors, preserving the underlying C ABI. The kernel C
+transcript and a Swift lifecycle consumer have iOS 26.1 simulator evidence;
+the device slice is cross-linked only. The iOS 17.0 build floor, physical devices,
+UI/background lifecycle and complete native host adapter still require validation.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

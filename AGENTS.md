@@ -25,6 +25,9 @@ feedback before implementation. Explain consequential choices in plain language.
   A scripted persistent real-kernel adapter has C11/shared-library transcript
   evidence on macOS ARM64 (7c.6); this is not a general application adapter or
   phone-device validation.
+  Slice 7d.1 adds pinned arm64 iOS/device and simulator XCFramework packaging,
+  simulator C transcript evidence and Swift lifecycle smoke checks. Physical
+  device execution and a full native application adapter remain unverified.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

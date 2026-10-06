@@ -35,11 +35,14 @@ bounded quotas. V3 adds typed retained object handles and void results.
 An optional v3 capability copies exact UTF-16 strings through host-owned buffers.
 Integer64 exports preserve exact signed/unsigned bit patterns. Bounded numeric
 records copy nested public Int32/Integer64 fields through host-owned buffers.
-Reference-bearing records and phone libraries remain planned. Optional exception capture preserves
+Reference-bearing records remain planned. Optional exception capture preserves
 a retained exception for type/message copying without reexecuting the failed call;
 iOS is the first device target.
 A scripted persistent adapter now reproduces the unchanged kernel's transcripts
 through the C ABI on macOS ARM64, with retained sessions and copied observations/text.
+[Apple packaging](tools/Apple/README.md) now builds arm64 device/simulator
+XCFrameworks; the kernel transcript and a Swift lifecycle smoke pass on an iOS
+26.1 simulator. Physical-device and application lifecycle validation remain open.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.
