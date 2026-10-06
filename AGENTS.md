@@ -658,3 +658,14 @@ cleanup. The ordinal Equals recognizer now filters its method name before applyi
 its unchanged exact contract checks. No profile or bound changes. Frozen engine
 advances to a private containing-type helper call; state and full replay remain
 incomplete. See [ADR AC0071](docs/decisions/AC0071-fixed-string-concat.md).
+
+### Private containing-type calls (AC8.20)
+
+Nongeneric nested types can call private members on a proven containing type in
+the same image. Discovery and both IR stages require the complete matching lexical
+suffix; sibling, enclosing-to-child, foreign, generic-owner and older-profile paths
+remain rejected. Nine probes pass 2,646 repeated O0/O2 comparisons; all 80 selected
+checks pass with forced GC and sanitizers. Integer-object CIL v17, object IR v25 and
+native v51; layout/runtime algorithms and bounds are unchanged. Frozen engine now
+reaches a nonpublic handler delegate; state/replay remain incomplete.
+See [ADR AC0072](docs/decisions/AC0072-containing-type-private-calls.md).

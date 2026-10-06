@@ -350,7 +350,7 @@ public static partial class ValueProgramDiscovery
                                 Fail(work, "newobj requires an exact supported constructor declaration.", offset);
                             if (!ObjectMethodAccess.Allowed(work.Binding, callee.Binding, integers64)
                                 && !(instruction.OpCode == "call" && ProtectedBaseConstructor(work, callee, offset)))
-                                Fail(work, "Calls require the same declaring owner, a public externally visible target, or an assembly-accessible target in the same image under the integer-object profile.", offset);
+                                Fail(work, "Calls require the same declaring owner, an accessible public/assembly target, or a private target in a proven nongeneric containing type under the integer-object profile.", offset);
                             _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" && !collectionConstructor ? 1 : 0);
                             if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                             calls.Add(offset, callee.Binding.Method);

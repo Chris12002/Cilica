@@ -32,10 +32,11 @@ public sealed class NestedEnumTests
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("externally visible", StringComparison.Ordinal));
     }
     [Fact]
-    public void Enum_storage_does_not_broaden_nested_private_method_access()
+    public void Nested_private_enum_borrows_use_containing_type_method_access()
     {
-        var result = IntegerObjectTranslationTests.Translate("UnsupportedPrivateCall", fixture: typeof(NestedEnumProbe));
-        Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("Calls require the same declaring owner", StringComparison.Ordinal));
+        var result = IntegerObjectTranslationTests.Translate("PrivateCall", fixture: typeof(NestedEnumProbe));
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+        ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
     }
     [Theory]
     [InlineData("owner", true)] [InlineData("nested-helper", true)]

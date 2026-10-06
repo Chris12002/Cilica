@@ -53,6 +53,21 @@ internal static class ObjectLexicalAccess
         return true;
     }
 
+    // Private member scope extends into nested type declarations, not sibling or
+    // enclosing declarations. Closed generic owner ancestry needs separate evidence.
+    internal static bool WithinDeclaringType(ObjectMethodBinding caller, ObjectMethodBinding target)
+    {
+        if (caller.Owner.ContentHash != target.Owner.ContentHash
+            || caller.Owner.Specialization.Length != 0 || target.Owner.Specialization.Length != 0
+            || caller.LexicalOwners.IsDefaultOrEmpty || target.LexicalOwners.IsDefaultOrEmpty
+            || !Valid(caller.Owner, caller.LexicalOwners) || !Valid(target.Owner, target.LexicalOwners)
+            || caller.LexicalOwners.Any(o => o.GenericArity != 0) || target.LexicalOwners.Any(o => o.GenericArity != 0)) return false;
+        for (int i = 1; i < caller.LexicalOwners.Length; ++i)
+            if (caller.LexicalOwners[i].Token == target.Owner.Token)
+                return Same(caller.LexicalOwners[i..], target.LexicalOwners);
+        return false;
+    }
+
     internal static void Consistent(IEnumerable<(ObjectTypeId Owner, ImmutableArray<LexicalTypeOwner> Chain)> declarations)
     {
         var facts = new Dictionary<(string Hash, int Token), (TypeAttributes Visibility, int Arity, int Parent)>();
