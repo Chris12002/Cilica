@@ -22,15 +22,9 @@ public sealed class PrivateGenericTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Names.Select((name, i) =>
             (name, programs[i], typeof(PrivateGenericProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).ToArray());
     }
-    [Fact]
-    public void Opaque_private_array_allocation_still_requires_detached_access_evidence()
-    {
-        var result = IntegerObjectTranslationTests.Translate("Arrays", fixture: typeof(PrivateGenericProbe));
-        Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Message.Contains("Invalid reference IR", StringComparison.Ordinal));
-    }
 
     [Theory]
+    [InlineData("array", true)] [InlineData("array-operand", false)] [InlineData("array-and-cast", false)]
     [InlineData("opaque", true)] [InlineData("operand", false)] [InlineData("local", false)]
     [InlineData("catch", false)] [InlineData("signature", false)] [InlineData("unrelated", false)]
     public void Foreign_generic_body_cannot_name_the_private_type_hidden_behind_its_argument(string use, bool admitted)
@@ -38,14 +32,15 @@ public sealed class PrivateGenericTests
         var result = ForeignClosure(use);
         Assert.Equal(admitted, result.Success);
         if (admitted) ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
-        else Assert.Contains(result.Diagnostics, d => d.Message.Contains(use == "catch" ? "Custom exceptions require public top-level" : "lexical declaring scope", StringComparison.Ordinal));
+        else Assert.Contains(result.Diagnostics, d => d.Message.Contains(use == "catch" ? "Custom exceptions require public top-level" : use == "array-and-cast" ? "Invalid reference IR" : "lexical declaring scope", StringComparison.Ordinal));
     }
 
     [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task Foreign_generic_reference_transport_matches_dotnet(bool optimized)
+    [InlineData(false, "opaque")] [InlineData(true, "opaque")]
+    [InlineData(false, "array")] [InlineData(true, "array")]
+    public async Task Foreign_generic_reference_transport_matches_dotnet(bool optimized, string use)
     {
-        var result = ForeignClosure("opaque");
+        var result = ForeignClosure(use);
         Assert.True(result.Success, string.Join("; ", result.Diagnostics));
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,
             [("Foreign", result.Program!, (a, b) => unchecked(a + b))]);
@@ -65,9 +60,14 @@ public sealed class PrivateGenericTests
         var privateRef = bridge.TypeReference("", "Context", ownerRef);
         byte privateCode = checked((byte)((MetadataTokens.GetRowNumber(privateRef) << 2) | 1));
         bridge.Type("Test", "Bridge", baseType: objectRef);
+        var variable = bridge.Specification(0x1e, 0);
         byte[] parameter = use == "signature" ? [0x12, privateCode] : [0x1e, 0];
         bridge.Method("Echo", [0x10, 1, 1, 0x1e, 0, .. parameter], arity: 1,
             locals: use == "local" ? [7, 1, 0x12, privateCode] : [7, 1, 0x1e, 0], emit: il => {
+                if (use is "array" or "array-operand" or "array-and-cast") {
+                    il.LoadConstantI4(2); il.OpCode(ILOpCode.Newarr); il.Token(use == "array-operand" ? privateRef : variable); il.OpCode(ILOpCode.Pop);
+                    if (use == "array-and-cast") { il.LoadArgument(0); il.OpCode(ILOpCode.Isinst); il.Token(variable); il.OpCode(ILOpCode.Pop); }
+                }
                 if (use == "catch") {
                     var start = il.DefineLabel(); var handler = il.DefineLabel(); var done = il.DefineLabel();
                     il.MarkLabel(start); il.Branch(ILOpCode.Leave, done);

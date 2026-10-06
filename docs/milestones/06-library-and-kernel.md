@@ -2468,3 +2468,15 @@ checked. Four probes pass 1,176 repeated O0/O2 native comparisons with forced GC
 and sanitizers; 106 broad and 60 focused checks pass. Private T[] still requires
 additional detached access evidence. Frozen EngineStep advances to String.Format;
 StateLookup remains at the unchanged type limit. Full replay remains incomplete.
+
+
+### Private generic arrays (AC8.4)
+
+Exact original T array uses now carry instruction-scoped context evidence through
+logical and scalar IR. Both stages recompute specialization identities and check
+the variable, element, offset and operation. Six probes pass 1,764 repeated O0/O2
+native comparisons with sanitizers and forced GC, including List<private type>.
+Eleven mutations fail in both stages; array permission does not authorize casts
+or explicit foreign names. 117 broad and 46 post-review checks pass. Object IR v16
+and integer-object CIL v4; native v42/layout v17 unchanged. Engine/state closure
+and full replay remain incomplete. See ADR AC0035.

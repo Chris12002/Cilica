@@ -245,3 +245,15 @@ Closed argument snapshots retain reader-free identity syntax and reproduce the
 existing specialization hashes after bounded validation. All 28 selected checks
 pass. This supplies identity evidence for later per-instruction array access;
 it adds no new executable capability. See ADR AC0034.
+
+
+### Private generic arrays (AC8.4)
+
+Exact original T array uses now carry instruction-scoped context evidence through
+logical and scalar IR. Both stages recompute specialization identities and check
+the variable, element, offset and operation. Six probes pass 1,764 repeated O0/O2
+native comparisons with sanitizers and forced GC, including List<private type>.
+Eleven mutations fail in both stages; array permission does not authorize casts
+or explicit foreign names. 117 broad and 46 post-review checks pass. Object IR v16
+and integer-object CIL v4; native v42/layout v17 unchanged. Engine/state closure
+and full replay remain incomplete. See ADR AC0035.

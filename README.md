@@ -374,3 +374,15 @@ address boundary, 90 existing regressions and 21 baseline checks pass. Layout v1
 native v42. Frozen EngineStep advances to a nonpublic generic argument; state
 lookup still reaches the type limit. Static addresses and full replay remain
 unfinished. See [ADR AC0031](docs/decisions/AC0031-static-inline-value-copies.md).
+
+
+### Private generic arrays (AC8.4)
+
+Exact original T array uses now carry instruction-scoped context evidence through
+logical and scalar IR. Both stages recompute specialization identities and check
+the variable, element, offset and operation. Six probes pass 1,764 repeated O0/O2
+native comparisons with sanitizers and forced GC, including List<private type>.
+Eleven mutations fail in both stages; array permission does not authorize casts
+or explicit foreign names. 117 broad and 46 post-review checks pass. Object IR v16
+and integer-object CIL v4; native v42/layout v17 unchanged. Engine/state closure
+and full replay remain incomplete. See ADR AC0035.

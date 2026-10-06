@@ -69,6 +69,7 @@ internal static class IrValidator
         var types = sharedTypes ?? new IrTypeRules(catalog);
         var locations = locationRules ?? valueRules?.Locations;
         Require(method.Source is not null, "source is missing.");
+        Require(method.GenericArrays is null || objectRules is not null, "generic array evidence requires object validation.");
         Require(method.Source.AssemblyIdentity is not null, "assembly identity is missing.");
         Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "source hash must be SHA-256 hexadecimal.");
         Require(method.Source.Specialization is { } key && (key.Length == 0 || key.Length == 64 && key.All(c => char.IsAsciiDigit(c) || c is >= 'a' and <= 'f')),
@@ -193,9 +194,9 @@ internal static class IrValidator
                                 && Earlier(text.Array) && types.Assignable(valueTypes[text.Array], IrType.Reference(ObjectTypeId.Vector(catalog!.ObjectBase, ObjectArrayElement.Int32))),
                             IrExpression.StringConcat text => objectRules is not null && value.Type == objectRules.StringType
                                 && objectRules.StringOperand(text.Left, valueTypes) && objectRules.StringOperand(text.Right, valueTypes),
-                            IrExpression.EmptyArray a => types.IntegerCasts && objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType)
+                            IrExpression.EmptyArray a => types.IntegerCasts && objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType, value.ILOffset)
                                 && value.Type == IrType.Reference(a.ArrayType),
-                            IrExpression.NewArray a => objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType)
+                            IrExpression.NewArray a => objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType, value.ILOffset)
                                 && value.Type == IrType.Reference(a.ArrayType) && Earlier(a.Length) && valueTypes[a.Length] == IrType.Int32,
                             IrExpression.ArrayLength a => objectRules is not null && value.Type == IrType.Int32
                                 && objectRules.ArrayLength(a.Array, valueTypes),

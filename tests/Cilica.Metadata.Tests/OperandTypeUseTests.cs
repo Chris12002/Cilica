@@ -53,6 +53,8 @@ public sealed class OperandTypeUseTests
         var genericUse = resolver.ReadOperandTypeUses(caller, forwarded, new(2));
         Assert.True(genericUse.Success, string.Join("; ", genericUse.Diagnostics));
         Assert.Equal(new TypeSignature.Variable(false, 0), genericUse.Value!.Signatures[0]);
+        Assert.Equal(new TypeSignature.Variable(false, 0), Assert.Single(genericUse.Value.MethodArguments));
+        Assert.Empty(explicitUse.Value.MethodArguments);
         Assert.Contains(genericUse.Value.Signatures, s => s == new TypeSignature.Variable(true, 0));
         var shortBudget = resolver.ReadOperandTypeUses(caller, forwarded, new(1));
         Assert.False(shortBudget.Success);

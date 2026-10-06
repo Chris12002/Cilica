@@ -5,7 +5,10 @@ using System.Reflection.Metadata;
 namespace Cilica.Metadata.Resolution;
 
 /// <summary>Original operand type syntax in the caller's image, before generic substitution.</summary>
-public sealed record OperandTypeUses(ImmutableArray<TypeSignature> Signatures);
+public sealed record OperandTypeUses(ImmutableArray<TypeSignature> Signatures)
+{
+    public ImmutableArray<TypeSignature> MethodArguments { get; init; } = [];
+}
 
 public sealed partial class AssemblyResolver
 {
@@ -25,6 +28,7 @@ public sealed partial class AssemblyResolver
             var reader = assembly.Image.Reader;
             var decoder = new SignatureDecoder(this, assembly);
             var types = ImmutableArray.CreateBuilder<TypeSignature>();
+            ImmutableArray<TypeSignature> methodArguments = [];
             void MethodTypes(MethodSignature signature)
             {
                 types.Add(signature.ReturnType); types.AddRange(signature.Parameters);
@@ -35,7 +39,8 @@ public sealed partial class AssemblyResolver
             if (operand.Kind == HandleKind.MethodSpecification)
             {
                 var specification = reader.GetMethodSpecification((MethodSpecificationHandle)operand);
-                types.AddRange(decoder.MethodArguments(specification.Signature));
+                methodArguments = [.. decoder.MethodArguments(specification.Signature)];
+                types.AddRange(methodArguments);
                 operand = specification.Method;
                 if (operand.Kind is not (HandleKind.MethodDefinition or HandleKind.MemberReference))
                     throw new BadImageFormatException("Method specification needs a MethodDef or MemberRef declaration.");
@@ -64,7 +69,7 @@ public sealed partial class AssemblyResolver
                 default:
                     throw new UnsupportedBindingException("Operand type-use snapshots require a type, field or method token.");
             }
-            return new OperandTypeUses(types.ToImmutable());
+            return new OperandTypeUses(types.ToImmutable()) { MethodArguments = methodArguments };
         });
     }
 }

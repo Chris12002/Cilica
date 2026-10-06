@@ -45,7 +45,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v3";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v4";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -235,7 +235,7 @@ public static class ValueTranslator
             for (int id = 0; id < blocks.Length; id++)
                 if (blocks[id] is null) Error(input.Instructions[partition.Ranges[id].Start].Offset,
                     "Unreachable blocks require later analysis; remove dead IL before value translation.", DiagnosticIds.ExecutionUnsupported);
-            return new(input.Source, method.Parameters, method.ReturnType, [.. blocks], locals.ToImmutable()) { ExceptionRegions = regions };
+            return new(input.Source, method.Parameters, method.ReturnType, [.. blocks], locals.ToImmutable()) { ExceptionRegions = regions, GenericArrays = method.GenericArrays };
 
             IrBlock Block(int id)
             {

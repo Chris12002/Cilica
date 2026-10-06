@@ -27,7 +27,7 @@ public static class ObjectIrValidator
     }
 }
 
-internal sealed class ObjectIrRules
+internal sealed partial class ObjectIrRules
 {
     private readonly Dictionary<IrMethodId, ObjectMethodBinding> _bindings = [];
     private readonly Dictionary<IrMethodId, IrMethod> _methods = [];
@@ -170,6 +170,7 @@ internal sealed class ObjectIrRules
                     || binding.VirtualName == "GetHashCode" && method.Parameters.Length == 1),
                 "ordinary selected Object methods require the admitted managed equality/hash signatures.");
         }
+        ValidateGenericArrays();
         ObjectLexicalAccess.Consistent(program.Bindings.Select(b => (b.Owner, b.LexicalOwners))
             .Concat(flow.Types.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
             .Concat(flow.Types.Statics.Select(f => (f.Id.Owner, f.LexicalOwners))));
@@ -328,8 +329,9 @@ internal sealed class ObjectIrRules
             ObjectArrayElementKind.Value when _valueLayouts?.ContainsKey(array.ArrayElement.Type!) == true => IrType.Value(array.ArrayElement.Type!),
             _ => null } : null;
 
-    internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array) => array is not null && _arrays.Contains(array)
-        && (array.ArrayElement!.Kind != ObjectArrayElementKind.Reference || TypeTest(caller, array.ArrayElement.Type!))
+    internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array, int offset = -1) => array is not null && _arrays.Contains(array)
+        && (array.ArrayElement!.Kind != ObjectArrayElementKind.Reference || TypeTest(caller, array.ArrayElement.Type!)
+            || _genericArrays.TryGetValue((IrMethodId.From(caller.Source), offset), out var authorized) && authorized == array)
         && (array.ArrayElement.Kind != ObjectArrayElementKind.Value || _valueLayouts is null
             || _valueLayouts.TryGetValue(array.ArrayElement.Type!, out var layout)
                 && (layout.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == array.ArrayElement.Type));
