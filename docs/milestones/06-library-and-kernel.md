@@ -1633,3 +1633,144 @@ private Harness, Probes and Oracle projects with the recorded local SDK if their
 binaries are absent; their project files reference the frozen built images, never
 modify or execute assemblies inside the metadata compiler. No services, training,
 hosted jobs, pushes or additional agents were used.
+
+## Parallel Alchemy compatibility implementation plan
+
+Recorded 2026-10-06. Status: proposed delivery plan; implementation has not started.
+The completed type-identity slice and bounded audit above are the starting evidence.
+Use AC identifiers for this workstream so milestone numbering and existing exit
+gates remain intact. Milestone 6 stays complete for its measured kernel scope.
+
+### Relationship to the milestone roadmap
+
+The milestone track delivers embedding and platforms. The AC track expands the
+managed code that Cilica can execute, using saved games as integration evidence.
+Neither track substitutes for the other's correctness or target-device gates.
+
+The milestone 7 branch at `77661ab` has scalar/shared exports, retained handles,
+UTF-16 copying and Integer64 transfer. Structured value copying, detailed exception
+transfer and physical-device packaging/tests remain open. This is a snapshot of
+that parallel branch, not a claim that its newer commits are integrated into this
+compatibility branch, which currently shares the milestone work through `f538e13`.
+
+| Milestone track | Work that can continue independently | Required join with AC |
+| --- | --- | --- |
+| 7: embedding and phones | Finish value/error contracts and package/test the already-verified bounded kernel on physical iOS, then Android | Share compiler/runtime integration checks when AC changes lowering, roots, packets or allocation. Full Alchemy coverage is not an added prerequisite for the existing bounded-kernel milestone 7 gate. |
+| 8: Expo and offline Alchemy | Build bridge lifecycle, app shell and persistence adapter against a pinned supported fixture | The claimed offline Alchemy scenario must also pass AC9 replay equivalence and the relevant AC10 device checks before its start/play/terminate/restore gate closes. |
+| 9: browser parity | Prepare Emscripten build/host infrastructure against supported fixtures | Reuse the pinned replay corpus and application contract from AC9; require browser/native/.NET equivalence on the claimed scope. Native results alone do not close this gate. |
+| Benchmarking workstream | Maintain bounded baselines for supported workloads | Measure new operations only after semantic equivalence; optimization is not a compatibility workaround. |
+
+Parallel here means separately tracked work that can progress without waiting for
+unrelated features. It does not launch agents, duplicate tasks, hosted jobs or
+simultaneous modifications to shared compiler files. Keep one active AC delivery
+slice by default; ongoing milestone work can continue on its own branch.
+
+### Delivery slices and acceptance gates
+
+All AC slices below are planned. Split a slice into coherent reviewable commits
+when its implementation crosses more than one semantic boundary. Library APIs
+are selected from the declaration ledger and actual compiled closure, not a
+blanket promise to implement the entire corresponding .NET class.
+
+| Slice | Implementation and architectural choice | Dependencies | Acceptance gate |
+| --- | --- | --- | --- |
+| AC0: shared baseline and gap ledger | Integrate reviewed type-identity and milestone commits at a stable boundary. Reconcile emitter/profile changes, duplicate ADR 0180 allocations and links; preserve both decision records. Promote general reduced probes to public conformance fixtures while keeping Alchemy inputs private. Assign every observed declaration/probe to a slice or an explicit unresolved/nominal-only category. | Existing audit and committed milestone snapshot | Clean integrated build; targeted type/cache plus affected embedding regressions; reproducible pinned probe baseline. No silent profile-ID collision, stub counted as support, or unassigned confirmed blocker. |
+| AC1a: nullable storage and members | Implement closed Nullable<T> with presence state plus an ordinary inline payload. Reuse existing value copies, generics and reference-slot tracing rather than special-casing Int32. Admit constructor, HasValue, Value and both GetValueOrDefault forms against exact reference declarations; record any further required members separately. | AC0 | Differential empty/present/default/copy/return/field tests for scalar, enum, application-ID and reference-bearing struct payloads, plus arrays for admitted storage shapes; enum-vector composition joins AC5b. Preserve Value's exception behavior and references across GC. Engine/state probes advance beyond their current Nullable mapping error or reveal a precisely recorded next limitation. |
+| AC1b: nullable conversions and boxing | Implement the required lifted/conversion IL and special nullable boxing/unboxing rules: empty boxes as null, present boxes as the underlying value. Reuse underlying value descriptors and roots. Unsupported remaining forms stay build errors. | AC1a; exact closure identifies required forms | .NET comparisons for null, present underlying type identity, wrong-type unboxing, mutation/copies and collections. Prove any deferred nullable form is absent from the accepted replay closure; do not silently give nullable boxes ordinary struct semantics. |
+| AC2: delegate results and contracts | Extend single-target delegates to reference results using rooted return storage. Add only the required closed Func/Action/Predicate/Comparison declarations and tested signatures. Preserve target ownership, receiver null checks and exception propagation. Keep multicast/variance outside scope unless a reduced required case establishes the need. | AC0; AC1 for the composed command fixture | Reference result survives allocation and collection before storage/return. Native comparison for static and instance targets, null/fault paths and shared object identity. A reduced Type-to-handler dictionary returning a result object executes correctly. Existing Int32/void and reference-argument paths remain valid. |
+| AC3: collection storage APIs | Fill required Dictionary Add/getter/remove and constructor gaps; List enumerable construction, mutation/search/copy APIs; HashSet and exact comparer contracts. Keep algorithms in the owned managed library and reuse narrow equality/hash/compiler hooks. Match each required overload explicitly. | AC0; AC1 for nullable/value elements; iterator-consuming APIs join AC4 | .NET comparisons for duplicates/missing keys/nulls, growth, collisions, mutation, receiver-copy behavior and specified exception order. Mapped unsupported stubs are replaced only for admitted members; other overloads still diagnose. Preserve observable application ordering without claiming a universal .NET hash value or enumeration-order contract. |
+| AC4: enumeration and iterators | Implement required List/Dictionary enumerators, array IEnumerable helpers, interface dispatch and disposal/finally behavior. Include iterator-generated current-thread bookkeeping only through an explicit single-thread runtime contract; it is not authorization for multithreading. Implement version/invalidation behavior where required by the reference API. | AC3 storage foundation; AC0 dispatch; AC1 where payloads require it | Empty/nonempty, nested/copy/dispose/early-exit/fault enumeration agrees with .NET. Mutation invalidation and GC-held Current values are tested. A real iterator path advances beyond the current Environment/helper errors. Unknown dispatch remains diagnostic. |
+| AC5a: numeric and ordering helpers | Add observed Math Abs/Min/Max, integer CompareTo and required Guid text/number APIs as ordinary managed library code where practical. Supply the observed comparer behavior needed by sorting. | AC0; no need to wait for delegates or full replay | Boundary tests cover MinValue Abs overflow, signed/unsigned comparisons, culture/format restrictions and exact parse/constructor failures. Real grid-distance helper matches .NET, not merely emits C++. |
+| AC5b: enum, tuple and constant data | Add required larger ValueTuple shapes, Enum.IsDefined/comparison and the bounded value/enum metadata identity they require. Implement validated RuntimeHelpers.InitializeArray/field-data handling and required enum-vector semantics with explicit bounds. Do not widen this into general reflection. | AC0; existing type/value/array infrastructure; coordinate shared runtime edits with AC1/AC7a | Exact enum members/invalid values, tuple copy/equality/hash contracts, malformed tokens/RVA data, element widths, length and ownership are checked. Required reduced probes pass; unsupported token/reflection shapes still reject. |
+| AC6: observed LINQ subset | Implement required Enumerable operators using managed iteration and existing collections, beginning with Any/Where/Select/First/FirstOrDefault and materialization; then ordering, Concat, Distinct/Contains/OfType/Single/Count as the ledger requires. Preserve deferred execution, disposal and callback/exception order. | AC2, AC3, AC4; AC5a comparers for ordering | Differential empty/error/multiple-enumeration/early-stop cases and callback side-effect order. Required application helper slices execute with actual closures. Each remaining observed overload has an explicit status. |
+| AC7a: byte and character vectors | Add bounded byte/char array storage and operations, including loads/stores, conversions, bounds, type identity and memory accounting. An additional mapping alone is insufficient, as the byte probe demonstrates. Coordinate descriptor/tracing/packet changes with milestone 7. | AC0; may proceed independently of nullable/delegate APIs, but serialize shared emitter edits | Native/.NET edge values, array identity, copies, bounds/fault order, allocation exhaustion and lifetime checks. No regression to existing Int32/reference/value vectors or host UTF-16 transfer. |
+| AC7b: required text and encoding | Add exact observed Concat/Format/comparison/constructor/StringBuilder overloads, ordinal comparer behavior and UTF-8 conversion. Prefer managed implementations over target-specific calls. Preserve UTF-16 code units and specified invalid-surrogate/fallback behavior. | AC0 for scalar text helpers; AC7a for buffer/string construction and encoding; other formatting dependencies from ledger | Complete output-code-unit/byte comparisons, empty/null/invalid input and overflow/allocation cases. Unsupported culture/provider overloads retain actionable errors. |
+| AC7c: SHA-256 and fingerprinting | Implement the required Create/ComputeHash/disposal surface using a reviewed portable managed SHA-256 implementation and existing Cilica arithmetic. Record source/license provenance if adapted. This is engine work as well as replay validation: spell compilation calls SemanticFingerprint.Hash. | AC7a, AC7b and required collection/numeric operations | Standard known-answer vectors plus .NET byte-for-byte tests at block boundaries, empty/multiblock inputs and repeated instances. Run the unchanged semantic-fingerprint helper with real inputs; no host-only substitute hides a reachable engine gap. |
+| AC8: replay contract and executable closure | Define an application-owned facade for scenario creation, command application and state/event inspection, discoverable through one ordinary inclusion root. Keep decoding/adapters outside compiler packages. Start facade/schema design after AC0; compile and review the complete required implementation closure as prerequisites land. | AC0 design; required AC1–AC7 implementations; appropriate milestone 7 boundary capabilities for C-host integration | Every reached method has an admitted managed body or exact granted intrinsic; required filters/dispatch/callbacks are resolved. Track actual method/type/instruction/frame/heap counts. New blockers enter reduced fixtures; neither missing bodies nor capacity failures are waived. |
+| AC9: native saved-game equivalence | Replay all three frozen games using original scenario/content, seeds, identities, payloads and order. Preserve host initialization/pruning and recorded-command behavior. Strengthen ordered event observations with an application-owned canonical payload projection shared by both oracle/adapters; event text alone is insufficient for a full event-equivalence claim. | AC8 | At every command compare acceptance/rejection, version, canonical state, ordered event payloads and final archived hash against .NET. Cover stale/duplicate commands, restoration and fresh-instance repeats. O0/O2 and normal/forced GC runs pass under sanitizers. Resolve any oracle/adapter mismatch before blaming or changing engine rules. |
+| AC10: milestone integration | Carry the same compiled engine contract and corpus through public ABI adapters, then physical iOS/Android and browser hosts as their milestones mature. Persist application save data, not heap addresses or object handles. | AC9 plus each target's milestone infrastructure | Retain/release, exact string/wide transfer, fault recovery, small quotas and repeated create/destroy pass on each claimed host. Phone terminate/restore and browser traces match the oracle. Record exact source/core/compiler/SDK/device/OS versions; no target inherits another target's pass. |
+
+### Work that can proceed alongside other work
+
+After AC0, nullable work (AC1), delegate work (AC2), leaf numeric helpers (AC5a),
+portable buffer design (AC7a) and replay-facade design (AC8) have largely separate
+functional prerequisites. They are eligible for parallel workstreams, not automatic
+concurrent edits. The default AC execution order starts with nullable support,
+then the reference-result command-dispatch fixture, then collection foundations.
+Small library-only numeric/text slices can land between runtime changes when their
+exact dependencies and review gates are satisfied.
+
+Collections split at a deliberate dependency boundary: implement storage and
+mutation before enumeration; iterator-consuming constructors/AddRange then compose
+with AC4. LINQ follows tested enumeration/delegates. Encoding and hashing have a
+separate prerequisite chain through byte/char storage. Begin their design early
+because SHA-256 lies on an actual engine path, even though fewer audit sites use it.
+Do not infer priority only from call-site frequency.
+
+The first demonstrable checkpoints are: nullable API conformance; a native
+Type-keyed handler dispatch returning a result object; an unchanged application
+helper beyond the already-working RNG; complete executable engine closure; the
+three-game native transcript; and finally the public ABI/device replay. An audit
+with no reported issues is not a substitute for any execution checkpoint.
+
+### Integration and capacity controls
+
+Before each slice, read the relevant current specification and present its concrete
+design. Pin the integration base, inspect main and the latest committed milestone
+work, and preserve in-progress changes. Commit reviewed semantic slices regularly.
+Do not renumber milestones or allocate a global ADR number without checking both
+active branches. Resolve the existing duplicate 0180 records during AC0 without
+losing links or provenance.
+
+`ObjectCppEmitter`, runtime headers/descriptors, roots/collection, return lowering,
+intrinsic capabilities and generated profile identifiers are shared areas. Sequence
+changes there and integrate at reviewed commit boundaries. A milestone change to
+one of those areas triggers the smallest relevant combined conformance/ABI checks;
+a library-only change does not justify rerunning every platform/benchmark matrix.
+There is no authorization here to send another task instructions or dispatch agents.
+
+The observed graph is larger than the small examples, but audit nodes are not
+executable counts. Measure the translated closure against the current bounds
+(256 object types, 512 methods and 65,536 instructions), including library expansion
+and static initialization. If a real closure exceeds them, open a separate measured
+capacity/design slice: inspect algorithms and generated code size, review memory/
+stack/compile-time costs, and add exact/excess boundary checks before changing a
+limit. Do not blindly increase analysis limits or discard handlers to obtain a pass.
+Independent multi-root discovery is not an AC prerequisite while one ordinary
+facade root can retain the required closure. If it becomes necessary, plan it as a
+separate compiler slice rather than weakening reachability validation.
+
+### Evidence, review and resource policy
+
+Maintain a ledger with the source/core/compiler hashes, exact API or IL shape,
+application witness, reduced probe, owning AC slice, prerequisite, current diagnostic
+and measured outcome. Distinguish observed, confirmed blocker, planned, translated,
+native-validated and target-validated. Nominal-only observations and deferred paths
+remain visible. The 135 declaration binding failures and 43 probe rejections are
+starting evidence, not a complete or fixed feature count; nine positive probes
+remain regression controls.
+
+For each implementation slice, run focused .NET/native differential tests, O0/O2
+when native semantics change, forced collection and appropriate sanitizers. Exercise
+failure/limit behavior as well as successful results. Review generated C++ for
+defined arithmetic, allocation roots and boundary ownership; add reduced regressions
+for defects. Update compatibility/specification/decision records and the ledger,
+then commit. Explicit grants and a reviewed manifest remain required; a rebuilt
+library is never automatically trusted.
+
+Re-run the small affected probes after each slice. Re-run the bounded broader
+inventory at integration checkpoints or when a newly visible dependency warrants
+it, not after every edit. Run the full three-game native matrix only after the
+compiled closure and smaller composed fixtures pass. A repeated timeout or environment
+failure requires a new hypothesis before another expensive run. Hosted runtime/CI
+budget is zero unless separately authorized; services, paid plans, benchmark
+matrices and additional agents are not started by this plan.
+
+Completion of the AC workstream means the unchanged agreed Alchemy replay scope
+passes AC9 with a closed implementation and documented residual exclusions. Device
+and browser claims require AC10 per target. The saved games cover 14 top-level
+command types and six nested UnitAction kinds, not every possible rule branch.
+Extend the corpus deliberately with rejected/duplicate/restored cases and additional
+required commands; do not present corpus success as unrestricted C#/.NET support.
+Future general filters, async and multithreading retain their existing roadmap gates
+unless a concrete required closure promotes a narrowly scoped dependency earlier.

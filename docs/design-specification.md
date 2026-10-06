@@ -1269,6 +1269,14 @@ sanitizers. The exact compiled/source-body audit resolves the filter gate for th
 root; general filters remain unsupported. The broader runtime, public embedding
 API and untested platforms remain planned.
 
+The [parallel Alchemy compatibility plan](milestones/06-library-and-kernel.md#parallel-alchemy-compatibility-implementation-plan)
+tracks the audited language/library gaps as AC0–AC10 delivery slices, separately
+from milestone numbering. It preserves milestone 6's bounded completion and lets
+milestone 7 embedding/device work continue against its supported kernel. The full
+offline Alchemy and browser scenarios join the native replay gate and then require
+their own target evidence. This is a proposed implementation plan, not a claim of
+additional compatibility or authorization to launch concurrent agent work.
+
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,
 not authorization to publish unfinished private material automatically.
