@@ -42,7 +42,7 @@ public sealed class CoreLibraryBuildTests
         pairs = pairs.Append(new LibraryTypeMapping(
             resolver.ResolveType(contract, "System.Collections.Generic", "List`1", "Enumerator").Value!,
             resolver.ResolveType(implementation, "System.Collections.Generic", "List`1", "Enumerator").Value!));
-        foreach (string nested in new[] { "KeyCollection", "ValueCollection" })
+        foreach (string nested in new[] { "KeyCollection", "ValueCollection", "Enumerator" })
             pairs = pairs.Append(new LibraryTypeMapping(
                 resolver.ResolveType(contract, "System.Collections.Generic", "Dictionary`2", nested).Value!,
                 resolver.ResolveType(implementation, "System.Collections.Generic", "Dictionary`2", nested).Value!));

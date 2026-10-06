@@ -2021,3 +2021,16 @@ O0/O2 native/.NET comparisons; two view-cycle GC checks, exact nested metadata,
 unknown-equality rejection and 41 existing regressions pass. The ledger has 23
 gaps and 24 controls. No new grants or native profiles. Copying, enumeration and
 full replay remain incomplete. See [ADR AC0018](decisions/AC0018-dictionary-views.md).
+
+
+### Concrete dictionary enumeration (AC4.3)
+
+Dictionary.GetEnumerator now exposes its exact nested value-type contract. It
+walks active entry slots, copies the current KeyValuePair and resets it at the end.
+Only insertion of a new key increments the version: removal, clearing, overwrite
+and failed TryAdd remain valid during iteration. Eleven probes plus the public
+foreach baseline supply 3,528 repeated O0/O2 native/.NET comparisons, including
+current-value survival across forced GC after clearing the dictionary. Forty-three
+existing regressions pass with sanitizers enabled. The ledger has 22 gaps and 25
+controls. No new grants/profiles; boxed interface enumeration, view enumeration
+and full replay remain unfinished. See [ADR AC0019](decisions/AC0019-concrete-dictionary-enumeration.md).

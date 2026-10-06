@@ -204,3 +204,8 @@ Dictionary Keys/Values require explicit nested KeyCollection/ValueCollection
 mappings. AC4.2 supplies cached live views, read-only faults and bounded lookup.
 ContainsValue uses copied receivers; nullable/unknown reference equality, view
 copying and enumeration remain diagnostics. No new grants.
+
+AC4.3 concrete dictionary enumeration requires the exact nested
+``System.Collections.Generic.Dictionary`2/Enumerator`` mapping. New insertion
+invalidates iteration; clear, remove and overwrite do not. Interface factories
+and boxed nongeneric enumeration members remain diagnostic.

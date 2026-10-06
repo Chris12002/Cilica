@@ -121,6 +121,7 @@ namespace System.Collections.Generic
         private int count;
         private int freeList;
         private int freeCount;
+        private int version;
         public Dictionary() { freeList = -1; }
         public int Count => count - freeCount;
         private KeyCollection keys;
@@ -261,6 +262,55 @@ namespace System.Collections.Generic
         bool Collections.IDictionary.Contains(object key) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         Collections.IDictionaryEnumerator Collections.IDictionary.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IDictionaryEnumerator>.Invoke();
         void Collections.IDictionary.Remove(object key) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        internal int EnumerationVersion => version;
+        internal int EnumerationCount => count;
+        internal Cilica.Runtime.DictionaryEntry<TKey, TValue> EnumerationEntry(int index) => entries[index];
+        public Enumerator GetEnumerator() => new Enumerator(this);
+        public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, Collections.IDictionaryEnumerator
+        {
+            private readonly Dictionary<TKey, TValue> dictionary;
+            private readonly int version;
+            private int index;
+            private KeyValuePair<TKey, TValue> current;
+            internal Enumerator(Dictionary<TKey, TValue> dictionary)
+            {
+                this.dictionary = dictionary;
+                version = dictionary.EnumerationVersion;
+                index = 0;
+                current = default;
+            }
+            public bool MoveNext()
+            {
+                if (version != dictionary.EnumerationVersion)
+                    throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                while ((uint)index < (uint)dictionary.EnumerationCount)
+                {
+                    var entry = dictionary.EnumerationEntry(index++);
+                    if (entry.Next >= -1)
+                    {
+                        var pair = new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
+                        current = pair;
+                        return true;
+                    }
+                }
+                index = unchecked(dictionary.EnumerationCount + 1);
+                current = default;
+                return false;
+            }
+            public KeyValuePair<TKey, TValue> Current => current;
+            public void Dispose() { }
+            void Collections.IEnumerator.Reset()
+            {
+                if (version != dictionary.EnumerationVersion)
+                    throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                index = 0;
+                current = default;
+            }
+            object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+            Collections.DictionaryEntry Collections.IDictionaryEnumerator.Entry => Cilica.Runtime.UnsupportedLibraryMember<Collections.DictionaryEntry>.Invoke();
+            object Collections.IDictionaryEnumerator.Key => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+            object Collections.IDictionaryEnumerator.Value => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+        }
         public sealed class KeyCollection : ICollection<TKey>, Collections.ICollection, IReadOnlyCollection<TKey>
         {
             private readonly Dictionary<TKey, TValue> dictionary;
@@ -340,6 +390,7 @@ namespace System.Collections.Generic
                 reused.Key = key;
                 reused.Value = value;
                 buckets[bucket] = slot + 1;
+                version++;
                 return true;
             }
             if (count == entries.Length)
@@ -351,6 +402,7 @@ namespace System.Collections.Generic
             entries[count] = added;
             buckets[bucket] = count + 1;
             count++;
+            version++;
             return true;
         }
         private void Resize()

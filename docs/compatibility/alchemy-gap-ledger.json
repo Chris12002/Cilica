@@ -20,18 +20,18 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v41",
-    "nativeProfileEvidence": "Public baseline revalidated at AC4.2 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC4.3 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
     "updatePolicy": "When a gap advances, update its diagnostic and owning slice; claim native validation only after an oracle/native comparison. No silent blanket baseline regeneration.",
     "publicProbeCount": 47,
-    "knownGapCount": 23,
-    "positiveControlCount": 24,
+    "knownGapCount": 22,
+    "positiveControlCount": 25,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "1a2449ece1d55032ef08ae75de54eeae210988a9f84e0a2b3acb66ef0a6a3549",
-    "latestSlice": "AC4.2",
+    "fixtureSha256": "b89e9090af63089d4f2f1c4ab01b610d916729df56c9fa098189f3c05557187a",
+    "latestSlice": "AC4.3",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -134,8 +134,8 @@
     "AC4": {
       "prerequisites": ["AC3"],
       "status": "in-progress",
-      "completedSubslices": ["AC4.1", "AC4.2"],
-      "remaining": "Interface and array enumerators, dictionary/key/value enumeration, nongeneric Current and required disposal/closure coverage."
+      "completedSubslices": ["AC4.1", "AC4.2", "AC4.3"],
+      "remaining": "Interface and array enumerators, dictionary interface and key/value enumeration, nongeneric Current and required disposal/closure coverage."
     },
     "AC4.1": {
       "prerequisites": ["AC3.4"],
@@ -146,6 +146,11 @@
       "prerequisites": ["AC4.1"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0018-dictionary-views.md"
+    },
+    "AC4.3": {
+      "prerequisites": ["AC4.2"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0019-concrete-dictionary-enumeration.md"
     },
     "AC5a": {
       "prerequisites": ["AC0"],
@@ -490,7 +495,7 @@
     {"id": "DictionaryRead", "slice": "AC3", "publicFixture": "Probe_DictionaryRead", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "privateWitness": "probes.json; Probe_DictionaryRead"},
     {"id": "DictionaryRemove", "slice": "AC3", "publicFixture": "Probe_DictionaryRemove", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_DictionaryRemove", "auditDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "currentEvidence": "AC3.3 DictionaryMutationTests and public baseline; removal, clear, slot reuse and rooted lifetime checks on macOS ARM64 at O0/O2 with forced GC and sanitizers."},
     {"id": "DictionaryKeys", "slice": "AC4", "publicFixture": "Probe_DictionaryKeys", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_DictionaryKeys", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a14 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC4.2 cached live key/value views, key/value lookup, copied value equality and GC cycle evidence at O0/O2. Copying and enumeration remain separate."},
-    {"id": "DictionaryForeach", "slice": "AC4", "publicFixture": "Probe_DictionaryForeach", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a13 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_DictionaryForeach"},
+    {"id": "DictionaryForeach", "slice": "AC4", "publicFixture": "Probe_DictionaryForeach", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_DictionaryForeach", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a13 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC4.3 concrete Dictionary<TK,TV>.Enumerator; live slot order, version-on-new-insertion only, snapshots and GC behavior at O0/O2."},
     {"id": "ListForeach", "slice": "AC4", "publicFixture": "Probe_ListForeach", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ListForeach", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a18 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC4.1 concrete List<T>.Enumerator, native differential copy/current/version/disposal/GC tests; generic and nongeneric interface enumerator factories remain unsupported."},
     {"id": "ListRemoveAt", "slice": "AC3", "publicFixture": "Probe_ListRemoveAt", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ListRemoveAt", "auditDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "currentEvidence": "AC3.1 ListMutationTests and CompatibilityGapTests; concrete List<T> calls, macOS ARM64 O0/O2 with forced GC and ASan/UBSan."},
     {"id": "ListAddRange", "slice": "AC3", "publicFixture": "Probe_ListAddRange", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: AddRange"}, "privateWitness": "probes.json; Probe_ListAddRange", "prerequisites": ["AC4"]},
