@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0 integration is in progress.
+Recorded 2026-10-06. Status: approved delivery plan; AC0 complete, AC1–AC10 planned.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1651,7 +1651,8 @@ The milestone 7 branch at `77661ab` has scalar/shared exports, retained handles,
 UTF-16 copying and Integer64 transfer. Structured value copying, detailed exception
 transfer and physical-device packaging/tests remain open. This is a snapshot of
 that parallel branch, not a claim that its newer commits are integrated into this
-compatibility branch, which currently shares the milestone work through `f538e13`.
+compatibility branch. At that planning checkpoint it shared milestone work through
+`f538e13`; the AC0 outcome below records the later integration.
 
 | Milestone track | Work that can continue independently | Required join with AC |
 | --- | --- | --- |
@@ -1667,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-All AC slices below are planned. Split a slice into coherent reviewable commits
+AC0 is complete as recorded below; AC1–AC10 remain planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -1719,8 +1720,8 @@ Before each slice, read the relevant current specification and present its concr
 design. Pin the integration base, inspect main and the latest committed milestone
 work, and preserve in-progress changes. Commit reviewed semantic slices regularly.
 Do not renumber milestones or allocate a global ADR number without checking both
-active branches. Resolve the existing duplicate 0180 records during AC0 without
-losing links or provenance.
+active branches. AC0 resolved the duplicate 0180 records with the separate AC
+decision sequence, preserving both decisions and their provenance.
 
 `ObjectCppEmitter`, runtime headers/descriptors, roots/collection, return lowering,
 intrinsic capabilities and generated profile identifiers are shared areas. Sequence
@@ -1791,3 +1792,59 @@ decision is now [AC0001](../decisions/AC0001-runtime-type-identity.md); mileston
 0180 retains its public-handle identity. Future compatibility decisions use the
 AC prefix to avoid collisions with the milestone decision sequence. AC0's public
 probe and ledger checkpoint follows separately.
+
+
+### AC0 public probe and ledger outcome
+
+AC0 is complete. The [machine-readable gap ledger](../compatibility/alchemy-gap-ledger.json)
+assigns all 260 observed reference declarations, 52 original probes and both
+mapping-only experiments to delivery slices or explicit unresolved categories.
+Reference tokens are meaningful only with the recorded reference assembly hash.
+Mapped declarations remain binding evidence, not claims of implemented bodies.
+The private witness references point into the unchanged bounded audit; that
+inventory has not been presented as a newly completed application closure.
+
+Promoted 47 generic probes into `CompatibilityGapProbe` and `CompatibilityGapTests`;
+the five probes containing actual Alchemy calls remain private. A single built and
+explicitly admitted owned core supplies all public translation probes. The ledger
+pins the reference hash, fixture source hash, SDK and integration revision, and
+retains the original audit core/compiler/source hashes separately. It is an
+expected-gap baseline, not a request to preserve unsupported behavior forever:
+when a slice advances, update that probe deliberately and add native equivalence.
+
+Validation on macOS ARM64: 39 individual expected diagnostic checks and one
+fixture/ledger coverage check pass. Eight positive controls pass at O0/O2 under
+ASan/UBSan with forced collection: 49 input pairs times three repetitions times
+eight probes times two optimization levels = 2,352 result comparisons, plus
+frame-budget and post-collection checks. The earlier combined integration passed
+67 runtime-type/embedding checks. Hosted CI and full saved-game replay were not run.
+
+Two public probes retain array locals that the original private IL did not retain.
+Byte and enum vectors therefore fail during local storage validation with CIL2001,
+before the private fixtures' mapping/field-layout diagnostics. Both IL bodies were
+inspected; the ledger keeps the old diagnostic and the new expectation, with an
+explanation. No compiler semantic change or newly supported array is claimed.
+After correcting those two expectations, reran only the 40 inexpensive baseline
+checks; the two native positive-control tests had already passed.
+
+Review checked diagnostic specificity, all ledger assignments, exact reference
+identity, separation of historical/private evidence from current public tests,
+unchanged unsupported semantics and no application dependencies in the fixtures.
+The old audit referenced compiler DLLs in mutable build output directories. Exact
+original copies were recovered from the audit harness and archived under ignored
+`artifacts/alchemy-gap-audit/pinned-compiler-a662904/`; the original manifest and
+results are unchanged. `archived-input-relocations.json` records those two paths,
+and `verify_archived_evidence.py` rechecks the historical hashes, counts and saved
+traces using the archived copies. This verification passed after integration.
+
+To repeat the public baseline from the repository root, use the pinned local SDK:
+
+```sh
+dotnet test tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj -c Release --no-restore --filter FullyQualifiedName~CompatibilityGapTests
+```
+
+For the combined integration gate, select
+`FullyQualifiedName~RuntimeTypeIdentityTests|FullyQualifiedName~Embedding`.
+Restore dependencies once if absent; no services or hosted jobs are required.
+Next delivery slice: AC1a nullable storage and members, with AC1b boxing/conversion
+semantics kept explicit and unsupported forms still diagnosed.

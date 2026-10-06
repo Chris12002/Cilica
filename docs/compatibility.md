@@ -1830,3 +1830,19 @@ slots. Missing grants, unsupported reflection/tokens, abstract allocations and
 forged detached IR fail validation. The unchanged Alchemy engine metadata probe
 now stops at missing `System.Nullable<T>` after passing the former Type mapping
 blocker. This is not a full saved-game native replay or platform-portability claim.
+
+
+## Alchemy compatibility baseline (AC0)
+
+The [gap ledger](compatibility/alchemy-gap-ledger.json) records 260 observed
+reference declarations and 52 probes from the bounded private audit, plus two
+mapping-only experiments. It assigns follow-on slices and retains unresolved
+observations; mapped declarations are not proof of executable library support.
+
+`CompatibilityGapTests` runs 47 public, application-independent probes: 39 assert
+specific current rejection diagnostics and eight compare native output with .NET
+under forced collection at O0/O2. These are regression controls for future slices,
+not full-game compatibility. The [AC0 outcome](milestones/06-library-and-kernel.md#ac0-public-probe-and-ledger-outcome)
+records the integrated milestone 7 revision, diagnostic differences from the
+private IL fixtures, validation and reproduction commands. No additional language
+or platform support was implemented by establishing this baseline.

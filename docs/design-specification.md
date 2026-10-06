@@ -1315,8 +1315,9 @@ tracks the audited language/library gaps as AC0–AC10 delivery slices, separate
 from milestone numbering. It preserves milestone 6's bounded completion and lets
 milestone 7 embedding/device work continue against its supported kernel. The full
 offline Alchemy and browser scenarios join the native replay gate and then require
-their own target evidence. AC0 integration has started; the plan is not a claim of additional compatibility
-or authorization to launch concurrent agent work.
+their own target evidence. AC0 is complete with an integrated baseline, assigned gap ledger and public
+regression probes; the later compatibility slices remain planned. Target claims
+still require their own native/device evidence.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,

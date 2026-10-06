@@ -6,6 +6,9 @@
     <RootNamespace>Cilica.Metadata.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="../../docs/compatibility/alchemy-gap-ledger.json" Link="compatibility-gap-ledger.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio">
