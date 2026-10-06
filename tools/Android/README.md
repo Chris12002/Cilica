@@ -56,9 +56,52 @@ python3 -B -m unittest discover -s tools/Android -p 'test_*.py' -v
 python3 -B -m unittest discover -s tools/Apple -p 'test_*.py' -v
 ```
 
-The public session and unchanged real-kernel artifacts both cross-build and link
-their C11 consumers. Android execution, repeated calls, JNI/Kotlin ownership and
-physical-device tests remain open.
+## Native emulator execution
+
+The runner uses already-installed tools pinned in `emulator.json`: emulator
+36.3.10, adb 36.0.2-14143358 and the Android 16/API-36 Google Play arm64 image,
+revision 7. It creates a fresh temporary AVD and private adb server, uses only its
+own emulator serial, and removes both processes and temporary device data after
+success or failure. It does not use personal AVD data or shared adb services.
+Logs, case output, device configuration and `run-receipt.json` remain in a new
+output directory. Boot is bounded to approximately 180 seconds; guest execution
+to 60 seconds per consumer. This harness owns disposable test subprocesses.
+
+Run one or more existing package lifecycle consumers in one boot:
+
+```bash
+python3 -B tools/Android/run_emulator.py \
+  --sdk /path/to/android-sdk --output out/android-run \
+  --case out/android-engine lifecycle
+```
+
+To link a separate C11 consumer, include `cilica.h`. Optional template tokens
+`@PREFIX@` and `@HASH@` expand to the package's C function prefix and contract-hash
+macro. The explicit NDK must match the package and toolchain pin:
+
+```bash
+python3 -B tools/Android/build_consumer.py \
+  --package out/android-engine --source tests/consumer.c.in \
+  --ndk /path/to/android-sdk/ndk/27.1.12297006 --output out/android-consumer
+python3 -B tools/Android/run_emulator.py \
+  --sdk /path/to/android-sdk --output out/android-custom-run \
+  --case out/android-engine lifecycle \
+  --case out/android-engine out/android-consumer
+```
+
+The runner verifies package/binary hashes and custom consumer source/package
+association before launch. Each consumer must exit zero and print a line beginning
+with `PASS` followed by whitespace or end of line. Use assertions/checks in that
+consumer for the actual expected values; a PASS marker alone is not an oracle.
+Libraries are pushed beside their consumers and found through a case-local
+`LD_LIBRARY_PATH`. Receipts link results to binaries and record guest page size.
+
+Both public-session and real-kernel packages pass six lifecycle cycles each.
+The unchanged kernel additionally passes 5,376 .NET transcript comparisons across
+three normal and three forced-collection runs on arm64 API 36 with **4 KB pages**.
+The original oracle and libraries were reused. This does not establish API-26 or
+16-KB runtime compatibility, Android captured-fault copying, JNI/Kotlin ownership,
+APK packaging, application lifecycle or physical-device behavior.
 
 Tool choices follow Android guidance for [other build systems](https://developer.android.com/ndk/guides/other_build_systems),
 [symbol visibility](https://developer.android.com/ndk/guides/symbol-visibility),

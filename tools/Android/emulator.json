@@ -1,0 +1,8 @@
+{
+  "emulatorRevision": "36.3.10",
+  "adbVersion": "36.0.2-14143358",
+  "image": "system-images/android-36/google_apis_playstore/arm64-v8a",
+  "imageRevision": "7",
+  "api": "36",
+  "abi": "arm64-v8a"
+}

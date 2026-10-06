@@ -5,7 +5,8 @@ It adds typed retained object handles, exact Integer64 values, void results and 
 to shared export modules, with optional retained exception capture and bounded numeric records.
 V1/V2 remain supported. Local evidence covers macOS ARM64 and the bounded iOS
 simulator checks below; physical-device support remains unverified.
-Android arm64 shared libraries now have cross-build/layout/link evidence only.
+Android arm64 shared libraries also pass native lifecycle and real-kernel transcript
+checks in an Android 16/API-36 emulator with 4 KB pages.
 
 ## Persistent Int32 profile v1
 
@@ -693,5 +694,24 @@ instance, and safe dynamic unloading is not promised.
 
 Receipts record input/output/toolchain hashes and ELF architecture, SONAME,
 dependencies, exports and 16 KB load alignment. A separate C11 consumer links
-against the package, but is not executed by the builder. Android runtime behavior,
-APK alignment, JNI/Kotlin wrapping and physical-device evidence remain open.
+against the package, but is not executed by the builder. The separate runner below
+provides bounded execution evidence; APK alignment, JNI/Kotlin wrapping and
+physical-device evidence remain open.
+
+### Android native emulator execution (7e.2)
+
+`tools/Android/run_emulator.py` verifies package and linked-consumer hashes before
+creating a fresh temporary AVD and private adb server. It selects only its own
+arm64 emulator, bounds boot/commands/native execution, copies the library alongside
+the consumer and sets a case-local `LD_LIBRARY_PATH`. Cleanup stops owned child
+processes and removes the temporary device; receipts preserve identity, hashes,
+outputs and cleanup outcomes. No APK, Gradle, signing or JNI is involved.
+
+The public session and kernel packages each pass six C11 create/destroy cycles.
+The unchanged kernel also passes 5,376 exact .NET transcript comparisons over
+three repetitions in each collection mode. It exercises numeric observations,
+exact UTF-16, retained aliases/snapshots, independent runtimes and stale tokens.
+Measured target: Android 16/API 36, arm64-v8a, 4 KB pages; emulator 36.3.10, adb
+36.0.2-14143358 and Google Play arm64 image revision 7. No Android captured-fault
+or Java/Kotlin lifetime claim follows from these particular consumers. API 26,
+16 KB runtime behavior, app lifecycle and physical-device execution remain open.

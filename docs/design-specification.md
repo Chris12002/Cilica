@@ -1250,8 +1250,17 @@ Milestone 7e.1 adds pinned Android shared-library packaging
 at API 26, with private static libc++ and an explicit C export list. ELF checks
 verify architecture, SONAME, dependencies and 16 KB load alignment; a separate C11
 consumer is cross-linked. Apple and Android share emitted-artifact validation.
-The public fixture and unchanged kernel both package successfully; no Android
-execution, JNI/Kotlin adaptation, APK alignment or device behavior is implied.
+The public fixture and unchanged kernel both package successfully; the packaging
+step itself establishes no execution, JNI/Kotlin or APK compatibility.
+
+Milestone 7e.2 adds a separate disposable Android emulator runner
+([ADR 0192](decisions/0192-android-native-emulator-validation.md)). It validates
+package/consumer hashes, boots a fresh pinned arm64 image with a private adb server,
+executes bounded C11 cases and removes its owned processes and temporary device.
+Both packaged lifecycle consumers and 5,376 unchanged real-kernel transcript
+comparisons pass on Android 16/API 36 with 4 KB pages, normally and with forced
+collection. This establishes native loading and repeated-call evidence on that
+image; API 26, 16 KB execution, JNI/Kotlin, APK and physical-device gates remain open.
 
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker

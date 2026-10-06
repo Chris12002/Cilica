@@ -50,8 +50,9 @@ scene host now passes real simulator foreground/background checks; OS suspension
 and physical-device execution remain open.
 The unchanged kernel transcript also passes through that host across repeated
 background/foreground cycles, with exact resumed-state comparisons.
-[Android packaging](tools/Android/README.md) now cross-builds pinned arm64 shared
-libraries and C11 consumers. Android execution and JNI/Kotlin adaptation remain open.
+[Android packaging](tools/Android/README.md) now builds pinned arm64 shared
+libraries. C11 lifecycle and real-kernel transcript checks pass in a disposable
+Android 16 emulator; JNI/Kotlin adaptation and physical-device execution remain open.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

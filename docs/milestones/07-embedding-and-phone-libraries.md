@@ -15,7 +15,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
 | 7d | iOS library and native adapter | In progress: pinned XCFramework, Swift owner/pauses and UIKit host; real kernel now passes repeated simulator foreground/background cycles. Full application commands, OS suspension and physical-device evidence remain open |
-| 7e | Android library and native adapter | In progress: pinned arm64 NDK shared libraries with ELF/C11 link checks. Android execution, JNI/Kotlin adaptation and physical-device tests remain open |
+| 7e | Android library and native adapter | In progress: pinned arm64 NDK packages pass C11 lifecycle and real-kernel transcripts on an Android 16 emulator. JNI/Kotlin adaptation and physical-device tests remain open |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
 
 ## Slice 7a boundary
@@ -466,13 +466,42 @@ API 26 and 16 KB runtime compatibility are not established by ELF inspection.
 Main remains an ancestor and the remote advertised no heads. JNI/Kotlin ownership,
 Android repeated-call/transcript execution and physical devices remain open.
 
+## Slice 7e.2 outcome
+
+[ADR 0192](../decisions/0192-android-native-emulator-validation.md) adds a separate
+consumer linker and bounded disposable-emulator runner. Packages and linked
+consumers are hash-checked before launch. The runner creates a fresh AVD and private
+adb server, selects its own serial, bounds every operation and records device,
+output and cleanup evidence. Existing personal AVD data and shared services are
+not reused. The installed tools/image suffice; no downloads were required.
+
+One emulator boot ran both packaged C11 lifecycle consumers (six cycles each) and
+the unchanged kernel transcript consumer (**5,376 exact .NET comparisons**, three
+repeats in normal/forced collection). Retained snapshots/aliases, exact UTF-16,
+numeric records, independent runtimes and stale handles are covered. The existing
+native libraries and oracle were reused. Target: arm64 Android 16/API 36, image
+revision 7, emulator 36.3.10, adb 36.0.2-14143358, **4 KB pages**. This adds direct
+loader and repeated-call evidence without changing compiler/runtime or game rules.
+
+Eight focused Python tests pass, including evidence tampering, consumer/package
+association, path containment and bounded cleanup after failed boot. Review covered
+library ownership, provenance, explicit serial/port handling, timeouts, failure
+recording and process cleanup. No unresolved defect remains. Both owned processes
+exited, temporary data was deleted and a separate process check found no Android
+test processes left. Private evidence: `artifacts/milestone7-android-run/evidence-7e2.json`.
+Main remains an ancestor; the remote advertised no heads. No hosted work or push ran.
+
+API-26/16-KB runtime behavior, Android captured-fault copying, JNI/Kotlin ownership,
+APK/app lifecycle and physical-device execution remain open. A successful native
+command-line consumer does not establish a full application adapter.
+
 ## Remaining exit gates
 
 - Define the actual mobile application command contract and connect its native
   host adapter, using the validated numeric/handle/string boundary where sufficient.
   Reference-bearing records require a separate design if that contract needs them.
-- Keep both platform toolchain/package pins current; add Android execution and
-  JNI/Kotlin ownership checks before claiming that adapter complete.
+- Keep both platform toolchain/package pins current; add Android fault-copying,
+  JNI/Kotlin ownership and application lifecycle checks before claiming that adapter complete.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests
   alone do not close this milestone.
 - Review rooting, resource bounds, C layout, error order and lifecycle races for

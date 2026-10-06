@@ -41,7 +41,9 @@ feedback before implementation. Explain consequential choices in plain language.
   This remains a scripted scenario, not the application's full command adapter.
   Slice 7e.1 adds pinned NDK r27b arm64/API-26 shared-library packaging with private
   libc++, C-only exports, verified 16 KB ELF alignment and C11 cross-link checks.
-  Android execution, JNI/Kotlin adaptation and device validation remain unverified.
+  Slice 7e.2 adds a disposable arm64 Android 16/API-36 emulator harness. Both C
+  lifecycle consumers and 5,376 real-kernel transcript comparisons pass with 4 KB
+  pages. JNI/Kotlin, API-26/16-KB runtime behavior and physical devices remain unverified.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

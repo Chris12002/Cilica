@@ -139,9 +139,18 @@ guarantee. See [ADR 0190](decisions/0190-composed-uikit-kernel-validation.md).
 Milestone 7e.1 adds `android-shared-v3-arm64-v1`: pinned NDK r27b/Clang 18.0.2,
 arm64-v8a/API 26 shared libraries with private static libc++, exact C exports and
 verified 16 KB ELF load alignment. The public session and unchanged kernel
-cross-build; separate C11 consumers link. These are compile/layout checks only:
-Android execution, API-26/16-KB device compatibility, APK packaging and JNI/Kotlin
-adaptation remain unverified. See [ADR 0191](decisions/0191-android-shared-packaging.md).
+cross-build; separate C11 consumers link. These are compile/layout checks only;
+see [ADR 0191](decisions/0191-android-shared-packaging.md).
+
+Milestone 7e.2 executes those unchanged libraries on a fresh arm64 Android 16/API-36
+emulator with 4 KB pages. Both C11 lifecycle consumers pass six cycles each; the
+kernel passes 5,376 exact .NET transcript comparisons across three repetitions in
+normal/forced collection. This covers loading, persistent numeric/text results,
+retained snapshots/aliases and stale/foreign tokens. Receipts record hashes,
+fingerprint and verified cleanup of the private adb server and temporary emulator.
+API-26/16-KB execution, Android fault copying, APK packaging, JNI/Kotlin lifetime,
+app lifecycle and physical devices remain unverified. See
+[ADR 0192](decisions/0192-android-native-emulator-validation.md).
 
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
