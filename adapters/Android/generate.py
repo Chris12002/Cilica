@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]/'tools/Android'))
 from package_support import package_files
 
 
-def generate(document, module):
+def generate(document, module, activity_host=False):
     contract = document['contract']
     if document['profile'] != 'embedding-object-handles-v3' or contract['abiVersion'] != 3:
         raise ValueError('Expected v3 contract')
@@ -52,6 +52,8 @@ def generate(document, module):
         for key, value in replacements.items():
             text = text.replace(key, value)
         result[name] = text
+    if activity_host:
+        result[module+'ActivityHost.kt'] = (root/'ActivityHost.kt.in').read_text().replace('@MODULE@', module)
     return result
 
 
@@ -59,10 +61,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--package', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--activity-host', action='store_true')
     args = parser.parse_args()
     package = args.package.resolve(strict=True)
     receipt, _ = package_files(package)
-    sources = generate(json.loads((package/'contract.json').read_bytes()), receipt['module'])
+    sources = generate(json.loads((package/'contract.json').read_bytes()), receipt['module'], args.activity_host)
     args.output.mkdir(parents=True, exist_ok=False)
     for name, text in sources.items():
         (args.output/name).write_text(text)

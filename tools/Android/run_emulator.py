@@ -14,6 +14,7 @@ import uuid
 
 from build_library import sha256
 from package_support import case_files, jvm_case_files
+from activity_cases import activity_files, run_activity_case
 
 
 def properties(path):
@@ -55,9 +56,11 @@ def main(argv=None):
                         metavar=('PACKAGE', 'CONSUMER'), help='CONSUMER: lifecycle or build_consumer output')
     parser.add_argument('--jvm-case', nargs=2, action='append', default=[], metavar=('PACKAGE', 'CONSUMER'),
                         help='CONSUMER: adapters/Android/build.py output, run with CheckJNI')
+    parser.add_argument('--activity-case', nargs=2, action='append', default=[], metavar=('PACKAGE', 'CONSUMER'),
+                        help='CONSUMER: tests/Android/build_activity.py output')
     args = parser.parse_args(argv)
-    if not args.case and not args.jvm_case:
-        parser.error('At least one --case or --jvm-case is required')
+    if not args.case and not args.jvm_case and not args.activity_case:
+        parser.error('At least one native, JVM or activity case is required')
     sdk = args.sdk.resolve(strict=True)
     pin = json.loads(Path(__file__).with_name('emulator.json').read_bytes())
     emulator = sdk/'emulator/emulator'
@@ -81,6 +84,7 @@ def main(argv=None):
         package = Path(package_name).resolve(strict=True)
         library, files, main_class = jvm_case_files(package, consumer)
         cases.append((package, library, files, main_class))
+    activities = [activity_files(Path(package).resolve(strict=True), consumer) for package, consumer in args.activity_case]
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     scratch = output/'temporary-device'
@@ -191,6 +195,10 @@ def main(argv=None):
                         (output/('case'+str(index)+'.logcat')).write_text(diagnostics.stdout+diagnostics.stderr)
                     raise RuntimeError('Native case '+str(index)+' failed; see case output')
                 print('Case '+str(index)+': '+result.stdout.strip(), flush=True)
+            receipt['activities'] = []
+            for index, (folder, evidence) in enumerate(activities):
+                activity_output = output/('activity'+str(index)); activity_output.mkdir()
+                receipt['activities'].append(run_activity_case(adb_run, folder, evidence, activity_output))
             adb_run(['shell', 'rm', '-rf', remote])
             receipt['cleanup']['guestFilesRemoved'] = True
             receipt['passed'] = True

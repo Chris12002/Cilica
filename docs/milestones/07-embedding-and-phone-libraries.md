@@ -15,8 +15,8 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
 | 7d | iOS library and native adapter | In progress: pinned XCFramework, Swift owner/pauses and UIKit host; real kernel now passes repeated simulator foreground/background cycles. Full application commands, OS suspension and physical-device evidence remain open |
-| 7e | Android library and native adapter | In progress: pinned arm64 NDK packages pass C11 lifecycle and real-kernel transcripts on an Android 16 emulator. JNI/Kotlin ownership and CheckJNI kernel/fault checks pass; activity and physical-device tests remain open |
-| 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
+| 7e | Android library and native adapter | In progress: pinned arm64 NDK packages pass C11 lifecycle and real-kernel transcripts on an Android 16 emulator. JNI/Kotlin and Activity host pass CheckJNI, fault retention and real emulator lifecycle checks; final application and physical-device tests remain open |
+| 7f | Composed lifecycle review | Simulator checkpoint reviewed: both adapters share identical kernel inputs/oracle and pass lifecycle/collection checks. Physical-device and final application gates remain open |
 
 ## Slice 7a boundary
 
@@ -518,13 +518,60 @@ Android activity/APK lifecycle, API-26/16-KB runtime behavior, physical devices 
 the final application command contract remain open. Work continues with activity
 callback integration.
 
+## Slice 7e.4 outcome
+
+[ADR 0194](../decisions/0194-android-activity-host.md) adds an opt-in main-thread
+Activity host with immediate UI admission gating, one coalesced transition and
+terminal close on destruction. Local test APKs reuse unchanged JNI/native
+libraries. Unique application IDs and temporary local certificates keep test
+installation scoped; keys are deleted after signing and apps removed after tests.
+
+The public session and kernel apps pass **40 real background/resume cycles**
+across normal/forced collection on the pinned API-36/4-KB emulator. Public state,
+exact UTF-16 and retained fault details survive later calls. The kernel matches
+**1,792 .NET transcript comparisons plus 260 resumed fields**, retaining snapshots.
+All four mode runs explicitly close and uninstall; owned emulator/adb processes
+and temporary device data are removed. Fourteen focused Python tests pass.
+Synthetic checks cover rapid transitions and closing during initial pause failure.
+
+Review fixed a test-scaffold lifetime race after an observed startup activity
+relaunch: obsolete checks now stop and cannot write into the live instance's
+trace. Measured-cycle recreation remains a failing sequence, not a silently
+accepted reset. Review covered host admission, ownership, failed transitions,
+source/APK identity and cleanup; no unresolved defect remains in this scope.
+Private evidence is `artifacts/milestone7-android-activity/evidence-7e4.json`.
+No hosted work, publication, tool download or production signing was used.
+
+## Slice 7f simulator review checkpoint
+
+The existing iOS 7d.5 evidence was revalidated by hashing all 27 recorded artifacts;
+no expensive iOS rerun was needed because its implementation/binaries are unchanged.
+Apple and Android kernel package receipts have identical generated source, header
+and manifest hashes. Both use the same original .NET oracle. Each platform's real
+lifecycle scenario passes 1,792 exact comparisons and 260 resumed fields across
+20 kernel cycles. Kotlin also passes the 5,376-comparison CheckJNI owner scenario,
+including captured-fault public tests and bounded concurrency/close behavior.
+
+The review preserves C ownership and typed leases, host-buffer copying, serial
+entry, independent pause holds, pre-close admitted work, fault identity and native
+collection semantics. No C++ allocator or JVM/Swift object crosses the C boundary.
+Native compiler/runtime and game rules remain unchanged. This is a bounded shared
+simulator checkpoint, not completion of the physical-device exit gate or the final
+application adapter. Evidence: `artifacts/milestone7-android-activity/evidence-7f-review.json`.
+
+Current device discovery found no physical iOS devices; the USB inventory showed
+no phone. Physical Android wireless availability is not inferred from that check.
+The requested device details and final application command contract are still
+awaiting user input. No support claim is made for API-26/16-KB execution, OS
+suspension, configuration/process restoration or physical devices.
+
 ## Remaining exit gates
 
 - Define the actual mobile application command contract and connect its native
   host adapter, using the validated numeric/handle/string boundary where sufficient.
   Reference-bearing records require a separate design if that contract needs them.
-- Keep platform toolchain/package pins current; add Android application lifecycle
-  checks before claiming that adapter complete.
+- Keep platform toolchain/package pins current. Define application ownership and
+  restoration policy before extending the same-instance lifecycle guarantees.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests
   alone do not close this milestone.
 - Review rooting, resource bounds, C layout, error order and lifecycle races for

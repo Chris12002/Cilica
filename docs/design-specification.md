@@ -1271,6 +1271,14 @@ the kernel matches 5,376 .NET values plus 780 resumed-field checks. Explicit clo
 is required; future cancellation changes observation only. Activity lifecycle,
 physical devices and a full application command adapter remain separate gates.
 
+Milestone 7e.4 adds an opt-in Android Activity host
+([ADR 0194](decisions/0194-android-activity-host.md)) with main-thread admission
+gating, one coalesced transition and explicit close on destruction. Local test
+APKs pass 40 same-instance background/resume cycles, retaining public session
+state/faults and reproducing 1,792 kernel transcript comparisons plus 260 resumed
+fields. The host closes on configuration destruction; restoration, process death,
+OS suspension and physical-device behavior remain separate requirements.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

@@ -1,0 +1,112 @@
+package dev.cilica
+
+import android.app.Activity
+import android.content.Intent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
+import android.os.Build
+import android.os.Bundle
+import android.widget.TextView
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+
+class MainActivity : Activity() {
+    companion object { private val traceLock = Any(); private var activeGeneration = 0L }
+    private var generation = 0L
+    @Volatile private var destroyed = false
+    private lateinit var host: @MODULE@ActivityHost
+    private lateinit var scenario: Scenario
+    private val checks = Executors.newSingleThreadExecutor()
+    private var cycle = -1
+    private var finishing = false
+    private val closer = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) { requestClose() }
+    }
+    private fun record(text: String) = synchronized(traceLock) {
+        if (!destroyed && generation == activeGeneration) java.io.File(filesDir, "trace.txt").appendText(text+"\n")
+    }
+    private fun verify(block: () -> Unit) {
+        checks.execute {
+            if (destroyed) return@execute
+            try { block() }
+            catch (error: Throwable) { record("FAIL "+error.stackTraceToString().replace('\n', '|')) }
+        }
+    }
+    private fun <T> ui(block: () -> CompletableFuture<T>): T {
+        val outer = CompletableFuture<CompletableFuture<T>>()
+        runOnUiThread {
+            try {
+                check(!destroyed) { "Obsolete activity check" }
+                outer.complete(block())
+            } catch (error: Throwable) { outer.completeExceptionally(error) }
+        }
+        return outer.get(15, TimeUnit.SECONDS).get(15, TimeUnit.SECONDS)
+    }
+    override fun onCreate(state: Bundle?) {
+        super.onCreate(state)
+        synchronized(traceLock) {
+            generation = ++activeGeneration
+            java.io.File(filesDir, "trace.txt").writeText("")
+        }
+        host = @MODULE@ActivityHost(this, @MODULE@Runtime(intent.getBooleanExtra("stress", false)))
+        scenario = Scenario(host) { block -> ui(block) }
+        setContentView(TextView(this).also { it.text = "Cilica lifecycle validation" })
+        val filter = IntentFilter(packageName+".CLOSE")
+        if (Build.VERSION.SDK_INT >= 33) registerReceiver(closer, filter, Context.RECEIVER_EXPORTED)
+        else registerReceiver(closer, filter)
+    }
+    override fun onResume() {
+        super.onResume()
+        if (finishing) return
+        host.onResume(this)
+        val current = ++cycle
+        verify {
+            ui { host.synchronize() }
+            if (current == 0) {
+                ui { host.onPause(this); host.onResume(this); host.onPause(this); host.synchronize() }
+                check(ui { CompletableFuture.completedFuture(host.isActive) } == false)
+                ui { host.onResume(this); host.synchronize() }
+                // Closing during a failed initial pause must still destroy the owned runtime.
+                val full = @MODULE@Runtime()
+                repeat(64) { full.pause().get(15, TimeUnit.SECONDS) }
+                ui { @MODULE@ActivityHost(this, full).close() }
+                scenario.prepare(); record("READY 0")
+            }
+            else { scenario.resumed(current); record("RESUMED $current") }
+        }
+    }
+    override fun onPause() {
+        if (!finishing) {
+            host.onPause(this)
+            // Immediate gate must reject before the worker has acquired its hold.
+            val rejected = host.invoke(0)
+            check(rejected.isCompletedExceptionally)
+            val current = cycle
+            verify {
+                ui { host.synchronize() }
+                scenario.background()
+                record("BACKGROUND $current")
+            }
+        }
+        super.onPause()
+    }
+    override fun onStop() { if (!finishing) host.onStop(this); super.onStop() }
+    private fun requestClose() {
+        if (!finishing) {
+            finishing = true
+            val closed = host.close()
+            verify {
+                closed.get(15, TimeUnit.SECONDS)
+                scenario.finished()
+                record("CLOSED")
+                runOnUiThread { finish() }
+            }
+        }
+    }
+    override fun onDestroy() {
+        synchronized(traceLock) { destroyed = true }
+        unregisterReceiver(closer); host.onDestroy(this); checks.shutdown(); super.onDestroy()
+    }
+}

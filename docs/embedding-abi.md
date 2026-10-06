@@ -728,3 +728,15 @@ while retaining copy/release/close access. Cancellation never cancels native wor
 CheckJNI session/concurrency/fault and kernel transcript tests pass on the same
 API-36/4-KB emulator. Explicit close is required; no GC cleanup, APK/activity,
 API-26/16-KB or physical-device guarantee follows from this checkpoint.
+
+### Android activity host (7e.4)
+
+The opt-in generated host forwards same-instance Activity callbacks on the main
+thread, immediately gates UI admission on pause and reconciles one owned runtime
+pause through a single transition. Close is terminal, including `onDestroy` for
+configuration changes. It also closes after a failed initial pause. Independent
+holds remain effective. Its [usage contract](../adapters/Android/README.md#activity-host)
+requires nonblocking main-thread coordination and explicit callback forwarding.
+Public/kernel test APKs pass 40 real emulator background/resume cycles with state,
+text and fault retention, then close and uninstall. This establishes bounded APK
+loading and same-instance lifecycle behavior, not restoration or physical devices.

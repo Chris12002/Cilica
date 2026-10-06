@@ -54,7 +54,9 @@ background/foreground cycles, with exact resumed-state comparisons.
 libraries. C11 lifecycle and real-kernel transcript checks pass in a disposable
 Android 16 emulator. A [Kotlin/JNI owner](adapters/Android/README.md) also passes
 concurrent calls, scoped leases/pauses, captured faults and kernel parity with
-CheckJNI. Android activity and physical-device execution remain open.
+CheckJNI. Its opt-in activity host passes repeated emulator background/resume
+cycles for both session and kernel APKs. Restoration, OS suspension and
+physical-device execution remain open.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

@@ -9,6 +9,7 @@ from build_library import sha256
 from package_support import case_files, package_files, jvm_case_files
 from run_emulator import stop_child
 import run_emulator as runner
+from activity_cases import activity_files, validate_trace
 
 
 class ExecutionTests(unittest.TestCase):
@@ -108,6 +109,34 @@ class ExecutionTests(unittest.TestCase):
             (folder/'dex/classes.dex').write_text('changed')
             with self.assertRaisesRegex(ValueError, 'hash mismatch'):
                 jvm_case_files(root, str(folder))
+
+    def test_activity_trace_requires_ordered_cycles_and_close(self):
+        valid = 'READY 0\nBACKGROUND 0\nRESUMED 1\nBACKGROUND 1\nRESUMED 2\nCLOSED\n'
+        validate_trace(valid, 2)
+        for changed in [valid.replace('CLOSED\n', ''), valid+'CLOSED\n',
+                        valid.replace('BACKGROUND 1', 'BACKGROUND 0'), valid.replace('RESUMED 1\n', '')]:
+            with self.assertRaisesRegex(RuntimeError, 'callbacks'):
+                validate_trace(changed, 2)
+
+    def test_activity_identity_and_apk_hash_are_required(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve(); self.package(root)
+            folder = root/'apk'; folder.mkdir()
+            names = ['ProbeRuntime.kt', 'ProbeActivityHost.kt', 'bridge.c', 'MainActivity.kt', 'Scenario.kt']
+            for name in names+['consumer.apk']: (folder/name).write_text(name)
+            evidence = {'profile':'android-activity-consumer-v1', 'appId':'dev.cilica.test.p'+'a'*32, 'cycles':10,
+                'packageReceiptSha256':sha256((root/'build-receipt.json').read_bytes()),
+                'sources':{name:sha256((folder/name).read_bytes()) for name in names},
+                'apkSha256':sha256((folder/'consumer.apk').read_bytes())}
+            receipt = folder/'activity-receipt.json'; receipt.write_text(json.dumps(evidence))
+            activity_files(root, folder)
+            evidence['appId'] = 'com.someone.else'; receipt.write_text(json.dumps(evidence))
+            with self.assertRaisesRegex(ValueError, 'identity'):
+                activity_files(root, folder)
+            evidence['appId'] = 'dev.cilica.test.p'+'a'*32; receipt.write_text(json.dumps(evidence))
+            (folder/'consumer.apk').write_text('changed')
+            with self.assertRaisesRegex(ValueError, 'hash mismatch'):
+                activity_files(root, folder)
 
     def test_failed_boot_stops_owned_server_and_records_failure(self):
         with tempfile.TemporaryDirectory() as directory:

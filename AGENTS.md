@@ -44,8 +44,10 @@ feedback before implementation. Explain consequential choices in plain language.
   Slice 7e.2 adds a disposable arm64 Android 16/API-36 emulator harness. Both C
   lifecycle consumers and 5,376 real-kernel transcript comparisons pass with 4 KB
   pages. Slice 7e.3 adds a bounded JNI/Kotlin serial owner, scoped leases/pauses,
-  captured fault copying and CheckJNI session/kernel parity. Android activity,
-  API-26/16-KB runtime behavior and physical devices remain unverified.
+  captured fault copying and CheckJNI session/kernel parity. Slice 7e.4 adds an
+  opt-in Activity host; public/kernel APKs pass 40 emulator background/resume cycles
+  with explicit close and removal. Restoration, OS suspension, API-26/16-KB runtime
+  behavior and physical devices remain unverified.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

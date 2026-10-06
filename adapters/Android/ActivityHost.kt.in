@@ -1,0 +1,112 @@
+package dev.cilica
+
+import android.app.Activity
+import android.os.Handler
+import android.os.Looper
+import java.lang.ref.WeakReference
+import java.util.concurrent.CompletableFuture
+
+/** One explicitly owned runtime per Activity. Forward callbacks synchronously on the main thread. */
+class @MODULE@ActivityHost(activity: Activity, val runtime: @MODULE@Runtime = newRuntime()) {
+    companion object {
+        private fun newRuntime(): @MODULE@Runtime {
+            check(Looper.myLooper() === Looper.getMainLooper()) { "Activity host requires main thread" }
+            return @MODULE@Runtime()
+        }
+    }
+    private val activity = WeakReference(activity)
+    private val main = Handler(Looper.getMainLooper())
+    var isActive = false; private set
+    var isClosed = false; private set
+    var transitionFailure: Throwable? = null; private set
+    private var desired = false
+    private var closing = false
+    private var pending = false
+    private var hold: @MODULE@Runtime.Pause? = null
+    private val waiters = ArrayList<CompletableFuture<Unit>>()
+    private val closed = CompletableFuture<Unit>()
+
+    init { requireMain(); reconcile() }
+    private fun requireMain() { check(Looper.myLooper() === Looper.getMainLooper()) { "Activity host requires main thread" } }
+    private fun <T> failure(error: Throwable): CompletableFuture<T> = CompletableFuture<T>().also { it.completeExceptionally(error) }
+    fun onResume(sender: Activity) { requireMain(); if (sender === activity.get()) setActive(true) }
+    fun onPause(sender: Activity) { requireMain(); if (sender === activity.get()) setActive(false) }
+    fun onStop(sender: Activity) { onPause(sender) }
+    fun onDestroy(sender: Activity) { requireMain(); if (sender === activity.get()) close() }
+    private fun setActive(active: Boolean) {
+        if (closing || transitionFailure != null) return
+        desired = active
+        isActive = false
+        reconcile()
+    }
+    private fun <T> transition(future: CompletableFuture<T>, terminal: Boolean = false, completed: (T) -> Unit) {
+        pending = true
+        future.whenComplete { value, error ->
+            main.post {
+                pending = false
+                if (error != null) {
+                    isActive = false; transitionFailure = error
+                    if (closing && !terminal) { transitionFailure = null; reconcile() }
+                    else {
+                        if (closing) closed.completeExceptionally(error)
+                        finishWaiters()
+                    }
+                } else {
+                    completed(value)
+                    reconcile()
+                }
+            }
+        }
+    }
+    private fun reconcile() {
+        if (pending) return
+        if (closing && !isClosed) {
+            transition(runtime.close(), true) { hold = null; isClosed = true; closed.complete(Unit) }
+        } else if (transitionFailure != null || isClosed) {
+            finishWaiters()
+        } else if (desired) {
+            val current = hold
+            if (current != null) transition(runtime.resume(current)) { hold = null }
+            else { isActive = true; finishWaiters() }
+        } else if (hold == null) {
+            transition(runtime.pause()) { hold = it }
+        } else finishWaiters()
+    }
+    private fun finishWaiters() {
+        val completed = waiters.toList(); waiters.clear()
+        completed.forEach { if (transitionFailure == null) it.complete(Unit) else it.completeExceptionally(transitionFailure!!) }
+    }
+    /** Barrier for coordination; completion does not reserve admission. */
+    fun synchronize(): CompletableFuture<Unit> {
+        requireMain()
+        if (!pending) return transitionFailure?.let { failure(it) } ?: CompletableFuture.completedFuture(Unit)
+        if (waiters.size == 64) return failure(@MODULE@Runtime.Failure("waiterLimit"))
+        return CompletableFuture<Unit>().also { waiters.add(it) }
+    }
+    fun close(): CompletableFuture<Unit> {
+        requireMain()
+        if (!closing) {
+            closing = true; isActive = false; transitionFailure = null
+            reconcile()
+        }
+        return closed.thenApply { Unit }
+    }
+    private fun admission(): Throwable? {
+        requireMain()
+        if (closing || isClosed) return @MODULE@Runtime.Failure("closed")
+        transitionFailure?.let { return it }
+        return if (isActive) null else @MODULE@Runtime.Failure("paused")
+    }
+    fun invoke(export: Long, arguments: List<@MODULE@Runtime.Value> = emptyList(), captureException: Boolean = false): CompletableFuture<@MODULE@Runtime.Outcome> {
+        admission()?.let { return failure(it) }
+        return runtime.invoke(export, arguments, captureException)
+    }
+    fun importUTF16(units: CharArray): CompletableFuture<@MODULE@Runtime.Handle> {
+        admission()?.let { return failure(it) }
+        return runtime.importUTF16(units)
+    }
+    fun clone(handle: @MODULE@Runtime.Handle): CompletableFuture<@MODULE@Runtime.Handle> {
+        admission()?.let { return failure(it) }
+        return runtime.clone(handle)
+    }
+}

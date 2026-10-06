@@ -1,0 +1,49 @@
+package dev.cilica
+
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+import dev.cilica.CilicaKernelRuntime.Value as Value
+
+private fun <T> CompletableFuture<T>.await(): T = get(15, TimeUnit.SECONDS)
+private val expected = arrayOf(@ROWS@)
+private val texts = arrayOf(@TEXTS@)
+
+class Scenario(private val host: CilicaKernelActivityHost,
+               private val main: (() -> CompletableFuture<Any?>) -> Any?) {
+    private fun <T> ui(block: () -> CompletableFuture<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        return main { block().thenApply { it as Any? } } as T
+    }
+    private lateinit var session: CilicaKernelRuntime.Handle
+    private lateinit var snapshot: CilicaKernelRuntime.Handle
+    private lateinit var first: CilicaKernelRuntime.Handle
+    private var step = -1
+    private var comparisons = 0
+    private var resumedFields = 0
+    fun prepare() {
+        session = (ui { host.invoke(1) }.value as Value.Reference).handle!!
+        advance()
+        first = host.runtime.clone(snapshot).await()
+    }
+    private fun advance() {
+        if (step >= 0) host.runtime.release(snapshot).await()
+        step++
+        val fields = (ui { host.invoke(2, listOf(Value.Reference(session))) }.value as Value.Record).fields
+        fields.forEachIndexed { index, value -> check(value == Value.Int32(expected[step][index])); comparisons++ }
+        snapshot = (ui { host.invoke(4, listOf(Value.Reference(session))) }.value as Value.Reference).handle!!
+        val copied = host.runtime.copyUTF16(snapshot).await()
+        check(copied.size == texts[step].length)
+        copied.forEachIndexed { index, unit -> check(unit == texts[step][index]); comparisons++ }
+    }
+    fun background() {
+        check(String(host.runtime.copyUTF16(snapshot).await()) == texts[step])
+        check(String(host.runtime.copyUTF16(first).await()) == texts[0])
+    }
+    fun resumed(cycle: Int) {
+        check(cycle == step+1)
+        val fields = (ui { host.invoke(3, listOf(Value.Reference(session))) }.value as Value.Record).fields
+        fields.forEachIndexed { index, value -> check(value == Value.Int32(expected[step][index])); resumedFields++ }
+        if (cycle < 10) advance()
+    }
+    fun finished() { check(comparisons == 896 && resumedFields == 130) }
+}

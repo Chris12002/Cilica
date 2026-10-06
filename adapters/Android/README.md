@@ -98,3 +98,32 @@ No compiler/runtime or game-rule changes were needed. Android APK/activity and
 physical-device gates remain separate.
 
 JNI buffer handling follows Android's [JNI guidance](https://developer.android.com/ndk/guides/jni-tips).
+
+## Activity host
+
+Add `--activity-host` to `generate.py` to include `<Module>ActivityHost`. Construct
+it synchronously in `onCreate`, then forward `onResume`, `onPause`, `onStop` and
+`onDestroy` with that same Activity instance. All host access belongs on the main
+thread. Constructing it before `onResume` avoids missing startup callbacks; the
+initial pause and later resume are reconciled even if native startup is pending.
+
+`onPause` immediately closes the host's UI admission gate. One pending transition
+acquires/releases a runtime pause hold and reconciles the latest requested state.
+A stale resume completion cannot reopen an inactive or closing host. Independent
+runtime pause holds still apply. `isActive`, `isClosed` and `transitionFailure`
+describe host state; `synchronize()` is a barrier for coordination, not a reservation
+for later calls. At most 64 synchronization waiters can be retained.
+
+Use host `invoke`, `importUTF16` and `clone` for UI commands. Its public runtime
+remains available for copying, fault inspection and release while inactive.
+Calling admission operations directly on the runtime bypasses the host's immediate
+UI gate. Native calls still serialize on the owner worker. Never block the main
+thread waiting for a host future; transition completion is posted there.
+
+The host owns its runtime and closes it on `onDestroy`, including configuration
+recreation. Never share one runtime between activity hosts. Close is terminal,
+also works after a transition failure, and can be awaited explicitly before the
+Activity finishes. This adapter preserves memory across pause/resume of the same
+instance; it does not restore state after recreation/process death, acquire
+background execution time or guarantee OS suspension behavior. Those policies
+depend on the final application's ownership and persistence requirements.

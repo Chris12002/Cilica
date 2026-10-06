@@ -160,6 +160,14 @@ Four optional string/capture variants compile; twelve local Python tests pass.
 This closes the bounded JNI/Kotlin and Android fault-copying checkpoint, while
 APK/activity and device gates remain open. See [ADR 0193](decisions/0193-kotlin-runtime-ownership.md).
 
+Milestone 7e.4 adds a main-thread Activity host around that owner. Public session
+and kernel APKs pass 40 real emulator background/resume cycles, explicit close and
+verified uninstall across normal/forced collection. Kernel evidence is 1,792 .NET
+comparisons plus 260 resumed fields; public state, snapshots and captured fault
+details remain intact. This is same-instance lifecycle evidence on API 36/4 KB,
+not configuration/process restoration, OS suspension or physical-device support.
+See [ADR 0194](decisions/0194-android-activity-host.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
