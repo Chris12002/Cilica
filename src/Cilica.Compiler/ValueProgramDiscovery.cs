@@ -332,7 +332,8 @@ public static partial class ValueProgramDiscovery
                                 Fail(work, "Cannot allocate an abstract class.", offset);
                             if (instruction.OpCode == "newobj" && !collectionConstructor && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
                                 Fail(work, "newobj requires an exact supported constructor declaration.", offset);
-                            if (!ObjectMethodAccess.Allowed(work.Binding, callee.Binding, integers64))
+                            if (!ObjectMethodAccess.Allowed(work.Binding, callee.Binding, integers64)
+                                && !(instruction.OpCode == "call" && ProtectedBaseConstructor(work, callee, offset)))
                                 Fail(work, "Calls require the same declaring owner, a public externally visible target, or an assembly-accessible target in the same image under the integer-object profile.", offset);
                             _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" && !collectionConstructor ? 1 : 0);
                             if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);

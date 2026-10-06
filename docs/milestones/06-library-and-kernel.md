@@ -2665,3 +2665,16 @@ unchanged. Closed interface/class/constrained metadata targets are v2. Nonpublic
 nested contracts, friend assemblies, default/static interface bodies and cross-image
 internal calls remain unsupported. Frozen engine discovery next needs protected
 DomainEvent base construction; state remains over its type quota. See ADR AC0048.
+
+### Protected immediate-base construction (AC8.9)
+
+Protected constructors are admitted only through the existing immediate-base
+initialization path on the original this receiver. Family/FamORAssem follow the
+validated base relation; FamANDAssem also requires the same image. Owner visibility,
+exact signatures, initialization ordering and ordinary allocation access remain
+checked. Six probes pass 1,764 repeated O0/O2 native/.NET comparisons with ASan/UBSan,
+forced collection and exact cleanup. 29 adjacent/forged-IR checks and six corrected
+cross-image access checks pass. General protected members and constructor chaining
+remain unsupported. Integer-object CIL v11, object IR v21 and native v48; layout v19
+is unchanged. Frozen engine discovery next needs Select in ReleaseFinished, whose
+selector returns SpellId; state still exceeds its identity quota. See ADR AC0049.

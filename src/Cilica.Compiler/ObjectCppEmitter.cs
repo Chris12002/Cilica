@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v47";
+    public const string Profile = "object-frames-native-v48";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {

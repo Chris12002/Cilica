@@ -398,7 +398,8 @@ internal sealed partial class ObjectIrRules
             || call.Arguments.Length != _methods[target.Method].Parameters.Length || call.Arguments.IsEmpty
             || call.Arguments[0] < 0 || call.Arguments[0] >= values.Count
             || expressions[call.Arguments[0]] is not IrExpression.Parameter { Index: 0 }
-            || values[call.Arguments[0]] != IrType.Reference(owner.Owner) || !Access(owner, target)) return false;
+            || values[call.Arguments[0]] != IrType.Reference(owner.Owner)
+            || !Access(owner, target) && !ObjectMethodAccess.ProtectedBaseConstructor(owner, target, _layouts[owner.Owner].BaseType, _program.Flow.Types.Integer64)) return false;
         var signature = _methods[target.Method].Parameters;
         return call.Arguments.Select((argument, index) => argument >= 0 && argument < values.Count
             && _types.Assignable(values[argument], signature[index])).All(valid => valid);
