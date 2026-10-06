@@ -99,6 +99,6 @@ namespace Cilica.Fixtures.Execution
             return result;
         }
         public static int UnsupportedList(int a, int b) { var values = new List<int>(); values.Add(a); return values.Count(); }
-        public static int UnsupportedPredicate(int a, int b) { return new[] { a, b }.Count(x => x > 0); }
+        public static int UnsupportedIndexedWhere(int a, int b) { return new[] { a, b }.Where((value, index) => value > index).Count(); }
     }
 }

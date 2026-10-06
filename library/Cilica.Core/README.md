@@ -237,3 +237,14 @@ supply 6,438 repeated O0/O2 native/.NET comparisons; 35 existing regressions and
 the negative overload/factory check pass with forced GC and sanitizers. The ledger
 has 20 gaps and 27 controls. Predicate/deferred operators, boxed collection
 factories and full replay remain unfinished. No grants or profiles changed.
+
+
+### Predicate LINQ terminals (AC6.2)
+
+Any/All/Count predicate overloads now preserve null order, live array reads,
+short circuit and enumerator disposal without using collection-count shortcuts.
+Twelve probes supply 5,184 repeated O0/O2 native/.NET comparisons; 42 existing and
+boundary checks pass with forced GC and sanitizers. Int32/reference callbacks are
+supported; value-payload delegates, boxed collection factories, deferred operators
+and full replay remain unfinished. The ledger stays at 20 gaps and 27 controls;
+no grants or profiles changed.

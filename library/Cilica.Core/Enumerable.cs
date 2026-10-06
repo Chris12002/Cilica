@@ -14,6 +14,49 @@ namespace System.Linq
             if (source is ICollection legacy) return legacy.Count != 0;
             using (IEnumerator<TSource> e = source.GetEnumerator()) return e.MoveNext();
         }
+        public static bool Any<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (source is TSource[] array)
+            {
+                for (int index = 0; index < array.Length; index++) if (predicate(array[index])) return true;
+            }
+            else
+            {
+                foreach (TSource item in source) if (predicate(item)) return true;
+            }
+            return false;
+        }
+        public static bool All<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (source is TSource[] array)
+            {
+                for (int index = 0; index < array.Length; index++) if (!predicate(array[index])) return false;
+            }
+            else
+            {
+                foreach (TSource item in source) if (!predicate(item)) return false;
+            }
+            return true;
+        }
+        public static int Count<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            int count = 0;
+            if (source is TSource[] array)
+            {
+                for (int index = 0; index < array.Length; index++) if (predicate(array[index])) count++;
+            }
+            else
+            {
+                foreach (TSource item in source) if (predicate(item)) count = checked(count + 1);
+            }
+            return count;
+        }
         public static int Count<TSource>(IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException("source");

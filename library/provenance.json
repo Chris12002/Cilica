@@ -379,26 +379,28 @@
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/AnyAll.cs",
       "algorithms": [
         "Parameterless Any/Count generic collection, nongeneric collection and enumerator fallback order.",
-        "Using/finally disposal and checked fallback Count increment."
+        "Using/finally disposal and checked fallback Count increment.",
+        "AC6.2 predicate Any/All/Count validate source before predicate, short circuit, and preserve foreach disposal."
       ],
       "changes": [
         "Omit private Iterator optimizations because owned LINQ iterator types are not implemented.",
-        "Keep only parameterless overloads. Static signatures do not need the source-language extension marker for metadata binding."
+        "Use direct managed array indexing instead of spans; reference-array covariance also uses this loop (same callbacks, reads and no-op disposal). Static metadata methods omit source-language extension markers."
       ],
-      "scope": "AC6.1 arrays and admitted custom collections/reference enumerators. Reachable boxed list/dictionary/view factories and predicate overloads remain diagnostics."
+      "scope": "AC6.1 parameterless Any/Count and AC6.2 predicate Any/All/Count for Int32/reference callbacks, arrays and admitted reference enumerators. Boxed collection factories and value-payload delegates remain diagnostic. No private Iterator fast paths or span/CollectionsMarshal List support."
     },
     {
       "path": "library/Cilica.Core/Enumerable.cs",
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Count.cs",
       "algorithms": [
         "Parameterless Any/Count generic collection, nongeneric collection and enumerator fallback order.",
-        "Using/finally disposal and checked fallback Count increment."
+        "Using/finally disposal and checked fallback Count increment.",
+        "AC6.2 predicate Any/All/Count validate source before predicate, short circuit, and preserve foreach disposal."
       ],
       "changes": [
         "Omit private Iterator optimizations because owned LINQ iterator types are not implemented.",
-        "Keep only parameterless overloads. Static signatures do not need the source-language extension marker for metadata binding."
+        "Use direct managed array indexing instead of spans; reference-array covariance also uses this loop (same callbacks, reads and no-op disposal). Static metadata methods omit source-language extension markers."
       ],
-      "scope": "AC6.1 arrays and admitted custom collections/reference enumerators. Reachable boxed list/dictionary/view factories and predicate overloads remain diagnostics."
+      "scope": "AC6.1 parameterless Any/Count and AC6.2 predicate Any/All/Count for Int32/reference callbacks, arrays and admitted reference enumerators. Boxed collection factories and value-payload delegates remain diagnostic. No private Iterator fast paths or span/CollectionsMarshal List support."
     }
   ],
   "ownedAdapters": [
