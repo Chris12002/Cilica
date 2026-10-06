@@ -2382,3 +2382,18 @@ native/.NET comparisons; four precise query/cache GC checks and 36 existing
 regressions pass. The public lambda's two static cache objects are explicitly
 validated. The ledger has 18 gaps and 29 controls. Indexed operators, boxed
 collection factories, value predicates and full replay remain unfinished.
+
+
+### Frozen Alchemy re-probe after AC6.3
+
+At compiler f6ba217, verified unchanged frozen inputs admit 31 of 52 probes.
+RealRandom and RealGridDistance additionally pass 588 repeated O0/O2 native/.NET
+comparisons with ASan/UBSan, forced GC and exact cleanup. This advances the real
+grid-distance helper beyond the earlier Math gap. Evidence is local and private in
+`artifacts/alchemy-closure-refresh-f6ba217`; original audit artifacts are retained.
+
+The engine Step probe now stops at a static RejectionId value; state lookup stops
+at the internal Int32 SpellPreparationPhases enum; canonical hashing still requires
+SHA256. Prior public probes do not establish full application admission. Next work
+prioritizes contextual enum access and static value storage, preserving the frozen
+engine and recorded games. AC8/AC9 remain incomplete.

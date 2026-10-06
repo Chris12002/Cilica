@@ -45,6 +45,18 @@
     "listSearchEvidence": "AC3.4: 12 authored probes plus public ListContains, 3822 repeated O0/O2 comparisons; two live-list GC checks, exact grant/private-caller/nullable boundaries, detached packets and 48 existing regressions. Value search borrows stored receivers; integer/reference search copies. Interface plan v5, four new grants, native v41 unchanged.",
     "rawUnboxInventory": "Historical bodies.json: 1825 rows, 1775 readable bodies, 50 declarations without IL; 42 box, zero unbox/unbox.any. Incomplete application/library/callback coverage is not proof of absence from the accepted replay closure."
   },
+  "closureRefresh": {
+    "compilerCommit": "f6ba217",
+    "directory": "artifacts/alchemy-closure-refresh-f6ba217",
+    "coreManifestSha256": "c48d4741ca9b4b0e5acee0105a0713c3e2f2f2dbf74ff7ad7a41af9f783e6284",
+    "inputs": "Frozen Probes.dll and five Alchemy/TurnEngine assemblies verified against historical audit hashes; no input rebuild.",
+    "compilation": "31/52 admitted and emitted; 21 retain diagnostics.",
+    "native": "RealRandom and RealGridDistance: 588 repeated comparisons at O0/O2, ASan/UBSan, forced GC and exact cleanup.",
+    "engineStep": "CIL2001: static fields require scalar/reference storage; Step IL_0042 reaches Rejections.MatchConcluded (RejectionId value).",
+    "stateLookup": "CIL2001: internal Int32 SpellPreparationPhases rejected by enum shape visibility gate.",
+    "canonicalHash": "CIL3015: SHA256 nominal mapping missing.",
+    "scope": "Metadata/compiler re-probe plus two leaf executions only; no saved-game replay or full closure admission."
+  },
   "slices": {
     "AC0": {
       "prerequisites": []
