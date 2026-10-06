@@ -48,6 +48,8 @@ manages scoped leases, record copies and captured fault details. Scoped pause
 barriers preserve runtime state while rejecting new commands. An opt-in UIKit
 scene host now passes real simulator foreground/background checks; OS suspension
 and physical-device execution remain open.
+The unchanged kernel transcript also passes through that host across repeated
+background/foreground cycles, with exact resumed-state comparisons.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

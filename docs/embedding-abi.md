@@ -672,3 +672,10 @@ clone must go through the host to receive its immediate UI gate. See
 [the forwarding contract](../adapters/Apple/README.md) for startup refresh and
 ordering. The C ABI is unchanged. Real simulator background/foreground callbacks
 are verified; OS suspension and device behavior are not.
+
+The 7d.5 composed checkpoint runs the unchanged real-kernel package through the
+same scene owner over repeated real simulator transitions. Its existing .NET
+transcript and resumed fields agree; public retained snapshots/fault details also
+survive repeated cycles. The [scenario harness](../tests/Apple/README.md) keeps
+contract-specific checks outside runtime code and verifies source/executable
+receipt hashes before running. This adds execution evidence, not an ABI feature.

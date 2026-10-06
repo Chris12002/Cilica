@@ -137,3 +137,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0187](0187-swift-runtime-ownership.md) | Swift runtime ownership | Accepted; serial worker, scoped explicit leases, copied values/errors and opt-in simulator regression |
 | [0188](0188-swift-admission-pauses.md) | Swift admission pauses | Accepted; scoped bounded pause holds, preserved runtime state, cleanup access and simulator admission-race checks |
 | [0189](0189-uikit-scene-host.md) | UIKit scene host | Accepted; immediate UI admission gate, coalesced worker transitions and real simulator foreground/background checks |
+| [0190](0190-composed-uikit-kernel-validation.md) | Composed UIKit kernel validation | Accepted; shared scenario shell, repeated real simulator transitions, retained faults and .NET transcript/resumed-state parity |

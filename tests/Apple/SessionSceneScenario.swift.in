@@ -1,0 +1,73 @@
+import UIKit
+
+// Contract-specific checks stay outside the shared lifecycle app shell.
+@MainActor final class Scenario: SceneScenario {
+    private var session: Runtime.Handle?
+    private var snapshot: Runtime.Handle?
+    private var exception: Runtime.Handle?
+    private var fault: Runtime.Fault?
+    func start(_ host: Host, _ scene: UIScene) async throws {
+        let externalHold = try await host.runtime.pause()
+        // Deterministic synthetic storm: there is only one reconciliation task.
+        for _ in 0..<100 {
+            host.sceneWillResignActive(scene)
+            precondition(!host.isActive)
+            host.sceneDidBecomeActive(scene)
+        }
+        host.sceneWillResignActive(scene)
+        do { _ = try await host.invoke(999); fatalError("immediate UI gate missed") }
+        catch Runtime.Failure.paused {}
+        try await host.synchronize()
+        host.sceneDidBecomeActive(scene)
+        try await host.synchronize()
+        do { _ = try await host.invoke(999); fatalError("external pause lost") }
+        catch Runtime.Failure.paused {}
+        try await host.runtime.resume(externalHold)
+        let text = try await host.importUTF16([65, 0, 0xd800])
+        let opened = try await host.invoke(1, arguments: [.handle(text)])
+        guard case .handle(let value?) = opened.value, opened.fault == nil else { fatalError("open session") }
+        session = value
+        try await host.runtime.release(text)
+        let saved = try await host.invoke(4, arguments: [.handle(value)])
+        guard case .handle(let copy?) = saved.value else { fatalError("snapshot") }
+        snapshot = copy
+        let failure = try await host.invoke(2, arguments: [.handle(value), .int32(-1)], captureException: true)
+        precondition(failure.fault?.code == 13 && failure.exception != nil)
+        exception = failure.exception; fault = failure.fault
+        // A pause failure is visible and keeps UI admission closed; explicit
+        // close still works. This second owner is only an isolated fault probe.
+        let broken = try await Host.open(for: scene)
+        try await broken.synchronize()
+        for _ in 0..<64 { _ = try await broken.runtime.pause() }
+        broken.sceneWillResignActive(scene)
+        do { try await broken.synchronize(); fatalError("pause failure hidden") }
+        catch Runtime.Failure.pauseLimit {}
+        broken.sceneDidBecomeActive(scene)
+        precondition(!broken.isActive && broken.transitionFailure != nil)
+        try await broken.close()
+        precondition(broken.isClosed)
+        report("CHECK synthetic ordering, independent hold and failure cleanup")
+    }
+    func resume(_ host: Host, cycle: Int) async throws {
+        let session = session!, snapshot = snapshot!
+        let view = try await host.invoke(3, arguments: [.handle(session)])
+        precondition(view.value == .record(1, [.int32(Int32(cycle - 1)), .integer64(9007199254740992 + UInt64(cycle)), .int32(Int32(1 + 2 * cycle))]))
+        let updated = try await host.invoke(2, arguments: [.handle(session), .int32(1)])
+        precondition(updated.value == .record(1, [.int32(Int32(cycle)), .integer64(9007199254740993 + UInt64(cycle)), .int32(Int32(3 + 2 * cycle))]))
+        let copied = try await host.runtime.copyUTF16(snapshot)
+        precondition(copied == [65, 0, 0xd800])
+    }
+    func background(_ host: Host, cycle: Int) async throws {
+        let copied = try await host.runtime.copyUTF16(snapshot!)
+        precondition(copied == [65, 0, 0xd800])
+        let details = try await host.runtime.exceptionDetails(exception!)
+        precondition(details.message == Array("negative delta".utf16))
+        precondition(details.typeName == Array("System.InvalidOperationException".utf16))
+        precondition(fault?.code == 13 && fault?.imageHash.count == 64)
+    }
+    func finish(_ host: Host) async throws {
+        try await host.runtime.release(exception!)
+        try await host.runtime.release(snapshot!)
+        try await host.runtime.release(session!)
+    }
+}

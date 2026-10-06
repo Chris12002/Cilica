@@ -1236,6 +1236,15 @@ state and exact text in normal/forced collection modes. This does not establish
 actual OS suspension, process restoration, multiple simultaneous scenes or device
 execution, and supplies no background execution entitlement or application commands.
 
+Milestone 7d.5 composes the unchanged kernel with that UIKit host
+([ADR 0190](decisions/0190-composed-uikit-kernel-validation.md)). A shared test app
+shell separates lifecycle handling from contract-specific scenario hooks. Numbered
+cycles verify background copies and resumed observations against the existing .NET
+oracle; a public scenario retains snapshots and exception details across later
+mutations. Build receipts associate sources and linked binaries with the test run.
+This strengthens simulator composition evidence without changing the compiler,
+native runtime, C ABI or Swift owner, and does not complete physical-device gates.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

@@ -40,6 +40,9 @@ Add `--adapter` to generate and compile the
 another Swift consumer template instead of the lifecycle smoke. The same module
 and symbol-prefix placeholders are replaced. The public session regression uses
 `tests/Apple/Session.swift.in`; these options reuse the existing native package.
+Repeat `--support-source PATH` to include additional Swift templates with the same
+placeholder substitution. Each is copied under a unique generated name; receipts
+hash the exact generated sources and linked executables as well as the native package.
 Add `--scene-host` with `--adapter` to also include the UIKit scene owner. The
 separate [UIKit app check](../../tests/Apple/README.md) uses a build-only invocation
 here, followed by its own bounded install/launch/cleanup harness.

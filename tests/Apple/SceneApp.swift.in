@@ -3,6 +3,20 @@ import UIKit
 typealias Runtime = @MODULE@Runtime
 typealias Host = @MODULE@SceneHost
 
+@MainActor protocol SceneScenario {
+    func start(_ host: Host, _ scene: UIScene) async throws
+    func background(_ host: Host, cycle: Int) async throws
+    func resume(_ host: Host, cycle: Int) async throws
+    func finish(_ host: Host) async throws
+}
+
+@MainActor let cycleLimit: Int = {
+    let arguments = ProcessInfo.processInfo.arguments
+    guard let index = arguments.firstIndex(of: "--cycles"), index + 1 < arguments.count,
+          let count = Int(arguments[index + 1]), (1...10).contains(count) else { return 3 }
+    return count
+}()
+
 @MainActor func report(_ text: String) {
     FileHandle.standardOutput.write(Data((text + "\n").utf8))
 }
@@ -19,8 +33,8 @@ typealias Host = @MODULE@SceneHost
 @MainActor final class ProbeScene: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     private var host: Host?
-    private var session: Runtime.Handle?
-    private var snapshot: Runtime.Handle?
+    private let scenario: any SceneScenario = Scenario()
+    private var cycle = 1
     private var phase = 0
     private var checking = false
     private var backgrounded = false
@@ -67,7 +81,8 @@ typealias Host = @MODULE@SceneHost
         host?.sceneDidEnterBackground(scene)
         backgrounded = true
         report("UIKIT BACKGROUND")
-        guard phase == 1, let host, let snapshot else { return }
+        guard phase == 1, let host else { return }
+        let backgroundCycle = cycle
         Task {
             do {
                 try await host.synchronize()
@@ -75,9 +90,8 @@ typealias Host = @MODULE@SceneHost
                 precondition(state == .paused && !host.isActive)
                 do { _ = try await host.invoke(999); fatalError("inactive UI admitted") }
                 catch Runtime.Failure.paused {}
-                let text = try await host.runtime.copyUTF16(snapshot)
-                precondition(text == [65, 0, 0xd800])
-                report("PAUSED background copies preserved")
+                try await scenario.background(host, cycle: backgroundCycle)
+                report("PAUSED cycle=\(backgroundCycle)")
             } catch { report("FAIL background \(error)") }
         }
     }
@@ -94,64 +108,27 @@ typealias Host = @MODULE@SceneHost
                 try await host.synchronize()
                 guard host.isActive else { return }
                 if phase == 0 {
-                    try await initialChecks(host, scene)
+                    try await scenario.start(host, scene)
                     phase = 1
-                    report("READY foreground session")
+                    report("READY cycle=\(cycle)")
                 } else if phase == 1 && backgrounded {
-                    try await resumedChecks(host, scene)
-                    phase = 2
-                    report("PASS UIKit scene lifecycle: preserved state, exact UTF16, ordered transitions and disconnect cleanup")
+                    try await scenario.resume(host, cycle: cycle)
+                    report("RESUMED cycle=\(cycle)")
+                    if cycle < cycleLimit {
+                        cycle += 1
+                        backgrounded = false
+                        report("READY cycle=\(cycle)")
+                    } else {
+                        try await scenario.finish(host)
+                        try await disconnectChecks(host, scene)
+                        phase = 2
+                        report("PASS UIKit scene lifecycle: cycles=\(cycleLimit), ordered transitions and disconnect cleanup")
+                    }
                 }
             } catch { report("FAIL active \(error)") }
         }
     }
-    private func initialChecks(_ host: Host, _ scene: UIScene) async throws {
-        let externalHold = try await host.runtime.pause()
-        // Deterministic synthetic storm: there is only one reconciliation task.
-        for _ in 0..<100 {
-            host.sceneWillResignActive(scene)
-            precondition(!host.isActive)
-            host.sceneDidBecomeActive(scene)
-        }
-        host.sceneWillResignActive(scene)
-        do { _ = try await host.invoke(999); fatalError("immediate UI gate missed") }
-        catch Runtime.Failure.paused {}
-        try await host.synchronize()
-        host.sceneDidBecomeActive(scene)
-        try await host.synchronize()
-        do { _ = try await host.invoke(999); fatalError("external pause lost") }
-        catch Runtime.Failure.paused {}
-        try await host.runtime.resume(externalHold)
-        let text = try await host.importUTF16([65, 0, 0xd800])
-        let opened = try await host.invoke(1, arguments: [.handle(text)])
-        guard case .handle(let value?) = opened.value, opened.fault == nil else { fatalError("open session") }
-        session = value
-        try await host.runtime.release(text)
-        let saved = try await host.invoke(4, arguments: [.handle(value)])
-        guard case .handle(let copy?) = saved.value else { fatalError("snapshot") }
-        snapshot = copy
-        // A pause failure is visible and keeps UI admission closed; explicit
-        // close still works. This second owner is only an isolated fault probe.
-        let broken = try await Host.open(for: scene)
-        try await broken.synchronize()
-        for _ in 0..<64 { _ = try await broken.runtime.pause() }
-        broken.sceneWillResignActive(scene)
-        do { try await broken.synchronize(); fatalError("pause failure hidden") }
-        catch Runtime.Failure.pauseLimit {}
-        broken.sceneDidBecomeActive(scene)
-        precondition(!broken.isActive && broken.transitionFailure != nil)
-        try await broken.close()
-        precondition(broken.isClosed)
-        report("CHECK synthetic ordering, independent hold and failure cleanup")
-    }
-    private func resumedChecks(_ host: Host, _ scene: UIScene) async throws {
-        let session = session!, snapshot = snapshot!
-        let view = try await host.invoke(3, arguments: [.handle(session)])
-        precondition(view.value == .record(1, [.int32(0), .integer64(9007199254740993), .int32(3)]))
-        let updated = try await host.invoke(2, arguments: [.handle(session), .int32(1)])
-        precondition(updated.value == .record(1, [.int32(1), .integer64(9007199254740994), .int32(5)]))
-        let copied = try await host.runtime.copyUTF16(snapshot)
-        precondition(copied == [65, 0, 0xd800])
+    private func disconnectChecks(_ host: Host, _ scene: UIScene) async throws {
         // Forwarded disconnect is terminal even if an active event follows it.
         host.sceneWillResignActive(scene)
         host.sceneDidBecomeActive(scene)

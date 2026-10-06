@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--adapter", action="store_true", help="generate and compile the serial Swift runtime owner")
     parser.add_argument("--scene-host", action="store_true", help="include UIKit scene lifecycle integration (requires --adapter)")
     parser.add_argument("--consumer", type=Path, help="custom Swift consumer template (default: lifecycle smoke)")
+    parser.add_argument("--support-source", type=Path, action="append", default=[], help="additional Swift template, repeatable")
     args = parser.parse_args()
     if args.scene_host and not args.adapter:
         parser.error("--scene-host requires --adapter")
@@ -42,12 +43,14 @@ def main():
     if output.exists():
         raise ValueError("Output already exists; choose a new directory")
     output.mkdir(parents=True)
-    template = (args.consumer or Path(__file__).with_name("Lifecycle.swift.in")).read_text()
-    source = output / "Lifecycle.swift"
-    source.write_text(template.replace("@MODULE@", module).replace("@PREFIX@", "cilica_" + name + "_abi_v3")
-                      .replace("@APPLE_PREFIX@", "cilica_" + name + "_apple"))
     commands = []
-    sources = [str(source)]
+    sources = []
+    templates = [args.consumer or Path(__file__).with_name("Lifecycle.swift.in"), *args.support_source]
+    for index, template_path in enumerate(templates):
+        source = output / ("Lifecycle.swift" if index == 0 else f"Support{index}.swift")
+        source.write_text(template_path.read_text().replace("@MODULE@", module).replace("@PREFIX@", "cilica_" + name + "_abi_v3")
+                          .replace("@APPLE_PREFIX@", "cilica_" + name + "_apple"))
+        sources.append(str(source))
     if args.adapter:
         adapter = output / "Runtime.swift"
         generator = Path(__file__).resolve().parents[2] / "adapters" / "Apple" / "generate.py"
@@ -75,6 +78,8 @@ def main():
         with (output / "simulator.txt").open("w") as log:
             subprocess.run(command, check=True, stdout=log, stderr=subprocess.STDOUT, timeout=60)
     (output / "smoke-receipt.json").write_text(json.dumps({"commands": commands,
+        "sourceHashes": {Path(path).name: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in sources},
+        "binaryHashes": {sdk: hashlib.sha256((output / sdk).read_bytes()).hexdigest() for sdk in ("iphoneos", "iphonesimulator")},
         "packageReceiptSha256": hashlib.sha256((package / "build-receipt.json").read_bytes()).hexdigest(),
         "swiftVersion": subprocess.check_output(["xcrun", "swiftc", "--version"], text=True, timeout=30).strip(),
         "simulator": args.simulator, "physicalDeviceExecuted": False}, indent=2) + "\n")

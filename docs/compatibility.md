@@ -128,6 +128,14 @@ failure and forwarded-disconnect checks run synthetically within that app. Devic
 consumers link only. OS suspension, eviction/restoration, background deadlines and
 simultaneous scenes are unverified. See [ADR 0189](decisions/0189-uikit-scene-host.md).
 
+Milestone 7d.5 composes that host with the unchanged real-kernel package: twenty
+real simulator background/foreground cycles reproduce 1,792 .NET transcript
+comparisons plus 260 checks of fields immediately after resume. A public fixture
+adds six cycles retaining snapshots and captured fault details across mutations.
+Both collection modes pass; device targets are linked only. This is a scripted
+integration scenario, not a full application command adapter or OS suspension
+guarantee. See [ADR 0190](decisions/0190-composed-uikit-kernel-validation.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

@@ -206,3 +206,8 @@ only the Swift adapter/consumer changes.
 The separate opt-in [UIKit check](../../tests/Apple/README.md) temporarily installs
 two uniquely identified apps, switches their foreground status and uninstalls
 both. It is never run by the ordinary CLI consumer or default .NET tests.
+Its shared app shell accepts contract-specific scenarios and repeats numbered
+background/foreground cycles. The public scenario retains fault details and text
+across mutations; a private real-kernel scenario compares each resumed state with
+its existing .NET transcript. This remains a scripted integration check rather
+than a complete application command adapter.

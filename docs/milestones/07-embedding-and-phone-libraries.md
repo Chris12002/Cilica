@@ -14,7 +14,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
-| 7d | iOS library and native adapter | In progress: pinned XCFramework, Swift runtime owner, scoped pauses and UIKit scene host; simulator kernel/concurrency and real foreground/background checks pass. Full application commands, OS suspension and physical-device evidence remain open |
+| 7d | iOS library and native adapter | In progress: pinned XCFramework, Swift owner/pauses and UIKit host; real kernel now passes repeated simulator foreground/background cycles. Full application commands, OS suspension and physical-device evidence remain open |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
 
@@ -414,6 +414,33 @@ Private evidence is `artifacts/milestone7-uikit/evidence-7d4.json`. Main remains
 ancestor; the remote advertised no branch heads. No hosted work or push ran.
 Background callbacks do not establish actual OS suspension, process restoration,
 deadline handling, simultaneous windows or physical-device execution.
+
+## Slice 7d.5 outcome
+
+[ADR 0190](../decisions/0190-composed-uikit-kernel-validation.md) composes the
+unchanged real-kernel package with the UIKit scene host. A shared app shell now
+accepts contract-specific scenarios and repeats numbered transitions. The public
+scenario passes six total cycles retaining session state, snapshots and captured
+exception details across later mutations. The private kernel scenario passes
+twenty real background/foreground cycles with **1,792 exact .NET transcript
+comparisons plus 260 resumed-field checks**, across normal/forced collection.
+
+Both consumers link for arm64 device/simulator with Swift 6 warnings-as-errors.
+Existing native archives and original oracle data were reused; game rules,
+compiler/runtime sources, C ABI and Swift ownership semantics did not change.
+Build receipts now hash generated sources/executables, and the runner rejects
+changed artifacts before simulator work. Three focused evidence/marker tests pass.
+Both harness runs removed their uniquely identified apps. Review found no
+unresolved defect in sequencing, retained ownership, oracle parity or cleanup.
+See [the reusable scenario harness](../../tests/Apple/README.md) and private
+`artifacts/milestone7-composed/evidence-7d5.json`.
+
+The first preflight found no booted simulator and installed nothing. The existing
+iPhone 17 Pro iOS 26.1 simulator was booted once for validation and left running;
+no runtime download or new simulator was needed. No physical iOS device was found.
+Main remains an ancestor and the remote advertised no heads. No hosted work or
+push ran. This closes the gap between the separate kernel and UIKit simulator
+checks; it does not close physical-device or full application-command gates.
 
 ## Remaining exit gates
 
