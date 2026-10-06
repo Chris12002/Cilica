@@ -16,6 +16,11 @@ namespace System.Text
         public int Length { get => used + offset; set { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); } }
         public int Capacity { get => chars.Length + offset; set { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); } }
         public int MaxCapacity => 2147483647;
+        // This bounded core's numeric append contract is fixed invariant culture.
+        public StringBuilder Append(int value) => Append(Cilica.Runtime.IntegerText.Int32(value));
+        public StringBuilder Append(uint value) => Append(Cilica.Runtime.IntegerText.UInt32(value));
+        public StringBuilder Append(long value) => Append(Cilica.Runtime.IntegerText.Int64(value));
+        public StringBuilder Append(ulong value) => Append(Cilica.Runtime.IntegerText.UInt64(value));
         public StringBuilder Append(char value)
         {
             if (used == chars.Length) Expand(1);

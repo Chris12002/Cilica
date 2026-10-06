@@ -2085,3 +2085,15 @@ with forced GC and ASan/UBSan. All 71 relevant baseline/string regressions pass.
 The ledger has 27 gaps and 20 controls. No profile, grant or ABI changes; cultural,
 ignore-case and other text APIs remain separate work. Private replay is unverified.
 See [ADR AC0014](decisions/AC0014-ordinal-text-comparison.md).
+
+
+### Fixed-invariant numeric append (AC7b.2)
+
+StringBuilder.Append accepts signed/unsigned 32/64-bit integers through existing
+managed integer formatting and string append. This bounded core fixes numeric
+text to invariant culture; it does not implement ambient CurrentCulture behavior.
+The .NET oracle is explicitly pinned and restored by the tests. Six probes plus
+public StringBuilderInt supply 2,058 repeated O0/O2 native/.NET comparisons, and
+37 builder/baseline regressions pass. Forced GC, sanitizers, frame and cleanup
+checks remain enabled. The ledger has 26 gaps and 21 controls. No new grants or
+profiles; full replay remains unverified. See [ADR AC0015](decisions/AC0015-invariant-numeric-append.md).

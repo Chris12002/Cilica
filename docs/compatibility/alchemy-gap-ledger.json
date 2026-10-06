@@ -20,18 +20,18 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v41",
-    "nativeProfileEvidence": "Public baseline revalidated at AC7b.1; slice-specific evidence is recorded separately below.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC7b.2 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
     "updatePolicy": "When a gap advances, update its diagnostic and owning slice; claim native validation only after an oracle/native comparison. No silent blanket baseline regeneration.",
     "publicProbeCount": 47,
-    "knownGapCount": 27,
-    "positiveControlCount": 20,
+    "knownGapCount": 26,
+    "positiveControlCount": 21,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "aaf35eedcecd0bfa0f8e2e0fae362286240d7584a50b61d093256146a97655f2",
-    "latestSlice": "AC7b.1",
+    "fixtureSha256": "5de05590cc71b488ed463a97833240a6233fc1c3e1aff109b31647f3f48964fd",
+    "latestSlice": "AC7b.2",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -162,13 +162,18 @@
     "AC7b": {
       "prerequisites": ["AC7a"],
       "status": "in-progress",
-      "completedSubslices": ["AC7b.1"],
+      "completedSubslices": ["AC7b.1", "AC7b.2"],
       "remaining": "Ordinal prefix checks, substring, formatting, encoding and remaining text APIs. AC7b.1 uses existing UTF-16 string storage independently of the remaining AC7a array work."
     },
     "AC7b.1": {
       "prerequisites": ["AC0"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0014-ordinal-text-comparison.md"
+    },
+    "AC7b.2": {
+      "prerequisites": ["AC0"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0015-invariant-numeric-append.md"
     },
     "AC7c": {
       "prerequisites": [
@@ -488,7 +493,7 @@
     {"id": "StringStartsWith", "slice": "AC7b", "publicFixture": "Probe_StringStartsWith", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: StartsWith"}, "privateWitness": "probes.json; Probe_StringStartsWith"},
     {"id": "StringSubstring", "slice": "AC7b", "publicFixture": "Probe_StringSubstring", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Substring"}, "privateWitness": "probes.json; Probe_StringSubstring"},
     {"id": "StringFormatTwo", "slice": "AC7b", "publicFixture": "Probe_StringFormatTwo", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Format"}, "privateWitness": "probes.json; Probe_StringFormatTwo"},
-    {"id": "StringBuilderInt", "slice": "AC7b", "publicFixture": "Probe_StringBuilderInt", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Append"}, "privateWitness": "probes.json; Probe_StringBuilderInt"},
+    {"id": "StringBuilderInt", "slice": "AC7b", "publicFixture": "Probe_StringBuilderInt", "status": "native-validated-invariant-only", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_StringBuilderInt", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Append"}, "currentEvidence": "AC7b.2 signed/unsigned 32/64-bit append with fixed invariant numeric text. Oracle explicitly pinned to InvariantCulture; ambient culture is not implemented."},
     {"id": "TupleFive", "slice": "AC5b", "publicFixture": "Probe_TupleFive", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000102 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_TupleFive"},
     {"id": "ByteArray", "slice": "AC7a", "publicFixture": "Probe_ByteArray", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering."}, "privateWitness": "probes.json; Probe_ByteArray", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200002f in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "baselineNote": "The public fixture retains an array local; storage validation rejects before the original audit fixture's newarr operand. Both IL bodies were inspected. No implementation support changed."},
     {"id": "Utf8", "slice": "AC7b", "publicFixture": "Probe_Utf8", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020002c2 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_Utf8"},

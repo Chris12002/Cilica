@@ -102,7 +102,8 @@ and slot reuse. AC5a.1 adds bounded integer math and typed comparisons. Broader
 collections and full
 saved-game replay remain unfinished. AC3.4 adds list/array search and value removal
 for admitted equality types, preserving mutating value equality. AC7b.1 adds
-String.CompareOrdinal and IsNullOrEmpty with pinned UTF-16 results.
+String.CompareOrdinal and IsNullOrEmpty with pinned UTF-16 results. AC7b.2 adds
+32/64-bit integer StringBuilder append under a fixed invariant-culture contract.
 
 ## Development
 

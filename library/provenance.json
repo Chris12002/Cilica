@@ -214,7 +214,8 @@
         "Use zero-extended UTF-16 in private Int32 vectors until narrow vector storage is implemented.",
         "Replace span/unsafe memmove operations with checked managed indexing and retain allocation-before-link mutation order.",
         "Copy chunks into an exact temporary Int32 vector, then invoke an exactly granted immutable string allocation helper.",
-        "Admit only the default constructor, string/char append, Length/Capacity/MaxCapacity getters and ToString; setters/serialization and other members remain build errors."
+        "Admit the default constructor, string/char and signed/unsigned 32/64-bit append, Length/Capacity/MaxCapacity getters and ToString; other members remain build errors.",
+        "AC7b.2 integer append calls existing invariant IntegerText then managed string append; this explicitly fixes numeric culture and does not port ambient provider lookup or span formatting. Intermediate allocation counts differ."
       ],
       "scope": "Text, code units, capacity growth, snapshot/return identity and null behavior; no general formatting, mutation, serialization or full StringBuilder compatibility."
     },

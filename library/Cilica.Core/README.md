@@ -187,3 +187,7 @@ and object comparison overloads remain unmapped (ADR AC0012).
 
 StringComparison.cs also supplies CompareOrdinal and IsNullOrEmpty as managed
 code, preserving pinned UTF-16 comparison results (ADR AC0014). No new grants.
+
+Numeric StringBuilder.Append(int/uint/long/ulong) uses fixed invariant culture
+(AC7b.2); hosts comparing with .NET must configure the same culture. Ambient
+culture, floating-point and object append are not implemented.

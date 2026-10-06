@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -108,6 +109,13 @@ public sealed class CompatibilityGapTests
             return (name, result.Program!, oracle);
         }).ToArray();
         // Authored probes run in the test oracle; metadata translation never invokes them.
-        await IntegerObjectTranslationTests.VerifyTranslated(optimized, controls);
+        // This selected bounded core uses fixed invariant numeric text (AC7b.2).
+        var savedCulture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            await IntegerObjectTranslationTests.VerifyTranslated(optimized, controls);
+        }
+        finally { CultureInfo.CurrentCulture = savedCulture; }
     }
 }
