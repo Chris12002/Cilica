@@ -90,7 +90,7 @@ public static class RuntimeTypeProbe
         return left.Equals(right) ? 1 : 0;
     }
 
-    public static int UnsupportedValueToken(int a, int b) => typeof(int) == typeof(long) ? a : b;
+    public static int ScalarTokens(int a, int b) => typeof(int) == typeof(long) ? a : b;
     public static int UnsupportedReflection(int a, int b) => typeof(TypeAlpha).GetMethods().Length;
     public static int UnsupportedDefaultValueEquality(int a, int b)
     {

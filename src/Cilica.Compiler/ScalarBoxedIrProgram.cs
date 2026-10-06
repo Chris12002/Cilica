@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 /// <summary>Scalar boxing operations with exact logical payload plans; not a public struct ABI.</summary>
 public sealed record ScalarBoxedIrProgram(ScalarLocationIrProgram Flow, ValueTypeCatalog Values)
 {
-    public const string Profile = "scalar-boxed-ir-v9";
+    public const string Profile = "scalar-boxed-ir-v10";
 }
 
 public static class ScalarBoxedIrValidator

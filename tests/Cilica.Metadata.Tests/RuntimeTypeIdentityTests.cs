@@ -18,7 +18,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class RuntimeTypeIdentityTests
 {
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
-        CoreLibraryBuildTests.TranslateFixtures(typeof(RuntimeTypeProbe), "Identity", "HandlesAndArrays", "Dictionary", "LiteralOnly"));
+        CoreLibraryBuildTests.TranslateFixtures(typeof(RuntimeTypeProbe), "Identity", "HandlesAndArrays", "Dictionary", "LiteralOnly", "ScalarTokens"));
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
@@ -29,7 +29,7 @@ public sealed class RuntimeTypeIdentityTests
             [("Identity", programs[0], RuntimeTypeProbe.Identity),
              ("HandlesAndArrays", programs[1], RuntimeTypeProbe.HandlesAndArrays),
              ("Dictionary", programs[2], RuntimeTypeProbe.Dictionary),
-             ("LiteralOnly", programs[3], RuntimeTypeProbe.LiteralOnly)]);
+             ("LiteralOnly", programs[3], RuntimeTypeProbe.LiteralOnly), ("ScalarTokens", programs[4], RuntimeTypeProbe.ScalarTokens)]);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public sealed class RuntimeTypeIdentityTests
             Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         }
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        foreach (var name in new[] { "UnsupportedValueToken", "UnsupportedReflection", "UnsupportedDefaultValueEquality", "UnsupportedStringHash", "UnsupportedArrayHash", "UnsupportedObjectAliasEquality" })
+        foreach (var name in new[] { "UnsupportedReflection", "UnsupportedDefaultValueEquality", "UnsupportedStringHash", "UnsupportedArrayHash", "UnsupportedObjectAliasEquality" })
         {
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, Method(name), implementation);
             Assert.False(result.Success, name); Assert.Null(result.Program); Assert.NotEmpty(result.Diagnostics);
@@ -69,7 +69,7 @@ public sealed class RuntimeTypeIdentityTests
         var caller = scope.OpenInput(files.Write("identity-caller.dll", hostile.Build())).Value!;
         var deniedCaller = ValueTranslator.TranslateIntegerObjects(scope, caller, root, implementation);
         Assert.False(deniedCaller.Success);
-        Assert.Contains(deniedCaller.Diagnostics, d => d.Message.Contains("declaration or caller", StringComparison.Ordinal));
+        Assert.Contains(deniedCaller.Diagnostics, d => d.Message.Contains("Explicit type use requires lexical declaring scope", StringComparison.Ordinal));
         var abstractCaller = new ResolutionAssemblyBuilder(new("AbstractIdentityCaller", new Version(1, 0, 0, 0)));
         var abstractType = abstractCaller.TypeReference("Cilica.Fixtures.Execution", "TypeAbstractBase", abstractCaller.Reference(input.Identity));
         var constructor = abstractCaller.Member(abstractType, ".ctor", 0x20, 0, 1);

@@ -17,7 +17,7 @@ public static class ObjectIrValidator
         ArgumentNullException.ThrowIfNull(program.Flow);
         ObjectModelValidator.Validate(program.Flow.Types);
         _ = new ObjectNativeLayout(program.Flow.Types);
-        var rules = new ObjectIrRules(program, locations, delegates: delegates);
+        var rules = new ObjectIrRules(program, locations, delegates: delegates, boxes: boxes);
         ReferenceIrValidator.Validate(program.Flow, rules, locations ? new ManagedLocationRules(program.Flow.Types) : null, boxes, exceptions);
         rules.DispatchMaps();
         var entry = rules.Binding(program.Flow.Entry);
@@ -38,6 +38,7 @@ internal sealed partial class ObjectIrRules
     private readonly HashSet<ObjectTypeId> _contracts;
     private readonly HashSet<ObjectTypeId> _arrays;
     private readonly Dictionary<ObjectTypeId, ValueTypeLayout>? _valueLayouts;
+    private readonly HashSet<ObjectTypeId> _scalarTypeTargets;
     private readonly IrTypeRules _types;
     private readonly ObjectDispatchRules _dispatch;
     private readonly ObjectInterfaceOperationRules _interfaces;
@@ -47,7 +48,7 @@ internal sealed partial class ObjectIrRules
     private readonly HashSet<string> _literals = new(StringComparer.Ordinal);
     private int _literalUnits;
 
-    internal ObjectIrRules(ObjectIrProgram program, bool locations = false, ValueTypeCatalog? values = null, bool delegates = false)
+    internal ObjectIrRules(ObjectIrProgram program, bool locations = false, ValueTypeCatalog? values = null, bool delegates = false, ScalarBoxingRules? boxes = null)
     {
         _program = program;
         _statics = program.Flow.Types.Statics.ToDictionary(f => f.Id);
@@ -60,6 +61,9 @@ internal sealed partial class ObjectIrRules
         _contracts = flow.Types.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _arrays = flow.Types.Arrays.ToHashSet();
         _valueLayouts = values?.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
+        _scalarTypeTargets = values is not null
+            ? values.Types.Where(t => t.ScalarBox is not null).Select(t => ObjectTypeId.From(t.Source)).ToHashSet()
+            : boxes is not null ? boxes.Plans.Where(p => p.ScalarBox is not null).Select(p => p.Type).ToHashSet() : [];
         _fields = flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         Require(!flow.Methods.IsDefault && flow.Methods.Length is > 0 and <= ProgramLimits.MaximumMethods
             && !program.AbstractMethods.IsDefault && flow.Methods.Length + program.AbstractMethods.Length <= ProgramLimits.MaximumMethods
@@ -248,7 +252,8 @@ internal sealed partial class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.NewDelegate d } => new[] { d.Type },
         IrStatement.Define { Value.Expression: IrExpression.CallDelegate d } => new[] { d.Type },
         IrStatement.InvokeDelegate d => new[] { d.Type },
-        IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeLiteral t } => new[] { t.Target, t.Implementation },
+        IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeLiteral t } => _scalarTypeTargets.Contains(t.Target)
+            ? new[] { t.Implementation } : new[] { t.Target, t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.ObjectGetType t } => new[] { t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeHash t } => new[] { t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.InvariantCulture c } => new[] { c.Type },
@@ -326,7 +331,8 @@ internal sealed partial class ObjectIrRules
     internal bool RuntimeTypeLiteral(ObjectTypeId? target, ObjectTypeId? implementation, IrType result) =>
         RuntimeTypeBase(implementation) is { } type && result == IrType.Reference(type) && target is not null
         && (_layouts.ContainsKey(target) || _contracts.Contains(target) || _arrays.Contains(target)
-            || _delegates.ContainsKey(target) || _program.Flow.Types.String == target);
+            || _delegates.ContainsKey(target) || _program.Flow.Types.String == target
+            || _program.Flow.Types.Integer64 && _scalarTypeTargets.Contains(target));
 
     internal bool RuntimeTypeOperand(int operand, IReadOnlyList<IrType> values, ObjectTypeId? implementation, IrType result, bool hash) =>
         RuntimeTypeBase(implementation) is { } type && operand >= 0 && operand < values.Count

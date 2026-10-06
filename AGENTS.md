@@ -692,3 +692,13 @@ malformed declarations, field/work limits, actual layout limits and the public
 baseline. Bounds and profiles are unchanged. Frozen engine advances to missing
 Enum.IsDefined in PlayerState construction; state/full replay remain incomplete.
 See [ADR AC0074](docs/decisions/AC0074-scalar-enum-classification-facts.md).
+
+### Nominal scalar runtime type tokens (AC5b.6)
+
+Admitted scalar/Int32-enum type literals share the canonical per-runtime identity
+of boxed GetType while preserving distinct nominal types. Seven probes pass 2,058
+repeated native/.NET comparisons, and all 52 selected checks pass, including both
+IR stages, cache ownership/quotas and the public baseline. General value, Nullable,
+floating and open tokens remain diagnostic. Integer-object CIL v19, object IR v27,
+scalar boxed IR v10 and native v53; no new grants, payloads or bounds. Enum.IsDefined
+and full engine/replay remain unfinished. See [ADR AC0075](docs/decisions/AC0075-scalar-runtime-type-tokens.md).

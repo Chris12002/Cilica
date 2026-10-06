@@ -26,6 +26,8 @@ public static class ValueIrValidator
             var box = expression switch { IrExpression.BoxValue b => b.Type, IrExpression.UnboxValue u => u.Type, IrExpression.UnboxLocation u => u.Type,
                 IrExpression.IsInstance { BoxedTarget: true } t => t.Target, IrExpression.CastClass { BoxedTarget: true } t => t.Target, _ => null };
             if (box is not null) pending.Push(box);
+            if (expression is IrExpression.RuntimeTypeLiteral literal
+                && program.Types.Types.Any(t => t.ScalarBox is not null && ObjectTypeId.From(t.Source) == literal.Target)) pending.Push(literal.Target);
         }
         foreach (var field in program.Types.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>()) pending.Push(field.Type);
         foreach (var field in program.Types.References.Statics.Where(f => f.Type.Kind == IrTypeKind.Value)) pending.Push(field.Type.Class!);

@@ -51,17 +51,18 @@ public static partial class ValueProgramDiscovery
             var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
                 MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
             CheckArgumentAccess(signature, work, offset);
-            // Value-type and open-generic metadata identities need their own
-            // descriptor admission; do not conflate them with scalar storage.
+            // Scalar metadata identity uses its validated nominal boxed plan, never
+            // the shared evaluation-stack carrier. Other value tokens stay bounded out.
             ObjectTypeId target;
-            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.String }) target = IncludeString(work, offset);
+            if (ScalarBoxOperand(signature, work, offset) is { } scalar) target = scalar.Type;
+            else if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.String }) target = IncludeString(work, offset);
             else if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Object })
                 target = IncludeReference(Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object), work, offset), work, offset);
             else
             {
                 if (signature is TypeSignature.Named named && Inline(named.Definition, work, offset)
                     || signature is not (TypeSignature.Named or TypeSignature.Vector or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class }))
-                    Fail(work, "ldtoken currently requires a closed reference type or admitted vector; value, open, method and field handles require later lowering.", offset);
+                    Fail(work, "ldtoken requires an admitted scalar, closed reference type or vector; other value, open, method and field handles require later lowering.", offset);
                 target = ReferenceOperand(signature, work, offset);
             }
             var facts = RuntimeTypes(work, offset);
