@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 
 def main():
@@ -13,6 +14,8 @@ def main():
     parser.add_argument("--package", type=Path, required=True, help="build_xcframework.py output directory")
     parser.add_argument("--output", type=Path, required=True, help="new smoke build directory")
     parser.add_argument("--simulator", help="existing booted simulator UUID; omit for build-only validation")
+    parser.add_argument("--adapter", action="store_true", help="generate and compile the serial Swift runtime owner")
+    parser.add_argument("--consumer", type=Path, help="custom Swift consumer template (default: lifecycle smoke)")
     args = parser.parse_args()
     package = args.package.resolve(strict=True)
     receipt = json.loads((package / "build-receipt.json").read_bytes())
@@ -36,11 +39,19 @@ def main():
     if output.exists():
         raise ValueError("Output already exists; choose a new directory")
     output.mkdir(parents=True)
-    template = Path(__file__).with_name("Lifecycle.swift.in").read_text()
+    template = (args.consumer or Path(__file__).with_name("Lifecycle.swift.in")).read_text()
     source = output / "Lifecycle.swift"
     source.write_text(template.replace("@MODULE@", module).replace("@PREFIX@", "cilica_" + name + "_abi_v3")
                       .replace("@APPLE_PREFIX@", "cilica_" + name + "_apple"))
     commands = []
+    sources = [str(source)]
+    if args.adapter:
+        adapter = output / "Runtime.swift"
+        generator = Path(__file__).resolve().parents[2] / "adapters" / "Apple" / "generate.py"
+        command = [sys.executable, "-B", str(generator), "--package", str(package), "--output", str(adapter)]
+        commands.append(command)
+        subprocess.run(command, check=True, timeout=30)
+        sources.append(str(adapter))
     for sdk, folder, suffix in (("iphoneos", "ios-arm64", ""), ("iphonesimulator", "ios-arm64-simulator", "-simulator")):
         sdk_path = subprocess.check_output(["xcrun", "--sdk", sdk, "--show-sdk-path"], text=True, timeout=30).strip()
         if sdk_path != receipt["sdks"][sdk]["path"]:
@@ -49,7 +60,7 @@ def main():
         command = ["xcrun", "--sdk", sdk, "swiftc", "-swift-version", "6", "-warnings-as-errors", "-parse-as-library",
                    "-target", "arm64-apple-ios" + receipt["toolchain"]["minimumIOS"] + suffix, "-sdk", sdk_path,
                    "-module-cache-path", str(output / "module-cache"), "-I", str(library / "Headers"),
-                   str(source), str(library / ("lib" + module + ".a")), "-o", str(output / sdk)]
+                   *sources, str(library / ("lib" + module + ".a")), "-o", str(output / sdk)]
         commands.append(command)
         with (output / (sdk + "-build.log")).open("w") as log:
             subprocess.run(command, check=True, stdout=log, stderr=subprocess.STDOUT, timeout=120)

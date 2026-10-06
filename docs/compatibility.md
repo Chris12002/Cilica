@@ -103,6 +103,15 @@ execution. No full Swift app adapter, UIKit/background lifecycle, earlier-iOS or
 Intel simulator compatibility is established. See
 [ADR 0186](decisions/0186-apple-static-packaging.md).
 
+Milestone 7d.2 adds a generated Swift 6 runtime owner with a serial Dispatch worker,
+runtime-scoped explicit leases, numeric record marshaling, exact UTF-16 copies and
+retained exception details. iOS 26.1 simulator evidence covers concurrent updates,
+close races, ownership, quotas and 1,792 real-kernel comparisons; device consumers
+link only. Invocation does not suspend during native work, and task cancellation
+does not roll back managed calls. Per-handle automatic disposal, full application
+commands, UI/background lifecycle and physical-device support are not implied.
+See [ADR 0187](decisions/0187-swift-runtime-ownership.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

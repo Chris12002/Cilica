@@ -1,0 +1,155 @@
+// Generated from the pinned v3 contract. See adapters/Apple/README.md.
+import Foundation
+import Dispatch
+import @MODULE@
+
+private final class @MODULE@Worker: SerialExecutor, @unchecked Sendable {
+    private let queue = DispatchQueue(label: "cilica.@MODULE@.runtime")
+    func enqueue(_ job: consuming ExecutorJob) {
+        let pending = UnownedJob(job)
+        queue.async { pending.runSynchronously(on: self.asUnownedSerialExecutor()) }
+    }
+    func destroyEventually(_ token: UInt64) {
+        queue.async { _ = @PREFIX@_destroy(token) }
+    }
+}
+
+public actor @MODULE@Runtime {
+    public struct Handle: Sendable, Hashable {
+        fileprivate let owner: UUID
+        fileprivate let token: UInt64
+    }
+    public enum Value: Sendable, Equatable {
+        case int32(Int32), integer64(UInt64), handle(Handle?), record(UInt32, [Value]), void
+    }
+    public struct Fault: Sendable, Equatable {
+        public let code: UInt32
+        public let method: UInt32
+        public let offset: UInt32
+        public let imageHash: String
+    }
+    public struct Outcome: Sendable {
+        public let value: Value
+        public let fault: Fault?
+        public let exception: Handle?
+    }
+    public enum Failure: Error, Sendable, Equatable {
+        case closed, invalidHandle, invalidArguments, unknownExport, unsupported, copyLimit
+        case native(UInt32)
+    }
+    public struct Options: Sendable {
+        public var collectBeforeAllocation = false
+        public var heapBytes: UInt32 = 1048576
+        public var objectLimit: UInt32 = 4096
+        public var executionBytes: UInt32 = 1048576
+        public var handleLimit: UInt32 = 1024
+        public init() {}
+    }
+    private let worker = @MODULE@Worker()
+    public nonisolated var unownedExecutor: UnownedSerialExecutor { worker.asUnownedSerialExecutor() }
+    private let identity = UUID()
+    private var token: UInt64 = 0
+    private var leases: Set<UInt64> = []
+    private init() {}
+
+    public static func open(options: Options = Options()) async throws -> @MODULE@Runtime {
+        let runtime = @MODULE@Runtime()
+        try await runtime.start(options)
+        return runtime
+    }
+    private func start(_ options: Options) throws {
+        var config = @APPLE_PREFIX@_default_config()
+        config.flags = options.collectBeforeAllocation ? 1 : 0
+        config.heap_bytes = options.heapBytes; config.object_limit = options.objectLimit
+        config.execution_bytes = options.executionBytes; config.handle_limit = options.handleLimit
+        try check(@PREFIX@_create(3, @APPLE_PREFIX@_contract_hash(), &config, &token))
+    }
+    // No actor method suspends during a native operation. At final destruction no
+    // operation retains this actor; the fallback queues cleanup on its worker.
+    deinit {
+        let remaining = token
+        if remaining != 0 { worker.destroyEventually(remaining) }
+    }
+    public func close() throws {
+        if token == 0 { return }
+        try check(@PREFIX@_destroy(token))
+        token = 0; leases.removeAll()
+    }
+    private func requireOpen() throws { if token == 0 { throw Failure.closed } }
+    private func check(_ status: UInt32) throws {
+        if status != 0 { throw Failure.native(status) }
+    }
+    private func resolve(_ handle: Handle) throws -> UInt64 {
+        guard handle.owner == identity && leases.contains(handle.token) else { throw Failure.invalidHandle }
+        return handle.token
+    }
+    private func adopt(_ value: UInt64) -> Handle? {
+        if value == 0 { return nil }
+        leases.insert(value)
+        return Handle(owner: identity, token: value)
+    }
+    public func clone(_ handle: Handle) throws -> Handle {
+        try requireOpen(); let raw = try resolve(handle); var retained: UInt64 = 0
+        try check(@PREFIX@_retain_handle(token, raw, &retained))
+        return adopt(retained)!
+    }
+    public func release(_ handle: Handle) throws {
+        try requireOpen(); let raw = try resolve(handle)
+        try check(@PREFIX@_release_handle(token, raw))
+        leases.remove(raw)
+    }
+    private enum Shape {
+        case int32, integer64, handle, record(UInt32, [Shape]), void
+    }
+    private func schema(_ export: UInt32) throws -> ([Shape], Shape) {
+        switch export {
+@SCHEMAS@
+        default: throw Failure.unknownExport
+        }
+    }
+    private func encode(_ value: Value, as shape: Shape) throws -> [cilica_v3_value] {
+        switch (value, shape) {
+        case (.int32(let bits), .int32): return [cilica_v3_value(kind: 1, reserved: 0, payload: UInt64(UInt32(bitPattern: bits)))]
+        case (.integer64(let bits), .integer64): return [cilica_v3_value(kind: 3, reserved: 0, payload: bits)]
+        case (.handle(let handle), .handle):
+            return [cilica_v3_value(kind: 2, reserved: 0, payload: try handle.map { try resolve($0) } ?? 0)]
+        case (.record(let id, let fields), .record(let expected, let shapes)):
+            guard id == expected && fields.count == shapes.count else { throw Failure.invalidArguments }
+            return try zip(fields, shapes).flatMap { try encode($0.0, as: $0.1) }
+        default: throw Failure.invalidArguments
+        }
+    }
+    private func decode(_ value: cilica_v3_value) -> Value {
+        switch value.kind {
+        case 1: return .int32(Int32(bitPattern: UInt32(truncatingIfNeeded: value.payload)))
+        case 2: return .handle(adopt(value.payload))
+        case 3: return .integer64(value.payload)
+        default: return .void
+        }
+    }
+    public func invoke(_ export: UInt32, arguments: [Value] = [], captureException: Bool = false) throws -> Outcome {
+        try requireOpen()
+        let (parameters, returned) = try schema(export)
+        guard arguments.count == parameters.count else { throw Failure.invalidArguments }
+        let inputs = try zip(arguments, parameters).flatMap { try encode($0.0, as: $0.1) }
+        var fields = [cilica_v3_value]()
+        if case .record(_, let shapes) = returned { fields = .init(repeating: cilica_v3_value(), count: shapes.count) }
+        var result = cilica_v3_result(); var exception: UInt64 = 0
+        let status: UInt32 = try inputs.withUnsafeBufferPointer { input in
+            try fields.withUnsafeMutableBufferPointer { output in
+@INVOKE@
+            }
+        }
+        guard status == 0 || status == 6 else { throw Failure.native(status) }
+        let fault: Fault? = status == 6 ? Fault(code: result.fault_code, method: result.method_token,
+            offset: result.il_offset, imageHash: withUnsafeBytes(of: result.image_hash) {
+                String(decoding: $0.prefix(while: { $0 != 0 }), as: UTF8.self)
+            }) : nil
+        let value: Value
+        if status == 0, case .record(let id, _) = returned { value = .record(id, fields.map { decode($0) }) }
+        else { value = decode(result.value) }
+        return Outcome(value: value, fault: fault, exception: adopt(exception))
+    }
+@STRING_METHODS@
+@EXCEPTION_METHODS@
+}

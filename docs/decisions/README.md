@@ -134,3 +134,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0184](0184-numeric-record-embedding.md) | Bounded numeric record embedding | Accepted; stable field schemas, copied numeric values and checked internal return slots |
 | [0185](0185-persistent-kernel-abi-composition.md) | Persistent kernel ABI composition | Accepted; scripted kernel C11 transcript parity and public ownership/fault-recovery regression |
 | [0186](0186-apple-static-packaging.md) | Pinned Apple static packaging | Accepted; arm64 device/simulator XCFramework, Swift C import bridge and simulator smoke evidence |
+| [0187](0187-swift-runtime-ownership.md) | Swift runtime ownership | Accepted; serial worker, scoped explicit leases, copied values/errors and opt-in simulator regression |

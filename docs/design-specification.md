@@ -1205,6 +1205,16 @@ transcript and a Swift lifecycle consumer have iOS 26.1 simulator evidence;
 the device slice is cross-linked only. The iOS 17.0 build floor, physical devices,
 UI/background lifecycle and complete native host adapter still require validation.
 
+Milestone 7d.2 adds the generated Swift runtime owner
+([ADR 0187](decisions/0187-swift-runtime-ownership.md)). A custom actor executor
+serializes calls on a dedicated Dispatch queue. Operations do not suspend while
+native code or copying is active. Scoped explicit leases and manifest-derived
+record buffers preserve ownership; raw UInt16 copying preserves exact text units.
+Faults remain copied outcomes with optional retained exception details. Close
+serializes teardown and invalidates leases; final destruction queues fallback
+cleanup. Simulator concurrency, fault-recovery and kernel checks pass; application
+commands, UI/background lifecycle and physical devices remain unverified.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

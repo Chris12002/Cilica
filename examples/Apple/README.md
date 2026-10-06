@@ -35,6 +35,12 @@ executable is linked only and is not physical-device evidence. The simulator mus
 be able to run the configured minimum iOS target. SDK paths must match the package
 receipt; use the pinned Xcode selection for both commands.
 
+Add `--adapter` to generate and compile the
+[Swift runtime owner](../../adapters/Apple/README.md). `--consumer PATH` selects
+another Swift consumer template instead of the lifecycle smoke. The same module
+and symbol-prefix placeholders are replaced. The public session regression uses
+`tests/Apple/Session.swift.in`; these options reuse the existing native package.
+
 Recorded local evidence: Xcode 26.1.1, SDK 26.1, Apple Swift 6.2.1, arm64 iPhone 17
 Pro simulator on iOS 26.1 (23B86). The Swift lifecycle smoke passes. Separately, the private
 scripted kernel C11 consumer links the same archive and passes 5,376 exact .NET

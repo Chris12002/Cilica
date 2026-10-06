@@ -28,6 +28,9 @@ feedback before implementation. Explain consequential choices in plain language.
   Slice 7d.1 adds pinned arm64 iOS/device and simulator XCFramework packaging,
   simulator C transcript evidence and Swift lifecycle smoke checks. Physical
   device execution and a full native application adapter remain unverified.
+  Slice 7d.2 adds a generated Swift runtime owner with a serial worker, scoped
+  leases, numeric records, exact UTF-16 and captured fault details. Simulator
+  concurrency/kernel checks pass; this is not a full application/Expo adapter.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

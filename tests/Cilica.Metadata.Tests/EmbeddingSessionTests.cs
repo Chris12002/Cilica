@@ -14,12 +14,10 @@ public sealed class EmbeddingSessionTests
     private static readonly Lazy<Task<ManagedExceptionIrProgram>> Program = new(async () =>
         (await CoreLibraryBuildTests.TranslateFixtures(typeof(EmbeddingSessionProbe), nameof(EmbeddingSessionProbe.Root)))[0]);
 
-    [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task Persistent_sessions_compose_handles_records_strings_and_fault_recovery(bool optimized)
+    internal static async Task<EmbeddingModuleArtifact> Emit()
     {
         var program = await Program.Value; var flow = program.Flow.Flow.Flow;
-        IrMethod Method(string name) => flow.Methods.Single(m => m.Source.Token == typeof(EmbeddingSessionProbe).GetMethod(name)!.MetadataToken);
+        IrMethod Method(string name) => flow.Methods.Single(m => m.Source.ContentHash == flow.Entry.ContentHash && m.Source.Token == typeof(EmbeddingSessionProbe).GetMethod(name)!.MetadataToken);
         var session = new EmbeddingValueShape(EmbeddingValueKind.Handle, 1);
         var text = new EmbeddingValueShape(EmbeddingValueKind.Handle, 2);
         var view = new EmbeddingValueShape(EmbeddingValueKind.Record, RecordTypeId: 1);
@@ -30,12 +28,20 @@ public sealed class EmbeddingSessionTests
         var contract = new EmbeddingObjectContract("sessions", 1,
             [new(1, "session", Method("Open").ReturnType.Class!), new(2, "text", flow.Types.References.String!)],
             [Export(1, "open", "Open", session, text), Export(2, "apply", "Apply", view, session, new(EmbeddingValueKind.Int32)),
-             Export(3, "read", "Read", view, session), Export(4, "snapshot", "Snapshot", text, session)],
+             Export(3, "read", "Read", view, session), Export(4, "snapshot", "Snapshot", text, session),
+             Export(5, "echo", "Echo", view, view)],
             Utf16StringTypeId: 2, CaptureExceptions: true) {
             Records = [new(1, "view", type, [new(1, "steps", slots[0].Fields, EmbeddingValueKind.Int32),
                 new(2, "total", slots[1].Fields, EmbeddingValueKind.Integer64), new(3, "text_length", slots[2].Fields, EmbeddingValueKind.Int32)])]
         };
-        var artifact = EmbeddingObjectModuleEmitter.EmitExceptions(program, contract); string api = artifact.SymbolPrefix;
+        return EmbeddingObjectModuleEmitter.EmitExceptions(program, contract);
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Persistent_sessions_compose_handles_records_strings_and_fault_recovery(bool optimized)
+    {
+        var artifact = await Emit(); string api = artifact.SymbolPrefix;
         const string label = "A\0\ud800";
         var oracle = EmbeddingSessionProbe.Open(label);
         var observations = Enumerable.Range(1, 12).Select(i => EmbeddingSessionProbe.Apply(oracle, i)).ToArray();

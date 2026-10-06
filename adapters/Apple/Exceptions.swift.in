@@ -1,0 +1,23 @@
+    public struct ExceptionDetails: Sendable {
+        public let typeName: [UInt16]
+        public let message: [UInt16]
+        public let typeToken: UInt32
+        public let typeImageHash: String
+    }
+    public func exceptionDetails(_ handle: Handle, maximumUnits: UInt32 = 524288) throws -> ExceptionDetails {
+        try requireOpen(); let raw = try resolve(handle); var info = cilica_v3_exception_info()
+        let query = @PREFIX@_exception_copy(token, raw, nil, 0, nil, 0, &info)
+        guard query == 0 || query == 12 else { throw Failure.native(query) }
+        let total = UInt64(info.type_name_length) + UInt64(info.message_length)
+        guard total <= UInt64(maximumUnits) && total <= 524288 else { throw Failure.copyLimit }
+        var type = [UInt16](repeating: 0, count: Int(info.type_name_length))
+        var message = [UInt16](repeating: 0, count: Int(info.message_length))
+        let status = type.withUnsafeMutableBufferPointer { t in
+            message.withUnsafeMutableBufferPointer { m in
+                @PREFIX@_exception_copy(token, raw, t.baseAddress, UInt32(t.count), m.baseAddress, UInt32(m.count), &info)
+            }
+        }
+        try check(status)
+        return ExceptionDetails(typeName: type, message: message, typeToken: info.type_token,
+            typeImageHash: withUnsafeBytes(of: info.type_image_hash) { String(decoding: $0.prefix(while: { $0 != 0 }), as: UTF8.self) })
+    }

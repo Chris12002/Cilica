@@ -1,0 +1,83 @@
+import Foundation
+
+typealias Runtime = @MODULE@Runtime
+
+@main struct SessionChecks {
+    static func handle(_ outcome: Runtime.Outcome) -> Runtime.Handle {
+        guard outcome.fault == nil, case .handle(let handle) = outcome.value, let handle else { fatalError("Expected lease") }
+        return handle
+    }
+    static func fields(_ outcome: Runtime.Outcome) -> [Runtime.Value] {
+        guard outcome.fault == nil, case .record(1, let fields) = outcome.value else { fatalError("Expected record") }
+        return fields
+    }
+    static func main() async throws {
+        for stress in [false, true] {
+            var options = Runtime.Options(); options.collectBeforeAllocation = stress; options.handleLimit = 8
+            let runtime = try await Runtime.open(options: options)
+            let other = try await Runtime.open(options: options)
+            let record = Runtime.Value.record(1, [.int32(-7), .integer64(UInt64.max), .int32(Int32.min)])
+            let echoed = try await runtime.invoke(5, arguments: [record])
+            precondition(echoed.value == record && echoed.fault == nil)
+            do { _ = try await runtime.invoke(5, arguments: [.record(99, [])]); fatalError("bad record admitted") }
+            catch Runtime.Failure.invalidArguments {}
+            let text = try await runtime.importUTF16([65, 0, 0xd800])
+            let session = handle(try await runtime.invoke(1, arguments: [.handle(text)]))
+            try await runtime.release(text)
+            let alias = try await runtime.clone(session)
+            try await runtime.release(session)
+            do { _ = try await runtime.invoke(3, arguments: [.handle(session)]); fatalError("released handle admitted") }
+            catch Runtime.Failure.invalidHandle {}
+            do { _ = try await other.invoke(3, arguments: [.handle(alias)]); fatalError("foreign handle admitted") }
+            catch Runtime.Failure.invalidHandle {}
+            do { _ = try await runtime.invoke(2, arguments: [.handle(alias), .integer64(1)]); fatalError("bad shape admitted") }
+            catch Runtime.Failure.invalidArguments {}
+            // Concurrent submissions are serialized; ordering between tasks is not promised.
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for _ in 0..<24 { group.addTask {
+                    let result = try await runtime.invoke(2, arguments: [.handle(alias), .int32(1)], captureException: true)
+                    precondition(result.fault == nil && result.exception == nil)
+                } }
+                try await group.waitForAll()
+            }
+            let view = fields(try await runtime.invoke(3, arguments: [.handle(alias)]))
+            precondition(view == [.int32(24), .integer64(9007199254741017), .int32(51)])
+            let saved = handle(try await runtime.invoke(4, arguments: [.handle(alias)]))
+            do { _ = try await runtime.copyUTF16(saved, maximumUnits: 1); fatalError("copy bound ignored") }
+            catch Runtime.Failure.copyLimit {}
+            let failure = try await runtime.invoke(2, arguments: [.handle(alias), .int32(-1)], captureException: true)
+            precondition(failure.fault?.code == 13 && failure.fault?.imageHash.count == 64)
+            let exception = failure.exception!
+            _ = try await runtime.invoke(2, arguments: [.handle(alias), .int32(2)])
+            let details = try await runtime.exceptionDetails(exception)
+            precondition(details.message == Array("negative delta".utf16) && details.typeName == Array("System.InvalidOperationException".utf16))
+            precondition(details.typeToken != 0 && details.typeImageHash.count == 64)
+            try await runtime.release(exception)
+            let copied = try await runtime.copyUTF16(saved)
+            precondition(copied == [65, 0, 0xd800] + Array(repeating: [UInt16(58), UInt16(49)], count: 24).flatMap { $0 })
+            try await runtime.release(saved)
+            try await runtime.release(alias)
+            try await runtime.close(); try await runtime.close(); try await other.close()
+            do { _ = try await runtime.importUTF16([]); fatalError("closed runtime admitted") }
+            catch Runtime.Failure.closed {}
+            precondition(copied[2] == 0xd800)
+        }
+        // Closing races with submitted work safely: each operation either finishes
+        // before close or receives closed; it never enters freed native storage.
+        let runtime = try await Runtime.open()
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0..<12 { group.addTask {
+                do { let h = try await runtime.importUTF16([1]); try await runtime.release(h) }
+                catch Runtime.Failure.closed {}
+            } }
+            group.addTask { try await runtime.close() }
+            try await group.waitForAll()
+        }
+        var emptyOptions = Runtime.Options(); emptyOptions.handleLimit = 0
+        let empty = try await Runtime.open(options: emptyOptions)
+        do { _ = try await empty.importUTF16([]); fatalError("handle quota ignored") }
+        catch Runtime.Failure.native(5) {}
+        try await empty.close()
+        print("PASS Swift serialized sessions: 48 concurrent updates, UTF16, faults, ownership and close race")
+    }
+}

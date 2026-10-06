@@ -629,3 +629,20 @@ Keep existing host serialization, handle lifetime and buffer ownership rules.
 The [Swift smoke](../examples/Apple/README.md) validates import/link/lifecycle;
 it is not a full application or retained-handle wrapper. Device cross-linking and
 simulator execution remain separate evidence; physical-device validation is open.
+
+### Swift runtime owner (7d.2)
+
+[Generate the Swift adapter](../adapters/Apple/README.md) from an existing package
+to serialize native calls on a dedicated worker. Its logical value/record inputs
+follow the manifest, and outputs are copied before returning. Handles are opaque
+runtime-scoped leases: copying the Swift value aliases the same lease; clone and
+release are explicit. Close frees all remaining leases and is idempotent. A
+destructor queues fallback cleanup, whose timing is not guaranteed.
+
+Managed execution failures return an Outcome carrying copied fault identity and
+an optional exception lease; host admission/copy failures throw. No export is
+retried to size a buffer. UTF-16 remains `[UInt16]`, with bounded query/copy and no
+automatic String normalization. Optional APIs are emitted only for enabled
+features. Concurrent task order is unspecified, and cancellation does not stop
+an admitted native call. The adapter adds no C ABI capability and does not yet
+supply application commands, UI/background integration or phone-device evidence.

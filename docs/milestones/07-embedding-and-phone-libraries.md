@@ -14,7 +14,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
-| 7d | iOS library and native adapter | In progress: pinned arm64 device/simulator XCFramework, C kernel transcript and Swift lifecycle simulator checks; full native adapter and physical-device evidence remain open |
+| 7d | iOS library and native adapter | In progress: pinned XCFramework and generated Swift runtime owner; simulator kernel/concurrency checks pass. Full application adapter, UI lifecycle and physical-device evidence remain open |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
 
@@ -324,6 +324,41 @@ only; no signing, app installation, simulator startup/shutdown, hosted work or p
 ran. Local main remains an ancestor; the remote advertised no branch heads. The
 Swift consumer is a lifecycle smoke test, not the complete native application
 adapter. Physical-device and UI/background lifecycle validation remain open.
+
+## Slice 7d.2 outcome
+
+[ADR 0187](../decisions/0187-swift-runtime-ownership.md) adds a generated Swift
+runtime owner. One actor and serial Dispatch worker own each runtime, keeping
+invocation, copies, lease management and close free of suspension points. Logical
+record shapes come from the manifest. Handles carry runtime identity and explicit
+clone/release ownership. Exact UInt16 copies and fault/exception details become
+independent Swift values. Explicit close deterministically destroys remaining
+leases; final actor destruction provides asynchronous fallback cleanup.
+
+The opt-in public session test passes on the iOS 26.1 simulator and links a device
+consumer. It covers 48 concurrent updates across normal/forced collection,
+signed/full-width record inputs/results, malformed record IDs, stale/foreign
+handles, immutable snapshots after mutation, captured fault recovery and detail
+copying, host copy bounds, zero handle quota and close racing with queued work.
+The existing kernel transcript also passes **1,792 exact comparisons** through
+the Swift adapter, with normal/forced collection. Both target consumers compile
+under Swift 6 with warnings as errors; physical-device execution is not implied.
+
+The final focused run passes three tests (Apple integration plus the existing
+O0/O2 C session cases). Three generator regressions pass; plain and capture-enabled
+no-record variants additionally pass Swift type checking. Review found an unused
+mutable capture slot in the plain variant, fixed without changing other variants.
+The Apple integration is confirmed skipped unless a simulator is explicitly
+selected; normal test runs do not start Apple work. The initial sandbox attempt
+could not establish MSBuild IPC; validation used authorized local IPC access.
+
+Review covered worker isolation, lease scope, record mapping, exact bits/text,
+failure lifetime, bounded allocations and optional capability paths. No unresolved
+implementation defect remains. See [adapter usage](../../adapters/Apple/README.md)
+and private `artifacts/milestone7-swift/evidence-7d2.json` for exact evidence.
+Local main remains an ancestor; the remote advertised no branch heads. No push or
+hosted work ran. Application-specific commands, UIKit/background lifecycle and
+physical-device validation remain open.
 
 ## Remaining exit gates
 

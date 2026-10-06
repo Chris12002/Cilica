@@ -26,11 +26,12 @@ namespace Cilica.Fixtures.Execution
             Steps = session.Values.Count, Total = session.Total, TextLength = session.Text.Length
         };
         public static string Snapshot(EmbeddingSession session) => session.Text;
+        public static EmbeddingSessionView Echo(EmbeddingSessionView value) => value;
         public static int Root(int delta)
         {
             var session = Open("seed");
             var view = Apply(session, delta);
-            return view.Steps + Read(session).TextLength + Snapshot(session).Length;
+            return view.Steps + Echo(Read(session)).TextLength + Snapshot(session).Length;
         }
     }
 }

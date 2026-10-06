@@ -1,0 +1,16 @@
+    public func importUTF16(_ units: [UInt16]) throws -> Handle {
+        try requireOpen()
+        guard units.count <= 524288 else { throw Failure.copyLimit }
+        var handle: UInt64 = 0
+        let status = units.withUnsafeBufferPointer { @PREFIX@_string_create(token, $0.baseAddress, UInt32($0.count), &handle) }
+        try check(status); return adopt(handle)!
+    }
+    public func copyUTF16(_ handle: Handle, maximumUnits: UInt32 = 524288) throws -> [UInt16] {
+        try requireOpen(); let raw = try resolve(handle); var length: UInt32 = 0
+        let query = @PREFIX@_string_copy(token, raw, nil, 0, &length)
+        guard query == 0 || query == 12 else { throw Failure.native(query) }
+        guard length <= maximumUnits && length <= 524288 else { throw Failure.copyLimit }
+        var units = [UInt16](repeating: 0, count: Int(length))
+        let status = units.withUnsafeMutableBufferPointer { @PREFIX@_string_copy(token, raw, $0.baseAddress, UInt32($0.count), &length) }
+        try check(status); return units
+    }
