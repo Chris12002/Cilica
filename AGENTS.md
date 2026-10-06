@@ -681,3 +681,14 @@ layout schema v21 and native v52; runtime payloads and bounds are unchanged.
 Frozen engine passes handler construction and reaches the metadata snapshot limit
 in forfeit preparation; state/full replay remain incomplete.
 See [ADR AC0073](docs/decisions/AC0073-hidden-delegate-visibility.md).
+
+### Scalar-enum classification facts (AC8.21)
+
+Unboxed Int32 enum validation retains bounded positive facts instead of structural
+layout snapshots. Catalog classification no longer counts those scalar aliases as
+executable layouts; boxed enums retain full validation. Two 257-enum reductions
+pass 588 repeated native comparisons, and all 99 selected checks pass, including
+malformed declarations, field/work limits, actual layout limits and the public
+baseline. Bounds and profiles are unchanged. Frozen engine advances to missing
+Enum.IsDefined in PlayerState construction; state/full replay remain incomplete.
+See [ADR AC0074](docs/decisions/AC0074-scalar-enum-classification-facts.md).

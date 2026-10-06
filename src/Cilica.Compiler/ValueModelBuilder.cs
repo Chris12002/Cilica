@@ -75,10 +75,10 @@ public static class ValueModelBuilder
                     id.ContentHash + ":0x" + id.Token.ToString("x8", CultureInfo.InvariantCulture) + ":" + id.Specialization, DiagnosticIds.TranslationLimit);
             }
         }
-        TypeInput ReadClosed(ConstructedType type, TypeReadLimits limits)
+        TypeInput ReadClosed(ConstructedType type, TypeReadLimits limits, bool layout = true)
         {
             var id = ClosedId(type);
-            IncludeId(id);
+            if (layout) IncludeId(id);
             if (inputs.TryGetValue(id, out var cached)) return cached;
             int remainingFields = Math.Min(limits.MaximumFields, ObjectModelLimits.MaximumFields - fields);
             TypeInput input;
@@ -98,7 +98,8 @@ public static class ValueModelBuilder
                 if (!work.TryConsume(input.MetadataMembersRead)) Fail("Value catalog metadata-member limit exceeded.", code: DiagnosticIds.TranslationLimit);
             }
             fields += input.Fields.Length;
-            inputs.Add(id, input); observe?.Invoke(type, input); return input;
+            if (layout) { inputs.Add(id, input); observe?.Invoke(type, input); }
+            return input;
         }
         TypeInput Read(ResolvedType type, TypeReadLimits limits) => ReadClosed(new(type, SignatureList<TypeSignature>.Empty), limits);
         var enumScalars = new Dictionary<ResolvedType, bool>();
@@ -108,9 +109,16 @@ public static class ValueModelBuilder
             if (enumScalars.TryGetValue(named.Definition, out bool known)) return known;
             try
             {
-                bool scalar = Int32EnumStorage.Matches(signature,
-                    resolver.ResolveType(library, "System", "Enum").Value, type => Read(type, new()));
-                enumScalars.Add(named.Definition, scalar); return scalar;
+                var enumBase = resolver.ResolveType(library, "System", "Enum").Value;
+                var id = Id(named.Definition);
+                var basis = inputs.TryGetValue(id, out var input) ? input.BaseType
+                    : snapshots is not null && snapshots.TryGetValue(id, out input) ? input.BaseType
+                    : Result(resolver.ReadTypeBase(named.Definition, work)).BaseType;
+                if (enumBase is null || basis is not TypeSignature.Named parent || parent.Definition != enumBase) return false;
+                bool scalar = Int32EnumStorage.Matches(signature, enumBase,
+                    type => ReadClosed(new(type, SignatureList<TypeSignature>.Empty), new(), layout: false));
+                if (scalar && enumScalars.Count < ObjectModelLimits.MaximumTypes) enumScalars.Add(named.Definition, true);
+                return scalar;
             }
             catch (ArgumentException error) { Fail(error.Message); return false; }
         }

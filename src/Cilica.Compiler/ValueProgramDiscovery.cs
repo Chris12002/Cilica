@@ -714,7 +714,7 @@ public static partial class ValueProgramDiscovery
             if (signature is not TypeSignature.Named named) return signature;
             if (EnumScalar(signature, work, offset))
             {
-                var declaration = Snapshot(named.Definition, work, offset);
+                var declaration = TypeAccess(named.Definition, work, offset);
                 if (!declaration.ExternallyVisible)
                 {
                     if (declaration.LexicalOwners.Length == 1)
