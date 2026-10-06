@@ -83,6 +83,16 @@ Reference-bearing/empty records, public ref/out parameters, independent roots
 and phone support remain unimplemented. See
 [ADR 0184](decisions/0184-numeric-record-embedding.md).
 
+Milestone 7c.6 composes the existing v3 ABI with a scripted persistent real-kernel
+adapter. Separate C11/shared-library consumers pass 10,752 exact numeric/UTF-16
+comparisons with the .NET transcript at O0/O2, normal/forced collection and repeated
+recreation. A public two-case regression composes imported strings, session leases,
+numeric records, wide values, retained snapshots and exception recovery. Both use
+ASan/UBSan and the unchanged 2 KiB native-frame gate. This changes no production
+profile and does not establish a general command adapter, reference-bearing
+record support or phone compatibility. See
+[ADR 0185](decisions/0185-persistent-kernel-abi-composition.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

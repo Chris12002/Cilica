@@ -13,7 +13,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | --- | --- | --- |
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
-| 7c | Values, retained objects and structured exceptions | In progress: retained handles/void, exact UTF-16/Integer64 transfer, numeric records and captured type/message details implemented; reference-bearing records and real-kernel ABI composition remain open |
+| 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
 | 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
@@ -245,10 +245,51 @@ main remains an ancestor; the remote advertised no branch heads. No push, hosted
 work or phone execution ran. Reference-bearing records, public ref/out and empty
 records remain unsupported; kernel composition and iOS packaging are still ahead.
 
+## Slice 7c.6 outcome
+
+[ADR 0185](../decisions/0185-persistent-kernel-abi-composition.md) validates the
+existing ABI against the unchanged private kernel. A scripted adapter retains a
+session between calls, advances one probe command, returns a 13-field numeric
+observation and exposes canonical text as a retained string. The .NET adapter's
+ten rows match the milestone 6 oracle exactly, apart from its harness entry token.
+The copied kernel/primitives image hashes still match the pinned milestone 6
+build; the reviewed 6d.23 core/digest is unchanged. The new closure has 363 methods.
+
+Separate C11 consumers link the generated shared library. O0/O2 ASan/UBSan runs,
+normal/forced collection and three runtime recreation cycles per mode pass
+**10,752 exact comparisons**: 130 numeric fields and 766 UTF-16 units per pass.
+Additional assertions cover short-buffer preflight before state changes, cloned
+session ownership, retained early snapshots, foreign/stale tokens, independent
+runtimes, destruction with live handles and copied text surviving teardown.
+Native builds preserve the 2 KiB frame warning gate and disable C++ exceptions/RTTI.
+Private evidence, source/output hashes and logs are in
+`artifacts/milestone7-kernel/evidence-7c6.json`.
+
+The public `EmbeddingSessionTests` adds two passing O0/O2 cases so this ownership
+pattern remains reproducible without the private kernel. Across both builds it
+performs 144 successful mutations, using the same retained session after an
+escaping managed exception, and later inspects the captured failure and immutable
+snapshot. Imported embedded-zero/surrogate text, exact wide totals, numeric
+records, list allocations, forced collection and repeated teardown are composed.
+Fixture preparation encountered existing unsupported formatting/concatenation
+overloads; it now explicitly selects the admitted invariant/two-string APIs.
+The private adapter uses scalar locals for conditional record fields, preserving
+the existing restriction on locations across block joins. No kernel rule,
+compiler/runtime behavior, ABI schema or quota was changed.
+
+Review covered provenance, transcript parity, host buffer bounds, preflight
+effects, ownership across allocations, isolation and teardown. No unresolved
+defect remains in this checkpoint. Local main is still an ancestor and the remote
+advertised no branch heads. Only focused local builds/tests ran; no push, hosted
+work or phone execution ran. This is a scripted integration, not a general app
+adapter. Reference-bearing records are unnecessary for this measured contract
+and remain unsupported; iOS packaging is the next delivery slice.
+
 ## Remaining exit gates
 
-- Complete structured application value transfer and compose the existing
-  ownership/error APIs with the real kernel before connecting a host adapter.
+- Define the actual mobile application command contract and connect its native
+  host adapter, using the validated numeric/handle/string boundary where sufficient.
+  Reference-bearing records require a separate design if that contract needs them.
 - Pin target toolchains and build/package reproducibly using local tools first.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests
   alone do not close this milestone.

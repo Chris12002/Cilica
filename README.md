@@ -38,6 +38,8 @@ records copy nested public Int32/Integer64 fields through host-owned buffers.
 Reference-bearing records and phone libraries remain planned. Optional exception capture preserves
 a retained exception for type/message copying without reexecuting the failed call;
 iOS is the first device target.
+A scripted persistent adapter now reproduces the unchanged kernel's transcripts
+through the C ABI on macOS ARM64, with retained sessions and copied observations/text.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

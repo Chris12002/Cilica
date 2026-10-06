@@ -590,3 +590,22 @@ code and no allocation occurs while publishing successful numeric fields.
 The 64-leaf bound has local O0/O2 ASan/UBSan evidence under the existing 2 KiB
 native-frame warning gate. Reference-bearing records and phone platforms remain
 unverified/unsupported by this slice.
+
+### Persistent session composition (7c.6)
+
+A host can keep application state behind one declared reference alias, return
+numeric observations through `invoke_records` and obtain immutable text snapshots
+through ordinary handle returns plus `string_copy`. Release imported string
+leases after an export has stored the reference; the session's managed field then
+keeps it alive. Clone a session lease when independent host owners need it. A
+retained immutable text snapshot remains independent of subsequent session edits.
+Copied numeric/UTF-16 buffers remain valid after releasing handles or destroying
+the runtime. Serialize all calls on each instance as usual.
+
+A scripted real-kernel adapter exercises this pattern with four exports (open,
+advance, read and canonical text), matching the milestone 6 .NET transcript through
+separate C11/shared-library consumers. Public `EmbeddingSessionTests` additionally
+composes wide record fields and captured exception recovery. The
+[7c.6 outcome](milestones/07-embedding-and-phone-libraries.md#slice-7c6-outcome)
+records exact local scope and counts. This is evidence for existing operations;
+it adds no ABI capability or general command adapter and makes no phone claim.

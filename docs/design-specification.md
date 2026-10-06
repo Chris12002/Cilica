@@ -1186,6 +1186,16 @@ capture composes with this path. Local C11/O0/O2 sanitizer evidence includes the
 64-field bound under the existing 2 KiB native-frame gate. Reference-bearing and
 empty records, public ref/out parameters and phone execution remain unsupported.
 
+Milestone 7c.6 validates that boundary with the unchanged real kernel
+([ADR 0185](decisions/0185-persistent-kernel-abi-composition.md)). A scripted
+persistent session exposes retained ownership, numeric observations and canonical
+UTF-16 snapshots. Separate C11 consumers reproduce 10,752 .NET scalar/text
+comparisons at O0/O2 with normal/forced collection and repeated recreation.
+A public composition regression also checks fault recovery and retained failure
+details across later calls. This requires no new ABI shape: reference-bearing
+records remain unsupported. The scripted probe is not a general mobile command
+adapter, and platform packaging/device lifecycle validation is still required.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

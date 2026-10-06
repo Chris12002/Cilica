@@ -22,6 +22,9 @@ feedback before implementation. Explain consequential choices in plain language.
   discovery and phone support remain planned. Optional
   managed-exception capture retains a handle and copies type/message UTF-16 plus
   declaration identity; inner traversal and stack traces remain planned.
+  A scripted persistent real-kernel adapter has C11/shared-library transcript
+  evidence on macOS ARM64 (7c.6); this is not a general application adapter or
+  phone-device validation.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not
