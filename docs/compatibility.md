@@ -112,6 +112,14 @@ does not roll back managed calls. Per-handle automatic disposal, full applicatio
 commands, UI/background lifecycle and physical-device support are not implied.
 See [ADR 0187](decisions/0187-swift-runtime-ownership.md).
 
+Milestone 7d.3 adds scoped Swift admission barriers: up to 64 overlapping pause
+holds preserve managed state and handles, reject invoke/import/clone and permit
+copy/inspection/release/close. iOS 26.1 simulator checks cover nested, stale and
+foreign holds, exhaustion, state preservation, admission races and paused close
+under normal/forced collection. No UIKit notification wiring, OS suspension,
+background execution allowance or disk persistence is supplied. See
+[ADR 0188](decisions/0188-swift-admission-pauses.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

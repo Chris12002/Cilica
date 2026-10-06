@@ -14,7 +14,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
-| 7d | iOS library and native adapter | In progress: pinned XCFramework and generated Swift runtime owner; simulator kernel/concurrency checks pass. Full application adapter, UI lifecycle and physical-device evidence remain open |
+| 7d | iOS library and native adapter | In progress: pinned XCFramework, generated Swift runtime owner and scoped admission pauses; simulator kernel/concurrency/pause checks pass. Full application adapter, UI lifecycle and physical-device evidence remain open |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
 
@@ -359,6 +359,35 @@ and private `artifacts/milestone7-swift/evidence-7d2.json` for exact evidence.
 Local main remains an ancestor; the remote advertised no branch heads. No push or
 hosted work ran. Application-specific commands, UIKit/background lifecycle and
 physical-device validation remain open.
+
+## Slice 7d.3 outcome
+
+[ADR 0188](../decisions/0188-swift-admission-pauses.md) adds scoped admission
+pauses to the Swift runtime owner. Awaiting pause establishes a worker barrier;
+up to 64 overlapping holds preserve state and leases until each owner resumes.
+Invoke/import/clone reject while paused, before native entry. Text/fault copying,
+release and close remain available. Foreign or stale resume tokens cannot undo
+another hold, and close permanently invalidates all holds and leases.
+
+The public Swift consumer passes normal/forced-collection checks for nested holds,
+token scope/consumption, hold exhaustion, paused copies/cleanup, state preservation,
+admission racing concurrent commands and close while paused. Previously queued
+tasks have no FIFO guarantee; final state matches exactly the calls admitted.
+The real-kernel Swift transcript adds a pause and rejected advance between every
+step and still passes **1,792 exact comparisons**, including copying and releasing
+snapshots while paused. Both consumers link for arm64 device/simulator under
+Swift 6 warnings-as-errors; execution remains limited to the iOS 26.1 simulator.
+Three generator checks pass. Existing native packages were reused; native code
+and C ABI did not change or require a rebuild.
+
+Review covered actor serialization, token ownership, admission/error order,
+bounded metadata and cleanup/close semantics; no unresolved defect remains.
+Usage and lifecycle ordering are documented in [the adapter](../../adapters/Apple/README.md).
+Private evidence is `artifacts/milestone7-lifecycle/evidence-7d3.json`.
+Local main remains an ancestor and the remote advertised no branch heads.
+No hosted work or push ran. This is the host admission policy; UIKit event wiring,
+real application suspension/resumption, persistence and physical-device execution
+remain open.
 
 ## Remaining exit gates
 

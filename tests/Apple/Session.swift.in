@@ -11,8 +11,104 @@ typealias Runtime = @MODULE@Runtime
         guard outcome.fault == nil, case .record(1, let fields) = outcome.value else { fatalError("Expected record") }
         return fields
     }
+    static func lifecycleChecks(stress: Bool) async throws {
+        var options = Runtime.Options(); options.collectBeforeAllocation = stress; options.handleLimit = 8
+        let runtime = try await Runtime.open(options: options)
+        let other = try await Runtime.open(options: options)
+        let initialState = await runtime.lifecycle
+        precondition(initialState == .active)
+        let text = try await runtime.importUTF16([65, 0, 0xd800])
+        let session = handle(try await runtime.invoke(1, arguments: [.handle(text)]))
+        let disposable = try await runtime.clone(session)
+        let failure = try await runtime.invoke(2, arguments: [.handle(session), .int32(-1)], captureException: true)
+        precondition(failure.fault?.code == 13)
+        let exception = failure.exception!
+
+        let screen = try await runtime.pause()
+        let application = try await runtime.pause()
+        let pausedState = await runtime.lifecycle
+        precondition(pausedState == .paused)
+        do { _ = try await runtime.invoke(2, arguments: [.handle(session), .int32(99)]); fatalError("paused mutation admitted") }
+        catch Runtime.Failure.paused {}
+        // Admission precedes schema/handle checks, including malformed requests.
+        do { _ = try await runtime.invoke(999); fatalError("paused export admitted") }
+        catch Runtime.Failure.paused {}
+        do { _ = try await runtime.importUTF16([]); fatalError("paused import admitted") }
+        catch Runtime.Failure.paused {}
+        do { _ = try await runtime.clone(session); fatalError("paused clone admitted") }
+        catch Runtime.Failure.paused {}
+        let copied = try await runtime.copyUTF16(text)
+        precondition(copied == [65, 0, 0xd800])
+        let details = try await runtime.exceptionDetails(exception)
+        precondition(details.message == Array("negative delta".utf16))
+        try await runtime.release(exception)
+        try await runtime.release(text)
+        try await runtime.release(disposable)
+
+        let foreign = try await other.pause()
+        do { try await runtime.resume(foreign); fatalError("foreign pause admitted") }
+        catch Runtime.Failure.invalidPause {}
+        try await runtime.resume(screen)
+        do { try await runtime.resume(screen); fatalError("consumed pause admitted") }
+        catch Runtime.Failure.invalidPause {}
+        do { _ = try await runtime.invoke(3, arguments: [.handle(session)]); fatalError("nested pause lost") }
+        catch Runtime.Failure.paused {}
+        try await runtime.resume(application)
+        let resumed = fields(try await runtime.invoke(3, arguments: [.handle(session)]))
+        precondition(resumed == [.int32(0), .integer64(9007199254740993), .int32(3)])
+        _ = try await runtime.invoke(2, arguments: [.handle(session), .int32(1)])
+
+        // A task submitted earlier may run on either side of the barrier. Count
+        // successful mutations and prove every rejected command had no effect.
+        let (barrier, accepted) = try await withThrowingTaskGroup(of: Int.self, returning: (Runtime.Pause, Int).self) { group in
+            for _ in 0..<24 { group.addTask {
+                do {
+                    let result = try await runtime.invoke(2, arguments: [.handle(session), .int32(1)])
+                    precondition(result.fault == nil)
+                    return 1
+                } catch Runtime.Failure.paused { return 0 }
+            } }
+            let barrier = try await runtime.pause()
+            var accepted = 0
+            for try await count in group { accepted += count }
+            return (barrier, accepted)
+        }
+        do { _ = try await runtime.invoke(2, arguments: [.handle(session), .int32(99)]); fatalError("barrier lost") }
+        catch Runtime.Failure.paused {}
+        try await runtime.resume(barrier)
+        let actual = fields(try await runtime.invoke(3, arguments: [.handle(session)]))
+        precondition(actual == [.int32(Int32(1 + accepted)), .integer64(9007199254740994 + UInt64(accepted)), .int32(Int32(5 + 2 * accepted))])
+        let closing = try await runtime.pause()
+        // A stale token cannot remove a newer hold, even on the same runtime.
+        do { try await runtime.resume(barrier); fatalError("stale pause resumed new hold") }
+        catch Runtime.Failure.invalidPause {}
+        let stillPaused = await runtime.lifecycle
+        precondition(stillPaused == .paused)
+        try await runtime.close(); try await runtime.close()
+        let closedState = await runtime.lifecycle
+        precondition(closedState == .closed)
+        do { try await runtime.resume(closing); fatalError("resume reopened closed runtime") }
+        catch Runtime.Failure.closed {}
+        do { _ = try await runtime.pause(); fatalError("closed pause admitted") }
+        catch Runtime.Failure.closed {}
+        do { _ = try await runtime.invoke(999); fatalError("closed export admitted") }
+        catch Runtime.Failure.closed {}
+        do { _ = try await runtime.copyUTF16(text); fatalError("closed copy admitted") }
+        catch Runtime.Failure.closed {}
+
+        // Pause bookkeeping is bounded and exhaustion preserves existing holds.
+        var holds = [foreign]
+        for _ in 1..<64 { holds.append(try await other.pause()) }
+        do { _ = try await other.pause(); fatalError("pause quota ignored") }
+        catch Runtime.Failure.pauseLimit {}
+        for hold in holds { try await other.resume(hold) }
+        let otherState = await other.lifecycle
+        precondition(otherState == .active)
+        try await other.close()
+    }
     static func main() async throws {
         for stress in [false, true] {
+            try await lifecycleChecks(stress: stress)
             var options = Runtime.Options(); options.collectBeforeAllocation = stress; options.handleLimit = 8
             let runtime = try await Runtime.open(options: options)
             let other = try await Runtime.open(options: options)
@@ -78,6 +174,6 @@ typealias Runtime = @MODULE@Runtime
         do { _ = try await empty.importUTF16([]); fatalError("handle quota ignored") }
         catch Runtime.Failure.native(5) {}
         try await empty.close()
-        print("PASS Swift serialized sessions: 48 concurrent updates, UTF16, faults, ownership and close race")
+        print("PASS Swift serialized sessions: 48 concurrent updates, UTF16, faults, ownership, close race and scoped pause barriers")
     }
 }

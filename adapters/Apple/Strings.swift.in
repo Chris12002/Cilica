@@ -1,5 +1,5 @@
     public func importUTF16(_ units: [UInt16]) throws -> Handle {
-        try requireOpen()
+        try requireActive()
         guard units.count <= 524288 else { throw Failure.copyLimit }
         var handle: UInt64 = 0
         let status = units.withUnsafeBufferPointer { @PREFIX@_string_create(token, $0.baseAddress, UInt32($0.count), &handle) }

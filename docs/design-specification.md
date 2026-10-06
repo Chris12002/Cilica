@@ -1215,6 +1215,16 @@ serializes teardown and invalidates leases; final destruction queues fallback
 cleanup. Simulator concurrency, fault-recovery and kernel checks pass; application
 commands, UI/background lifecycle and physical devices remain unverified.
 
+Milestone 7d.3 adds scoped command-admission pauses on the same Swift worker
+([ADR 0188](decisions/0188-swift-admission-pauses.md)). Awaiting pause establishes
+a barrier after the currently executing operation. Up to 64 runtime-scoped holds
+compose; only releasing the last hold resumes admission. Invoke, import and clone
+reject while paused, without replay; copies, fault inspection, release and close
+remain available. Close invalidates all holds. Actor scheduling does not promise
+FIFO order for previously submitted tasks. This preserves in-memory state without
+adding C ABI state, UIKit observers, background execution or persistent checkpoints.
+Simulator policy checks do not establish real app suspension or device behavior.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

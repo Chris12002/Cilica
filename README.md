@@ -44,7 +44,9 @@ through the C ABI on macOS ARM64, with retained sessions and copied observations
 XCFrameworks; the kernel transcript and a Swift lifecycle smoke pass on an iOS
 26.1 simulator. Physical-device and application lifecycle validation remain open.
 The [Swift runtime adapter](adapters/Apple/README.md) serializes native calls and
-manages scoped leases, record copies and captured fault details.
+manages scoped leases, record copies and captured fault details. Scoped pause
+barriers preserve runtime state while rejecting new commands; UIKit event wiring
+and actual application suspension remain open.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
 records the current execution evidence. Cilica is a working name, pending a naming check.

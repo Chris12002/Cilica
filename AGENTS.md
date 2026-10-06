@@ -31,6 +31,9 @@ feedback before implementation. Explain consequential choices in plain language.
   Slice 7d.2 adds a generated Swift runtime owner with a serial worker, scoped
   leases, numeric records, exact UTF-16 and captured fault details. Simulator
   concurrency/kernel checks pass; this is not a full application/Expo adapter.
+  Slice 7d.3 adds scoped Swift pause barriers with bounded overlapping holds;
+  simulator checks cover preserved state, admission races and cleanup while paused.
+  UIKit event wiring and actual app suspension/resumption remain unverified.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

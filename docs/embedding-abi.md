@@ -646,3 +646,16 @@ automatic String normalization. Optional APIs are emitted only for enabled
 features. Concurrent task order is unspecified, and cancellation does not stop
 an admitted native call. The adapter adds no C ABI capability and does not yet
 supply application commands, UI/background integration or phone-device evidence.
+
+### Swift admission pauses (7d.3)
+
+The generated owner adds an awaited `pause()` barrier returning a runtime-scoped
+hold; `resume(hold)` consumes it. Admission resumes only when all holds are gone.
+There are at most 64 holds. Duplicate, stale or foreign resume attempts leave
+state unchanged. While paused, invoke/import/clone reject before native entry;
+copying results, inspecting faults, releasing leases and close remain available.
+Close clears both holds and leases and cannot be reversed by resume. These are
+Swift host policies; no C ABI capability, native scheduler or persisted state is
+added. Previously queued Swift tasks have no FIFO guarantee, so callers must await
+the barrier. See [adapter usage](../adapters/Apple/README.md) for lifecycle ordering,
+cancellation and limits. UIKit events and actual OS suspension remain unverified.

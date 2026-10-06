@@ -58,6 +58,47 @@ the worker with invocation/release. Submitted work either runs before close or
 receives `Failure.closed`. The final actor destructor queues fallback destruction
 on its worker, but its timing is not promised and is not a substitute for close.
 
+## Pausing command admission
+
+Use an awaited `pause()` when a host needs to stop admitting new work while
+preserving its runtime and handles. It returns an opaque runtime-scoped `Pause`:
+
+```swift
+let hold = try await runtime.pause()
+// Admission is now paused. Retained results can still be copied or released.
+try await runtime.resume(hold)
+```
+
+This is a worker barrier: a native operation already executing finishes before
+the pause takes effect. Tasks queued before `pause()` can execute on either side
+of it because actor scheduling is not FIFO. Do not treat starting a Task that
+calls `pause()` as an immediate admission stop; await completion. While any hold
+exists, `invoke` (including read exports), `importUTF16` and `clone` throw
+`Failure.paused` before argument checks or native entry. Rejected commands are
+not queued for replay. The host decides whether to submit them after resuming.
+
+Each caller owns its hold and must explicitly pass it to `resume`. Multiple holds
+compose: admission resumes only after all are removed. Copying a Pause value
+aliases the same hold; consuming it twice, using a foreign hold or reusing an old
+hold throws `Failure.invalidPause` without changing admission. At most 64 holds
+are allowed; exhaustion throws `Failure.pauseLimit`. Dropping a token or cancelling
+a task does not release it. Keep each hold until resume or close.
+
+The actor's `lifecycle` reports `.active`, `.paused` or `.closed`; it is an
+observation, not a reservation for a later call. Copying text, inspecting retained
+exceptions, releasing handles and closing remain available while paused. These
+may still run native code; exception formatting may allocate within native quotas.
+Close clears all holds and leases. Calls after close report `Failure.closed` and
+resume cannot reopen the runtime. Pausing preserves memory only: it provides no
+disk checkpoint or guarantee that the OS will keep a background process alive.
+
+The host must order its lifecycle transitions explicitly. This adapter does not
+observe UIKit/scene notifications or acquire background execution time. The scoped
+policy has simulator regression evidence; real application suspension/resumption
+and device execution remain separate validation gates.
+
+## Copied text and failures
+
 When the manifest enables UTF-16, `importUTF16` and `copyUTF16` transfer `[UInt16]`.
 This preserves embedded zeros and unpaired surrogates; no implicit Swift String
 normalization occurs. `String(decoding: units, as: UTF16.self)` is a deliberate
@@ -100,7 +141,10 @@ its disposable test directory is cleaned up. Native subprocesses are bounded.
 No simulator is started/stopped, no app is installed/signed and no hosted work runs.
 The consumer checks concurrent mutation, exact UTF-16/wide record copies, malformed
 record rejection, stale/foreign leases, exception recovery, copy/handle quotas and
-close racing with queued operations. The private kernel separately passes 1,792
+close racing with queued operations. It also checks overlapping pauses, stale and
+foreign holds, the 64-hold bound, copies/cleanup while paused, state preservation,
+admission races and close while paused under normal/forced collection.
+The private kernel separately passes 1,792
 exact comparisons through this Swift adapter, with normal/forced collection.
 
 For another consumer, pass `--adapter --consumer path/to/Consumer.swift.in` to

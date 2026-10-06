@@ -19,6 +19,11 @@ public actor @MODULE@Runtime {
         fileprivate let owner: UUID
         fileprivate let token: UInt64
     }
+    public struct Pause: Sendable, Hashable {
+        fileprivate let owner: UUID
+        fileprivate let id: UUID
+    }
+    public enum Lifecycle: Sendable, Equatable { case active, paused, closed }
     public enum Value: Sendable, Equatable {
         case int32(Int32), integer64(UInt64), handle(Handle?), record(UInt32, [Value]), void
     }
@@ -34,7 +39,7 @@ public actor @MODULE@Runtime {
         public let exception: Handle?
     }
     public enum Failure: Error, Sendable, Equatable {
-        case closed, invalidHandle, invalidArguments, unknownExport, unsupported, copyLimit
+        case closed, paused, invalidPause, pauseLimit, invalidHandle, invalidArguments, unknownExport, unsupported, copyLimit
         case native(UInt32)
     }
     public struct Options: Sendable {
@@ -50,7 +55,24 @@ public actor @MODULE@Runtime {
     private let identity = UUID()
     private var token: UInt64 = 0
     private var leases: Set<UInt64> = []
+    private var pauses: Set<UUID> = []
     private init() {}
+
+    public var lifecycle: Lifecycle { token == 0 ? .closed : pauses.isEmpty ? .active : .paused }
+
+    // Await this barrier before treating command admission as paused. Queued
+    // actor jobs have no FIFO guarantee; a running native call finishes first.
+    public func pause() throws -> Pause {
+        try requireOpen()
+        guard pauses.count < 64 else { throw Failure.pauseLimit }
+        let id = UUID()
+        pauses.insert(id)
+        return Pause(owner: identity, id: id)
+    }
+    public func resume(_ pause: Pause) throws {
+        try requireOpen()
+        guard pause.owner == identity && pauses.remove(pause.id) != nil else { throw Failure.invalidPause }
+    }
 
     public static func open(options: Options = Options()) async throws -> @MODULE@Runtime {
         let runtime = @MODULE@Runtime()
@@ -73,9 +95,13 @@ public actor @MODULE@Runtime {
     public func close() throws {
         if token == 0 { return }
         try check(@PREFIX@_destroy(token))
-        token = 0; leases.removeAll()
+        token = 0; leases.removeAll(); pauses.removeAll()
     }
     private func requireOpen() throws { if token == 0 { throw Failure.closed } }
+    private func requireActive() throws {
+        try requireOpen()
+        if !pauses.isEmpty { throw Failure.paused }
+    }
     private func check(_ status: UInt32) throws {
         if status != 0 { throw Failure.native(status) }
     }
@@ -89,7 +115,7 @@ public actor @MODULE@Runtime {
         return Handle(owner: identity, token: value)
     }
     public func clone(_ handle: Handle) throws -> Handle {
-        try requireOpen(); let raw = try resolve(handle); var retained: UInt64 = 0
+        try requireActive(); let raw = try resolve(handle); var retained: UInt64 = 0
         try check(@PREFIX@_retain_handle(token, raw, &retained))
         return adopt(retained)!
     }
@@ -128,7 +154,7 @@ public actor @MODULE@Runtime {
         }
     }
     public func invoke(_ export: UInt32, arguments: [Value] = [], captureException: Bool = false) throws -> Outcome {
-        try requireOpen()
+        try requireActive()
         let (parameters, returned) = try schema(export)
         guard arguments.count == parameters.count else { throw Failure.invalidArguments }
         let inputs = try zip(arguments, parameters).flatMap { try encode($0.0, as: $0.1) }
