@@ -134,10 +134,11 @@ are implementation-specific. Object equality, comparison, structural APIs, tuple
 indexing and formatting remain diagnostic. Pinned sources and the hash combiner’s
 additional BSD notice are retained in the provenance record.
 
-BoxedFormatting.cs supplies the parsed single-argument String.Format path for a
-directly boxed named value with an ordinary ToString override and no IFormattable
-contract. Two exact grants retain the box and borrow its payload for each callback.
-Alignment, escapes, ignored format text and diagnostic ordering are managed code.
+BoxedFormatting.cs supplies one- and two-object String.Format overloads for directly
+boxed named values with ordinary ToString overrides and no IFormattable contract.
+Each actual argument must match its same-block box witness. Separate exact overload
+grants and the render grant retain each box and borrow its payload per callback.
+Both entry shapes share managed alignment, escape, ignored-format and error parsing.
 Other overloads, providers, primitive/reference arguments and aliases are diagnostic.
 
 StringComparison.cs preserves the pinned enum declaration. The exact granted

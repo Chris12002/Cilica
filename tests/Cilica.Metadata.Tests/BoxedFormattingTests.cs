@@ -82,6 +82,6 @@ public sealed class BoxedFormattingTests
         });
         var caller = scope.OpenInput(files.Write("hostile.dll", hostile.Build())).Value!;
         var rejected = ValueTranslator.TranslateIntegerObjects(scope, caller, root, implementation);
-        Assert.False(rejected.Success); Assert.Contains(rejected.Diagnostics, d => d.Message.Contains("private to the selected core", StringComparison.Ordinal));
+        Assert.False(rejected.Success); Assert.Contains(rejected.Diagnostics, d => d.Message.Contains("lexical declaring scope", StringComparison.Ordinal));
     }
 }

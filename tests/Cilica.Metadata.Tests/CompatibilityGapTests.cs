@@ -27,6 +27,21 @@ public sealed class CompatibilityGapTests
     private static JsonElement ReadLedger()
     {
         using var document = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "compatibility-gap-ledger.json")));
+        void UniqueKeys(JsonElement element)
+        {
+            if (element.ValueKind == JsonValueKind.Object)
+            {
+                var names = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var property in element.EnumerateObject())
+                {
+                    Assert.True(names.Add(property.Name), "Duplicate compatibility ledger key: " + property.Name);
+                    UniqueKeys(property.Value);
+                }
+            }
+            else if (element.ValueKind == JsonValueKind.Array)
+                foreach (var item in element.EnumerateArray()) UniqueKeys(item);
+        }
+        UniqueKeys(document.RootElement);
         return document.RootElement.Clone();
     }
 

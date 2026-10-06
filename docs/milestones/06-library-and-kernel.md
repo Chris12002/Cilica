@@ -2491,3 +2491,14 @@ String.Format call in GameState.GetPlayer IL_0020. State discovery reaches 257
 identities (143 distinct nominal declarations, 122 closed generic identities), not
 a measured final runtime catalog. Capacity and full replay remain unresolved.
 See ADR AC0036 and artifacts/alchemy-closure-diagnostics.
+
+
+### Two-box composite formatting (AC7b.4)
+
+The exact two-object String.Format overload now requires a direct same-block box
+witness for each named ordinary value. Both overloads share the pinned parser;
+repeated callbacks retain each boxed copy. Five new and five previous probes pass
+2,940 repeated O0/O2 comparisons with sanitizers and forced GC; 71 formatting,
+admission and baseline checks pass. Scalar/enum/provider formatting and aliases
+remain diagnostic. Frozen GetPlayer advances to unmapped KeyNotFoundException;
+full engine and replay execution remain unverified. See ADR AC0037.

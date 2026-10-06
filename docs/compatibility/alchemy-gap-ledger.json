@@ -30,8 +30,8 @@
     "positiveControlCount": 29,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "6180c3e1ddef57d9c73270b545b990fec4f5afa25b83cb5a630f1fc62f298881",
-    "latestSlice": "AC8.5",
+    "fixtureSha256": "29224393913acc105ca6584436bfd1979611f7330a0de0fa9fbefee7e1df615b",
+    "latestSlice": "AC7b.4",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -231,7 +231,7 @@
       "completedSubslices": [
         "AC6.1",
         "AC6.2",
-        "AC5b.1"
+        "AC6.3"
       ],
       "remaining": "Remaining deferred/terminal operators, indexed overloads, List specializations, boxed collection factories, value-payload predicates and full replay closure."
     },
@@ -245,7 +245,7 @@
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0023-linq-predicate-terminals.md"
     },
-    "AC5b.1": {
+    "AC6.3": {
       "prerequisites": ["AC6.2", "AC4.6"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0025-deferred-where.md"
@@ -258,7 +258,7 @@
     "AC7b": {
       "prerequisites": ["AC7a"],
       "status": "in-progress",
-      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3"],
+      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3", "AC7b.4"],
       "remaining": "Ordinal prefix checks, substring, formatting, encoding and remaining text APIs. AC7b.1 uses existing UTF-16 string storage independently of the remaining AC7a array work."
     },
     "AC7b.1": {
@@ -275,6 +275,11 @@
       "prerequisites": ["AC0"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0028-direct-string-instance-calls.md"
+    },
+    "AC7b.4": {
+      "prerequisites": ["AC8.5"],
+      "status": "complete-bounded-two-box-formatting",
+      "decision": "docs/decisions/AC0037-two-box-composite-formatting.md"
     },
     "AC7c": {
       "prerequisites": [
@@ -619,13 +624,13 @@
     {"id": "StringCompareOrdinal", "slice": "AC7b", "publicFixture": "Probe_StringCompareOrdinal", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_StringCompareOrdinal", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: CompareOrdinal"}, "currentEvidence": "AC7b.1 OrdinalTextTests: exact pinned ordinal numeric results, null/empty, zero padding, UTF-16 and distinct snapshots at O0/O2 with forced GC and sanitizers."},
     {"id": "StringStartsWith", "slice": "AC7b", "publicFixture": "Probe_StringStartsWith", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: StartsWith"}, "privateWitness": "probes.json; Probe_StringStartsWith"},
     {"id": "StringSubstring", "slice": "AC7b", "publicFixture": "Probe_StringSubstring", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Substring"}, "privateWitness": "probes.json; Probe_StringSubstring"},
-    {"id": "StringFormatTwo", "slice": "AC7b", "publicFixture": "Probe_StringFormatTwo", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Format"}, "privateWitness": "probes.json; Probe_StringFormatTwo"},
+    {"id": "StringFormatTwo", "slice": "AC7b", "publicFixture": "Probe_StringFormatTwo", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "Scalar and enum boxed formatting require supported format/provider dispatch"}, "privateWitness": "probes.json; Probe_StringFormatTwo", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Format"}, "currentEvidence": "AC7b.4 admits two directly boxed ordinary named values; this two-Int32 probe remains blocked by scalar formatting."},
     {"id": "StringBuilderInt", "slice": "AC7b", "publicFixture": "Probe_StringBuilderInt", "status": "native-validated-invariant-only", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_StringBuilderInt", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Append"}, "currentEvidence": "AC7b.2 signed/unsigned 32/64-bit append with fixed invariant numeric text. Oracle explicitly pinned to InvariantCulture; ambient culture is not implemented."},
     {"id": "TupleFive", "slice": "AC5b", "publicFixture": "Probe_TupleFive", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000102 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_TupleFive"},
     {"id": "ByteArray", "slice": "AC7a", "publicFixture": "Probe_ByteArray", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering."}, "privateWitness": "probes.json; Probe_ByteArray", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200002f in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "baselineNote": "The public fixture retains an array local; storage validation rejects before the original audit fixture's newarr operand. Both IL bodies were inspected. No implementation support changed."},
     {"id": "Utf8", "slice": "AC7b", "publicFixture": "Probe_Utf8", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020002c2 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_Utf8"},
     {"id": "Sha256", "slice": "AC7c", "publicFixture": "Probe_Sha256", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200034c in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_Sha256"},
-    {"id": "EngineStep", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_EngineStep", "currentDiagnostic": "CIL3010", "currentEvidence": "artifacts/alchemy-closure-diagnostics/engine-and-state-final.json", "currentStatus": "GetPlayer IL_0020: String.Format(string, object, object) missing; requested from Step IL_05a8", "nextSlice": "AC7b"},
+    {"id": "EngineStep", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_EngineStep", "currentDiagnostic": "CIL3015", "currentEvidence": "artifacts/alchemy-pair-formatting/engine-and-state.json", "currentStatus": "Two-object Format declaration resolves; GetPlayer IL_0025 next requires KeyNotFoundException mapping. Actual engine execution remains unverified.", "nextSlice": "AC8"},
     {"id": "StateLookup", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_StateLookup", "currentDiagnostic": "CIL2003", "currentEvidence": "artifacts/alchemy-closure-diagnostics/engine-and-state-final.json", "currentStatus": "257/256 discovered identities; 143 nominal declarations, 122 closed generic identities; final emitted catalog unmeasured", "nextSlice": "AC8"},
     {"id": "CanonicalHash", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_CanonicalHash", "currentDiagnostic": "CIL3015", "currentEvidence": "artifacts/alchemy-nullable/Probe_CanonicalHash.json", "currentStatus": "nullable-mapping-passed; next blocker remains", "nextSlice": "AC7c"},
     {"id": "RealRandom", "slice": "AC0", "publicFixture": null, "status": "native-validated-at-audit", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_RealRandom"},

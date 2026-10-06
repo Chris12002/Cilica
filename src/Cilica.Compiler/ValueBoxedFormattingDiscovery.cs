@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -11,28 +12,43 @@ public static partial class ValueProgramDiscovery
 {
     private sealed partial class Session
     {
-        private ObjectTypeId? BoxedFormat(Work work, MethodInstruction instruction, ref ResolvedMethod target)
+        private ImmutableArray<ObjectTypeId>? BoxedFormat(Work work, MethodInstruction instruction, int instructionIndex, ref ResolvedMethod target)
         {
             if (!integers64 || target.DeclaringType.Definition.Assembly != library) return null;
             var text = resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String).Value;
-            if (text is null || target.DeclaringType.Definition != text || target.Signature.Parameters.Count != 2
+            if (text is null || target.DeclaringType.Definition != text || target.Signature.Parameters.Count is not (2 or 3)
                 || target.Signature.Parameters[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
-                || target.Signature.Parameters[1] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Object }) return null;
+                || target.Signature.Parameters.Skip(1).Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Object })) return null;
             int offset = instruction.Offset;
             _ = FormattingDeclaration(work, instruction, target, false);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.BoxedStringFormat), work, offset);
-            var previous = work.Input.Instructions.LastOrDefault(i => i.Offset + i.Length == offset);
-            if (previous is null || previous.OpCode != "box")
-                Fail(work, "String.Format currently requires one directly boxed named value with an ordinary ToString override and no IFormattable contract.", offset);
-            var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
-                MetadataTokens.EntityHandle(Token(work, previous!, 0x01, 0x02, 0x1b))), work, offset);
-            var receiver = FormattingReceiver(signature, work, offset);
-            var named = new TypeSignature.Named(receiver.Definition, SignatureTypeKind.ValueType);
-            signature = receiver.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, receiver.Arguments);
-            var helper = Require(resolver.ResolveType(library, "Cilica.Runtime", "BoxedFormatting`1"), work, offset);
-            target = Require(resolver.ResolveClosedDeclaration(new(helper, new([signature])), "Format", 2, _metadata), work, offset);
-            return Include(receiver, work, offset);
+            int count = target.Signature.Parameters.Count - 1;
+            if (instructionIndex == 0 || work.Input.Instructions[instructionIndex - 1].OpCode != "box")
+                Fail(work, "String.Format currently requires one or two directly boxed named values with ordinary ToString overrides and no IFormattable contracts.", offset);
+            // These are candidate types, never access/flow proof. Translation must
+            // independently match every actual argument to its same-block BoxValue.
+            // The immediately preceding last box bounds repeated backward scans.
+            var candidates = new List<MethodInstruction>();
+            for (int i = instructionIndex - 1; i >= 0 && candidates.Count < count; --i)
+                if (work.Input.Instructions[i].OpCode == "box") candidates.Add(work.Input.Instructions[i]);
+            if (candidates.Count != count) Fail(work, "String.Format requires a directly boxed candidate for each argument.", offset);
+            candidates.Reverse();
+            var signatures = ImmutableArray.CreateBuilder<TypeSignature>(count);
+            var boxes = ImmutableArray.CreateBuilder<ObjectTypeId>(count);
+            foreach (var candidate in candidates)
+            {
+                var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
+                    MetadataTokens.EntityHandle(Token(work, candidate, 0x01, 0x02, 0x1b))), work, offset);
+                var receiver = FormattingReceiver(signature, work, offset);
+                var named = new TypeSignature.Named(receiver.Definition, SignatureTypeKind.ValueType);
+                signatures.Add(receiver.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, receiver.Arguments));
+                boxes.Add(Include(receiver, work, offset));
+            }
+            var helper = Require(resolver.ResolveType(library, "Cilica.Runtime", count == 1 ? "BoxedFormatting`1" : "BoxedFormatting`2"), work, offset);
+            target = Require(resolver.ResolveClosedDeclaration(new(helper, new(signatures)), "Format", count + 1, _metadata), work, offset);
+            return boxes.ToImmutable();
         }
+
         private ObjectTypeId? BoxedRender(Work work, MethodInstruction instruction, ref ResolvedMethod target)
         {
             if (!integers64 || target.DeclaringType.Definition.Assembly != library) return null;
@@ -61,14 +77,17 @@ public static partial class ValueProgramDiscovery
                 || input.Attributes != ((render ? MethodAttributes.Assembly : MethodAttributes.Public) | MethodAttributes.Static | MethodAttributes.HideBySig)
                 || input.Implementation != MethodImplAttributes.InternalCall
                 || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
-                || input.Signature.Parameters.Count != (render ? 1 : 2)
-                || input.Signature.Parameters[^1] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Object }
+                || (render ? input.Signature.Parameters.Count != 1 : input.Signature.Parameters.Count is not (2 or 3))
+                || input.Signature.Parameters.Skip(render ? 0 : 1).Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Object })
                 || !render && input.Signature.Parameters[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String })
                 Fail(work, "Invalid selected boxed formatting declaration.", offset);
             return input;
         }
         private ConstructedType FormattingReceiver(TypeSignature signature, Work work, int offset)
         {
+            var normalized = OperandSignature(signature, work, offset);
+            if (normalized is TypeSignature.Primitive primitive && ScalarBoxing.Supported(primitive.Code) || EnumScalar(normalized, work, offset))
+                Fail(work, "Scalar and enum boxed formatting require supported format/provider dispatch before execution.", offset);
             var receiver = signature switch {
                 TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
                 TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),

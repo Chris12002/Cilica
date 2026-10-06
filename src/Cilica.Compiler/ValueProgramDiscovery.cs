@@ -37,7 +37,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, IrType> ReferenceBoxOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
     public ImmutableDictionary<int, ClosedKeyIntrinsic> KeyOperations { get; init; } = ImmutableDictionary<int, ClosedKeyIntrinsic>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> BoxedRenderCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
-    public ImmutableDictionary<int, ObjectTypeId> BoxedFormatCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
+    public ImmutableDictionary<int, ImmutableArray<ObjectTypeId>> BoxedFormatCalls { get; init; } = ImmutableDictionary<int, ImmutableArray<ObjectTypeId>>.Empty;
     public ImmutableDictionary<int, ConstrainedValueCall> ConstrainedCalls { get; init; } = ImmutableDictionary<int, ConstrainedValueCall>.Empty;
 }
 public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receiver);
@@ -176,7 +176,7 @@ public static partial class ValueProgramDiscovery
                     var constrained = ConstrainedPrefixes(work);
                     var constrainedCalls = ImmutableDictionary.CreateBuilder<int, ConstrainedValueCall>();
                     var boxedRenderCalls = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
-                    var boxedFormatCalls = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
+                    var boxedFormatCalls = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ObjectTypeId>>();
                     var keyOperations = ImmutableDictionary.CreateBuilder<int, ClosedKeyIntrinsic>();
                     for (int instructionIndex = 0; instructionIndex < work.Input.Instructions.Length; ++instructionIndex)
                     {
@@ -241,7 +241,7 @@ public static partial class ValueProgramDiscovery
                                     : resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
                             }
                             var target = _calls[key];
-                            if (BoxedFormat(work, instruction, ref target) is { } formatBox) boxedFormatCalls.Add(offset, formatBox);
+                            if (BoxedFormat(work, instruction, instructionIndex, ref target) is { } formatBox) boxedFormatCalls.Add(offset, formatBox);
                             if (BoxedRender(work, instruction, ref target) is { } renderBox) boxedRenderCalls.Add(offset, renderBox);
                             if (KeyOperation(work, instruction, ref target) is { } keyOperation)
                             {

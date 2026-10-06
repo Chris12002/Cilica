@@ -658,6 +658,13 @@
     "Capability": "BoxedStringFormat"
   },
   {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "Format",
+    "ParameterCount": 3,
+    "Capability": "BoxedStringFormat"
+  },
+  {
     "Namespace": "Cilica.Runtime",
     "Type": "BoxedText`1",
     "Member": "Render",

@@ -345,11 +345,11 @@
       ],
       "changes": [
         "Use the bounded managed StringBuilder instead of span/stack buffers.",
-        "Specialize one directly boxed named non-IFormattable value, retaining the box and calling its exact ordinary ToString override on the payload.",
+        "Specialize one or two directly boxed named non-IFormattable values; a shared parser retains each box and calls its exact ordinary ToString override on that payload.",
         "Keep invariant pinned error resources; parse ignored format specifiers without allocating their unused text.",
         "No custom providers, IFormattable/ISpanFormattable, argument arrays, primitive/reference arguments or object aliases are admitted."
       ],
-      "scope": "Exactly granted String.Format(String,Object) with a same-block direct box witness; no general formatting or boxed virtual/interface dispatch."
+      "scope": "Exactly granted String.Format(String,Object) and String.Format(String,Object,Object), with a same-block direct box witness for each argument; no general formatting or boxed virtual/interface dispatch."
     },
     {
       "path": "library/Cilica.Core/StringComparison.cs",

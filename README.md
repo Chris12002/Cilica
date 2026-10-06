@@ -386,3 +386,14 @@ Eleven mutations fail in both stages; array permission does not authorize casts
 or explicit foreign names. 117 broad and 46 post-review checks pass. Object IR v16
 and integer-object CIL v4; native v42/layout v17 unchanged. Engine/state closure
 and full replay remain incomplete. See ADR AC0035.
+
+
+### Two-box composite formatting (AC7b.4)
+
+The exact two-object String.Format overload now requires a direct same-block box
+witness for each named ordinary value. Both overloads share the pinned parser;
+repeated callbacks retain each boxed copy. Five new and five previous probes pass
+2,940 repeated O0/O2 comparisons with sanitizers and forced GC; 71 formatting,
+admission and baseline checks pass. Scalar/enum/provider formatting and aliases
+remain diagnostic. Frozen GetPlayer advances to unmapped KeyNotFoundException;
+full engine and replay execution remain unverified. See ADR AC0037.

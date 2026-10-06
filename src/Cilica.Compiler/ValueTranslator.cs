@@ -534,9 +534,10 @@ public static class ValueTranslator
                                 }
                                 else arguments[i] = Pop(offset, target.Parameters[i + skip]);
                             }
-                            if (method.BoxedFormatCalls.TryGetValue(offset, out var formatBox)
-                                && (arguments.Length != 2 || valueExpressions[arguments[1]] is not IrExpression.BoxValue proof || proof.Type != formatBox))
-                                Error(offset, "String.Format requires the directly proven box in the same control-flow block.", DiagnosticIds.ExecutionUnsupported);
+                            if (method.BoxedFormatCalls.TryGetValue(offset, out var formatBoxes)
+                                && (formatBoxes.Length is not (1 or 2) || arguments.Length != formatBoxes.Length + 1
+                                    || formatBoxes.Where((box, i) => valueExpressions[arguments[i + 1]] is not IrExpression.BoxValue proof || proof.Type != box).Any()))
+                                Error(offset, "String.Format requires each directly proven box in the same control-flow block.", DiagnosticIds.ExecutionUnsupported);
                             if (target.Binding.InvariantProviderOnly && (arguments.Length != 2 || valueExpressions[arguments[1]] is not IrExpression.InvariantCulture))
                                 Error(offset, "ToString(IFormatProvider) currently requires a directly proven CultureInfo.InvariantCulture result; null, other providers and provider aliases need later lowering.", DiagnosticIds.ExecutionUnsupported);
                             if (skip != 0 && target.Binding.Kind == ObjectMethodKind.ValueConstructor)
