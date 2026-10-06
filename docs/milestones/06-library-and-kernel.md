@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0 complete, AC1–AC10 planned.
+Recorded 2026-10-06. Status: approved delivery plan; AC0 and AC1a complete; AC1b and AC2–AC10 planned.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0 is complete as recorded below; AC1–AC10 remain planned. Split a slice into coherent reviewable commits
+AC0 and AC1a are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -1848,3 +1848,70 @@ For the combined integration gate, select
 Restore dependencies once if absent; no services or hosted jobs are required.
 Next delivery slice: AC1a nullable storage and members, with AC1b boxing/conversion
 semantics kept explicit and unsupported forms still diagnosed.
+
+
+### AC1a nullable storage and members outcome
+
+Implemented [ADR AC0002](../decisions/AC0002-nullable-value-storage.md): an owned
+Nullable<T> presence flag and inline payload, constructor, HasValue, Value and
+both GetValueOrDefault overloads. Value copies/returns and reference-slot tracing
+reuse the existing compiler/runtime; no new native emitter profile, ABI or
+intrinsic capability is needed. Closed generic constraints now recognize the
+selected Enum ancestry as value semantics; signature and payload bounds remain.
+
+Thirteen focused native probes pass at O0/O2 under ASan/UBSan and forced
+collection, giving 3,822 repeated .NET/native comparisons plus frame and cleanup
+checks. They cover signed/unsigned/narrow scalars, Boolean/Char, public Int32 enums,
+Guid, application IDs, generic containers, reference-bearing payloads, return and
+materialized field/array copies, default/present/empty states, fallback evaluation,
+Value's exception and ordinary boxes containing nullable fields. A same-named
+application value still uses ordinary boxing. Exact member binding and invalid
+reference/nested-nullable arguments have metadata checks.
+
+Review found two unsafe fallback paths after admitting nullable layout: ordinary
+struct boxing would create the wrong identity, and key IsNull would treat an
+empty nullable as nonnull. Both now diagnose by exact selected type identity,
+with direct boxing/raw-unbox and isolated key-helper regressions. Equals/hash/text
+and direct operator bodies remain explicit unsupported members. Existing static
+inline-field, direct struct-return-to-heap and internal/non-Int32 enum limits stay
+visible with reduced fixtures; they were not worked around in application code.
+Enum diagnostics now include the offending type name for investigation.
+
+The public baseline advances NullableInt and NullableGuid: ten native controls
+(2,940 repeated O0/O2 results) and 37 rejection expectations. Generic constraints,
+owned core, tuple behavior, Type identity, embedding and interface-constraint
+checks passed. Initial new rejection fixtures exposed different C# IL shapes
+(static-field address and internal generic access); corrected the fixtures to
+isolate the observed field-storage paths and reran the affected rejection test.
+Later review strengthened the Guid probe with nonzero multiword payloads and
+reran the affected native bundle. The successful broader regression suite was
+not repeated.
+
+The unchanged private roots now report:
+
+| Root | Next observed blocker | Assigned work |
+| --- | --- | --- |
+| Engine Step | Static inline application-ID field; CIL2001 | AC8 follow-on static value storage |
+| State lookup | Internal Int32 enum rejected by the current visibility bound; CIL2001 | AC5b enum storage/access |
+| Canonical hash | Unmapped SHA-256 contract; CIL3015 | AC7c hashing path |
+
+The enum is not a width mismatch; source inspection confirmed its internal
+Int32 declaration. Separate public probes preserve visibility and width limits.
+No full executable engine closure or native saved-game replay is claimed.
+
+Private evidence lives under ignored `artifacts/alchemy-nullable/`: unchanged
+input assemblies, a separately built core, exact local fixture review, recorded
+probe commands/results and engine Step IL. Core SHA-256:
+`d1b03319aa2dc2b3aa41e235b212547075e8f8b0116c13e7d6b9a7e299a01d99`;
+manifest SHA-256:
+`49ce0437eb3ca413de68a7419820f099bbc7c967be2fe92c536e1db2f73c89a0`.
+All 94 grant owner/member/capability identities remain unchanged; four raw
+signature hashes shift with metadata type tokens. All prior core source hashes
+are unchanged and only the owned Nullable source was added. This is local fixture
+approval, not a production trust update. Hosted tests, services and training
+remain untouched. The ongoing milestone branch was inspected, not merged into
+this slice; its later numeric-record work remains independent.
+
+Next is AC1b's nullable boxing/conversion contract; nullable text belongs to AC7b
+and nullable key selection to AC3. The ledger records those residuals and the
+newly exposed application blockers without changing the original audit evidence.

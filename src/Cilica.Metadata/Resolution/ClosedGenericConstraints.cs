@@ -15,8 +15,8 @@ public sealed partial class AssemblyResolver
     {
         CheckOwner(library);
         int work = 0;
-        ResolvedType? valueBase = null, nullable = null;
-        bool nullableRead = false;
+        ResolvedType? valueBase = null, nullable = null, enumBase = null;
+        bool nullableRead = false, enumRead = false;
         var pending = new Queue<ConstructedType>();
         var seen = new HashSet<ConstructedType>();
         var interfaceClosures = new Dictionary<ConstructedType, HashSet<ConstructedType>>();
@@ -37,6 +37,17 @@ public sealed partial class AssemblyResolver
                 nullable = result.Value; nullableRead = true;
             }
             return type == nullable;
+        }
+        bool IsEnumParent(ResolvedType type)
+        {
+            if (!enumRead)
+            {
+                Member(); var result = ResolveType(library, "System", "Enum");
+                if (result.Value is null && result.Diagnostics.Any(d => d.Id != DiagnosticIds.TypeNotFound))
+                    throw new UnsupportedBindingException("Selected Enum identity could not be resolved for the value constraint.");
+                enumBase = result.Value; enumRead = true;
+            }
+            return type == enumBase;
         }
         void Arguments(SignatureList<TypeSignature> arguments)
         {
@@ -74,7 +85,8 @@ public sealed partial class AssemblyResolver
             CheckOwner(named.Definition.Assembly); Member();
             var definition = named.Definition.Assembly.Image.Reader.GetTypeDefinition(named.Definition.Handle);
             var parent = definition.BaseType.IsNil ? null : new SignatureDecoder(this, named.Definition.Assembly).Type(definition.BaseType);
-            bool isValue = parent is TypeSignature.Named baseType && baseType.Definition == ValueBase();
+            bool isValue = parent is TypeSignature.Named baseType
+                && (baseType.Definition == ValueBase() || IsEnumParent(baseType.Definition));
             if ((named.Kind == SignatureTypeKind.ValueType) != isValue)
                 throw new UnsupportedBindingException("Generic constraint argument has unsupported value ancestry or a mismatched class/value signature.");
             return (isValue, isValue && IsNullable(named.Definition), named.Definition);

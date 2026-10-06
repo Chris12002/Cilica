@@ -40,6 +40,8 @@ public static partial class ValueProgramDiscovery
                 : hash ? LibraryIntrinsicCapability.ClosedKeyHash : LibraryIntrinsicCapability.ClosedKeyIsNull), work, offset);
             var key = target.DeclaringType.Arguments[0];
             CheckArgumentAccess(key, work, offset);
+            if (IsNullable(key, work, offset))
+                Fail(work, "Nullable key operations require nullable null/equality/hash semantics before execution; ordinary value-key rules are not valid.", offset);
             var storage = Storage(key, work, offset);
             if (isNull) return new(ClosedKeyOperation.IsNull, storage);
             if (key is TypeSignature.Primitive { Code: PrimitiveTypeCode.String })

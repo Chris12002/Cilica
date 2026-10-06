@@ -1718,3 +1718,22 @@ engine's semantic fingerprint path, so moving save decoding to a host does not
 remove that dependency. See the milestone 6 prioritized audit record for evidence,
 remaining analysis bounds and the private reproducible probe recipe. This audit
 changes no implemented compiler/library or platform-compatibility claim.
+
+
+### Nullable value follow-on (AC1a)
+
+[ADR AC0002](decisions/AC0002-nullable-value-storage.md) implements the owned
+Nullable<T> constructor, HasValue, Value and both GetValueOrDefault forms through
+ordinary closed value storage. Existing copies, return packets and tracing cover
+reference-bearing payloads; no special native representation or new intrinsic is
+needed. Exact selected enum ancestry now satisfies generic struct constraints,
+while executable enum visibility/width restrictions remain separate.
+
+AC1a native evidence includes empty/present/default values, scalar and value
+payloads, field/array copies, rooted references and the Value exception. Direct
+nullable boxing/unboxing and nullable key operations explicitly reject pending
+their distinct null/underlying-value semantics. Equality/hash/text and direct
+operator bodies remain unsupported. Full Alchemy replay and untested platforms
+remain open; current private roots now expose static inline fields, internal-enum
+storage and SHA-256 as subsequent blockers. See the milestone 6 AC1a outcome and
+the assigned gap ledger for exact scope.

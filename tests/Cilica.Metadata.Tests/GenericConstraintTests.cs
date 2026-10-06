@@ -125,4 +125,18 @@ public sealed class GenericConstraintTests
         Assert.Contains(result.Diagnostics, d => d.Message.Contains("constraints", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData(SignatureTypeKind.ValueType, true)]
+    [InlineData(SignatureTypeKind.Class, false)]
+    public void Selected_enum_ancestry_satisfies_struct_constraints_only_with_a_value_signature(SignatureTypeKind kind, bool succeeds)
+    {
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        var input = resolver.OpenInput(typeof(ConstrainedValue<>).Assembly.Location).Value!;
+        var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
+        var definition = resolver.ResolveType(input, (TypeDefinitionHandle)MetadataTokens.EntityHandle(typeof(ConstrainedValue<>).MetadataToken)).Value!;
+        var enumeration = resolver.ResolveType(input, (TypeDefinitionHandle)MetadataTokens.EntityHandle(typeof(NullableKind).MetadataToken)).Value!;
+        var result = resolver.ReadClosedTypeInput(new(definition, new([new TypeSignature.Named(enumeration, kind)])), library, new());
+        Assert.Equal(succeeds, result.Success);
+    }
+
 }

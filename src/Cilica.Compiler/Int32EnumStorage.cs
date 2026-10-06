@@ -25,7 +25,7 @@ internal static class Int32EnumStorage
             || input.Fields.Any(f => (f.Attributes & FieldAttributes.Static) != 0
                 && (f.Attributes != (FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.Literal | FieldAttributes.HasDefault)
                     || f.Signature is not TypeSignature.Named literal || literal.Definition != named.Definition)))
-            throw new ArgumentException("Enum scalar storage requires an externally visible nongeneric Int32 enum with exact value__ storage, literal constants, and no interfaces, layout or initialization.");
+            throw new ArgumentException("Enum scalar storage requires an externally visible nongeneric Int32 enum with exact value__ storage, literal constants, and no interfaces, layout or initialization. Type: " + input.Source.Name + ".");
         return true;
     }
 }

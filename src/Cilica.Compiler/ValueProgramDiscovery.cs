@@ -340,6 +340,8 @@ public static partial class ValueProgramDiscovery
                             if (generics)
                             {
                                 var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(token)), work, offset);
+                                if (instruction.OpCode is "box" or "unbox" or "unbox.any" && IsNullable(signature, work, offset))
+                                    Fail(work, "Nullable boxing and unboxing require null/underlying-value semantics; ordinary struct boxing is not valid. Implement the nullable boxing profile before executing this operation.", offset);
                                 if (integers64 && instruction.OpCode is "initobj" or "ldobj" or "stobj" or "cpobj")
                                 {
                                     signature = OperandSignature(signature, work, offset);

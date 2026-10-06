@@ -15,6 +15,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --profile core --assembly-name Cilica.Core \
   --source library/Cilica.Core/CoreTypes.cs \
   --source library/Cilica.Core/RuntimeTypes.cs \
+  --source library/Cilica.Core/Nullable.cs \
   --source library/Cilica.Core/IntegerText.cs \
   --source library/Cilica.Core/CollectionContracts.cs \
   --source library/Cilica.Core/DelegateContracts.cs \
@@ -143,3 +144,14 @@ closed identity. Type hashes are implementation-specific. Six exact grants bind
 the layouts and native helpers; ordinary equality/handle/key wrappers stay managed.
 General reflection, value/open/method/field tokens and arbitrary Object-slot
 virtual calls remain diagnostic. See ADR AC0001 for receiver restrictions and evidence.
+
+
+`Nullable.cs` adds closed nullable storage and the constructor, HasValue, Value
+and both GetValueOrDefault overloads as owned managed code. Add the exact
+``System.Nullable`1`` reference mapping when composing a core binding plan; it
+requires no new intrinsic grant. Integer/Boolean/Char, public Int32 enum, Guid,
+application-value and reference-bearing payloads have native differential evidence.
+Ordinary value copying/return/rooting rules apply, including materialized heap
+fields and value arrays. Direct Nullable boxing/unboxing, nullable key operations,
+equality/hash/text members and direct operator-method calls remain diagnostics;
+see [ADR AC0002](../../docs/decisions/AC0002-nullable-value-storage.md).

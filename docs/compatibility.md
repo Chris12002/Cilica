@@ -1846,3 +1846,22 @@ not full-game compatibility. The [AC0 outcome](milestones/06-library-and-kernel.
 records the integrated milestone 7 revision, diagnostic differences from the
 private IL fixtures, validation and reproduction commands. No additional language
 or platform support was implemented by establishing this baseline.
+
+
+## Bounded nullable values (AC1a)
+
+The owned core admits Nullable<T> construction, HasValue, Value and both
+GetValueOrDefault overloads for supported closed value payloads. Local O0/O2
+sanitizer/forced-GC evidence covers all supported integer scalar widths,
+Boolean/Char, public Int32 enums, Guid, IDs and reference-bearing structs;
+copy/return semantics, materialized heap fields and value arrays reuse the existing
+value profile. The empty Value exception matches the selected invariant resource.
+
+Direct nullable boxing/unboxing, key null/equality/hash selection, Equals,
+GetHashCode, ToString and direct operator-method bodies are still diagnostics.
+Existing internal/non-Int32 enum, static inline-field and direct-return-to-heap
+limits remain. An ordinary struct containing a nullable field can still use
+ordinary boxing. [ADR AC0002](decisions/AC0002-nullable-value-storage.md) records
+these boundaries and tests. The 47-probe public baseline now has ten native
+controls and 37 explicit rejection expectations; historical AC0 counts above
+remain its original evidence.
