@@ -19,23 +19,24 @@
   },
   "baseline": {
     "integrationCommit": "e317e93",
-    "nativeProfile": "object-frames-native-v37",
-    "nativeProfileEvidence": "Last full public native baseline at AC1a; later nullable-suite evidence is recorded separately below.",
+    "nativeProfile": "object-frames-native-v41",
+    "nativeProfileEvidence": "Public baseline revalidated at AC2.1; slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
     "updatePolicy": "When a gap advances, update its diagnostic and owning slice; claim native validation only after an oracle/native comparison. No silent blanket baseline regeneration.",
     "publicProbeCount": 47,
-    "knownGapCount": 37,
-    "positiveControlCount": 10,
+    "knownGapCount": 36,
+    "positiveControlCount": 11,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "c6c301dae43c915f877dc391e9956c44375c744060a65757268bebcfda94f54f",
-    "latestSlice": "AC1b.4",
+    "latestSlice": "AC2.1",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
     "confinedScalarBoxEvidence": "AC1b.4 ScalarBoxConfinementTests: 13 native probes, 3822 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan. Both stages reject isinst/castclass alias escapes; nine unsafe/unproven fixtures remain diagnostic. Native v40 unchanged.",
+    "referenceDelegateEvidence": "AC2.1: 13 new reference-result probes plus the advanced public RefDelegate probe; 4116 repeated native/.NET comparisons at O0/O2 with forced GC and ASan/UBSan. Exact application delegates only; framework contracts remain AC2.2.",
     "rawUnboxInventory": "Historical bodies.json: 1825 rows, 1775 readable bodies, 50 declarations without IL; 42 box, zero unbox/unbox.any. Incomplete application/library/callback coverage is not proof of absence from the accepted replay closure."
   },
   "slices": {
@@ -78,9 +79,15 @@
       "decision": "docs/decisions/AC0006-confined-scalar-box-uses.md"
     },
     "AC2": {
-      "prerequisites": [
-        "AC0"
-      ]
+      "prerequisites": ["AC0"],
+      "status": "in-progress",
+      "completedSubslices": ["AC2.1"],
+      "remaining": "AC2.2 required closed Func/Action/Predicate/Comparison contracts and tested signatures; composed private command closure still unvalidated."
+    },
+    "AC2.1": {
+      "prerequisites": ["AC0"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0007-reference-delegate-results.md"
     },
     "AC3": {
       "prerequisites": [
@@ -426,7 +433,7 @@
     {"id": "ListSort", "slice": "AC3", "publicFixture": "Probe_ListSort", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Sort"}, "privateWitness": "probes.json; Probe_ListSort", "prerequisites": ["AC5a"]},
     {"id": "ListToArray", "slice": "AC3", "publicFixture": "Probe_ListToArray", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: ToArray"}, "privateWitness": "probes.json; Probe_ListToArray"},
     {"id": "HashSet", "slice": "AC3", "publicFixture": "Probe_HashSet", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020009a4 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_HashSet"},
-    {"id": "RefDelegate", "slice": "AC2", "publicFixture": "Probe_RefDelegate", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "Delegate requires .ctor(Object, native int) and exact Int32/reference-parameter Invoke returning Int32 or void; wide, value and byref parameters require later lowering."}, "privateWitness": "probes.json; Probe_RefDelegate"},
+    {"id": "RefDelegate", "slice": "AC2", "publicFixture": "Probe_RefDelegate", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_RefDelegate", "auditDiagnostic": {"id": "CIL2001", "contains": "Delegate requires .ctor(Object, native int) and exact Int32/reference-parameter Invoke returning Int32 or void; wide, value and byref parameters require later lowering."}, "currentEvidence": "AC2.1 ReferenceResultDelegateTests and CompatibilityGapTests; macOS ARM64 O0/O2, ASan/UBSan, forced collection; public fixture only"},
     {"id": "FuncDelegate", "slice": "AC2", "publicFixture": "Probe_FuncDelegate", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200005f in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_FuncDelegate"},
     {"id": "LinqAny", "slice": "AC6", "publicFixture": "Probe_LinqAny", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200066a in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_LinqAny"},
     {"id": "LinqWhere", "slice": "AC6", "publicFixture": "Probe_LinqWhere", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200005e in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_LinqWhere", "prerequisites": ["AC2", "AC4"]},

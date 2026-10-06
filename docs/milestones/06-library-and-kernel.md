@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a and AC1b.1–AC1b.4 complete; remaining AC1b and AC2–AC10 planned.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1 complete; remaining AC1b, AC2.2 and AC3–AC10 planned.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0, AC1a and AC1b.1–AC1b.4 are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a, AC1b.1–AC1b.4 and AC2.1 are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -2087,3 +2087,32 @@ No private compilation/replay root was rerun, so the recorded application blocke
 are unchanged. No hosted work, services, pushes or extra agents were used. Main
 remains 48ecf14 and is contained in this branch; the separate milestone lane was
 inspected through 68bae1d and was not merged into this slice.
+
+
+### AC2.1 exact reference delegate result outcome
+
+Single-target application delegates can now return admitted managed references,
+with exact target matching and normal rooted return storage. Object, string,
+class/interface and supported vector results are retained by typed signatures and
+catalog closure checks. Detached catalogs must agree, and arrays used only in a
+delegate return signature survive pruning. Native dispatch uses a typed Object*
+function pointer and publishes into the caller root before exception handling.
+See [ADR AC0007](../decisions/AC0007-reference-delegate-results.md).
+
+Thirteen new probes plus public RefDelegate provide 4,116 repeated .NET/native
+comparisons at O0/O2 on macOS ARM64 with ASan/UBSan, forced GC and frame/heap/root
+cleanup checks. They exercise fresh/shared/null results, captured cycles, faults,
+reference argument identity, generic and interface results and the planned reduced
+Type-to-handler dictionary. Five negative fixtures retain signature and covariance
+diagnostics. Detached shape/capture/call/catalog mutations and JSON round-tripping
+also pass. The ledger advances to 36 known gaps and 11 native controls.
+201 existing delegate, catalog, dictionary, runtime-type and public-gap checks
+pass in two targeted regression runs.
+
+Object layout v15, delegate value/scalar IR v2 and native v41 change; core mappings
+and the public embedding ABI do not. Review covered reference lifetime, exception
+order, exact signatures, catalog retention and typed native dispatch. The byref
+negative test was corrected for the earlier signature-discovery rejection.
+AC2.2 will add only required framework delegate contracts and tested signatures.
+Full AC2, remaining AC1b and private saved-game replay stay open; no private root
+was rerun and no hosted work or additional agents were used.

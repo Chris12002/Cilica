@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v40";
+    public const string Profile = "object-frames-native-v41";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -413,19 +413,21 @@ public static class ObjectCppEmitter
                 Flush();
                 return (dispatch ? DispatchPointer(signatures[target].ReturnType.Kind) : CppEmitter.Symbol(target)) + "(context, f->arguments.data())";
             }
-            string DelegateCall(ObjectTypeId type, int receiver, ImmutableArray<int> arguments, bool action, int offset)
+            string DelegateCall(ObjectTypeId type, int receiver, ImmutableArray<int> arguments, int offset)
             {
+                var declaration = delegateDeclarations.Single(d => ObjectTypeId.From(d.Source) == type);
                 code.Append("    f->delegate_result = prepare_delegate(context, ").Append(Value(receiver)).Append(", &")
                     .Append(TypeSymbol(type)).Append("_descriptor);\n");
                 Guard("f->delegate_result.status != 0u", "f->delegate_result.status", offset); Flush();
                 code.Append("    f->arguments[0].reference = reinterpret_cast<DelegateObject*>(f->delegate_result.value)->receiver;\n");
                 for (int i = 0; i < arguments.Length; ++i)
                 {
-                    code.Append("    f->arguments[").Append(N(i + 1)).Append("].").Append(PacketMember(delegateDeclarations.Single(d => ObjectTypeId.From(d.Source) == type).Parameters[i])).Append(" = ").Append(Value(arguments[i])).Append(";\n");
+                    code.Append("    f->arguments[").Append(N(i + 1)).Append("].").Append(PacketMember(declaration.Parameters[i])).Append(" = ").Append(Value(arguments[i])).Append(";\n");
                     if ((i + 1) % CopiesPerStep == 0) Flush();
                 }
                 Flush();
-                return "f->delegate_result.target->" + (action ? "action" : "integer")
+                var result = declaration.ReturnType.Kind;
+                return "f->delegate_result.target->" + (result == IrTypeKind.Void ? "action" : result == IrTypeKind.Reference ? "reference" : "integer")
                     + "(context, f->arguments.data() + (f->delegate_result.target->receiver == nullptr ? 1 : 0))";
             }
             string DispatchPointer(IrTypeKind kind) => "f->dispatch_" + kind.ToString().ToLowerInvariant();
@@ -528,7 +530,8 @@ public static class ObjectCppEmitter
                                     Guard("f->delegate_result.status != 0u", "f->delegate_result.status", value.ILOffset);
                                     expression = "f->delegate_result.value"; break;
                                 case IrExpression.CallDelegate call:
-                                    expression = "std::bit_cast<std::uint32_t>(" + DelegateCall(call.Type, call.Delegate, call.Arguments, false, value.ILOffset) + ")";
+                                    expression = DelegateCall(call.Type, call.Delegate, call.Arguments, value.ILOffset);
+                                    if (value.Type == IrType.Int32) expression = "std::bit_cast<std::uint32_t>(" + expression + ")";
                                     break;
                                 case IrExpression.BoxScalars boxed:
                                     for (int slot = 0; slot < boxed.Values.Length; ++slot)
@@ -694,7 +697,7 @@ public static class ObjectCppEmitter
                             Guard("store_location_" + LocationKind(values[initialize.Location].Type.Element!) + "(context, " + Value(initialize.Location) + ", "
                                 + (integer ? "0u" : "nullptr") + ") != LocationStatus::complete", "6u", initialize.ILOffset); break;
                         case IrStatement.InvokeDelegate invoke:
-                            string delegateInvocation = DelegateCall(invoke.Type, invoke.Delegate, invoke.Arguments, true, invoke.ILOffset);
+                            string delegateInvocation = DelegateCall(invoke.Type, invoke.Delegate, invoke.Arguments, invoke.ILOffset);
                             code.Append("    ").Append(delegateInvocation).Append(";\n"); Pending(); break;
                         case IrStatement.InitializeType initialize:
                             var init = initializers[initialize.Target];

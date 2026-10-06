@@ -1459,8 +1459,9 @@ next requires compiler-generated initialized static delegate caches.
 Exact single-target delegates admit typed Int32/reference parameters in the
 integer-object profile (ADR 0148). Object layout v9/native v29 retain parameter
 identities, structural catalog checks and managed reference argument packets.
-Targets match exactly; wide/value/byref parameters, reference returns and binding
-variance remain diagnostic. Static callback initialization is still pending.
+Targets match exactly; wide/value/byref parameters and binding variance remain
+diagnostic. AC2.1 below adds exact reference results. Static callback
+initialization was still pending at this checkpoint.
 
 
 Ordinary Int32/reference static fields without type/module initialization now use
@@ -1836,3 +1837,23 @@ The archived body inventory contains no raw unbox in its 1,775 readable bodies,
 but its incomplete application/library/callback coverage cannot prove absence
 from the final replay closure. Raw scalar/nullable unbox and escaping/interface
 box semantics remain open. Full AC1b and saved-game replay are not complete.
+
+
+### Reference-returning application delegates (AC2.1)
+
+[ADR AC0007](decisions/AC0007-reference-delegate-results.md) extends exact
+single-target delegates to admitted managed reference results in the integer-object
+composition. The signature owns one typed return; catalogs retain and compare its
+identity, including vectors used only in delegate signatures. Captures and calls
+must match the result exactly. Native dispatch uses an Object* function pointer
+and publishes into normal caller roots before exception routing, preserving the
+existing non-allocating reference-return handoff.
+
+Object layout v15, delegate value/scalar IR v2 and native v41 encode this slice.
+Thirteen new probes plus the public RefDelegate probe provide 4,116 repeated
+O0/O2 native/.NET comparisons with forced GC and ASan/UBSan, including a reduced
+Type-to-handler dictionary. The ledger now has 36 expected gaps and 11 native
+controls. Framework delegate declarations/signatures remain AC2.2; covariance,
+multicast, wide/value/byref results and recursive delegate signatures remain
+outside the bound. Neither the public embedding ABI nor private replay evidence
+changes, and full AC2 and saved-game replay remain incomplete.

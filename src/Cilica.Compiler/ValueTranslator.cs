@@ -179,7 +179,7 @@ public static class ValueTranslator
             if (field.Storage is ObjectStorage.Reference reference) Include(reference.Type);
         foreach (var argument in flow.Types.References.Interfaces.SelectMany(i => i.Arguments)) Include(argument.Reference);
         foreach (var field in flow.Types.References.Statics) Include(field.Type.Class);
-        foreach (var declaration in flow.Types.References.Delegates) foreach (var parameter in declaration.Parameters) Include(parameter.Class);
+        foreach (var declaration in flow.Types.References.Delegates) foreach (var type in declaration.Parameters.Append(declaration.ReturnType)) Include(type.Class);
         var catalog = flow.Types.References;
         return program with { Flow = flow with { Types = flow.Types with { References = catalog with {
             Arrays = [.. catalog.Arrays.Where(used.Contains)], Roots = [.. catalog.Roots.Where(t => t.ArrayElement is null || used.Contains(t))] } } } };
@@ -501,7 +501,7 @@ public static class ValueTranslator
                             for (int i = delegateArguments.Length - 1; i >= 0; --i) delegateArguments[i] = Pop(offset, declaration.Parameters[i]);
                             int calledDelegate = Pop(offset, IrType.Reference(delegateId));
                             if (declaration.ReturnsVoid) Add(new IrStatement.InvokeDelegate(offset, delegateId, calledDelegate, [.. delegateArguments]), offset);
-                            else Push(offset, IrType.Int32, new IrExpression.CallDelegate(delegateId, calledDelegate, [.. delegateArguments]), true);
+                            else Push(offset, declaration.ReturnType, new IrExpression.CallDelegate(delegateId, calledDelegate, [.. delegateArguments]), true);
                             break;
                         case "newobj" when method.DelegateOperands.ContainsKey(offset):
                             Error(offset, "Delegate constructor requires a preceding adjacent ldftn in the same block.", DiagnosticIds.ExecutionUnsupported); break;

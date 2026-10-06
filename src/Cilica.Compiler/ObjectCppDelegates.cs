@@ -60,15 +60,19 @@ struct DelegateTarget {
     ReferencePredicate receiver;
     std::int32_t (*integer)(Context&, const LocationArgument*) noexcept;
     void (*action)(Context&, const LocationArgument*) noexcept;
+    Object* (*reference)(Context&, const LocationArgument*) noexcept;
 };
 """);
         text.Append("static constexpr std::array<DelegateTarget, ").Append(N(_targets.Length)).Append("> delegate_targets = {{\n");
         foreach (var (type, target) in _targets)
         {
-            var binding = _bindings[target]; bool action = _methods[target].ReturnType == IrType.Void;
+            var binding = _bindings[target]; var result = _methods[target].ReturnType.Kind;
+            string body = CppEmitter.Symbol(target);
             text.Append("    {&").Append(symbol(type)).Append("_descriptor, ")
                 .Append(binding.Kind == ObjectMethodKind.Static ? "nullptr" : predicate(binding.Owner)).Append(", ")
-                .Append(action ? "nullptr, " + CppEmitter.Symbol(target) : CppEmitter.Symbol(target) + ", nullptr").Append("},\n");
+                .Append(result == IrTypeKind.Int32 ? body : "nullptr").Append(", ")
+                .Append(result == IrTypeKind.Void ? body : "nullptr").Append(", ")
+                .Append(result == IrTypeKind.Reference ? body : "nullptr").Append("},\n");
         }
         text.Append("}};\n").Append(Helpers).Append('\n');
     }

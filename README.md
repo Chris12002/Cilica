@@ -92,6 +92,10 @@ The eventual flagship demonstration is the Alchemy C# turn engine running
 offline inside Expo on iOS, Android and web, with equivalent results for the
 same command transcript. Alchemy source and assets are not included in this
 repository; independent compiler examples must remain usable without them.
+The [parallel compatibility plan](docs/milestones/06-library-and-kernel.md#parallel-alchemy-compatibility-implementation-plan)
+now includes exact reference-returning application delegates (AC2.1), with native
+GC/exception/identity evidence. Framework delegate contracts and full saved-game
+replay remain unfinished.
 
 ## Development
 

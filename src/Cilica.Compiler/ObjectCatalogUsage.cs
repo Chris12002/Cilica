@@ -21,8 +21,12 @@ internal static class ObjectCatalogUsage
                 if (id == catalog.String || delegates.Contains(id))
                 {
                     pending.Push(catalog.ObjectBase);
-                    if (delegates.Contains(id)) foreach (var p in catalog.Delegates.Single(d => ObjectTypeId.From(d.Source) == id).Parameters)
-                        if (p.Class is { } reference) pending.Push(reference);
+                    if (delegates.Contains(id))
+                    {
+                        var declaration = catalog.Delegates.Single(d => ObjectTypeId.From(d.Source) == id);
+                        foreach (var type in declaration.Parameters.Append(declaration.ReturnType))
+                            if (type.Class is { } reference) pending.Push(reference);
+                    }
                 }
                 else if (arrays.Contains(id))
                 {

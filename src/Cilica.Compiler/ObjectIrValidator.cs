@@ -234,7 +234,7 @@ internal sealed class ObjectIrRules
     });
 
     internal IrType? DelegateReturn(ObjectTypeId? type) => type is not null && _delegates.TryGetValue(type, out var declaration)
-        ? declaration.ReturnsVoid ? IrType.Void : IrType.Int32 : null;
+        ? declaration.ReturnType : null;
 
     internal bool DelegateCapture(IrMethod caller, IrExpression.NewDelegate capture, IrType result, IReadOnlyList<IrType> values)
     {

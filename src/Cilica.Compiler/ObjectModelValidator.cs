@@ -52,7 +52,10 @@ public static class ObjectModelValidator
                 && declaration.ParameterCount is >= 0 and < IrLimits.MaximumParameters
                 && !declaration.Parameters.IsDefault && declaration.Parameters.Length == declaration.ParameterCount
                 && declaration.Parameters.All(p => p == IrType.Int32 || model.Integer64 && p is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false }
-                    && ReferenceIdentity(p.Class, model.ObjectBase)), "invalid delegate identity or signature.");
+                    && ReferenceIdentity(p.Class, model.ObjectBase))
+                && (declaration.ReturnType == IrType.Void || declaration.ReturnType == IrType.Int32
+                    || model.Integer64 && declaration.ReturnType is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false } result
+                    && ReferenceIdentity(result.Class, model.ObjectBase)), "invalid delegate identity or signature.");
             delegateParameters += declaration.ParameterCount;
             Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
         }
@@ -154,7 +157,7 @@ public static class ObjectModelValidator
             "delegate identity collides with another storage kind.");
         bool Known(ObjectTypeId id) => delegates.Contains(id) || types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id) || id == model.String;
         foreach (var declaration in model.Delegates)
-            Require(declaration.Parameters.All(p => p.Class is null || Known(p.Class)), "delegate parameter type is outside the catalog.");
+            Require(declaration.Parameters.Append(declaration.ReturnType).All(p => p.Class is null || Known(p.Class)), "delegate signature type is outside the catalog.");
         Require(!model.Statics.IsDefault && model.Statics.Length <= ObjectModelLimits.MaximumFields - fieldIdentities.Count && (model.Integer64 || model.Statics.IsEmpty), "invalid static field count/profile.");
         var staticIds = new HashSet<(string Hash, string Specialization, int Token)>();
         foreach (var field in model.Statics)
@@ -220,8 +223,12 @@ public static class ObjectModelValidator
                 if (id == model.String || delegates.Contains(id))
                 {
                     pending.Push(model.ObjectBase);
-                    if (delegates.Contains(id)) foreach (var p in model.Delegates.Single(d => ObjectTypeId.From(d.Source) == id).Parameters)
-                        if (p.Class is { } reference) pending.Push(reference);
+                    if (delegates.Contains(id))
+                    {
+                        var declaration = model.Delegates.Single(d => ObjectTypeId.From(d.Source) == id);
+                        foreach (var type in declaration.Parameters.Append(declaration.ReturnType))
+                            if (type.Class is { } reference) pending.Push(reference);
+                    }
                 }
                 else if (arrays.Contains(id))
                 {

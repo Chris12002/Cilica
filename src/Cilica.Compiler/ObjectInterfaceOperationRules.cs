@@ -77,7 +77,7 @@ internal sealed class ObjectInterfaceOperationRules
     {
         if (left.Statics.Length != right.Statics.Length || !left.Statics.Zip(right.Statics).All(p => ObjectLexicalAccess.SameStatic(p.First, p.Second)) || left.Integer64 != right.Integer64 || left.Delegates.Length != right.Delegates.Length
             || !left.Delegates.Zip(right.Delegates).All(pair => pair.First.Source == pair.Second.Source
-                && pair.First.ParameterCount == pair.Second.ParameterCount && pair.First.ReturnsVoid == pair.Second.ReturnsVoid
+                && pair.First.ParameterCount == pair.Second.ParameterCount && pair.First.ReturnType == pair.Second.ReturnType
                 && pair.First.ExternallyVisible == pair.Second.ExternallyVisible && pair.First.Parameters.SequenceEqual(pair.Second.Parameters))
             || left.String != right.String || left.ObjectBase != right.ObjectBase || !left.Roots.ToHashSet().SetEquals(right.Roots)
             || left.Types.Length != right.Types.Length || left.Interfaces.Length != right.Interfaces.Length

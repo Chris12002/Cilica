@@ -53,8 +53,13 @@ public sealed record ObjectInterfaceArgument(string Identity, ObjectTypeId? Refe
 }
 
 /// <summary>Intrinsic single-target delegate shape; the receiver is private traced runtime storage.</summary>
-public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, bool ReturnsVoid)
+[method: System.Text.Json.Serialization.JsonConstructor]
+public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, IrType ReturnType)
 {
+    public ObjectDelegateType(TypeSource Source, int ParameterCount, bool ReturnsVoid)
+        : this(Source, ParameterCount, ReturnsVoid ? IrType.Void : IrType.Int32) { }
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool ReturnsVoid => ReturnType == IrType.Void;
     public ImmutableArray<IrType> Parameters { get; init; } = ParameterCount is >= 0 and < IrLimits.MaximumParameters
         ? [.. Enumerable.Repeat(IrType.Int32, ParameterCount)] : [];
     public bool ExternallyVisible { get; init; } = true;
@@ -98,7 +103,7 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 {
     public bool Integer64 { get; init; }
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
-    public const string Profile = "object-layout-v14";
+    public const string Profile = "object-layout-v15";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];

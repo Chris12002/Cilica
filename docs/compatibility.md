@@ -115,7 +115,7 @@ traversal, stack traces, structured values and phone support remain planned. See
 | `int32-pending-fault-v1` | Typed IR, C++20 emission and local native differential execution | Explicit static MethodDef and complete direct-call closure; nongeneric owner/method; Int32 parameters/return; initialized Int32 locals; typed block inputs; division/remainder/checked-arithmetic faults; no initializer obligations |
 | C++ backend | C-linkage status entry, plus value-only entry for proven pure programs; private helpers, hash/token identity, IL comments and scoped block labels | Primitive profiles retain numeric faults; managed exception objects/handlers use the opt-in exception profile; public IR is validated before emission |
 | `object-layout-v6` | Bounded nominal/vector/String metadata and detached catalogs | Classes/interfaces/vectors and the selected sealed String share the 256-type limit; String uses an intrinsic shell, without framework layout or interfaces |
-| `delegate-values-ir-v1` | Authored single-target delegate contracts and source root plans | Exact accessible static/instance targets, Int32 parameters and Int32/void returns; native storage/invocation available through the explicit scalar wrapper; CIL via explicit delegate wrapper; no multicast, variance, open-instance or closed-static binding |
+| `delegate-values-ir-v2` | Authored single-target delegate contracts and source root plans | Exact accessible static/instance targets; Int32/void and, in integer-object composition, reference parameters/results (AC2.1); native storage/invocation through the scalar wrapper; CIL via explicit profiles; no multicast, variance, open-instance or closed-static binding |
 | `delegate-values-cil-v2` | Public sealed nongeneric or exactly closed generic single-target delegates | Owned Action<int,int> and closed application probes; Int32 parameters and Int32/void returns; exact casts/type tests in integer-object composition; broader signatures and variance conversions remain diagnostic (ADR 0136) |
 | `closed-generic-values-cil-v1` | Closed static methods, struct and concrete class layouts/constructors, native specialization and local O0/O2 execution | Scalar/reference/value closures; static closed owners; nested generic fields, struct TypeSpec operations and exact boxes; class/struct/default-constructor constraints; generic dispatch, broader constraints, inline heap struct fields and primitive boxing remain diagnostics |
 | `value-layout-v2` | Metadata discovery, detached inline layouts and bounded copy/reference-path planning | Nongeneric sealed structs with Int32, included references and nested values; exact selected ValueType identity; executable copies use the separate scalar-lowering profile |
@@ -1588,8 +1588,9 @@ establish real-kernel native equivalence.
 Exact single-target delegates now accept Int32/reference parameters (ADR 0148),
 including strings, interfaces and supported vectors, while retaining Int32/void
 returns. Caller/callee managed roots protect arguments across allocations. Target
-signatures match exactly; wide/value/byref parameters, reference returns, recursive
-parameter closures and binding variance remain diagnostic. Current profiles are
+signatures match exactly; wide/value/byref parameters, recursive
+signature closures and binding variance remain diagnostic. AC2.1 below adds
+reference returns. Profiles at the ADR 0148 checkpoint were
 object-layout-v9, typed-reference-ir-v7, interface-dispatch-plan-v3 and
 object-frames-native-v29. Initialized static callback caches remain pending.
 
@@ -1810,7 +1811,7 @@ library/language compatibility remain outside this completion.
 
 ## Bounded runtime type identity (ADR AC0001)
 
-Current follow-on profiles are `object-layout-v14`, `object-operations-ir-v15`
+Profiles at the AC0001 checkpoint were `object-layout-v14`, `object-operations-ir-v15`
 and `object-frames-native-v36`; other composed profiles retain their versions.
 
 | Surface | Implemented bound |
@@ -1946,3 +1947,25 @@ ARM64 at O0/O2 with forced GC and ASan/UBSan; 129 existing regressions also pass
 Boxed IR v7/scalar boxed IR v8 change admission; emitted native v40 is unchanged.
 Historical private audit counts do not prove full replay closure or raw-unbox
 absence. Full AC1b and saved-game replay remain open.
+
+
+## Exact reference delegate results (AC2.1)
+
+The integer-object composition admits managed reference results from exact
+single-target application delegates, including closed generic declarations.
+Object/String, admitted classes/interfaces and supported vectors use the normal
+rooted reference-return path. Null results are valid; callback faults propagate;
+argument evaluation precedes a null invocation fault. Targets must match parameter
+and return types exactly, even when C# permits a covariant method-group binding.
+
+Profiles: object layout v15, delegate value/scalar IR v2, native v41. The typed
+return is part of serialized catalog identity and closure validation. Unsupported
+wide/value/byref results and recursive delegate signatures remain diagnostic;
+framework Func/Action/Predicate/Comparison additions remain AC2.2. The narrower
+standalone delegate CIL profile retains Int32/void results. No public ABI changes.
+
+Thirteen new probes and public RefDelegate provide 4,116 repeated native/.NET
+comparisons on macOS ARM64 at O0/O2 with ASan/UBSan, forced collection and frame/
+root/heap cleanup checks. The public baseline has 36 expected gaps and 11 native
+controls. See [ADR AC0007](decisions/AC0007-reference-delegate-results.md). These
+results do not establish private command closure or full saved-game replay support.
