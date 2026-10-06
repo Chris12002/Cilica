@@ -66,7 +66,8 @@ public sealed class ManagedExceptionInputTests
         {
             Assert.True(region.TryStart < region.TryEnd && region.HandlerStart < region.HandlerEnd);
             Assert.True(region.TryEnd <= result.Value.Method.CodeSize && region.HandlerEnd <= result.Value.Method.CodeSize);
-            if (region.Kind == ExceptionRegionKind.Catch) Assert.NotNull(region.CatchType);
+            if (region.Kind == ExceptionRegionKind.Catch) { Assert.NotNull(region.CatchType); Assert.NotNull(region.DeclarationCatchToken); }
+            else Assert.Null(region.DeclarationCatchToken);
             if (region.Kind == ExceptionRegionKind.Filter) { Assert.Equal("type-test", region.FilterKind); Assert.NotNull(region.FilterStart); }
         });
     }

@@ -10,7 +10,10 @@ namespace Cilica.Metadata.Resolution;
 
 /// <summary>Validated region boundaries and scoped catch identities; no handler execution is implied.</summary>
 public sealed record ManagedExceptionRegionInput(ExceptionRegionKind Kind, int TryStart, int TryEnd,
-    int HandlerStart, int HandlerEnd, int? FilterStart, TypeSignature? CatchType, string? FilterKind);
+    int HandlerStart, int HandlerEnd, int? FilterStart, TypeSignature? CatchType, string? FilterKind)
+{
+    public int? DeclarationCatchToken { get; init; }
+}
 
 public sealed record ManagedExceptionMethodInput(MethodInput Method, ImmutableArray<ManagedExceptionRegionInput> Regions)
 {
@@ -89,7 +92,9 @@ public sealed partial class AssemblyResolver
                 }
                 regions.Add(new(region.Kind, region.TryOffset, region.TryOffset + region.TryLength,
                     region.HandlerOffset, region.HandlerOffset + region.HandlerLength,
-                    region.Kind == ExceptionRegionKind.Filter ? region.FilterOffset : null, caught, kind));
+                    region.Kind == ExceptionRegionKind.Filter ? region.FilterOffset : null, caught, kind) {
+                        DeclarationCatchToken = region.Kind == ExceptionRegionKind.Catch ? MetadataTokens.GetToken(region.CatchType) : null
+                    });
             }
             if (diagnostics.Count != 0) throw new BindingFailureException(diagnostics);
             return new ManagedExceptionMethodInput(value with

@@ -181,6 +181,7 @@ public static partial class ValueProgramDiscovery
                     {
                         var instruction = work.Input.Instructions[instructionIndex];
                         var offset = instruction.Offset;
+                        if (integers64) CheckOperandTypeUses(work, instruction);
                         if (integers64 && instruction.OpCode == "ldtoken") runtimeTokens.Add(offset, RuntimeToken(work, instruction));
                         else if (exceptions && instruction.OpCode == "ldstr")
                         {
@@ -516,7 +517,7 @@ public static partial class ValueProgramDiscovery
                     if (element.Kind == IrTypeKind.Value) CheckType(element.Class!, 0);
                     else if (classes && element.Kind == IrTypeKind.Reference && element.Class!.ArrayElement is null)
                     {
-                        if (_snapshots.TryGetValue(element.Class, out var reference) && !reference.ExternallyVisible && element.Class != method.Binding.Owner
+                        if (!integers64 && _snapshots.TryGetValue(element.Class, out var reference) && !reference.ExternallyVisible && element.Class != method.Binding.Owner
                             && (!integers64 || !ObjectLexicalAccess.Visible(method.Binding, element.Class, reference.LexicalOwners)))
                             Fail(work, "Class type use requires the same declaring owner or a fully externally visible type.");
                         if (generics && _references.TryGetValue(element.Class, out var constructed))
@@ -649,11 +650,17 @@ public static partial class ValueProgramDiscovery
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
                 [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);
+            if (integers64)
+                CheckSourceTypeUses(input.DeclarationSignature.Parameters.Prepend(input.DeclarationSignature.ReturnType)
+                    .Concat(input.DeclarationLocals), work, 0);
             if (fact is not null && (binding.Kind != kind || binding.Owner != ownerId || binding.Attributes != input.Attributes
                 || work.ReturnType != fact.ReturnType || !work.Parameters.SequenceEqual(fact.Parameters)))
                 Fail(parent, "Closed method signature contradicts its interface mapping facts.", offset);
             if (instance && !inlineConstructor && !integers64 && work.Parameters.Concat(work.Locals).Append(work.ReturnType).Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
                 Fail(parent, "Class instance methods require scalar/reference parameters, locals and returns; values and borrows need later lowering.", offset);
+            if (integers64 && protectedInput is not null)
+                foreach (var region in protectedInput.Regions)
+                    if (region.DeclarationCatchToken is { } catchToken) CheckTypeUseToken(work, catchToken, region.HandlerStart);
             if (protectedInput is not null) work = work with { Regions = [.. protectedInput.Regions.Select(r => new IrExceptionRegion(r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd,
                 r.Kind switch { ExceptionRegionKind.Catch => IrExceptionClause.Catch, ExceptionRegionKind.Filter => IrExceptionClause.Filter, ExceptionRegionKind.Finally => IrExceptionClause.Finally, _ => IrExceptionClause.Fault },
                 r.CatchType is null ? null : ReferenceOperand(r.CatchType, work, r.HandlerStart), r.FilterStart))] };
@@ -774,6 +781,11 @@ public static partial class ValueProgramDiscovery
                 switch (item)
                 {
                     case TypeSignature.Named named:
+                        // Explicit reference names were checked before substitution. An opaque
+                        // reference T is not a new lexical use in the generic library's image.
+                        if (integers64 && (named.Kind == SignatureTypeKind.Class
+                            || named.Kind == SignatureTypeKind.Unknown && !Inline(named.Definition, work, offset) && !EnumScalar(named, work, offset)))
+                            break;
                         var input = Snapshot(named.Definition, work, offset);
                         if (!input.ExternallyVisible && (input.Source.ContentHash != work.Binding.Owner.ContentHash || input.Source.Token != work.Binding.Owner.Token))
                             Fail(work, "Generic arguments require the same declaring owner or externally visible types.", offset);

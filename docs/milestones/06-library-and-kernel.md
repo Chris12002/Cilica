@@ -2457,3 +2457,14 @@ address boundary, 90 existing regressions and 21 baseline checks pass. Layout v1
 native v42. Frozen EngineStep advances to a nonpublic generic argument; state
 lookup still reaches the type limit. Static addresses and full replay remain
 unfinished. See [ADR AC0031](../decisions/AC0031-static-inline-value-copies.md).
+
+
+### Private generic reference transport (AC8.2)
+
+Original explicit type names are checked in their declaration scope before closed
+substitution. Legal private reference arguments can pass through opaque generic
+calls, locals, fields and delegates; foreign explicit names and member access stay
+checked. Four probes pass 1,176 repeated O0/O2 native comparisons with forced GC
+and sanitizers; 106 broad and 60 focused checks pass. Private T[] still requires
+additional detached access evidence. Frozen EngineStep advances to String.Format;
+StateLookup remains at the unchanged type limit. Full replay remains incomplete.
