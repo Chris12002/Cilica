@@ -1,10 +1,36 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// Bounded adaptation of pinned String.Concat(string[]) using existing UTF-16 construction.
+// Bounded adaptation of pinned String.Concat overloads using existing UTF-16 construction.
 namespace System
 {
     public sealed partial class String
     {
+        public static string Concat(string first, string second, string third)
+        {
+            if (IsNullOrEmpty(first)) return Concat(second, third);
+            if (IsNullOrEmpty(second)) return Concat(first, third);
+            if (IsNullOrEmpty(third)) return Concat(first, second);
+            long total = (long)first.Length + second.Length + third.Length;
+            var result = new int[Cilica.Runtime.StringConcatenation.Length(total)];
+            int copied = Cilica.Runtime.StringConcatenation.Copy(result, 0, first);
+            copied = Cilica.Runtime.StringConcatenation.Copy(result, copied, second);
+            Cilica.Runtime.StringConcatenation.Copy(result, copied, third);
+            return Cilica.Runtime.StringConstruction.FromCodeUnits(result);
+        }
+        public static string Concat(string first, string second, string third, string fourth)
+        {
+            if (IsNullOrEmpty(first)) return Concat(second, third, fourth);
+            if (IsNullOrEmpty(second)) return Concat(first, third, fourth);
+            if (IsNullOrEmpty(third)) return Concat(first, second, fourth);
+            if (IsNullOrEmpty(fourth)) return Concat(first, second, third);
+            long total = (long)first.Length + second.Length + third.Length + fourth.Length;
+            var result = new int[Cilica.Runtime.StringConcatenation.Length(total)];
+            int copied = Cilica.Runtime.StringConcatenation.Copy(result, 0, first);
+            copied = Cilica.Runtime.StringConcatenation.Copy(result, copied, second);
+            copied = Cilica.Runtime.StringConcatenation.Copy(result, copied, third);
+            Cilica.Runtime.StringConcatenation.Copy(result, copied, fourth);
+            return Cilica.Runtime.StringConstruction.FromCodeUnits(result);
+        }
         public static string Concat(string[] values)
         {
             if (values == null) throw new ArgumentNullException("values");
@@ -16,8 +42,7 @@ namespace System
             {
                 string value = values[i]; if (value != null) total += value.Length;
             }
-            if (total > 2147483647L) throw new OutOfMemoryException("String length exceeded supported range.");
-            int length = (int)total;
+            int length = Cilica.Runtime.StringConcatenation.Length(total);
             if (length == 0) return "";
             var result = new int[length];
             int copied = 0;
@@ -40,6 +65,17 @@ namespace Cilica.Runtime
 {
     internal static class StringConcatenation
     {
+        internal static int Length(long total)
+        {
+            if (total > 2147483647L) throw new System.OutOfMemoryException("String length exceeded supported range.");
+            return (int)total;
+        }
+        internal static int Copy(int[] destination, int offset, string value)
+        {
+            int length = value.Length;
+            for (int i = 0; i < length; i++) destination[offset + i] = value[i];
+            return offset + length;
+        }
         internal static string Snapshot(string[] values)
         {
             int count = values.Length; var snapshot = new string[count];

@@ -647,3 +647,14 @@ and all bounds remain intact. The added internal-owner regression passes 294
 repeated O0/O2 native comparisons; all 76 selected checks pass with forced GC and
 ASan/UBSan. Frozen engine clears its snapshot blocker and reaches the four-string
 Concat overload. State/replay remain incomplete. See [ADR AC0070](docs/decisions/AC0070-enum-classification-facts.md).
+
+### Fixed-string concatenation (AC7b.7)
+
+Three/four-string Concat preserves null/empty reduction, original identity and exact
+UTF-16 through ordinary owned IL and existing construction grants. The array and
+fixed overloads share the checked length guard. Six probes pass 11,664 repeated
+O0/O2 comparisons; all 71 selected checks pass with forced GC, sanitizers and exact
+cleanup. The ordinal Equals recognizer now filters its method name before applying
+its unchanged exact contract checks. No profile or bound changes. Frozen engine
+advances to a private containing-type helper call; state and full replay remain
+incomplete. See [ADR AC0071](docs/decisions/AC0071-fixed-string-concat.md).

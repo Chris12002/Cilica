@@ -15,10 +15,11 @@ public static partial class ValueProgramDiscovery
             var text = resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String).Value;
             if (text is null || target.DeclaringType.Definition != text) return null;
             int offset = instruction.Offset;
-            var comparison = Require(resolver.ResolveType(library, "System", "StringComparison"), work, offset);
             if (_metadata.Remaining == 0) Fail(work, "Ordinal string metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);
             var input = Require(resolver.ReadMethodDeclarationInput(library, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Ordinal string metadata budget exceeded.", offset, DiagnosticIds.TranslationLimit);
+            if (input.DeclaredName != "Equals") return null;
+            var comparison = Require(resolver.ResolveType(library, "System", "StringComparison"), work, offset);
             if (instruction.OpCode != "call" || target.DeclaringType.Arguments.Count != 0 || target.MethodArguments.Count != 0
                 || input.IsReferenceAssembly || input.HasBody || input.HasTypeInitializer || input.HasModuleInitializer || input.OwnerGenericArity != 0
                 || input.DeclaredName != "Equals" || input.Signature.Header != 0 || input.Signature.GenericArity != 0
