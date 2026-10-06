@@ -20,24 +20,25 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v41",
-    "nativeProfileEvidence": "Public baseline revalidated at AC2.2; slice-specific evidence is recorded separately below.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC3.1; slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
     "updatePolicy": "When a gap advances, update its diagnostic and owning slice; claim native validation only after an oracle/native comparison. No silent blanket baseline regeneration.",
     "publicProbeCount": 47,
-    "knownGapCount": 35,
-    "positiveControlCount": 12,
+    "knownGapCount": 33,
+    "positiveControlCount": 14,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "c6c301dae43c915f877dc391e9956c44375c744060a65757268bebcfda94f54f",
-    "latestSlice": "AC2.2",
+    "latestSlice": "AC3.1",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
     "confinedScalarBoxEvidence": "AC1b.4 ScalarBoxConfinementTests: 13 native probes, 3822 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan. Both stages reject isinst/castclass alias escapes; nine unsafe/unproven fixtures remain diagnostic. Native v40 unchanged.",
     "referenceDelegateEvidence": "AC2.1: 13 new reference-result probes plus the advanced public RefDelegate probe; 4116 repeated native/.NET comparisons at O0/O2 with forced GC and ASan/UBSan. Exact application delegates only; framework contracts remain AC2.2.",
     "frameworkDelegateEvidence": "AC2.2: 15 new framework probes plus public FuncDelegate, 4704 repeated native/.NET comparisons at O0/O2 with forced GC and ASan/UBSan. Five new generic declarations, Boolean results and exact scalar CIL target checks; native v41 unchanged.",
+    "listMutationEvidence": "AC3.1: 11 new concrete-list probes plus public ListRemoveAt/ListToArray, 3822 repeated O0/O2 native/.NET comparisons with forced GC and ASan/UBSan; four live-list GC checks cover references and reference-bearing structs. Interface mutations still require array helper support. Native v41 unchanged.",
     "rawUnboxInventory": "Historical bodies.json: 1825 rows, 1775 readable bodies, 50 declarations without IL; 42 box, zero unbox/unbox.any. Incomplete application/library/callback coverage is not proof of absence from the accepted replay closure."
   },
   "slices": {
@@ -96,9 +97,15 @@
       "decision": "docs/decisions/AC0008-framework-delegate-contracts.md"
     },
     "AC3": {
-      "prerequisites": [
-        "AC0"
-      ]
+      "prerequisites": ["AC0"],
+      "status": "in-progress",
+      "completedSubslices": ["AC3.1"],
+      "remaining": "Array helper contracts for interface mutations; copying, equality-based search/removal, bulk operations, Dictionary/HashSet APIs and exact required overloads. Enumeration joins AC4."
+    },
+    "AC3.1": {
+      "prerequisites": ["AC0"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0009-list-mutation-and-snapshots.md"
     },
     "AC4": {
       "prerequisites": [
@@ -212,8 +219,8 @@
     {"id": "D-0600669e", "kind": "method", "contractToken": "0x0600669e", "name": "System.Collections.Generic.List`1::Find", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x0600669e"},
     {"id": "D-060066a2", "kind": "method", "contractToken": "0x060066a2", "name": "System.Collections.Generic.List`1::FindIndex", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x060066a2"},
     {"id": "D-060066a8", "kind": "method", "contractToken": "0x060066a8", "name": "System.Collections.Generic.List`1::GetEnumerator", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 8, "privateWitness": "witnesses.json; declaration method 0x060066a8"},
-    {"id": "D-060066ad", "kind": "method", "contractToken": "0x060066ad", "name": "System.Collections.Generic.List`1::Insert", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x060066ad"},
-    {"id": "D-060066b4", "kind": "method", "contractToken": "0x060066b4", "name": "System.Collections.Generic.List`1::RemoveAt", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 3, "privateWitness": "witnesses.json; declaration method 0x060066b4"},
+    {"id": "D-060066ad", "kind": "method", "contractToken": "0x060066ad", "name": "System.Collections.Generic.List`1::Insert", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x060066ad", "currentEvidence": "AC3.1 concrete List calls natively validated for bounded element shapes; interface mutation compositions remain blocked on array helpers. Historical private call sites were not rerun."},
+    {"id": "D-060066b4", "kind": "method", "contractToken": "0x060066b4", "name": "System.Collections.Generic.List`1::RemoveAt", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 3, "privateWitness": "witnesses.json; declaration method 0x060066b4", "currentEvidence": "AC3.1 concrete List calls natively validated for bounded element shapes; interface mutation compositions remain blocked on array helpers. Historical private call sites were not rerun."},
     {"id": "D-060066b8", "kind": "method", "contractToken": "0x060066b8", "name": "System.Collections.Generic.List`1::Sort", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3010"], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x060066b8"},
     {"id": "D-060066b9", "kind": "method", "contractToken": "0x060066b9", "name": "System.Collections.Generic.List`1::Sort", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 3, "privateWitness": "witnesses.json; declaration method 0x060066b9"},
     {"id": "D-060066ba", "kind": "method", "contractToken": "0x060066ba", "name": "System.Collections.Generic.List`1::Sort", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 9, "privateWitness": "witnesses.json; declaration method 0x060066ba"},
@@ -433,11 +440,11 @@
     {"id": "DictionaryKeys", "slice": "AC4", "publicFixture": "Probe_DictionaryKeys", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a14 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_DictionaryKeys"},
     {"id": "DictionaryForeach", "slice": "AC4", "publicFixture": "Probe_DictionaryForeach", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a13 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_DictionaryForeach"},
     {"id": "ListForeach", "slice": "AC4", "publicFixture": "Probe_ListForeach", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a18 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_ListForeach"},
-    {"id": "ListRemoveAt", "slice": "AC3", "publicFixture": "Probe_ListRemoveAt", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "privateWitness": "probes.json; Probe_ListRemoveAt"},
+    {"id": "ListRemoveAt", "slice": "AC3", "publicFixture": "Probe_ListRemoveAt", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ListRemoveAt", "auditDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "currentEvidence": "AC3.1 ListMutationTests and CompatibilityGapTests; concrete List<T> calls, macOS ARM64 O0/O2 with forced GC and ASan/UBSan."},
     {"id": "ListAddRange", "slice": "AC3", "publicFixture": "Probe_ListAddRange", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: AddRange"}, "privateWitness": "probes.json; Probe_ListAddRange", "prerequisites": ["AC4"]},
     {"id": "ListContains", "slice": "AC3", "publicFixture": "Probe_ListContains", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "privateWitness": "probes.json; Probe_ListContains"},
     {"id": "ListSort", "slice": "AC3", "publicFixture": "Probe_ListSort", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: Sort"}, "privateWitness": "probes.json; Probe_ListSort", "prerequisites": ["AC5a"]},
-    {"id": "ListToArray", "slice": "AC3", "publicFixture": "Probe_ListToArray", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: ToArray"}, "privateWitness": "probes.json; Probe_ListToArray"},
+    {"id": "ListToArray", "slice": "AC3", "publicFixture": "Probe_ListToArray", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ListToArray", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: ToArray"}, "currentEvidence": "AC3.1 ListMutationTests and CompatibilityGapTests; concrete List<T> calls, macOS ARM64 O0/O2 with forced GC and ASan/UBSan."},
     {"id": "HashSet", "slice": "AC3", "publicFixture": "Probe_HashSet", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020009a4 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_HashSet"},
     {"id": "RefDelegate", "slice": "AC2", "publicFixture": "Probe_RefDelegate", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_RefDelegate", "auditDiagnostic": {"id": "CIL2001", "contains": "Delegate requires .ctor(Object, native int) and exact Int32/reference-parameter Invoke returning Int32 or void; wide, value and byref parameters require later lowering."}, "currentEvidence": "AC2.1 ReferenceResultDelegateTests and CompatibilityGapTests; macOS ARM64 O0/O2, ASan/UBSan, forced collection; public fixture only"},
     {"id": "FuncDelegate", "slice": "AC2", "publicFixture": "Probe_FuncDelegate", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_FuncDelegate", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200005f in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC2.2 FrameworkDelegateTests and CompatibilityGapTests; macOS ARM64 O0/O2, forced GC and ASan/UBSan; exact Int32 Func<int,int,int> public probe"},
@@ -472,6 +479,7 @@
     {"id": "CharArrayString", "slice": "AC7b", "publicFixture": "Probe_CharArrayString", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: .ctor"}, "privateWitness": "probes.json; Probe_CharArrayString"}
   ],
   "supplementalProbes": [
+    {"id": "ListInterfaceMutation", "slice": "AC3", "status": "confirmed-blocker", "reason": "ListMutationProbe.Interfaces and ReadOnly reject CIL2001: array interface mutation requires an explicit runtime helper contract. Concrete List mutation and live-view reads pass; these interface compositions do not."},
     {"id": "ByteMappingOnly", "slice": "AC7a", "status": "confirmed-blocker-at-audit", "privateWitness": "mapping-only-probes.json; Probe_ByteArray", "outcome": "Adding only the Byte/Char nominal mappings still rejects primitive-width vector storage."},
     {"id": "CharMappingOnly", "slice": "AC7b", "status": "confirmed-blocker-at-audit", "privateWitness": "mapping-only-probes.json; Probe_CharArrayString", "outcome": "Adding only the Byte/Char nominal mappings still lacks String(char[]) construction."}
   ],

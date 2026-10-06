@@ -26,6 +26,9 @@ feedback before implementation. Explain consequential choices in plain language.
   Func/Action/Predicate/Comparison declarations and Boolean results with exact
   scalar target checks before lowering. See ADRs AC0007/AC0008; private closed
   callbacks and full saved-game replay are not verified.
+  AC3.1 adds concrete List Insert/RemoveAt/Clear/ToArray, preserving snapshot
+  identity and releasing reference/value-element roots. Interface mutation
+  compositions still require array helpers; see ADR AC0009.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

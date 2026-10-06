@@ -72,7 +72,7 @@ public sealed class ListLibraryTests
             var actual = targetReader.GetTypeDefinition(target.Handle).GetInterfaceImplementations().Select(h =>
                 resolver.ResolveSignatureType(implementation, targetReader.GetInterfaceImplementation(h).Interface).Value).ToHashSet();
             Assert.DoesNotContain(null, expected); Assert.True(expected.SetEquals(actual));
-            var names = name == "List`1" ? new[] { "get_Count", "get_Capacity", "set_Capacity", "get_Item", "set_Item", "Add", "AsReadOnly" } : new[] { "get_Count", "get_Item", "get_Items" };
+            var names = name == "List`1" ? new[] { "get_Count", "get_Capacity", "set_Capacity", "get_Item", "set_Item", "Add", "AsReadOnly", "Clear", "Insert", "RemoveAt", "ToArray" } : new[] { "get_Count", "get_Item", "get_Items" };
             foreach (string member in names)
             {
                 var method = Assert.Single(sourceReader.GetTypeDefinition(source.Handle).GetMethods(), h => sourceReader.GetString(sourceReader.GetMethodDefinition(h).Name) == member);

@@ -95,7 +95,9 @@ repository; independent compiler examples must remain usable without them.
 The [parallel compatibility plan](docs/milestones/06-library-and-kernel.md#parallel-alchemy-compatibility-implementation-plan)
 now includes exact reference-returning application delegates (AC2.1) and required
 framework Func/Action/Predicate/Comparison contracts (AC2.2), with bounded native
-GC/exception/identity evidence. Full saved-game replay remains unfinished.
+GC/exception/identity evidence. AC3.1 adds concrete list insertion, indexed removal,
+clearing and snapshots. Interface mutation support and full saved-game replay
+remain unfinished.
 
 ## Development
 

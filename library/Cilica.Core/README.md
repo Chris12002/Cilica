@@ -101,9 +101,12 @@ Array.Empty<T> uses an exact grant and per-instance descriptor-keyed cache for
 Int32/reference vectors. Other element storage remains diagnostic.
 
 List.cs and ReadOnlyCollection.cs adapt pinned managed storage/growth and live
-views for Int32/reference elements. ArrayInterface also supplies exact granted
-indexed writes and fixed-size Add faults. Enumeration/search/copy/removal and
-broader collection APIs remain diagnostic.
+views. AC3.1 adds concrete Insert, RemoveAt, Clear and ToArray for Int32, admitted
+references and supported inline values, including traced reference-bearing values.
+Empty snapshots share per closed type and remain distinct from Array.Empty<T>.
+ArrayInterface supplies indexed writes and fixed-size Add faults; other interface
+mutation compositions still require array helpers. Enumeration, equality-based
+search/removal, CopyTo and bulk APIs remain diagnostic (ADR AC0009).
 
 
 The exact TypeInitializationException(String, Exception), TypeName and base

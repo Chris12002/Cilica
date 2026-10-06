@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 complete within their tested bounds; remaining AC1b and AC3–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1 complete within their tested bounds; remaining AC1b, AC3 and AC4–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -2145,3 +2145,28 @@ checks and bounded claims. No private replay root was rerun.
 AC2.1/AC2.2 are complete within tested bounds. Actual private closed callback
 signatures and the full command closure remain for AC8. Continue with AC3
 collection operations; do not treat this as full replay or LINQ support.
+
+
+### AC3.1 concrete list mutation and snapshot outcome
+
+Managed List<T>.Insert/RemoveAt/Clear/ToArray now preserve indexed ordering,
+capacity, reference/value-copy behavior and snapshot identity. Removed slots are
+cleared; empty snapshots use a traced per-closed-type runtime static cache distinct
+from Array.Empty<T>. Existing compiler/runtime storage handles the implementation;
+profiles, intrinsic grants and public ABIs remain unchanged. See
+[ADR AC0009](../decisions/AC0009-list-mutation-and-snapshots.md).
+
+Eleven new probes plus public ListRemoveAt/ListToArray provide 3,822 repeated
+native/.NET comparisons at O0/O2 on macOS ARM64 with ASan/UBSan, forced collection,
+frame budgets and cleanup checks. Four native GC checks prove removal of direct
+and struct-contained references while lists remain rooted. 61 existing regression
+checks pass. Review covered overlap direction, bounds/version order, allocation
+publication, static cache identity and root release. The GC harness was corrected
+to prepare exceptions before installing its manual root.
+
+The ledger advances to 33 known gaps and 14 native controls. Two interface-mutation
+fixtures expose the pre-existing array-helper discovery gate and remain exact
+rejection tests. Follow-up AC3 work must address that gate, then copying, search,
+bulk operations and remaining dictionary/set APIs; enumeration joins AC4. Full AC3
+and private saved-game replay are not complete. No private root was rerun and no
+hosted work, additional agents or services were used.

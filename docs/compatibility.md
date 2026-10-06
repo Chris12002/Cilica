@@ -1991,3 +1991,24 @@ focused test cases and 112 distinct existing regressions pass.
 The ledger has 35 gaps and 12 native controls. Where now reaches the missing
 Enumerable declaration after Func`2 maps; LINQ and full private saved-game replay
 remain incomplete. See [ADR AC0008](decisions/AC0008-framework-delegate-contracts.md).
+
+
+## Concrete list mutations and snapshots (AC3.1)
+
+List<T>.Insert, RemoveAt, Clear and ToArray now execute as managed library code
+for Int32, admitted references and supported inline values. Shifts preserve order;
+removal/clearing retain capacity and release reference slots. Nonempty snapshots
+copy elements; empty snapshots share per closed T and are distinct from
+Array.Empty<T>(). The empty cache uses existing traced per-runtime static storage.
+
+Eleven new probes plus public ListRemoveAt/ListToArray provide 3,822 repeated
+native/.NET comparisons with O0/O2, ASan/UBSan and forced collection on macOS ARM64.
+Four GC checks verify reclamation while lists remain alive, including references
+inside structs. 61 existing regression checks pass. The ledger now has 33 gaps
+and 14 native controls. Profiles, grants and embedding ABIs are unchanged.
+
+Interface mutation compositions, including read-only mutation faults, still hit
+the explicit array-helper discovery gate. Two rejection fixtures retain that exact
+diagnostic; concrete list support does not imply arbitrary IList mutation support.
+CopyTo, equality-based search/removal, bulk operations and enumeration remain
+outside this slice. See [ADR AC0009](decisions/AC0009-list-mutation-and-snapshots.md).

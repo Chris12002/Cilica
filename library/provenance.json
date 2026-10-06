@@ -229,15 +229,18 @@
       "path": "library/Cilica.Core/List.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs",
       "algorithms": [
-        "List construction, capacity, indexed access, Add and geometric growth"
+        "List construction, capacity, indexed access, Add and geometric growth",
+        "Concrete Insert, RemoveAt, Clear and ToArray with overlap-safe shifts and pinned empty snapshot identity"
       ],
       "changes": [
         "Replace Array.Copy with typed managed loops; retain allocation-before-publication and exception ordering.",
         "Use Array.Empty<T> for private empty storage; private backing identity is not exposed by the admitted surface.",
         "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile.",
-        "Read growth length through Capacity to retain explicit Int32 length conversion in supported IL."
+        "Read growth length through Capacity to retain explicit Int32 length conversion in supported IL.",
+        "AC3.1 uses a separate lazily published per-closed-type managed static empty snapshot, distinct from Array.Empty<T>; existing runtime instances own and trace the cache.",
+        "Clear all admitted element shapes and vacated slots through typed loops; this also zeroes primitive elements instead of adding a reference-shape intrinsic."
       ],
-      "scope": "Int32 and reference elements only; exact public/explicit interface members in the bounded implementation; no general collection or enumeration support."
+      "scope": "Int32, admitted reference and supported inline-value elements. AC3.1 concrete mutation/snapshot methods are tested; interface mutation compositions still require missing array helpers. Equality/search/copy/bulk APIs and enumeration remain bounded gaps."
     },
     {
       "path": "library/Cilica.Core/ReadOnlyCollection.cs",

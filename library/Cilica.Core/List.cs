@@ -1,6 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// Bounded adaptation of pinned List<T> storage, growth and indexed access.
+// Bounded adaptation of pinned List<T> storage, growth, indexed mutation and snapshots.
 namespace System.Collections.Generic
 {
     public class List<T> : IList<T>, Collections.IList, IReadOnlyList<T>
@@ -8,6 +8,8 @@ namespace System.Collections.Generic
         private T[] items;
         private int size;
         private int version;
+        // Public empty snapshots share per closed T, separately from Array.Empty<T>.
+        private static T[] emptySnapshot;
         public List() { items = Array.Empty<T>(); }
         public List(int capacity) { items = CreateStorage(capacity); }
         private static T[] CreateStorage(int capacity)
@@ -67,13 +69,49 @@ namespace System.Collections.Generic
         object Collections.ICollection.SyncRoot => this;
         // Keep the exact nominal interface contract; unimplemented reachable APIs
         // fail during compilation through the selected unsupported-member marker.
-        public void Clear() { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void Clear()
+        {
+            version++;
+            int oldSize = size;
+            size = 0;
+            // Clear every admitted element shape, including references inside values.
+            for (int i = 0; i < oldSize; ++i) items[i] = default;
+        }
+        public T[] ToArray()
+        {
+            if (size == 0)
+            {
+                var empty = emptySnapshot;
+                if (empty == null) { empty = new T[0]; emptySnapshot = empty; }
+                return empty;
+            }
+            var snapshot = new T[size];
+            for (int i = 0; i < size; ++i) snapshot[i] = items[i];
+            return snapshot;
+        }
         public bool Contains(T value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         public void CopyTo(T[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         public bool Remove(T value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         public int IndexOf(T value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
-        public void Insert(int index, T value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        public void RemoveAt(int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void Insert(int index, T value)
+        {
+            if ((uint)index > (uint)size)
+                throw new ArgumentOutOfRangeException("index", "Index must be within the bounds of the List.");
+            if (size == items.Length) Grow(checked(size + 1));
+            for (int i = size; i > index; --i) items[i] = items[i - 1];
+            items[index] = value;
+            size++;
+            version++;
+        }
+        public void RemoveAt(int index)
+        {
+            if ((uint)index >= (uint)size)
+                throw new ArgumentOutOfRangeException("index", "Index was out of range. Must be non-negative and less than the size of the collection.");
+            size--;
+            for (int i = index; i < size; ++i) items[i] = items[i + 1];
+            items[size] = default;
+            version++;
+        }
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
         Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
         object Collections.IList.this[int index] { get => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke(); set { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); } }

@@ -1878,3 +1878,22 @@ and 112 distinct existing regressions pass. The public ledger now has 35 expecte
 gaps and 12 native controls; Where passes its Func mapping and next reports the
 missing Enumerable contract. AC2.1/AC2.2 have bounded evidence, while actual private
 closed callbacks, full command closure and saved-game replay remain unverified.
+
+
+### Concrete list mutation and snapshots (AC3.1)
+
+[ADR AC0009](decisions/AC0009-list-mutation-and-snapshots.md) adds managed
+List<T>.Insert/RemoveAt/Clear/ToArray over existing element storage. Overlap-safe
+shifts preserve ordering; removed reference slots are cleared, including references
+inside inline values. Nonempty snapshots are independent arrays with ordinary
+value copies. Empty snapshots share per closed T, distinct from Array.Empty<T>,
+using an existing traced per-runtime static slot and allocation-before-publication.
+
+Eleven authored probes plus two public probes provide 3,822 repeated native/.NET
+comparisons at O0/O2 with forced GC and sanitizers. Four live-list GC checks cover
+reference and reference-bearing value elements; 61 existing regressions pass.
+The ledger has 33 gaps and 14 native controls. No compiler/runtime profiles,
+intrinsic grants or public ABIs change. Interface mutation compositions remain
+blocked by missing array helper contracts, as explicit rejection tests confirm.
+CopyTo, equality-based operations, bulk APIs, other collections and enumeration
+remain planned. Full AC3 and saved-game replay are not complete.
