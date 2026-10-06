@@ -2772,3 +2772,15 @@ repeated native/.NET comparisons, plus exact two-instance root checks and grant 
 unsupported-scope tests; all 59 selected local checks pass. Culture/string, nullable,
 enum and other defaults remain diagnostic. Compiler/native/layout profiles and
 resource limits are unchanged. See [ADR AC0064](decisions/AC0064-integer-default-comparers.md).
+
+### Retained comparer-fault wrappers (AC8.16)
+
+The exact granted InvalidOperationException(String, Exception) constructor now
+retains inner identity and exact UTF-16 messages through the existing traced
+payload. Null-message construction also retains its required String catalog entry.
+Seven probes pass 3,024 repeated O0/O2 native/.NET comparisons; all 18 slice checks
+and 76 adjacent exception/embedding/core/baseline checks pass with forced GC and
+ASan/UBSan. Detached payloads and ownership/allocation failures are checked. Other
+inner-constructor families remain diagnostic. Integer CIL v16, exception IR v6,
+native v50; layout v20 and limits unchanged. Frozen engine ordering and state
+catalog remain blocked; full replay is unverified. See [ADR AC0065](decisions/AC0065-retained-inner-faults.md).

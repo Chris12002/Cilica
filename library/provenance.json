@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/InvalidOperationException.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/InvalidOperationException.cs",
+      "sha256": "46c73e495c10cebaff7ff53b6924a65af27378c69184ba9582781e5c6848887b"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Comparer.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Comparer.cs",
       "sha256": "1efca76b0a54e762fbccad492c12833d421d11e44fa0c40caabbb9815e944f23"
@@ -971,6 +976,15 @@
         "Reference copy stores preserve bounds-before-cast order and use actual destination element descriptors with existing exact cast messages; earlier writes remain committed."
       ],
       "scope": "Selected managed list/generic-interface copying only. CopyCompatible adds exact private signature/caller/grant validation and a static table of related class/interface array descriptors; unrelated class arrays fail before iteration. No general Array.Copy, widening primitives or boxing copies."
+    },
+    {
+      "path": "src/Cilica.Compiler/ObjectCppExceptions.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/InvalidOperationException.cs",
+      "contracts": [
+        "Exact granted (String, Exception) construction retains the inner exception identity and exact UTF-16 message; null message uses the pinned InvalidOperation resource.",
+        "Existing traced exception payloads own the inner graph; allocation failures preserve pending fault provenance."
+      ],
+      "scope": "Selected InvalidOperationException constructor only; no general inner-constructor families, HResult or serialization."
     }
   ]
 }

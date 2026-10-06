@@ -44,6 +44,9 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         text.Append("    default: return nullptr;\n    }\n}\n");
         text.Append("[[maybe_unused]] static bool type_initialization_exception([[maybe_unused]] const Descriptor* type) noexcept { return ")
             .Append(types.TypeInitialization is { } initialization ? "type == &" + symbol(initialization) + "_descriptor" : "false").Append("; }\n");
+        text.Append("[[maybe_unused]] static bool invalid_operation_exception([[maybe_unused]] const Descriptor* type) noexcept { return ")
+            .Append(types.Resources.SingleOrDefault(r => r.Kind == ExceptionResourceKind.InvalidOperation) is { } operation
+                ? "type == &" + symbol(operation.Type) + "_descriptor" : "false").Append("; }\n");
         text.Append("[[maybe_unused]] static const Descriptor* exception_string_type() noexcept { return ")
             .Append(catalog.String is { } selectedString ? "&" + symbol(selectedString) + "_descriptor" : "nullptr").Append("; }\n");
         var messages = ManagedExceptionMessages.Build(types, catalog);
@@ -149,7 +152,8 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     std::uint32_t actual_bits = 0;
     if (!traceable_reference(c.instance, actual_value) || (actual_value != nullptr && (!range_exception(type) || !actual_integer(actual_value, actual_bits)))
         || c.instance.marking || message_kind > 3 || (message_kind == 3 && (!type_initialization_exception(type) || message != nullptr || parameter_name != nullptr))
-        || (message_kind != 3 && (type_name != nullptr || inner != nullptr)) || (inner != nullptr && !valid_exception(c, inner))
+        || (message_kind != 3 && (type_name != nullptr || (inner != nullptr && (message_kind != 0 || !invalid_operation_exception(type)))))
+        || (inner != nullptr && !valid_exception(c, inner))
         || !traceable_reference(c.instance, type_name) || (type_name != nullptr && !string_type(type_name->type)) || !known_exception(type) || !traceable_reference(c.instance, message)
         || (message != nullptr && !string_type(message->type)) || !traceable_reference(c.instance, parameter_name)
         || (parameter_name != nullptr && (!argument_exception(type) || !string_type(parameter_name->type)))) return {6};

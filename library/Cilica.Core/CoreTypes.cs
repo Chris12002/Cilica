@@ -173,6 +173,7 @@ namespace System
     {
         [MethodImpl(MethodImplOptions.InternalCall)] public extern InvalidOperationException();
         [MethodImpl(MethodImplOptions.InternalCall)] public extern InvalidOperationException(string message);
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern InvalidOperationException(string message, Exception innerException);
     }
     public class NotSupportedException : SystemException
     {

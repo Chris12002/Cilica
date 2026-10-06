@@ -824,5 +824,12 @@
     "Member": "Compare",
     "ParameterCount": 2,
     "Capability": "IntegerComparerCompare"
+  },
+  {
+    "Namespace": "System",
+    "Type": "InvalidOperationException",
+    "Member": ".ctor",
+    "ParameterCount": 2,
+    "Capability": "InvalidOperationInnerConstructor"
   }
 ]

@@ -25,7 +25,7 @@ public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<Obj
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "managed-exceptions-ir-v5";
+    public const string Profile = "managed-exceptions-ir-v6";
 }
 
 public static class ManagedExceptionIrValidator
@@ -99,7 +99,7 @@ internal sealed class ManagedExceptionRules
                 && resource.Type.ContentHash == catalog.ObjectBase.ContentHash
                 && classes[resource.Type].Source.Name == "System." + resource.Kind + "Exception",
                 "argument resources require exact selected names, images and direct descendants of the selected argument base.");
-        foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.System or ExceptionResourceKind.Arithmetic or ExceptionResourceKind.Format or ExceptionResourceKind.KeyNotFound))
+        foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.System or ExceptionResourceKind.Arithmetic or ExceptionResourceKind.Format or ExceptionResourceKind.KeyNotFound or ExceptionResourceKind.InvalidOperation))
         {
             var parent = resource.Kind == ExceptionResourceKind.System ? types.Base
                 : types.Resources.SingleOrDefault(r => r.Kind == ExceptionResourceKind.System)?.Type;
@@ -126,7 +126,10 @@ internal sealed class ManagedExceptionRules
         && (creation.ActualValue is null || _catalog.Integer64
             && Types.Resources.Any(r => r.Type == creation.Type && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)
             && creation.Message is not null && creation.ParameterName is not null && ActualValue(creation.ActualValue.Value, values, block))
-        && (creation.Inner is null || creation.Type == Types.TypeInitialization && creation.Inner is int inner && inner >= 0 && inner < values.Count && Throwable(values[inner]))
+        && (creation.Inner is null || (creation.Type == Types.TypeInitialization || _catalog.Integer64
+                && Types.Resources.Any(r => r.Type == creation.Type && r.Kind == ExceptionResourceKind.InvalidOperation)
+                && creation.Message is not null && creation.ParameterName is null && creation.ActualValue is null)
+            && creation.Inner is int inner && inner >= 0 && inner < values.Count && Throwable(values[inner]))
         && (creation.Type == Types.TypeInitialization ? creation.TypeName is not null && _catalog.String is not null
             && creation.Message is null && creation.ParameterName is null && StringOperand(creation.TypeName, values) : creation.TypeName is null)
         && (creation.ParameterName is null || Types.ArgumentBase is not null && _relations.Ancestors[creation.Type].Contains(Types.ArgumentBase));

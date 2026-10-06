@@ -148,6 +148,21 @@ public static partial class ValueProgramDiscovery
                 IncludeReference(target.DeclaringType, work, offset);
                 if (TypeInitializationExceptionCall(work, instruction, target, owner, input) is { } special) return special;
                 if (integers64 && instruction.OpCode == "newobj" && input.DeclaredName == ".ctor"
+                    && _exceptionResources.Any(r => r.Type == owner && r.Kind == ExceptionResourceKind.InvalidOperation)
+                    && signature.Parameters.Count == 2)
+                {
+                    if (input.HasBody || input.Implementation != MethodImplAttributes.InternalCall
+                        || input.Attributes != (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
+                        || signature.Header != 0x20 || !Primitive(signature.ReturnType, PrimitiveTypeCode.Void)
+                        || !Primitive(signature.Parameters[0], PrimitiveTypeCode.String)
+                        || signature.Parameters[1] is not TypeSignature.Named { Kind: SignatureTypeKind.Class } inner
+                        || ObjectModelBuilder.Id(inner.Definition) != _exceptionBase)
+                        Fail(work, "InvalidOperationException wrapping requires the exact selected (String, Exception) constructor.", offset);
+                    Authorize(LibraryIntrinsicCapability.InvalidOperationInnerConstructor);
+                    _ = IncludeString(work, offset);
+                    return new(ValueIntrinsic.NewInvalidOperationInner, owner, 2);
+                }
+                if (integers64 && instruction.OpCode == "newobj" && input.DeclaredName == ".ctor"
                     && _exceptionResources.Any(r => r.Type == owner && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)
                     && signature.Parameters.Count == 3)
                 {
