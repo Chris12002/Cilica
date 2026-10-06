@@ -22,6 +22,7 @@ namespace Cilica.Runtime
             for (int i = 0; i < count; i++) CopyStore(destination, index + i, source[i]);
         }
         internal static System.Collections.Generic.IEnumerator<T> Enumerate(T[] array) => System.SZGenericArrayEnumerator<T>.Create(array, array.Length);
+        internal static System.Collections.IEnumerator EnumerateObjects(T[] array) => new ObjectArrayEnumerator<T>(array, array.Length);
         internal static bool False(T[] array) => false;
         internal static bool True(T[] array) => true;
         internal static T[] Identity(T[] array) => array;

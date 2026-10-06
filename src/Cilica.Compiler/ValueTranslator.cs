@@ -45,7 +45,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v12";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v13";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -320,6 +320,8 @@ public static class ValueTranslator
                             if (keyOperation.Operation == ClosedKeyOperation.ContainsReferences)
                                 Push(offset, IrType.Int32, new IrExpression.Constant(keyOperation.Storage.Kind == IrTypeKind.Reference
                                     || keyOperation.Storage.Kind == IrTypeKind.Value && referenceValues.Contains(keyOperation.Storage.Class!) ? 1 : 0));
+                            else if (keyOperation.Operation == ClosedKeyOperation.IsValueType)
+                                Push(offset, IrType.Int32, new IrExpression.Constant(keyOperation.Storage.Kind == IrTypeKind.Reference ? 0 : 1));
                             else if (keyOperation.Operation == ClosedKeyOperation.IsNull)
                             {
                                 int key = Pop(offset, keyOperation.Storage);

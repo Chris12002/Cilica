@@ -44,7 +44,7 @@ public sealed class ArrayEnumerationTests
         var result = ValueTranslator.TranslateIntegerObjects(denied, input, Method("Integers"), implementation);
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        foreach (var (name, message) in new[] { ("UnsupportedAlias", "scalar aliases"), ("UnsupportedLegacyCurrent", "no implemented managed body"), ("UnsupportedVariantClosure", "requested interface contract") })
+        foreach (var (name, message) in new[] { ("UnsupportedAlias", "scalar aliases"), ("UnsupportedVariantClosure", "requested interface contract") })
         {
             var unsupported = ValueTranslator.TranslateIntegerObjects(scope, input, Method(name), implementation);
             Assert.False(unsupported.Success);

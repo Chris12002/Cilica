@@ -9,6 +9,16 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/OfType.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/OfType.SpeedOpt.cs",
+      "sha256": "924bd49846d36dd55af0b1855cf302d8e2912370609b5c856543d2baabc47f99"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/OfType.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/OfType.cs",
+      "sha256": "bd71f33fb2d17ea51a596bae9a154e291da0841bcdf29427daf3331979a4fd9e"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Distinct.SpeedOpt.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Distinct.SpeedOpt.cs",
       "sha256": "7e54529da44e9c2ed6ad809e9ac892c3190f077f3be8cff2fecff1582219fbe0"
@@ -495,9 +505,11 @@
       "changes": [
         "Flatten the private runtime base into the owned class; use a lazy instance-owned static cache.",
         "Pass an explicit Int32 array length through the exact-granted ArrayInterface<T>.Enumerate helper.",
-        "Preserve pinned current-state fault messages in managed bodies; nongeneric Current remains an unsupported marker."
+        "Preserve pinned current-state fault messages in managed bodies; nongeneric Current remains an unsupported marker.",
+        "AC4.7 adds a vector-specific nongeneric IEnumerator, fresh value boxing on Current, reference identity, Reset and precise before-start/after-end faults; no IDisposable or generic enumerator contract. ICloneable remains unmapped.",
+        "Generic array and owned reference-class query cursors now implement nongeneric Current through existing boxing/copy rules; boxed collection-struct factories remain unsupported."
       ],
-      "scope": "AC4.5 generic Int32/reference/admitted inline-value vector enumeration. No private runtime layout compatibility, scalar aliases, mixed variant class dispatch or nongeneric array enumeration."
+      "scope": "AC4.5 generic Int32/reference/admitted inline-value vector enumeration. No private runtime layout compatibility, scalar aliases, mixed variant class dispatch or nongeneric array enumeration. AC4.7 adds the tested nongeneric vector protocol through exact ArrayInterfaceEnumerateObjects grant."
     },
     {
       "path": "library/Cilica.Core/Enumerable.cs",
@@ -634,6 +646,36 @@
         "Retain capacity selection and initial seven-slot enumeration set; omit private final capacity trimming of the temporary terminal set."
       ],
       "scope": "AC6.7 default-comparer non-indexed Distinct only. Explicit comparer overloads, DistinctBy, public HashSet enumeration and boxed collection factories remain unsupported."
+    },
+    {
+      "path": "library/Cilica.Core/OfTypeIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/OfType.cs",
+      "algorithms": [
+        "Deferred nongeneric iteration, runtime type filtering, null exclusion, reuse/cloning, Current and conditional IDisposable cleanup.",
+        "Count/ToArray/first-element traversal preserve query cursor and source callback order.",
+        "Non-nullable value results retain the exact already-typed enumerable shortcut."
+      ],
+      "changes": [
+        "Use owned query interfaces and managed buffers instead of generic virtual helpers and pooled/span scratch storage.",
+        "Use the exact private ClosedTypeIsValueType grant to distinguish reference from nullable/value result projection behavior.",
+        "Reference-result OfType.Select currently fails closed on the existing variance-only interface-dispatch boundary; value/nullable projection has native evidence."
+      ],
+      "scope": "AC6.8 direct OfType over admitted nongeneric reference enumerators and bounded vectors; reference, Int32, nullable and named-value results tested. Full boxed collection factories, reference-result projection composition, general variance and remaining LINQ methods are not added."
+    },
+    {
+      "path": "library/Cilica.Core/OfTypeIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/OfType.SpeedOpt.cs",
+      "algorithms": [
+        "Deferred nongeneric iteration, runtime type filtering, null exclusion, reuse/cloning, Current and conditional IDisposable cleanup.",
+        "Count/ToArray/first-element traversal preserve query cursor and source callback order.",
+        "Non-nullable value results retain the exact already-typed enumerable shortcut."
+      ],
+      "changes": [
+        "Use owned query interfaces and managed buffers instead of generic virtual helpers and pooled/span scratch storage.",
+        "Use the exact private ClosedTypeIsValueType grant to distinguish reference from nullable/value result projection behavior.",
+        "Reference-result OfType.Select currently fails closed on the existing variance-only interface-dispatch boundary; value/nullable projection has native evidence."
+      ],
+      "scope": "AC6.8 direct OfType over admitted nongeneric reference enumerators and bounded vectors; reference, Int32, nullable and named-value results tested. Full boxed collection factories, reference-result projection composition, general variance and remaining LINQ methods are not added."
     }
   ],
   "ownedAdapters": [

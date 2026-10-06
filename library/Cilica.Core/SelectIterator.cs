@@ -43,7 +43,7 @@ namespace Cilica.Runtime
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         private void SetCurrent(TResult value) { current = value; }
         public TResult Current => current;
-        object IEnumerator.Current => UnsupportedLibraryMember<object>.Invoke();
+        object IEnumerator.Current => current;
         public void Reset() { throw new NotSupportedException(); }
         public void Dispose()
         {
@@ -150,7 +150,7 @@ namespace Cilica.Runtime
         }
         private void SetCurrent(T value) { current = value; }
         public T Current => current;
-        object IEnumerator.Current => UnsupportedLibraryMember<object>.Invoke();
+        object IEnumerator.Current => current;
         public void Reset() { throw new NotSupportedException(); }
         public void Dispose() { current = default(T); }
     }

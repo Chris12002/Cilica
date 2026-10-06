@@ -31,6 +31,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/WhereIterator.cs \
   --source library/Cilica.Core/SelectIterator.cs \
   --source library/Cilica.Core/DistinctIterator.cs \
+  --source library/Cilica.Core/OfTypeIterator.cs \
   --source library/Cilica.Core/StringBuilder.cs \
   --source library/Cilica.Core/StringConcatenation.cs \
   --source library/Cilica.Core/List.cs \
@@ -513,3 +514,27 @@ factories and HashSet enumeration remain diagnostic. No compiler profile, grant
 or limit changes. Frozen engine discovery now needs OfType in ZombieSiege.
 AdvanceRound IL_0009; state still reaches 257/256 identities. Full replay remains
 unverified. See ADR AC0052.
+
+
+### Nongeneric vector cursors and OfType (AC4.7 / AC6.8)
+
+Bounded vectors now expose nongeneric IEnumerator through an exact managed helper
+contract. Current preserves reference identity and freshly boxes scalar/inline/
+nullable values, with exact before-start/after-end errors and Reset behavior.
+Generic array and owned reference-class query cursors also support nongeneric
+Current; boxed List/Dictionary/HashSet factories remain unsupported.
+
+OfType filters lazily over admitted nongeneric sources, excludes nulls, preserves
+cursor reuse/cloning and conditionally disposes the source. Count/ToArray/Any
+preserve the original query cursor. Non-nullable already-typed sequences retain
+the upstream identity shortcut. A private exact type-kind grant distinguishes
+reference and value/nullable projection paths. Reference-result OfType.Select
+remains diagnostic at the existing variance-only dispatch boundary; value/nullable
+projection is tested. No general Type reflection or variance support is claimed.
+
+Fourteen OfType and twelve cursor probes pass 7,644 repeated native/.NET comparisons
+at O0/O2 with forced GC, ASan/UBSan and exact cleanup. Grant denial, lexical access,
+logical/scalar dispatch packet checks, adjacent boxing and the public baseline pass.
+Integer-object CIL is v13 and interface plan v9; native v49/layout v20 are unchanged.
+Two exact grants are added. Frozen engine discovery advances to predicate Single
+in ZombieSiege.AdvanceRound IL_0063; state remains 257/256 identities. See ADR AC0054.

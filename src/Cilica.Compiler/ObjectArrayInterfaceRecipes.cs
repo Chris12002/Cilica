@@ -11,6 +11,8 @@ internal static class ObjectArrayInterfaceRecipes
     {
         if (declaration.Name == "GetEnumerator" && kind == ObjectArrayInterfaceKind.GenericEnumerable
             && declaration.Parameters.Length == 1 && declaration.ReturnType.Kind == IrTypeKind.Reference) return "Enumerate";
+        if (declaration.Name == "GetEnumerator" && kind == ObjectArrayInterfaceKind.Enumerable
+            && declaration.Parameters.Length == 1 && declaration.ReturnType.Kind == IrTypeKind.Reference) return "EnumerateObjects";
         if (declaration.ReturnType == IrType.Int32 && (scalarValue || declaration.Parameters.Length == 2))
         {
             if (declaration.Name == "IndexOf" && kind == ObjectArrayInterfaceKind.List) return "IndexOf";
@@ -51,10 +53,18 @@ internal static class ObjectArrayInterfaceRecipes
     }
     internal static IrType? Result(string name, ObjectTypeId vector, ObjectTypeCatalog? catalog = null) => name switch {
         "Enumerate" => EnumeratorResult(vector, catalog),
+        "EnumerateObjects" => ObjectEnumeratorResult(catalog),
         "Count" or "False" or "True" or "IndexOf" or "Contains" or "Remove" => IrType.Int32,
         "CopyTo" or "Add" or "Set" or "Insert" or "InsertObject" or "RemoveAt" or "ClearReadOnly" or "Clear" => IrType.Void,
         "Get" => vector.ArrayElement!.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : IrType.Int32,
         "Identity" => IrType.Reference(vector), _ => null };
+    private static IrType? ObjectEnumeratorResult(ObjectTypeCatalog? catalog)
+    {
+        if (catalog is null) return null;
+        var matches = catalog.Interfaces.Where(i => i.Source.ContentHash == catalog.ObjectBase.ContentHash
+            && i.Source.Name == "System.Collections.IEnumerator" && i.Arguments.IsEmpty).ToArray();
+        return matches.Length == 1 ? IrType.Reference(ObjectTypeId.From(matches[0].Source)) : null;
+    }
     private static IrType? EnumeratorResult(ObjectTypeId vector, ObjectTypeCatalog? catalog)
     {
         if (catalog is null) return null;

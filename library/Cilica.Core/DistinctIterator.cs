@@ -45,7 +45,7 @@ namespace Cilica.Runtime
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public T Current => current;
-        object IEnumerator.Current => UnsupportedLibraryMember<object>.Invoke();
+        object IEnumerator.Current => current;
         public void Reset() { throw new NotSupportedException(); }
         public void Dispose()
         {

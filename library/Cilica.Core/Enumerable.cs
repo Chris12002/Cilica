@@ -7,6 +7,12 @@ namespace System.Linq
 {
     public static partial class Enumerable
     {
+        public static IEnumerable<TResult> OfType<TResult>(IEnumerable source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (default(TResult) != null && source is IEnumerable<TResult> typed) return typed;
+            return new Cilica.Runtime.OfTypeIterator<TResult>(source);
+        }
         public static IEnumerable<TSource> Distinct<TSource>(IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException("source");

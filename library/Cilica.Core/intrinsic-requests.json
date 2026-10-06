@@ -796,5 +796,19 @@
     "Member": "ContainsReferences",
     "ParameterCount": 0,
     "Capability": "ClosedTypeContainsReferences"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "KeyOperations`1",
+    "Member": "IsValueType",
+    "ParameterCount": 0,
+    "Capability": "ClosedTypeIsValueType"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "EnumerateObjects",
+    "ParameterCount": 1,
+    "Capability": "ArrayInterfaceEnumerateObjects"
   }
 ]

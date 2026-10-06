@@ -43,6 +43,38 @@ namespace System
         }
         public void Reset() { index = -1; }
         public void Dispose() { }
-        object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+        object Collections.IEnumerator.Current => Current;
+    }
+}
+
+namespace Cilica.Runtime
+{
+    // A vector-specific nongeneric cursor boxes value elements on each Current
+    // read. It deliberately does not implement IDisposable or generic interfaces.
+    internal sealed class ObjectArrayEnumerator<T> : System.Collections.IEnumerator
+    {
+        private readonly T[] array;
+        private readonly int length;
+        private int index;
+        internal ObjectArrayEnumerator(T[] array, int length) { this.array = array; this.length = length; index = -1; }
+        public bool MoveNext()
+        {
+            int next = unchecked(index + 1);
+            if ((uint)next < (uint)length) { index = next; return true; }
+            index = length; return false;
+        }
+        public object Current
+        {
+            get
+            {
+                if ((uint)index >= (uint)length)
+                {
+                    if (index < 0) throw new System.InvalidOperationException("Enumeration has not started. Call MoveNext.");
+                    throw new System.InvalidOperationException("Enumeration already finished.");
+                }
+                return array[index];
+            }
+        }
+        public void Reset() { index = -1; }
     }
 }

@@ -2477,3 +2477,27 @@ parameter types. The proof uses block-local value identities. Boxed value IR v8
 and scalar boxed IR v9 record the admission change; native v49 is unchanged.
 See ADR AC0053. This prerequisite enables nongeneric cursor boxing; full replay
 remains unverified.
+
+
+### Nongeneric vector cursors and OfType (AC4.7 / AC6.8)
+
+Bounded vectors now expose nongeneric IEnumerator through an exact managed helper
+contract. Current preserves reference identity and freshly boxes scalar/inline/
+nullable values, with exact before-start/after-end errors and Reset behavior.
+Generic array and owned reference-class query cursors also support nongeneric
+Current; boxed List/Dictionary/HashSet factories remain unsupported.
+
+OfType filters lazily over admitted nongeneric sources, excludes nulls, preserves
+cursor reuse/cloning and conditionally disposes the source. Count/ToArray/Any
+preserve the original query cursor. Non-nullable already-typed sequences retain
+the upstream identity shortcut. A private exact type-kind grant distinguishes
+reference and value/nullable projection paths. Reference-result OfType.Select
+remains diagnostic at the existing variance-only dispatch boundary; value/nullable
+projection is tested. No general Type reflection or variance support is claimed.
+
+Fourteen OfType and twelve cursor probes pass 7,644 repeated native/.NET comparisons
+at O0/O2 with forced GC, ASan/UBSan and exact cleanup. Grant denial, lexical access,
+logical/scalar dispatch packet checks, adjacent boxing and the public baseline pass.
+Integer-object CIL is v13 and interface plan v9; native v49/layout v20 are unchanged.
+Two exact grants are added. Frozen engine discovery advances to predicate Single
+in ZombieSiege.AdvanceRound IL_0063; state remains 257/256 identities. See ADR AC0054.

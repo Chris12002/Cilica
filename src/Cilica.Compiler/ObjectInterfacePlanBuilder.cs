@@ -246,7 +246,7 @@ public static class ObjectInterfacePlanBuilder
             var contract = catalog.Interfaces.Single(i => ObjectTypeId.From(i.Source) == declaration.Owner);
             var recipe = ObjectArrayInterfaceRecipes.Select(declaration, contract.ArrayContract, catalog.ObjectBase);
             if (!closed || !catalog.Integer64 || recipe is null)
-                Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, IndexOf/Contains, fixed-size Add/Insert/Remove/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags, SyncRoot, generic GetEnumerator and generic CopyTo are admitted.", declaration.Source.Name);
+                Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, IndexOf/Contains, fixed-size Add/Insert/Remove/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags, SyncRoot, generic/nongeneric GetEnumerator and generic CopyTo are admitted.", declaration.Source.Name);
             // Element-taking generic helpers use the interface view to match its packet.
             // Set retains the actual receiver's covariance check after bounds checks;
             // Add/Insert throw fixed-size faults without trying a store.
@@ -281,7 +281,7 @@ public static class ObjectInterfacePlanBuilder
             var owner = Value(resolver.ResolveType(runtimeLibrary, "Cilica.Runtime", "ArrayInterface`1"));
             var method = Value(resolver.ResolveClosedDeclaration(new(owner, new([element])), recipe!, ObjectArrayInterfaceRecipes.Arity(recipe!), budget));
             _ = Value(resolver.AuthorizeLibraryIntrinsic(runtimeLibrary, method.Handle,
-                recipe switch { "CopyTo" => LibraryIntrinsicCapability.ArrayInterfaceCopyTo, "Enumerate" => LibraryIntrinsicCapability.ArrayInterfaceEnumerate, "Count" => LibraryIntrinsicCapability.ArrayInterfaceCount, "Get" => LibraryIntrinsicCapability.ArrayInterfaceGet,
+                recipe switch { "EnumerateObjects" => LibraryIntrinsicCapability.ArrayInterfaceEnumerateObjects, "CopyTo" => LibraryIntrinsicCapability.ArrayInterfaceCopyTo, "Enumerate" => LibraryIntrinsicCapability.ArrayInterfaceEnumerate, "Count" => LibraryIntrinsicCapability.ArrayInterfaceCount, "Get" => LibraryIntrinsicCapability.ArrayInterfaceGet,
                     "Add" => LibraryIntrinsicCapability.ArrayInterfaceAdd, "Set" => LibraryIntrinsicCapability.ArrayInterfaceSet,
                     "Insert" => LibraryIntrinsicCapability.ArrayInterfaceInsert, "InsertObject" => LibraryIntrinsicCapability.ArrayInterfaceInsertObject,
                     "RemoveAt" => LibraryIntrinsicCapability.ArrayInterfaceRemoveAt, "ClearReadOnly" => LibraryIntrinsicCapability.ArrayInterfaceClearReadOnly,

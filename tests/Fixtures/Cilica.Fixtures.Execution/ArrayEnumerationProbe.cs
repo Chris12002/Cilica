@@ -87,6 +87,6 @@ namespace Cilica.Fixtures.Execution
         public static void EndTracked(IEnumerator<ValueVectorBox> e) { e.MoveNext(); e.MoveNext(); e.Dispose(); }
         public static int Tracked(int a, int b) { var e = CreateTracked(); EndTracked(e); return a; }
         public static int UnsupportedAlias(int a, int b) { return ((IEnumerable<uint>)(object)new[] { a }).GetEnumerator().MoveNext() ? b : a; }
-        public static int UnsupportedLegacyCurrent(int a, int b) { var e = ((IEnumerable<int>)new[] { a }).GetEnumerator(); e.MoveNext(); return (int)((IEnumerator)e).Current; }
+        public static int LegacyCurrent(int a, int b) { var e = ((IEnumerable<int>)new[] { a }).GetEnumerator(); e.MoveNext(); return (int)((IEnumerator)e).Current; }
     }
 }

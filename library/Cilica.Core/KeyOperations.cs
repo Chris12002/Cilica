@@ -14,6 +14,8 @@ namespace Cilica.Runtime
         internal static extern bool IsNull(T value);
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         internal static extern bool ContainsReferences();
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern bool IsValueType();
     }
 }
 
