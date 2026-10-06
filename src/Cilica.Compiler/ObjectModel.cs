@@ -63,6 +63,7 @@ public sealed record ObjectDelegateType(TypeSource Source, int ParameterCount, I
     public ImmutableArray<IrType> Parameters { get; init; } = ParameterCount is >= 0 and < IrLimits.MaximumParameters
         ? [.. Enumerable.Repeat(IrType.Int32, ParameterCount)] : [];
     public bool ExternallyVisible { get; init; } = true;
+    public ImmutableArray<LexicalTypeOwner> LexicalOwners { get; init; } = [];
 }
 
 /// <summary>FieldDef identity plus an optional derived scalar component; -1 is the original declaration.</summary>
@@ -103,7 +104,7 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 {
     public bool Integer64 { get; init; }
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
-    public const string Profile = "object-layout-v20";
+    public const string Profile = "object-layout-v21";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];

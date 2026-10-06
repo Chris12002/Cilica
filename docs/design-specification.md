@@ -2746,3 +2746,15 @@ checks pass with forced GC and sanitizers. Integer-object CIL v17, object IR v25
 native v51; layout/runtime algorithms and bounds are unchanged. Frozen engine now
 reaches a nonpublic handler delegate; state/replay remain incomplete.
 See [ADR AC0072](decisions/AC0072-containing-type-private-calls.md).
+
+### Lexically visible nongeneric delegates (AC2.5)
+
+Private/internal nongeneric delegates retain lexical visibility through both IR
+stages, including casts, arrays and expanded value signatures. Eleven probes pass
+3,234 repeated native/.NET comparisons; all 181 selected checks pass with forced
+GC, sanitizers and exact cleanup. Hidden generic/foreign access remains rejected.
+Integer-object CIL v18, delegate IR v7, scalar delegate IR v5, object IR v26,
+layout schema v21 and native v52; runtime payloads and bounds are unchanged.
+Frozen engine passes handler construction and reaches the metadata snapshot limit
+in forfeit preparation; state/full replay remain incomplete.
+See [ADR AC0073](decisions/AC0073-hidden-delegate-visibility.md).

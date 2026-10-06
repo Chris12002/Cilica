@@ -31,10 +31,12 @@ public static partial class ValueProgramDiscovery
                 Fail(work, "Delegates must derive directly from the selected runtime MulticastDelegate.", offset);
             var input = type.Arguments.Count != 0 ? SnapshotClosed(type, work, offset) : Snapshot(type.Definition, work, offset);
             if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || !generics && type.Arguments.Count != 0
-                || !input.ExternallyVisible || input.HasTypeInitializer || input.HasModuleInitializer
+                || !input.ExternallyVisible && (!integers64 || type.Arguments.Count != 0 || input.LexicalOwners.IsDefaultOrEmpty
+                    || !ObjectLexicalAccess.Valid(id, input.LexicalOwners) || input.LexicalOwners.Any(o => o.GenericArity != 0))
+                || input.HasTypeInitializer || input.HasModuleInitializer
                 || !input.Fields.IsEmpty || input.InterfaceCount != 0 || input.PackingSize != 0 || input.ClassSize != 0
                 || !ObjectModelValidator.ClassAttributes(input.Attributes) || (input.Attributes & TypeAttributes.Sealed) == 0)
-                Fail(work, "Delegate CIL requires public sealed exactly closed fieldless delegate declarations without initialization, interfaces or native layout.", offset);
+                Fail(work, "Delegate CIL requires public exactly closed or nongeneric lexically described sealed fieldless delegate declarations without initialization, interfaces or native layout.", offset);
             MethodDeclarationInput? constructor = null, invoke = null;
             MethodDefinitionHandle constructorHandle = default, invokeHandle = default;
             foreach (var declaration in Require(resolver.ReadDelegateDeclarations(type, _metadata), work, offset).Methods)
@@ -84,7 +86,9 @@ public static partial class ValueProgramDiscovery
                 && returnType.Kind != IrTypeKind.Value)
                 Fail(work, "Delegate value results require named non-enum inline layouts; scalar aliases remain unsupported.", offset);
             _readingDelegateSignatures.Remove(id);
-            var callable = new ObjectDelegateType(input.Source, invoke.Signature.Parameters.Count, returnType) { Parameters = parameterTypes };
+            var callable = new ObjectDelegateType(input.Source, invoke.Signature.Parameters.Count, returnType) {
+                Parameters = parameterTypes, ExternallyVisible = input.ExternallyVisible,
+                LexicalOwners = integers64 ? input.LexicalOwners : [] };
             if (callable.ParameterCount >= IrLimits.MaximumParameters || _delegateFacts.Values.Sum(d => d.Type.ParameterCount) + callable.ParameterCount > IrLimits.MaximumParameters)
                 Fail(work, "Aggregate delegate signature limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             _delegateFacts.Add(id, new(callable, constructorHandle, invokeHandle, invoke.Signature));

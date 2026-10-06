@@ -61,6 +61,12 @@ public static class ObjectModelValidator
                     && ReferenceIdentity(result.Class, model.ObjectBase)
                     || inlineFields && model.Integer64 && declaration.ReturnType is { Kind: IrTypeKind.Value, Element: null, ReadOnly: false } returned
                         && Identity(returned.Class, 0x02)), "invalid delegate identity or signature.");
+            var delegateId = ObjectTypeId.From(declaration.Source);
+            Require(ObjectLexicalAccess.Valid(delegateId, declaration.LexicalOwners)
+                && (declaration.LexicalOwners.IsEmpty || ObjectLexicalAccess.Public(declaration.LexicalOwners) == declaration.ExternallyVisible)
+                && (declaration.ExternallyVisible || model.Integer64 && !declaration.LexicalOwners.IsEmpty
+                    && delegateId.Specialization.Length == 0 && declaration.LexicalOwners.All(o => o.GenericArity == 0)),
+                "delegate lexical visibility requires exact public facts or a nongeneric integer-profile declaration.");
             delegateParameters += declaration.ParameterCount;
             Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
         }
@@ -192,7 +198,8 @@ public static class ObjectModelValidator
             staticDeclarations[key] = field;
         }
         ObjectLexicalAccess.Consistent(model.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners))
-            .Concat(model.Statics.Select(f => (f.Id.Owner, f.LexicalOwners))));
+            .Concat(model.Statics.Select(f => (f.Id.Owner, f.LexicalOwners)))
+            .Concat(model.Delegates.Select(d => (ObjectTypeId.From(d.Source), d.LexicalOwners))));
         Require(!model.ValueArrays.IsDefault && model.ValueArrays.Length <= ObjectModelLimits.MaximumTypes
             && (model.Integer64 || model.ValueArrays.IsEmpty), "invalid value-array layouts/profile.");
         var valueArrays = new Dictionary<ObjectTypeId, ObjectValueArrayLayout>();

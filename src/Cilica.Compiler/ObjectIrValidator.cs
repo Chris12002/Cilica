@@ -201,7 +201,8 @@ internal sealed partial class ObjectIrRules
         ValidateGenericArrays();
         ObjectLexicalAccess.Consistent(program.Bindings.Select(b => (b.Owner, b.LexicalOwners))
             .Concat(flow.Types.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
-            .Concat(flow.Types.Statics.Select(f => (f.Id.Owner, f.LexicalOwners))));
+            .Concat(flow.Types.Statics.Select(f => (f.Id.Owner, f.LexicalOwners)))
+            .Concat(flow.Types.Delegates.Select(d => (ObjectTypeId.From(d.Source), d.LexicalOwners))));
         _interfaces = new(program, _bindings, _methods, values);
         _dispatch = new(program, _bindings, _methods, _types, _interfaces);
     }
@@ -229,7 +230,7 @@ internal sealed partial class ObjectIrRules
         : target is not null && (target == _program.Flow.Types.String || _contracts.Contains(target)
             && (_program.Flow.Types.Interfaces.Single(i => ObjectTypeId.From(i.Source) == target).ExternallyVisible
                 || _program.Flow.Types.Integer64 && method.Source.ContentHash == target.ContentHash)
-            || _delegates.TryGetValue(target, out var callable) && callable.ExternallyVisible || _layouts.TryGetValue(target, out var layout)
+            || _delegates.TryGetValue(target, out var callable) && DelegateVisible(method, target, callable) || _layouts.TryGetValue(target, out var layout)
             && (Binding(IrMethodId.From(method.Source)).Owner == target
                 || (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public
                 || _program.Flow.Types.Integer64 && ObjectLexicalAccess.Visible(Binding(IrMethodId.From(method.Source)), target, layout.LexicalOwners)));
@@ -271,6 +272,10 @@ internal sealed partial class ObjectIrRules
     private IEnumerable<ObjectTypeId> AbstractSignatureTypes(IrMethodId id) => _methods[id].Parameters.Append(_methods[id].ReturnType)
         .Where(t => t.Kind == IrTypeKind.Reference).Select(t => t.Class!);
 
+    private bool DelegateVisible(IrMethod caller, ObjectTypeId type, ObjectDelegateType declaration) =>
+        declaration.ExternallyVisible || _program.Flow.Types.Integer64
+            && ObjectLexicalAccess.Visible(Binding(IrMethodId.From(caller.Source)), type, declaration.LexicalOwners);
+
     internal IrType? DelegateReturn(ObjectTypeId? type) => type is not null && _delegates.TryGetValue(type, out var declaration)
         ? declaration.ReturnType : null;
 
@@ -281,7 +286,7 @@ internal sealed partial class ObjectIrRules
             || !_bindings.TryGetValue(capture.Target, out var target) || target.Kind is not (ObjectMethodKind.Static or ObjectMethodKind.Instance)
             || (target.Attributes & MethodAttributes.Virtual) != 0 || target.VirtualSlot is not null
             || !Access(Binding(IrMethodId.From(caller.Source)), target)
-            || !declaration.ExternallyVisible && Binding(IrMethodId.From(caller.Source)).Owner != capture.Type) return false;
+            || !DelegateVisible(caller, capture.Type, declaration)) return false;
         var body = _methods[capture.Target];
         int skip = target.Kind == ObjectMethodKind.Instance ? 1 : 0;
         return body.ReturnType == DelegateReturn(capture.Type) && body.Parameters.Length == declaration.ParameterCount + skip
@@ -293,7 +298,7 @@ internal sealed partial class ObjectIrRules
     internal bool DelegateCall(IrMethod caller, ObjectTypeId? type, int receiver,
         System.Collections.Immutable.ImmutableArray<int> arguments, IrType result, IReadOnlyList<IrType> values) =>
         _allowDelegates && type is not null && _delegates.TryGetValue(type, out var declaration)
-        && (declaration.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == type)
+        && DelegateVisible(caller, type, declaration)
         && result == DelegateReturn(type) && receiver >= 0 && receiver < values.Count
         && _types.Assignable(values[receiver], IrType.Reference(type)) && !arguments.IsDefault
         && arguments.Length == declaration.ParameterCount
