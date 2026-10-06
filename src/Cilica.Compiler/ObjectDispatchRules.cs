@@ -23,8 +23,14 @@ internal sealed class ObjectDispatchRules
         _program = program; _bindings = bindings; _types = types; _interfaces = interfaces;
         _layouts = program.Flow.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var signatures = new Dictionary<ObjectVirtualSlot, ObjectMethodBinding>();
+        int genericWork = 0;
         foreach (var binding in bindings.Values)
         {
+            if (binding.GenericInterfaceMethod is not null)
+                Require(program.Flow.Types.Integer64 && interfaces.Mapped(binding)
+                    && (binding.Attributes & (MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.NewSlot | MethodAttributes.Abstract))
+                        == (MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.NewSlot),
+                    "generic interface evidence requires an exact mapped final newslot.");
             if (binding.Kind is ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
             {
                 Require(binding.VirtualSlot is null && binding.VirtualName is null, "direct value methods cannot supply class dispatch slots.");
@@ -42,7 +48,7 @@ internal sealed class ObjectDispatchRules
             Require(program.Flow.Types.Integer64 || !signature.Parameters.Append(signature.ReturnType)
                 .Any(t => t.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation),
                 "value/borrow virtual signatures require the explicit integer-object catalog.");
-            Require(binding.Method.Specialization == binding.Owner.Specialization,
+            Require(GenericInterfaceMethodRules.Identity(binding.GenericInterfaceMethod, binding.Method, binding.Owner, ref genericWork),
                 "virtual methods must preserve their exact closed owner specialization.");
             var slot = binding.VirtualSlot!;
             Require(binding.Kind == ObjectMethodKind.Instance && ((binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
@@ -50,7 +56,7 @@ internal sealed class ObjectDispatchRules
                 && (binding.Attributes & MethodAttributes.RTSpecialName) == 0 && !string.IsNullOrEmpty(binding.VirtualName),
                 "class virtual declarations require public instance methods or validated interface slots, with names.");
             Require(slot.Method is not null && slot.Owner is { ArrayElement: null } && _layouts.ContainsKey(slot.Owner)
-                && slot.Method.ContentHash == slot.Owner.ContentHash && slot.Method.Specialization == slot.Owner.Specialization && (uint)slot.Method.Token >> 24 == 0x06 && (slot.Method.Token & 0xffffff) != 0
+                && slot.Method.ContentHash == slot.Owner.ContentHash && (binding.GenericInterfaceMethod is null ? slot.Method.Specialization == slot.Owner.Specialization : slot.Method == binding.Method && slot.Owner == binding.Owner) && (uint)slot.Method.Token >> 24 == 0x06 && (slot.Method.Token & 0xffffff) != 0
                 && types.Assignable(IrType.Reference(binding.Owner), IrType.Reference(slot.Owner)), "invalid canonical virtual slot identity/owner.");
             if ((binding.Attributes & MethodAttributes.NewSlot) != 0)
                 Require(slot.Method == binding.Method && slot.Owner == binding.Owner, "newslot must introduce its own canonical slot.");
@@ -71,7 +77,7 @@ internal sealed class ObjectDispatchRules
         foreach (var map in program.Dispatch)
         {
             Require(map?.Declaration is not null && bindings.TryGetValue(map.Declaration, out var declaration)
-                && declaration.VirtualSlot is not null && (declaration.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                && declaration.GenericInterfaceMethod is null && declaration.VirtualSlot is not null && (declaration.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
                 && _maps.TryAdd(map.Declaration, map), "invalid/duplicate dispatch declaration.");
             Require(!map.Targets.IsDefault && map.Targets.Length <= ObjectModelLimits.MaximumTypes
                 && (!map.Targets.IsEmpty || program.Flow.Types.Integer64 && (bindings[map.Declaration].Attributes & MethodAttributes.Abstract) != 0), "invalid dispatch targets.");

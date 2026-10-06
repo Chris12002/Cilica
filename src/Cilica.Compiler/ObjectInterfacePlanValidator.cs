@@ -31,12 +31,14 @@ public static class ObjectInterfacePlanValidator
             && parameters[0] == IrType.Reference(owner) && parameters.All(t => types.Valid(t, true))
             && result is not null && (result.Kind != IrTypeKind.ManagedLocation && types.Valid(result, true) || result == IrType.Void);
         var declarations = new Dictionary<IrMethodId, ObjectInterfaceDeclaration>();
-        int parameters = 0;
+        int parameters = 0, genericWork = 0;
+        var methodArguments = new Dictionary<IrMethodId, string?>();
         foreach (var declaration in plan.Declarations)
         {
             Require(declaration?.Source is not null && Identity(declaration.Owner, 0x02) && contracts.ContainsKey(declaration.Owner)
                 && declaration.Source.ContentHash == declaration.Owner.ContentHash
-                && declaration.Source.Specialization == declaration.Owner.Specialization
+                && GenericInterfaceMethodRules.Identity(declaration.GenericMethod, IrMethodId.From(declaration.Source), declaration.Owner, ref genericWork)
+                && (declaration.GenericMethod is null || plan.Types.Integer64)
                 && Identity(IrMethodId.From(declaration.Source), 0x06) && declaration.Source.AssemblyIdentity is not null
                 && declaration.Source.Name is not null && !string.IsNullOrEmpty(declaration.Name)
                 && declaration.OwnerExternallyVisible == contracts[declaration.Owner].ExternallyVisible
@@ -48,11 +50,15 @@ public static class ObjectInterfacePlanValidator
             Require((declaration.Attributes & required) == required && (declaration.Attributes & ~allowed) == 0
                 && Signature(declaration.Parameters, declaration.ReturnType, declaration.Owner), "unsupported interface flags/signature.");
             Require(declarations.TryAdd(IrMethodId.From(declaration.Source), declaration), "duplicate interface declaration identity.");
+            methodArguments.Add(IrMethodId.From(declaration.Source), GenericInterfaceMethodRules.Arguments(declaration.GenericMethod));
             parameters += declaration.Parameters.Length;
             Require(parameters <= ProgramLimits.MaximumCallArguments, "aggregate declaration parameter limit exceeded.");
         }
         var names = new HashSet<(ObjectTypeId, string, IrType, SignatureList<IrType>)>();
-        foreach (var declaration in declarations.Values)
+        // Closed generic methods can have identical lowered signatures while their
+        // original declarations or method arguments differ. Their full identities
+        // remain unique; metadata resolution authenticates the open overloads.
+        foreach (var declaration in declarations.Values.Where(d => d.GenericMethod is null))
             Require(names.Add((declaration.Owner, declaration.Name, declaration.ReturnType, new(declaration.Parameters.Skip(1)))),
                 "duplicate interface member name/signature.");
         var methods = new Dictionary<IrMethodId, ObjectDispatchMethod>();
@@ -66,7 +72,7 @@ public static class ObjectInterfacePlanValidator
                     && Identity(helper.Method, 0x06) && helper.Owner.ContentHash == plan.Types.ObjectBase.ContentHash
                     && helper.Method.ContentHash == helper.Owner.ContentHash && helper.Method.Specialization == helper.Owner.Specialization
                     && helper.Owner.Specialization.Length == 64 && helper.Kind == ObjectMethodKind.Static
-                    && helper.VirtualSlot is null && helper.VirtualName is null && helper.Primitive is null && !helper.InvariantProviderOnly
+                    && helper.GenericInterfaceMethod is null && helper.VirtualSlot is null && helper.VirtualName is null && helper.Primitive is null && !helper.InvariantProviderOnly
                     && helper.Attributes == (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
                     && !helper.OwnerExternallyVisible && helper.OwnerAssemblyVisible
                     && !method.Parameters.IsDefaultOrEmpty && method.Parameters[0].Class is { ArrayElement: not null } vector
@@ -74,17 +80,22 @@ public static class ObjectInterfacePlanValidator
                     "invalid selected array helper facts/identity/signature.");
                 Require(ObjectArrayInterfaceRecipes.Signature(method, plan), "unsupported array helper operation/signature.");
                 Require(methods.TryAdd(helper.Method, method), "duplicate array helper identity.");
+                methodArguments.Add(helper.Method, null);
                 parameters += method.Parameters.Length;
                 Require(parameters <= ProgramLimits.MaximumCallArguments, "aggregate declaration parameter limit exceeded.");
                 continue;
             }
             Require(method?.Binding is not null && method.Binding.Method is not null && Identity(method.Binding.Owner, 0x02)
                 && classes.ContainsKey(method.Binding.Owner) && method.Binding.Method.ContentHash == method.Binding.Owner.ContentHash
-                && method.Binding.Method.Specialization == method.Binding.Owner.Specialization
+                && GenericInterfaceMethodRules.Identity(method.Binding.GenericInterfaceMethod, method.Binding.Method, method.Binding.Owner, ref genericWork)
                 && Identity(method.Binding.Method, 0x06) && !declarations.ContainsKey(method.Binding.Method)
                 && !string.IsNullOrEmpty(method.Name) && method.Binding.Kind == ObjectMethodKind.Instance
                 && Signature(method.Parameters, method.ReturnType, method.Binding.Owner), "invalid class method facts/identity/signature.");
             var binding = method.Binding; bool virtualMethod = (binding.Attributes & MethodAttributes.Virtual) != 0;
+            if (binding.GenericInterfaceMethod is not null)
+                Require(plan.Types.Integer64 && (binding.Attributes & (MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.NewSlot | MethodAttributes.Abstract))
+                    == (MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.NewSlot),
+                    "generic interface implementations require final newslots in the integer profile.");
             var access = binding.Attributes & MethodAttributes.MemberAccessMask;
             const MethodAttributes allowed = MethodAttributes.MemberAccessMask | MethodAttributes.HideBySig | MethodAttributes.SpecialName
                 | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final | MethodAttributes.Abstract;
@@ -114,6 +125,7 @@ public static class ObjectInterfacePlanValidator
             else Require(binding.VirtualName is null && (binding.Attributes & (MethodAttributes.NewSlot | MethodAttributes.Final)) == 0,
                 "nonvirtual methods cannot carry slot facts.");
             Require(methods.TryAdd(binding.Method, method), "duplicate class method identity.");
+            methodArguments.Add(binding.Method, GenericInterfaceMethodRules.Arguments(binding.GenericInterfaceMethod));
             parameters += method.Parameters.Length;
             Require(parameters <= ProgramLimits.MaximumCallArguments, "aggregate declaration parameter limit exceeded.");
         }
@@ -155,6 +167,9 @@ public static class ObjectInterfacePlanValidator
                     used.Add(target.Implementation); continue;
                 }
                 Require(!mapping.ArrayHelper && !implementation.ArrayHelper, "class mapping cannot use array helpers.");
+                Require(methodArguments[map.Declaration] == methodArguments[target.Mapping]
+                    && methodArguments[map.Declaration] == methodArguments[target.Implementation],
+                    "generic interface mapping must preserve exact method arguments.");
                 Require(types.Assignable(IrType.Reference(target.Receiver), IrType.Reference(mapping.Binding.Owner))
                     && declaration.ReturnType == mapping.ReturnType && declaration.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1)),
                     "mapping owner/signature does not implement its contract.");

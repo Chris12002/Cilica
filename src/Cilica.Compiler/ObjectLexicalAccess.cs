@@ -12,7 +12,8 @@ internal static class ObjectLexicalAccess
         !left.IsDefault && !right.IsDefault && left.SequenceEqual(right);
 
     internal static bool SameBinding(ObjectMethodBinding left, ObjectMethodBinding right) =>
-        Same(left.LexicalOwners, right.LexicalOwners) && (left with { LexicalOwners = right.LexicalOwners }) == right;
+        Same(left.LexicalOwners, right.LexicalOwners) && GenericInterfaceMethodRules.Same(left.GenericInterfaceMethod, right.GenericInterfaceMethod)
+        && (left with { LexicalOwners = right.LexicalOwners, GenericInterfaceMethod = right.GenericInterfaceMethod }) == right;
 
     internal static bool SameStatic(ObjectStaticField left, ObjectStaticField right) =>
         Same(left.LexicalOwners, right.LexicalOwners) && (left with { LexicalOwners = right.LexicalOwners }) == right;

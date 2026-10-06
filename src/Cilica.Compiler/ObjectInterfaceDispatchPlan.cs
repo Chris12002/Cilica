@@ -2,12 +2,16 @@ using System.Collections.Immutable;
 using System.Reflection;
 using Cilica.Metadata;
 using Cilica.Metadata.IL;
+using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
 /// <summary>A bodyless interface declaration; parameter zero is its exact interface receiver.</summary>
 public sealed record ObjectInterfaceDeclaration(MethodSource Source, ObjectTypeId Owner, string Name,
-    MethodAttributes Attributes, bool OwnerExternallyVisible, ImmutableArray<IrType> Parameters, IrType ReturnType);
+    MethodAttributes Attributes, bool OwnerExternallyVisible, ImmutableArray<IrType> Parameters, IrType ReturnType)
+{
+    public ClosedGenericEvidence? GenericMethod { get; init; }
+}
 
 /// <summary>Class method facts needed for mapping/slot validation, without IL or executable IR.</summary>
 public sealed record ObjectDispatchMethod(ObjectMethodBinding Binding, string Name,
@@ -24,7 +28,7 @@ public sealed record ObjectInterfaceDispatchPlan(ObjectTypeCatalog Types,
     ImmutableArray<ObjectInterfaceDeclaration> Declarations, ImmutableArray<ObjectDispatchMethod> Methods,
     ImmutableArray<ObjectInterfaceDispatch> Dispatch)
 {
-    public const string Profile = "interface-dispatch-plan-v10";
+    public const string Profile = "interface-dispatch-plan-v11";
     public ValueTypeCatalog? Values { get; init; }
 }
 

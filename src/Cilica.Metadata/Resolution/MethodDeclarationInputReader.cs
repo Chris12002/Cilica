@@ -60,6 +60,33 @@ public sealed partial class AssemblyResolver
         });
     }
 
+    /// <summary>Authenticates a closed declaration and constraints without reading its IL body.</summary>
+    public ResolutionResult<MethodDeclarationInput> ReadClosedMethodDeclarationInput(ResolvedMethod method,
+        ResolvedAssembly runtimeLibrary, TypeReadLimits limits)
+    {
+        ArgumentNullException.ThrowIfNull(method); CheckOwner(runtimeLibrary);
+        var assembly = method.DeclaringType.Definition.Assembly;
+        var read = ReadMethodDeclarationInput(assembly, method.Handle, limits);
+        if (read.Value is not { } input) return read;
+        return Bind(assembly, method.Handle, () =>
+        {
+            if (input.OwnerToken != MetadataTokens.GetToken(method.DeclaringType.Definition.Handle)
+                || input.OwnerGenericArity != method.DeclaringType.Arguments.Count
+                || input.Signature.GenericArity != method.MethodArguments.Count)
+                throw new BadImageFormatException("Closed declaration owner or argument count contradicts its metadata.");
+            string key;
+            try { key = ClosedGenericKey.Create(method.DeclaringType.Arguments, method.MethodArguments); }
+            catch (ArgumentException error) { throw new UnsupportedBindingException(error.Message); }
+            int work = ValidateClosedConstraints(method.DeclaringType, method, runtimeLibrary,
+                limits.MaximumMembers - input.MetadataMembersRead);
+            var signature = Substitute(input.Signature, method.DeclaringType.Arguments, method.MethodArguments);
+            if (signature != method.Signature)
+                throw new BadImageFormatException("Closed declaration signature contradicts its metadata.");
+            return input with { Source = input.Source with { Specialization = key }, Signature = signature,
+                MetadataMembersRead = checked(input.MetadataMembersRead + work) };
+        });
+    }
+
     // Share provenance/owner inspection with body input while retaining its existing IL/initializer fault order.
     private (MethodSource Source, MethodSignature Signature, int Arity, bool Visible, bool AssemblyVisible, ImmutableArray<LexicalTypeOwner> Lexical) ReadMethodHeader(
         ResolvedAssembly assembly, MethodDefinitionHandle handle, int maximumOwnerDepth, Action? inspectOwner = null)

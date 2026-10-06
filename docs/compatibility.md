@@ -2749,3 +2749,16 @@ method arguments, constraints and bounded metadata work. Generic override/class
 calls remain unsupported; executable interface dispatch is the next slice.
 135 selected metadata checks pass; no native compatibility claim or quota changes.
 See [ADR AC0062](decisions/AC0062-generic-interface-method-metadata.md).
+
+### Closed generic interface calls (AC8.15)
+
+Exact closed generic interface methods now execute through final newslot class
+implementations. Existing detached generic evidence keeps owner and method arguments
+separate and rejects swapped specializations even when their native storage matches.
+Scalar/reference/inline results, void calls, null checks, exceptions and generic
+factory chains have native evidence: ten probes, 2,940 repeated O0/O2 comparisons,
+forced GC and ASan/UBSan. 125 selected checks pass. Direct/class generic instance
+calls, overridable generic methods and method pointers remain unsupported.
+Integer-object CIL v15, object IR v24, delegate-value IR v6 and interface plan v11;
+native v49/layout v20 and resource limits remain unchanged. Frozen engine ordering
+and the state catalog bound remain unresolved. See [ADR AC0063](decisions/AC0063-generic-interface-method-calls.md).

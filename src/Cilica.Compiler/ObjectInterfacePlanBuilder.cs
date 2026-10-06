@@ -171,12 +171,14 @@ public static class ObjectInterfacePlanBuilder
             const MethodAttributes required = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract;
             const MethodAttributes allowed = required | MethodAttributes.NewSlot | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
             if ((input.OwnerAttributes & (TypeAttributes.Interface | TypeAttributes.Abstract)) != (TypeAttributes.Interface | TypeAttributes.Abstract)
-                || (input.Attributes & required) != required || (input.Attributes & ~allowed) != 0 || input.HasBody || !input.OwnerExternallyVisible && !(closed && input.OwnerAssemblyVisible
+                || (input.Attributes & required) != required || (input.Attributes & ~allowed) != 0 || input.HasBody
+                || method.MethodArguments.Count != 0 && input.Implementation != MethodImplAttributes.IL || !input.OwnerExternallyVisible && !(closed && input.OwnerAssemblyVisible
                     && (input.OwnerAttributes & TypeAttributes.VisibilityMask) == TypeAttributes.NotPublic))
                 Fail("Interface declarations require public abstract instance contracts without a body.", input.Source.Name);
             var parameters = Parameters(input, owner); var returned = Type(input.Signature.ReturnType, true);
             var declaration = new ObjectInterfaceDeclaration(input.Source, owner, input.DeclaredName,
-                input.Attributes, input.OwnerExternallyVisible, parameters, returned);
+                input.Attributes, input.OwnerExternallyVisible, parameters, returned)
+                { GenericMethod = Evidence(method) };
             Count(parameters.Length); _declarations.Add(id, declaration); return declaration;
         }
         internal ResolvedMethod Resolved(IrMethodId id) => _resolved[id];
@@ -202,22 +204,20 @@ public static class ObjectInterfacePlanBuilder
             ArgumentNullException.ThrowIfNull(method);
             var owner = method.DeclaringType.Definition;
             Value(resolver.ResolveType(owner.Assembly, owner.Handle));
-            if (!closed && method.DeclaringType.Arguments.Count != 0 || method.MethodArguments.Count != 0) Fail("Constructed generic dispatch requires later lowering.");
+            if (!closed && (method.DeclaringType.Arguments.Count != 0 || method.MethodArguments.Count != 0)) Fail("Constructed generic dispatch requires later lowering.");
             var id = Id(method);
             if (_inputs.TryGetValue(id, out var cached)) return cached;
             if (_inputs.Count >= ProgramLimits.MaximumMethods) Fail("Interface declarations/class facts share the method limit.", limit: true);
-            var input = Value(resolver.ReadMethodDeclarationInput(owner.Assembly, method.Handle, new(MaximumMembers: Remaining())));
+            var input = Value(closed
+                ? resolver.ReadClosedMethodDeclarationInput(method, runtimeLibrary, new(MaximumMembers: Remaining()))
+                : resolver.ReadMethodDeclarationInput(owner.Assembly, method.Handle, new(MaximumMembers: Remaining())));
             Consume(input.MetadataMembersRead);
             if (input.OwnerToken != MetadataTokens.GetToken(owner.Handle)) Fail("Resolved method owner contradicts its declaration.", input.Source.Name);
-            if (input.OwnerGenericArity != method.DeclaringType.Arguments.Count || input.Signature.GenericArity != 0 || input.Signature.Header != (arrayHelper ? 0 : 0x20)
+            if (input.OwnerGenericArity != method.DeclaringType.Arguments.Count || input.Signature.GenericArity != method.MethodArguments.Count
+                || arrayHelper && input.Signature.GenericArity != 0
+                || input.Signature.Header != (arrayHelper ? 0 : method.MethodArguments.Count == 0 ? 0x20 : 0x30)
                 || input.IsReferenceAssembly || input.HasTypeInitializer || input.HasModuleInitializer)
-                Fail("Interface dispatch preparation requires exact admitted instance owners without generic method parameters or initialization.", input.Source.Name);
-            if (closed)
-            {
-                var authenticated = Value(resolver.ResolveClosedCall(method, method.Handle, budget));
-                if (authenticated != method) Fail("Closed dispatch signature contradicts its metadata declaration.", input.Source.Name);
-                input = input with { Source = input.Source with { Specialization = id.Specialization }, Signature = method.Signature };
-            }
+                Fail("Interface dispatch preparation requires exact admitted instance owners with closed method arguments and without initialization.", input.Source.Name);
             _inputs.Add(id, input); _resolved.Add(id, method); return input;
         }
         private void Method(ResolvedMethod method, ObjectVirtualSlot? slot, ObjectTypeCatalog catalog)
@@ -241,7 +241,7 @@ public static class ObjectInterfacePlanBuilder
             Count(parameters.Length);
             _methods.Add(id, new(new(id, owner, ObjectMethodKind.Instance, input.Attributes, input.OwnerExternallyVisible)
                 { LexicalOwners = catalog.Integer64 ? input.LexicalOwners : [], VirtualSlot = slot, VirtualName = slot is null ? null : input.DeclaredName,
-                    OwnerAssemblyVisible = closed && input.OwnerAssemblyVisible }, input.DeclaredName, parameters, returned));
+                    OwnerAssemblyVisible = closed && input.OwnerAssemblyVisible, GenericInterfaceMethod = Evidence(method) }, input.DeclaredName, parameters, returned));
         }
         private IrMethodId ArrayMethod(ObjectInterfaceDeclaration declaration, ObjectTypeId receiver, ObjectTypeCatalog catalog)
         {
@@ -333,6 +333,8 @@ public static class ObjectInterfacePlanBuilder
         private void Count(int count) { _parameters += count; if (_parameters > ProgramLimits.MaximumCallArguments) Fail("Aggregate dispatch parameter limit exceeded.", limit: true); }
         private int Remaining() { if (budget.Remaining == 0) Fail("Interface preparation metadata budget exhausted.", limit: true); return budget.Remaining; }
         private void Consume(int work) { if (!budget.TryConsume(work)) Fail("Interface preparation metadata budget exhausted.", limit: true); }
+        private static ClosedGenericEvidence? Evidence(ResolvedMethod method) => method.MethodArguments.Count == 0 ? null
+            : ClosedGenericEvidence.Capture(method.DeclaringType.Arguments, method.MethodArguments);
         private static IrMethodId Id(ResolvedMethod method)
         {
             try { return new(method.DeclaringType.Definition.Assembly.ContentHash, MetadataTokens.GetToken(method.Handle),

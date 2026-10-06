@@ -322,6 +322,8 @@ public static partial class ValueProgramDiscovery
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate interface argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                                 interfaceCalls.Add(offset, interfaceDeclaration); continue;
                             }
+                            if (target.MethodArguments.Count != 0 && (target.Signature.Header & 0x20) != 0)
+                                Fail(work, "Generic instance methods require an exact interface call; direct/class calls and method pointers need later lowering.", offset);
                             target = NarrowVirtualReceiver(work, instruction, target);
                             if (integers64 && instruction.OpCode == "callvirt" && !constrainedCalls.ContainsKey(offset)
                                 && AbstractDeclaration(target, work, offset) is { } abstractCall)
@@ -618,7 +620,8 @@ public static partial class ValueProgramDiscovery
                 | (integers64 ? MethodAttributes.SpecialName : 0)
                 | (integers64 || fact is not null ? MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final : 0)
                 | (constructor || initializer ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
-            if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != (instance ? 0x20 : generics && input.Signature.GenericArity != 0 ? 0x10 : 0)
+            if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != ((instance ? 0x20 : 0) | (generics && input.Signature.GenericArity != 0 ? 0x10 : 0))
+                || instance && input.Signature.GenericArity != 0 && fact is null
                 || input.HasTypeInitializer && (!integers64 || (SnapshotClosed(resolved.DeclaringType, parent, offset).Attributes & TypeAttributes.BeforeFieldInit) == 0) || input.HasModuleInitializer || !exceptions && input.ExceptionRegionCount != 0
                 || !input.Locals.IsEmpty && !input.InitializeLocals
                 || ((input.Attributes & MethodAttributes.Static) != 0) == instance

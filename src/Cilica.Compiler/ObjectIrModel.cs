@@ -18,6 +18,7 @@ public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, 
     public PrimitiveReceiver? Primitive { get; init; }
     public ObjectVirtualSlot? VirtualSlot { get; init; }
     public string? VirtualName { get; init; }
+    public ClosedGenericEvidence? GenericInterfaceMethod { get; init; }
     public bool OwnerAssemblyVisible { get; init; }
 }
 
@@ -45,7 +46,7 @@ public static class ObjectDispatchLimits
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v23";
+    public const string Profile = "object-operations-ir-v24";
     public ImmutableArray<ObjectAbstractMethodDeclaration> AbstractMethods { get; init; } = [];
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
