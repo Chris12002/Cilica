@@ -130,3 +130,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0180](0180-public-retained-object-handles.md) | Public retained object handles | Accepted; typed v3 exports, explicit leases, quota preflight and guarded release |
 | [0181](0181-host-owned-utf16-copying.md) | Host-owned UTF-16 copying | Accepted; optional v3 import/copy capability with exact code units and retained string handles |
 | [0182](0182-exact-integer64-embedding.md) | Exact Integer64 embedding | Accepted; all-bit wide transfer, typed signatures and capability negotiation |
+| [0183](0183-retained-exception-capture.md) | Retained exception capture | Accepted; optional v3 capture, bounded detail copying and preserved fault reports |

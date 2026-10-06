@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Cilica.Compiler;
 
@@ -16,7 +17,7 @@ public sealed record EmbeddingObjectExport(uint Id, string Name, IrMethodId Meth
     ImmutableArray<EmbeddingValueShape> Parameters, EmbeddingValueShape Result);
 public sealed record EmbeddingObjectContract(string Name, uint SchemaVersion,
     ImmutableArray<EmbeddingReferenceBinding> References, ImmutableArray<EmbeddingObjectExport> Exports,
-    uint Utf16StringTypeId = 0);
+    uint Utf16StringTypeId = 0, bool CaptureExceptions = false);
 
 /// <summary>Version 3: integer bits, void and runtime-owned strong handles, from one validated closure.</summary>
 public static class EmbeddingObjectModuleEmitter
@@ -27,6 +28,8 @@ public static class EmbeddingObjectModuleEmitter
     public static EmbeddingModuleArtifact EmitProgram(ObjectIrProgram program, EmbeddingObjectContract contract)
     {
         ArgumentNullException.ThrowIfNull(program);
+        ArgumentNullException.ThrowIfNull(contract);
+        if (contract.CaptureExceptions) throw new ArgumentException("Exception capture requires EmitExceptions and a validated managed-exception closure.", nameof(contract));
         var native = ObjectCppEmitter.EmitProgram(program);
         return Wrap(native, program, contract, locations: false);
     }
@@ -38,7 +41,7 @@ public static class EmbeddingObjectModuleEmitter
         Validate(program.Flow.Flow.Flow.Methods, program.Flow.Bindings, program.Flow.Flow.Flow.Types.References, contract);
         var scalar = ValueScalarLowering.LowerExceptions(program);
         var native = ObjectCppEmitter.EmitExceptions(scalar);
-        return Wrap(native, scalar.Flow.Flow.Flow.Flow, contract, locations: true);
+        return Wrap(native, scalar.Flow.Flow.Flow.Flow, contract, locations: true, program.Exceptions);
     }
 
     private static void Validate(ImmutableArray<IrMethod> methods, ImmutableArray<ObjectMethodBinding> bindings, ObjectTypeCatalog catalog, EmbeddingObjectContract contract)
@@ -53,6 +56,7 @@ public static class EmbeddingObjectModuleEmitter
             && contract.References.Select(r => r.Name).Distinct(StringComparer.Ordinal).Count() == contract.References.Length
             && contract.References.Select(r => r.Type).Distinct().Count() == contract.References.Length, "duplicate reference ID/name/type.");
         var references = contract.References.ToDictionary(r => r.Id);
+        Require(!contract.CaptureExceptions || catalog.String is not null, "exception capture requires the closure's intrinsic String type.");
         if (contract.Utf16StringTypeId != 0)
             Require(references.TryGetValue(contract.Utf16StringTypeId, out var text) && text.Type == catalog.String,
                 "UTF-16 capability must bind the closure's exact String type.");
@@ -88,7 +92,7 @@ public static class EmbeddingObjectModuleEmitter
         Require(used == references.Count, "unused reference declaration.");
     }
 
-    private static EmbeddingModuleArtifact Wrap(CppArtifact native, ObjectIrProgram program, EmbeddingObjectContract contract, bool locations)
+    private static EmbeddingModuleArtifact Wrap(CppArtifact native, ObjectIrProgram program, EmbeddingObjectContract contract, bool locations, ManagedExceptionTypes? exceptions = null)
     {
         Validate(program.Flow.Methods, program.Bindings, program.Flow.Types, contract);
         var exports = contract.Exports.OrderBy(e => e.Id).ToArray();
@@ -103,6 +107,10 @@ public static class EmbeddingObjectModuleEmitter
         object publicSchema = contract.Utf16StringTypeId == 0 ? schema : new {
             schema.abiVersion, schema.name, schema.schemaVersion, schema.references, schema.exports,
             utf16StringTypeId = contract.Utf16StringTypeId };
+        if (contract.CaptureExceptions) {
+            JsonObject extended = JsonSerializer.SerializeToNode(publicSchema)!.AsObject();
+            extended.Add("captureExceptions", true); publicSchema = extended;
+        }
         string hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(publicSchema))));
         string manifest = JsonSerializer.Serialize(new { profile = Profile, contractHash = hash, contract = publicSchema,
             bindings = exports.Select(e => new { id = e.Id, imageHash = e.Method.ContentHash, methodToken = e.Method.Token, specialization = e.Method.Specialization }).ToArray(),
@@ -114,12 +122,12 @@ public static class EmbeddingObjectModuleEmitter
         string Predicate(EmbeddingValueShape s) => ObjectCppEmitter.ReferencePredicate(program.Flow.Types, types[s.ReferenceTypeId]);
         bool utf16 = contract.Utf16StringTypeId != 0;
         bool integer64 = exports.Any(e => e.Result.Kind == EmbeddingValueKind.Integer64 || e.Parameters.Any(p => p.Kind == EmbeddingValueKind.Integer64));
-        string header = EmbeddingObjectAbi.Header(prefix, hash, contract.SchemaVersion, exports, references, utf16);
+        string header = EmbeddingObjectAbi.Header(prefix, hash, contract.SchemaVersion, exports, references, utf16, contract.CaptureExceptions);
         var helpers = new StringBuilder(); var arities = new StringBuilder(); var dispatch = new StringBuilder();
         foreach (var export in exports) {
             var method = methods[export.Method];
             arities.Append(CultureInfo.InvariantCulture, $"case {export.Id}u: arity = {export.Parameters.Length}u; break;\n");
-            dispatch.Append(CultureInfo.InvariantCulture, $"case {export.Id}u: status = invoke_{export.Id}(context, parameters, completed.value); break;\n");
+            dispatch.Append(CultureInfo.InvariantCulture, $"case {export.Id}u: status = invoke_{export.Id}(context, parameters, completed.value, captured == nullptr ? nullptr : &capture); break;\n");
             helpers.Append(CultureInfo.InvariantCulture, $"static constexpr std::array<HostParameter, {export.Parameters.Length}> schema_{export.Id} = {{{{")
                 .AppendJoin(", ", export.Parameters.Select(s => "{" + ((int)s.Kind).ToString(CultureInfo.InvariantCulture) + "u, " + (s.Kind == EmbeddingValueKind.Handle ? Predicate(s) : "nullptr") + "}"))
                 .Append("}};\n");
@@ -133,11 +141,14 @@ public static class EmbeddingObjectModuleEmitter
                     + "    else { result.kind = 2u; if (reservation.publish(value, result.payload) != CILICA_V3_OK) context.pending = 6u; }\n}"
             };
             helpers.Append(CultureInfo.InvariantCulture, $$"""
-                [[gnu::noinline]] static uint32_t invoke_{{export.Id}}(Context& context, const cilica_v3_value* parameters, cilica_v3_value& result) noexcept {
+                [[gnu::noinline]] static uint32_t invoke_{{export.Id}}(Context& context, const cilica_v3_value* parameters, cilica_v3_value& result, ResultHandleReservation* capture) noexcept {
                     const auto validation = validate_arguments(context.instance, parameters, schema_{{export.Id}}.data(), {{export.Parameters.Length}}u);
                     if (validation != CILICA_V3_OK) return validation;
-                    ResultHandleReservation reservation{context.instance};
-                    {{(export.Result.Kind == EmbeddingValueKind.Handle ? "const auto reserved = reservation.reserve(); if (reserved != CILICA_V3_OK) return reserved;" : "")}}
+                    ResultHandleReservation local{context.instance};
+                    auto& reservation = capture == nullptr ? local : *capture;
+                    if ({{(export.Result.Kind == EmbeddingValueKind.Handle ? "true" : "capture != nullptr")}}) {
+                        const auto reserved = reservation.reserve(); if (reserved != CILICA_V3_OK) return reserved;
+                    }
                     Storage<std::array<{{packet}}, {{export.Parameters.Length}}>> arguments(context);
                     if (arguments.value == nullptr) {
                         context.pending = 9u; context.image = "{{method.Source.ContentHash.ToLowerInvariant()}}";
@@ -162,9 +173,9 @@ public static class EmbeddingObjectModuleEmitter
             {{EmbeddingObjectAbi.Runtime}}
             {{helpers}}
             }
-            {{EmbeddingModuleLifecycle.Emit(prefix, 3, hash, handles: true, utf16, integer64)}}
+            {{EmbeddingModuleLifecycle.Emit(prefix, 3, hash, handles: true, utf16, integer64, contract.CaptureExceptions)}}
             {{(utf16 ? EmbeddingStringAbi.Emit(prefix, ObjectCppEmitter.ReferenceDescriptor(program.Flow.Types.String!)) : "")}}
-            extern "C" uint32_t {{prefix}}_invoke(uint64_t runtime, uint32_t export_id, const cilica_v3_value* parameters, uint32_t count, cilica_v3_result* result) noexcept {
+            static uint32_t {{prefix}}_invoke_core(uint64_t runtime, uint32_t export_id, const cilica_v3_value* parameters, uint32_t count, cilica_v3_result* result, uint64_t* captured) noexcept {
                 if (result == nullptr) return CILICA_V3_INVALID_ARGUMENT;
                 std::uint32_t arity;
                 switch (export_id) { {{arities}} default: return CILICA_V3_UNKNOWN_EXPORT; }
@@ -173,6 +184,7 @@ public static class EmbeddingObjectModuleEmitter
                 Slot* slot; auto status = enter(runtime, slot);
                 if (status != CILICA_V3_OK) return status;
                 Invocation invocation{*slot}; Context context(*slot->heap, slot->execution_limit);
+                ResultHandleReservation capture{*slot->heap};
                 cilica_v3_result completed{};
                 switch (export_id) { {{dispatch}} }
                 if (status != CILICA_V3_OK && status != CILICA_V3_EXECUTION_FAILED) return status;
@@ -181,8 +193,14 @@ public static class EmbeddingObjectModuleEmitter
                     completed.method_token = context.method; completed.il_offset = context.il;
                     if (context.image != nullptr) for (std::size_t i = 0; i < 64 && context.image[i] != '\0'; ++i) completed.image_hash[i] = context.image[i];
                 }
-                *result = completed; return status;
+                uint64_t exception = 0;
+                {{(contract.CaptureExceptions ? "if (captured != nullptr && context.pending != 0 && valid_exception(context, context.exception)\n    && (context.pending == 13u || context.exception->type == runtime_exception(context.pending)))\n    (void)capture.publish(context.exception, exception);" : "")}}
+                *result = completed; if (captured != nullptr) *captured = exception; return status;
             }
+            extern "C" uint32_t {{prefix}}_invoke(uint64_t runtime, uint32_t export_id, const cilica_v3_value* parameters, uint32_t count, cilica_v3_result* result) noexcept {
+                return {{prefix}}_invoke_core(runtime, export_id, parameters, count, result, nullptr);
+            }
+            {{(contract.CaptureExceptions ? EmbeddingExceptionAbi.Emit(prefix, exceptions!, program.Flow.Types) : "")}}
             extern "C" uint32_t {{prefix}}_retain_handle(uint64_t runtime, uint64_t handle, uint64_t* retained) noexcept {
                 if (retained == nullptr) return CILICA_V3_INVALID_ARGUMENT;
                 using namespace {{prefix}}_private;

@@ -13,7 +13,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | --- | --- | --- |
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
-| 7c | Values, retained objects and structured exceptions | In progress: retained handles/void, exact UTF-16 copying and Integer64 transfer implemented; structured value copying and detailed exception transfer remain planned |
+| 7c | Values, retained objects and structured exceptions | In progress: retained handles/void, exact UTF-16/Integer64 transfer and captured type/message details implemented; structured application value copying remains planned |
 | 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
@@ -183,10 +183,43 @@ No unresolved defect remains in this slice. Local main remains an ancestor; the
 read-only remote query advertised no branch heads. No push or hosted work ran.
 Structured value and richer exception transfer remain ahead of iOS packaging.
 
+## Slice 7c.4 outcome
+
+[ADR 0183](../decisions/0183-retained-exception-capture.md) adds optional exception
+capture and detail copying. A capturing call reserves one handle after validating
+inputs, reuses it for a returned object or escaping exception, and cancels it for
+scalar/void success. Fatal failures can return no managed exception object while
+still copying their original fault code/origin. The ordinary invoke API remains
+available with its previous quota behavior.
+
+A captured exception uses existing retain/release ownership. Type/message copying
+uses caller-owned UTF-16 buffers and returns declaration identity separately from
+throw origin. Length queries and short-buffer retries never reexecute the export.
+Lazy message formatting may collect or fail within the runtime's existing budgets;
+the handle roots its inputs and the original copied fault remains intact.
+
+The focused exception/wide/string/handle/module run passed 55 checks. Two new O0/O2
+copy/release/collection race cases passed separately (57 validated cases total);
+the combined suite was not rerun after that test-only addition. C11 consumers
+compare explicit/default/parameter-formatted messages, null throws and division
+faults with .NET, preserving embedded zero and surrogate units. Other checks cover
+caught/successful calls, source origins, aliases after release, later collection,
+wrong/stale/foreign handles, one-slot reservation reuse, zero quotas, fatal arena
+failure and failure during lazy message allocation. Native builds use ASan/UBSan,
+no C++ exceptions/RTTI and the 2 KiB frame warning gate.
+
+Review covered optional schema negotiation, input validation before reservation,
+root ownership during capture/formatting, no post-formatting allocation, descriptor
+validation, output/error order and cleanup. No unresolved defect remains in this
+slice. Local main remains an ancestor; the read-only remote query advertised no
+branch heads. No push, hosted work or phone execution ran. Structured application
+values remain before iOS packaging; inner traversal and stack traces are not
+provided by this bounded capture API.
+
 ## Remaining exit gates
 
-- Complete data/handle ownership and rich exception copying
-  before connecting the real kernel to a host adapter.
+- Complete structured application value transfer and compose the existing
+  ownership/error APIs with the real kernel before connecting a host adapter.
 - Pin target toolchains and build/package reproducibly using local tools first.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests
   alone do not close this milestone.

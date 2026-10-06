@@ -1159,6 +1159,20 @@ signed/unsigned semantics. Local C11 O0/O2 comparisons cover wide limits, values
 above 2^53, overflow, division and mixed handle/scalar calls. Structured values,
 rich exception copying and phone execution remain open.
 
+Milestone 7c.4 adds optional managed-exception capture
+([ADR 0183](decisions/0183-retained-exception-capture.md)). `invoke_capture` returns
+the ordinary result plus a strong exception lease for supported escaping managed
+failures. One pre-execution reservation serves either a returned object or an
+exception; successful scalar/void calls cancel it. Fatal faults may have no
+managed object and still retain copied code/origin. `exception_copy` uses caller-
+owned UTF-16 buffers and a rooted existing formatter to copy type/message and
+source declaration identity without reexecuting an export. Formatting failures
+leave the original host fault report intact. Enabling capture changes the manifest
+hash and adds capability bit 1024; ordinary invoke behavior remains available.
+Local C11/O0/O2 sanitizer and race evidence covers ownership and quota failures.
+Structured application values, inner traversal, stack traces and phone execution
+remain outside this slice.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

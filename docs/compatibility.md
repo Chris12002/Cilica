@@ -61,6 +61,16 @@ and composed packet paths have sanitizer evidence. Structured value copying,
 richer exception transfer and phone support remain planned. See
 [ADR 0182](decisions/0182-exact-integer64-embedding.md).
 
+Milestone 7c.4 adds optional exception capture (bit 1024) for composed managed-
+exception emission. An escaping managed exception can be retained independently
+of later calls and inspected through caller-owned UTF-16 type/message buffers.
+Declaration identity and original throw origin are distinct copied records. Local
+C11 .NET comparisons, O0/O2 ASan/UBSan lifetime/quota tests and copy/release/collection
+races pass. Fatal failures may have no capturable managed object. Message formatting
+can fail under resource limits; original copied faults remain available. Inner
+traversal, stack traces, structured values and phone support remain planned. See
+[ADR 0183](decisions/0183-retained-exception-capture.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

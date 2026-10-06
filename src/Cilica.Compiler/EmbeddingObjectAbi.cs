@@ -58,7 +58,7 @@ internal static class EmbeddingObjectAbi
         };
         """;
 
-    internal static string Header(string prefix, string hash, uint schemaVersion, EmbeddingObjectExport[] exports, EmbeddingReferenceBinding[] references, bool utf16)
+    internal static string Header(string prefix, string hash, uint schemaVersion, EmbeddingObjectExport[] exports, EmbeddingReferenceBinding[] references, bool utf16, bool captureExceptions)
     {
         string macro = prefix.ToUpperInvariant();
         return $$"""
@@ -122,6 +122,7 @@ internal static class EmbeddingObjectAbi
             #ifndef CILICA_V3_CAP_INTEGER64
             #define CILICA_V3_CAP_INTEGER64 UINT64_C(512)
             #endif
+            {{(captureExceptions ? EmbeddingExceptionAbi.Types : "")}}
             #define {{macro}}_CONTRACT_HASH "{{hash}}"
             #define {{macro}}_SCHEMA_VERSION UINT32_C({{schemaVersion.ToString(CultureInfo.InvariantCulture)}})
             {{string.Join("\n", exports.Select(e => "#define " + macro + "_EXPORT_" + e.Name.ToUpperInvariant() + " UINT32_C(" + e.Id.ToString(CultureInfo.InvariantCulture) + ")"))}}
@@ -137,6 +138,7 @@ internal static class EmbeddingObjectAbi
             CILICA_V3_API uint32_t {{prefix}}_release_handle(uint64_t runtime, uint64_t handle) CILICA_V3_NOEXCEPT;
             CILICA_V3_API uint32_t {{prefix}}_destroy(uint64_t runtime) CILICA_V3_NOEXCEPT;
             {{(utf16 ? EmbeddingStringAbi.Declarations(prefix) : "")}}
+            {{(captureExceptions ? EmbeddingExceptionAbi.Declarations(prefix) : "")}}
             #ifdef __cplusplus
             }
             #endif

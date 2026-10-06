@@ -2,7 +2,7 @@
 
 The current module profile is `embedding-object-handles-v3`, described below.
 It adds typed retained object handles, exact Integer64 values, void results and optional UTF-16 copying
-to shared export modules.
+to shared export modules, with optional retained exception capture.
 V1/V2 remain supported. Local evidence is macOS ARM64; mobile support is unverified.
 
 ## Persistent Int32 profile v1
@@ -263,7 +263,8 @@ as the Int32 representation. No native managed pointer is public.
 `il_offset`, then `char image_hash[65]`. Use the emitted header and native layout;
 do not pack records or serialize padding. Successful calls clear fault fields.
 Execution failures zero the value and copy the fault code/origin, with the same
-origin and lifetime rules as v1/v2. Exception types/messages are not transferred.
+origin and lifetime rules as v1/v2. The ordinary invoke result does not transfer exception types/messages; the optional
+capture API below provides them separately.
 
 Object results grant one strong lease. Returning the same object again or calling
 `retain_handle(runtime, token, &copy)` grants another, distinct token. Tokens
@@ -316,8 +317,9 @@ its output unchanged on failure.
 The existing unloading, C linkage and platform rules continue to apply. V3 has
 local C11/shared-library and native race evidence under O0/O2 sanitizers, including
 forced collection and both emitter paths. The optional string extension below adds
-host-buffer copying. Structured value transfer, rich exception copying, iOS and Android
-device evidence remain planned.
+host-buffer copying. Structured value transfer, inner-exception traversal, stack traces, iOS and Android
+device evidence remain planned. Optional exception type/message copying is described
+below.
 
 ### Optional UTF-16 copying (7c.2)
 
@@ -416,3 +418,90 @@ execution failure has the existing zero-value/copied-fault behavior. Checked
 arithmetic and division retain managed fault ordering. Wide values need no handle
 slots but remain subject to the execution budget. Structured/borrowed values still
 cannot be disguised as wide scalars after lowering.
+
+### Retained exception capture (7c.4)
+
+Set `EmbeddingObjectContract.CaptureExceptions = true` when using `EmitExceptions`.
+The validated closure must include intrinsic String support; the ordinary object
+emitter rejects this option. It adds `captureExceptions: true` to the hashed
+contract and `CILICA_V3_CAP_EXCEPTION_CAPTURE` (1024) to capabilities. It is independent
+of the optional string-import capability and does not require a public String alias.
+Disabled contracts retain their original hashes and declarations.
+
+Enabled headers add two functions, using the module's usual prefix:
+
+```c
+uint32_t cilica_example_abi_v3_invoke_capture(
+    uint64_t runtime, uint32_t export_id,
+    const cilica_v3_value* arguments, uint32_t count,
+    cilica_v3_result* result, uint64_t* exception);
+uint32_t cilica_example_abi_v3_exception_copy(
+    uint64_t runtime, uint64_t exception,
+    uint16_t* type_name, uint32_t type_capacity,
+    uint16_t* message, uint32_t message_capacity,
+    cilica_v3_exception_info* info);
+```
+
+The existing `invoke` remains available and does not reserve an exception lease.
+Use it when only the copied code/origin is needed. Capturing invocation requires
+both output pointers and uses the same export, count, runtime and argument checks.
+After argument validation it reserves one handle slot before running managed code.
+If no slot is available, it returns `LIMIT`, leaves both outputs unchanged and
+executes no managed code. Native handle-table allocation failure similarly returns
+`ALLOCATION_FAILED`. Reference-returning exports share this single reservation
+between their result and an exception; two slots are not required.
+
+On success, `*exception` is zero and an unused reservation is released. A successful
+reference result uses the reserved slot for its normal result handle. Caught
+exceptions do not escape as handles. On `EXECUTION_FAILED`, the existing result
+copies the fault code/origin and zeroes its value. If a valid escaping managed
+exception object is available, `*exception` receives a new strong lease to it.
+Fatal faults such as execution-budget exhaustion, or failure to materialize a
+managed exception, instead set it to zero. Capture does not allocate a replacement
+exception or change the original fault. Other return statuses leave both outputs
+unchanged. Output fields and argument buffers must not overlap.
+
+A captured handle obeys ordinary retain/release rules: it belongs to this runtime
+and module, survives later calls/collection, and must be released (or destroyed
+with the runtime). It can be cloned independently. It does not contain the throw
+origin; keep the copied `cilica_v3_result` alongside it. The same managed exception
+object can be thrown more than once, so object identity is not an event identifier.
+
+`exception_copy` accepts a live handle to a supported managed exception. Zero,
+released or foreign-instance tokens return `INVALID_HANDLE`; a live non-exception
+returns `TYPE_MISMATCH`. `info` is required. Each text pointer may be null only when
+its corresponding capacity is zero. Buffers and `info` must be aligned, writable,
+non-overlapping host storage and remain valid for the call. Capacities and lengths
+are counts of numeric UInt16 code units. No normalization or terminator is added;
+embedded zero and unpaired surrogates are preserved.
+
+`cilica_v3_exception_info` contains, in order, UInt32 `type_name_length`,
+`message_length`, `type_token`, followed by `char type_image_hash[65]`. This describes
+the exception's source TypeDef declaration in the compiled closure, not its throw
+site or a host CLR reflection object. The hash is copied and null-terminated. Use
+the emitted native C layout, not packed records or serialized padding.
+
+Pass null/zero for both text buffers to query sizes. If either buffer is too small,
+the call returns `BUFFER_TOO_SMALL`, fills `info`, and leaves **both** text buffers
+untouched. Allocate the required capacities and retry the copy with the same live
+lease. On success it copies both complete texts, leaves spare capacity untouched
+and fills `info`. Neither query nor retry reexecutes the failed export. The copied
+buffers and metadata remain valid after releasing the handle or destroying the
+runtime.
+
+Message formatting uses the existing bounded native exception formatter, including
+supported default, supplied, parameter and contextual messages. It may allocate
+and collect within the existing heap/object budgets. The incoming exception lease
+roots its payloads throughout formatting; the final copy has no intervening managed
+allocation. Allocation failure returns `ALLOCATION_FAILED`; another formatter or
+internal consistency failure returns `EXECUTION_FAILED`. Both leave `info` and
+text buffers unchanged. These are failures of detail retrieval, not replacements
+for the already copied invocation fault. Retain that original report even when no
+message can be copied. Querying may allocate or populate runtime message caches;
+it is not guaranteed allocation-free.
+
+Both functions use the existing admission guard. Overlap with invoke, copy,
+retain/release or destruction on the same runtime returns `BUSY`; hosts serialize
+or retry accordingly. This profile copies type and message, not stack traces or
+an inner-exception graph. Its evidence is local macOS ARM64, with no phone-device
+compatibility claim.

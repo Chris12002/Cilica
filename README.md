@@ -34,7 +34,8 @@ compiled closure, with stable application IDs, checked manifests and configurabl
 bounded quotas. V3 adds typed retained object handles and void results.
 An optional v3 capability copies exact UTF-16 strings through host-owned buffers.
 Integer64 exports preserve exact signed/unsigned bit patterns. Structured value
-copying, rich error transfer and phone libraries remain planned;
+copying and phone libraries remain planned. Optional exception capture preserves
+a retained exception for type/message copying without reexecuting the failed call;
 iOS is the first device target.
 Broader platform and language support are planned capabilities,
 not compatibility guarantees. The [compatibility manifest](docs/compatibility.md)
