@@ -246,9 +246,10 @@
         "Read growth length through Capacity to retain explicit Int32 length conversion in supported IL.",
         "AC3.1 uses a separate lazily published per-closed-type managed static empty snapshot, distinct from Array.Empty<T>; existing runtime instances own and trace the cache.",
         "Clear all admitted element shapes and vacated slots through typed loops; this also zeroes primitive elements instead of adding a reference-shape intrinsic.",
-        "Select ordinary copied or borrowed-element search loops through an exact private grant; preserve mutation of value equality receivers observed on .NET 10.0.11."
+        "Select ordinary copied or borrowed-element search loops through an exact private grant; preserve mutation of value equality receivers observed on .NET 10.0.11.",
+        "AC4.1 adapts the pinned nested Enumerator with value-copy state, version validation, current reset and no-op Dispose. Use ordinary list accessors because closed generic lexical private field access remains gated. Interface factories and nongeneric Current remain diagnostic."
       ],
-      "scope": "Int32, admitted reference and supported inline-value elements for storage. AC3.1 mutation/snapshots, AC3.2 interface mutation and AC3.4 search/removal for admitted equality types are tested. Nullable/arbitrary-reference equality, range/copy/bulk APIs and enumeration remain gaps."
+      "scope": "Int32, admitted reference and supported inline-value elements for storage. AC3.1 mutation/snapshots, AC3.2 interface mutation and AC3.4 search/removal for admitted equality types are tested. Nullable/arbitrary-reference equality, range/copy/bulk APIs and enumeration remain gaps. Concrete nested Enumerator is supported by AC4.1; the remaining enumeration gap concerns interface factories/boxed receiver dispatch."
     },
     {
       "path": "library/Cilica.Core/ReadOnlyCollection.cs",

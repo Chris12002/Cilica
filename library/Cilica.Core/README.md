@@ -194,3 +194,8 @@ culture, floating-point and object append are not implemented.
 
 Array.AsReadOnly uses existing ReadOnlyCollection views and private per-type
 empty caches on each runtime instance (AC3.5). No new intrinsic grants.
+
+Concrete List<T>.GetEnumerator/Enumerator needs the exact nested type mapping
+`System.Collections.Generic.List`1/Enumerator` alongside List`1. AC4.1 implements
+Current/MoveNext/Dispose with mutation checks; interface factories, boxed method
+dispatch and nongeneric Current remain diagnostic.

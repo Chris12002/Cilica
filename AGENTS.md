@@ -41,6 +41,8 @@ feedback before implementation. Explain consequential choices in plain language.
   AC7b.2 numeric StringBuilder append has a fixed invariant-culture contract;
   differential hosts must select invariant culture (ADR AC0015). AC3.5 adds live
   Array.AsReadOnly views with per-type, per-instance empty caches (ADR AC0016).
+  AC4.1 adds concrete List<T>.Enumerator with version/current/copy semantics
+  (ADR AC0017); boxed interface enumeration remains unsupported.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

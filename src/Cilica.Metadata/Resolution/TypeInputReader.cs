@@ -53,7 +53,9 @@ public sealed partial class AssemblyResolver
                 Member();
                 var owner = reader.GetTypeDefinition(current);
                 lexical.Add(new(MetadataTokens.GetToken(current), owner.Attributes & TypeAttributes.VisibilityMask, owner.GetGenericParameters().Count));
-                arity = checked(arity + owner.GetGenericParameters().Count);
+                // Nested declarations repeat inherited parameters; do not count them twice.
+                // The maximum also retains the gate for under-declared nested owners.
+                arity = Math.Max(arity, owner.GetGenericParameters().Count);
                 current = owner.GetDeclaringType();
                 externallyVisible &= (owner.Attributes & TypeAttributes.VisibilityMask) ==
                     (current.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);

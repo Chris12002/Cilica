@@ -39,6 +39,9 @@ public sealed class CoreLibraryBuildTests
         names = names.Concat(new[] { ("System.Reflection", "MemberInfo"), ("System", "StringComparison"), ("System", "ValueTuple`2"), ("System.Collections", "IStructuralEquatable"), ("System.Collections", "IStructuralComparable"), ("System.Collections", "IEqualityComparer"), ("System.Collections", "IComparer"), ("System.Runtime.CompilerServices", "ITuple") }).Concat(DictionaryContractNames).Concat(CollectionContractNames).Concat(new[] { "Nullable`1", "Enum", "Delegate", "MulticastDelegate", "Action`1", "Action`2", "Func`2", "Func`3", "Predicate`1", "Comparison`1", "Guid", "Math", "IEquatable`1", "IComparable", "IComparable`1", "IFormattable" }.Select(n => ("System", n))).ToArray();
         var pairs = names.Select(name => new LibraryTypeMapping(resolver.ResolveType(contract, name.Item1, name.Item2).Value!,
             resolver.ResolveType(implementation, name.Item1, name.Item2).Value!));
+        pairs = pairs.Append(new LibraryTypeMapping(
+            resolver.ResolveType(contract, "System.Collections.Generic", "List`1", "Enumerator").Value!,
+            resolver.ResolveType(implementation, "System.Collections.Generic", "List`1", "Enumerator").Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);
         Assert.True(plan.Success, string.Join("; ", plan.Diagnostics));
         return (built, request, resolver, implementation, plan.Value!);

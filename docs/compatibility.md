@@ -2109,3 +2109,18 @@ runtime. Six probes plus the public baseline provide 2,058 repeated O0/O2 native
 Sanitizers and forced GC remain enabled. The ledger has 25 gaps and 22 controls.
 No new grants or profiles; enumeration, copying and full replay remain unfinished.
 See [ADR AC0016](decisions/AC0016-array-readonly-views.md).
+
+
+### Concrete list enumeration (AC4.1)
+
+List<T>.GetEnumerator now supplies the exact nested value-type contract with
+Current, MoveNext and Dispose. Copies advance independently; successful list
+mutations invalidate later MoveNext calls, while capacity changes and failed
+removals do not. Default/ended current values, reference/value copies and fault
+messages match the pinned runtime. Twelve authored probes plus public ListForeach
+supply 3,822 repeated O0/O2 native/.NET comparisons with forced GC and sanitizers.
+Three reduced metadata tests fix nested generic parameter double counting; 82
+existing regressions and the boxed-interface rejection pass. No new grants or
+runtime profiles. The ledger has 24 gaps and 23 controls. Interface enumeration,
+boxed receiver dispatch and full replay remain unfinished.
+See [ADR AC0017](decisions/AC0017-concrete-list-enumeration.md).

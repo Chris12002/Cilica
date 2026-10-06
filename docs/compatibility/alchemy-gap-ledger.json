@@ -20,18 +20,18 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v41",
-    "nativeProfileEvidence": "Public baseline revalidated at AC3.5 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC4.1 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
     "updatePolicy": "When a gap advances, update its diagnostic and owning slice; claim native validation only after an oracle/native comparison. No silent blanket baseline regeneration.",
     "publicProbeCount": 47,
-    "knownGapCount": 25,
-    "positiveControlCount": 22,
+    "knownGapCount": 24,
+    "positiveControlCount": 23,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "f594112f42c2da208e0d02dedccf62fcd38d26987f562ccb39a4c0871610f303",
-    "latestSlice": "AC3.5",
+    "fixtureSha256": "a0ba31ef2a77705bd58fd668a888a585e25a4831ee6a9df444d61be59af73b96",
+    "latestSlice": "AC4.1",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -132,9 +132,15 @@
       "decision": "docs/decisions/AC0016-array-readonly-views.md"
     },
     "AC4": {
-      "prerequisites": [
-        "AC3"
-      ]
+      "prerequisites": ["AC3"],
+      "status": "in-progress",
+      "completedSubslices": ["AC4.1"],
+      "remaining": "Interface and array enumerators, dictionary/key/value enumeration, nongeneric Current and required disposal/closure coverage."
+    },
+    "AC4.1": {
+      "prerequisites": ["AC3.4"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0017-concrete-list-enumeration.md"
     },
     "AC5a": {
       "prerequisites": ["AC0"],
@@ -245,10 +251,10 @@
     {"id": "D-06006653", "kind": "method", "contractToken": "0x06006653", "name": "System.Collections.Generic.KeyNotFoundException::.ctor", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 9, "privateWitness": "witnesses.json; declaration method 0x06006653"},
     {"id": "D-020009b4", "kind": "type", "contractToken": "0x020009b4", "name": "System.Collections.Generic.KeyValuePair`2", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x020009b4"},
     {"id": "D-020009b7", "kind": "type", "contractToken": "0x020009b7", "name": "System.Collections.Generic.List`1", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x020009b7"},
-    {"id": "D-02000a18", "kind": "type", "contractToken": "0x02000a18", "name": "System.Collections.Generic.List`1/Enumerator", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "unresolved-nominal", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x02000a18"},
-    {"id": "D-06006a4e", "kind": "method", "contractToken": "0x06006a4e", "name": "System.Collections.Generic.List`1/Enumerator::Dispose", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration method 0x06006a4e"},
-    {"id": "D-06006a4f", "kind": "method", "contractToken": "0x06006a4f", "name": "System.Collections.Generic.List`1/Enumerator::MoveNext", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 8, "privateWitness": "witnesses.json; declaration method 0x06006a4f"},
-    {"id": "D-06006a4c", "kind": "method", "contractToken": "0x06006a4c", "name": "System.Collections.Generic.List`1/Enumerator::get_Current", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 8, "privateWitness": "witnesses.json; declaration method 0x06006a4c"},
+    {"id": "D-02000a18", "kind": "type", "contractToken": "0x02000a18", "name": "System.Collections.Generic.List`1/Enumerator", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "unresolved-nominal", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x02000a18", "currentEvidence": "AC4.1 maps the nested List<T>.Enumerator and validates concrete GetEnumerator/Current/MoveNext/Dispose. Historical audit fields above are unchanged; private replay has not been rerun."},
+    {"id": "D-06006a4e", "kind": "method", "contractToken": "0x06006a4e", "name": "System.Collections.Generic.List`1/Enumerator::Dispose", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration method 0x06006a4e", "currentEvidence": "AC4.1 maps the nested List<T>.Enumerator and validates concrete GetEnumerator/Current/MoveNext/Dispose. Historical audit fields above are unchanged; private replay has not been rerun."},
+    {"id": "D-06006a4f", "kind": "method", "contractToken": "0x06006a4f", "name": "System.Collections.Generic.List`1/Enumerator::MoveNext", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 8, "privateWitness": "witnesses.json; declaration method 0x06006a4f", "currentEvidence": "AC4.1 maps the nested List<T>.Enumerator and validates concrete GetEnumerator/Current/MoveNext/Dispose. Historical audit fields above are unchanged; private replay has not been rerun."},
+    {"id": "D-06006a4c", "kind": "method", "contractToken": "0x06006a4c", "name": "System.Collections.Generic.List`1/Enumerator::get_Current", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 8, "privateWitness": "witnesses.json; declaration method 0x06006a4c", "currentEvidence": "AC4.1 maps the nested List<T>.Enumerator and validates concrete GetEnumerator/Current/MoveNext/Dispose. Historical audit fields above are unchanged; private replay has not been rerun."},
     {"id": "D-06006682", "kind": "method", "contractToken": "0x06006682", "name": "System.Collections.Generic.List`1::.ctor", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 54, "privateWitness": "witnesses.json; declaration method 0x06006682"},
     {"id": "D-06006683", "kind": "method", "contractToken": "0x06006683", "name": "System.Collections.Generic.List`1::.ctor", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3010"], "directSites": 39, "privateWitness": "witnesses.json; declaration method 0x06006683"},
     {"id": "D-06006684", "kind": "method", "contractToken": "0x06006684", "name": "System.Collections.Generic.List`1::.ctor", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 71, "privateWitness": "witnesses.json; declaration method 0x06006684"},
@@ -259,7 +265,7 @@
     {"id": "D-0600669d", "kind": "method", "contractToken": "0x0600669d", "name": "System.Collections.Generic.List`1::Exists", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x0600669d"},
     {"id": "D-0600669e", "kind": "method", "contractToken": "0x0600669e", "name": "System.Collections.Generic.List`1::Find", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x0600669e"},
     {"id": "D-060066a2", "kind": "method", "contractToken": "0x060066a2", "name": "System.Collections.Generic.List`1::FindIndex", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x060066a2"},
-    {"id": "D-060066a8", "kind": "method", "contractToken": "0x060066a8", "name": "System.Collections.Generic.List`1::GetEnumerator", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 8, "privateWitness": "witnesses.json; declaration method 0x060066a8"},
+    {"id": "D-060066a8", "kind": "method", "contractToken": "0x060066a8", "name": "System.Collections.Generic.List`1::GetEnumerator", "slice": "AC4", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 8, "privateWitness": "witnesses.json; declaration method 0x060066a8", "currentEvidence": "AC4.1 maps the nested List<T>.Enumerator and validates concrete GetEnumerator/Current/MoveNext/Dispose. Historical audit fields above are unchanged; private replay has not been rerun."},
     {"id": "D-060066ad", "kind": "method", "contractToken": "0x060066ad", "name": "System.Collections.Generic.List`1::Insert", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x060066ad", "currentEvidence": "AC3.1 concrete List calls and AC3.2 bounded interface mutation compositions natively validated. Historical private call sites were not rerun."},
     {"id": "D-060066b4", "kind": "method", "contractToken": "0x060066b4", "name": "System.Collections.Generic.List`1::RemoveAt", "slice": "AC3", "bindingAtAudit": "mapped", "status": "observed-binding-only", "diagnosticIds": [], "directSites": 3, "privateWitness": "witnesses.json; declaration method 0x060066b4", "currentEvidence": "AC3.1 concrete List calls and AC3.2 bounded interface mutation compositions natively validated. Historical private call sites were not rerun."},
     {"id": "D-060066b8", "kind": "method", "contractToken": "0x060066b8", "name": "System.Collections.Generic.List`1::Sort", "slice": "AC3", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3010"], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x060066b8"},
@@ -480,7 +486,7 @@
     {"id": "DictionaryRemove", "slice": "AC3", "publicFixture": "Probe_DictionaryRemove", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_DictionaryRemove", "auditDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "currentEvidence": "AC3.3 DictionaryMutationTests and public baseline; removal, clear, slot reuse and rooted lifetime checks on macOS ARM64 at O0/O2 with forced GC and sanitizers."},
     {"id": "DictionaryKeys", "slice": "AC4", "publicFixture": "Probe_DictionaryKeys", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a14 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_DictionaryKeys"},
     {"id": "DictionaryForeach", "slice": "AC4", "publicFixture": "Probe_DictionaryForeach", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a13 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_DictionaryForeach"},
-    {"id": "ListForeach", "slice": "AC4", "publicFixture": "Probe_ListForeach", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a18 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_ListForeach"},
+    {"id": "ListForeach", "slice": "AC4", "publicFixture": "Probe_ListForeach", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ListForeach", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000a18 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "currentEvidence": "AC4.1 concrete List<T>.Enumerator, native differential copy/current/version/disposal/GC tests; generic and nongeneric interface enumerator factories remain unsupported."},
     {"id": "ListRemoveAt", "slice": "AC3", "publicFixture": "Probe_ListRemoveAt", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ListRemoveAt", "auditDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "currentEvidence": "AC3.1 ListMutationTests and CompatibilityGapTests; concrete List<T> calls, macOS ARM64 O0/O2 with forced GC and ASan/UBSan."},
     {"id": "ListAddRange", "slice": "AC3", "publicFixture": "Probe_ListAddRange", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: AddRange"}, "privateWitness": "probes.json; Probe_ListAddRange", "prerequisites": ["AC4"]},
     {"id": "ListContains", "slice": "AC3", "publicFixture": "Probe_ListContains", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ListContains", "auditDiagnostic": {"id": "CIL2001", "contains": "This library member has no implemented managed body in the selected bounded core."}, "currentEvidence": "AC3.4 managed list search/removal and exact array search helpers; mutating/allocating value equality, ownership and fault checks at O0/O2 on macOS ARM64."},

@@ -61,6 +61,25 @@ public sealed class TypeInputTests
     }
 
     [Theory]
+    [InlineData(1, 1)] [InlineData(1, 2)] [InlineData(2, 3)]
+    public void Nested_generic_snapshots_count_inherited_parameters_once(int outerArity, int innerArity)
+    {
+        var builder = Builder(); var objectBase = builder.Type("System", "Object");
+        var outer = builder.Type("Example", "Outer", baseType: objectBase, arity: outerArity);
+        var inner = builder.Type("", "Inner", parent: outer, baseType: objectBase, arity: innerArity);
+        var method = builder.Method("Read", [0, 0, 8], emit: il => { il.LoadConstantI4(7); il.OpCode(ILOpCode.Ret); });
+        using var files = new ResolverFiles(); using var resolver = files.Open();
+        var image = resolver.OpenInput(files.Write("nested.dll", builder.Build())).Value!;
+        var type = resolver.ReadTypeInput(image, inner); Assert.True(type.Success);
+        Assert.Equal(innerArity, type.Value!.OwnerGenericArity);
+        var body = resolver.ReadMethodInput(image, method); Assert.True(body.Success);
+        Assert.Equal(innerArity, body.Value!.OwnerGenericArity);
+        var declaration = resolver.ReadMethodDeclarationInput(image, method); Assert.True(declaration.Success);
+        Assert.Equal(innerArity, declaration.Value!.OwnerGenericArity);
+        Assert.Equal(2, type.Value.LexicalOwners.Length);
+    }
+
+    [Theory]
     [InlineData(0)]
     [InlineData(999)]
     public void Nil_or_nonexistent_type_rows_are_diagnostics(int row)

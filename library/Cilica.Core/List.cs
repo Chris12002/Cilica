@@ -118,6 +118,48 @@ namespace System.Collections.Generic
             items[size] = default;
             version++;
         }
+        // Use ordinary same-assembly accessors until generic lexical private
+        // field access has its own closed-owner proof.
+        internal int EnumerationVersion => version;
+        public Enumerator GetEnumerator() => new Enumerator(this);
+        public struct Enumerator : IEnumerator<T>, Collections.IEnumerator
+        {
+            private readonly List<T> list;
+            private readonly int version;
+            private int index;
+            private T current;
+            internal Enumerator(List<T> list)
+            {
+                this.list = list;
+                version = list.EnumerationVersion;
+                index = 0;
+                current = default;
+            }
+            public void Dispose() { }
+            public bool MoveNext()
+            {
+                if (version != list.EnumerationVersion)
+                    throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                if ((uint)index < (uint)list.Count)
+                {
+                    current = list[index];
+                    index++;
+                    return true;
+                }
+                current = default;
+                index = -1;
+                return false;
+            }
+            public T Current => current;
+            object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+            void Collections.IEnumerator.Reset()
+            {
+                if (version != list.EnumerationVersion)
+                    throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                index = 0;
+                current = default;
+            }
+        }
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
         Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
         object Collections.IList.this[int index] { get => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke(); set { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); } }

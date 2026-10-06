@@ -62,7 +62,9 @@ public sealed partial class AssemblyResolver
             inspectOwner?.Invoke();
             var definition = reader.GetTypeDefinition(current);
             lexical.Add(new(MetadataTokens.GetToken(current), definition.Attributes & TypeAttributes.VisibilityMask, definition.GetGenericParameters().Count));
-            arity = checked(arity + definition.GetGenericParameters().Count);
+            // Nested declarations repeat inherited parameters; do not count them twice.
+            // The maximum also retains the gate for under-declared nested owners.
+            arity = Math.Max(arity, definition.GetGenericParameters().Count);
             var parent = definition.GetDeclaringType();
             visible &= (definition.Attributes & TypeAttributes.VisibilityMask) == (parent.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
             var visibility = definition.Attributes & TypeAttributes.VisibilityMask;
