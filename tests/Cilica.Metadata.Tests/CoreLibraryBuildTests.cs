@@ -158,7 +158,8 @@ public sealed class CoreLibraryBuildTests
         var hostileInput = scope.OpenInput(files.Write("cache-caller.dll", hostile.Build())).Value!;
         var privateCache = ValueTranslator.TranslateIntegerObjects(scope, hostileInput, hostileRoot, implementation);
         Assert.False(privateCache.Success);
-        Assert.Contains(privateCache.Diagnostics, d => d.Message.Contains("private to the selected core", StringComparison.Ordinal));
+        Assert.Contains(privateCache.Diagnostics, d => d.Id == DiagnosticIds.ExecutionUnsupported
+            && d.Message.Contains("Explicit type use requires lexical declaring scope", StringComparison.Ordinal));
         var probes = new[] { ("Text", (Func<int, int, int>)CoreLibraryProbe.Text), ("Fault", CoreLibraryProbe.Fault), ("Formatting", CoreLibraryProbe.Formatting), ("InvariantIdentity", CoreLibraryProbe.InvariantIdentity), ("IntegerHashes", CoreLibraryProbe.IntegerHashes), ("IntegerText", CoreLibraryProbe.IntegerText), ("IntegerHeapText", CoreLibraryProbe.IntegerHeapText), ("IntegerTextIdentity", CoreLibraryProbe.IntegerTextIdentity) };
         var translated = probes.Select(probe => {
             var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CoreLibraryProbe).GetMethod(probe.Item1)!.MetadataToken);
@@ -169,6 +170,7 @@ public sealed class CoreLibraryBuildTests
             Assert.False(denied.Success); Assert.Contains(denied.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
             return (probe.Item1, result.Program!, probe.Item2);
         }).ToArray();
-        await IntegerObjectTranslationTests.VerifyTranslated(optimized, translated);
+        foreach (var batch in translated.Chunk(3))
+            await IntegerObjectTranslationTests.VerifyTranslated(optimized, batch);
     }
 }

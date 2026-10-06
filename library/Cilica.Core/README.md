@@ -290,3 +290,18 @@ removing any exact layout/constructor grant fails admission. See ADR AC0038.
 Frozen EngineStep advances to List<DomainEvent>(IEnumerable<DomainEvent>) in
 FinalizeAccepted IL_0005. StateLookup still hits the unchanged 256-type bound.
 Full engine execution and saved-game replay remain unverified.
+
+### Int32 actual-value range messages (AC8.7)
+
+Selected ArgumentOutOfRangeException(String,Object,String) construction admits
+null or a directly boxed selected Int32 in the same block. Both IR stages verify
+the exact box and exception identity. The exception retains the original box with
+precise tracing; Message appends the pinned actual-value text after its parameter
+text, including Int32.MinValue. The intermediate message is rooted across allocation.
+Aliases, other payloads and ActualValue retrieval remain diagnostic. This is a
+prerequisite for collection-copy range checks, not general actual-value dispatch.
+Native profile is v43 and both managed-exception IR stages are v5; layout v17 stays.
+Four probes pass 1,176 repeated O0/O2 native/.NET comparisons; additional O0/O2
+native checks cover retained-box collection, intermediate allocation failure,
+origin preservation and corrupted roots. Existing confinement and public baseline
+checks pass. See ADR AC0039. Full engine/state/replay execution remains unverified.

@@ -25,7 +25,7 @@ public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<Obj
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "managed-exceptions-ir-v4";
+    public const string Profile = "managed-exceptions-ir-v5";
 }
 
 public static class ManagedExceptionIrValidator
@@ -39,7 +39,7 @@ public static class ManagedExceptionIrValidator
         ArgumentNullException.ThrowIfNull(program.Flow.Flow.Flow);
         var flow = program.Flow.Flow.Flow;
         _ = ValueLayoutPlanner.Build(flow.Types);
-        var rules = new ManagedExceptionRules(program.Exceptions, flow.Types.References);
+        var rules = new ManagedExceptionRules(program.Exceptions, flow.Types.References, flow.Types.Types);
         if (!program.Flow.Bindings.IsDefault && program.Flow.Bindings.Any(b => b is not null && program.Exceptions.Types.Contains(b.Owner) && (b.Kind != ObjectMethodKind.Static || b.TypeInitializerName is not null)))
             throw new ArgumentException("Intrinsic exception shells cannot declare ordinary constructors or instance method bodies.", nameof(program));
         var validated = ValueArrayIrValidator.ValidateComposition(program.Flow.Flow, program.Flow.Bindings,
@@ -53,16 +53,20 @@ internal sealed class ManagedExceptionRules
 {
     internal ManagedExceptionTypes Types { get; }
     private readonly ObjectTypeCatalog _catalog;
+    private readonly ObjectTypeId? _actualInteger;
     private readonly HashSet<ObjectTypeId> _types;
     private readonly ObjectTypeRelations _relations;
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new ArgumentException("Invalid managed exception IR: " + message);
     }
-    internal ManagedExceptionRules(ManagedExceptionTypes types, ObjectTypeCatalog catalog)
+    internal ManagedExceptionRules(ManagedExceptionTypes types, ObjectTypeCatalog catalog, ImmutableArray<ValueTypeLayout> values = default)
     {
         ArgumentNullException.ThrowIfNull(types);
         Types = types; _catalog = catalog; _relations = new(catalog);
+        _actualInteger = values.IsDefault ? null : values.Where(t => t.Source.ContentHash == catalog.ObjectBase.ContentHash
+            && t.Source.Name == "System.Int32" && t.ScalarBox == System.Reflection.Metadata.PrimitiveTypeCode.Int32)
+            .Select(t => ObjectTypeId.From(t.Source)).SingleOrDefault();
         Require(!types.Types.IsDefaultOrEmpty && types.Types.Length <= ObjectModelLimits.MaximumTypes
             && types.Types.All(t => t is not null), "bounded exception type identities are required.");
         _types = types.Types.ToHashSet();
@@ -91,7 +95,10 @@ internal sealed class ManagedExceptionRules
             "argument exception base must match its runtime identity.");
         foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.ArgumentNull or ExceptionResourceKind.ArgumentOutOfRange))
             Require(types.ArgumentBase is not null && resource.Type != types.ArgumentBase
-                && classes[resource.Type].BaseType == types.ArgumentBase, "argument resources require direct descendants of the selected argument base.");
+                && classes[resource.Type].BaseType == types.ArgumentBase
+                && resource.Type.ContentHash == catalog.ObjectBase.ContentHash
+                && classes[resource.Type].Source.Name == "System." + resource.Kind + "Exception",
+                "argument resources require exact selected names, images and direct descendants of the selected argument base.");
         foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.System or ExceptionResourceKind.Arithmetic or ExceptionResourceKind.Format or ExceptionResourceKind.KeyNotFound))
         {
             var parent = resource.Kind == ExceptionResourceKind.System ? types.Base
@@ -113,13 +120,25 @@ internal sealed class ManagedExceptionRules
     private bool StringOperand(int? operand, IReadOnlyList<IrType> values) => operand is null
         || operand is int index && index >= 0 && index < values.Count
             && (_catalog.String is not null && values[index] == IrType.Reference(_catalog.String) || values[index] == IrType.NullReference);
-    internal bool Creation(IrExpression.NewException creation, IrType result, IReadOnlyList<IrType> values) =>
+    internal bool Creation(IrExpression.NewException creation, IrType result, IReadOnlyList<IrType> values, IrBlock block) =>
         creation.Type is not null && _types.Contains(creation.Type) && result == IrType.Reference(creation.Type)
         && StringOperand(creation.Message, values) && StringOperand(creation.ParameterName, values)
+        && (creation.ActualValue is null || _catalog.Integer64
+            && Types.Resources.Any(r => r.Type == creation.Type && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)
+            && creation.Message is not null && creation.ParameterName is not null && ActualValue(creation.ActualValue.Value, values, block))
         && (creation.Inner is null || creation.Type == Types.TypeInitialization && creation.Inner is int inner && inner >= 0 && inner < values.Count && Throwable(values[inner]))
         && (creation.Type == Types.TypeInitialization ? creation.TypeName is not null && _catalog.String is not null
             && creation.Message is null && creation.ParameterName is null && StringOperand(creation.TypeName, values) : creation.TypeName is null)
         && (creation.ParameterName is null || Types.ArgumentBase is not null && _relations.Ancestors[creation.Type].Contains(Types.ArgumentBase));
+    private bool ActualValue(int value, IReadOnlyList<IrType> values, IrBlock block)
+    {
+        if (value < 0 || value >= values.Count) return false;
+        var expression = block.Values[value].Expression;
+        if (expression is IrExpression.Null) return values[value] == IrType.NullReference;
+        return _actualInteger is not null && values[value] == IrType.Reference(_catalog.ObjectBase)
+            && (expression is IrExpression.BoxValue box && box.Type == _actualInteger
+                || expression is IrExpression.BoxScalars scalar && scalar.Type == _actualInteger);
+    }
     internal bool InnerException(IrExpression.ExceptionInnerException read, IrType result, IReadOnlyList<IrType> values) =>
         _catalog.Integer64 && result == IrType.Reference(Types.Base) && read.Operand >= 0 && read.Operand < values.Count && Throwable(values[read.Operand]);
     internal bool TypeName(IrExpression.ExceptionTypeName read, IrType result, IReadOnlyList<IrType> values) =>

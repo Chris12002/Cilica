@@ -162,6 +162,11 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/KeyNotFoundException.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/KeyNotFoundException.cs",
       "sha256": "0f1d0f1f948acb135ec2d934f4539d730632cf60a8132ddb5b96066282859af4"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ArgumentOutOfRangeException.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/ArgumentOutOfRangeException.cs",
+      "sha256": "c391bf2fc83e6f08fd94350b045de99252a7915b37fa0adc045be0abe3dfbc97"
     }
   ],
   "adaptations": [
@@ -555,6 +560,15 @@
         "Selected KeyNotFoundException layout and default/string constructors require exact grants; the runtime uses existing fieldless exception payloads."
       ],
       "scope": "Default and string-message construction, catches and inherited Message; inner-argument constructors, HResult and serialization remain unsupported."
+    },
+    {
+      "path": "src/Cilica.Compiler/ObjectCppExceptions.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/ArgumentOutOfRangeException.cs",
+      "contracts": [
+        "The exact selected (String,Object,String) range constructor retains null or one directly boxed selected Int32, with a traced payload and independent exact grant.",
+        "Message appends the pinned Actual value was {0}. resource to the base parameter message on each access, using invariant signed decimal and target platform newline. Unsigned magnitude preserves Int32.MinValue."
+      ],
+      "scope": "Bounded integer/null message construction only; aliases, other payloads and ActualValue retrieval remain unsupported."
     }
   ]
 }

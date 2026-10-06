@@ -138,7 +138,7 @@ internal static class IrValidator
                         Offset(value.ILOffset);
                         Require(value.Expression switch
                         {
-                            IrExpression.NewException creation => exceptions is not null && exceptions.Creation(creation, value.Type, valueTypes) && objectRules?.TypeTest(method, creation.Type) == true,
+                            IrExpression.NewException creation => exceptions is not null && exceptions.Creation(creation, value.Type, valueTypes, block) && objectRules?.TypeTest(method, creation.Type) == true,
                             IrExpression.ExceptionInnerException inner => exceptions is not null && exceptions.InnerException(inner, value.Type, valueTypes),
                             IrExpression.ExceptionTypeName name => exceptions is not null && exceptions.TypeName(name, value.Type, valueTypes),
                             IrExpression.ExceptionParameterName parameter => exceptions is not null && exceptions.ParameterName(parameter, value.Type, valueTypes),

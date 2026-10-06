@@ -130,7 +130,7 @@ public static class ValueTranslator
             foreach (var method in input.Methods)
             {
                 var body = new Body(method, methods, fields, arrays, classes, boxing, input.Types.References.Delegates.ToDictionary(d => ObjectTypeId.From(d.Source)), types, input.Types.References.ObjectBase,
-                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32), input.Exceptions, input.Types.References.String, boxedRelations).Translate();
+                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32), input.Exceptions, input.Types.References.String, boxedRelations, input.Types.Types.FirstOrDefault(t => t.Source.Name == "System.Int32" && t.Source.ContentHash == input.Types.References.ObjectBase.ContentHash && t.ScalarBox == PrimitiveTypeCode.Int32) is { } intLayout ? ObjectTypeId.From(intLayout.Source) : null).Translate();
                 if (!resources.Add(body)) Fail(method, 0, "Aggregate value IR resource limit exceeded.", DiagnosticIds.TranslationLimit);
                 translated.Add(body);
             }
@@ -195,7 +195,7 @@ public static class ValueTranslator
             + " IL_" + offset.ToString("x4", CultureInfo.InvariantCulture)));
 
     private sealed class Body(ValueMethodInput method, Dictionary<IrMethodId, ValueMethodInput> methods,
-        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray, ManagedExceptionTypes? exceptions, ObjectTypeId? stringType, BoxedTypeRelations? boxedRelations)
+        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray, ManagedExceptionTypes? exceptions, ObjectTypeId? stringType, BoxedTypeRelations? boxedRelations, ObjectTypeId? actualInteger)
     {
         private int _statements, _inputs, _edges;
         private void Error(int offset, string message, string code = DiagnosticIds.InconsistentStack) => Fail(method, offset, message, code);
@@ -338,6 +338,16 @@ public static class ValueTranslator
                                 constructorIntrinsic.MessageArgument < 0 ? null : constructorArguments[constructorIntrinsic.MessageArgument],
                                 constructorIntrinsic.ParameterArgument < 0 ? null : constructorArguments[constructorIntrinsic.ParameterArgument]), true);
                             break;
+                        case "newobj" when method.Intrinsics.TryGetValue(offset, out var actualFault) && actualFault.Kind == ValueIntrinsic.NewArgumentOutOfRangeActual:
+                            int actualMessage = Pop(offset, IrType.Reference(stringType!));
+                            int actualValue = Pop(offset, IrType.Reference(objectBase));
+                            int actualName = Pop(offset, IrType.Reference(stringType!));
+                            if (valueExpressions[actualValue] is not IrExpression.Null
+                                && (valueExpressions[actualValue] is not IrExpression.BoxValue actualBox
+                                    || actualInteger is null || actualBox.Type != actualInteger))
+                                Error(offset, "Actual-value range faults require null or a directly boxed selected Int32 in the same block; aliases and other payloads need later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            Push(offset, IrType.Reference(actualFault.Type), new IrExpression.NewException(actualFault.Type,
+                                Message: actualMessage, ParameterName: actualName, ActualValue: actualValue), true); break;
                         case "newobj" when method.Intrinsics.TryGetValue(offset, out var initialization) && initialization.Kind == ValueIntrinsic.NewTypeInitializationException:
                             int innerException = Pop(offset, IrType.Reference(exceptions!.Base));
                             int initializedName = Pop(offset, IrType.Reference(stringType!));

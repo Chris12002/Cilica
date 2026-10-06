@@ -67,6 +67,11 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
                         case IrExpression.Call call:
                             if (!Call(call.Target, call.Arguments, call.VirtualDispatch, aliases, depth)) return false;
                             break;
+                        // The exception validator proves a direct Int32 box retained in an
+                        // opaque payload. No ActualValue getter is admitted in this slice.
+                        case IrExpression.NewException e when e.ActualValue is not null
+                            && !Used(new[] {e.Message, e.ParameterName, e.Inner, e.TypeName}.Where(v => v.HasValue).Select(v => v!.Value)):
+                            break;
                         case IrExpression.CheckBox check when aliases.Contains(check.Operand): aliases.Add(value.Id); break;
                         // Exact payload tests preserve the original reference on
                         // success. Follow that alias; never exempt interface tests.
@@ -108,7 +113,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
         IrExpression.Binary b => [b.Left, b.Right], IrExpression.Binary64 b => [b.Left, b.Right],
         IrExpression.Unary u => [u.Operand], IrExpression.Not64 u => [u.Operand],
         IrExpression.ConvertInteger c => [c.Operand], IrExpression.IntegerCast c => [c.Operand],
-        IrExpression.NewException e => new[] {e.Message, e.ParameterName, e.Inner, e.TypeName}.Where(v => v.HasValue).Select(v => v!.Value),
+        IrExpression.NewException e => new[] {e.Message, e.ParameterName, e.Inner, e.TypeName, e.ActualValue}.Where(v => v.HasValue).Select(v => v!.Value),
         IrExpression.ObjectIdentityHash e => [e.Operand],
         IrExpression.ObjectGetType e => [e.Operand], IrExpression.RuntimeTypeHash e => [e.Operand],
         IrExpression.ExceptionMessage e => [e.Operand], IrExpression.ExceptionParameterName e => [e.Operand],

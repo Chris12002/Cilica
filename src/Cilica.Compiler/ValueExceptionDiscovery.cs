@@ -147,6 +147,20 @@ public static partial class ValueProgramDiscovery
             {
                 IncludeReference(target.DeclaringType, work, offset);
                 if (TypeInitializationExceptionCall(work, instruction, target, owner, input) is { } special) return special;
+                if (integers64 && instruction.OpCode == "newobj" && input.DeclaredName == ".ctor"
+                    && _exceptionResources.Any(r => r.Type == owner && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)
+                    && signature.Parameters.Count == 3)
+                {
+                    if (input.Attributes != (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
+                        || signature.Header != 0x20 || !Primitive(signature.ReturnType, PrimitiveTypeCode.Void)
+                        || !Primitive(signature.Parameters[0], PrimitiveTypeCode.String)
+                        || !Primitive(signature.Parameters[1], PrimitiveTypeCode.Object)
+                        || !Primitive(signature.Parameters[2], PrimitiveTypeCode.String))
+                        Fail(work, "Actual-value range faults require the exact selected (String, Object, String) constructor.", offset);
+                    Authorize(LibraryIntrinsicCapability.ArgumentOutOfRangeActualConstructor);
+                    _ = IncludeString(work, offset);
+                    return new(ValueIntrinsic.NewArgumentOutOfRangeActual, owner, 3);
+                }
                 if (instruction.OpCode == "newobj" && input.DeclaredName == ".ctor")
                 {
                     ValidateExceptionConstructor(target, work, offset, 0);

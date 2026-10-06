@@ -197,6 +197,7 @@ namespace System
         [MethodImpl(MethodImplOptions.InternalCall)] public extern ArgumentOutOfRangeException();
         [MethodImpl(MethodImplOptions.InternalCall)] public extern ArgumentOutOfRangeException(string paramName);
         [MethodImpl(MethodImplOptions.InternalCall)] public extern ArgumentOutOfRangeException(string paramName, string message);
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern ArgumentOutOfRangeException(string paramName, object actualValue, string message);
     }
 }
 

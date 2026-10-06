@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v42";
+    public const string Profile = "object-frames-native-v43";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -213,7 +213,7 @@ public static class ObjectCppEmitter
         if (!boxedPayloads.IsEmpty)
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
         if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, program.Flow.Types, TypeSymbol,
-            ManagedExceptionCastMessages.Build(program.Flow.Methods, program.Flow.Types, valueLayouts.IsDefault ? [] : valueLayouts));
+            ManagedExceptionCastMessages.Build(program.Flow.Methods, program.Flow.Types, valueLayouts.IsDefault ? [] : valueLayouts), valueLayouts);
         var boxedRelations = valueLayouts.IsDefault ? null : new BoxedTypeRelations(program.Flow.Types, valueLayouts);
         // Exact membership compares untrusted descriptor addresses without dereferencing them.
         // This covers nominal/interface ancestry, vector covariance and widening to Object.
@@ -505,7 +505,8 @@ public static class ObjectCppEmitter
                                         .Append(creation.Message is int messageValue ? Value(messageValue) : "nullptr").Append(creation.TypeName is not null ? ", 3u, " : creation.Message is null ? ", 1u, " : ", 0u, ")
                                         .Append(creation.ParameterName is int parameterValue ? Value(parameterValue) : "nullptr").Append(", ")
                                         .Append(creation.Inner is int innerValue ? Value(innerValue) : "nullptr").Append(", ")
-                                        .Append(creation.TypeName is int nameValue ? Value(nameValue) : "nullptr").Append(");\n");
+                                        .Append(creation.TypeName is int nameValue ? Value(nameValue) : "nullptr").Append(", ")
+                                        .Append(creation.ActualValue is int actualValue ? Value(actualValue) : "nullptr").Append(");\n");
                                     Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
                                     expression = "f->exception_result.value"; break;
                                 case IrExpression.ExceptionInnerException inner:

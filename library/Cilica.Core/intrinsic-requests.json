@@ -754,5 +754,12 @@
     "Member": ".ctor",
     "ParameterCount": 1,
     "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ArgumentOutOfRangeException",
+    "Member": ".ctor",
+    "ParameterCount": 3,
+    "Capability": "ArgumentOutOfRangeActualConstructor"
   }
 ]

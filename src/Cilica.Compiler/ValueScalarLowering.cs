@@ -465,7 +465,7 @@ public static class ValueScalarLowering
                                 IrExpression.Compare compare => compare with { Left = One(compare.Left), Right = One(compare.Right) },
                                 IrExpression.Call call => call with { Arguments = Arguments(call.Arguments, true) },
                                 IrExpression.AddressField field => field with { Receiver = One(field.Receiver) },
-                                IrExpression.NewException e => e with { Message = e.Message is int message ? One(message) : null, ParameterName = e.ParameterName is int parameter ? One(parameter) : null, Inner = e.Inner is int inner ? One(inner) : null, TypeName = e.TypeName is int name ? One(name) : null },
+                                IrExpression.NewException e => e with { Message = e.Message is int message ? One(message) : null, ParameterName = e.ParameterName is int parameter ? One(parameter) : null, Inner = e.Inner is int inner ? One(inner) : null, TypeName = e.TypeName is int name ? One(name) : null, ActualValue = e.ActualValue is int actual ? One(actual) : null },
                                 IrExpression.ExceptionInnerException e => e with { Operand = One(e.Operand) },
                                 IrExpression.ExceptionTypeName e => e with { Operand = One(e.Operand) },
                                 IrExpression.ExceptionParameterName e => e with { Operand = One(e.Operand) },
