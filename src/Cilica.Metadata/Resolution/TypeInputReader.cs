@@ -23,6 +23,46 @@ public sealed partial class AssemblyResolver
         });
     }
 
+    /// <summary>Reads bounded declaration nesting without inspecting fields, interfaces or initializers.</summary>
+    public ResolutionResult<TypeAccessInput> ReadTypeAccess(ResolvedType type, MemberResolutionBudget budget,
+        int maximumOwnerDepth = TypeReadLimits.MaximumSupportedOwnerDepth)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(budget);
+        if (maximumOwnerDepth is <= 0 or > TypeReadLimits.MaximumSupportedOwnerDepth)
+            throw new ArgumentOutOfRangeException(nameof(maximumOwnerDepth));
+        return Bind(type.Assembly, type.Handle, () =>
+        {
+            var owners = ReadTypeOwners(type.Assembly.Image.Reader, type.Handle, maximumOwnerDepth, () => InspectMember(budget));
+            var source = new TypeSource(type.Assembly.Identity.DisplayName, type.Assembly.ContentHash,
+                MetadataTokens.GetToken(type.Handle), new NameFormatter(type.Assembly.Image.Reader).TypeDefinitionName(type.Handle));
+            return new TypeAccessInput(source, owners.Arity, owners.Visible, owners.Lexical);
+        });
+    }
+
+    private (int Arity, bool Visible, ImmutableArray<LexicalTypeOwner> Lexical) ReadTypeOwners(
+        MetadataReader reader, TypeDefinitionHandle handle, int maximumOwnerDepth, Action member)
+    {
+        int arity = 0; bool visible = true;
+        var lexical = ImmutableArray.CreateBuilder<LexicalTypeOwner>();
+        var owners = new HashSet<TypeDefinitionHandle>();
+        for (var current = handle; !current.IsNil;)
+        {
+            if (!owners.Add(current)) throw Failure(DiagnosticIds.InvalidSignature, "Declaring-type chain is cyclic.");
+            if (owners.Count > maximumOwnerDepth)
+                throw Failure(DiagnosticIds.TranslationLimit, "Declaring-type depth limit exceeded.");
+            member();
+            var owner = reader.GetTypeDefinition(current);
+            lexical.Add(new(MetadataTokens.GetToken(current), owner.Attributes & TypeAttributes.VisibilityMask, owner.GetGenericParameters().Count));
+            // Nested declarations repeat inherited parameters; retain the existing maximum.
+            arity = Math.Max(arity, owner.GetGenericParameters().Count);
+            current = owner.GetDeclaringType();
+            visible &= (owner.Attributes & TypeAttributes.VisibilityMask) ==
+                (current.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
+        }
+        return (arity, visible, lexical.ToImmutable());
+    }
+
     private static bool PrimitiveLiteral(MetadataReader reader, FieldDefinitionHandle handle,
         FieldDefinition field, TypeSignature signature)
     {
@@ -74,30 +114,13 @@ public sealed partial class AssemblyResolver
         {
             var reader = assembly.Image.Reader;
             var type = reader.GetTypeDefinition(handle);
-            int work = 0, arity = 0;
-            bool externallyVisible = true;
+            int work = 0;
             void Member()
             {
                 if (++work > limits.MaximumMembers)
                     throw Failure(DiagnosticIds.TranslationLimit, "Type input exceeds the metadata-member limit.");
             }
-            var lexical = ImmutableArray.CreateBuilder<LexicalTypeOwner>();
-            var owners = new HashSet<TypeDefinitionHandle>();
-            for (var current = handle; !current.IsNil;)
-            {
-                if (!owners.Add(current)) throw Failure(DiagnosticIds.InvalidSignature, "Declaring-type chain is cyclic.");
-                if (owners.Count > limits.MaximumOwnerDepth)
-                    throw Failure(DiagnosticIds.TranslationLimit, "Declaring-type depth limit exceeded.");
-                Member();
-                var owner = reader.GetTypeDefinition(current);
-                lexical.Add(new(MetadataTokens.GetToken(current), owner.Attributes & TypeAttributes.VisibilityMask, owner.GetGenericParameters().Count));
-                // Nested declarations repeat inherited parameters; do not count them twice.
-                // The maximum also retains the gate for under-declared nested owners.
-                arity = Math.Max(arity, owner.GetGenericParameters().Count);
-                current = owner.GetDeclaringType();
-                externallyVisible &= (owner.Attributes & TypeAttributes.VisibilityMask) ==
-                    (current.IsNil ? TypeAttributes.Public : TypeAttributes.NestedPublic);
-            }
+            var owners = ReadTypeOwners(reader, handle, limits.MaximumOwnerDepth, Member);
             if (type.GetFields().Count > limits.MaximumFields)
                 throw Failure(DiagnosticIds.TranslationLimit, "Type input exceeds the field limit.");
             if (type.GetInterfaceImplementations().Count > limits.MaximumInterfaces)
@@ -159,10 +182,10 @@ public sealed partial class AssemblyResolver
             }
             bool typeInitializer = Initializer(type), moduleInitializer = Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1)));
             bool byRefLike = TypeMarkers.IsByRefLike(new(assembly, handle), Member);
-            return new TypeInput(source, type.Attributes, arity, assembly.IsReferenceAssembly, baseType,
+            return new TypeInput(source, type.Attributes, owners.Arity, assembly.IsReferenceAssembly, baseType,
                 type.GetInterfaceImplementations().Count, layout.PackingSize, layout.Size,
                 typeInitializer, moduleInitializer, fields.ToImmutable(), work)
-                { LexicalOwners = lexical.ToImmutable(), Interfaces = interfaces.ToImmutable(), ExternallyVisible = externallyVisible, IsByRefLike = byRefLike };
+                { LexicalOwners = owners.Lexical, Interfaces = interfaces.ToImmutable(), ExternallyVisible = owners.Visible, IsByRefLike = byRefLike };
         });
     }
 }

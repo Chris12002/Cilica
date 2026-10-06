@@ -16,6 +16,21 @@ public static partial class ValueProgramDiscovery
     {
         private readonly Dictionary<(string Image, int Token), OperandTypeUses> _sourceTypeUses = [];
 
+        private readonly Dictionary<ObjectTypeId, TypeAccessInput> _typeAccess = [];
+
+        private TypeAccessInput TypeAccess(ResolvedType type, Work work, int offset)
+        {
+            var id = ObjectModelBuilder.Id(type);
+            if (_snapshots.TryGetValue(id, out var structural))
+                return new(structural.Source, structural.OwnerGenericArity, structural.ExternallyVisible, structural.LexicalOwners);
+            if (_typeAccess.TryGetValue(id, out var cached)) return cached;
+            var access = Require(resolver.ReadTypeAccess(type, _metadata), work, offset);
+            // Cache size and metadata work stay bounded independently. Additional
+            // declarations are checked without retention, charging every read.
+            if (_typeAccess.Count < ObjectModelLimits.MaximumTypes) _typeAccess.Add(id, access);
+            return access;
+        }
+
         private void CheckOperandTypeUses(Work work, MethodInstruction instruction)
         {
             if (instruction.OpCode is not ("call" or "callvirt" or "newobj" or "ldftn" or "ldvirtftn"
@@ -78,7 +93,7 @@ public static partial class ValueProgramDiscovery
                     switch (item.Type)
                     {
                         case TypeSignature.Named named:
-                            var declaration = Snapshot(named.Definition, work, offset);
+                            var declaration = TypeAccess(named.Definition, work, offset);
                             if (declaration.ExternallyVisible || declaration.Source.ContentHash == work.Binding.Owner.ContentHash
                                 && declaration.Source.Token == work.Binding.Owner.Token) break;
                             if (item.Argument && named.Kind == SignatureTypeKind.ValueType)

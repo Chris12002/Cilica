@@ -586,3 +586,20 @@ roots and 65 snapshots outside explicit value/reference roots. These are partial
 counts, not emitted layouts. StateLookup remains at 257/256 discovered identities.
 Next separate lexical visibility reads from structural layout reads; do not infer
 capacity from either failure. See ADR AC0056 and artifacts/alchemy-type-classification.
+
+
+### Declaration-only visibility reads (AC8.11)
+
+Lexical source-type checks now read declaration nesting without loading fields,
+interfaces or initializers. A shared owner-chain reader preserves structural and
+lexical visibility facts. The visibility cache retains at most 256 entries;
+uncached declarations charge the existing metadata ledger. Actual enum/layout
+validation and all type, field, method and metadata limits remain unchanged.
+
+Twenty-nine focused checks pass, including 294 O0/O2 native comparisons across
+257 otherwise-unused generic identities; 70 existing access, array-evidence, enum,
+core and public-baseline checks also pass. Frozen EngineStep gets beyond the
+snapshot limit and now requires IOrderedEnumerable for OrderBy<Int32> in
+ReconcileControlOpportunity IL_0079, followed by ordinal-string ThenBy and Concat.
+StateLookup still reaches its separate catalog bound. Full replay is unverified.
+See ADR AC0057 and artifacts/alchemy-lexical-reads.
