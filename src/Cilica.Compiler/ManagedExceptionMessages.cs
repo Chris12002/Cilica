@@ -40,6 +40,7 @@ internal static class ManagedExceptionMessages
                 ExceptionResourceKind.Format => "One of the identified items was in an invalid format.",
                 ExceptionResourceKind.System => "System error.",
                 ExceptionResourceKind.Arithmetic => "Overflow or underflow in the arithmetic operation.",
+                ExceptionResourceKind.KeyNotFound => "The given key was not present in the dictionary.",
                 _ => throw new ArgumentException("Unknown exception resource.") };
             for (int kind = 0; kind < 3; ++kind)
             {

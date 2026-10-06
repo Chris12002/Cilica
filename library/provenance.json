@@ -157,6 +157,11 @@
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Iterator.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Iterator.cs",
       "sha256": "8644d8a8bda66ab24c04d9b3fcbdf625cd0c48739ec4956e118a7589ff83454b"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/KeyNotFoundException.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/KeyNotFoundException.cs",
+      "sha256": "0f1d0f1f948acb135ec2d934f4539d730632cf60a8132ddb5b96066282859af4"
     }
   ],
   "adaptations": [
@@ -481,7 +486,8 @@
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/Resources/Strings.resx",
       "contracts": [
         "SystemException defaults to System error.; its explicit null message retains the generic type-name fallback.",
-        "ArithmeticException and FormatException use their selected fixed resources for default and explicit null messages."
+        "ArithmeticException and FormatException use their selected fixed resources for default and explicit null messages.",
+        "KeyNotFoundException uses Arg_KeyNotFound for default and explicit null messages, verified against the pinned constructor source; explicit empty/UTF-16 messages are retained."
       ],
       "scope": "Selected exact framework identities and bounded invariant English resources; full localization and arbitrary framework exceptions remain unsupported."
     },
@@ -541,6 +547,14 @@
         "Typed Int32/UInt32/Int64/UInt64 CompareTo bodies in CoreTypes.cs use exact IComparable<T> method flags and existing primitive receiver lowering."
       ],
       "scope": "Signed Int32/Int64 Abs, signed/unsigned 32/64-bit Min/Max and typed CompareTo. No floating, decimal, object comparison or general comparer-interface execution."
+    },
+    {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/KeyNotFoundException.cs",
+      "contracts": [
+        "Selected KeyNotFoundException layout and default/string constructors require exact grants; the runtime uses existing fieldless exception payloads."
+      ],
+      "scope": "Default and string-message construction, catches and inherited Message; inner-argument constructors, HResult and serialization remain unsupported."
     }
   ]
 }

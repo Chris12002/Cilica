@@ -733,5 +733,26 @@
     "Member": "Enumerate",
     "ParameterCount": 1,
     "Capability": "ArrayInterfaceEnumerate"
+  },
+  {
+    "Namespace": "System.Collections.Generic",
+    "Type": "KeyNotFoundException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System.Collections.Generic",
+    "Type": "KeyNotFoundException",
+    "Member": ".ctor",
+    "ParameterCount": 0,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System.Collections.Generic",
+    "Type": "KeyNotFoundException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ExceptionConstructor"
   }
 ]

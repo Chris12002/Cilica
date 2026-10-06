@@ -279,3 +279,18 @@ repeated callbacks retain each boxed copy. Five new and five previous probes pas
 admission and baseline checks pass. Scalar/enum/provider formatting and aliases
 remain diagnostic. Frozen GetPlayer advances to unmapped KeyNotFoundException;
 full engine and replay execution remain unverified. See ADR AC0037.
+
+### Selected KeyNotFoundException (AC8.6)
+
+The owned core admits exact granted default and string-message constructors for
+System.Collections.Generic.KeyNotFoundException. Default and null messages use the
+pinned Arg_KeyNotFound resource; empty and arbitrary UTF-16 messages are preserved.
+Typed catches, rethrow, finally and exception identity reuse existing rooted payloads.
+Inner constructors, HResult and serialization remain unsupported. Managed exception
+IR and scalar exception IR advance to v4; native v42/layout v17 remain unchanged.
+Four probes pass 1,176 repeated O0/O2 native/.NET comparisons with ASan/UBSan and
+forced collection. Forged resource/name/ancestry packets fail at both IR stages;
+removing any exact layout/constructor grant fails admission. See ADR AC0038.
+Frozen EngineStep advances to List<DomainEvent>(IEnumerable<DomainEvent>) in
+FinalizeAccepted IL_0005. StateLookup still hits the unchanged 256-type bound.
+Full engine execution and saved-game replay remain unverified.

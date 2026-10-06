@@ -275,3 +275,18 @@ native/.NET comparisons; four precise query/cache GC checks and 36 existing
 regressions pass. The public lambda's two static cache objects are explicitly
 validated. The ledger has 18 gaps and 29 controls. Indexed operators, boxed
 collection factories, value predicates and full replay remain unfinished.
+
+### Selected KeyNotFoundException (AC8.6)
+
+The owned core admits exact granted default and string-message constructors for
+System.Collections.Generic.KeyNotFoundException. Default and null messages use the
+pinned Arg_KeyNotFound resource; empty and arbitrary UTF-16 messages are preserved.
+Typed catches, rethrow, finally and exception identity reuse existing rooted payloads.
+Inner constructors, HResult and serialization remain unsupported. Managed exception
+IR and scalar exception IR advance to v4; native v42/layout v17 remain unchanged.
+Four probes pass 1,176 repeated O0/O2 native/.NET comparisons with ASan/UBSan and
+forced collection. Forged resource/name/ancestry packets fail at both IR stages;
+removing any exact layout/constructor grant fails admission. See ADR AC0038.
+Frozen EngineStep advances to List<DomainEvent>(IEnumerable<DomainEvent>) in
+FinalizeAccepted IL_0005. StateLookup still hits the unchanged 256-type bound.
+Full engine execution and saved-game replay remain unverified.

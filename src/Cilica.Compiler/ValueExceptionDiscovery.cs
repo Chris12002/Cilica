@@ -79,8 +79,9 @@ public static partial class ValueProgramDiscovery
                 if (!seen.Add(id) || seen.Count > ObjectModelLimits.MaximumOwnerDepth) Fail(work, "Cyclic or excessive exception class ancestry.", offset);
                 if (_exceptionTypes.Contains(id)) break;
                 var input = Snapshot(current, work, offset);
-                if (integers64 && input.Source.Name is ("System.FormatException" or "System.TypeInitializationException")
-                    && current == Require(resolver.ResolveType(library, "System", input.Source.Name[7..]), work, offset))
+                if (integers64 && input.Source.Name is ("System.FormatException" or "System.TypeInitializationException" or "System.Collections.Generic.KeyNotFoundException")
+                    && current == Require(resolver.ResolveType(library, input.Source.Name == "System.Collections.Generic.KeyNotFoundException" ? "System.Collections.Generic" : "System",
+                        input.Source.Name[(input.Source.Name.LastIndexOf('.') + 1)..]), work, offset))
                 {
                     _ = Require(resolver.AuthorizeLibraryIntrinsic(current.Assembly, current.Handle, LibraryIntrinsicCapability.ExceptionLayout), work, offset);
                     if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || !input.ExternallyVisible
@@ -93,7 +94,7 @@ public static partial class ValueProgramDiscovery
                     _frameworkExceptions.Add(id); _exceptionTypes.Add(id);
                     _references.TryAdd(id, new(current, SignatureList<TypeSignature>.Empty));
                     if (input.Source.Name == "System.TypeInitializationException") _typeInitializationException = id;
-                    else _exceptionResources.Add(new(id, ExceptionResourceKind.Format));
+                    else _exceptionResources.Add(new(id, input.Source.Name == "System.Collections.Generic.KeyNotFoundException" ? ExceptionResourceKind.KeyNotFound : ExceptionResourceKind.Format));
                     break;
                 }
                 chain.Add((current, input));

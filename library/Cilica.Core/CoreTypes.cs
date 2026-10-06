@@ -230,3 +230,12 @@ namespace System.Runtime.CompilerServices
         public MethodImplAttribute(MethodImplOptions options) { }
     }
 }
+
+namespace System.Collections.Generic
+{
+    public class KeyNotFoundException : SystemException
+    {
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern KeyNotFoundException();
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern KeyNotFoundException(string message);
+    }
+}
