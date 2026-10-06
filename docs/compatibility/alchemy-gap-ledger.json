@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v49",
-    "nativeProfileEvidence": "Public baseline revalidated at AC2.4 on native v49/layout v20; 31 native controls and 16 diagnostic gaps.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC6.6 on native v49/layout v20; 31 native controls and 16 diagnostic gaps.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 31,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "c6c301dae43c915f877dc391e9956c44375c744060a65757268bebcfda94f54f",
-    "latestSlice": "AC2.4",
+    "fixtureSha256": "9806956dd001e74bb34a655313359d2a61f2f2610596eb267cf7f08282f52cfa",
+    "latestSlice": "AC6.6",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -263,7 +263,8 @@
         "AC6.2",
         "AC6.3",
         "AC6.4",
-        "AC6.5"
+        "AC6.5",
+        "AC6.6"
       ],
       "remaining": "Remaining deferred/terminal operators, indexed overloads, List specializations, boxed collection factories and full replay closure."
     },
@@ -291,6 +292,11 @@
       "prerequisites": ["AC6.2", "AC6.3"],
       "status": "complete-bounded-predicate-first",
       "decision": "docs/decisions/AC0046-predicate-first.md"
+    },
+    "AC6.6": {
+      "prerequisites": ["AC2.4", "AC6.3", "AC6.4"],
+      "status": "complete-bounded-deferred-select",
+      "decision": "docs/decisions/AC0051-deferred-select.md"
     },
     "AC7a": {
       "prerequisites": [

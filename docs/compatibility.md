@@ -2536,3 +2536,22 @@ CIL v12 and both delegate profiles v4 record the new calling convention. Direct
 wide/narrow/enum results, byrefs and multicast remain outside this slice. No core
 mapping or intrinsic grant changes. Frozen engine discovery still needs Select
 (and then Distinct); full saved-game execution remains unverified. See ADR AC0050.
+
+
+### Deferred Select and terminal traversal (AC6.6)
+
+Non-indexed Enumerable.Select now supports admitted arrays, reference enumerables,
+custom IList sources and inline-value delegate arguments/results. Selection stays
+lazy, reuses the first same-thread iterator, clones later traversals, retains
+Current until replacement/disposal and preserves null/fault ordering. Owned
+Where/Select traversal helpers preserve earlier query cursors without generic
+virtual calls. Chained Select keeps per-item callback order. Array/IList Any skips
+selectors; Count runs them. IList Count/ToArray snapshot Count once and use its
+indexer, while ordinary iteration uses GetEnumerator.
+
+Eighteen probes pass 5,292 repeated native/.NET comparisons at O0/O2 with forced GC,
+ASan/UBSan and exact cleanup; two unsupported-shape checks and 42 adjacent/core/
+public-baseline checks pass. No compiler profile or intrinsic grants change.
+Boxed collection factories, indexed Select and nongeneric Current remain outside
+scope. Frozen engine discovery advances to Distinct at ReleaseFinished IL_004e;
+state remains 257/256 identities. Complete replay remains unverified. See ADR AC0051.

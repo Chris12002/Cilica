@@ -23,7 +23,7 @@ namespace Cilica.Runtime
     // iterator inheritance/layout is not a compatibility contract.
     // Public metadata permits the existing cross-owner generic visibility rule;
     // this Cilica helper is not a mapped framework iterator contract.
-    public sealed class WhereIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryCardinality, IQueryMaterialization<T>
+    public sealed class WhereIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryCardinality, IQueryMaterialization<T>, IQueryTraversal<T>
     {
         private readonly IEnumerable<T> source;
         private readonly T[] array;
@@ -46,6 +46,11 @@ namespace Cilica.Runtime
         {
             var combined = new CombinedPredicate<T>(predicate, next);
             return new WhereIterator<T>(source, array, combined.Match);
+        }
+        public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)
+        {
+            count = -1;
+            return new WhereIterator<T>(source, array, predicate).GetEnumerator();
         }
         public IEnumerator<T> GetEnumerator()
         {

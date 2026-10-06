@@ -9,6 +9,16 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs",
+      "sha256": "a3e09c23816443ff0fd8ed654fc1d976ec9e82804cdabdac79dad1aa40e21495"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Select.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Select.cs",
+      "sha256": "68bce74191bd97a07e78dc18bca71b46f8fda422636e24d88f58ded418246a6a"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/First.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/First.cs",
       "sha256": "9a4466410fa41925635d24982e6dbc89314cf6b04d59c4f98fb90275632c1cd8"
@@ -553,6 +563,36 @@
         "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice."
       ],
       "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
+    },
+    {
+      "path": "library/Cilica.Core/SelectIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Select.cs",
+      "algorithms": [
+        "Deferred array and reference-enumerable projection, first same-thread iterator reuse and cloning, cached Current and disposal.",
+        "Preserve per-item selector composition, non-consuming source-query cursors, cheap Any and effectful Count/ToArray.",
+        "IList ordinary iteration uses GetEnumerator; terminal Count/ToArray capture Count once and use the indexer."
+      ],
+      "changes": [
+        "Replace generic virtual Select fusion with owned fresh/terminal traversal interfaces; retain callback ordering and original query state.",
+        "Use traced arrays and the existing managed MaterializationBuffer instead of span/pool scratch storage.",
+        "Use existing Int32 length helpers and explicit managed value-copy calls for inline results."
+      ],
+      "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
+    },
+    {
+      "path": "library/Cilica.Core/SelectIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs",
+      "algorithms": [
+        "Deferred array and reference-enumerable projection, first same-thread iterator reuse and cloning, cached Current and disposal.",
+        "Preserve per-item selector composition, non-consuming source-query cursors, cheap Any and effectful Count/ToArray.",
+        "IList ordinary iteration uses GetEnumerator; terminal Count/ToArray capture Count once and use the indexer."
+      ],
+      "changes": [
+        "Replace generic virtual Select fusion with owned fresh/terminal traversal interfaces; retain callback ordering and original query state.",
+        "Use traced arrays and the existing managed MaterializationBuffer instead of span/pool scratch storage.",
+        "Use existing Int32 length helpers and explicit managed value-copy calls for inline results."
+      ],
+      "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
     }
   ],
   "ownedAdapters": [

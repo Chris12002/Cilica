@@ -7,6 +7,14 @@ namespace System.Linq
 {
     public static partial class Enumerable
     {
+        public static IEnumerable<TResult> Select<TSource, TResult>(IEnumerable<TSource> source, Func<TSource, TResult> selector)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (selector == null) throw new ArgumentNullException("selector");
+            if (source is TSource[] array)
+                return Cilica.Runtime.SelectIterator<TSource, TResult>.FromArray(array, selector, array.Length);
+            return new Cilica.Runtime.SelectIterator<TSource, TResult>(source, null, selector);
+        }
         public static TSource FirstOrDefault<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate) =>
             TryGetFirst(source, predicate, out _);
         public static TSource First<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
