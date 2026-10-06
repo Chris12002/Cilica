@@ -25,6 +25,11 @@ namespace System
     {
         protected Array() { }
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern T[] Empty<T>();
+        public static Collections.ObjectModel.ReadOnlyCollection<T> AsReadOnly<T>(T[] array)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+            return Collections.ObjectModel.ReadOnlyCollection<T>.FromArray(array, array.Length);
+        }
         // Roslyn emits ldlen for vector.Length. Other Array APIs and interface
         // relationships require separate admitted runtime implementations.
         public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }

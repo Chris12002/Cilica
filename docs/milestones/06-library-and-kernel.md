@@ -2260,3 +2260,15 @@ public StringBuilderInt supply 2,058 repeated O0/O2 native/.NET comparisons, and
 37 builder/baseline regressions pass. Forced GC, sanitizers, frame and cleanup
 checks remain enabled. The ledger has 26 gaps and 21 controls. No new grants or
 profiles; full replay remains unverified. See [ADR AC0015](../decisions/AC0015-invariant-numeric-append.md).
+
+
+### Array read-only views (AC3.5)
+
+Array.AsReadOnly now returns a live nonempty view or a shared per-closed-type empty
+view. Private caches use existing instance-owned static roots. Null validation,
+covariance, original-array SyncRoot and readonly mutation faults match the pinned
+runtime. Six probes plus the public baseline provide 2,058 repeated O0/O2 native/
+.NET results; two cache lifetime/isolation checks and 54 existing regressions pass.
+Sanitizers and forced GC remain enabled. The ledger has 25 gaps and 22 controls.
+No new grants or profiles; enumeration, copying and full replay remain unfinished.
+See [ADR AC0016](../decisions/AC0016-array-readonly-views.md).

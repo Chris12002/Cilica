@@ -7,6 +7,17 @@ namespace System.Collections.ObjectModel
     public class ReadOnlyCollection<T> : IList<T>, IList, IReadOnlyList<T>
     {
         private readonly IList<T> list;
+        // Pinned Array.AsReadOnly shares a per-closed-T empty view. Keep the
+        // cache private: netstandard2.1 has no public ReadOnlyCollection.Empty.
+        private static ReadOnlyCollection<T> emptyView;
+        internal static ReadOnlyCollection<T> FromArray(T[] array, int length)
+        {
+            // The typed length parameter keeps ldlen/conv.i4 explicit in the
+            // caller; general native-integer branch flow is outside this core.
+            if (length != 0) return new ReadOnlyCollection<T>(array);
+            if (emptyView == null) emptyView = new ReadOnlyCollection<T>(System.Array.Empty<T>());
+            return emptyView;
+        }
         public ReadOnlyCollection(IList<T> list) { this.list = Validate(list); }
         private static IList<T> Validate(IList<T> list)
         {

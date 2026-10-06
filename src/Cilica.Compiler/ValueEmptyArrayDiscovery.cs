@@ -17,6 +17,9 @@ public static partial class ValueProgramDiscovery
             if (_metadata.Remaining == 0) Fail(work, "Empty-array metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);
             var input = Require(resolver.ReadMethodDeclarationInput(library, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Empty-array metadata budget exceeded.", offset, DiagnosticIds.TranslationLimit);
+            // Ordinary managed Array methods use normal body validation. The
+            // Empty intrinsic retains its exact declaration and grant checks.
+            if (input.DeclaredName != "Empty") return null;
             if (instruction.OpCode != "call" || target.DeclaringType.Arguments.Count != 0 || target.MethodArguments.Count != 1
                 || input.DeclaredName != "Empty" || input.IsReferenceAssembly || input.HasBody || input.HasTypeInitializer || input.HasModuleInitializer || input.OwnerGenericArity != 0
                 || input.Signature.Header != 0x10 || input.Signature.GenericArity != 1 || input.Signature.Parameters.Count != 0

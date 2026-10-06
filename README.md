@@ -104,6 +104,7 @@ saved-game replay remain unfinished. AC3.4 adds list/array search and value remo
 for admitted equality types, preserving mutating value equality. AC7b.1 adds
 String.CompareOrdinal and IsNullOrEmpty with pinned UTF-16 results. AC7b.2 adds
 32/64-bit integer StringBuilder append under a fixed invariant-culture contract.
+AC3.5 adds live Array.AsReadOnly views and shared empty-view identity.
 
 ## Development
 

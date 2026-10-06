@@ -257,11 +257,12 @@
         "Live IList-backed Count/index view, identity, flags and unconditional readonly mutation exceptions"
       ],
       "changes": [
-        "Preserve exact nominal interfaces and keep unused search/copy/enumeration paths diagnostic.",
-        "Omit static Empty factory and enumeration optimizations until separately implemented.",
-        "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile."
+        "Preserve exact nominal interfaces; copy and enumeration remain diagnostic.",
+        "AC3.5 Array.AsReadOnly uses a private lazy per-closed-type empty cache backed by existing instance static roots; the newer public Empty API is absent from netstandard2.1.",
+        "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile.",
+        "Use a typed length helper to retain explicit ldlen/conv.i4; no general native-integer branch flow is introduced."
       ],
-      "scope": "Bounded live Count/index views, flags, mutation faults and AC3.4 Contains/IndexOf forwarding for admitted equality types; no enumeration/copy implementation."
+      "scope": "Bounded live Count/index views, flags, mutation faults and AC3.4 Contains/IndexOf forwarding for admitted equality types; no enumeration/copy implementation. AC3.5 adds live Array.AsReadOnly and cached empty views."
     },
     {
       "path": "library/Cilica.Core/ValueTuple.cs",

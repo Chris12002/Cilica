@@ -39,7 +39,8 @@ feedback before implementation. Explain consequential choices in plain language.
   element; preserve its managed borrow (ADR AC0013). AC7b.1 adds exact pinned
   ordinal comparison and IsNullOrEmpty (ADR AC0014); no culture-aware text claim.
   AC7b.2 numeric StringBuilder append has a fixed invariant-culture contract;
-  differential hosts must select invariant culture (ADR AC0015).
+  differential hosts must select invariant culture (ADR AC0015). AC3.5 adds live
+  Array.AsReadOnly views with per-type, per-instance empty caches (ADR AC0016).
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles
