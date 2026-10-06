@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1 and AC1b.2 complete; remaining AC1b and AC2–AC10 planned.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a and AC1b.1–AC1b.4 complete; remaining AC1b and AC2–AC10 planned.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0, AC1a and AC1b.1–AC1b.2 are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a and AC1b.1–AC1b.4 are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -2044,3 +2044,46 @@ unchanged and full saved-game replay remains open. No hosted work, pushes, servi
 or additional agents were used. Main remains 48ecf14 and is contained in this
 branch; the independent milestone branch was inspected through 68bae1d (UIKit
 scene lifecycle) and was not merged into this compatibility slice.
+
+
+### AC1b.4 confined scalar/interface composition outcome
+
+Implemented [ADR AC0006](../decisions/AC0006-confined-scalar-box-uses.md). The
+existing bounded use proof now admits scalar boxes beside independent interface
+operations when every scalar box allocation is confined. Successful exact boxed
+type tests are aliases, not new objects; follow them through the same proof.
+Direct scalar interface operations and unknown reference escapes still diagnose.
+Both value and scalar validators repeat the check. Limits, roots, emitted native
+v40, core contracts/grants and public ABI remain unchanged; boxed IR v7 and scalar
+boxed IR v8 record the new admission.
+
+Thirteen native probes pass 3,822 repeated .NET comparisons at O0/O2 with forced
+GC, ASan/UBSan, frame-budget and cleanup checks on macOS ARM64. They cover direct/
+forwarded helpers, narrow/wide/enum copies, nullable copies and type tests,
+independent interfaces, descriptor-only targets, faults and allocation while a
+box is held by a helper. Nine fixtures preserve rejection of interface aliases,
+returned/local/heap boxes, recursion and parameter addresses. General nullable
+boxing helpers returning references still fail the proof in interface-using
+closures. Detached isinst/castclass alias escapes are rejected at both stages;
+their unmodified models validate. 129 existing regressions also pass.
+
+Review checked all scalar allocation origins, closed parameter summary keys,
+exact type-test aliases, escape detection, unchanged bounds and rooting. Initial
+test-authoring issues were an analyzer violation and a nullable-return fixture
+whose immediately present nullable was simplified by C#; the corrected fixture
+requires an actual returning helper and now rejects as intended. Successful
+native bundles were not repeated for that diagnostic-only fixture change.
+
+Re-read the archived body inventory before choosing this slice: 1,825 method rows,
+1,775 readable bodies, 50 declarations with no managed IL, 42 box instructions,
+and no unbox or unbox.any. The incomplete application audit and unresolved library/
+callback dependencies do not prove absence from the accepted replay closure.
+Raw scalar/nullable unbox stays deferred; escaping boxes and required interface
+contracts still need implementation or closure evidence. Full AC1b remains open.
+
+The derived inventory summary, logs and hashes are saved under ignored
+`artifacts/alchemy-confined-scalar-boxes/validation/` in the primary checkout.
+No private compilation/replay root was rerun, so the recorded application blockers
+are unchanged. No hosted work, services, pushes or extra agents were used. Main
+remains 48ecf14 and is contained in this branch; the separate milestone lane was
+inspected through 68bae1d and was not merged into this slice.

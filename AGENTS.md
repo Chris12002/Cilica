@@ -17,9 +17,10 @@ feedback before implementation. Explain consequential choices in plain language.
   copies and roots. AC1b.1 adds nullable conversions and named-struct box/copy
   unboxing. AC1b.2 adds integer/Boolean/Char and public Int32-enum box/copy
   unboxing, with strict nullable identity. AC1b.3 adds exact boxed isinst/castclass
-  for those scalars and admitted named structs, including nullable targets. Raw
-  scalar/nullable unbox, scalar interface views and nullable keys remain diagnosed;
-  see ADR AC0005.
+  for those scalars and admitted named structs, including nullable targets. AC1b.4
+  allows proven confined scalar boxes beside independent interface operations.
+  Raw scalar/nullable unbox, scalar interface views/dispatch, unproven box escapes
+  in those compositions and nullable keys remain diagnosed; see ADR AC0006.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

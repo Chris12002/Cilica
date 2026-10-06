@@ -68,6 +68,10 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
                             if (!Call(call.Target, call.Arguments, call.VirtualDispatch, aliases, depth)) return false;
                             break;
                         case IrExpression.CheckBox check when aliases.Contains(check.Operand): aliases.Add(value.Id); break;
+                        // Exact payload tests preserve the original reference on
+                        // success. Follow that alias; never exempt interface tests.
+                        case IrExpression.IsInstance { BoxedTarget: true } test when aliases.Contains(test.Operand): aliases.Add(value.Id); break;
+                        case IrExpression.CastClass { BoxedTarget: true } cast when aliases.Contains(cast.Operand): aliases.Add(value.Id); break;
                         case IrExpression.UnboxValue or IrExpression.UnboxLocation or IrExpression.AddressBoxSlot or IrExpression.Compare or IrExpression.ObjectGetType or IrExpression.ObjectIdentityHash:
                             break;
                         default:

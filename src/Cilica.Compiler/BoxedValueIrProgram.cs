@@ -7,7 +7,7 @@ namespace Cilica.Compiler;
 /// <summary>Detached named-struct boxing, exact unbox copies and nonescaping payload borrows.</summary>
 public sealed record BoxedValueIrProgram(ManagedLocationIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "boxed-value-ir-v6";
+    public const string Profile = "boxed-value-ir-v7";
 }
 
 public static class BoxedValueIrValidator

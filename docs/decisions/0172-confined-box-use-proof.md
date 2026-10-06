@@ -34,3 +34,8 @@ all operand/edge uses, payload identity, closed summary keys and bounded work.
 The real gate now reaches PlayerId[] to IReadOnlyList<PlayerId> assignment at
 Adapter.Prepare IL_00b4 (`gate-mapped-6c57.json`). It has not reached successful
 complete-program IR validation or native transcript comparison.
+
+
+Follow-on: [ADR AC0006](AC0006-confined-scalar-box-uses.md) applies this proof to
+scalar boxes beside interface operations and follows exact boxed type-test results
+as aliases. Interface tests on those aliases and unknown escapes still reject.

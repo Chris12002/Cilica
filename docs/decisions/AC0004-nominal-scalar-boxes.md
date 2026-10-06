@@ -76,3 +76,8 @@ checks, actual-descriptor access, collection roots and interface omissions.
 Value layout v3, boxed IR v5, scalar boxed IR v6, boxed payload runtime v3 and
 native v39 record the extension. No hosted work, private replay rerun or additional
 platform validation occurred. Historical Alchemy observations remain unchanged.
+
+
+Follow-on: [ADR AC0006](AC0006-confined-scalar-box-uses.md) replaces the blanket
+scalar/interface exclusion with a bounded confinement proof. Direct scalar
+interface semantics and unproven escapes remain diagnostic.

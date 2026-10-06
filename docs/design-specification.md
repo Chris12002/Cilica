@@ -1811,3 +1811,28 @@ sanitizers/forced GC on macOS ARM64, alongside malformed-operand/IR checks and
 existing cast/box/exception regressions. Raw scalar/nullable unbox, primitive
 interface contracts/use proofs, nullable keys and general filters remain deferred.
 Full AC1b and private saved-game replay are still open; private roots were not rerun.
+
+
+### Confined scalar/interface composition (AC1b.4)
+
+[ADR AC0006](decisions/AC0006-confined-scalar-box-uses.md) replaces the blanket
+scalar-box/interface exclusion with the existing bounded use proof. In a program
+with interface operations, every scalar box allocation must remain confined to
+supported inspection, exact boxed type tests, unboxing and proven ordinary helper
+parameters. Exact type-test results are tracked as aliases. Interface operations
+on those aliases, unknown escapes, storage, returns, parameter addresses and
+recursive proofs still fail closed. Descriptor-only targets need no allocation
+proof. Validation runs before and after lowering with unchanged work/depth bounds.
+
+This permits independent interface calls/casts/tests without treating incomplete
+primitive declarations as complete interface semantics. Boxed IR v7 and scalar
+boxed IR v8 change; native v40, layouts, emitted operations, core contracts/grants
+and public ABIs do not. Thirteen native probes provide 3,822 repeated O0/O2 .NET
+comparisons with sanitizers/forced GC; nine rejection fixtures, alias mutations at
+both stages and 129 existing regressions pass. General nullable boxing helpers
+that return a box still require broader flow proof in these compositions.
+
+The archived body inventory contains no raw unbox in its 1,775 readable bodies,
+but its incomplete application/library/callback coverage cannot prove absence
+from the final replay closure. Raw scalar/nullable unbox and escaping/interface
+box semantics remain open. Full AC1b and saved-game replay are not complete.

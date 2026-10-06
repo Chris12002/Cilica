@@ -31,10 +31,12 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "c6c301dae43c915f877dc391e9956c44375c744060a65757268bebcfda94f54f",
-    "latestSlice": "AC1b.3",
+    "latestSlice": "AC1b.4",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
-    "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked."
+    "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
+    "confinedScalarBoxEvidence": "AC1b.4 ScalarBoxConfinementTests: 13 native probes, 3822 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan. Both stages reject isinst/castclass alias escapes; nine unsafe/unproven fixtures remain diagnostic. Native v40 unchanged.",
+    "rawUnboxInventory": "Historical bodies.json: 1825 rows, 1775 readable bodies, 50 declarations without IL; 42 box, zero unbox/unbox.any. Incomplete application/library/callback coverage is not proof of absence from the accepted replay closure."
   },
   "slices": {
     "AC0": {
@@ -52,8 +54,8 @@
         "AC1a"
       ],
       "status": "in-progress",
-      "completedSubslices": ["AC1b.1", "AC1b.2", "AC1b.3"],
-      "remaining": "Required raw-unbox forms and primitive interface contracts/use proofs, or proof of absence from the accepted replay closure."
+      "completedSubslices": ["AC1b.1", "AC1b.2", "AC1b.3", "AC1b.4"],
+      "remaining": "Required raw-unbox forms and scalar uses beyond the bounded confinement proof (including returned boxes and primitive interface contracts/dispatch), or proof of absence from the accepted replay closure."
     },
     "AC1b.1": {
       "prerequisites": ["AC1a"],
@@ -69,6 +71,11 @@
       "prerequisites": ["AC1b.2"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0005-boxed-type-tests.md"
+    },
+    "AC1b.4": {
+      "prerequisites": ["AC1b.3"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0006-confined-scalar-box-uses.md"
     },
     "AC2": {
       "prerequisites": [
@@ -460,7 +467,7 @@
     {"id": "NullableAdditionalMembers", "slice": "AC7b", "status": "confirmed-blocker", "reason": "Nullable.ToString now binds but deliberately rejects an unimplemented body; NullableProbe.UnsupportedText is the reduced regression."},
     {"id": "EngineCapacity", "slice": "AC8", "status": "unmeasured", "reason": "Measure actual translated type/method/instruction counts before planning limit changes."},
     {"id": "ReplayEventPayloads", "slice": "AC9", "status": "planned", "reason": "Replace event-text-only observations with canonical event payload comparison."},
-    {"id": "NullableBoxingAndConversions", "slice": "AC1b", "status": "partially-implemented", "reason": "AC1b.1–AC1b.3 admit named-struct and selected integer/Boolean/Char/public Int32-enum nullable box/unbox.any, direct operators, representative lifted/checked expressions and exact boxed type tests including nullable targets. Raw scalar/nullable unbox and scalar interface views remain unsupported. There are 31 nullable, 18 scalar and 29 boxed type-test native probes plus allocation-budget checks; private replay roots were not rerun."},
+    {"id": "NullableBoxingAndConversions", "slice": "AC1b", "status": "partially-implemented", "reason": "AC1b.1–AC1b.3 admit named-struct and selected integer/Boolean/Char/public Int32-enum nullable box/unbox.any, direct operators, representative lifted/checked expressions and exact boxed type tests including nullable targets. AC1b.4 permits proven confined scalar boxes alongside independent interface operations (13 further native probes). Raw scalar/nullable unbox, direct scalar interface views/dispatch and unproven box escapes in those compositions remain unsupported. There are 31 nullable, 18 scalar and 29 boxed type-test native probes plus allocation-budget checks; private replay roots were not rerun."},
     {"id": "NullableKeyOperations", "slice": "AC3", "status": "confirmed-blocker", "reason": "Nullable null/equality/hash selection must not use ordinary nonnull value-key semantics; an isolated owned-core IsNull regression verifies the diagnostic."},
     {"id": "DirectValueReturnToHeapField", "slice": "AC8", "status": "confirmed-blocker", "reason": "Existing destination/exception-order limitation, now pinned by NullableProbe.UnsupportedHeapReturn; materialized field copies work."},
     {"id": "StaticInlineValues", "slice": "AC8", "status": "confirmed-blocker", "reason": "Engine Step advances to a static application-ID field; NullableProbe.UnsupportedStaticInline reproduces the general static inline-value storage rejection."},

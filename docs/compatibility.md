@@ -1896,9 +1896,9 @@ unboxing allows Int32/Int32-enum compatibility; nullable copies require exact
 underlying identity. Narrow normalization and all 64 bits have native evidence.
 
 Scalar/nullable type tests are extended by AC1b.3 below; raw unbox remains
-diagnostic. Closures combining
-scalar boxes with interface casts/tests or interface dispatch are conservatively
-rejected because the bounded core's primitive interface contracts are incomplete.
+diagnostic. AC1b.2 conservatively rejected closures combining scalar boxes with
+interface operations because primitive contracts are incomplete; AC1b.4 below
+admits cases with proven confined boxes.
 This does not admit new enum widths/visibility or general primitive APIs.
 [ADR AC0004](decisions/AC0004-nominal-scalar-boxes.md) records the exact boundary.
 
@@ -1926,3 +1926,23 @@ malformed-metadata checks guard both compiler stages. Raw scalar/nullable unbox,
 scalar interface views/dispatch, nullable keys and general exception filters remain
 diagnostic. The 47-probe public baseline and historical private replay blockers
 are unchanged. Full AC1b and full saved-game replay remain unverified.
+
+
+## Confined scalar boxes and interface composition (AC1b.4)
+
+Scalar boxing can now coexist with independent interface calls, casts and tests
+when the compiler proves every scalar box stays confined to supported operations.
+Exact boxed type tests preserve an alias that is followed by the proof; nullable
+copy helpers are allowed when their references remain confined. A scalar descriptor
+used only as a test target is harmless. The proof runs at both validation stages
+and retains its existing work/depth limits.
+
+Direct scalar interface tests/casts/dispatch, reference returns, local/heap/edge
+escapes, addressed parameters and recursive proofs remain diagnostic in these
+compositions. This includes general nullable boxing helpers returning object
+references. [ADR AC0006](decisions/AC0006-confined-scalar-box-uses.md) records the
+boundary. Thirteen native probes pass 3,822 repeated .NET comparisons on macOS
+ARM64 at O0/O2 with forced GC and ASan/UBSan; 129 existing regressions also pass.
+Boxed IR v7/scalar boxed IR v8 change admission; emitted native v40 is unchanged.
+Historical private audit counts do not prove full replay closure or raw-unbox
+absence. Full AC1b and saved-game replay remain open.

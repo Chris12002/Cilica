@@ -161,7 +161,9 @@ exact nullable identity. Add the exact Boolean, Char, SByte, Byte, Int16 and UIn
 reference mappings alongside the existing 32/64-bit mappings when composing a
 binding plan. AC1b.3 adds exact boxed isinst/castclass, including nullable targets,
 for these scalars and admitted named structs. Successful tests preserve the box's
-identity without allocating. No new intrinsic grants are required. Raw scalar/
-nullable unbox, scalar interface views, nullable key operations and equality/hash/
-text members remain diagnostics. See
-[ADR AC0005](../../docs/decisions/AC0005-boxed-type-tests.md).
+identity without allocating. AC1b.4 permits independent interface operations when
+all scalar box uses are proven confined. Returned/escaping boxes, including general
+nullable boxing helper results, are not proven in those compositions. No new
+intrinsic grants are required. Raw scalar/nullable unbox, scalar interface views,
+nullable key operations and equality/hash/text members remain diagnostics. See
+[ADR AC0006](../../docs/decisions/AC0006-confined-scalar-box-uses.md).
