@@ -2012,3 +2012,22 @@ the explicit array-helper discovery gate. Two rejection fixtures retain that exa
 diagnostic; concrete list support does not imply arbitrary IList mutation support.
 CopyTo, equality-based search/removal, bulk operations and enumeration remain
 outside this slice. See [ADR AC0009](decisions/AC0009-list-mutation-and-snapshots.md).
+
+
+## Array-interface mutations (AC3.2)
+
+Exact granted managed helpers now implement generic/nongeneric array Insert and
+RemoveAt fixed-size faults. ICollection<T>.Clear throws the pinned read-only
+exception; IList.Clear resets all typed elements and preserves array identity and
+length. Int32, admitted references and supported inline values are covered.
+The previously blocked list/read-only interface mutation probes now execute.
+
+Thirteen array probes plus those two list probes provide 4,410 repeated O0/O2
+.NET/native comparisons with ASan/UBSan and forced GC on macOS ARM64. Four GC
+checks verify reclamation while arrays remain alive, including references inside
+values. Exact grant denial, detached signature checks and 125 existing regressions
+pass. Interface plan v4 adds the helper recipes; five grants are appended, while
+native v41 and public ABIs stay unchanged. The public ledger remains 33 gaps and
+14 controls; its supplemental interface mutation blocker advances. Broader
+collections and private replay remain incomplete. See
+[ADR AC0010](decisions/AC0010-array-interface-mutations.md).

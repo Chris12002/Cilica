@@ -185,14 +185,16 @@
       "algorithms": [
         "SZArrayHelper.get_Count<T> and get_Item<T>",
         "SZArrayHelper.IsReadOnly and System.Array collection flags/SyncRoot",
-        "SZArrayHelper.set_Item<T> and fixed-size Add<T>"
+        "SZArrayHelper.set_Item<T> and fixed-size Add<T>",
+        "SZArrayHelper Insert/RemoveAt fixed-size faults, generic Clear read-only faults and System.Array IList.Clear element resetting"
       ],
       "changes": [
         "Replace unsafe receiver reinterpretation with a compiler-selected closed T[] argument.",
         "Preserve unsigned index bounds and the pinned IndexMustBeLess message/parameter.",
-        "Require exact Count/Get/Set/Add/False/True/Identity grants. Mutations use the interface element view and preserve runtime covariance checks; other members remain unsupported."
+        "Require exact Count/Get/Set/Add/False/True/Identity and AC3.2 Insert/InsertObject/RemoveAt/ClearReadOnly/Clear grants. Generic element arguments use the interface view; nongeneric Insert retains object without an element cast.",
+        "Implement nongeneric Clear as a typed managed default-value loop, preserving identity and releasing reference-bearing element roots; other members remain unsupported."
       ],
-      "scope": "Int32 and reference vectors; exact selected-runtime contracts, indexed reads/writes and fixed-size Add faults.",
+      "scope": "Int32, admitted reference and supported inline-value vectors; exact selected-runtime contracts, indexed reads/writes, fixed-size mutation faults and distinct generic/nongeneric Clear semantics.",
       "additionalUpstreamPaths": [
         "src/libraries/System.Private.CoreLib/src/System/Array.cs"
       ]
@@ -240,7 +242,7 @@
         "AC3.1 uses a separate lazily published per-closed-type managed static empty snapshot, distinct from Array.Empty<T>; existing runtime instances own and trace the cache.",
         "Clear all admitted element shapes and vacated slots through typed loops; this also zeroes primitive elements instead of adding a reference-shape intrinsic."
       ],
-      "scope": "Int32, admitted reference and supported inline-value elements. AC3.1 concrete mutation/snapshot methods are tested; interface mutation compositions still require missing array helpers. Equality/search/copy/bulk APIs and enumeration remain bounded gaps."
+      "scope": "Int32, admitted reference and supported inline-value elements. AC3.1 concrete mutation/snapshot methods and AC3.2 bounded interface mutation compositions are tested. Equality/search/copy/bulk APIs and enumeration remain bounded gaps."
     },
     {
       "path": "library/Cilica.Core/ReadOnlyCollection.cs",

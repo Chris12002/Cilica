@@ -104,9 +104,11 @@ List.cs and ReadOnlyCollection.cs adapt pinned managed storage/growth and live
 views. AC3.1 adds concrete Insert, RemoveAt, Clear and ToArray for Int32, admitted
 references and supported inline values, including traced reference-bearing values.
 Empty snapshots share per closed type and remain distinct from Array.Empty<T>.
-ArrayInterface supplies indexed writes and fixed-size Add faults; other interface
-mutation compositions still require array helpers. Enumeration, equality-based
-search/removal, CopyTo and bulk APIs remain diagnostic (ADR AC0009).
+ArrayInterface supplies indexed writes and fixed-size Add/Insert/RemoveAt faults.
+AC3.2 separately grants generic read-only Clear and nongeneric element-resetting
+Clear; bounded list/read-only interface mutation compositions now execute.
+Enumeration, equality-based search/removal, CopyTo and bulk APIs remain diagnostic
+(ADRs AC0009/AC0010).
 
 
 The exact TypeInitializationException(String, Exception), TypeName and base

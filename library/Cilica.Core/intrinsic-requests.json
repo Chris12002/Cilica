@@ -560,6 +560,41 @@
     "Capability": "ArrayInterfaceSet"
   },
   {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Insert",
+    "ParameterCount": 3,
+    "Capability": "ArrayInterfaceInsert"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "InsertObject",
+    "ParameterCount": 3,
+    "Capability": "ArrayInterfaceInsertObject"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "RemoveAt",
+    "ParameterCount": 2,
+    "Capability": "ArrayInterfaceRemoveAt"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "ClearReadOnly",
+    "ParameterCount": 1,
+    "Capability": "ArrayInterfaceClearReadOnly"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArrayInterface`1",
+    "Member": "Clear",
+    "ParameterCount": 1,
+    "Capability": "ArrayInterfaceClear"
+  },
+  {
     "Namespace": "System",
     "Type": "TypeInitializationException",
     "Member": null,

@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1 complete within their tested bounds; remaining AC1b, AC3 and AC4–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.2 complete within their tested bounds; remaining AC1b, AC3 and AC4–AC10 planned. Private closed callback signatures remain subject to AC8 revalidation.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a, AC1b.1–AC1b.4 and AC2.1–AC2.2 and AC3.1–AC3.2 are complete within their recorded bounds; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -2170,3 +2170,27 @@ rejection tests. Follow-up AC3 work must address that gate, then copying, search
 bulk operations and remaining dictionary/set APIs; enumeration joins AC4. Full AC3
 and private saved-game replay are not complete. No private root was rerun and no
 hosted work, additional agents or services were used.
+
+
+### AC3.2 array-interface mutation outcome
+
+Five separately granted managed helpers resolve AC3.1's interface-discovery gate.
+Generic/nongeneric Insert and RemoveAt preserve unconditional fixed-size faults;
+generic Clear throws read-only while nongeneric Clear resets elements. Logical
+and flattened value signatures are checked in interface plan v4. Existing native
+operations preserve covariance, null/argument order, identity and reference roots;
+native v41 and public embedding ABIs do not change. See
+[ADR AC0010](../decisions/AC0010-array-interface-mutations.md).
+
+Thirteen array probes plus the two advanced list/read-only interface probes pass
+4,410 repeated O0/O2 .NET/native comparisons with forced GC and ASan/UBSan on macOS
+ARM64. Four live-array GC checks, exact grant denial, detached signature checks
+and 125 existing regressions pass. Review covered fault order, argument shapes,
+empty values, covariance and release of nested reference slots. No native limits
+or timeouts changed.
+
+The supplemental ListInterfaceMutation blocker advances to native-validated;
+the public ledger stays at 33 gaps and 14 controls. Continue AC3 with copying,
+search, bulk operations and remaining dictionary/set APIs; enumeration joins AC4.
+Full AC3 and private saved-game replay remain incomplete. No private root was
+rerun, and no hosted work, additional agents or services were used.

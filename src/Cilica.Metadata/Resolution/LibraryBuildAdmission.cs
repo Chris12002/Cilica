@@ -20,6 +20,7 @@ public enum LibraryIntrinsicCapability
     ClosedKeyEqual, ClosedKeyHash, ClosedKeyIsNull,
     ArrayInterfaceCount, ArrayInterfaceGet, ArrayInterfaceFalse, ArrayInterfaceTrue, ArrayInterfaceIdentity, StringFromCodeUnits, ArrayEmpty, ArrayInterfaceAdd, ArrayInterfaceSet, TypeInitializationExceptionConstructor, ExceptionTypeName, ExceptionInnerException, BoxedStringFormat, BoxedTextRender, StringOrdinalEqual, StringEmpty,
     RuntimeTypeLayout, RuntimeTypeHandleLayout, RuntimeTypeObjectLayout, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash,
+    ArrayInterfaceInsert, ArrayInterfaceInsertObject, ArrayInterfaceRemoveAt, ArrayInterfaceClearReadOnly, ArrayInterfaceClear,
 }
 
 public sealed record LibraryBuildInput(string Role, string Path, string Sha256);

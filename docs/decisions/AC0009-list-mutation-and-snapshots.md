@@ -29,6 +29,10 @@ the pinned algorithm even though enumeration remains a later slice.
 
 ## Boundaries discovered by probing
 
+This section records the AC3.1 checkpoint. AC3.2 subsequently resolves the
+interface-helper blocker and advances both rejection probes to native validation;
+see [ADR AC0010](AC0010-array-interface-mutations.md).
+
 Concrete List methods work. Calling mutation through IList<T>/ICollection<T> in
 these closures still reaches the existing array-interface discovery gate: arrays
 also implement those contracts, and Insert/RemoveAt/Clear lack admitted array

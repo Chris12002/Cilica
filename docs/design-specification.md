@@ -1897,3 +1897,21 @@ intrinsic grants or public ABIs change. Interface mutation compositions remain
 blocked by missing array helper contracts, as explicit rejection tests confirm.
 CopyTo, equality-based operations, bulk APIs, other collections and enumeration
 remain planned. Full AC3 and saved-game replay are not complete.
+
+
+### Array-interface mutations (AC3.2)
+
+[ADR AC0010](decisions/AC0010-array-interface-mutations.md) resolves AC3.1's array
+helper gate. Five exact grants select ordinary managed Insert/InsertObject,
+RemoveAt, ClearReadOnly and Clear bodies. Fixed-size faults precede index/type
+validation. Generic Clear throws read-only; nongeneric Clear resets typed elements
+without changing identity/length and releases nested reference slots. Interface
+plan v4 checks logical and flattened value packets; native v41 and embedding
+ABIs are unchanged.
+
+Thirteen array probes and two advanced list-interface probes supply 4,410 repeated
+O0/O2 native/.NET comparisons with forced GC and sanitizers. Four live-array GC
+checks, exact grant denial, detached signature checks and 125 existing regressions
+pass. The supplemental interface blocker advances; the public ledger remains
+33 gaps and 14 controls. Copying, search, bulk operations and enumeration remain
+planned; full AC3 and private saved-game replay are not complete.

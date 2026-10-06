@@ -96,8 +96,9 @@ The [parallel compatibility plan](docs/milestones/06-library-and-kernel.md#paral
 now includes exact reference-returning application delegates (AC2.1) and required
 framework Func/Action/Predicate/Comparison contracts (AC2.2), with bounded native
 GC/exception/identity evidence. AC3.1 adds concrete list insertion, indexed removal,
-clearing and snapshots. Interface mutation support and full saved-game replay
-remain unfinished.
+clearing and snapshots. AC3.2 supplies exact array mutation helpers and unblocks
+bounded list/read-only interface mutations. Broader collections and full
+saved-game replay remain unfinished.
 
 ## Development
 

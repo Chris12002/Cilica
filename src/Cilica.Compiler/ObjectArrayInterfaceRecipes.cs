@@ -9,6 +9,16 @@ internal static class ObjectArrayInterfaceRecipes
     {
         if (declaration.ReturnType == IrType.Void)
         {
+            if (declaration.Name == "Clear" && declaration.Parameters.Length == 1)
+                return kind == ObjectArrayInterfaceKind.Collection ? "ClearReadOnly" : kind == ObjectArrayInterfaceKind.NonGenericList ? "Clear" : null;
+            if (declaration.Name == "RemoveAt" && kind is ObjectArrayInterfaceKind.List or ObjectArrayInterfaceKind.NonGenericList
+                && declaration.Parameters.Length == 2 && declaration.Parameters[1] == IrType.Int32) return "RemoveAt";
+            if (declaration.Name == "Insert" && declaration.Parameters.Length > 1 && declaration.Parameters[1] == IrType.Int32)
+            {
+                if (kind == ObjectArrayInterfaceKind.List && (scalarValue || declaration.Parameters.Length == 3)) return "Insert";
+                if (kind == ObjectArrayInterfaceKind.NonGenericList && declaration.Parameters.Length == 3
+                    && declaration.Parameters[2] == IrType.Reference(objectBase)) return "InsertObject";
+            }
             if (declaration.Name == "Add" && kind == ObjectArrayInterfaceKind.Collection && (scalarValue || declaration.Parameters.Length == 2)) return "Add";
             if (declaration.Name == "set_Item" && kind == ObjectArrayInterfaceKind.List && (scalarValue || declaration.Parameters.Length == 3) && declaration.Parameters.Length > 1 && declaration.Parameters[1] == IrType.Int32) return "Set";
         }
@@ -29,16 +39,16 @@ internal static class ObjectArrayInterfaceRecipes
     }
     internal static IrType? Result(string name, ObjectTypeId vector) => name switch {
         "Count" or "False" or "True" => IrType.Int32,
-        "Add" or "Set" => IrType.Void,
+        "Add" or "Set" or "Insert" or "InsertObject" or "RemoveAt" or "ClearReadOnly" or "Clear" => IrType.Void,
         "Get" => vector.ArrayElement!.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : IrType.Int32,
         "Identity" => IrType.Reference(vector), _ => null };
-    internal static int Arity(string name) => name == "Set" ? 3 : name is "Get" or "Add" ? 2 : 1;
+    internal static int Arity(string name) => name is "Set" or "Insert" or "InsertObject" ? 3 : name is "Get" or "Add" or "RemoveAt" ? 2 : 1;
     internal static bool Signature(ObjectDispatchMethod method, ObjectInterfaceDispatchPlan plan)
     {
         if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector)
             return false;
         var element = Result("Get", vector)!;
-        if (element.Kind == IrTypeKind.Value && plan.Values is null && method.Name is "Get" or "Set" or "Add")
+        if (element.Kind == IrTypeKind.Value && plan.Values is null && method.Name is "Get" or "Set" or "Add" or "Insert")
         {
             var shape = plan.Types.ValueArrays.Single(s => s.Type == element.Class);
             IrType Scalar(ObjectStorage storage) => storage switch {
@@ -50,8 +60,9 @@ internal static class ObjectArrayInterfaceRecipes
             return method.ReturnType == IrType.Void && method.Parameters.SequenceEqual(prefix.Concat(tail));
         }
         return method.Parameters.Length == Arity(method.Name)
-            && (method.Name is not ("Get" or "Set") || method.Parameters[1] == IrType.Int32)
-            && (method.Name is not ("Add" or "Set") || method.Parameters[^1] == element)
+            && (method.Name is not ("Get" or "Set" or "Insert" or "InsertObject" or "RemoveAt") || method.Parameters[1] == IrType.Int32)
+            && (method.Name is not ("Add" or "Set" or "Insert") || method.Parameters[^1] == element)
+            && (method.Name != "InsertObject" || method.Parameters[2] == IrType.Reference(plan.Types.ObjectBase))
             && Result(method.Name, vector) == method.ReturnType;
     }
 }

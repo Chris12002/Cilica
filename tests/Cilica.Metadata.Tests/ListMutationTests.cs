@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Cilica.Compiler;
 using Cilica.Fixtures.Execution;
@@ -22,22 +20,16 @@ public sealed class ListMutationTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Names.Select((name, i) =>
             (name, programs[i], typeof(ListMutationProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 4).Take(4).ToArray(), persistentRoots: group == 2);
     }
-    [Fact]
-    public async Task Interface_mutations_retain_the_missing_array_helper_diagnostic()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Interface_mutations_and_readonly_rejections_match_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = scope.OpenInput(typeof(ListMutationProbe).Assembly.Location).Value!;
-        foreach (string name in new[] { "Interfaces", "ReadOnly" })
-        {
-            var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ListMutationProbe).GetMethod(name)!.MetadataToken);
-            var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-            Assert.False(result.Success);
-            Assert.Contains(result.Diagnostics, d => d.Message.Contains("Array interface member requires an explicit runtime helper contract", StringComparison.Ordinal));
-        }
+        var programs = await InterfacePrograms.Value;
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("Interfaces", programs[0], ListMutationProbe.Interfaces), ("ReadOnly", programs[1], ListMutationProbe.ReadOnly)]);
     }
+    private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> InterfacePrograms = new(() =>
+        CoreLibraryBuildTests.TranslateFixtures(typeof(ListMutationProbe), "Interfaces", "ReadOnly"));
     [Theory]
     [InlineData(false, false)] [InlineData(true, false)]
     [InlineData(false, true)] [InlineData(true, true)]
