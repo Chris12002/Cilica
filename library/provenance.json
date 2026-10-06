@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/ToCollection.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/ToCollection.cs",
+      "sha256": "0aeb8a58596bf835f7972b7688b4a0f39966e426009635dc087f313cfb161123"
+    },
+    {
       "upstreamPath": "LICENSE.TXT",
       "localPath": "library/upstream/dotnet-runtime/LICENSE.TXT",
       "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
@@ -170,6 +175,23 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/Enumerable.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/ToCollection.cs",
+      "additionalUpstreamPaths": [
+        "src/libraries/System.Linq/src/System/Linq/Where.SpeedOpt.cs",
+        "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs"
+      ],
+      "algorithms": [
+        "AC6.4 collection Count/CopyTo, empty array and enumerable ToArray traversal.",
+        "Where direct source traversal preserves query cursor/current and first-enumerator identity."
+      ],
+      "changes": [
+        "Managed MaterializationBuffer<T> replaces pooled/stack scratch storage with traced arrays, checked counts and bounded doubling. It has no enumeration contracts.",
+        "Exact owned IQueryMaterialization<T> avoids introducing predicate closures into plain value-array copies."
+      ],
+      "scope": "Admitted arrays/collections and reference enumerators. List boxed interface factories, unsigned aliases and value-payload predicates remain unsupported; private allocation strategy differs."
+    },
     {
       "path": "library/Cilica.Library/IntegerFormatting.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Number.Formatting.cs",

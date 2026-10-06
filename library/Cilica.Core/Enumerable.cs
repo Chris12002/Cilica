@@ -7,6 +7,22 @@ namespace System.Linq
 {
     public static partial class Enumerable
     {
+        public static TSource[] ToArray<TSource>(IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (source is Cilica.Runtime.IQueryMaterialization<TSource> query) return query.ToArray();
+            if (source is ICollection<TSource> collection)
+            {
+                int count = collection.Count;
+                if (count == 0) return Array.Empty<TSource>();
+                var result = new TSource[count];
+                collection.CopyTo(result, 0);
+                return result;
+            }
+            var builder = new Cilica.Runtime.MaterializationBuffer<TSource>();
+            foreach (TSource item in source) builder.Add(item);
+            return builder.ToArray();
+        }
         public static IEnumerable<TSource> Where<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             if (source == null) throw new ArgumentNullException("source");
@@ -76,6 +92,40 @@ namespace System.Linq
             using (IEnumerator<TSource> e = source.GetEnumerator())
                 while (e.MoveNext()) count = checked(count + 1);
             return count;
+        }
+    }
+}
+
+namespace Cilica.Runtime
+{
+    // A managed buffer replaces private pooled/stack scratch storage. It owns
+    // ordinary traced arrays and never becomes an enumerable dispatch candidate.
+    public sealed class MaterializationBuffer<T>
+    {
+        private T[] items;
+        private int count;
+        public MaterializationBuffer() { items = System.Array.Empty<T>(); }
+        public void Add(T item)
+        {
+            int required = checked(count + 1);
+            if (count == items.Length)
+            {
+                int capacity = count == 0 ? 4 : unchecked(count * 2);
+                if ((uint)capacity > 0x7fffffc7) capacity = 0x7fffffc7;
+                if (capacity < required) capacity = required;
+                var replacement = new T[capacity];
+                for (int i = 0; i < count; i++) replacement[i] = items[i];
+                items = replacement;
+            }
+            items[count] = item; count = required;
+        }
+        public T[] ToArray()
+        {
+            if (count == 0) return System.Array.Empty<T>();
+            if (count == items.Length) return items;
+            var result = new T[count];
+            for (int i = 0; i < count; i++) result[i] = items[i];
+            return result;
         }
     }
 }

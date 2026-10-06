@@ -14,11 +14,16 @@ namespace Cilica.Runtime
         bool Any();
     }
 
+    public interface IQueryMaterialization<T>
+    {
+        T[] ToArray();
+    }
+
     // One owned class carries the two selected source shapes. Private upstream
     // iterator inheritance/layout is not a compatibility contract.
     // Public metadata permits the existing cross-owner generic visibility rule;
     // this Cilica helper is not a mapped framework iterator contract.
-    public sealed class WhereIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryCardinality
+    public sealed class WhereIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryCardinality, IQueryMaterialization<T>
     {
         private readonly IEnumerable<T> source;
         private readonly T[] array;
@@ -79,6 +84,22 @@ namespace Cilica.Runtime
                 Dispose();
             }
             return false;
+        }
+        public T[] ToArray()
+        {
+            var builder = new MaterializationBuffer<T>();
+            if (array != null)
+            {
+                for (int index = 0; index < array.Length; index++)
+                {
+                    T item = array[index]; if (predicate(item)) builder.Add(item);
+                }
+            }
+            else
+            {
+                foreach (T item in source) if (predicate(item)) builder.Add(item);
+            }
+            return builder.ToArray();
         }
         public int Count()
         {

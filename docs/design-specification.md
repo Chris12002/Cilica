@@ -2301,3 +2301,16 @@ native/.NET comparisons with ASan/UBSan and forced collection. The baseline now 
 30 native controls and 17 known gaps. Frozen engine discovery reaches missing
 Enumerable.ToArray; state discovery still exceeds 256 identities. Full replay is
 unverified. See ADR AC0042 and artifacts/alchemy-list-construction.
+
+### Array materialization (AC6.4)
+
+Enumerable.ToArray supports admitted array/collection copies and reference-enumerator
+fallbacks. Where's exact query path preserves cursor/current and first-enumerator
+identity while traversing the source. Managed traced buffers replace private pooled
+scratch storage, retaining callback/disposal order and canonical empty arrays.
+Twelve authored probes pass 3,528 O0/O2 native/.NET comparisons with ASan/UBSan,
+forced collection and strict cleanup; 29 adjacent query/boundary checks pass.
+Compiler/native profiles and grants are unchanged. Boxed collection factories,
+including List in the conservative enumerable closure, remain diagnostic; direct
+List.ToArray remains supported. Frozen engine discovery next requires HashSet<T>;
+state still exceeds its identity quota. Full replay is unverified. See ADR AC0043.
