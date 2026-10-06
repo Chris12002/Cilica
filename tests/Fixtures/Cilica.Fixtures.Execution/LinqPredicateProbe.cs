@@ -91,7 +91,7 @@ namespace Cilica.Fixtures.Execution
             catch (InvalidOperationException e) { result = e.Message == "predicate" ? 17 : -100; }
             return unchecked(result + state.Calls * 37);
         }
-        public static int UnsupportedValuePredicate(int a, int b) { var values = new ValueVectorCell[1]; return values.Count(cell => cell.Number > 0); }
+        public static int ValuePredicate(int a, int b) { var values = new ValueVectorCell[1]; return values.Count(cell => cell.Number > 0); }
         public static int Null(int a, int b)
         {
             IEnumerable<int> source = a < 0 ? null : new int[0]; Func<int, bool> predicate = null;

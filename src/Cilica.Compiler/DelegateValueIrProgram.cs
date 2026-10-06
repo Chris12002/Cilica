@@ -6,7 +6,7 @@ namespace Cilica.Compiler;
 /// <summary>Single-target delegates composed with values/boxes. Captures are managed references, never native pointers.</summary>
 public sealed record DelegateValueIrProgram(ManagedLocationIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "delegate-values-ir-v2";
+    public const string Profile = "delegate-values-ir-v3";
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
 }

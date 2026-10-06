@@ -408,3 +408,20 @@ Nonpredicate overloads, boxed List factories and value-payload predicates remain
 diagnostic. Profiles and grants are unchanged. Frozen engine discovery next reaches
 Func<GameState,PlayerId,bool> at PrepareForfeit IL_0395; state still exceeds its type
 quota. Discovery progress is not engine execution or saved-game replay. See ADR AC0046.
+
+### Inline-value delegate arguments (AC2.3)
+
+Single-target delegates now accept admitted named inline structs by value, including
+nested/empty values, Int64 fields and traced references. Logical signatures retain
+exact nominal types; scalar lowering expands both arguments and declarations through
+one layout plan. Detached scalar validation checks the preserved logical catalog.
+Existing parameter/root/frame quotas stay fixed. Fifteen probes pass 4,410 repeated
+O0/O2 native/.NET comparisons under ASan/UBSan and forced collection; compiler-cached
+predicate objects use the existing stable persistent-root checks. 76 adjacent and
+boundary checks pass, including malformed packets and expanded signature limits.
+Delegate IR/scalar profiles are v3, integer-object CIL v9, object IR v19, object
+layout v18 and native v46; physical delegate storage is unchanged. Direct wide/narrow
+or enum parameters, struct results, byrefs and multicast remain unsupported. Frozen
+engine discovery next rejects internal IEffectScope metadata while resolving
+GameStateScope.set_CurrentRound; state still exceeds 256 identities. Full replay
+remains unfinished. See ADR AC0047.

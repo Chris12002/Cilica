@@ -64,7 +64,24 @@ internal sealed class HeapValueFields
             if (count > ObjectModelLimits.MaximumFields) throw new ArgumentException("Expanded heap field limit exceeded.");
             layouts.Add(layout with { Fields = fields.ToImmutable() });
         }
-        Catalog = values.References with { Types = layouts.ToImmutable(), ValueArrays = arrays, Statics = statics.ToImmutable() };
+        var delegates = ImmutableArray.CreateBuilder<ObjectDelegateType>();
+        int delegateParameters = 0;
+        foreach (var declaration in values.References.Delegates)
+        {
+            var parameters = ImmutableArray.CreateBuilder<IrType>();
+            foreach (var parameter in declaration.Parameters)
+            {
+                var expanded = ValueScalarLowering.ExpandSignatureType(parameter, plans);
+                if (expanded.Length >= IrLimits.MaximumParameters - parameters.Count)
+                    throw new ArgumentException("Expanded delegate parameter limit exceeded.");
+                parameters.AddRange(expanded);
+            }
+            if (parameters.Count > IrLimits.MaximumParameters - delegateParameters)
+                throw new ArgumentException("Aggregate expanded delegate signature limit exceeded.");
+            delegateParameters += parameters.Count;
+            delegates.Add(declaration with { Parameters = parameters.ToImmutable(), ParameterCount = parameters.Count });
+        }
+        Catalog = values.References with { Types = layouts.ToImmutable(), ValueArrays = arrays, Statics = statics.ToImmutable(), Delegates = delegates.ToImmutable() };
         ObjectModelValidator.Validate(Catalog);
     }
 }

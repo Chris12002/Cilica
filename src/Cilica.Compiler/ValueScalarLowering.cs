@@ -84,7 +84,7 @@ public static class ValueScalarLowering
         return result;
     }
 
-    private static ImmutableArray<IrType> ExpandSignatureType(IrType type, IReadOnlyDictionary<ObjectTypeId, ValueTypePlan> plans)
+    internal static ImmutableArray<IrType> ExpandSignatureType(IrType type, IReadOnlyDictionary<ObjectTypeId, ValueTypePlan> plans)
     {
         static IrType Scalar(ObjectStorage storage) => storage switch
         {

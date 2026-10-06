@@ -46,7 +46,9 @@ public sealed class ReferenceDelegateTests
             "count" => declaration.Parameters.RemoveAt(0),
             "wide" => declaration.Parameters.SetItem(0, IrType.Int64),
             _ => declaration.Parameters.SetItem(0, IrType.Reference(catalog.ObjectBase with { Token = 0x0200ffff })) };
-        Assert.Throws<ArgumentException>(() => ObjectModelValidator.Validate(catalog with { Delegates = catalog.Delegates.Replace(declaration, declaration with { Parameters = parameters }) }));
+        var flow = program.Flow.Flow.Flow;
+        var changed = flow with { Types = flow.Types with { References = catalog with { Delegates = catalog.Delegates.Replace(declaration, declaration with { Parameters = parameters }) } } };
+        Assert.Throws<ArgumentException>(() => ManagedExceptionIrValidator.Validate(program with { Flow = program.Flow with { Flow = program.Flow.Flow with { Flow = changed } } }));
     }
 
     [Fact]

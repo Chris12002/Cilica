@@ -95,7 +95,9 @@ public static class ValueLayoutPlanner
         Require(argumentValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "interface argument is outside the value catalog.");
         var staticValues = catalog.References.Statics.Where(f => f.Type.Kind == IrTypeKind.Value).Select(f => f.Type.Class!).ToArray();
         Require(staticValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "static inline field target is outside the value catalog.");
-        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues).Concat(arrayValues).Concat(argumentValues).Concat(staticValues));
+        var delegateValues = catalog.References.Delegates.SelectMany(d => d.Parameters).Where(p => p.Kind == IrTypeKind.Value).Select(p => p.Class!).ToArray();
+        Require(delegateValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "delegate argument is outside the value catalog.");
+        var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues).Concat(arrayValues).Concat(argumentValues).Concat(staticValues).Concat(delegateValues));
         while (pending.TryPop(out var id))
             if (included.Add(id)) foreach (var child in children[id]) pending.Push(child);
         Require(included.Count == types.Count, "catalog contains unrelated inline types.");

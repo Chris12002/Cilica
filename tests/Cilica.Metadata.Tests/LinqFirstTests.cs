@@ -22,7 +22,7 @@ public sealed class LinqFirstTests
             (name, programs[i], typeof(LinqFirstProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedNoPredicate")] [InlineData("UnsupportedValuePredicate")]
+    [InlineData("UnsupportedNoPredicate")]
     public async Task Unimplemented_first_shapes_remain_diagnostic(string name)
     {
         using var files = new ResolverFiles();
