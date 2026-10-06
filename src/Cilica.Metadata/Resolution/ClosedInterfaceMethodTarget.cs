@@ -8,7 +8,7 @@ namespace Cilica.Metadata.Resolution;
 public sealed record ClosedInterfaceMethodTarget(ResolvedMethod Declaration, ConstructedType Receiver,
     ResolvedMethod Mapping, ResolvedMethod? Slot, ResolvedMethod Implementation, bool IsExplicit)
 {
-    public const string Profile = "closed-interface-method-target-v2";
+    public const string Profile = "closed-interface-method-target-v3";
 }
 
 public sealed partial class AssemblyResolver

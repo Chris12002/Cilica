@@ -53,7 +53,7 @@ internal sealed class ResolutionAssemblyBuilder
     internal MethodDefinitionHandle Method(string name, byte[] signature, int arity = 0,
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.Static,
         Action<InstructionEncoder>? emit = null, byte[]? locals = null, bool initializeLocals = true, int maxStack = 8,
-        GenericParameterAttributes genericAttributes = GenericParameterAttributes.None)
+        GenericParameterAttributes genericAttributes = GenericParameterAttributes.None, MethodImplAttributes? implementation = null)
     {
         int offset = -1;
         if (emit is not null)
@@ -63,7 +63,7 @@ internal sealed class ResolutionAssemblyBuilder
             var localSignature = locals is null ? default : _metadata.AddStandaloneSignature(_metadata.GetOrAddBlob(locals));
             offset = _bodies.AddMethodBody(il, maxStack, localSignature, initializeLocals ? MethodBodyAttributes.InitLocals : MethodBodyAttributes.None);
         }
-        var handle = _metadata.AddMethodDefinition(attributes, emit is null ? MethodImplAttributes.Runtime : MethodImplAttributes.IL,
+        var handle = _metadata.AddMethodDefinition(attributes, implementation ?? (emit is null ? MethodImplAttributes.Runtime : MethodImplAttributes.IL),
             _metadata.GetOrAddString(name), _metadata.GetOrAddBlob(signature), offset, MetadataTokens.ParameterHandle(1));
         Parameters(handle, arity, genericAttributes);
         return handle;

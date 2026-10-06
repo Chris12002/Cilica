@@ -139,7 +139,11 @@ public sealed partial class AssemblyResolver
             if (match.DeclaringType == declaration.DeclaringType && match.Handle == declaration.Handle) selected = slots.Count - 1;
         }
         if (selected < 0) throw Failure(DiagnosticIds.MemberNotFound, "Virtual declaration was not found in its owner's method list.");
-        return new(declaration, slots[selected].Root, receiver, slots[selected].Body);
+        var selectedBody = slots[selected].Body;
+        if (closed && (receiver.Assembly.Image.Reader.GetTypeDefinition(receiver.Handle).Attributes & TypeAttributes.Abstract) == 0
+            && (selectedBody.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(selectedBody.Handle).Attributes & MethodAttributes.Abstract) != 0)
+            throw new UnsupportedBindingException("Concrete class receiver lacks an implementation of its abstract virtual slot.");
+        return new(declaration, slots[selected].Root, receiver, selectedBody);
     }
 
     private static void ValidateClassVirtual(ResolvedMethod method, bool allowPrivateFinalSlots = false, bool closed = false)
@@ -150,7 +154,13 @@ public sealed partial class AssemblyResolver
         bool privateFinalSlot = allowPrivateFinalSlots
             && (definition.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Private
             && (definition.Attributes & (MethodAttributes.Final | MethodAttributes.NewSlot)) == (MethodAttributes.Final | MethodAttributes.NewSlot);
-        if ((definition.Attributes & MethodAttributes.Virtual) == 0 || (definition.Attributes & ~allowed) != 0
+        bool isAbstract = (definition.Attributes & MethodAttributes.Abstract) != 0;
+        if (isAbstract && (!closed || definition.RelativeVirtualAddress != 0 || definition.ImplAttributes != MethodImplAttributes.IL
+            || (definition.Attributes & MethodAttributes.Final) != 0
+            || (method.DeclaringType.Definition.Assembly.Image.Reader.GetTypeDefinition(method.DeclaringType.Definition.Handle).Attributes & TypeAttributes.Abstract) == 0))
+            throw new UnsupportedBindingException("Abstract class slots require a bodyless managed IL declaration on an abstract owner and cannot be final.");
+        var admitted = allowed | (closed ? MethodAttributes.Abstract : 0);
+        if ((definition.Attributes & MethodAttributes.Virtual) == 0 || (definition.Attributes & ~admitted) != 0
             || (definition.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public && !privateFinalSlot
             || !closed && method.DeclaringType.Arguments.Count != 0 || method.MethodArguments.Count != 0
             || method.Signature.Header != 0x20 || method.Signature.GenericArity != 0)

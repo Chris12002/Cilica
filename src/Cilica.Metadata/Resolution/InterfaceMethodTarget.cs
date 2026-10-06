@@ -262,8 +262,10 @@ public sealed partial class AssemblyResolver
             if (match is not null) throw Failure(DiagnosticIds.MemberConflict, "Multiple public methods match one interface name/signature on an owner.");
             const MethodAttributes allowed = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName
                 | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final;
-            if ((flags & ~allowed) != 0 || (flags & MethodAttributes.Virtual) == 0 && (flags & (MethodAttributes.NewSlot | MethodAttributes.Final)) != 0)
-                throw new UnsupportedBindingException("Implicit interface bodies require ordinary concrete public instance methods.");
+            if ((flags & ~(allowed | (closed ? MethodAttributes.Abstract : 0))) != 0
+                || (flags & MethodAttributes.Virtual) == 0 && (flags & (MethodAttributes.NewSlot | MethodAttributes.Final | MethodAttributes.Abstract)) != 0)
+                throw new UnsupportedBindingException("Implicit interface mappings require ordinary public instance methods; abstract slots need the closed dispatch profile.");
+            if ((flags & MethodAttributes.Abstract) != 0) ValidateClassVirtual(candidate, closed: closed);
             match = candidate;
         }
         return match;

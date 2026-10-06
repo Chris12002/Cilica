@@ -2826,3 +2826,16 @@ snapshot limit and now requires IOrderedEnumerable for OrderBy<Int32> in
 ReconcileControlOpportunity IL_0079, followed by ordinal-string ThenBy and Concat.
 StateLookup still reaches its separate catalog bound. Full replay is unverified.
 See ADR AC0057 and artifacts/alchemy-lexical-reads.
+
+
+### Abstract class slot metadata (AC8.12)
+
+Closed class/interface target resolution now distinguishes a bodyless abstract
+slot from its concrete implementation. Abstract declarations must belong to an
+abstract owner, use ordinary managed IL flags, have no body and not be final.
+Concrete receivers must resolve to a real override; re-abstraction and hidden
+new slots preserve their original slot identities. The legacy resolver remains
+restricted. Sixty-one focused metadata checks pass. Closed class and interface
+target profiles advance to v3. This is metadata foundation only: executable
+abstract class calls still require a bodyless IR declaration path. No placeholder
+implementation is emitted. Full replay remains unverified. See ADR AC0058.

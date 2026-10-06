@@ -31,7 +31,7 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "2ed4b782ea9ae2d676ee8cb13a327a25651556a82285e3840c1310bb17602076",
-    "latestSlice": "AC8.11",
+    "latestSlice": "AC8.12",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -371,7 +371,7 @@
     "AC8": {
       "prerequisites": ["required AC1-AC7 slices"],
       "status": "in-progress",
-      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11"],
+      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12"],
       "remaining": "Generic type-test origin evidence, catalog budget audit and remaining real closure gaps; private generic arrays are validated in AC8.4."
     },
     "AC8.1": {
@@ -413,6 +413,11 @@
       "prerequisites": ["AC8.2", "AC2.3"],
       "status": "complete-bounded-internal-interfaces",
       "decision": "docs/decisions/AC0048-internal-interfaces.md"
+    },
+    "AC8.12": {
+      "prerequisites": ["AC8.11"],
+      "status": "complete-metadata-abstract-slots",
+      "decision": "docs/decisions/AC0058-abstract-class-slot-metadata.md"
     },
     "AC8.11": {
       "prerequisites": ["AC8.10"],
