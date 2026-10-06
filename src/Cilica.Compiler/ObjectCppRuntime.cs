@@ -146,7 +146,7 @@ static_assert(std::is_standard_layout_v<StringObject> && offsetof(StringObject, 
 struct Handle { std::uint64_t token = 0; };
 struct HandleSlot { Object* value = nullptr; std::uint64_t token = 0; };
 static constexpr std::size_t handle_capacity = 1024;
-struct StaticSlot { std::uint32_t bits = 0; Object* reference = nullptr; };
+struct StaticSlot { std::uint32_t bits = 0; std::uint64_t wide = 0; Object* reference = nullptr; };
 struct InitializationSlot { std::uint32_t state = 0, fatal = 0; Object* failure = nullptr; };
 [[maybe_unused]] static bool initialization_shape(const InitializationSlot& slot) noexcept {
     return slot.state <= 4 && ((slot.state == 1 || slot.state == 3) == (slot.failure != nullptr))

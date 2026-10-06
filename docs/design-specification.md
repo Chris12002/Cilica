@@ -2142,3 +2142,13 @@ operand access. Three probes pass 882 repeated O0/O2 native/.NET comparisons;
 eight boundary checks and 30 previous enum/lexical checks pass. The frozen state
 probe now reaches the unchanged 256-type catalog limit. Static value storage and
 full replay remain unfinished. See [ADR AC0029](decisions/AC0029-nested-enum-storage.md).
+
+
+### Wide static storage (AC5b.4)
+
+Int64/UInt64 static fields preserve all bits in per-instance storage. Five probes
+pass 1,470 repeated native/.NET comparisons; two persistence/isolation runs, 18
+static/default checks, 25 initialization/packet checks and 21 public baseline checks
+pass. Native profile v42 and layout v16 account for the wider private slot. Inline
+static structs and full replay remain unfinished. See
+[ADR AC0030](decisions/AC0030-wide-static-storage.md).

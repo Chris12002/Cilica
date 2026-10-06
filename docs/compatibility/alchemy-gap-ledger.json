@@ -19,8 +19,8 @@
   },
   "baseline": {
     "integrationCommit": "e317e93",
-    "nativeProfile": "object-frames-native-v41",
-    "nativeProfileEvidence": "Public baseline revalidated at AC6.3 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
+    "nativeProfile": "object-frames-native-v42",
+    "nativeProfileEvidence": "Public baseline revalidated at AC5b.4 on native v42 (fixed invariant numeric text); slice-specific evidence is recorded separately below.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 29,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "387e1c85cce00fcf39251e3746e3534d6aa55458f368e267d473a1bcd8edcba4",
-    "latestSlice": "AC5b.3",
+    "fixtureSha256": "793b5676fd91239edde20ab023807b3eb113b3246c73443cb86bbf1763d008c9",
+    "latestSlice": "AC5b.4",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -193,7 +193,7 @@
     "AC5b": {
       "prerequisites": ["AC0"],
       "status": "in-progress",
-      "completedSubslices": ["AC5b.1", "AC5b.2", "AC5b.3"],
+      "completedSubslices": ["AC5b.1", "AC5b.2", "AC5b.3", "AC5b.4"],
       "remaining": "Enum arrays and operations, tuples, static array data and remaining real-closure storage gaps."
     },
     "AC5b.1": {
@@ -210,6 +210,11 @@
       "prerequisites": ["AC5b.1"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0029-nested-enum-storage.md"
+    },
+    "AC5b.4": {
+      "prerequisites": ["AC0"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0030-wide-static-storage.md"
     },
     "AC6": {
       "prerequisites": [

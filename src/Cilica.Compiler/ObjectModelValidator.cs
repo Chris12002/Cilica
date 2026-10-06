@@ -168,7 +168,7 @@ public static class ObjectModelValidator
                 && ObjectLexicalAccess.Valid(field.Id.Owner, field.LexicalOwners)
                 && (field.LexicalOwners.IsEmpty || ObjectLexicalAccess.Public(field.LexicalOwners) == field.OwnerExternallyVisible)
                 && (field.Attributes & FieldAttributes.Static) != 0 && FieldAttributesSupported(field.Attributes & ~FieldAttributes.Static)
-                && (field.Type == IrType.Int32 || field.Type is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false }
+                && (field.Type == IrType.Int32 || field.Type == IrType.Int64 || field.Type is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false }
                     && ReferenceIdentity(field.Type.Class, model.ObjectBase) && Known(field.Type.Class!)), "invalid static field identity, flags or storage.");
         ObjectLexicalAccess.Consistent(model.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners))
             .Concat(model.Statics.Select(f => (f.Id.Owner, f.LexicalOwners))));

@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v41";
+    public const string Profile = "object-frames-native-v42";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -619,7 +619,7 @@ public static class ObjectCppEmitter
                                     expression = "string_equals(" + Value(equal.Left) + ", " + Value(equal.Right) + ")"; break;
                                 case IrExpression.LoadStatic loaded:
                                     Guard("!ensure_static_storage(context)", "context.pending == 0u ? 5u : context.pending", value.ILOffset); Flush();
-                                    expression = "context.instance.statics[" + N(statics[loaded.Field].index) + "]." + (value.Type == IrType.Int32 ? "bits" : "reference"); break;
+                                    expression = "context.instance.statics[" + N(statics[loaded.Field].index) + "]." + (value.Type == IrType.Int32 ? "bits" : value.Type == IrType.Int64 ? "wide" : "reference"); break;
                                 case IrExpression.EmptyArray empty:
                                     expression = "empty_array(context, " + TypeSymbol(empty.ArrayType) + "_descriptor)"; break;
                                 case IrExpression.StringFromCodeUnits units:
@@ -720,7 +720,7 @@ public static class ObjectCppEmitter
                             Guard("!ensure_static_storage(context)", "context.pending == 0u ? 5u : context.pending", store.ILOffset); Flush();
                             if (statics[store.Field].f.Type.Class is { } staticClass) Check(Value(store.Value), staticClass, false, store.ILOffset);
                             code.Append("    context.instance.statics[").Append(N(statics[store.Field].index)).Append("].")
-                                .Append(statics[store.Field].f.Type == IrType.Int32 ? "bits" : "reference").Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
+                                .Append(statics[store.Field].f.Type == IrType.Int32 ? "bits" : statics[store.Field].f.Type == IrType.Int64 ? "wide" : "reference").Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
                         case IrStatement.StoreField store:
                             Check(Value(store.Receiver), store.Field.Owner, true, store.ILOffset);
                             if (values[store.Value].Type.Kind == IrTypeKind.Reference)
