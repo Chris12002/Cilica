@@ -29,6 +29,10 @@ public sealed record MethodInput(MethodSource Source, MethodSignature Signature,
     int CodeSize, int MaxStack, ImmutableArray<MethodInstruction> Instructions,
     int OwnerToken, bool OwnerExternallyVisible)
 {
+    // Preserve source spelling across closed substitution. A generic variable is
+    // an opaque type parameter, not an explicit reference to its eventual argument.
+    public MethodSignature DeclarationSignature { get; init; } = Signature;
+    public ImmutableArray<TypeSignature> DeclarationLocals { get; init; } = Locals;
     public string DeclaredName { get; init; } = "";
     public ImmutableArray<LexicalTypeOwner> LexicalOwners { get; init; } = [];
     public bool OwnerAssemblyVisible { get; init; }

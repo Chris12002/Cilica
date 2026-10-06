@@ -217,3 +217,12 @@ address boundary, 90 existing regressions and 21 baseline checks pass. Layout v1
 native v42. Frozen EngineStep advances to a nonpublic generic argument; state
 lookup still reaches the type limit. Static addresses and full replay remain
 unfinished. See [ADR AC0031](docs/decisions/AC0031-static-inline-value-copies.md).
+
+
+### Generic source-type provenance (AC8.1)
+
+Closed method snapshots now retain declaration signatures/locals, and a bounded
+resolver API retains original operand syntax before generic substitution. This
+separates explicit private names from opaque type parameters for the next access
+slice. All 54 selected metadata/generic checks pass. No new execution capability
+is claimed. See [ADR AC0032](docs/decisions/AC0032-generic-type-use-provenance.md).

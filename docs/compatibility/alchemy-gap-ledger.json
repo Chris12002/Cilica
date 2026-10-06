@@ -31,7 +31,7 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "0afc59a15807040dfc9bd100573cfe05f25c6e9f640e4688b7a67e27182c53cd",
-    "latestSlice": "AC5b.5",
+    "latestSlice": "AC8.1",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -283,9 +283,15 @@
       ]
     },
     "AC8": {
-      "prerequisites": [
-        "required AC1-AC7 slices"
-      ]
+      "prerequisites": ["required AC1-AC7 slices"],
+      "status": "in-progress",
+      "completedSubslices": ["AC8.1"],
+      "remaining": "Source-scoped generic reference access, catalog budget audit and remaining real closure gaps."
+    },
+    "AC8.1": {
+      "prerequisites": ["AC5b.5"],
+      "status": "complete-metadata-foundation",
+      "decision": "docs/decisions/AC0032-generic-type-use-provenance.md"
     },
     "AC9": {
       "prerequisites": [
