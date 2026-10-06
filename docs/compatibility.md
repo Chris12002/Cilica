@@ -2784,3 +2784,17 @@ ASan/UBSan. Detached payloads and ownership/allocation failures are checked. Oth
 inner-constructor families remain diagnostic. Integer CIL v16, exception IR v6,
 native v50; layout v20 and limits unchanged. Frozen engine ordering and state
 catalog remain blocked; full replay is unverified. See [ADR AC0065](decisions/AC0065-retained-inner-faults.md).
+
+### Stable Int32-key ordering (AC6.11)
+
+OrderBy/OrderByDescending and ThenBy/ThenByDescending now use owned deferred
+iterators, exact generic ordering factories and stable index-map introsort. Callback
+order, wrapped comparer faults, source/selector failures, cheap-count/first-element
+shortcuts and disposal follow the pinned runtime. Seventeen probes pass 14,944
+O0/O2 native/.NET comparisons, including verified heap fallbacks and forced-GC
+callback allocations; exact live-query ownership and three unsupported-key checks
+also pass. All 88 selected checks pass with ASan/UBSan and unchanged frame limits.
+String/culture defaults and wide/unsigned/narrow delegate keys remain diagnostic.
+No compiler/native profiles or grants change. Frozen engine reaches its metadata
+snapshot limit; state remains at its catalog limit. Full replay is unverified.
+See [ADR AC0066](decisions/AC0066-stable-integer-ordering.md).

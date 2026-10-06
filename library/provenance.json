@@ -9,6 +9,26 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.SpeedOpt.cs",
+      "sha256": "6f29614bf16782d44fb821abedcd75a2fe162eb56fa14c9a2ee823422964427e"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs",
+      "sha256": "4817c5d839b1649092392976ffc78249bae487708894b487ab71316f062827d6"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/OrderBy.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/OrderBy.cs",
+      "sha256": "9aabb2337f87aee16a5178682a1b236f89b636acc2abaa5be5eadd13ec46109f"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/ArraySortHelper.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/ArraySortHelper.cs",
+      "sha256": "a279fd7188065f0276af1f75b41ecb9b8982a6ca60db2a0cb54144d580dacdfe"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/InvalidOperationException.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/InvalidOperationException.cs",
       "sha256": "46c73e495c10cebaff7ff53b6924a65af27378c69184ba9582781e5c6848887b"
@@ -985,6 +1005,25 @@
         "Existing traced exception payloads own the inner graph; allocation failures preserve pending fault provenance."
       ],
       "scope": "Selected InvalidOperationException constructor only; no general inner-constructor families, HResult or serialization."
+    },
+    {
+      "path": "library/Cilica.Core/OrderedIterator.cs",
+      "behavioralSource": "src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs",
+      "contracts": [
+        "OrderBy/ThenBy preserve eager argument validation, deferred buffering, all-primary-then-secondary key evaluation and stable original-index ties.",
+        "CreateOrderedEnumerable remains an exact generic interface call, including application implementations. Owned cache/sorter interfaces support existing inline-value call lowering.",
+        "Count, Any, Select and ToArray preserve pinned empty/single-element behavior, cache comparison argument order and source disposal. Private upstream iterator inheritance is flattened into owned classes."
+      ],
+      "scope": "Bounded Int32 key selectors over admitted element/source shapes. String/culture/default comparer fallback and direct wide/unsigned/narrow delegate keys remain diagnostic. No Order, partial sorting, Skip/Take or general sorting API."
+    },
+    {
+      "path": "library/Cilica.Core/MapSort.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/ArraySortHelper.cs",
+      "contracts": [
+        "Preserves comparison-based introsort thresholds, median pivot, insertion/heap fallback and callback order while replacing private Span storage with an Int32 index array and checked slice coordinates.",
+        "IndexOutOfRange becomes the pinned bad-comparer ArgumentException with the upstream Comparison<Int32> display name; other comparer faults become InvalidOperationException retaining inner identity."
+      ],
+      "scope": "Private LINQ stable index-map sorting only; no public Array.Sort or Span support."
     }
   ]
 }
