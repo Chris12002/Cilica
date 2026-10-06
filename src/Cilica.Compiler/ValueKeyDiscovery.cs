@@ -6,7 +6,7 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-public enum ClosedKeyOperation { Equal, IsNull }
+public enum ClosedKeyOperation { Equal, IsNull, ContainsReferences }
 public sealed record ClosedKeyIntrinsic(ClosedKeyOperation Operation, IrType Storage);
 
 public static partial class ValueProgramDiscovery
@@ -46,6 +46,17 @@ public static partial class ValueProgramDiscovery
                     elementStorage.Kind == IrTypeKind.Value ? "ValueArraySearch`1" : "CopiedArraySearch`1"), work, offset);
                 target = Require(resolver.ResolveClosedDeclaration(new(selected, new([element])), "IndexOf", 3, _metadata), work, offset);
                 return null;
+            }
+            if (input.DeclaredName == "ContainsReferences")
+            {
+                if (input.IsReferenceAssembly || input.HasBody || input.HasTypeInitializer || input.HasModuleInitializer
+                    || input.OwnerGenericArity != 1 || input.Attributes != (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
+                    || input.Implementation != MethodImplAttributes.InternalCall || input.Signature.Header != 0 || input.Signature.GenericArity != 0
+                    || input.Signature.ReturnType != new TypeSignature.Primitive(PrimitiveTypeCode.Boolean) || input.Signature.Parameters.Count != 0)
+                    Fail(work, "Invalid selected closed reference-shape declaration.", offset);
+                _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.ClosedTypeContainsReferences), work, offset);
+                var element = target.DeclaringType.Arguments[0]; CheckArgumentAccess(element, work, offset);
+                return new(ClosedKeyOperation.ContainsReferences, Storage(element, work, offset));
             }
             bool equal = input.DeclaredName == "Equal", hash = input.DeclaredName == "Hash", isNull = input.DeclaredName == "IsNull";
             if (!(equal || hash || isNull) || input.IsReferenceAssembly || input.OwnerGenericArity != 1

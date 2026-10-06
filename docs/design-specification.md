@@ -2314,3 +2314,18 @@ Compiler/native profiles and grants are unchanged. Boxed collection factories,
 including List in the conservative enumerable closure, remain diagnostic; direct
 List.ToArray remains supported. Frozen engine discovery next requires HashSet<T>;
 state still exceeds its identity quota. Full replay is unverified. See ADR AC0043.
+
+### Default HashSet operations (AC3.9)
+
+HashSet<T> now supports default construction, Add/Contains/Remove/Clear/Count and
+TryGetValue for admitted integer/string/inline equality keys, with generic set and
+collection mutation dispatch. Traced inline entries retain null handling, prime
+buckets, collisions, free slots and callback ordering. A private exact reference-
+shape grant folds the validated layout so removal releases references while
+preserving freed scalar values observable through reentrant equality callbacks.
+Integer-object CIL v8; native v45/layout v17 unchanged. Nine authored probes plus
+the public control pass 2,940 O0/O2 comparisons, two native GC checks pass and 42
+adjacent checks pass. The baseline has 31 controls and 16 gaps. Comparers,
+enumeration, copying, capacity/enumerable constructors and set algebra remain
+unsupported. Frozen engine discovery next needs String.Concat(string[]); state
+still exceeds its identity quota. Full replay is unverified. See ADR AC0044.

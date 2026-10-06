@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs",
+      "sha256": "2f3c12b3ee6d7e109e1f6cd019be8bb91da55784e00e115d8c752b17bd4446a0"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/ToCollection.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/ToCollection.cs",
       "sha256": "0aeb8a58596bf835f7972b7688b4a0f39966e426009635dc087f313cfb161123"
@@ -175,6 +180,20 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/HashSet.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs",
+      "algorithms": [
+        "Default-comparer Add/Contains/Remove/Clear/TryGetValue, prime buckets and free slots.",
+        "Copy equality receivers; hash the owned argument byref; retain bucket/entry array identity across callbacks."
+      ],
+      "changes": [
+        "Traced inline generic entry arrays use existing bounded value storage. Share the existing pinned prime helper.",
+        "Fold an exact private ContainsReferences grant from validated layouts to preserve primitive freed payloads while releasing managed references.",
+        "Cilica default string hashing retains its bounded deterministic profile; randomized collision hardening is not implemented."
+      ],
+      "scope": "Only default construction and the listed key/mutation operations. Custom comparers, other constructors, enumeration/copy, set algebra and serialization remain unsupported."
+    },
     {
       "path": "library/Cilica.Core/Enumerable.cs",
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/ToCollection.cs",

@@ -248,7 +248,7 @@ public static partial class ValueProgramDiscovery
                             if (BoxedRender(work, instruction, ref target) is { } renderBox) boxedRenderCalls.Add(offset, renderBox);
                             if (KeyOperation(work, instruction, ref target) is { } keyOperation)
                             {
-                                _arguments += keyOperation.Operation == ClosedKeyOperation.Equal ? 2 : 1;
+                                _arguments += keyOperation.Operation == ClosedKeyOperation.Equal ? 2 : keyOperation.Operation == ClosedKeyOperation.ContainsReferences ? 0 : 1;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate key intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                                 keyOperations.Add(offset, keyOperation); continue;
                             }

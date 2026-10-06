@@ -789,5 +789,12 @@
     "Member": "CopyCollection",
     "ParameterCount": 1,
     "Capability": "ListCollectionConstruction"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "KeyOperations`1",
+    "Member": "ContainsReferences",
+    "ParameterCount": 0,
+    "Capability": "ClosedTypeContainsReferences"
   }
 ]

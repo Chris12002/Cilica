@@ -45,7 +45,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v7";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v8";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -126,11 +126,14 @@ public static class ValueTranslator
                 ? input.Types.References.Types.SelectMany(t => t.Fields) : []).ToDictionary(f => f.Id);
             var types = new IrTypeRules(input.Types.References, input.Types, locations: true);
             var boxedRelations = integers64 ? new BoxedTypeRelations(input.Types) : null;
+            var referenceValues = input.Methods.Any(m => m.KeyOperations.Values.Any(k => k.Operation == ClosedKeyOperation.ContainsReferences))
+                ? ValueLayoutPlanner.Build(input.Types).Where(p => p.Slots.Any(s => s.Storage is ObjectStorage.Reference)).Select(p => p.Type).ToHashSet()
+                : new HashSet<ObjectTypeId>();
             var resources = new ProgramResources(); var translated = new List<IrMethod>();
             foreach (var method in input.Methods)
             {
                 var body = new Body(method, methods, fields, arrays, classes, boxing, input.Types.References.Delegates.ToDictionary(d => ObjectTypeId.From(d.Source)), types, input.Types.References.ObjectBase,
-                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32), input.Exceptions, input.Types.References.String, boxedRelations, input.Types.Types.FirstOrDefault(t => t.Source.Name == "System.Int32" && t.Source.ContentHash == input.Types.References.ObjectBase.ContentHash && t.ScalarBox == PrimitiveTypeCode.Int32) is { } intLayout ? ObjectTypeId.From(intLayout.Source) : null).Translate();
+                    input.Types.References.Arrays.FirstOrDefault(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32), input.Exceptions, input.Types.References.String, boxedRelations, referenceValues, input.Types.Types.FirstOrDefault(t => t.Source.Name == "System.Int32" && t.Source.ContentHash == input.Types.References.ObjectBase.ContentHash && t.ScalarBox == PrimitiveTypeCode.Int32) is { } intLayout ? ObjectTypeId.From(intLayout.Source) : null).Translate();
                 if (!resources.Add(body)) Fail(method, 0, "Aggregate value IR resource limit exceeded.", DiagnosticIds.TranslationLimit);
                 translated.Add(body);
             }
@@ -196,7 +199,7 @@ public static class ValueTranslator
             + " IL_" + offset.ToString("x4", CultureInfo.InvariantCulture)));
 
     private sealed class Body(ValueMethodInput method, Dictionary<IrMethodId, ValueMethodInput> methods,
-        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray, ManagedExceptionTypes? exceptions, ObjectTypeId? stringType, BoxedTypeRelations? boxedRelations, ObjectTypeId? actualInteger)
+        Dictionary<ObjectFieldId, ObjectField> fields, bool arrays, bool classes, bool boxing, Dictionary<ObjectTypeId, ObjectDelegateType> delegates, IrTypeRules types, ObjectTypeId objectBase, ObjectTypeId? integerArray, ManagedExceptionTypes? exceptions, ObjectTypeId? stringType, BoxedTypeRelations? boxedRelations, HashSet<ObjectTypeId> referenceValues, ObjectTypeId? actualInteger)
     {
         private int _statements, _inputs, _edges;
         private void Error(int offset, string message, string code = DiagnosticIds.InconsistentStack) => Fail(method, offset, message, code);
@@ -314,7 +317,10 @@ public static class ValueTranslator
                             if (stack.Count != 0) Error(offset, "endfilter leaves a residual evaluation stack.");
                             terminator = new IrEndFilter(offset, accepted); break;
                         case "call" when method.KeyOperations.TryGetValue(offset, out var keyOperation):
-                            if (keyOperation.Operation == ClosedKeyOperation.IsNull)
+                            if (keyOperation.Operation == ClosedKeyOperation.ContainsReferences)
+                                Push(offset, IrType.Int32, new IrExpression.Constant(keyOperation.Storage.Kind == IrTypeKind.Reference
+                                    || keyOperation.Storage.Kind == IrTypeKind.Value && referenceValues.Contains(keyOperation.Storage.Class!) ? 1 : 0));
+                            else if (keyOperation.Operation == ClosedKeyOperation.IsNull)
                             {
                                 int key = Pop(offset, keyOperation.Storage);
                                 if (keyOperation.Storage.Kind == IrTypeKind.Reference)
