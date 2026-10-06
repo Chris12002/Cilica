@@ -51,3 +51,9 @@ source/callback roots, exception/disposal precedence, query identity and factory
 closure isolation. The baseline cache assertion and generic fast-path regression
 were fixed and retested, not waived. The ledger has 18 gaps and 29 controls.
 Private saved-game replay remains unfinished.
+
+The final exact-cache test initially counted declared static slots instead of
+occupied roots: array fallback discovery also declares an unused empty-enumerator
+cache. Follow-up validation counts exactly two occupied roots, permits unpopulated
+slots and still requires heap counts of three before clearing and one afterward.
+Both O0/O2 checks pass; the test correction is a separate commit.

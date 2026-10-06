@@ -76,14 +76,17 @@ public sealed class LinqWhereTests
                 LocationArgument args[2]; args[0].bits = 1; args[1].bits = 2;
                 assert({{symbol}}(c, args) == 2 && c.pending == 0);
                 assert({{symbol}}(d, args) == 2 && d.pending == 0);
-                assert(static_field_count == 2);
+                // Closure discovery also declares caches that this input never populates.
+                std::size_t occupied = 0;
                 assert(collect(c).status == MarkStatus::complete && heap.count == 3);
                 assert(collect(d).status == MarkStatus::complete && other.count == 3);
                 for (std::size_t i = 0; i < static_field_count; ++i) {
-                    assert(heap.statics[i].reference != nullptr && other.statics[i].reference != nullptr);
-                    assert(heap.statics[i].reference != other.statics[i].reference);
+                    if (heap.statics[i].reference == nullptr) { assert(other.statics[i].reference == nullptr); continue; }
+                    ++occupied;
+                    assert(other.statics[i].reference != nullptr && heap.statics[i].reference != other.statics[i].reference);
                     heap.statics[i].reference = nullptr;
                 }
+                assert(occupied == 2);
                 assert(collect(c).status == MarkStatus::complete && heap.count == 1);
                 assert(collect(d).status == MarkStatus::complete && other.count == 3);
                 assert(c.used == 0 && c.top == nullptr && c.borrows == nullptr);

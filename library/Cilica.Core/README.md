@@ -44,7 +44,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
 ```
 
 The output directory must be new. No platform references are passed. The request
-file describes 103 exact string/exception/provider/numeric/array/key/type capabilities for review; it does not
+file describes 104 exact string/exception/provider/numeric/array/key/type capabilities for review; it does not
 approve them. The build records actual compiler/source/options hashes and emitted
 declarations. Admission still requires an independently approved manifest digest.
 No build output is automatically added to the trusted baseline.
