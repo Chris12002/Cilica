@@ -1,0 +1,6 @@
+{
+  "javaVersion": "openjdk version \"21.0.8\" 2025-07-15",
+  "kotlinBuild": "2.2.255-dev-255",
+  "buildToolsRevision": "36.0.0",
+  "compileAPI": 36
+}

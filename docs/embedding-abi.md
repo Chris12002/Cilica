@@ -715,3 +715,16 @@ Measured target: Android 16/API 36, arm64-v8a, 4 KB pages; emulator 36.3.10, adb
 36.0.2-14143358 and Google Play arm64 image revision 7. No Android captured-fault
 or Java/Kotlin lifetime claim follows from these particular consumers. API 26,
 16 KB runtime behavior, app lifecycle and physical-device execution remain open.
+
+### Kotlin/JNI owner (7e.3)
+
+The [Android adapter](../adapters/Android/README.md) generates a serial Kotlin
+owner and separate C JNI bridge for the packaged module. Copied packets preserve
+Int32/Integer64, exact UTF-16, numeric records and captured fault identity/details.
+Handles remain runtime-scoped leases, with explicit clone/release/close. Native
+entry and query/copy share one worker. Admission is bounded to 256 pending calls;
+close has a reserved slot and invalidates all leases. Up to 64 pause holds compose
+while retaining copy/release/close access. Cancellation never cancels native work.
+CheckJNI session/concurrency/fault and kernel transcript tests pass on the same
+API-36/4-KB emulator. Explicit close is required; no GC cleanup, APK/activity,
+API-26/16-KB or physical-device guarantee follows from this checkpoint.

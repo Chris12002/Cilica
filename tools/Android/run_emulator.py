@@ -13,7 +13,7 @@ import time
 import uuid
 
 from build_library import sha256
-from package_support import case_files
+from package_support import case_files, jvm_case_files
 
 
 def properties(path):
@@ -51,9 +51,13 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sdk', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--case', nargs=2, action='append', required=True,
+    parser.add_argument('--case', nargs=2, action='append', default=[],
                         metavar=('PACKAGE', 'CONSUMER'), help='CONSUMER: lifecycle or build_consumer output')
+    parser.add_argument('--jvm-case', nargs=2, action='append', default=[], metavar=('PACKAGE', 'CONSUMER'),
+                        help='CONSUMER: adapters/Android/build.py output, run with CheckJNI')
     args = parser.parse_args(argv)
+    if not args.case and not args.jvm_case:
+        parser.error('At least one --case or --jvm-case is required')
     sdk = args.sdk.resolve(strict=True)
     pin = json.loads(Path(__file__).with_name('emulator.json').read_bytes())
     emulator = sdk/'emulator/emulator'
@@ -72,7 +76,11 @@ def main(argv=None):
     for package_name, consumer in args.case:
         package = Path(package_name).resolve(strict=True)
         library, binary = case_files(package, consumer)
-        cases.append((package, library, binary))
+        cases.append((package, library, [binary], None))
+    for package_name, consumer in args.jvm_case:
+        package = Path(package_name).resolve(strict=True)
+        library, files, main_class = jvm_case_files(package, consumer)
+        cases.append((package, library, files, main_class))
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     scratch = output/'temporary-device'
@@ -155,21 +163,32 @@ def main(argv=None):
             if info['ro.kernel.qemu'] != '1' or info['ro.product.cpu.abi'] != pin['abi'] or info['ro.build.version.sdk'] != pin['api']:
                 raise RuntimeError('Unexpected emulator identity')
             print('Booted '+info['ro.build.fingerprint'], flush=True)
-            for index, (package, library, binary) in enumerate(cases):
+            for index, (package, library, files, main_class) in enumerate(cases):
                 folder = remote+'/case'+str(index)
                 adb_run(['shell', 'mkdir', '-p', folder])
                 adb_run(['push', str(library), folder+'/'+library.name], timeout=60)
-                adb_run(['push', str(binary), folder+'/consumer'], timeout=60)
-                adb_run(['shell', 'chmod', '700', folder+'/consumer'])
-                result = adb_run(['shell', 'timeout', '60', 'env', 'LD_LIBRARY_PATH='+folder, folder+'/consumer'], timeout=70, check=False)
+                for file in files:
+                    adb_run(['push', str(file), folder+'/'+(file.name if main_class else 'consumer')], timeout=60)
+                command = ['shell', 'timeout', '60', 'env', 'LD_LIBRARY_PATH='+folder]
+                if main_class:
+                    command += ['CLASSPATH='+folder+'/classes.dex', '/system/bin/app_process', '-Xcheck:jni',
+                                '-Djava.library.path='+folder, '/system/bin', main_class]
+                else:
+                    adb_run(['shell', 'chmod', '700', folder+'/consumer'])
+                    command += [folder+'/consumer']
+                result = adb_run(command, timeout=70, check=False)
                 (output/('case'+str(index)+'.stdout')).write_text(result.stdout)
                 (output/('case'+str(index)+'.stderr')).write_text(result.stderr)
-                evidence = {'package': str(package), 'binary': str(binary),
+                evidence = {'package': str(package), 'mainClass': main_class, 'command': command,
                             'packageReceiptSha256': sha256((package/'build-receipt.json').read_bytes()),
-                            'librarySha256': sha256(library.read_bytes()), 'binarySha256': sha256(binary.read_bytes()),
+                            'librarySha256': sha256(library.read_bytes()),
+                            'files': {str(file): sha256(file.read_bytes()) for file in files},
                             'exitCode': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr}
                 receipt['cases'].append(evidence)
                 if result.returncode or not re.search(r'^PASS(?:\s|$)', result.stdout, re.MULTILINE):
+                    if main_class:
+                        diagnostics = adb_run(['logcat', '-d', '-t', '300'], check=False)
+                        (output/('case'+str(index)+'.logcat')).write_text(diagnostics.stdout+diagnostics.stderr)
                     raise RuntimeError('Native case '+str(index)+' failed; see case output')
                 print('Case '+str(index)+': '+result.stdout.strip(), flush=True)
             adb_run(['shell', 'rm', '-rf', remote])

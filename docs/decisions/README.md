@@ -140,3 +140,4 @@ capability. It becomes accepted once its validation experiment has run.
 | [0190](0190-composed-uikit-kernel-validation.md) | Composed UIKit kernel validation | Accepted; shared scenario shell, repeated real simulator transitions, retained faults and .NET transcript/resumed-state parity |
 | [0191](0191-android-shared-packaging.md) | Android shared packaging | Accepted; pinned NDK arm64/API-26 package, private libc++, C exports, 16 KB ELF checks and C11 cross-link evidence only |
 | [0192](0192-android-native-emulator-validation.md) | Android native emulator validation | Accepted; disposable pinned arm64 emulator, private adb, C11 lifecycle and unchanged kernel transcript evidence on API 36 with 4 KB pages |
+| [0193](0193-kotlin-runtime-ownership.md) | Kotlin runtime ownership | Accepted; generated JNI/Kotlin owner, bounded worker and scoped leases/pauses, captured faults and CheckJNI kernel parity |

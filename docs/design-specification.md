@@ -1262,6 +1262,15 @@ comparisons pass on Android 16/API 36 with 4 KB pages, normally and with forced
 collection. This establishes native loading and repeated-call evidence on that
 image; API 26, 16 KB execution, JNI/Kotlin, APK and physical-device gates remain open.
 
+Milestone 7e.3 adds a generated JNI/Kotlin owner
+([ADR 0193](decisions/0193-kotlin-runtime-ownership.md)), retaining the same C
+boundary and explicit ownership. One worker serializes calls/copies, with 256
+pending operations, a reserved close slot and 64 scoped pause holds. Exact UTF-16,
+Integer64, numeric records and retained fault details pass Android CheckJNI tests;
+the kernel matches 5,376 .NET values plus 780 resumed-field checks. Explicit close
+is required; future cancellation changes observation only. Activity lifecycle,
+physical devices and a full application command adapter remain separate gates.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

@@ -152,6 +152,14 @@ API-26/16-KB execution, Android fault copying, APK packaging, JNI/Kotlin lifetim
 app lifecycle and physical devices remain unverified. See
 [ADR 0192](decisions/0192-android-native-emulator-validation.md).
 
+Milestone 7e.3 adds a generated JNI/Kotlin serial owner with explicit close,
+scoped leases/pauses and copied values/faults. CheckJNI execution passes six public
+cycles, 96 concurrent calls, record/UTF-16/wide-integer checks and captured-fault
+retention. The unchanged kernel passes 5,376 comparisons plus 780 resumed fields.
+Four optional string/capture variants compile; twelve local Python tests pass.
+This closes the bounded JNI/Kotlin and Android fault-copying checkpoint, while
+APK/activity and device gates remain open. See [ADR 0193](decisions/0193-kotlin-runtime-ownership.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |

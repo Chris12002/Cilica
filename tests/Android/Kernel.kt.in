@@ -1,0 +1,47 @@
+package dev.cilica
+
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+import dev.cilica.CilicaKernelRuntime as Runtime
+import dev.cilica.CilicaKernelRuntime.Value as Value
+
+private fun <T> CompletableFuture<T>.await(): T = get(15, TimeUnit.SECONDS)
+private fun Runtime.Outcome.handle() = (value as Value.Reference).handle!!
+private fun Runtime.Outcome.fields() = (value as Value.Record).fields
+private val expected = arrayOf(@ROWS@)
+private val texts = arrayOf(@TEXTS@)
+
+object Kernel {
+    @JvmStatic fun main(args: Array<String>) {
+        var comparisons = 0; var resumed = 0
+        for (stress in listOf(false, true)) repeat(3) {
+            val runtime = Runtime(stress, 4); val other = Runtime(stress, 4)
+            try {
+                runtime.ready().await(); other.ready().await()
+                val session = runtime.invoke(1).await().handle()
+                val untouched = other.invoke(1).await().handle()
+                val alias = runtime.clone(session).await(); runtime.release(session).await()
+                var first: Runtime.Handle? = null
+                for (step in expected.indices) {
+                    val fields = runtime.invoke(2, listOf(Value.Reference(alias))).await().fields()
+                    fields.forEachIndexed { index, value -> check(value == Value.Int32(expected[step][index])); comparisons++ }
+                    val snapshot = runtime.invoke(4, listOf(Value.Reference(alias))).await().handle()
+                    val hold = runtime.pause().await()
+                    val copied = runtime.copyUTF16(snapshot).await()
+                    check(copied.size == texts[step].length)
+                    copied.forEachIndexed { index, unit -> check(unit == texts[step][index]); comparisons++ }
+                    runtime.resume(hold).await()
+                    val read = runtime.invoke(3, listOf(Value.Reference(alias))).await().fields()
+                    read.forEachIndexed { index, value -> check(value == fields[index]); resumed++ }
+                    if (step == 0) first = snapshot else runtime.release(snapshot).await()
+                }
+                check(String(runtime.copyUTF16(first!!).await()) == texts[0])
+                val independent = other.invoke(3, listOf(Value.Reference(untouched))).await().fields()
+                check(independent[0] == Value.Int32(0) && independent[7] == Value.Int32(1))
+                runtime.release(first!!).await(); runtime.release(alias).await()
+            } finally { runtime.close().await(); other.close().await() }
+        }
+        check(comparisons == 5376 && resumed == 780)
+        println("PASS Kotlin JNI kernel comparisons=$comparisons resumed_fields=$resumed modes=normal,forced_collection")
+    }
+}

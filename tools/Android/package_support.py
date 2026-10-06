@@ -38,3 +38,22 @@ def case_files(package, consumer):
     if sha256(binary.read_bytes()) != expected:
         raise ValueError('Consumer executable differs from receipt')
     return library, binary
+
+
+def jvm_case_files(package, consumer):
+    receipt, library = package_files(package)
+    folder = Path(consumer).resolve(strict=True)
+    evidence = json.loads((folder/'jvm-receipt.json').read_bytes())
+    if evidence['profile'] != 'android-jvm-consumer-v1' or evidence['packageReceiptSha256'] != sha256((package/'build-receipt.json').read_bytes()):
+        raise ValueError('JVM consumer belongs to a different package')
+    if not re.fullmatch(r'[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*', evidence['mainClass']):
+        raise ValueError('Invalid JVM main class')
+    files = {'lib'+receipt['module']+'Jni.so', 'dex/classes.dex'}
+    sources = {receipt['module']+'Runtime.kt', 'bridge.c', 'Consumer.kt'}
+    if set(evidence['files']) != files or set(evidence['sources']) != sources:
+        raise ValueError('Unexpected JVM file set')
+    for relative, expected in {**evidence['files'], **evidence['sources']}.items():
+        path = (folder/relative).resolve(strict=True)
+        if folder not in path.parents or sha256(path.read_bytes()) != expected:
+            raise ValueError('JVM file/hash mismatch: '+relative)
+    return library, [folder/name for name in sorted(files)], evidence['mainClass']

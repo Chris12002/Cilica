@@ -1,0 +1,116 @@
+#include "cilica.h"
+#include <jni.h>
+#include <stdlib.h>
+#include <string.h>
+#define API_(p, n) p##_##n
+#define API_I(p, n) API_(p, n)
+#define API(n) API_I(@PREFIX@, n)
+/* Private packet; never expose native pointers to the JVM. */
+typedef struct packet {
+    jlong input[130], output[134];
+    cilica_v3_value arguments[64], fields[64];
+    cilica_v3_result result;
+} packet;
+static jlong bits(uint64_t value) { jlong result; memcpy(&result, &value, 8); return result; }
+
+JNIEXPORT jint JNICALL Java_dev_cilica_@MODULE@Native_call(
+    JNIEnv *env, jclass cls, jint operation, jlong runtime, jlongArray input,
+    jlongArray output, jcharArray first, jcharArray second, jbyteArray hash) {
+    (void)cls;
+    if (!input || !output || !hash || (*env)->GetArrayLength(env, output) != 134 ||
+        (*env)->GetArrayLength(env, hash) != 65) return CILICA_V3_INVALID_ARGUMENT;
+    jsize count = (*env)->GetArrayLength(env, input);
+    jsize first_count = first ? (*env)->GetArrayLength(env, first) : 0;
+    jsize second_count = second ? (*env)->GetArrayLength(env, second) : 0;
+    if (count > 130 || first_count > 524288 || second_count > 524288) return CILICA_V3_LIMIT;
+    packet *p = calloc(1, sizeof(*p));
+    if (!p) return CILICA_V3_ALLOCATION_FAILED;
+    uint16_t *a = NULL, *b = NULL;
+    uint64_t acquired = 0, exception = 0;
+    uint32_t status = CILICA_V3_INVALID_ARGUMENT;
+    char image[65] = {0};
+    (*env)->GetLongArrayRegion(env, input, 0, count, p->input);
+    if ((*env)->ExceptionCheck(env)) goto done;
+    if (first_count) { a = calloc((size_t)first_count, sizeof(*a)); if (!a) { status=7; goto done; } }
+    if (second_count) { b = calloc((size_t)second_count, sizeof(*b)); if (!b) { status=7; goto done; } }
+    switch (operation) {
+    case 0: {
+        if (count != 2) break;
+        cilica_v3_config config = CILICA_V3_CONFIG_INIT;
+        config.flags = (uint32_t)p->input[0]; config.handle_limit = (uint32_t)p->input[1];
+        status = API(create)(3, @HASH@, &config, &acquired);
+        p->output[0] = bits(acquired); break;
+    }
+    case 1: if (count == 0) status = API(destroy)((uint64_t)runtime); break;
+    case 2: {
+        if (count < 2 || (count-2)%2 != 0) break;
+        uint32_t length = (uint32_t)(count-2)/2;
+        for (uint32_t i=0; i<length; ++i) {
+            p->arguments[i].kind = (uint32_t)p->input[2+2*i];
+            p->arguments[i].payload = (uint64_t)p->input[3+2*i];
+        }
+#if @HAS_RECORDS@
+        status = API(invoke_records)((uint64_t)runtime, (uint32_t)p->input[0], p->arguments, length,
+            p->fields, 64, &p->result, p->input[1] ? &exception : NULL);
+#elif @HAS_CAPTURE@
+        if (p->input[1]) status = API(invoke_capture)((uint64_t)runtime, (uint32_t)p->input[0], p->arguments, length, &p->result, &exception);
+        else status = API(invoke)((uint64_t)runtime, (uint32_t)p->input[0], p->arguments, length, &p->result);
+#else
+        if (p->input[1]) break;
+        status = API(invoke)((uint64_t)runtime, (uint32_t)p->input[0], p->arguments, length, &p->result);
+#endif
+        p->output[0]=p->result.value.kind; p->output[1]=bits(p->result.value.payload);
+        p->output[2]=p->result.fault_code; p->output[3]=p->result.method_token; p->output[4]=p->result.il_offset;
+        p->output[5]=bits(exception); memcpy(image, p->result.image_hash, 65);
+        for (uint32_t i=0; i<64; ++i) { p->output[6+2*i]=p->fields[i].kind; p->output[7+2*i]=bits(p->fields[i].payload); }
+        if (status == 0 && p->result.value.kind == CILICA_V3_HANDLE) acquired=p->result.value.payload;
+        break;
+    }
+    case 3:
+        if (count != 1) break;
+        status=API(retain_handle)((uint64_t)runtime, (uint64_t)p->input[0], &acquired);
+        p->output[0]=bits(acquired); break;
+    case 4: if (count == 1) status=API(release_handle)((uint64_t)runtime, (uint64_t)p->input[0]); break;
+#if @HAS_STRINGS@
+    case 5:
+        if (count != 0 || !first) break;
+        if (first_count) (*env)->GetCharArrayRegion(env, first, 0, first_count, a);
+        if ((*env)->ExceptionCheck(env)) goto done;
+        status=API(string_create)((uint64_t)runtime, a, (uint32_t)first_count, &acquired);
+        p->output[0]=bits(acquired); break;
+    case 6: {
+        if (count != 1) break;
+        uint32_t length=0;
+        status=API(string_copy)((uint64_t)runtime, (uint64_t)p->input[0], a, (uint32_t)first_count, &length);
+        p->output[0]=length;
+        if (status == 0 && first && length) (*env)->SetCharArrayRegion(env, first, 0, (jsize)length, a);
+        break;
+    }
+#endif
+#if @HAS_CAPTURE@
+    case 7: {
+        if (count != 1) break;
+        cilica_v3_exception_info info={0};
+        status=API(exception_copy)((uint64_t)runtime, (uint64_t)p->input[0], a, (uint32_t)first_count, b, (uint32_t)second_count, &info);
+        p->output[0]=info.type_name_length; p->output[1]=info.message_length; p->output[2]=info.type_token;
+        memcpy(image, info.type_image_hash, 65);
+        if (status == 0) {
+            if (first && info.type_name_length) (*env)->SetCharArrayRegion(env, first, 0, (jsize)info.type_name_length, a);
+            if (!(*env)->ExceptionCheck(env) && second && info.message_length) (*env)->SetCharArrayRegion(env, second, 0, (jsize)info.message_length, b);
+        }
+        break;
+    }
+#endif
+    default: break;
+    }
+    if (!(*env)->ExceptionCheck(env)) (*env)->SetLongArrayRegion(env, output, 0, 134, p->output);
+    if (!(*env)->ExceptionCheck(env)) (*env)->SetByteArrayRegion(env, hash, 0, 65, (const jbyte*)image);
+done:
+    if ((*env)->ExceptionCheck(env)) {
+        if (operation == 0 && acquired) (void)API(destroy)(acquired);
+        else if (acquired) (void)API(release_handle)((uint64_t)runtime, acquired);
+        if (exception) (void)API(release_handle)((uint64_t)runtime, exception);
+    }
+    free(a); free(b); free(p);
+    return (jint)status;
+}

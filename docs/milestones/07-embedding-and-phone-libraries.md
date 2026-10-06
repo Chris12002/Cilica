@@ -15,7 +15,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
 | 7d | iOS library and native adapter | In progress: pinned XCFramework, Swift owner/pauses and UIKit host; real kernel now passes repeated simulator foreground/background cycles. Full application commands, OS suspension and physical-device evidence remain open |
-| 7e | Android library and native adapter | In progress: pinned arm64 NDK packages pass C11 lifecycle and real-kernel transcripts on an Android 16 emulator. JNI/Kotlin adaptation and physical-device tests remain open |
+| 7e | Android library and native adapter | In progress: pinned arm64 NDK packages pass C11 lifecycle and real-kernel transcripts on an Android 16 emulator. JNI/Kotlin ownership and CheckJNI kernel/fault checks pass; activity and physical-device tests remain open |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
 
 ## Slice 7a boundary
@@ -495,13 +495,36 @@ API-26/16-KB runtime behavior, Android captured-fault copying, JNI/Kotlin owners
 APK/app lifecycle and physical-device execution remain open. A successful native
 command-line consumer does not establish a full application adapter.
 
+## Slice 7e.3 outcome
+
+[ADR 0193](../decisions/0193-kotlin-runtime-ownership.md) adds a generated Kotlin
+serial owner and C JNI bridge around unchanged native libraries. Scoped leases,
+exact UTF-16/Integer64, numeric records, copied captured faults and overlapping
+pause holds follow the existing ownership rules. Pending calls are bounded to
+256, with a reserved close slot; cancellation changes observation only. Explicit
+close is required. Installed JBR/Kotlin/build-tools are pinned; no download ran.
+
+CheckJNI tests pass six public session cycles, 96 concurrent calls, pause/handle
+limits, exact string/record round trips, retained exception details and close at
+capacity. The real kernel matches **5,376 .NET transcript values plus 780 resumed
+fields** across normal/forced collection. Twelve Python tests and four optional
+string/capture compile profiles pass. Review fixed record input flattening after
+an initial failing echo and diagnostic logcat run; the reduced regression now
+passes without changing native code or game rules. Cleanup is recorded in private
+`artifacts/milestone7-android-jni/evidence-7e3.json`. Main remains an ancestor and
+the remote advertises no heads. No hosted jobs, push or agents ran.
+
+Android activity/APK lifecycle, API-26/16-KB runtime behavior, physical devices and
+the final application command contract remain open. Work continues with activity
+callback integration.
+
 ## Remaining exit gates
 
 - Define the actual mobile application command contract and connect its native
   host adapter, using the validated numeric/handle/string boundary where sufficient.
   Reference-bearing records require a separate design if that contract needs them.
-- Keep both platform toolchain/package pins current; add Android fault-copying,
-  JNI/Kotlin ownership and application lifecycle checks before claiming that adapter complete.
+- Keep platform toolchain/package pins current; add Android application lifecycle
+  checks before claiming that adapter complete.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests
   alone do not close this milestone.
 - Review rooting, resource bounds, C layout, error order and lifecycle races for

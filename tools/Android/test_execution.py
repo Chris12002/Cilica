@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from build_library import sha256
-from package_support import case_files, package_files
+from package_support import case_files, package_files, jvm_case_files
 from run_emulator import stop_child
 import run_emulator as runner
 
@@ -85,6 +85,29 @@ class ExecutionTests(unittest.TestCase):
         stopped.terminate.assert_not_called()
         stopped.kill.assert_not_called()
         stop_child(None)
+
+    def test_jvm_receipt_rejects_changed_dex_and_shell_main_names(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve(); self.package(root)
+            folder = root/'jvm'; (folder/'dex').mkdir(parents=True)
+            files = ['libProbeJni.so', 'dex/classes.dex']
+            sources = ['ProbeRuntime.kt', 'bridge.c', 'Consumer.kt']
+            for name in files+sources:
+                (folder/name).write_text(name)
+            evidence = {'profile': 'android-jvm-consumer-v1', 'mainClass': 'dev.cilica.Probe',
+                        'packageReceiptSha256': sha256((root/'build-receipt.json').read_bytes()),
+                        'files': {name: sha256((folder/name).read_bytes()) for name in files},
+                        'sources': {name: sha256((folder/name).read_bytes()) for name in sources}}
+            path = folder/'jvm-receipt.json'; path.write_text(json.dumps(evidence))
+            self.assertEqual(jvm_case_files(root, str(folder))[2], 'dev.cilica.Probe')
+            evidence['mainClass'] = 'dev.cilica.Probe; true'
+            path.write_text(json.dumps(evidence))
+            with self.assertRaisesRegex(ValueError, 'main class'):
+                jvm_case_files(root, str(folder))
+            evidence['mainClass'] = 'dev.cilica.Probe'; path.write_text(json.dumps(evidence))
+            (folder/'dex/classes.dex').write_text('changed')
+            with self.assertRaisesRegex(ValueError, 'hash mismatch'):
+                jvm_case_files(root, str(folder))
 
     def test_failed_boot_stops_owned_server_and_records_failure(self):
         with tempfile.TemporaryDirectory() as directory:

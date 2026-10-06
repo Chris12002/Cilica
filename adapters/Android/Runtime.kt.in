@@ -1,0 +1,199 @@
+package dev.cilica
+
+import java.util.ArrayDeque
+import java.util.Collections
+import java.util.concurrent.CompletableFuture
+
+internal object @MODULE@Native {
+    init { System.loadLibrary("@MODULE@Jni") }
+    @JvmStatic external fun call(operation: Int, runtime: Long, input: LongArray, output: LongArray,
+                                 first: CharArray?, second: CharArray?, hash: ByteArray): Int
+}
+
+/** Explicitly close every owner. Calls and their completions run on its serial worker. */
+class @MODULE@Runtime(collectBeforeAllocation: Boolean = false, handleLimit: Int = 1024) {
+    class Failure(val reason: String, val status: Int = 0) : RuntimeException("$reason ($status)")
+    class Handle internal constructor(internal val owner: Any, internal val token: Long)
+    class Pause internal constructor(internal val owner: Any)
+    sealed class Value {
+        data class Int32(val value: Int) : Value()
+        /** Signed JVM Long carries all 64 bits, including unsigned native values. */
+        data class Integer64(val bits: Long) : Value()
+        data class Reference(val handle: Handle?) : Value()
+        class Record(val id: Long, fields: List<Value>) : Value() {
+            val fields: List<Value> = Collections.unmodifiableList(ArrayList(fields))
+        }
+        object Void : Value()
+    }
+    data class Fault(val code: Long, val methodToken: Long, val ilOffset: Long, val imageHash: String)
+    data class Outcome(val value: Value, val fault: Fault?, val exception: Handle?)
+    data class ExceptionDetails(val typeName: String, val message: String, val typeToken: Long, val imageHash: String)
+    private data class Shape(val kind: Int, val id: Long = 0, val fields: List<Shape> = emptyList())
+    private class Packet {
+        val output = LongArray(134)
+        val hash = ByteArray(65)
+        fun image() = String(hash, 0, hash.indexOf(0).let { if (it < 0) hash.size else it }, Charsets.US_ASCII)
+    }
+    private val identity = Any()
+    private val lock = Object()
+    private val queue = ArrayDeque<() -> Unit>()
+    private val leases = HashSet<Long>()
+    private val pauses = HashSet<Pause>()
+    private var closing = false
+    private var stopped = false
+    private var token = 0L // Worker confined, including all leases/pauses/native calls.
+    private var startupFailure: Throwable? = null
+    private var closeResult: CompletableFuture<Unit>? = null
+    private val worker: Thread
+
+    init {
+        require(handleLimit in 1..1024) { "handleLimit must be 1..1024" }
+        queue.add {
+            try {
+                val p = Packet()
+                checkStatus(@MODULE@Native.call(0, 0, longArrayOf(if (collectBeforeAllocation) 1 else 0, handleLimit.toLong()), p.output, null, null, p.hash))
+                token = p.output[0]
+            } catch (error: Throwable) { startupFailure = error }
+        }
+        worker = Thread({
+            while (true) {
+                val work = synchronized(lock) {
+                    while (queue.isEmpty() && !stopped) lock.wait()
+                    if (stopped) null else queue.removeFirst()
+                } ?: break
+                work()
+            }
+        }, "@MODULE@-runtime")
+        worker.isDaemon = true
+        worker.start()
+    }
+
+    private fun checkStatus(status: Int) { if (status != 0) throw Failure("native", status) }
+    private fun <T> submit(admission: Boolean = false, body: () -> T): CompletableFuture<T> {
+        val future = CompletableFuture<T>()
+        synchronized(lock) {
+            if (closing) { future.completeExceptionally(Failure("closed")); return future }
+            if (queue.size >= 256) { future.completeExceptionally(Failure("queueLimit")); return future }
+            queue.add {
+                try {
+                    startupFailure?.let { throw it }
+                    if (admission && pauses.isNotEmpty()) throw Failure("paused")
+                    future.complete(body())
+                } catch (error: Throwable) { future.completeExceptionally(error) }
+            }
+            lock.notifyAll()
+        }
+        return future
+    }
+    fun ready(): CompletableFuture<Unit> = submit { Unit }
+    fun lifecycle(): CompletableFuture<String> = submit { if (pauses.isEmpty()) "active" else "paused" }
+    fun pause(): CompletableFuture<Pause> = submit {
+        if (pauses.size == 64) throw Failure("pauseLimit")
+        Pause(identity).also { pauses.add(it) }
+    }
+    fun resume(pause: Pause): CompletableFuture<Unit> = submit {
+        if (pause.owner !== identity || !pauses.remove(pause)) throw Failure("invalidPause")
+    }
+    fun close(): CompletableFuture<Unit> = synchronized(lock) {
+        if (closeResult == null) {
+            closing = true
+            val result = CompletableFuture<Unit>(); closeResult = result
+            // One reserved control slot: close remains available when normal admission is full.
+            queue.add {
+                try {
+                    if (token != 0L) checkStatus(@MODULE@Native.call(1, token, longArrayOf(), LongArray(134), null, null, ByteArray(65)))
+                    token = 0; leases.clear(); pauses.clear()
+                    result.complete(Unit)
+                } catch (error: Throwable) { result.completeExceptionally(error) }
+                finally { synchronized(lock) { stopped = true; lock.notifyAll() } }
+            }
+            lock.notifyAll()
+        }
+        // Cancellation/forced completion of the caller's view never cancels native destruction.
+        closeResult!!.thenApply { Unit }
+    }
+    private fun resolve(handle: Handle): Long {
+        if (handle.owner !== identity || handle.token !in leases) throw Failure("invalidHandle")
+        return handle.token
+    }
+    private fun adopt(raw: Long): Handle? = if (raw == 0L) null else Handle(identity, raw).also { leases.add(raw) }
+    private fun call(op: Int, input: LongArray, first: CharArray? = null, second: CharArray? = null): Pair<Int, Packet> {
+        val p = Packet()
+        return Pair(@MODULE@Native.call(op, token, input, p.output, first, second, p.hash), p)
+    }
+    fun clone(handle: Handle): CompletableFuture<Handle> = submit(true) {
+        val (status, p) = call(3, longArrayOf(resolve(handle))); checkStatus(status); adopt(p.output[0])!!
+    }
+    fun release(handle: Handle): CompletableFuture<Unit> = submit {
+        val raw = resolve(handle); checkStatus(call(4, longArrayOf(raw)).first); leases.remove(raw); Unit
+    }
+    private fun schema(id: Long): Pair<List<Shape>, Shape> = when (id) {
+@SCHEMAS@
+        else -> throw Failure("unknownExport")
+    }
+    private fun encode(value: Value, shape: Shape, output: MutableList<Long>) {
+        if (value is Value.Record && shape.kind == 4 && value.id == shape.id && value.fields.size == shape.fields.size) {
+            // The C input packet contains fields only; record identity belongs to the manifest.
+            value.fields.zip(shape.fields).forEach { (field, expected) -> encode(field, expected, output) }
+            return
+        }
+        output.add(shape.kind.toLong())
+        when {
+            value is Value.Int32 && shape.kind == 1 -> output.add(value.value.toLong() and 0xffffffffL)
+            value is Value.Integer64 && shape.kind == 3 -> output.add(value.bits)
+            value is Value.Reference && shape.kind == 2 -> output.add(value.handle?.let { resolve(it) } ?: 0L)
+            else -> throw Failure("invalidArguments")
+        }
+    }
+    private fun decode(kind: Long, bits: Long): Value = when (kind) {
+        0L -> Value.Void
+        1L -> Value.Int32(bits.toInt())
+        2L -> Value.Reference(adopt(bits))
+        3L -> Value.Integer64(bits)
+        else -> throw Failure("invalidResult")
+    }
+    fun invoke(export: Long, arguments: List<Value> = emptyList(), captureException: Boolean = false): CompletableFuture<Outcome> {
+        if (arguments.size > 64) return submit(true) { throw Failure("invalidArguments") }
+        val copy = arguments.toList()
+        return submit(true) {
+            if (captureException && !@CAPTURE@) throw Failure("unsupported")
+            val (parameters, result) = schema(export)
+            if (copy.size != parameters.size) throw Failure("invalidArguments")
+            val input = arrayListOf(export, if (captureException) 1L else 0L)
+            copy.zip(parameters).forEach { (value, shape) -> encode(value, shape, input) }
+            val (status, p) = call(2, input.toLongArray())
+            if (status != 0 && status != 6) checkStatus(status)
+            val exception = adopt(p.output[5])
+            val value = if (status != 0) Value.Void else if (result.kind == 4) {
+                if (p.output[0] != 4L || p.output[1] != result.id) throw Failure("invalidResult")
+                Value.Record(result.id, result.fields.indices.map { decode(p.output[6+it*2], p.output[7+it*2]) })
+            } else decode(p.output[0], p.output[1])
+            Outcome(value, if (status == 6) Fault(p.output[2], p.output[3], p.output[4], p.image()) else null, exception)
+        }
+    }
+    fun importUTF16(units: CharArray): CompletableFuture<Handle> {
+        if (units.size > 524288) return submit(true) { throw Failure("bufferLimit") }
+        val copy = units.copyOf()
+        return submit(true) {
+            if (!@STRINGS@) throw Failure("unsupported")
+            val (status, p) = call(5, longArrayOf(), copy); checkStatus(status); adopt(p.output[0])!!
+        }
+    }
+    fun copyUTF16(handle: Handle): CompletableFuture<CharArray> = submit {
+        if (!@STRINGS@) throw Failure("unsupported")
+        val raw = resolve(handle)
+        val (status, query) = call(6, longArrayOf(raw))
+        if (status != 0 && status != 12) checkStatus(status)
+        val units = CharArray(query.output[0].toInt())
+        checkStatus(call(6, longArrayOf(raw), units).first); units
+    }
+    fun exceptionDetails(handle: Handle): CompletableFuture<ExceptionDetails> = submit {
+        if (!@CAPTURE@) throw Failure("unsupported")
+        val raw = resolve(handle)
+        val (status, query) = call(7, longArrayOf(raw))
+        if (status != 0 && status != 12) checkStatus(status)
+        val type = CharArray(query.output[0].toInt()); val message = CharArray(query.output[1].toInt())
+        val (copied, result) = call(7, longArrayOf(raw), type, message); checkStatus(copied)
+        ExceptionDetails(String(type), String(message), result.output[2], result.image())
+    }
+}

@@ -43,7 +43,9 @@ feedback before implementation. Explain consequential choices in plain language.
   libc++, C-only exports, verified 16 KB ELF alignment and C11 cross-link checks.
   Slice 7e.2 adds a disposable arm64 Android 16/API-36 emulator harness. Both C
   lifecycle consumers and 5,376 real-kernel transcript comparisons pass with 4 KB
-  pages. JNI/Kotlin, API-26/16-KB runtime behavior and physical devices remain unverified.
+  pages. Slice 7e.3 adds a bounded JNI/Kotlin serial owner, scoped leases/pauses,
+  captured fault copying and CheckJNI session/kernel parity. Android activity,
+  API-26/16-KB runtime behavior and physical devices remain unverified.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not
