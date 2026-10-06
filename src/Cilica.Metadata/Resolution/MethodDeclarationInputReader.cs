@@ -9,8 +9,22 @@ using Cilica.Metadata.IL;
 
 namespace Cilica.Metadata.Resolution;
 
+public sealed record MethodDefinitionFlags(MethodAttributes Attributes);
+
 public sealed partial class AssemblyResolver
 {
+    /// <summary>Reads one owned MethodDef flags row without reading its signature or body.</summary>
+    public ResolutionResult<MethodDefinitionFlags> ReadMethodFlags(ResolvedAssembly assembly,
+        MethodDefinitionHandle handle, MemberResolutionBudget budget)
+    {
+        ArgumentNullException.ThrowIfNull(budget);
+        return Bind(assembly, handle, () =>
+        {
+            InspectMember(budget);
+            return new MethodDefinitionFlags(assembly.Image.Reader.GetMethodDefinition(handle).Attributes);
+        });
+    }
+
     /// <summary>Snapshots a method signature/owner, including bodyless declarations; never reads or executes IL.</summary>
     public ResolutionResult<MethodDeclarationInput> ReadMethodDeclarationInput(ResolvedAssembly assembly,
         MethodDefinitionHandle handle, TypeReadLimits? limits = null)

@@ -18,6 +18,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     ImmutableDictionary<int, IrMethodId> Calls, ImmutableDictionary<int, ObjectFieldId> Fields,
     ImmutableDictionary<int, ObjectTypeId> TypeOperands)
 {
+    public ImmutableDictionary<int, ObjectAbstractMethodDeclaration> AbstractOperands { get; init; } = ImmutableDictionary<int, ObjectAbstractMethodDeclaration>.Empty;
     public GenericArrayEvidence? GenericArrays { get; init; }
     public ImmutableDictionary<int, PrimitiveTypeCode> ScalarBoxOperands { get; init; } = ImmutableDictionary<int, PrimitiveTypeCode>.Empty;
     public ImmutableHashSet<int> BoxedTypeTestOperands { get; init; } = ImmutableHashSet<int>.Empty;
@@ -54,6 +55,8 @@ public sealed record ValueProgramInput(IrMethodId Entry, ImmutableArray<ValueMet
 {
     public ManagedExceptionTypes? Exceptions { get; init; }
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
+    public ImmutableArray<ObjectMethodBinding> AbstractBindings { get; init; } = [];
+    public ImmutableArray<ObjectAbstractMethodDeclaration> AbstractMethods { get; init; } = [];
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
 }
 public sealed record ValueDiscoveryResult(ValueProgramInput? Input, ImmutableArray<Diagnostic> Diagnostics)
@@ -168,6 +171,7 @@ public static partial class ValueProgramDiscovery
                     var intrinsics = ImmutableDictionary.CreateBuilder<int, ValueIntrinsicCall>();
                     var literals = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ushort>>();
                     var interfaceCalls = ImmutableDictionary.CreateBuilder<int, ObjectInterfaceDeclaration>();
+                    var abstractCalls = ImmutableDictionary.CreateBuilder<int, ObjectAbstractMethodDeclaration>();
                     var memory = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var defaultStatics = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var initializers = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
@@ -319,6 +323,15 @@ public static partial class ValueProgramDiscovery
                                 interfaceCalls.Add(offset, interfaceDeclaration); continue;
                             }
                             target = NarrowVirtualReceiver(work, instruction, target);
+                            if (integers64 && instruction.OpCode == "callvirt" && !constrainedCalls.ContainsKey(offset)
+                                && AbstractDeclaration(target, work, offset) is { } abstractCall)
+                            {
+                                abstractCalls.Add(offset, abstractCall);
+                                _arguments += abstractCall.Parameters.Length;
+                                if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate abstract-call argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                                _virtualCalls.TryAdd(IrMethodId.From(abstractCall.Source), (work, offset));
+                                continue;
+                            }
                             var callee = Discover(target, work, offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.Kind != (constrainedCalls.ContainsKey(offset) ? ObjectMethodKind.ValueInstance : ObjectMethodKind.Instance))
                                 Fail(work, "callvirt requires a class instance method.", offset);
@@ -440,7 +453,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { CollectionConstructorCalls = collectionConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { CollectionConstructorCalls = collectionConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {
@@ -468,7 +481,7 @@ public static partial class ValueProgramDiscovery
                             throw new Failure(failure.Diagnostic with { Message = failure.Diagnostic.Message + Path(site.Caller), Location = Location(site.Caller, site.Offset) });
                         throw new Failure(failure.Diagnostic);
                     }
-                    if (_methods.Keys.Concat(interfacePlan.Declarations.Select(d => IrMethodId.From(d.Source)))
+                    if (_methods.Keys.Concat(_abstractMethods.Keys).Concat(interfacePlan.Declarations.Select(d => IrMethodId.From(d.Source)))
                         .Concat(interfacePlan.Methods.Select(m => m.Binding.Method)).Distinct().Count() + _exceptionDeclarations.Count > ProgramLimits.MaximumMethods)
                         Fail(root, "Bodies, interface declarations and mapping facts share the method limit.", code: DiagnosticIds.TranslationLimit);
                     var facts = interfacePlan.Methods.ToDictionary(m => m.Binding.Method);
@@ -485,16 +498,18 @@ public static partial class ValueProgramDiscovery
                     Fail(root, "Aggregate class/interface dispatch target limit exceeded.", code: DiagnosticIds.TranslationLimit);
                 foreach (var site in _virtualCalls.ToArray())
                 {
-                    var declaration = _methods[site.Key];
+                    var abstractTarget = _abstractMethods.GetValueOrDefault(site.Key);
+                    var declarationBinding = abstractTarget?.Binding ?? _methods[site.Key].Binding;
+                    var declarationMethod = abstractTarget?.Resolved ?? _methods[site.Key].Resolved;
                     if (!_dispatch.TryGetValue(site.Key, out var targets)) _dispatch.Add(site.Key, targets = []);
                     foreach (var layout in catalog.References.Types)
                     {
                         var receiver = ObjectTypeId.From(layout.Source);
                         if ((layout.Attributes & TypeAttributes.Abstract) != 0) continue;
-                        if (!relations.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Binding.Owner)) || targets.ContainsKey(receiver)) continue;
+                        if (!relations.Assignable(IrType.Reference(receiver), IrType.Reference(declarationBinding.Owner)) || targets.ContainsKey(receiver)) continue;
                         if (_dispatchTargetCount + interfaceTargets >= ObjectDispatchLimits.MaximumTargets)
                             Fail(site.Value.Caller, "Aggregate class/interface dispatch target limit exceeded.", site.Value.Offset, DiagnosticIds.TranslationLimit);
-                        var exact = ResolveVirtual(declaration.Resolved, _knownTypes[receiver], site.Value.Caller, site.Value.Offset);
+                        var exact = ResolveVirtual(declarationMethod, _knownTypes[receiver], site.Value.Caller, site.Value.Offset);
                         var implementation = Discover(exact.Implementation, site.Value.Caller, site.Value.Offset);
                         targets.Add(receiver, implementation.Binding.Method); _dispatchTargetCount++;
                     }
@@ -548,7 +563,7 @@ public static partial class ValueProgramDiscovery
                 }
             }
             return new(root.Binding.Method, [.. methods.OrderBy(m => m.Binding.Method.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Binding.Method.Token).ThenBy(m => m.Binding.Method.Specialization, StringComparer.Ordinal)], catalog)
-                { InterfaceDispatch = interfacePlan,
+                { InterfaceDispatch = interfacePlan, AbstractMethods = [.. _abstractMethods.Values.Select(a => a.Declaration).OrderBy(a => a.Source.ContentHash, StringComparer.Ordinal).ThenBy(a => a.Source.Token).ThenBy(a => a.Source.Specialization, StringComparer.Ordinal)], AbstractBindings = [.. _abstractMethods.Values.Select(a => a.Binding)],
                     Dispatch = [.. _dispatch.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).ThenBy(p => p.Key.Specialization, StringComparer.Ordinal)
                         .Select(p => new ObjectVirtualDispatch(p.Key, [.. p.Value.OrderBy(t => t.Key.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Key.Token).ThenBy(t => t.Key.Specialization, StringComparer.Ordinal)
                             .Select(t => new ObjectVirtualTarget(t.Key, t.Value))]))],
@@ -577,9 +592,9 @@ public static partial class ValueProgramDiscovery
                     Fail(parent, "Executable method contradicts its interface mapping facts.", offset);
                 return known;
             }
-            if (_methods.Count + _exceptionDeclarations.Count >= ProgramLimits.MaximumMethods || _bytes >= ProgramLimits.MaximumBodyBytes
+            if (_methods.Count + _abstractMethods.Count + _exceptionDeclarations.Count >= ProgramLimits.MaximumMethods || _bytes >= ProgramLimits.MaximumBodyBytes
                 || _instructions >= ProgramLimits.MaximumInstructions || _metadata.Remaining == 0)
-                Fail(parent, $"Aggregate discovery limit exceeded: {_methods.Count + _exceptionDeclarations.Count}/{ProgramLimits.MaximumMethods} method declarations, {_bytes}/{ProgramLimits.MaximumBodyBytes} IL bytes, {_instructions}/{ProgramLimits.MaximumInstructions} instructions, {_metadata.Remaining} metadata work units remaining.", offset, DiagnosticIds.TranslationLimit);
+                Fail(parent, $"Aggregate discovery limit exceeded: {_methods.Count + _abstractMethods.Count + _exceptionDeclarations.Count}/{ProgramLimits.MaximumMethods} method declarations, {_bytes}/{ProgramLimits.MaximumBodyBytes} IL bytes, {_instructions}/{ProgramLimits.MaximumInstructions} instructions, {_metadata.Remaining} metadata work units remaining.", offset, DiagnosticIds.TranslationLimit);
             var readLimits = limits with
             {
                 MaximumBodyBytes = Math.Min(limits.MaximumBodyBytes, ProgramLimits.MaximumBodyBytes - _bytes),

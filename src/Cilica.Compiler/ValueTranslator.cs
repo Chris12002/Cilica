@@ -21,6 +21,7 @@ public sealed record ValueTranslationResult(ManagedLocationIrProgram? Program,
     public bool Success => Program is not null;
     public ManagedExceptionTypes? Exceptions { get; init; }
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
+    public ImmutableArray<ObjectAbstractMethodDeclaration> AbstractMethods { get; init; } = [];
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
 }
 
@@ -45,12 +46,12 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v13";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v14";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
         var result = TranslateCore(resolver, assembly, entry, runtimeLibrary, limits, arrays: true, classes: true, boxing: true, generics: true, delegates: true, exceptions: true, integers64: true);
-        return new(result.Program is null ? null : new(new(result.Program, result.Bindings) { InterfaceDispatch = result.InterfaceDispatch, Dispatch = result.Dispatch }, result.Exceptions!), result.Diagnostics);
+        return new(result.Program is null ? null : new(new(result.Program, result.Bindings) { InterfaceDispatch = result.InterfaceDispatch, Dispatch = result.Dispatch, AbstractMethods = result.AbstractMethods }, result.Exceptions!), result.Diagnostics);
     }
 
     public const string ExceptionProfile = "managed-exceptions-cil-v1";
@@ -140,10 +141,10 @@ public static class ValueTranslator
             var program = new ManagedLocationIrProgram(new(input.Entry, [.. translated], input.Types));
             if (integers64) program = RetainUsedVectors(program);
             var interfacePlan = input.InterfaceDispatch is null ? null : input.InterfaceDispatch with { Types = program.Flow.Types.References, Values = input.InterfaceDispatch.Values is null ? null : program.Flow.Types };
-            ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding)];
+            ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding), .. input.AbstractBindings];
             try
             {
-                if (exceptions) _ = ValueRootAssignment.Assign(new ManagedExceptionIrProgram(new(program, bindings) { InterfaceDispatch = interfacePlan, Dispatch = input.Dispatch }, input.Exceptions!));
+                if (exceptions) _ = ValueRootAssignment.Assign(new ManagedExceptionIrProgram(new(program, bindings) { InterfaceDispatch = interfacePlan, Dispatch = input.Dispatch, AbstractMethods = input.AbstractMethods }, input.Exceptions!));
                 else if (delegates) _ = ValueRootAssignment.Assign(new DelegateValueIrProgram(program, bindings));
                 else if (boxing) _ = ValueRootAssignment.Assign(new BoxedValueIrProgram(program, bindings));
                 else if (classes) _ = ValueRootAssignment.Assign(new ValueObjectIrProgram(program, bindings));
@@ -151,7 +152,7 @@ public static class ValueTranslator
                 else _ = ValueRootAssignment.Assign(program);
             }
             catch (ArgumentException error) { Fail(methods[input.Entry], 0, error.Message); }
-            return new(program, bindings, []) { Exceptions = input.Exceptions, InterfaceDispatch = interfacePlan, Dispatch = input.Dispatch };
+            return new(program, bindings, []) { Exceptions = input.Exceptions, InterfaceDispatch = interfacePlan, Dispatch = input.Dispatch, AbstractMethods = input.AbstractMethods };
         }
         catch (Failure failure) { return new(null, [], [failure.Diagnostic]); }
     }
@@ -533,6 +534,13 @@ public static class ValueTranslator
                             break;
                         case "newobj" when method.DelegateOperands.ContainsKey(offset):
                             Error(offset, "Delegate constructor requires a preceding adjacent ldftn in the same block.", DiagnosticIds.ExecutionUnsupported); break;
+                        case "callvirt" when method.AbstractOperands.TryGetValue(offset, out var abstractDeclaration):
+                            var abstractArguments = new int[abstractDeclaration.Parameters.Length];
+                            for (int i = abstractArguments.Length - 1; i >= 0; --i) abstractArguments[i] = Pop(offset, abstractDeclaration.Parameters[i]);
+                            var abstractMethod = IrMethodId.From(abstractDeclaration.Source);
+                            if (abstractDeclaration.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, abstractMethod, [.. abstractArguments], NullCheckReceiver: true, VirtualDispatch: true), offset);
+                            else Push(offset, abstractDeclaration.ReturnType, new IrExpression.Call(abstractMethod, [.. abstractArguments], NullCheckReceiver: true, VirtualDispatch: true), true);
+                            break;
                         case "callvirt" when method.InterfaceOperands.TryGetValue(offset, out var contract):
                             var interfaceArguments = new int[contract.Parameters.Length];
                             for (int i = interfaceArguments.Length - 1; i >= 0; --i) interfaceArguments[i] = Pop(offset, contract.Parameters[i]);

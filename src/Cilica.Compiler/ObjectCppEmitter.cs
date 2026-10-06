@@ -83,6 +83,8 @@ public static class ObjectCppEmitter
         if (program.InterfaceDispatch is { } interfacePlan)
             foreach (var declaration in interfacePlan.Declarations)
                 signatures.Add(IrMethodId.From(declaration.Source), (declaration.Parameters, declaration.ReturnType));
+        foreach (var declaration in program.AbstractMethods)
+            signatures.Add(IrMethodId.From(declaration.Source), (declaration.Parameters, declaration.ReturnType));
         var bindings = program.Bindings.ToDictionary(b => b.Method);
         var native = new ObjectNativeLayout(program.Flow.Types);
         var delegateDeclarations = program.Flow.Types.Delegates;

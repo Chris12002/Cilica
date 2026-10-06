@@ -73,13 +73,15 @@ internal sealed class ObjectDispatchRules
             Require(map?.Declaration is not null && bindings.TryGetValue(map.Declaration, out var declaration)
                 && declaration.VirtualSlot is not null && (declaration.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
                 && _maps.TryAdd(map.Declaration, map), "invalid/duplicate dispatch declaration.");
-            Require(!map.Targets.IsDefault && map.Targets.Length is > 0 and <= ObjectModelLimits.MaximumTypes, "invalid dispatch targets.");
+            Require(!map.Targets.IsDefault && map.Targets.Length <= ObjectModelLimits.MaximumTypes
+                && (!map.Targets.IsEmpty || program.Flow.Types.Integer64 && (bindings[map.Declaration].Attributes & MethodAttributes.Abstract) != 0), "invalid dispatch targets.");
             entries += map.Targets.Length;
             Require(entries <= ObjectDispatchLimits.MaximumTargets, "aggregate dispatch target limit exceeded.");
             var receivers = new HashSet<ObjectTypeId>();
             foreach (var target in map.Targets)
                 Require(target?.Receiver is { ArrayElement: null } && _layouts.ContainsKey(target.Receiver) && receivers.Add(target.Receiver)
-                    && target.Implementation is not null && methods.ContainsKey(target.Implementation), "invalid/duplicate dispatch receiver or missing body.");
+                    && target.Implementation is not null && methods.ContainsKey(target.Implementation)
+                    && (bindings[target.Implementation].Attributes & MethodAttributes.Abstract) == 0, "invalid/duplicate dispatch receiver or missing body.");
         }
     }
 
@@ -96,6 +98,7 @@ internal sealed class ObjectDispatchRules
                 case IrStatement.Invoke { VirtualDispatch: true } call when !_interfaces.Has(call.Target): used.Add(call.Target); break;
             }
         Require(used.SetEquals(_maps.Keys), "dispatch maps must exactly match virtual call declarations.");
+        Require(_program.AbstractMethods.All(d => used.Contains(IrMethodId.From(d.Source))), "abstract declarations must be used by virtual calls.");
         var nearest = new Dictionary<(ObjectVirtualSlot Slot, ObjectTypeId Receiver), IrMethodId>();
         foreach (var map in _maps.Values)
         {

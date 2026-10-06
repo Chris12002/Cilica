@@ -39,7 +39,7 @@ internal sealed class ObjectInterfaceOperationRules
         {
             _maps.Add(map.Declaration, map); TargetCount += map.Targets.Length;
             foreach (var target in map.Targets)
-                Require(methods.ContainsKey(target.Implementation), "interface map implementation lacks a translated executable body.");
+                Require(methods.ContainsKey(target.Implementation) && (bindings[target.Implementation].Attributes & System.Reflection.MethodAttributes.Abstract) == 0, "interface map implementation lacks a translated executable body.");
         }
     }
 

@@ -39,14 +39,14 @@ internal static class IrValidator
                     switch (statement)
                     {
                         case IrStatement.Define { Value.Expression: IrExpression.Call call }:
-                            if (objectRules is null || !objectRules.Interface(call.Target)) pending.Push(call.Target);
+                            if (objectRules is null || !objectRules.Bodyless(call.Target)) pending.Push(call.Target);
                             if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
                             break;
                         case IrStatement.Define { Value.Expression: IrExpression.NewObject allocated }: pending.Push(allocated.Constructor); break;
                         case IrStatement.Define { Value.Expression: IrExpression.NewDelegate capture }: pending.Push(capture.Target); break;
                         case IrStatement.InitializeType initializer: pending.Push(initializer.Target); break;
                         case IrStatement.Invoke call:
-                            if (objectRules is null || !objectRules.Interface(call.Target)) pending.Push(call.Target);
+                            if (objectRules is null || !objectRules.Bodyless(call.Target)) pending.Push(call.Target);
                             if (call.VirtualDispatch) foreach (var target in objectRules!.DispatchTargets(call.Target)) pending.Push(target);
                             break;
                     }

@@ -2678,3 +2678,23 @@ restricted. Sixty-one focused metadata checks pass. Closed class and interface
 target profiles advance to v3. This is metadata foundation only: executable
 abstract class calls still require a bodyless IR declaration path. No placeholder
 implementation is emitted. Full replay remains unverified. See ADR AC0058.
+
+
+### Abstract class calls (AC8.13)
+
+The integer-object compiler now retains abstract class signatures separately from
+executable methods. Public nongeneric abstract calls support scalar/reference
+parameters and scalar/reference/void results, including closed generic owners.
+Complete maps select concrete overrides; abstract classes are not runtime receivers.
+Interface mappings may retain abstract slot facts while selecting concrete bodies.
+Null-only closures have empty maps and still throw before dispatch. Direct abstract
+calls, function captures, abstract allocation and inline/borrow signatures remain
+unsupported. No abstract stub is emitted and existing resource bounds are unchanged.
+
+Nine probes pass 3,402 repeated O0/O2 native/.NET comparisons with ASan/UBSan,
+forced collection and exact cleanup. Logical/scalar tamper tests, metadata ownership
+and budget checks, plus 42 adjacent dispatch/boxing checks pass. Integer-object CIL
+advances to v14, object IR to v23, delegate/value IR to v5 and interface plans to
+v10. Native v49/layout v20 are unchanged. Full replay remains unverified; ordinal
+comparers and ordering are subsequent slices. See ADR AC0059 and
+artifacts/alchemy-abstract-slots/ac8m-*.

@@ -31,6 +31,7 @@ internal sealed partial class ObjectIrRules
 {
     private readonly Dictionary<IrMethodId, ObjectMethodBinding> _bindings = [];
     private readonly Dictionary<IrMethodId, IrMethod> _methods = [];
+    private readonly HashSet<IrMethodId> _abstractMethods = [];
     private readonly Dictionary<ObjectFieldId, ObjectField> _fields;
     private readonly Dictionary<ObjectFieldId, ObjectStaticField> _statics;
     private readonly Dictionary<ObjectTypeId, ObjectTypeLayout> _layouts;
@@ -61,12 +62,31 @@ internal sealed partial class ObjectIrRules
         _valueLayouts = values?.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         _fields = flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         Require(!flow.Methods.IsDefault && flow.Methods.Length is > 0 and <= ProgramLimits.MaximumMethods
-            && !program.Bindings.IsDefault && program.Bindings.Length == flow.Methods.Length, "bounded methods and matching bindings are required.");
+            && !program.AbstractMethods.IsDefault && flow.Methods.Length + program.AbstractMethods.Length <= ProgramLimits.MaximumMethods
+            && !program.Bindings.IsDefault && program.Bindings.Length == flow.Methods.Length + program.AbstractMethods.Length, "bounded methods and matching bindings are required.");
         foreach (var method in flow.Methods)
         {
             Require(method?.Source is not null && method.Source.ContentHash is { Length: 64 } && CanonicalHash(method.Source.ContentHash.ToLowerInvariant()), "invalid method source.");
             Require(_methods.TryAdd(IrMethodId.From(method.Source), method), "duplicate method identity.");
         }
+        Require(program.AbstractMethods.IsEmpty || flow.Types.Integer64, "abstract class signatures require the integer-object profile.");
+        int abstractParameters = 0;
+        foreach (var declaration in program.AbstractMethods)
+        {
+            Require(declaration?.Source is { } source && CanonicalHash(source.ContentHash)
+                && (uint)source.Token >> 24 == 0x06 && (source.Token & 0xffffff) != 0
+                && source.Name is not null && source.AssemblyIdentity is not null
+                && ObjectModelValidator.Specialization(source.Specialization)
+                && !declaration.Parameters.IsDefault && declaration.Parameters.Length is > 0 and <= IrLimits.MaximumParameters
+                && declaration.Parameters.All(p => p is not null && p.Kind is IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference)
+                && declaration.ReturnType is { Kind: IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.Void },
+                "invalid abstract class signature/provenance.");
+            var id = IrMethodId.From(declaration.Source);
+            Require(_methods.TryAdd(id, declaration.Signature) && _abstractMethods.Add(id), "abstract declaration duplicates a method identity.");
+            abstractParameters += declaration.Parameters.Length;
+        }
+        Require(program.AbstractMethods.IsEmpty || flow.Methods.Sum(m => m.Parameters.Length) + abstractParameters <= IrLimits.MaximumParameters,
+            "abstract signatures and executable bodies share the parameter limit.");
         var initializerOwners = new HashSet<ObjectTypeId>();
         var initializerNameUnits = 0;
         var primitiveCodes = new Dictionary<PrimitiveTypeCode, ObjectTypeId>();
@@ -90,9 +110,17 @@ internal sealed partial class ObjectIrRules
                 && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
                 or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance, "invalid bound signature/kind.");
             Require((binding.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
-                | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final)) == 0
+                | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final | MethodAttributes.Abstract)) == 0
                 && (binding.Attributes & MethodAttributes.MemberAccessMask) is > MethodAttributes.PrivateScope and <= MethodAttributes.Public,
-                "native, abstract and unsupported method flags require later lowering.");
+                "native and unsupported method flags require later lowering.");
+            bool abstractMethod = _abstractMethods.Contains(binding.Method);
+            Require(abstractMethod == ((binding.Attributes & MethodAttributes.Abstract) != 0), "abstract flags and bodyless declarations disagree.");
+            if (abstractMethod)
+                Require(binding.Kind == ObjectMethodKind.Instance && binding.TypeInitializerName is null && !binding.InvariantProviderOnly
+                    && (binding.Attributes & (MethodAttributes.MemberAccessMask | MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.RTSpecialName))
+                        == (MethodAttributes.Public | MethodAttributes.Virtual)
+                    && _layouts.TryGetValue(binding.Owner, out var abstractOwner) && (abstractOwner.Attributes & TypeAttributes.Abstract) != 0,
+                    "abstract declarations require public virtual instance slots on abstract class owners.");
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
             if (binding.TypeInitializerName is { } initializerName)
                 Require(flow.Types.Integer64 && initializerName.Length is > 0 and <= ObjectStringLimits.MaximumLiteralCodeUnits
@@ -188,7 +216,7 @@ internal sealed partial class ObjectIrRules
     }
     internal IEnumerable<IrMethodId> DispatchTargets(IrMethodId declaration) => _interfaces.Has(declaration)
         ? _interfaces.Targets(declaration) : _dispatch.Targets(declaration);
-    internal bool Interface(IrMethodId declaration) => _interfaces.Has(declaration);
+    internal bool Bodyless(IrMethodId declaration) => _interfaces.Has(declaration) || _abstractMethods.Contains(declaration);
     internal IrType? ReturnType(IrMethodId? id) => id is null ? null : _interfaces.Has(id)
         ? _interfaces.Declaration(id).ReturnType : _methods.TryGetValue(id, out var method) ? method.ReturnType : null;
 
@@ -233,8 +261,13 @@ internal sealed partial class ObjectIrRules
             or IrExpression.StringEquals or IrExpression.StringConcat or IrExpression.IntegerTextFind or IrExpression.IntegerTextPublish } when _program.Flow.Types.String is { } text => new[] { text },
         IrStatement.Define { Value.Expression: IrExpression.Call c } when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         IrStatement.Invoke c when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
+        IrStatement.Define { Value.Expression: IrExpression.Call c } when _abstractMethods.Contains(c.Target) => AbstractSignatureTypes(c.Target),
+        IrStatement.Invoke c when _abstractMethods.Contains(c.Target) => AbstractSignatureTypes(c.Target),
         _ => Array.Empty<ObjectTypeId>(),
     });
+
+    private IEnumerable<ObjectTypeId> AbstractSignatureTypes(IrMethodId id) => _methods[id].Parameters.Append(_methods[id].ReturnType)
+        .Where(t => t.Kind == IrTypeKind.Reference).Select(t => t.Class!);
 
     internal IrType? DelegateReturn(ObjectTypeId? type) => type is not null && _delegates.TryGetValue(type, out var declaration)
         ? declaration.ReturnType : null;
@@ -367,7 +400,7 @@ internal sealed partial class ObjectIrRules
                 && arguments.Select((argument, index) => argument >= 0 && argument < values.Count
                     && _types.Assignable(values[argument], declaration.Parameters[index])).All(valid => valid);
         }
-        if (!_bindings.TryGetValue(target, out var callee)) return false;
+        if (!_bindings.TryGetValue(target, out var callee) || _abstractMethods.Contains(target) && (allocation || !nullCheck || !virtualDispatch)) return false;
         var signature = _methods[target].Parameters;
         int skip = allocation ? 1 : 0;
         if (signature.IsDefault || arguments.Length != signature.Length - skip || !Access(Binding(IrMethodId.From(caller.Source)), callee)) return false;

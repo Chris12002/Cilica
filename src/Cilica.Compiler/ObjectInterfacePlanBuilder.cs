@@ -115,6 +115,7 @@ public static class ObjectInterfacePlanBuilder
                 var id = Id(resolved); var declaration = _declarations[id]; var targets = new List<ObjectInterfaceTarget>();
                 foreach (var layout in catalog.Types)
                 {
+                    if ((layout.Attributes & TypeAttributes.Abstract) != 0) continue;
                     var receiver = ObjectTypeId.From(layout.Source);
                     if (!types.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Owner))) continue;
                     if (++targetCount > ObjectDispatchLimits.MaximumTargets) Fail("Interface dispatch target limit exceeded.", limit: true);
@@ -222,8 +223,11 @@ public static class ObjectInterfacePlanBuilder
         private void Method(ResolvedMethod method, ObjectVirtualSlot? slot, ObjectTypeCatalog catalog)
         {
             var input = Read(method); var id = Id(method); var owner = ObjectModelBuilder.Id(method.DeclaringType);
-            if (!input.HasBody || (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask
-                | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL)
+            bool abstractMethod = (input.Attributes & MethodAttributes.Abstract) != 0;
+            if (abstractMethod ? !closed || input.HasBody || input.Implementation != MethodImplAttributes.IL
+                    || (input.OwnerAttributes & TypeAttributes.Abstract) == 0 || slot is null
+                : !input.HasBody || (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask
+                    | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL)
                 Fail("Selected class method requires an ordinary managed IL body; its instructions still need translation.", input.Source.Name);
             if (_methods.TryGetValue(id, out var known))
             {

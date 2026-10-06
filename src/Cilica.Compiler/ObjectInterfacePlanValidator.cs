@@ -87,11 +87,16 @@ public static class ObjectInterfacePlanValidator
             var binding = method.Binding; bool virtualMethod = (binding.Attributes & MethodAttributes.Virtual) != 0;
             var access = binding.Attributes & MethodAttributes.MemberAccessMask;
             const MethodAttributes allowed = MethodAttributes.MemberAccessMask | MethodAttributes.HideBySig | MethodAttributes.SpecialName
-                | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final;
+                | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final | MethodAttributes.Abstract;
             bool privateSlot = access == MethodAttributes.Private && virtualMethod
                 && (binding.Attributes & (MethodAttributes.Final | MethodAttributes.NewSlot)) == (MethodAttributes.Final | MethodAttributes.NewSlot);
             Require((binding.Attributes & ~allowed) == 0 && (access == MethodAttributes.Public || privateSlot)
                 && virtualMethod == (binding.VirtualSlot is not null), "mapping bodies require public instance methods or private final newslots.");
+            if ((binding.Attributes & MethodAttributes.Abstract) != 0)
+                Require(plan.Types.Integer64 && virtualMethod && access == MethodAttributes.Public
+                    && (binding.Attributes & MethodAttributes.Final) == 0
+                    && (classes[binding.Owner].Attributes & TypeAttributes.Abstract) != 0,
+                    "abstract mapping facts require public virtual declarations on abstract owners.");
             if (binding.OwnerExternallyVisible)
                 Require((classes[binding.Owner].Attributes & TypeAttributes.VisibilityMask) is TypeAttributes.Public or TypeAttributes.NestedPublic,
                     "class owner visibility contradicts its layout.");
@@ -128,7 +133,7 @@ public static class ObjectInterfacePlanValidator
                 && maps.Add(map.Declaration) && !map.Targets.IsDefault && map.Targets.Length <= ObjectModelLimits.MaximumTypes,
                 "invalid/duplicate interface map.");
             var declaration = declarations[map.Declaration];
-            var expected = classes.Keys.Concat(plan.Types.Arrays).Where(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();
+            var expected = classes.Keys.Where(id => (classes[id].Attributes & TypeAttributes.Abstract) == 0).Concat(plan.Types.Arrays).Where(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();
             var receivers = new Dictionary<ObjectTypeId, ObjectInterfaceTarget>();
             foreach (var target in map.Targets)
             {
@@ -136,6 +141,7 @@ public static class ObjectInterfacePlanValidator
                     && target.Mapping is not null && methods.ContainsKey(target.Mapping)
                     && target.Implementation is not null && methods.ContainsKey(target.Implementation), "invalid/duplicate receiver or missing method facts.");
                 var mapping = methods[target.Mapping]; var implementation = methods[target.Implementation];
+                Require((implementation.Binding.Attributes & MethodAttributes.Abstract) == 0, "interface implementations must have concrete bodies.");
                 if (target.Receiver.ArrayElement is not null)
                 {
                     var kind = contracts[declaration.Owner].ArrayContract;

@@ -35,7 +35,7 @@ internal sealed class BoxedTypeRelations
     }
     internal bool Accepts(ObjectTypeId value, ObjectTypeId target) => _ancestors[value].Contains(target);
 
-    internal void ValidateDispatch(IEnumerable<IrMethod> methods, ObjectInterfaceDispatchPlan? dispatch, ImmutableArray<ObjectVirtualDispatch> classes = default)
+    internal void ValidateDispatch(IEnumerable<IrMethod> methods, ObjectInterfaceDispatchPlan? dispatch, ImmutableArray<ObjectVirtualDispatch> classes = default, ImmutableArray<ObjectAbstractMethodDeclaration> abstractMethods = default)
     {
         var bodies = methods.ToArray();
         // Primitive contracts are incomplete. A cast from an unconstrained
@@ -56,6 +56,7 @@ internal sealed class BoxedTypeRelations
         if (!scalarInterfaceProof && dispatch is null && classes.IsDefaultOrEmpty) return;
         var proof = new BoxedUseProof(bodies);
         var byId = bodies.ToDictionary(m => IrMethodId.From(m.Source));
+        if (!abstractMethods.IsDefault) foreach (var declaration in abstractMethods) byId.Add(IrMethodId.From(declaration.Source), declaration.Signature);
         var classOwners = classes.IsDefaultOrEmpty ? [] : classes.Select(d => byId[d.Declaration].Parameters[0].Class!).ToHashSet();
         var owners = (dispatch?.Declarations.Select(d => d.Owner) ?? []).Concat(classOwners).Distinct().ToArray();
         int work = 0;

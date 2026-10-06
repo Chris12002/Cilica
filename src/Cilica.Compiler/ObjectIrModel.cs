@@ -27,6 +27,13 @@ public sealed record PrimitiveReceiver(TypeSource Source, PrimitiveTypeCode Code
     public IrType Storage => Code is PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 ? IrType.Int32 : IrType.Int64;
 }
 
+/// <summary>A class virtual signature with no executable body. Its binding must be abstract.</summary>
+public sealed record ObjectAbstractMethodDeclaration(Cilica.Metadata.IL.MethodSource Source,
+    ImmutableArray<IrType> Parameters, IrType ReturnType)
+{
+    internal IrMethod Signature => new(Source, Parameters, ReturnType, [], []);
+}
+
 public sealed record ObjectVirtualSlot(IrMethodId Method, ObjectTypeId Owner);
 public sealed record ObjectVirtualTarget(ObjectTypeId Receiver, IrMethodId Implementation);
 public sealed record ObjectVirtualDispatch(IrMethodId Declaration, ImmutableArray<ObjectVirtualTarget> Targets);
@@ -38,7 +45,8 @@ public static class ObjectDispatchLimits
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v22";
+    public const string Profile = "object-operations-ir-v23";
+    public ImmutableArray<ObjectAbstractMethodDeclaration> AbstractMethods { get; init; } = [];
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
 }

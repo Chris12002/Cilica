@@ -16,7 +16,7 @@ public static class ValueScalarLowering
         _ = ValueRootAssignment.Assign(program);
         var values = program.Flow.Flow.Flow;
         var objects = new ObjectIrProgram(LowerCore(values, returnPackets: true), LowerBindings(program.Flow.Bindings))
-            { InterfaceDispatch = LowerInterfacePlan(program.Flow.InterfaceDispatch), Dispatch = program.Flow.Dispatch };
+            { InterfaceDispatch = LowerInterfacePlan(program.Flow.InterfaceDispatch), Dispatch = program.Flow.Dispatch, AbstractMethods = program.Flow.AbstractMethods };
         var scalar = new ScalarBoxedIrProgram(new(objects), values.Types);
         var result = new ScalarManagedExceptionIrProgram(new(scalar), program.Exceptions);
         _ = ObjectRootAssignment.AssignExceptions(result);
@@ -34,7 +34,7 @@ public static class ValueScalarLowering
     {
         _ = ValueRootAssignment.Assign(program);
         var objects = new ObjectIrProgram(LowerCore(program.Flow.Flow, returnPackets: true), LowerBindings(program.Bindings))
-            { InterfaceDispatch = LowerInterfacePlan(program.InterfaceDispatch), Dispatch = program.Dispatch };
+            { InterfaceDispatch = LowerInterfacePlan(program.InterfaceDispatch), Dispatch = program.Dispatch, AbstractMethods = program.AbstractMethods };
         var scalar = new ScalarBoxedIrProgram(new(objects), program.Flow.Flow.Types);
         var result = new ScalarDelegateIrProgram(scalar);
         _ = ObjectRootAssignment.AssignDelegates(result);

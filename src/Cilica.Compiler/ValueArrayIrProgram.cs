@@ -22,7 +22,8 @@ public static class ValueArrayIrValidator
 
     internal static ValueIrRules ValidateComposition(ManagedLocationIrProgram program,
         ImmutableArray<ObjectMethodBinding> bindings, bool classes, bool boxing = false, bool delegates = false, ManagedExceptionRules? exceptions = null,
-        ObjectInterfaceDispatchPlan? interfaces = null, ImmutableArray<ObjectVirtualDispatch> dispatch = default)
+        ObjectInterfaceDispatchPlan? interfaces = null, ImmutableArray<ObjectVirtualDispatch> dispatch = default,
+        ImmutableArray<ObjectAbstractMethodDeclaration> abstractMethods = default)
     {
         ArgumentNullException.ThrowIfNull(program);
         ArgumentNullException.ThrowIfNull(program.Flow);
@@ -39,9 +40,9 @@ public static class ValueArrayIrValidator
             throw new ArgumentException("Composed interface dispatch requires the explicit integer-object catalog.", nameof(program));
         if (!dispatch.IsDefaultOrEmpty && !flow.Types.References.Integer64)
             throw new ArgumentException("Composed class dispatch requires the explicit integer-object catalog.", nameof(program));
-        var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings) { InterfaceDispatch = interfaces, Dispatch = dispatch.IsDefault ? [] : dispatch }, locations: true, values: flow.Types, delegates: delegates);
+        var objects = new ObjectIrRules(new(new(flow.Entry, flow.Methods, flow.Types.References), bindings) { InterfaceDispatch = interfaces, Dispatch = dispatch.IsDefault ? [] : dispatch, AbstractMethods = abstractMethods.IsDefault ? [] : abstractMethods }, locations: true, values: flow.Types, delegates: delegates);
         var rules = ValueIrValidator.ValidateAndPlan(flow, locations: true, objects, boxing, exceptions);
-        if (boxing) new BoxedTypeRelations(flow.Types).ValidateDispatch(flow.Methods, interfaces, dispatch);
+        if (boxing) new BoxedTypeRelations(flow.Types).ValidateDispatch(flow.Methods, interfaces, dispatch, abstractMethods);
         foreach (var method in flow.Methods)
             if (objects.Binding(IrMethodId.From(method.Source)).Kind is not (ObjectMethodKind.Static or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance)
                 && !(flow.Types.References.Integer64 && objects.Binding(IrMethodId.From(method.Source)).Kind is ObjectMethodKind.Instance or ObjectMethodKind.Constructor)

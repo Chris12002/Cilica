@@ -117,7 +117,7 @@ public static partial class ValueProgramDiscovery
         {
             var definition = target.DeclaringType.Definition; var id = new IrMethodId(definition.Assembly.ContentHash, MetadataTokens.GetToken(target.Handle));
             if (_exceptionDeclarations.TryGetValue(id, out var cached)) return cached;
-            if (_metadata.Remaining == 0 || _exceptionDeclarations.Count + _methods.Count >= ProgramLimits.MaximumMethods)
+            if (_metadata.Remaining == 0 || _exceptionDeclarations.Count + _methods.Count + _abstractMethods.Count >= ProgramLimits.MaximumMethods)
                 Fail(work, "Exception intrinsic metadata/method budget exhausted.", offset, DiagnosticIds.TranslationLimit);
             var input = Require(resolver.ReadMethodDeclarationInput(definition.Assembly, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Intrinsic metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);

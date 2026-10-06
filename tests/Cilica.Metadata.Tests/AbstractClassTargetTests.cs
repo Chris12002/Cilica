@@ -75,4 +75,47 @@ public sealed class AbstractClassTargetTests
         Assert.True(resolver.ResolveClosedClassVirtualTarget(resolved, result.Value.Receiver, library, new(used)).Success);
         Assert.Contains(resolver.ResolveClosedClassVirtualTarget(resolved, result.Value.Receiver, library, new(used - 1)).Diagnostics, d => d.Id == DiagnosticIds.TranslationLimit);
     }
+    [Fact]
+    public void Method_flag_reads_charge_one_row_and_require_resolver_ownership()
+    {
+        using var files = new ResolverFiles(); using var resolver = files.Open(); using var other = files.Open();
+        var b = new ResolutionAssemblyBuilder(new("AbstractFlags", new Version(1, 0, 0, 0)));
+        b.Type("Test", "Parent", attributes: TypeAttributes.Public | TypeAttributes.Abstract);
+        var method = b.Method("Read", [0x20, 0, 8], attributes: MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract,
+            implementation: MethodImplAttributes.IL);
+        var image = resolver.OpenInput(files.Write("flags.dll", b.Build())).Value!;
+        var budget = new MemberResolutionBudget(1);
+        var read = resolver.ReadMethodFlags(image, method, budget);
+        Assert.True(read.Success); Assert.Equal(0, budget.Remaining);
+        Assert.True((read.Value!.Attributes & MethodAttributes.Abstract) != 0);
+        Assert.Contains(resolver.ReadMethodFlags(image, method, budget).Diagnostics, d => d.Id == DiagnosticIds.TranslationLimit);
+        Assert.Throws<ArgumentException>(() => other.ReadMethodFlags(image, method, new()));
+    }
+
+    [Theory]
+    [InlineData("call")] [InlineData("ldftn")] [InlineData("newobj")]
+    public void Abstract_declarations_cannot_be_called_directly_captured_or_allocated(string operation)
+    {
+        using var files = new ResolverFiles();
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
+        var b = new ResolutionAssemblyBuilder(new("AbstractDirect" + operation, new Version(1, 0, 0, 0)));
+        var obj = b.TypeReference("System", "Object", b.Reference(library.Identity));
+        b.Type("Test", "Parent", baseType: obj, attributes: TypeAttributes.Public | TypeAttributes.Abstract);
+        var declaration = b.Method("Read", [0x20, 0, 8], attributes: MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract | MethodAttributes.NewSlot,
+            implementation: MethodImplAttributes.IL);
+        var constructor = b.Method(".ctor", [0x20, 0, 1], attributes: MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
+            emit: il => il.OpCode(ILOpCode.Ret));
+        b.Type("Test", "Driver", baseType: obj);
+        var entry = b.Method("Run", [0, 0, 8], emit: il => {
+            if (operation == "call") { il.OpCode(ILOpCode.Ldnull); il.Call(declaration); }
+            else { il.OpCode(operation == "ldftn" ? ILOpCode.Ldftn : ILOpCode.Newobj); il.Token(operation == "ldftn" ? declaration : constructor); il.OpCode(ILOpCode.Pop); il.LoadConstantI4(0); }
+            il.OpCode(ILOpCode.Ret);
+        });
+        var image = resolver.OpenInput(files.Write("direct.dll", b.Build())).Value!;
+        var result = Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(resolver, image, entry, library);
+        Assert.False(result.Success);
+        Assert.Contains(result.Diagnostics, d => d.Message.Contains(operation == "newobj" ? "Cannot allocate an abstract class" : "no managed IL body", StringComparison.Ordinal));
+    }
+
 }
