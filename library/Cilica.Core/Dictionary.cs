@@ -123,6 +123,17 @@ namespace System.Collections.Generic
         private int freeCount;
         public Dictionary() { freeList = -1; }
         public int Count => count - freeCount;
+        private KeyCollection keys;
+        private ValueCollection values;
+        public KeyCollection Keys
+        {
+            get { if (keys == null) keys = new KeyCollection(this); return keys; }
+        }
+        public ValueCollection Values
+        {
+            get { if (values == null) values = new ValueCollection(this); return values; }
+        }
+
         // FindValue and equality preserve EqualityComparer<T>'s by-value receiver
         // semantics. TryInsert deliberately hashes its own key parameter byref,
         // matching the pinned source even when a value key mutates its receiver.
@@ -158,6 +169,23 @@ namespace System.Collections.Generic
             set { Insert(key, value, true); }
         }
         public bool ContainsKey(TKey key) => Find(key) != null;
+        private static bool ValueEqual(TValue left, TValue right) => Cilica.Runtime.KeyOperations<TValue>.Equal(ref left, right);
+        public bool ContainsValue(TValue value)
+        {
+            var capturedEntries = entries;
+            if (Cilica.Runtime.KeyOperations<TValue>.IsNull(value))
+            {
+                for (int i = 0; i < count; ++i)
+                    if (capturedEntries[i].Next >= -1 && Cilica.Runtime.KeyOperations<TValue>.IsNull(capturedEntries[i].Value)) return true;
+            }
+            else
+            {
+                for (int i = 0; i < count; ++i)
+                    if (capturedEntries[i].Next >= -1 && ValueEqual(capturedEntries[i].Value, value)) return true;
+            }
+            return false;
+        }
+
         public void Add(TKey key, TValue value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         public bool Remove(TKey key) => Remove(key, out _);
         public bool Remove(TKey key, out TValue value)
@@ -207,10 +235,10 @@ namespace System.Collections.Generic
         public virtual extern void GetObjectData(Runtime.Serialization.SerializationInfo info, Runtime.Serialization.StreamingContext context);
         [Runtime.CompilerServices.MethodImpl(Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         public virtual extern void OnDeserialization(object sender);
-        ICollection<TKey> IDictionary<TKey, TValue>.Keys => Cilica.Runtime.UnsupportedLibraryMember<ICollection<TKey>>.Invoke();
-        ICollection<TValue> IDictionary<TKey, TValue>.Values => Cilica.Runtime.UnsupportedLibraryMember<ICollection<TValue>>.Invoke();
-        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Cilica.Runtime.UnsupportedLibraryMember<IEnumerable<TKey>>.Invoke();
-        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Cilica.Runtime.UnsupportedLibraryMember<IEnumerable<TValue>>.Invoke();
+        ICollection<TKey> IDictionary<TKey, TValue>.Keys => Keys;
+        ICollection<TValue> IDictionary<TKey, TValue>.Values => Values;
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
         bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly => false;
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
@@ -223,8 +251,8 @@ namespace System.Collections.Generic
         void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         bool Collections.IDictionary.IsFixedSize => false;
         bool Collections.IDictionary.IsReadOnly => false;
-        Collections.ICollection Collections.IDictionary.Keys => Cilica.Runtime.UnsupportedLibraryMember<Collections.ICollection>.Invoke();
-        Collections.ICollection Collections.IDictionary.Values => Cilica.Runtime.UnsupportedLibraryMember<Collections.ICollection>.Invoke();
+        Collections.ICollection Collections.IDictionary.Keys => Keys;
+        Collections.ICollection Collections.IDictionary.Values => Values;
         object Collections.IDictionary.this[object key] {
             get => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
             set { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
@@ -233,6 +261,50 @@ namespace System.Collections.Generic
         bool Collections.IDictionary.Contains(object key) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         Collections.IDictionaryEnumerator Collections.IDictionary.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IDictionaryEnumerator>.Invoke();
         void Collections.IDictionary.Remove(object key) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public sealed class KeyCollection : ICollection<TKey>, Collections.ICollection, IReadOnlyCollection<TKey>
+        {
+            private readonly Dictionary<TKey, TValue> dictionary;
+            public KeyCollection(Dictionary<TKey, TValue> dictionary) { this.dictionary = Validate(dictionary); }
+            private static Dictionary<TKey, TValue> Validate(Dictionary<TKey, TValue> dictionary)
+            {
+                if (dictionary == null) throw new ArgumentNullException("dictionary");
+                return dictionary;
+            }
+            public int Count => dictionary.Count;
+            bool ICollection<TKey>.IsReadOnly => true;
+            bool Collections.ICollection.IsSynchronized => false;
+            object Collections.ICollection.SyncRoot => ((Collections.ICollection)dictionary).SyncRoot;
+            void ICollection<TKey>.Add(TKey item) { throw new NotSupportedException("Mutating a key collection derived from a dictionary is not allowed."); }
+            bool ICollection<TKey>.Remove(TKey item) { throw new NotSupportedException("Mutating a key collection derived from a dictionary is not allowed."); }
+            void ICollection<TKey>.Clear() { throw new NotSupportedException("Mutating a key collection derived from a dictionary is not allowed."); }
+            public bool Contains(TKey item) => dictionary.ContainsKey(item);
+            public void CopyTo(TKey[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+            void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+            IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<TKey>>.Invoke();
+            Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+        }
+        public sealed class ValueCollection : ICollection<TValue>, Collections.ICollection, IReadOnlyCollection<TValue>
+        {
+            private readonly Dictionary<TKey, TValue> dictionary;
+            public ValueCollection(Dictionary<TKey, TValue> dictionary) { this.dictionary = Validate(dictionary); }
+            private static Dictionary<TKey, TValue> Validate(Dictionary<TKey, TValue> dictionary)
+            {
+                if (dictionary == null) throw new ArgumentNullException("dictionary");
+                return dictionary;
+            }
+            public int Count => dictionary.Count;
+            bool ICollection<TValue>.IsReadOnly => true;
+            bool Collections.ICollection.IsSynchronized => false;
+            object Collections.ICollection.SyncRoot => ((Collections.ICollection)dictionary).SyncRoot;
+            void ICollection<TValue>.Add(TValue item) { throw new NotSupportedException("Mutating a value collection derived from a dictionary is not allowed."); }
+            bool ICollection<TValue>.Remove(TValue item) { throw new NotSupportedException("Mutating a value collection derived from a dictionary is not allowed."); }
+            void ICollection<TValue>.Clear() { throw new NotSupportedException("Mutating a value collection derived from a dictionary is not allowed."); }
+            bool ICollection<TValue>.Contains(TValue item) => dictionary.ContainsValue(item);
+            public void CopyTo(TValue[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+            void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+            IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<TValue>>.Invoke();
+            Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+        }
         private bool Insert(TKey key, TValue value, bool overwrite)
         {
             CheckKey(key);

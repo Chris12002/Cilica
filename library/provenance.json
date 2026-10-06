@@ -168,7 +168,8 @@
         "TryInsert duplicate/overwrite/new-entry behavior",
         "Resize entry order and bucket chain rebuilding",
         "AC3.3 Remove/Clear, free-list links and slot reuse",
-        "Prime capacities from System/Collections/HashHelpers.cs"
+        "Prime capacities from System/Collections/HashHelpers.cs",
+        "AC4.2 cached KeyCollection/ValueCollection views and ContainsValue live-slot scanning"
       ],
       "changes": [
         "Map the bounded public System.Collections.Generic.Dictionary member subset with exact nominal interfaces and method flags.",
@@ -176,9 +177,10 @@
         "Use exact compiler-selected closed integer/value key operations instead of runtime reflection and EqualityComparer factory selection.",
         "Retain distinct value-key hash receiver semantics in FindValue and TryInsert.",
         "AC3.3 adds Remove with/without out value and Clear; clear key/value payloads and reuse private entry slots. Enumeration, comparer/capacity constructors, read indexers and further members remain unsupported.",
-        "Preserve the public generic/nongeneric/serialization interface declarations; unimplemented members remain compile-time errors."
+        "Preserve the public generic/nongeneric/serialization interface declarations; unimplemented members remain compile-time errors.",
+        "Preserve per-dictionary view identity and tracing cycles; constructors use ordinary validation helpers. ContainsValue captures the entries vector and compares copied value receivers through existing exact equality selection. Unknown equality/copy/enumerator paths remain diagnostic."
       ],
-      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no enumeration/indexer-read or serialization implementation."
+      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no enumeration/indexer-read or serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types."
     },
     {
       "path": "library/Cilica.Core/ArrayInterface.cs",

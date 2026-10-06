@@ -196,6 +196,11 @@ Array.AsReadOnly uses existing ReadOnlyCollection views and private per-type
 empty caches on each runtime instance (AC3.5). No new intrinsic grants.
 
 Concrete List<T>.GetEnumerator/Enumerator needs the exact nested type mapping
-`System.Collections.Generic.List`1/Enumerator` alongside List`1. AC4.1 implements
+``System.Collections.Generic.List`1/Enumerator`` alongside ``List`1``. AC4.1 implements
 Current/MoveNext/Dispose with mutation checks; interface factories, boxed method
 dispatch and nongeneric Current remain diagnostic.
+
+Dictionary Keys/Values require explicit nested KeyCollection/ValueCollection
+mappings. AC4.2 supplies cached live views, read-only faults and bounded lookup.
+ContainsValue uses copied receivers; nullable/unknown reference equality, view
+copying and enumeration remain diagnostics. No new grants.

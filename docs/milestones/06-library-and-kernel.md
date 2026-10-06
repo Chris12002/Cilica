@@ -2287,3 +2287,16 @@ existing regressions and the boxed-interface rejection pass. No new grants or
 runtime profiles. The ledger has 24 gaps and 23 controls. Interface enumeration,
 boxed receiver dispatch and full replay remain unfinished.
 See [ADR AC0017](../decisions/AC0017-concrete-list-enumeration.md).
+
+
+### Dictionary key and value views (AC4.2)
+
+Dictionary Keys/Values now expose cached live views through concrete, generic,
+read-only and nongeneric contracts. They preserve identity, Count, SyncRoot and
+read-only faults. Key lookup forwards ContainsKey; ContainsValue and value-view
+lookup scan live entries with copied equality receivers. Nulls and removed slots
+are handled explicitly. Ten probes plus public DictionaryKeys supply 3,234 repeated
+O0/O2 native/.NET comparisons; two view-cycle GC checks, exact nested metadata,
+unknown-equality rejection and 41 existing regressions pass. The ledger has 23
+gaps and 24 controls. No new grants or native profiles. Copying, enumeration and
+full replay remain incomplete. See [ADR AC0018](../decisions/AC0018-dictionary-views.md).
