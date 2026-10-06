@@ -16,9 +16,14 @@ public static partial class ValueProgramDiscovery
             if (_enumScalars.TryGetValue(named.Definition, out bool known)) return known;
             try
             {
-                bool scalar = Int32EnumStorage.Matches(signature, resolver.ResolveType(library, "System", "Enum").Value,
-                    type => Snapshot(type, caller, offset));
-                _enumScalars.Add(named.Definition, scalar); return scalar;
+                var enumBase = resolver.ResolveType(library, "System", "Enum").Value;
+                if (enumBase is null || TypeBase(named.Definition, caller, offset).BaseType is not TypeSignature.Named parent
+                    || parent.Definition != enumBase) return false;
+                bool scalar = Int32EnumStorage.Matches(signature, enumBase, type => Snapshot(type, caller, offset));
+                // Negative answers use the bounded base-fact cache. Positive answers
+                // require full snapshots and remain bounded by that unchanged limit.
+                if (scalar) _enumScalars.Add(named.Definition, true);
+                return scalar;
             }
             catch (ArgumentException error) { Fail(caller,error.Message,offset); return false; }
         }

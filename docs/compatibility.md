@@ -2831,3 +2831,12 @@ actual storage, hidden arguments and excessive executable types still fail. No
 resource bounds or profiles change. Frozen engine advances to physical-damage
 selection before its snapshot limit; state remains at its catalog limit. Full
 replay is unverified. See [ADR AC0069](decisions/AC0069-generic-classification-facts.md).
+
+### Non-enum classification without fields (AC8.19)
+
+Enum detection first checks exact direct-base facts; ordinary internal classes no
+longer decode unused fields during lexical access checks. Actual enum validation
+and all bounds remain intact. The added internal-owner regression passes 294
+repeated O0/O2 native comparisons; all 76 selected checks pass with forced GC and
+ASan/UBSan. Frozen engine clears its snapshot blocker and reaches the four-string
+Concat overload. State/replay remain incomplete. See [ADR AC0070](decisions/AC0070-enum-classification-facts.md).

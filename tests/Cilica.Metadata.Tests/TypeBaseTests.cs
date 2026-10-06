@@ -114,8 +114,8 @@ public sealed class TypeBaseTests
         Assert.Contains(result.Diagnostics, d => d.Message.Contains("selected runtime MulticastDelegate", StringComparison.Ordinal));
     }
     [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task Static_owner_classification_does_not_load_unused_layouts(bool optimized)
+    [InlineData(false, false)] [InlineData(true, false)] [InlineData(false, true)] [InlineData(true, true)]
+    public async Task Static_owner_classification_does_not_load_unused_layouts(bool optimized, bool assemblyInternal)
     {
         using var files = new ResolverFiles();
         using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
@@ -125,7 +125,7 @@ public sealed class TypeBaseTests
         var methods = new List<MethodDefinitionHandle>();
         for (int i = 0; i < 257; i++)
         {
-            b.Type("Test", "Owner" + i, baseType: parent, attributes: TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.Sealed);
+            b.Type("Test", "Owner" + i, baseType: parent, attributes: (assemblyInternal ? TypeAttributes.NotPublic : TypeAttributes.Public) | TypeAttributes.Abstract | TypeAttributes.Sealed);
             b.Field("UnusedMalformedField", 0);
             methods.Add(b.Method("Echo", [0, 1, 8, 8], emit: il => { il.LoadArgument(0); il.OpCode(ILOpCode.Ret); }));
         }
