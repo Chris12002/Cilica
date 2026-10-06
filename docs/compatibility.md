@@ -2299,3 +2299,11 @@ checked. Four probes pass 1,176 repeated O0/O2 native comparisons with forced GC
 and sanitizers; 106 broad and 60 focused checks pass. Private T[] still requires
 additional detached access evidence. Frozen EngineStep advances to String.Format;
 StateLookup remains at the unchanged type limit. Full replay remains incomplete.
+
+
+### Detached generic identity foundation (AC8.3)
+
+Closed argument snapshots retain reader-free identity syntax and reproduce the
+existing specialization hashes after bounded validation. All 28 selected checks
+pass. This supplies identity evidence for later per-instruction array access;
+it adds no new executable capability. See ADR AC0034.
