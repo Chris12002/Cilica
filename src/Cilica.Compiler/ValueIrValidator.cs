@@ -21,6 +21,11 @@ public static class ValueIrValidator
             .Concat(m.Blocks.SelectMany(b => b.Inputs)).Concat(m.Blocks.SelectMany(b => b.Values).Select(v => v.Type)))
             .Select(t => t.Kind == IrTypeKind.ManagedLocation ? t.Element! : t)
             .Where(t => t.Kind == IrTypeKind.Value).Select(t => t.Class!));
+        foreach (var expression in program.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression))
+        {
+            var box = expression switch { IrExpression.BoxValue b => b.Type, IrExpression.UnboxValue u => u.Type, IrExpression.UnboxLocation u => u.Type, _ => null };
+            if (box is not null) pending.Push(box);
+        }
         foreach (var field in program.Types.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>()) pending.Push(field.Type);
         foreach (var array in program.Types.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value)) pending.Push(array.ArrayElement!.Type!);
         foreach (var argument in program.Types.References.Interfaces.SelectMany(i => i.Arguments)) if (argument.Value is { } value) pending.Push(value);
@@ -60,14 +65,17 @@ internal sealed class ValueIrRules
         if (locations) Locations = new(catalog, this);
     }
 
+    private IrType BoxStorage(ObjectTypeId type) => Catalog.Types.First(t => ObjectTypeId.From(t.Source) == type).ScalarBox is { } scalar
+        ? ScalarBoxing.Stack(scalar) : IrType.Value(type);
+
     internal bool Box(ObjectTypeId? type, IrType operand, IrType result) => type is not null
-        && _boxTypes.Contains(type) && operand == IrType.Value(type)
+        && _boxTypes.Contains(type) && operand == BoxStorage(type)
         && result == IrType.Reference(Catalog.References.ObjectBase);
 
     internal bool Unbox(ObjectTypeId? type, IrType operand, IrType result, bool borrow) => type is not null
         && _boxTypes.Contains(type) && operand.Kind is IrTypeKind.Reference or IrTypeKind.NullReference
-        && (borrow ? Locations is not null && ManagedLocationRules.Address(IrType.Value(type), result)
-            : result == IrType.Value(type));
+        && (borrow ? Locations is not null && BoxStorage(type).Kind == IrTypeKind.Value && ManagedLocationRules.Address(BoxStorage(type), result)
+            : result == BoxStorage(type));
 
     internal IrType? Field(IrType receiver, ObjectFieldId? id)
     {

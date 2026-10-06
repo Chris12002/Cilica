@@ -44,8 +44,12 @@ public sealed class NullableLibraryTests
         (nameof(NullableProbe.MixedCastMessages), NullableProbe.MixedCastMessages),
         (nameof(NullableProbe.GenericNullableBox), NullableProbe.GenericNullableBox),
         (nameof(NullableProbe.NullableBoxBudget), NullableProbe.NullableBoxBudget),
+        (nameof(NullableProbe.ScalarBox), NullableProbe.ScalarBox),
+        (nameof(NullableProbe.EmptyScalarBox), NullableProbe.EmptyScalarBox),
+        (nameof(NullableProbe.WrongScalarUnbox), NullableProbe.WrongScalarUnbox),
+        (nameof(NullableProbe.EnumBox), NullableProbe.EnumBox),
         ("DirectOperators", (a, b) => unchecked(a + b))];
-    private static readonly string[] BoxGaps = [nameof(NullableProbe.UnsupportedBox), nameof(NullableProbe.UnsupportedEmptyBox), nameof(NullableProbe.UnsupportedUnbox), nameof(NullableProbe.UnsupportedNullableEnumBox)];
+
     private static readonly string[] MemberGaps = [nameof(NullableProbe.UnsupportedText), nameof(NullableProbe.UnsupportedHash), nameof(NullableProbe.UnsupportedEquality)];
     private static readonly Lazy<Task<Dictionary<string, ManagedExceptionTranslationResult>>> Results = new(Translate);
 
@@ -56,7 +60,7 @@ public sealed class NullableLibraryTests
         using var lifetime = resolver;
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = resolver.OpenInput(typeof(NullableProbe).Assembly.Location).Value!;
-        var results = Probes.Select(p => p.Name).Where(n => n != "DirectOperators").Concat(BoxGaps).Concat(MemberGaps)
+        var results = Probes.Select(p => p.Name).Where(n => n != "DirectOperators").Concat(MemberGaps)
             .Append(nameof(NullableProbe.UnsupportedHeapReturn)).Append(nameof(NullableProbe.UnsupportedStaticInline))
             .Append(nameof(NullableProbe.UnsupportedEnumWidth)).Append(nameof(NullableProbe.UnsupportedEnumVisibility)).ToDictionary(name => name, name =>
             ValueTranslator.TranslateIntegerObjects(scope, input,
@@ -86,11 +90,12 @@ public sealed class NullableLibraryTests
     }
 
     [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task Nullable_values_copies_roots_and_faults_match_dotnet(bool optimized)
+    [InlineData(false, 0)] [InlineData(false, 1)]
+    [InlineData(true, 0)] [InlineData(true, 1)]
+    public async Task Nullable_values_copies_roots_and_faults_match_dotnet(bool optimized, int batch)
     {
         var results = await Results.Value;
-        var probes = Probes.Select(p => {
+        var probes = Probes.Skip(batch * 16).Take(16).Select(p => {
             Assert.True(results[p.Name].Success, p.Name + ": " + string.Join("; ", results[p.Name].Diagnostics));
             return (p.Name, results[p.Name].Program!, p.Oracle);
         }).ToArray();
@@ -113,13 +118,13 @@ public sealed class NullableLibraryTests
         var enumVisibility = results[nameof(NullableProbe.UnsupportedEnumVisibility)];
         Assert.False(enumVisibility.Success);
         Assert.Contains("NullableInternalKind", Assert.Single(enumVisibility.Diagnostics).Message, StringComparison.Ordinal);
-        foreach (string name in BoxGaps.Concat(MemberGaps))
+        foreach (string name in MemberGaps)
         {
             var result = results[name];
             Assert.False(result.Success, name); Assert.Null(result.Program);
             var diagnostic = Assert.Single(result.Diagnostics);
             Assert.Equal(DiagnosticIds.ExecutionUnsupported, diagnostic.Id);
-            Assert.Contains(BoxGaps.Contains(name) ? "primitive/enum boxes need nominal payload descriptors" : "no implemented managed body", diagnostic.Message, StringComparison.Ordinal);
+            Assert.Contains("no implemented managed body", diagnostic.Message, StringComparison.Ordinal);
         }
     }
 

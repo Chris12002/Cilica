@@ -1,0 +1,31 @@
+using System.Reflection.Metadata;
+using Cilica.Metadata.Resolution;
+
+namespace Cilica.Compiler;
+
+public static partial class ValueProgramDiscovery
+{
+    private sealed partial class Session
+    {
+        private (ObjectTypeId Type, PrimitiveTypeCode Code)? ScalarBoxOperand(TypeSignature signature, Work work, int offset)
+        {
+            CheckArgumentAccess(signature, work, offset);
+            var normalized = OperandSignature(signature, work, offset);
+            ResolvedType definition;
+            PrimitiveTypeCode code;
+            if (normalized is TypeSignature.Primitive primitive && ScalarBoxing.Supported(primitive.Code))
+            {
+                code = primitive.Code;
+                definition = Require(resolver.ResolveRuntimeType(library, code), work, offset);
+            }
+            else if (EnumScalar(normalized, work, offset))
+            {
+                definition = ((TypeSignature.Named)normalized).Definition; code = PrimitiveTypeCode.Int32;
+            }
+            else return null;
+            var id = Include(definition, work, offset);
+            _scalarBoxes.TryAdd(id, code);
+            return (id, code);
+        }
+    }
+}

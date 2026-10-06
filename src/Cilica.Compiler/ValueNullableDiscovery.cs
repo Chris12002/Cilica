@@ -21,8 +21,8 @@ public static partial class ValueProgramDiscovery
             CheckArgumentAccess(signature, work, offset);
             var payload = nullable.Arguments[0];
             var storage = Storage(payload, work, offset);
-            if (storage.Kind != IrTypeKind.Value)
-                Fail(work, "Nullable boxing and unboxing require an already supported named-struct payload; primitive/enum boxes need nominal payload descriptors before execution.", offset);
+            if (storage.Kind != IrTypeKind.Value && ScalarBoxOperand(payload, work, offset) is null)
+                Fail(work, "Nullable boxing and unboxing require a supported named value or integer scalar payload before execution.", offset);
             // Resolve managed code, not a new intrinsic. The helper remains subject
             // to ordinary discovery, verification, resource bounds and root planning.
             var helper = NullableBoxingHelper(work, offset);

@@ -8,8 +8,8 @@ separately. Historical checkpoint sections retain their original stage-specific 
 
 Milestone 6 completion used `integer-managed-objects-cil-v2`,
 `object-layout-v13`, `object-operations-ir-v14`, `scalar-location-ir-v2`,
-`value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v4`,
-`scalar-boxed-ir-v5` and `object-frames-native-v38`. The bounded owned core and
+`value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v3`,
+`scalar-boxed-ir-v4` and `object-frames-native-v35`. The bounded owned core and
 unchanged private kernel pass 10,752 .NET/native transcript comparisons on macOS
 ARM64, with O0/O2 sanitizers and forced collection. The exact compiled/source-body
 closure has no filters; the broader metadata audit retains its unresolved status.
@@ -1858,8 +1858,8 @@ copy/return semantics, materialized heap fields and value arrays reuse the exist
 value profile. The empty Value exception matches the selected invariant resource.
 
 AC1b.1 subsequently admits nullable box/unbox.any for already boxable named
-structs and implements direct conversion-operator bodies. Primitive/enum boxes,
-raw nullable unbox, key null/equality/hash selection, Equals, GetHashCode and
+structs and implements direct conversion-operator bodies. AC1b.2 adds supported
+integer/Boolean/Char and public Int32-enum boxes. Raw scalar/nullable unbox, key null/equality/hash selection, Equals, GetHashCode and
 ToString remain diagnostics.
 Existing internal/non-Int32 enum, static inline-field and direct-return-to-heap
 limits remain. An ordinary struct containing a nullable field can still use
@@ -1884,3 +1884,24 @@ managed-helper design, diagnostic flag and exact limits. The 27-probe nullable
 suite passes 7,938 repeated comparisons on macOS ARM64 at O0/O2 with forced GC
 and ASan/UBSan; heap-budget tests cover no-allocation empty boxes and failure
 recovery. This extends the nullable suite, not the private saved-game replay claim.
+
+
+## Integer and enum boxes (AC1b.2)
+
+The selected Boolean, Char, signed/unsigned 8/16/32/64-bit integers, and already
+supported public nongeneric Int32 enums now admit box/unbox.any, including their
+nullable forms. Runtime-owned scalar slots preserve nominal box identity. Ordinary
+unboxing allows Int32/Int32-enum compatibility; nullable copies require exact
+underlying identity. Narrow normalization and all 64 bits have native evidence.
+
+Scalar/nullable type tests and raw unbox remain diagnostic. Closures combining
+scalar boxes with interface casts/tests or interface dispatch are conservatively
+rejected because the bounded core's primitive interface contracts are incomplete.
+This does not admit new enum widths/visibility or general primitive APIs.
+[ADR AC0004](decisions/AC0004-nominal-scalar-boxes.md) records the exact boundary.
+
+Current native v39 evidence includes 18 scalar probes (5,292 comparisons), 31
+nullable probes (9,114), O0/O2 sanitizers/forced GC, and 146 focused regression
+checks. The larger nullable compile is split into batches of at most 16, preserving
+the 30-second compile timeout. Public baseline counts remain ten native controls
+and 37 expected gaps; private saved-game replay is still open.

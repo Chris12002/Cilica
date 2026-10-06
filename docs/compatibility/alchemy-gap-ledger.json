@@ -31,8 +31,9 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "c6c301dae43c915f877dc391e9956c44375c744060a65757268bebcfda94f54f",
-    "latestSlice": "AC1b.1",
-    "nullableEvidence": "AC1b.1 NullableLibraryTests: 27 native probes, 7938 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v38"
+    "latestSlice": "AC1b.2",
+    "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
+    "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39"
   },
   "slices": {
     "AC0": {
@@ -50,13 +51,18 @@
         "AC1a"
       ],
       "status": "in-progress",
-      "completedSubslice": "AC1b.1",
-      "remaining": "Nominal primitive/enum boxes; required nullable type tests/raw-unbox forms or proof of absence from the accepted replay closure."
+      "completedSubslices": ["AC1b.1", "AC1b.2"],
+      "remaining": "Required scalar/nullable boxed type tests, raw-unbox forms and primitive interface contracts/use proofs, or proof of absence from the accepted replay closure."
     },
     "AC1b.1": {
       "prerequisites": ["AC1a"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0003-nullable-boxing-and-conversions.md"
+    },
+    "AC1b.2": {
+      "prerequisites": ["AC1b.1"],
+      "status": "complete-bounded",
+      "decision": "docs/decisions/AC0004-nominal-scalar-boxes.md"
     },
     "AC2": {
       "prerequisites": [
@@ -216,7 +222,7 @@
     {"id": "D-06000676", "kind": "method", "contractToken": "0x06000676", "name": "System.Func`3::Invoke", "slice": "AC2", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 1, "privateWitness": "witnesses.json; declaration method 0x06000676"},
     {"id": "D-020000bb", "kind": "type", "contractToken": "0x020000bb", "name": "System.Predicate`1", "slice": "AC2", "bindingAtAudit": "unmatched", "status": "unresolved-nominal", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x020000bb"},
     {"id": "D-0600094f", "kind": "method", "contractToken": "0x0600094f", "name": "System.Predicate`1::.ctor", "slice": "AC2", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 3, "privateWitness": "witnesses.json; declaration method 0x0600094f"},
-    {"id": "D-02000031", "kind": "type", "contractToken": "0x02000031", "name": "System.Char", "slice": "AC7a", "bindingAtAudit": "unmatched", "status": "unresolved-nominal", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x02000031"},
+    {"id": "D-02000031", "kind": "type", "contractToken": "0x02000031", "name": "System.Char", "slice": "AC1b.2", "bindingAtAudit": "unmatched", "status": "native-validated-scalar", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x02000031", "auditStatus": "unresolved-nominal", "currentEvidence": "Exact Char reference mapping and ScalarBoxProbe.Char native copies/nullable boxes; character arrays and broader Char APIs remain AC7a/follow-on work."},
     {"id": "D-0200031b", "kind": "type", "contractToken": "0x0200031b", "name": "System.Security.Cryptography.HashAlgorithm", "slice": "AC7c", "bindingAtAudit": "unmatched", "status": "unresolved-nominal", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x0200031b"},
     {"id": "D-0600246a", "kind": "method", "contractToken": "0x0600246a", "name": "System.Security.Cryptography.HashAlgorithm::ComputeHash", "slice": "AC7c", "bindingAtAudit": "unmatched", "status": "observed-binding-gap", "diagnosticIds": ["CIL3015"], "directSites": 2, "privateWitness": "witnesses.json; declaration method 0x0600246a"},
     {"id": "D-02000323", "kind": "type", "contractToken": "0x02000323", "name": "System.Security.Cryptography.ICryptoTransform", "slice": "AC7c", "bindingAtAudit": "unmatched", "status": "unresolved-nominal", "diagnosticIds": ["CIL3015"], "directSites": 0, "privateWitness": "witnesses.json; declaration type 0x02000323"},
@@ -448,7 +454,7 @@
     {"id": "NullableAdditionalMembers", "slice": "AC7b", "status": "confirmed-blocker", "reason": "Nullable.ToString now binds but deliberately rejects an unimplemented body; NullableProbe.UnsupportedText is the reduced regression."},
     {"id": "EngineCapacity", "slice": "AC8", "status": "unmeasured", "reason": "Measure actual translated type/method/instruction counts before planning limit changes."},
     {"id": "ReplayEventPayloads", "slice": "AC9", "status": "planned", "reason": "Replace event-text-only observations with canonical event payload comparison."},
-    {"id": "NullableBoxingAndConversions", "slice": "AC1b", "status": "partially-implemented", "reason": "AC1b.1 admits named-struct nullable box/unbox.any and direct conversion operators, with representative lifted/checked integer expressions. Primitive/enum boxes, raw nullable unbox and remaining nullable type-test forms stay unsupported. NullableLibraryTests has 27 native probes plus allocation-budget checks."},
+    {"id": "NullableBoxingAndConversions", "slice": "AC1b", "status": "partially-implemented", "reason": "AC1b.1–AC1b.2 admit named-struct and selected integer/Boolean/Char/public Int32-enum nullable box/unbox.any, direct operators and representative lifted/checked expressions. Raw unbox, scalar/nullable type tests and scalar interface views remain unsupported. There are 31 nullable and 18 scalar native probes plus allocation-budget checks."},
     {"id": "NullableKeyOperations", "slice": "AC3", "status": "confirmed-blocker", "reason": "Nullable null/equality/hash selection must not use ordinary nonnull value-key semantics; an isolated owned-core IsNull regression verifies the diagnostic."},
     {"id": "DirectValueReturnToHeapField", "slice": "AC8", "status": "confirmed-blocker", "reason": "Existing destination/exception-order limitation, now pinned by NullableProbe.UnsupportedHeapReturn; materialized field copies work."},
     {"id": "StaticInlineValues", "slice": "AC8", "status": "confirmed-blocker", "reason": "Engine Step advances to a static application-ID field; NullableProbe.UnsupportedStaticInline reproduces the general static inline-value storage rejection."},

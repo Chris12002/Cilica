@@ -33,9 +33,9 @@ public static class ValueModelBuilder
 
     internal static ValueCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null)
     {
-        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots, observe); }
+        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots, observe, scalarBoxes); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
         catch (ArgumentException error) { return new(null, [new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, error.Message)]); }
@@ -45,7 +45,7 @@ public static class ValueModelBuilder
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -161,6 +161,7 @@ public static class ValueModelBuilder
                 TypeInput input;
                 try { input = ReadClosed(type, new()); }
                 catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
+                PrimitiveTypeCode? scalarBox = scalarBoxes is not null && scalarBoxes.TryGetValue(id, out var scalarCode) ? scalarCode : null;
                 if (input.IsByRefLike) Fail("ByRefLike values require stack-only lifetime and escape checking before executable layout.", input.Source.Name);
                 if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || input.HasTypeInitializer || input.HasModuleInitializer
                     || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && (input.Fields.IsEmpty
@@ -168,7 +169,8 @@ public static class ValueModelBuilder
                         && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || !integers64 && input.InterfaceCount != 0
                     || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
                     || input.BaseType is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } declaredBase
-                    || Id(declaredBase.Definition) != Id(valueBase))
+                    || Id(declaredBase.Definition) != Id(valueBase) && !(scalarBox == PrimitiveTypeCode.Int32
+                        && EnumScalar(new TypeSignature.Named(type.Definition, SignatureTypeKind.ValueType))))
                     Fail("Value layouts require sealed nongeneric direct children of the selected System.ValueType, default managed layout, and no interfaces or type/module initialization.", input.Source.Name + "; value inclusion: " + paths[id]);
                 var declared = new List<ObjectField>();
                 var contracts = new List<ObjectTypeId>();
@@ -185,7 +187,7 @@ public static class ValueModelBuilder
                     if ((definition.Attributes & TypeAttributes.Interface) == 0) Fail("Value interface row names a non-interface type.", input.Source.Name);
                     contracts.Add(IncludeClosedReference(contract!));
                 }
-                foreach (var field in input.Fields)
+                foreach (var field in scalarBox is null ? input.Fields : [])
                 {
                     if (integers64 && DefaultStaticFields.IsDefault(input, field)) continue;
                     string location = paths[id] + " -> " + input.Source.Name + "::" + field.Name + " field 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
@@ -218,7 +220,7 @@ public static class ValueModelBuilder
                     }
                     declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
                 }
-                values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible, Interfaces = [.. contracts] });
+                values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible, Interfaces = [.. contracts], ScalarBox = scalarBox });
             }
             ObjectModelBuilder.TypeSnapshot ReadClosedReference(ConstructedType type, TypeReadLimits limits)
             {

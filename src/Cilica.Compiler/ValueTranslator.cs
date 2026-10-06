@@ -594,11 +594,12 @@ public static class ValueTranslator
                             break;
                         case "box" or "unbox" or "unbox.any" when boxing:
                             var boxedType = method.TypeOperands[offset];
-                            int boxedOperand = opcode == "box" ? Pop(offset, IrType.Value(boxedType)) : Pop(offset);
+                            var boxStorage = method.ScalarBoxOperands.TryGetValue(offset, out var scalarBox) ? ScalarBoxing.Stack(scalarBox) : IrType.Value(boxedType);
+                            int boxedOperand = opcode == "box" ? Pop(offset, boxStorage) : Pop(offset);
                             if (opcode != "box" && !Reference(values[boxedOperand])) Error(offset, "Unboxing requires an object reference or null.");
                             if (opcode == "box") Push(offset, IrType.Reference(objectBase), new IrExpression.BoxValue(boxedType, boxedOperand), true);
                             else if (opcode == "unbox") Push(offset, IrType.Location(IrType.Value(boxedType)), new IrExpression.UnboxLocation(boxedType, boxedOperand), true);
-                            else Push(offset, IrType.Value(boxedType), new IrExpression.UnboxValue(boxedType, boxedOperand) { NullableTarget = method.NullableUnboxOperands.Contains(offset) }, true);
+                            else Push(offset, boxStorage, new IrExpression.UnboxValue(boxedType, boxedOperand) { NullableTarget = method.NullableUnboxOperands.Contains(offset) }, true);
                             break;
                         case "initobj" or "ldobj" or "stobj" or "cpobj":
                             var valueType = method.MemoryOperands.TryGetValue(offset, out var memoryType) ? memoryType : IrType.Value(method.TypeOperands[offset]);

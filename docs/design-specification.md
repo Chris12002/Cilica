@@ -1760,3 +1760,30 @@ nullable type-test forms are not implemented by this slice. Nullable keys and
 text/equality/hash remain assigned work. Twenty-seven native probes provide
 7,938 O0/O2 comparisons plus heap-budget/failure-recovery checks; the affected
 local suite passes 120 tests. Full AC1b and full Alchemy replay remain open.
+
+
+### Nominal scalar boxing follow-on (AC1b.2)
+
+[ADR AC0004](decisions/AC0004-nominal-scalar-boxes.md) adds box/unbox.any for
+selected Boolean/Char and integer widths plus existing public nongeneric Int32
+enums. Each exact nominal type has a runtime-owned scalar slot, separate from its
+evaluation-stack carrier. These box-only layouts cannot become managed inline
+fields/arrays or acquire fabricated FieldDefs. Narrow copies normalize through
+existing integer lowering; boxes reuse allocation, packets, owners and tracing.
+
+Ordinary unbox supports the .NET Int32/Int32-enum compatibility group; nullable
+unbox requires exact underlying identity. GetType still reports the original box
+type. Checked copy locations use the actual descriptor's accessor, avoiding native
+aliasing between distinct box structs. Core binding plans add six exact primitive
+type mappings without new intrinsic grants.
+
+Scalar/nullable type tests, raw unbox locations and scalar interface views remain
+explicit errors. Closures combining scalar boxes with interface casts/tests or
+interface dispatch conservatively reject until primitive contracts or narrower
+proofs are complete. Nonpublic/non-Int32 enums and floating/native-sized values
+remain outside scope. Full AC1b and Alchemy replay remain open.
+
+Layout v3, boxed IR v5, scalar boxed IR v6, boxed runtime v3 and native v39 carry
+this scope. The 18 scalar and 31 nullable probes provide 14,406 repeated native/
+.NET comparisons at O0/O2 on macOS ARM64 with sanitizers and forced GC; 146
+focused regression checks also pass. No private replay evidence was regenerated.

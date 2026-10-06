@@ -155,6 +155,10 @@ Ordinary value copying/return/rooting rules apply, including materialized heap
 fields and value arrays. The same file now supplies managed conversion operators
 and compiler-selected NullableBoxing<T> helpers for named-struct box/unbox.any.
 Empty boxes are null; present boxes use the underlying type's ordinary box.
-Primitive/enum boxes, raw nullable unbox, nullable key operations and
+AC1b.2 also admits selected integer/Boolean/Char and public Int32-enum boxes with
+exact nullable identity. Add the exact Boolean, Char, SByte, Byte, Int16 and UInt16
+reference mappings alongside the existing 32/64-bit mappings when composing a
+binding plan. No new intrinsic grants are required. Raw scalar/nullable unbox,
+scalar/nullable type tests, scalar interface views, nullable key operations and
 equality/hash/text members remain diagnostics. See
-[ADR AC0003](../../docs/decisions/AC0003-nullable-boxing-and-conversions.md).
+[ADR AC0004](../../docs/decisions/AC0004-nominal-scalar-boxes.md).

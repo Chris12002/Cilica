@@ -15,8 +15,9 @@ feedback before implementation. Explain consequential choices in plain language.
   see `docs/milestones/06-library-and-kernel.md` for exact scope and evidence.
   AC1a adds bounded owned Nullable<T> storage/members through ordinary value
   copies and roots. AC1b.1 adds nullable conversions and named-struct box/copy
-  unboxing; primitive/enum boxes, raw nullable unbox and nullable keys remain
-  diagnosed. See docs/decisions/AC0003-nullable-boxing-and-conversions.md.
+  unboxing. AC1b.2 adds integer/Boolean/Char and public Int32-enum box/copy
+  unboxing, with strict nullable identity. Raw scalar/nullable unbox, scalar type
+  tests/interface views and nullable keys remain diagnosed; see ADR AC0004.
   Milestone 7 adds a bounded persistent Int32 C boundary and shared export modules; see
   `docs/milestones/07-embedding-and-phone-libraries.md` and `docs/embedding-abi.md`.
   V2/V3 exports share one validated closure; V3 adds typed retained object handles

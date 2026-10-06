@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v38";
+    public const string Profile = "object-frames-native-v39";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -541,7 +541,7 @@ public static class ObjectCppEmitter
                                     CheckBoxResult(value.ILOffset); expression = "f->box_result.value"; break;
                                 case IrExpression.CheckBox boxed:
                                     code.Append("    f->box_result = unbox(context, ").Append(Value(boxed.Operand)).Append(", &")
-                                        .Append(ObjectCppBoxing.Symbol(boxed.Type)).Append("_descriptor);\n");
+                                        .Append(ObjectCppBoxing.Symbol(boxed.Type)).Append("_descriptor, ").Append(boxed.NullableTarget ? "true" : "false").Append(");\n");
                                     if (handlers) CastFault("f->box_result.status == BoxStatus::wrong_type", Value(boxed.Operand), ObjectCppBoxing.Symbol(boxed.Type), value.ILOffset, boxed.NullableTarget);
                                     CheckBoxResult(value.ILOffset); expression = "f->box_result.value"; break;
                                 case IrExpression.AddressBoxSlot slot:
@@ -549,8 +549,7 @@ public static class ObjectCppEmitter
                                         .Append(ObjectCppBoxing.Symbol(slot.Type)).Append("_descriptor);\n");
                                     if (handlers) CastFault("f->box_result.status == BoxStatus::wrong_type", Value(slot.Receiver), ObjectCppBoxing.Symbol(slot.Type), value.ILOffset);
                                     CheckBoxResult(value.ILOffset); Flush();
-                                    code.Append("    f->location_result = heap_location(context, f->box_result.value, &")
-                                        .Append(ObjectCppBoxing.Symbol(slot.Type)).Append("_descriptor, ").Append(N(slot.Slot)).Append(");\n");
+                                    code.Append("    f->location_result = heap_location(context, f->box_result.value, f->box_result.value->type, ").Append(N(slot.Slot)).Append(");\n");
                                     CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.AddressLocal local:
                                     code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")

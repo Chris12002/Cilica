@@ -284,7 +284,7 @@ namespace Cilica.Fixtures.Execution
             NullableEmpty? value = b == 0 ? default(NullableEmpty?) : new NullableEmpty();
             return (object)value == null ? a : ~a;
         }
-        public static int UnsupportedNullableEnumBox(int a, int b) { NullableKind? value = (NullableKind)a; return (object)value == null ? a : b; }
+        public static int EnumBox(int a, int b) { NullableKind? value = (NullableKind)a; return (object)value == null ? a : b; }
         public static int UnsupportedHeapReturn(int a, int b)
         {
             var holder = new NullableHolder();
@@ -295,9 +295,14 @@ namespace Cilica.Fixtures.Execution
         public static int UnsupportedStaticInline(int a, int b) => ReadId(NullableStaticValues.Value);
         public static int UnsupportedEnumVisibility(int a, int b) { var holder = new NullableInternalEnumHolder(); holder.Value = (NullableInternalKind)a; return (int)holder.Value; }
         public static int UnsupportedEnumWidth(int a, int b) { NullableSmallKind? value = new NullableSmallKind?((NullableSmallKind)a); return (int)value.Value; }
-        public static int UnsupportedBox(int a, int b) { int? value = a; object boxed = value; return boxed == null ? a : b; }
-        public static int UnsupportedEmptyBox(int a, int b) { int? value = default; object boxed = value; return boxed == null ? a : b; }
-        public static int UnsupportedUnbox(int a, int b) { object value = new NullableNode(a); return ((int?)value).GetValueOrDefault(b); }
+        public static int ScalarBox(int a, int b) { int? value = a; object boxed = value; return boxed == null ? a : b; }
+        public static int EmptyScalarBox(int a, int b) { int? value = default; object boxed = value; return boxed == null ? a : b; }
+        public static int WrongScalarUnbox(int a, int b)
+        {
+            object value = new NullableNode(a);
+            try { return ((int?)value).GetValueOrDefault(b); }
+            catch (InvalidCastException error) { return error.Message == "Unable to cast object of type 'Cilica.Fixtures.Execution.NullableNode' to type 'System.Nullable`1[System.Int32]'." ? b : unchecked(b + 1); }
+        }
         public static int UnsupportedText(int a, int b) { int? value = a; return value.ToString().Length; }
         public static int UnsupportedHash(int a, int b) { int? value = a; return value.GetHashCode(); }
         public static int UnsupportedEquality(int a, int b) { int? value = a; return value.Equals(null) ? a : b; }

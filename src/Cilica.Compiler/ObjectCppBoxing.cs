@@ -15,7 +15,7 @@ internal static class ObjectCppBoxing
 
     internal static void Append(StringBuilder text, ImmutableArray<ValueTypePlan> plans, string objectSymbol, Func<ObjectTypeId, string> predicate)
     {
-        text.Append("// Cilica boxed-payload-runtime-v2: private typed payloads, including admitted Int64 slots.\n");
+        text.Append("// Cilica boxed-payload-runtime-v3: private typed payloads, including admitted Int64 slots.\n");
         foreach (var plan in plans)
         {
             string type = Symbol(plan.Type);
@@ -48,6 +48,15 @@ internal static class ObjectCppBoxing
                 .Append("_descriptor, ").Append(type).Append("_fields.data(), ").Append(N(indices.Length)).Append(", ").Append(type)
                 .Append("_accessors.data(), field_by_offset, 0, nullptr, nullptr, nullptr, ").Append(type).Append("_storage.data()};\n");
         }
+        text.Append("[[gnu::noinline]] static bool compatible_scalar_box(const Descriptor* expected, const Descriptor* actual) noexcept {\n");
+        foreach (var group in plans.Where(p => p.ScalarBox is not null).GroupBy(p => p.ScalarBox))
+        {
+            var members = group.ToArray();
+            if (members.Length < 2) continue;
+            text.Append("    if (").Append(string.Join(" || ", members.Select(p => "expected == &" + Symbol(p.Type) + "_descriptor"))).Append(") return ")
+                .Append(string.Join(" || ", members.Select(p => "actual == &" + Symbol(p.Type) + "_descriptor"))).Append(";\n");
+        }
+        text.Append("    (void)expected; (void)actual; return false;\n}\n");
         text.Append("[[gnu::noinline]] static bool known_box(const Descriptor* type) noexcept {\n");
         foreach (var plan in plans) text.Append("    if (type == &").Append(Symbol(plan.Type)).Append("_descriptor) return true;\n");
         text.Append("    return false;\n}\n")
@@ -62,11 +71,11 @@ enum class BoxStatus { complete, null_reference, wrong_type, invalid, allocation
 struct BoxResult { BoxStatus status; Object* value = nullptr; };
 // Descriptor and packet extents are compiler-owned. Only exact emitted descriptor
 // addresses are trusted; managed pointers are authenticated before dereference.
-[[maybe_unused, gnu::noinline]] static BoxResult unbox(Context& c, Object* value, const Descriptor* expected) noexcept {
+[[maybe_unused, gnu::noinline]] static BoxResult unbox(Context& c, Object* value, const Descriptor* expected, bool exact = false) noexcept {
     if (c.instance.marking) return {BoxStatus::busy};
     if (value == nullptr) return {BoxStatus::null_reference};
     if (!known_box(expected) || !traceable_reference(c.instance, value)) return {BoxStatus::invalid};
-    if (value->type != expected) return {BoxStatus::wrong_type};
+    if (value->type != expected && (exact || !compatible_scalar_box(expected, value->type))) return {BoxStatus::wrong_type};
     return {BoxStatus::complete, value};
 }
 [[gnu::noinline]] static bool valid_box_packet(Context& c, const Descriptor* type, const Argument* values, std::size_t count) noexcept {

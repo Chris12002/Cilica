@@ -10,12 +10,17 @@ namespace Cilica.Compiler;
 internal sealed class BoxedTypeRelations
 {
     private readonly Dictionary<ObjectTypeId, HashSet<ObjectTypeId>> _ancestors = [];
+    private readonly HashSet<ObjectTypeId> _interfaces;
+    private readonly bool _hasScalarBoxes;
     internal BoxedTypeRelations(ValueTypeCatalog values) : this(values.References, values.Types) { }
     internal BoxedTypeRelations(ObjectTypeCatalog catalog, IEnumerable<ValueTypeLayout> values)
     {
+        var layouts = values.ToArray();
+        _interfaces = catalog.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
+        _hasScalarBoxes = layouts.Any(t => t.ScalarBox is not null);
         var references = new ObjectTypeRelations(catalog);
         int work = 0;
-        foreach (var value in values)
+        foreach (var value in layouts)
         {
             var ancestors = new HashSet<ObjectTypeId> { catalog.ObjectBase };
             foreach (var contract in value.Interfaces)
@@ -32,8 +37,16 @@ internal sealed class BoxedTypeRelations
 
     internal void ValidateDispatch(IEnumerable<IrMethod> methods, ObjectInterfaceDispatchPlan? dispatch, ImmutableArray<ObjectVirtualDispatch> classes = default)
     {
+        var bodies = methods.ToArray();
+        // The bounded core does not yet declare every primitive's framework
+        // interface contract. Do not turn that omission into a false type test.
+        if (_hasScalarBoxes && (dispatch is not null && !dispatch.Declarations.IsEmpty
+            || bodies.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Any(v => v.Expression switch {
+                IrExpression.CastClass cast => _interfaces.Contains(cast.Target),
+                IrExpression.IsInstance test => _interfaces.Contains(test.Target), _ => false })))
+            throw new ArgumentException("Scalar box interface casts and dispatch require complete primitive/enum interface contracts before execution.");
         if (dispatch is null && classes.IsDefaultOrEmpty) return;
-        var bodies = methods.ToArray(); var proof = new BoxedUseProof(bodies);
+        var proof = new BoxedUseProof(bodies);
         var byId = bodies.ToDictionary(m => IrMethodId.From(m.Source));
         var classOwners = classes.IsDefaultOrEmpty ? [] : classes.Select(d => byId[d.Declaration].Parameters[0].Class!).ToHashSet();
         var owners = (dispatch?.Declarations.Select(d => d.Owner) ?? []).Concat(classOwners).Distinct().ToArray();

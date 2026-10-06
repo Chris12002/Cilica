@@ -348,8 +348,12 @@ public static class ValueScalarLowering
                             }
                             break;
                         case IrExpression.BoxValue boxed:
+                            var boxArguments = Arguments([boxed.Operand], true);
+                            if (plans[boxed.Type].ScalarBox is { } scalarBox
+                                && ScalarBoxing.Narrow(scalarBox) is { } narrowBox)
+                                boxArguments = [Define(IrType.Int32, value.ILOffset, new IrExpression.IntegerCast(narrowBox, boxArguments[0], false, false))];
                             ids.Add(Define(value.Type, value.ILOffset, new IrExpression.BoxScalars(boxed.Type,
-                                Arguments([boxed.Operand], true)), definition.Exceptional));
+                                boxArguments), definition.Exceptional));
                             break;
                         case IrExpression.UnboxValue or IrExpression.UnboxLocation:
                             bool borrow = value.Expression is IrExpression.UnboxLocation;
@@ -363,7 +367,11 @@ public static class ValueScalarLowering
                             {
                                 int location = Define(borrow ? expanded[i] : IrType.Location(expanded[i]), value.ILOffset,
                                     new IrExpression.AddressBoxSlot(boxType, owner, i), definition.Exceptional);
-                                ids.Add(borrow ? location : Define(expanded[i], value.ILOffset, new IrExpression.LoadLocation(location), definition.Exceptional));
+                                int loaded = borrow ? location : Define(expanded[i], value.ILOffset, new IrExpression.LoadLocation(location), definition.Exceptional);
+                                if (!borrow && plans[boxType].ScalarBox is { } scalarUnbox
+                                    && ScalarBoxing.Narrow(scalarUnbox) is { } narrowUnbox)
+                                    loaded = Define(IrType.Int32, value.ILOffset, new IrExpression.IntegerCast(narrowUnbox, loaded, false, false));
+                                ids.Add(loaded);
                             }
                             break;
                         case IrExpression.Call call when value.Type.Kind == IrTypeKind.Value:

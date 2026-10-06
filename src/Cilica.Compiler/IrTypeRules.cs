@@ -20,7 +20,7 @@ internal sealed class IrTypeRules
         if (catalog is null) return;
         _object = catalog.ObjectBase;
         _ancestors = new ObjectTypeRelations(catalog).Ancestors;
-        if (values is not null) foreach (var type in values.Types) _values.Add(ObjectTypeId.From(type.Source));
+        if (values is not null) foreach (var type in values.Types.Where(t => t.ScalarBox is null)) _values.Add(ObjectTypeId.From(type.Source));
     }
 
     internal bool Valid(IrType? type, bool storage) => type is not null && (type.Kind == IrTypeKind.ManagedLocation

@@ -18,6 +18,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     ImmutableDictionary<int, IrMethodId> Calls, ImmutableDictionary<int, ObjectFieldId> Fields,
     ImmutableDictionary<int, ObjectTypeId> TypeOperands)
 {
+    public ImmutableDictionary<int, PrimitiveTypeCode> ScalarBoxOperands { get; init; } = ImmutableDictionary<int, PrimitiveTypeCode>.Empty;
     public ImmutableHashSet<int> NullableUnboxOperands { get; init; } = ImmutableHashSet<int>.Empty;
     public ImmutableDictionary<int, RuntimeTypeToken> RuntimeTypeTokens { get; init; } = ImmutableDictionary<int, RuntimeTypeToken>.Empty;
     public ImmutableArray<IrExceptionRegion> ExceptionRegions { get; init; } = [];
@@ -129,6 +130,7 @@ public static partial class ValueProgramDiscovery
         private readonly Dictionary<(string Hash, int Token, IrMethodId? Caller), ResolvedMethod> _calls = [];
         private readonly Dictionary<(string Hash, int Token, IrMethodId? Caller), ResolvedField> _fields = [];
         private readonly Dictionary<(string Hash, int Token), ResolvedType> _types = [];
+        private readonly Dictionary<ObjectTypeId, PrimitiveTypeCode> _scalarBoxes = [];
         private int _bytes, _instructions, _parameters, _locals, _arguments, _snapshotFields;
         private ObjectTypeId? _integerArray, _integer, _object, _valueBase;
 
@@ -151,6 +153,7 @@ public static partial class ValueProgramDiscovery
             {
                 while (_pending.TryDequeue(out var work))
                 {
+                    var scalarBoxOperands = ImmutableDictionary.CreateBuilder<int, PrimitiveTypeCode>();
                     var nullableUnboxOperands = ImmutableHashSet.CreateBuilder<int>();
                     var runtimeTokens = ImmutableDictionary.CreateBuilder<int, RuntimeTypeToken>();
                     var calls = ImmutableDictionary.CreateBuilder<int, IrMethodId>();
@@ -187,6 +190,9 @@ public static partial class ValueProgramDiscovery
                         else if (exceptions && instruction.OpCode is ("isinst" or "castclass"))
                         {
                             var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
+                            if (integers64 && (OperandSignature(signature, work, offset) is TypeSignature.Primitive primitive && ScalarBoxing.Supported(primitive.Code)
+                                || EnumScalar(signature, work, offset) || IsNullable(signature, work, offset)))
+                                Fail(work, "Scalar and nullable type tests require nominal boxed type-test lowering before execution.", offset);
                             types.Add(offset, ReferenceOperand(signature, work, offset));
                         }
                         else if (arrays && instruction.OpCode == "newarr")
@@ -358,8 +364,6 @@ public static partial class ValueProgramDiscovery
                                 }
                                 if (integers64 && boxing)
                                 {
-                                    if (EnumScalar(signature, work, offset))
-                                        Fail(work, "Enum boxing requires preserved nominal runtime descriptors before execution.", offset);
                                     var normalized = OperandSignature(signature, work, offset);
                                     bool referenceOperand = normalized is TypeSignature.Primitive { Code: PrimitiveTypeCode.Object or PrimitiveTypeCode.String }
                                         or TypeSignature.Named { Kind: SignatureTypeKind.Class }
@@ -371,6 +375,13 @@ public static partial class ValueProgramDiscovery
                                         referenceBoxes.Add(offset, Storage(normalized, work, offset));
                                         continue;
                                     }
+                                }
+                                if (integers64 && ScalarBoxOperand(signature, work, offset) is { } scalarOperand)
+                                {
+                                    if (instruction.OpCode == "unbox") Fail(work, "Raw scalar unbox requires width-aware borrowed locations; use supported unbox.any copies.", offset);
+                                    types.Add(offset, scalarOperand.Type); scalarBoxOperands.Add(offset, scalarOperand.Code);
+                                    if (instruction.OpCode == "unbox.any" && NullableUnboxHelper(work, signature, offset)) nullableUnboxOperands.Add(offset);
+                                    continue;
                                 }
                                 if (instruction.OpCode == "unbox.any" && NullableUnboxHelper(work, signature, offset))
                                     nullableUnboxOperands.Add(offset);
@@ -394,7 +405,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {
@@ -409,7 +420,7 @@ public static partial class ValueProgramDiscovery
                     } : null, integers64, [.. _vectors], (type, input) => {
                         var id = ObjectModelBuilder.Id(type); _knownTypes.TryAdd(id, type);
                         if (_snapshots.TryAdd(id, input)) _snapshotFields += input.Fields.Length;
-                    }) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
+                    }, _scalarBoxes) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                     [.. _references.Values.Select(t => t.Definition)], _snapshots);
                 catalog = built.Catalog ?? throw new Failure(built.Diagnostics[0]);
                 catalog = catalog with { References = catalog.References with { Statics = [.. _staticFields.Values.OrderBy(f => f.Id.Owner.ContentHash).ThenBy(f => f.Id.Owner.Token).ThenBy(f => f.Id.Owner.Specialization).ThenBy(f => f.Id.Token)] } };

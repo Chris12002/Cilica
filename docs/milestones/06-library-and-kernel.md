@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a and AC1b.1 complete; remaining AC1b and AC2–AC10 planned.
+Recorded 2026-10-06. Status: approved delivery plan; AC0, AC1a, AC1b.1 and AC1b.2 complete; remaining AC1b and AC2–AC10 planned.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1668,7 +1668,7 @@ slice by default; ongoing milestone work can continue on its own branch.
 
 ### Delivery slices and acceptance gates
 
-AC0, AC1a and the AC1b.1 sub-slice are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
+AC0, AC1a and AC1b.1–AC1b.2 are complete as recorded below; the remaining slices are planned. Split a slice into coherent reviewable commits
 when its implementation crosses more than one semantic boundary. Library APIs
 are selected from the declaration ledger and actual compiled closure, not a
 blanket promise to implement the entire corresponding .NET class.
@@ -1958,3 +1958,44 @@ Local logs and toolchain evidence are preserved under ignored
 work, services or additional agents were used. Main remains at 48ecf14; the
 independent milestone branch was inspected through e6dfa31 (Apple packaging) and
 was not merged into this compatibility slice.
+
+
+### AC1b.2 nominal scalar boxing outcome
+
+Implemented [ADR AC0004](../decisions/AC0004-nominal-scalar-boxes.md): box-only
+nominal descriptors for selected Boolean/Char, signed/unsigned 8/16/32/64-bit
+integers, and existing public nongeneric Int32 enums. One runtime-owned carrier
+slot reuses the normal box allocator, packets, exact roots and checked copies.
+It is not a managed field or inline struct layout. Six exact small-primitive
+reference mappings were added to the test binding plan; no grants or public ABI
+were added. Native profile v39 and the ADR record the related IR versions.
+
+A local .NET compatibility matrix established that ordinary unbox admits Int32
+and Int32 enums interchangeably, whereas nullable unbox requires exact underlying
+nominal identity. Native GetType preserves the original type. Actual-descriptor
+field access avoids aliasing between C++ box structs. Narrow normalization is
+verified even for authored SByte box IL without a preceding conversion.
+
+Review identified incomplete primitive interface declarations in the bounded core.
+Scalar-box closures with interface casts/tests or interface dispatch now diagnose
+conservatively rather than return an incorrect type-test result. Scalar/nullable
+isinst/castclass, raw scalar/nullable unbox, nonpublic/non-Int32 enums and broader
+primitive APIs remain outside this slice. Next AC1b work is the required boxed
+type-test/borrow/interface forms, or proof that a deferred form is absent from the
+accepted replay closure. Nullable keys remain AC3; AC1b is still in progress.
+
+Validation passed: 18 scalar probes give 5,292 repeated .NET/native comparisons,
+and 31 nullable probes give 9,114, at O0/O2 under ASan/UBSan and forced collection.
+Heap-budget/recovery tests remain green. 146 focused layout, core admission,
+boxing, exception/embedding, rejection and public-ledger regression checks pass.
+An initial direct Byte probe exposed the missing exact reference mapping; that
+was added. One larger nullable compile timed out at 30 seconds; batches of at most
+16 probes passed without increasing timeouts or removing coverage. Successful
+native bundles were not rerun merely for profile labels or diagnostic-only gates.
+
+Evidence is preserved under ignored `artifacts/alchemy-scalar-boxing/validation/`
+in the primary checkout. No private Alchemy probes were rerun; the AC1a engine
+blockers and historical audit inputs remain unchanged. No services, hosted CI,
+pushes or additional agents were used. Main remains 48ecf14; the independent
+milestone branch was inspected through 5fe186d (Swift ownership adapter) and was
+not merged into this slice.

@@ -55,6 +55,8 @@ public static class ValueLayoutPlanner
             Require(interfaceEdges <= ObjectDispatchLimits.MaximumTargets, "aggregate value interface edge limit exceeded.");
             Require(!type.Fields.IsDefault && type.Fields.Length <= ObjectModelLimits.MaximumFields - fields,
                 "combined field limit exceeded or fields missing.");
+            Require(type.ScalarBox is null || catalog.References.Integer64 && ScalarBoxing.Supported(type.ScalarBox.Value)
+                && type.Fields.IsEmpty && id.Specialization.Length == 0, "scalar box descriptors need one runtime-owned supported carrier and no managed fields/specialization.");
             fields += type.Fields.Length;
             int previous = 0;
             foreach (var field in type.Fields)
@@ -78,17 +80,17 @@ public static class ValueLayoutPlanner
         foreach (var (id, type) in types)
         {
             var nested = type.Fields.Select(f => f.Storage).OfType<ObjectStorage.Value>().Select(v => v.Type).ToHashSet();
-            Require(nested.All(types.ContainsKey), "inline field target is outside the value catalog.");
+            Require(nested.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "inline field target is outside the value catalog.");
             children.Add(id, nested);
             foreach (var child in nested) parents[child].Add(id);
         }
         var included = new HashSet<ObjectTypeId>();
         var heapValues = catalog.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>().Select(v => v.Type).ToArray();
-        Require(heapValues.All(types.ContainsKey), "heap inline field target is outside the value catalog.");
+        Require(heapValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "heap inline field target is outside the value catalog.");
         var arrayValues = catalog.References.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).Select(a => a.ArrayElement!.Type!).ToArray();
-        Require(arrayValues.All(types.ContainsKey), "array element is outside the value catalog.");
+        Require(arrayValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "array element is outside the value catalog.");
         var argumentValues = catalog.References.Interfaces.SelectMany(i => i.Arguments).Where(a => a.Value is not null).Select(a => a.Value!).ToArray();
-        Require(argumentValues.All(types.ContainsKey), "interface argument is outside the value catalog.");
+        Require(argumentValues.All(n => types.ContainsKey(n) && types[n].ScalarBox is null), "interface argument is outside the value catalog.");
         var pending = new Stack<ObjectTypeId>(catalog.Roots.Concat(heapValues).Concat(arrayValues).Concat(argumentValues));
         while (pending.TryPop(out var id))
             if (included.Add(id)) foreach (var child in children[id]) pending.Push(child);
@@ -105,6 +107,12 @@ public static class ValueLayoutPlanner
         {
             int expanded = 0, depth = 0;
             var slots = ImmutableArray.CreateBuilder<ValueFieldPath>();
+            if (types[id].ScalarBox is { } scalar)
+            {
+                Require(expandedTotal < ValueTypeLimits.MaximumExpandedFields, "scalar box slot limit exceeded.");
+                ++expandedTotal; expanded = 1; depth = 1;
+                slots.Add(new([], ScalarBoxing.Storage(scalar)));
+            }
             foreach (var field in types[id].Fields)
             {
                 var child = field.Storage is ObjectStorage.Value nested ? plans[nested.Type] : null;
@@ -128,7 +136,7 @@ public static class ValueLayoutPlanner
                     slots.Add(new([field.Id, .. slot.Fields], slot.Storage));
                 }
             }
-            plans.Add(id, new(id, slots.ToImmutable(), expanded, depth));
+            plans.Add(id, new(id, slots.ToImmutable(), expanded, depth) { ScalarBox = types[id].ScalarBox });
             foreach (var parent in parents[id]) if (--outstanding[parent] == 0) ready.Enqueue(parent);
         }
         Require(plans.Count == types.Count, "recursive inline containment has no finite layout.");
