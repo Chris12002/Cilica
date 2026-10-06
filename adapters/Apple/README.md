@@ -92,10 +92,61 @@ Close clears all holds and leases. Calls after close report `Failure.closed` and
 resume cannot reopen the runtime. Pausing preserves memory only: it provides no
 disk checkpoint or guarantee that the OS will keep a background process alive.
 
-The host must order its lifecycle transitions explicitly. This adapter does not
-observe UIKit/scene notifications or acquire background execution time. The scoped
-policy has simulator regression evidence; real application suspension/resumption
-and device execution remain separate validation gates.
+The host must order its lifecycle transitions explicitly. The optional scene host
+below supplies that ordering for forwarded UIKit callbacks. Neither owner acquires
+background execution time or guarantees OS suspension/resumption behavior.
+
+## UIKit scene host
+
+Add `--scene-host` when generating to include `<Module>SceneHost`. The default
+runtime source remains independent of UIKit. Each scene host creates and owns one
+runtime; use a new host when a scene reconnects after disconnection. It holds a
+weak scene reference and its own scoped pause token. It does not take over the
+app's scene delegate or register global notification observers.
+
+In your `@MainActor` scene delegate, open the host from `willConnectTo` and keep
+errors visible to your application. Store the returned host, then immediately call
+`refreshSceneState()` **before any further await**; this samples events that may
+have occurred while opening/storing it. An unattached scene closes the host.
+
+```swift
+let opened = try await CilicaEngineSceneHost.open(for: scene)
+self.host = opened
+opened.refreshSceneState()
+try await opened.synchronize()
+```
+
+Forward these delegate methods synchronously to the stored host, passing the same
+scene: `sceneDidBecomeActive`, `sceneWillResignActive`, `sceneDidEnterBackground`
+and `sceneDidDisconnect`. Do not wrap forwarding in separate Tasks. Foreign-scene
+callbacks are ignored. The [test app](../../tests/Apple/SceneApp.swift.in) shows
+the wiring and error handling in a minimal UIKit app.
+
+Call `host.invoke`, `host.importUTF16` (when supported) and `host.clone` for UI
+commands. Resign/background closes this main-thread admission gate immediately,
+then one reconciliation task pauses the worker. Rapid events update the desired
+state without accumulating per-event tasks or holds. A stale resume completion
+cannot reopen UI admission. The active callback requests resume; `isActive`
+becomes true only after reconciliation. Commands during transition throw `paused`
+and are not replayed. Already-admitted operations can finish or encounter the
+runtime pause; native calls are never forcibly interrupted.
+
+`host.runtime` is available for copies, fault inspection, release and independent
+pause holds. Do not bypass host admission by invoking/importing/cloning through
+that property or close the owned runtime directly. A separate runtime pause still
+rejects commands even when the scene host's own `isActive` is true. Observe
+`transitionFailure` or await `synchronize()` to surface a transition failure;
+failure keeps UI admission closed. Explicit `host.close()` can clean up after a
+failed transition. Disconnect immediately blocks commands and requests runtime
+destruction; `synchronize()`/`close()` can await completion. Subsequent active
+callbacks cannot reopen it. Final destruction remains fallback cleanup only.
+
+The test app has real iOS 26.1 simulator foreground/background/foreground callback
+evidence in normal/forced collection modes. Event-storm, pause-failure and forwarded
+disconnect checks are synthetic within that app. Physical devices, multiple
+simultaneous windows, actual OS suspension/process eviction, background deadlines
+and disk restoration remain unverified. This host does not supply game commands,
+an Expo module or a complete application SDK.
 
 ## Copied text and failures
 
@@ -114,7 +165,7 @@ fault. Release the exception lease when finished. Inner exceptions and stack
 traces remain unsupported by the underlying ABI.
 
 This is a bounded runtime adapter, not a complete application command API, UI,
-Expo module or public mobile SDK. Physical-device and background/resume behavior
+Expo module or public mobile SDK. Physical-device and OS suspension/resume behavior
 remain unverified. Simulator evidence covers iOS 26.1; the package's iOS 17 build
 floor remains a setting rather than an earlier-OS execution guarantee.
 
@@ -151,3 +202,7 @@ For another consumer, pass `--adapter --consumer path/to/Consumer.swift.in` to
 [check_package.py](../../examples/Apple/check_package.py); module/prefix placeholders
 are replaced as in the lifecycle template. Native libraries can be reused when
 only the Swift adapter/consumer changes.
+
+The separate opt-in [UIKit check](../../tests/Apple/README.md) temporarily installs
+two uniquely identified apps, switches their foreground status and uninstalls
+both. It is never run by the ordinary CLI consumer or default .NET tests.

@@ -1,0 +1,111 @@
+import UIKit
+
+// One owner per scene. Forward delegate callbacks synchronously on MainActor.
+@MainActor public final class @MODULE@SceneHost {
+    public let runtime: @MODULE@Runtime
+    public private(set) var isActive = false
+    public private(set) var isClosed = false
+    public private(set) var transitionFailure: Error?
+    private weak var scene: UIScene?
+    private var requestedActive = false
+    private var closing = false
+    private var hold: @MODULE@Runtime.Pause?
+    private var transition: Task<Void, Never>?
+
+    private init(scene: UIScene, runtime: @MODULE@Runtime, hold: @MODULE@Runtime.Pause) {
+        self.scene = scene; self.runtime = runtime; self.hold = hold
+    }
+    public static func open(for scene: UIScene, options: @MODULE@Runtime.Options = .init()) async throws -> @MODULE@SceneHost {
+        let runtime = try await @MODULE@Runtime.open(options: options)
+        let hold: @MODULE@Runtime.Pause
+        do { hold = try await runtime.pause() }
+        catch { try? await runtime.close(); throw error }
+        let host = @MODULE@SceneHost(scene: scene, runtime: runtime, hold: hold)
+        // Sample after both awaits: callbacks may have occurred during startup.
+        host.refreshSceneState()
+        return host
+    }
+    // Call immediately after storing an asynchronously opened host in the scene
+    // delegate, covering callbacks that arrived before that assignment.
+    public func refreshSceneState() {
+        guard let scene, scene.activationState != .unattached else { requestClose(); return }
+        setActive(scene.activationState == .foregroundActive)
+    }
+    public func sceneDidBecomeActive(_ scene: UIScene) {
+        if scene === self.scene { setActive(true) }
+    }
+    public func sceneWillResignActive(_ scene: UIScene) {
+        if scene === self.scene { setActive(false) }
+    }
+    public func sceneDidEnterBackground(_ scene: UIScene) {
+        if scene === self.scene { setActive(false) }
+    }
+    public func sceneDidDisconnect(_ scene: UIScene) {
+        if scene === self.scene { requestClose() }
+    }
+    private func setActive(_ active: Bool) {
+        guard !closing, transitionFailure == nil, requestedActive != active else { return }
+        requestedActive = active
+        isActive = false
+        schedule()
+    }
+    private func schedule() {
+        guard transition == nil else { return }
+        transition = Task {
+            await reconcile()
+            transition = nil
+        }
+    }
+    private func reconcile() async {
+        do {
+            while true {
+                if closing {
+                    try await runtime.close()
+                    hold = nil; isClosed = true
+                    return
+                }
+                if requestedActive {
+                    if let held = hold { try await runtime.resume(held); hold = nil }
+                    // Never open UI admission from a stale resume completion.
+                    if closing || !requestedActive { continue }
+                    isActive = true
+                    return
+                }
+                if hold == nil { hold = try await runtime.pause() }
+                if closing || requestedActive { continue }
+                return
+            }
+        } catch {
+            isActive = false
+            transitionFailure = error
+        }
+    }
+    // A barrier for tests/host coordination; this does not reserve admission.
+    public func synchronize() async throws {
+        while let pending = transition { await pending.value }
+        if let failure = transitionFailure { throw failure }
+    }
+    private func requestClose() {
+        guard !isClosed else { return }
+        closing = true; isActive = false; transitionFailure = nil
+        schedule()
+    }
+    public func close() async throws {
+        requestClose()
+        try await synchronize()
+    }
+    private func requireAdmission() throws {
+        if closing || isClosed { throw @MODULE@Runtime.Failure.closed }
+        if let failure = transitionFailure { throw failure }
+        if !isActive { throw @MODULE@Runtime.Failure.paused }
+    }
+    public func invoke(_ export: UInt32, arguments: [@MODULE@Runtime.Value] = [], captureException: Bool = false) async throws -> @MODULE@Runtime.Outcome {
+        try requireAdmission()
+        return try await runtime.invoke(export, arguments: arguments, captureException: captureException)
+    }
+    public func clone(_ handle: @MODULE@Runtime.Handle) async throws -> @MODULE@Runtime.Handle {
+        try requireAdmission()
+        return try await runtime.clone(handle)
+    }
+@HOST_STRING_METHODS@
+}

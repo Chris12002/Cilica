@@ -15,8 +15,11 @@ def main():
     parser.add_argument("--output", type=Path, required=True, help="new smoke build directory")
     parser.add_argument("--simulator", help="existing booted simulator UUID; omit for build-only validation")
     parser.add_argument("--adapter", action="store_true", help="generate and compile the serial Swift runtime owner")
+    parser.add_argument("--scene-host", action="store_true", help="include UIKit scene lifecycle integration (requires --adapter)")
     parser.add_argument("--consumer", type=Path, help="custom Swift consumer template (default: lifecycle smoke)")
     args = parser.parse_args()
+    if args.scene_host and not args.adapter:
+        parser.error("--scene-host requires --adapter")
     package = args.package.resolve(strict=True)
     receipt = json.loads((package / "build-receipt.json").read_bytes())
     module = receipt["module"]
@@ -49,6 +52,8 @@ def main():
         adapter = output / "Runtime.swift"
         generator = Path(__file__).resolve().parents[2] / "adapters" / "Apple" / "generate.py"
         command = [sys.executable, "-B", str(generator), "--package", str(package), "--output", str(adapter)]
+        if args.scene_host:
+            command.append("--scene-host")
         commands.append(command)
         subprocess.run(command, check=True, timeout=30)
         sources.append(str(adapter))

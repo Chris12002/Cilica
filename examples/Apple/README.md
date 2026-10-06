@@ -40,6 +40,9 @@ Add `--adapter` to generate and compile the
 another Swift consumer template instead of the lifecycle smoke. The same module
 and symbol-prefix placeholders are replaced. The public session regression uses
 `tests/Apple/Session.swift.in`; these options reuse the existing native package.
+Add `--scene-host` with `--adapter` to also include the UIKit scene owner. The
+separate [UIKit app check](../../tests/Apple/README.md) uses a build-only invocation
+here, followed by its own bounded install/launch/cleanup harness.
 
 Recorded local evidence: Xcode 26.1.1, SDK 26.1, Apple Swift 6.2.1, arm64 iPhone 17
 Pro simulator on iOS 26.1 (23B86). The Swift lifecycle smoke passes. Separately, the private

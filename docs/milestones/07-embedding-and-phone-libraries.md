@@ -14,7 +14,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
-| 7d | iOS library and native adapter | In progress: pinned XCFramework, generated Swift runtime owner and scoped admission pauses; simulator kernel/concurrency/pause checks pass. Full application adapter, UI lifecycle and physical-device evidence remain open |
+| 7d | iOS library and native adapter | In progress: pinned XCFramework, Swift runtime owner, scoped pauses and UIKit scene host; simulator kernel/concurrency and real foreground/background checks pass. Full application commands, OS suspension and physical-device evidence remain open |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
 
@@ -388,6 +388,32 @@ Local main remains an ancestor and the remote advertised no branch heads.
 No hosted work or push ran. This is the host admission policy; UIKit event wiring,
 real application suspension/resumption, persistence and physical-device execution
 remain open.
+
+## Slice 7d.4 outcome
+
+[ADR 0189](../decisions/0189-uikit-scene-host.md) adds an opt-in generated UIKit
+scene host. Each host owns one runtime, receives synchronous scene-delegate
+forwarding and immediately blocks UI commands on inactivity. A single task
+reconciles the latest desired state with its scoped pause. Startup refresh covers
+missed callbacks, transition failures stay visible, and disconnect is terminal.
+Independent pause holds still apply; the C ABI/native implementation is unchanged.
+
+The public session fixture now has a [UIKit test app and bounded harness](../../tests/Apple/README.md).
+Real foreground/background/foreground callbacks pass on the existing arm64 iOS
+26.1 simulator, preserving session fields and exact UTF-16 across both normal and
+forced collection. Both Apple target consumers link with Swift 6 warnings-as-errors.
+Synthetic checks exercise rapid transitions, independent holds, pause-limit
+failure, cleanup and disconnect/activation ordering. No-string/no-record variants
+with capture off/on also type-check; three existing generator regressions pass.
+The harness removed both uniquely identified apps after each run and recorded
+cleanup results. Native packages were reused, with no native rebuild.
+
+Review covered startup/teardown races, actor isolation, immediate admission,
+failure handling, coalesced work and scene ownership. No unresolved defect remains.
+Private evidence is `artifacts/milestone7-uikit/evidence-7d4.json`. Main remains an
+ancestor; the remote advertised no branch heads. No hosted work or push ran.
+Background callbacks do not establish actual OS suspension, process restoration,
+deadline handling, simultaneous windows or physical-device execution.
 
 ## Remaining exit gates
 

@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 
 
-def generate(document, module):
+def generate(document, module, scene_host=False):
     if not re.fullmatch(r"[A-Z][A-Za-z0-9]{0,47}", module):
         raise ValueError("Invalid Swift module name")
     contract = document["contract"]
@@ -59,6 +59,13 @@ def generate(document, module):
         text = text.replace('let status: UInt32 = try inputs', 'let status: UInt32 = inputs').replace('            try fields.with', '            fields.with')
     if not capture and not records:
         text = text.replace('var exception: UInt64 = 0', 'let exception: UInt64 = 0')
+    if scene_host:
+        host = (root/'SceneHost.swift.in').read_text()
+        strings = '''    public func importUTF16(_ units: [UInt16]) async throws -> @MODULE@Runtime.Handle {
+        try requireAdmission()
+        return try await runtime.importUTF16(units)
+    }''' if contract.get('utf16StringTypeId', 0) else ''
+        text += '\n' + host.replace('@HOST_STRING_METHODS@', strings)
     return text.replace('@MODULE@', module).replace('@PREFIX@', 'cilica_' + name + '_abi_v3').replace('@APPLE_PREFIX@', 'cilica_' + name + '_apple')
 
 
@@ -66,13 +73,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--package', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--scene-host', action='store_true', help='include a UIKit scene lifecycle owner')
     args = parser.parse_args()
     package = args.package.resolve(strict=True)
     receipt = json.loads((package/'build-receipt.json').read_bytes())
     raw = (package/'contract.json').read_bytes()
     if hashlib.sha256(raw).hexdigest() != receipt['inputs']['manifest']:
         raise ValueError('Manifest differs from the package receipt')
-    source = generate(json.loads(raw), receipt['module'])
+    source = generate(json.loads(raw), receipt['module'], scene_host=args.scene_host)
     # Exclusive creation also protects an existing adapter from accidental replacement.
     with args.output.open('x') as output:
         output.write(source)

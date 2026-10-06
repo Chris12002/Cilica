@@ -1225,6 +1225,17 @@ FIFO order for previously submitted tasks. This preserves in-memory state withou
 adding C ABI state, UIKit observers, background execution or persistent checkpoints.
 Simulator policy checks do not establish real app suspension or device behavior.
 
+Milestone 7d.4 adds an opt-in generated UIKit scene host
+([ADR 0189](decisions/0189-uikit-scene-host.md)). Each host owns one runtime and
+receives explicit main-actor delegate forwarding. Inactivity immediately closes
+UI command admission; one task reconciles the latest scene state with its scoped
+worker pause. Disconnect closes the runtime and cannot be reversed by a stale
+activation. Startup refresh samples callbacks missed during asynchronous creation.
+Real iOS 26.1 simulator foreground/background/foreground checks preserve session
+state and exact text in normal/forced collection modes. This does not establish
+actual OS suspension, process restoration, multiple simultaneous scenes or device
+execution, and supplies no background execution entitlement or application commands.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

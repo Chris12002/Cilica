@@ -33,7 +33,9 @@ feedback before implementation. Explain consequential choices in plain language.
   concurrency/kernel checks pass; this is not a full application/Expo adapter.
   Slice 7d.3 adds scoped Swift pause barriers with bounded overlapping holds;
   simulator checks cover preserved state, admission races and cleanup while paused.
-  UIKit event wiring and actual app suspension/resumption remain unverified.
+  Slice 7d.4 adds an opt-in UIKit scene host with immediate UI admission gating
+  and one transition task. Real simulator foreground/background callbacks pass;
+  OS suspension/resumption, simultaneous windows and devices remain unverified.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

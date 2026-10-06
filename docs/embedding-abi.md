@@ -659,3 +659,16 @@ Swift host policies; no C ABI capability, native scheduler or persisted state is
 added. Previously queued Swift tasks have no FIFO guarantee, so callers must await
 the barrier. See [adapter usage](../adapters/Apple/README.md) for lifecycle ordering,
 cancellation and limits. UIKit events and actual OS suspension remain unverified.
+
+### UIKit scene ownership (7d.4)
+
+The optional generated scene host owns one Swift runtime and receives explicit
+UIKit delegate forwarding. Inactive callbacks synchronously block host commands;
+one task reconciles the latest desired state with the runtime's scoped pause.
+Already-admitted native work is not interrupted. Disconnect requests irreversible
+close; transition failures remain visible and keep host admission closed. Copies,
+fault inspection and lease release use the owned runtime directly. Invoke/import/
+clone must go through the host to receive its immediate UI gate. See
+[the forwarding contract](../adapters/Apple/README.md) for startup refresh and
+ordering. The C ABI is unchanged. Real simulator background/foreground callbacks
+are verified; OS suspension and device behavior are not.

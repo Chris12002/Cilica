@@ -120,6 +120,14 @@ under normal/forced collection. No UIKit notification wiring, OS suspension,
 background execution allowance or disk persistence is supplied. See
 [ADR 0188](decisions/0188-swift-admission-pauses.md).
 
+Milestone 7d.4 adds optional UIKit scene forwarding with a synchronous UI command
+gate and one task reconciling runtime pause/resume/close. Real foreground/background
+callbacks pass on the iOS 26.1 arm64 simulator with preserved session and UTF-16
+state under normal/forced collection. Rapid event, independent-hold, transition
+failure and forwarded-disconnect checks run synthetically within that app. Device
+consumers link only. OS suspension, eviction/restoration, background deadlines and
+simultaneous scenes are unverified. See [ADR 0189](decisions/0189-uikit-scene-host.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
