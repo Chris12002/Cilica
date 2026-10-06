@@ -13,7 +13,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | --- | --- | --- |
 | 7a | Persistent scalar C boundary | Implemented through `EmbeddingCppEmitter`; C11 consumer, shared-library lifecycle and concurrency tests on macOS ARM64 |
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
-| 7c | Values, retained objects and structured exceptions | Planned: exact UTF-16/64-bit transfer, caller/engine buffer ownership, retained-handle release, exception type/message/origin and stale/foreign-handle tests |
+| 7c | Values, retained objects and structured exceptions | In progress: retained handles/void, exact UTF-16/Integer64 transfer and captured type/message details implemented; structured application value copying remains planned |
 | 7d | iOS library and native adapter | Planned: pin local Apple SDK/targets, package a library/header, exercise repeated calls and create/destroy on a physical iOS device |
 | 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
@@ -95,10 +95,131 @@ unresolved defect remains in the admitted scope. Local main remains an ancestor;
 the read-only remote query still advertised no branch heads. No push or hosted
 work ran.
 
+## Slice 7c.1 outcome
+
+[ADR 0180](../decisions/0180-public-retained-object-handles.md) implements
+`embedding-object-handles-v3` through `EmbeddingObjectModuleEmitter`. Explicit
+contracts declare reference aliases and Int32/reference/void signatures in one
+validated closure. The C header exposes tagged values and opaque object leases,
+with retain/release sharing the existing runtime admission guard. No managed
+address crosses the boundary. V1/V2 remain available.
+
+Each reference result reserves one strong-handle slot before executing managed
+code, then publishes without an intervening managed allocation. This preserves
+returned roots and rejects quota exhaustion before application effects. Faults
+and null returns cancel reservations. Inputs are validated for kind, runtime
+ownership and assignability before execution. Alias/clone tokens retain the same
+object independently; releasing a token removes only that root. Destroy invalidates
+all leases from the instance. Handle quotas may be lowered from 1,024 to zero.
+
+The focused v1/v2/v3/private-tracing run passed 43 tests. Two additional ordinary
+object-emitter cases passed at O0/O2, bringing the checked scope to 45; the combined
+suite was not rerun after that test-only addition. Native C11 consumers and C++
+race harnesses use ASan/UBSan, disabled C++ exceptions/RTTI and the 2 KiB frame gate.
+Evidence covers .NET alias/mutation equivalence, base-type admission, stale/foreign/
+wrong-type handles, nulls, malformed tagged values, collection under small quotas,
+released cycles, reserved-slot fault cleanup and concurrent invoke/retain/release.
+
+Review covered generated native ownership, allocation safepoints, handle token
+exhaustion, admission/cleanup ordering, contract validation and the shared v2/v3
+lifecycle extraction. No unresolved defect was found in the admitted scope. Local
+main remains an ancestor and the read-only remote query advertised no branch heads.
+No push, hosted work or phone execution ran. String/value copying and richer
+exception transfer remain open before the iOS adapter.
+
+## Slice 7c.2 outcome
+
+[ADR 0181](../decisions/0181-host-owned-utf16-copying.md) adds optional UTF-16
+import/copy functions to v3. A declared alias must match the compiled closure's
+exact String type. Enabling it changes the contract fingerprint and adds capability
+bit 256. Disabled contracts preserve their old fingerprints and C layouts.
+
+Imports copy into managed immutable strings and return retained handles. Copies
+query required length or fill caller-owned buffers, preserving every UTF-16 unit,
+with no partial writes or terminators. Empty strings have nonzero handles; null
+handles are rejected for copying. Allocation/handle budgets and the existing
+admission guard cover imports, copies, invocation, release and destruction.
+
+The focused string/handle/module run passed 42 checks. The two subsequently added
+O0/O2 string race cases passed separately (44 checked cases total); the combined
+suite was not rerun after that test-only addition. C11 consumers exercise all
+65,536 code units against an authored .NET sequence, managed concatenation/length/
+indexing, source/output ownership, short buffers, aliases, stale/foreign/wrong-type
+handles, handle/heap quotas, reservation cancellation and collection pressure.
+Native race harnesses cover copy/import/release with forced collection and explicit
+BUSY rejection. Native builds use ASan/UBSan, no C++ exceptions/RTTI and the 2 KiB
+frame warning gate.
+
+Review covered descriptor checks, host/native ownership, publication without an
+intervening managed allocation, length overflow bounds, output/error ordering,
+cleanup and optional capability negotiation. No unresolved defect was found in
+this slice. The initial sandbox blocked MSBuild IPC; the bounded local tests passed
+with approved local execution. Local main remains an ancestor; the successful
+read-only remote query advertised no branch heads. No push or hosted work ran.
+Wide/value transfer and richer exceptions remain ahead of the iOS adapter.
+
+## Slice 7c.3 outcome
+
+[ADR 0182](../decisions/0182-exact-integer64-embedding.md) adds Integer64 export
+shapes to v3. The existing UInt64 payload carries every bit; mixed-width signatures
+are checked before lowering. Since the compiler uses one storage type for `long`
+and `ulong`, the boundary specifies bit patterns, while managed operations retain
+signed/unsigned arithmetic. Wide exports add capability bit 512 and their manifest
+signatures affect the hash. Existing records and contracts remain compatible.
+
+The focused wide/string/handle/module run passed 50 checks. Two additional O0/O2
+ordinary-object packet checks passed separately, bringing the validated scope to
+52; the combined suite was not rerun after that test-only addition. A C11 consumer
+supplies 2,704 .NET/native comparisons across eight operations and a 13-by-13 edge
+matrix, including values beyond 2^53, signed/unsigned limits, checked/wrapping
+addition, division and mixed-width shifts. Additional cases cover object fields,
+mixed handle/wide calls, void setters, zero-arity results, malformed tags before
+side effects, zero handle quotas and execution-arena failure. Native builds use
+ASan/UBSan, disabled C++ exceptions/RTTI and the 2 KiB frame gate.
+
+Review covered signature width before lowering, manifest/capability selection,
+full-width packet/result storage, unsigned bit preservation and error cleanup.
+No unresolved defect remains in this slice. Local main remains an ancestor; the
+read-only remote query advertised no branch heads. No push or hosted work ran.
+Structured value and richer exception transfer remain ahead of iOS packaging.
+
+## Slice 7c.4 outcome
+
+[ADR 0183](../decisions/0183-retained-exception-capture.md) adds optional exception
+capture and detail copying. A capturing call reserves one handle after validating
+inputs, reuses it for a returned object or escaping exception, and cancels it for
+scalar/void success. Fatal failures can return no managed exception object while
+still copying their original fault code/origin. The ordinary invoke API remains
+available with its previous quota behavior.
+
+A captured exception uses existing retain/release ownership. Type/message copying
+uses caller-owned UTF-16 buffers and returns declaration identity separately from
+throw origin. Length queries and short-buffer retries never reexecute the export.
+Lazy message formatting may collect or fail within the runtime's existing budgets;
+the handle roots its inputs and the original copied fault remains intact.
+
+The focused exception/wide/string/handle/module run passed 55 checks. Two new O0/O2
+copy/release/collection race cases passed separately (57 validated cases total);
+the combined suite was not rerun after that test-only addition. C11 consumers
+compare explicit/default/parameter-formatted messages, null throws and division
+faults with .NET, preserving embedded zero and surrogate units. Other checks cover
+caught/successful calls, source origins, aliases after release, later collection,
+wrong/stale/foreign handles, one-slot reservation reuse, zero quotas, fatal arena
+failure and failure during lazy message allocation. Native builds use ASan/UBSan,
+no C++ exceptions/RTTI and the 2 KiB frame warning gate.
+
+Review covered optional schema negotiation, input validation before reservation,
+root ownership during capture/formatting, no post-formatting allocation, descriptor
+validation, output/error order and cleanup. No unresolved defect remains in this
+slice. Local main remains an ancestor; the read-only remote query advertised no
+branch heads. No push, hosted work or phone execution ran. Structured application
+values remain before iOS packaging; inner traversal and stack traces are not
+provided by this bounded capture API.
+
 ## Remaining exit gates
 
-- Complete data/handle ownership and rich exception copying
-  before connecting the real kernel to a host adapter.
+- Complete structured application value transfer and compose the existing
+  ownership/error APIs with the real kernel before connecting a host adapter.
 - Pin target toolchains and build/package reproducibly using local tools first.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests
   alone do not close this milestone.

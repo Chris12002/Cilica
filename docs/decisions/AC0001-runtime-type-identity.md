@@ -1,4 +1,7 @@
-# ADR 0180: Bounded runtime type identity
+# ADR AC0001: Bounded runtime type identity
+
+Originally numbered 0180 on the compatibility branch; renamed during AC0 to
+avoid the independently allocated milestone 7 retained-handle decision.
 
 Accepted 2026-10-06 for the integer managed-object profile.
 

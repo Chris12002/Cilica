@@ -1511,7 +1511,7 @@ does not broaden milestone 6's completed kernel scope or milestone 7's ABI scope
 
 ### Runtime type identity follow-on (2026-10-06)
 
-ADR 0180 implements the first observed engine blocker: bounded typeof/GetType,
+ADR AC0001 implements the first observed engine blocker: bounded typeof/GetType,
 RuntimeTypeHandle copies/round trips, Type equality/hash and Type dictionary keys.
 The four public fixtures add 1,176 repeated .NET/native O0/O2 comparisons under
 ASan/UBSan and forced collection. Cache ownership, heap limits, missing grants,
@@ -1636,7 +1636,7 @@ hosted jobs, pushes or additional agents were used.
 
 ## Parallel Alchemy compatibility implementation plan
 
-Recorded 2026-10-06. Status: proposed delivery plan; implementation has not started.
+Recorded 2026-10-06. Status: approved delivery plan; AC0 integration is in progress.
 The completed type-identity slice and bounded audit above are the starting evidence.
 Use AC identifiers for this workstream so milestone numbering and existing exit
 gates remain intact. Milestone 6 stays complete for its measured kernel scope.
@@ -1774,3 +1774,20 @@ Extend the corpus deliberately with rejected/duplicate/restored cases and additi
 required commands; do not present corpus success as unrestricted C#/.NET support.
 Future general filters, async and multithreading retain their existing roadmap gates
 unless a concrete required closure promotes a narrowly scoped dependency earlier.
+
+
+### AC0 integration checkpoint
+
+Integrated milestone 7 through `5a18f9a` (retained exception capture), preserving
+its separate ongoing checkout. This supersedes the planning snapshot above;
+structured value copying and physical-device validation still remain open.
+The compiler changes merged without a code conflict. Reviewed the shared emitter,
+handle publication and Type-cache rooting together; 67 focused local runtime-type
+and embedding tests passed, including native O0/O2 sanitizer runs.
+
+The combined native emitter profile is `object-frames-native-v37`, distinguishing
+it from both parent branches' generated runtime text. The compatibility Type
+decision is now [AC0001](../decisions/AC0001-runtime-type-identity.md); milestone
+0180 retains its public-handle identity. Future compatibility decisions use the
+AC prefix to avoid collisions with the milestone decision sequence. AC0's public
+probe and ledger checkpoint follows separately.

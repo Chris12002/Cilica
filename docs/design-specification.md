@@ -1112,9 +1112,8 @@ Instances reuse the existing heap/static roots; each call has fresh execution
 frames. A bounded registry rejects overlapping calls and destruction. The
 [ABI contract](embedding-abi.md) records exact widths, ownership, status, version
 and resource rules. A separate C11 consumer links an emitted shared library and
-passes local O0/O2 sanitizer lifecycle tests. Shared multi-export dispatch,
-structured value/error transfer, external object handles and device evidence remain
-planned. [Milestone 7](milestones/07-embedding-and-phone-libraries.md) puts iOS first,
+passes local O0/O2 sanitizer lifecycle tests. Subsequent slices below extend this
+foundation; structured value/error copying and device evidence remain planned. [Milestone 7](milestones/07-embedding-and-phone-libraries.md) puts iOS first,
 then Android; neither phone platform is yet verified.
 
 Milestone 7b adds a v2 shared scalar export module
@@ -1123,14 +1122,56 @@ stable application IDs to public static Int32 methods in one validated closure.
 All exports share the instance's heap/statics; expected interface fingerprints,
 logical signature checks, capability bits and lowerable per-instance quotas are
 implemented. Separate packet helpers keep dispatch stack storage bounded at 64
-exports. V1 is preserved. Independent multi-root discovery, object/value transfer,
+exports. V1 is preserved. Independent multi-root discovery, value/string copying,
 structured exception copying and phone execution remain separate gates.
 
 Specify widths, calling conventions, buffer lifetime/ownership, structured
 errors, handle validity, thread entry, version negotiation and capabilities.
-Private native v14 already uses opaque tokens with nonreused generation identities
-for retained objects; integrating them into this versioned public API remains planned. Stale handles
-must be rejected, not converted to dangling pointers.
+Milestone 7c.1 integrates the existing strong-handle roots into a typed v3 API
+([ADR 0180](decisions/0180-public-retained-object-handles.md)). Exports admit Int32,
+reference handles and void results. Handles identify independent runtime-owned
+leases; zero means null. The shared admission guard covers invoke, retain, release
+and destroy. Inputs are checked for ownership and assignability before managed
+execution. Reference results reserve a handle slot before execution and publish
+without a managed allocation after return. Released/foreign tokens fail; cloning
+creates a distinct lease to the same object. V1/V2 remain available. Local C11 and
+O0/O2 sanitizer checks cover collection, aliases, cycles, quotas and release races;
+this does not establish phone support or a general value/exception SDK.
+
+Milestone 7c.2 adds optional UTF-16 import/copy to v3
+([ADR 0181](decisions/0181-host-owned-utf16-copying.md)). A declared alias must bind
+the closure's exact String type; enabling it changes the contract fingerprint and
+adds a capability bit. Imports copy host-owned UInt16 units into managed immutable
+storage and return retained handles. Copies query length or fill a caller-owned
+buffer without partial writes or a terminator. Embedded zero and lone surrogates
+are preserved; null handles remain distinct from empty strings. Both operations
+use the same instance admission and quotas. No additional external buffer-release
+API is needed. Local C11/O0/O2 sanitizer and race evidence does not establish phone
+support. Wide/value copying and richer exception transfer remain open.
+
+Milestone 7c.3 adds Integer64 export shapes and capability bit 512
+([ADR 0182](decisions/0182-exact-integer64-embedding.md)). The existing tagged record
+carries all 64 bits through native wide argument slots and bit-cast results. Logical
+widths are checked before lowering; no Int32 or struct coercion is implied. The IR
+uses the same storage type for signed and unsigned integers, so the public kind
+specifies bits rather than declaration signedness. Managed operations keep their
+signed/unsigned semantics. Local C11 O0/O2 comparisons cover wide limits, values
+above 2^53, overflow, division and mixed handle/scalar calls. Structured values,
+rich exception copying and phone execution remain open.
+
+Milestone 7c.4 adds optional managed-exception capture
+([ADR 0183](decisions/0183-retained-exception-capture.md)). `invoke_capture` returns
+the ordinary result plus a strong exception lease for supported escaping managed
+failures. One pre-execution reservation serves either a returned object or an
+exception; successful scalar/void calls cancel it. Fatal faults may have no
+managed object and still retain copied code/origin. `exception_copy` uses caller-
+owned UTF-16 buffers and a rooted existing formatter to copy type/message and
+source declaration identity without reexecuting an export. Formatting failures
+leave the original host fault report intact. Enabling capture changes the manifest
+hash and adds capability bit 1024; ordinary invoke behavior remains available.
+Local C11/O0/O2 sanitizer and race evidence covers ownership and quota failures.
+Structured application values, inner traversal, stack traces and phone execution
+remain outside this slice.
 
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
@@ -1274,8 +1315,8 @@ tracks the audited language/library gaps as AC0–AC10 delivery slices, separate
 from milestone numbering. It preserves milestone 6's bounded completion and lets
 milestone 7 embedding/device work continue against its supported kernel. The full
 offline Alchemy and browser scenarios join the native replay gate and then require
-their own target evidence. This is a proposed implementation plan, not a claim of
-additional compatibility or authorization to launch concurrent agent work.
+their own target evidence. AC0 integration has started; the plan is not a claim of additional compatibility
+or authorization to launch concurrent agent work.
 
 These are capability gates, not calendar estimates. Each leaves a demonstrable
 result even if later stages take longer. Public release is a future milestone,
@@ -1645,7 +1686,7 @@ and the bounded local reproduction recipe. JSON/gzip decoding and reflection in
 the authored oracle host are outside the advertised native compiler profile.
 
 
-The follow-on identity slice (ADR 0180) implements bounded closed reference-type
+The follow-on identity slice (ADR AC0001) implements bounded closed reference-type
 and vector metadata literals, instance `GetType`, copied traced RuntimeTypeHandle
 values, Type equality/hash and Type dictionary keys. Native runtime instances own
 lazy, heap-budgeted canonical Type caches; caches are precise permanent roots and

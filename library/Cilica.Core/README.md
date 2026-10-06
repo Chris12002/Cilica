@@ -142,4 +142,4 @@ with Type keys. Each runtime instance lazily roots one canonical Type object per
 closed identity. Type hashes are implementation-specific. Six exact grants bind
 the layouts and native helpers; ordinary equality/handle/key wrappers stay managed.
 General reflection, value/open/method/field tokens and arbitrary Object-slot
-virtual calls remain diagnostic. See ADR 0180 for receiver restrictions and evidence.
+virtual calls remain diagnostic. See ADR AC0001 for receiver restrictions and evidence.

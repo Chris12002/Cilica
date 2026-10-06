@@ -23,8 +23,8 @@ stale runtime-token rejection, guarded entry/destruction and copied fault origin
 Only Int32 parameters/results cross the boundary; each artifact has one export
 and a separate registry. Local macOS ARM64 C11/O0/O2 ASan/UBSan lifecycle and race
 tests pass. See the [ABI contract](embedding-abi.md) and [ADR 0178](decisions/0178-persistent-scalar-c-abi.md).
-No public object/value transfer or phone-device support is
-claimed. This boundary does not expand the managed semantics profile.
+This v1 boundary has no object/value transfer or phone-device support and does
+not expand the managed semantics profile.
 
 Milestone 7b adds `embedding-module-int32-v2`: 1..64 explicit public/static scalar
 exports from one validated closure share each runtime's state. Stable IDs,
@@ -33,6 +33,43 @@ heap/object/execution quotas have local C11/O0/O2 evidence. At 64 exports, the n
 2 KiB frame check and concurrent admission tests pass. V1 remains supported.
 Independent-root discovery and cross-program merging remain unimplemented;
 [ADR 0179](decisions/0179-shared-export-module.md) records the precise boundary.
+
+Milestone 7c.1 adds `embedding-object-handles-v3`: typed Int32/reference arguments,
+Int32/reference/void results and explicit strong-handle retain/release. Handles
+are runtime-owned nonreused leases; null is zero. Alias identity, type/owner checks,
+collection and cycle reclamation, preflight handle quotas, fault cleanup and
+release/invoke/retain races pass local C11 and O0/O2 ASan/UBSan checks. Both ordinary
+object and composed exception emitters have native evidence. V1/V2 stay compatible.
+String/64-bit/value copying, detailed exception messages, independent roots and
+phone support remain planned. See [ADR 0180](decisions/0180-public-retained-object-handles.md).
+
+Milestone 7c.2 extends v3 with optional UTF-16 capability bit 256. Exact String
+alias binding and enabled feature selection participate in contract negotiation;
+disabled contracts preserve their fingerprints. Import returns a retained managed
+string; copy writes only caller-owned buffers, with length queries and no partial
+writes. Local C11/O0/O2 ASan/UBSan evidence covers every UInt16 code unit, managed
+length/index/concatenation, lifetime/quotas, collection and copy/import/release
+races. No encoding normalization, interning or phone support is promised. See
+[ADR 0181](decisions/0181-host-owned-utf16-copying.md).
+
+Milestone 7c.3 extends v3 with `integer64` signatures and capability bit 512 when
+wide parameters/results are exported. The unchanged tagged record carries every
+bit; logical width is checked before lowering, while signedness remains a managed
+operation rule. C11 O0/O2 .NET/native comparisons cover 2,704 boundary outcomes,
+wide fields, mixed handle/scalar calls, malformed inputs and quota faults. Ordinary
+and composed packet paths have sanitizer evidence. Structured value copying,
+richer exception transfer and phone support remain planned. See
+[ADR 0182](decisions/0182-exact-integer64-embedding.md).
+
+Milestone 7c.4 adds optional exception capture (bit 1024) for composed managed-
+exception emission. An escaping managed exception can be retained independently
+of later calls and inspected through caller-owned UTF-16 type/message buffers.
+Declaration identity and original throw origin are distinct copied records. Local
+C11 .NET comparisons, O0/O2 ASan/UBSan lifetime/quota tests and copy/release/collection
+races pass. Fatal failures may have no capturable managed object. Message formatting
+can fail under resource limits; original copied faults remain available. Inner
+traversal, stack traces, structured values and phone support remain planned. See
+[ADR 0183](decisions/0183-retained-exception-capture.md).
 
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
@@ -1771,7 +1808,7 @@ limits were increased. Public ABI/mobile/browser, general filters and broader
 library/language compatibility remain outside this completion.
 
 
-## Bounded runtime type identity (ADR 0180)
+## Bounded runtime type identity (ADR AC0001)
 
 Current follow-on profiles are `object-layout-v14`, `object-operations-ir-v15`
 and `object-frames-native-v36`; other composed profiles retain their versions.

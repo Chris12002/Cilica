@@ -127,9 +127,18 @@ capability. It becomes accepted once its validation experiment has run.
 | --- | --- | --- |
 | [0178](0178-persistent-scalar-c-abi.md) | Persistent scalar C ABI foundation | Accepted; bounded Int32 C consumer/lifecycle contract; multi-export and device gates remain |
 | [0179](0179-shared-export-module.md) | Shared scalar export module | Accepted; explicit IDs/manifests, shared state and bounded quotas in one compiled closure |
+| [0180](0180-public-retained-object-handles.md) | Public retained object handles | Accepted; typed v3 exports, explicit leases, quota preflight and guarded release |
+| [0181](0181-host-owned-utf16-copying.md) | Host-owned UTF-16 copying | Accepted; optional v3 import/copy capability with exact code units and retained string handles |
+| [0182](0182-exact-integer64-embedding.md) | Exact Integer64 embedding | Accepted; all-bit wide transfer, typed signatures and capability negotiation |
+| [0183](0183-retained-exception-capture.md) | Retained exception capture | Accepted; optional v3 capture, bounded detail copying and preserved fault reports |
 
 ## Saved-game compiler follow-ons
 
+Compatibility decisions use an AC-prefixed sequence so parallel milestone work
+can continue allocating its numeric sequence. AC0001 was originally recorded as
+0180 on the compatibility branch and renamed during AC0 integration; its decision
+and historical evidence are unchanged.
+
 | ADR | Title | Status |
 | --- | --- | --- |
-| [0180](0180-runtime-type-identity.md) | Bounded runtime type identity | Accepted; canonical Type/handles and Type keys; next engine gap is Nullable<T> |
+| [AC0001](AC0001-runtime-type-identity.md) | Bounded runtime type identity | Accepted; canonical Type/handles and Type keys; next engine gap is Nullable<T> |

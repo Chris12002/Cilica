@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v36";
+    public const string Profile = "object-frames-native-v37";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -822,5 +822,8 @@ public static class ObjectCppEmitter
             : (type.ArrayElement.Kind == ObjectArrayElementKind.Value ? "_vector_value_" : "_vector_ref_") + TypeSymbol(type.ArrayElement.Type!));
     private static string DispatchSymbol(IrMethodId method) => CppEmitter.Symbol(method) + "_dispatch";
     private static string ContractSymbol(ObjectTypeId type) => TypeSymbol(type) + "_implements";
+    internal static string ReferencePredicate(ObjectTypeCatalog catalog, ObjectTypeId type) =>
+        catalog.Interfaces.Any(i => ObjectTypeId.From(i.Source) == type) ? ContractSymbol(type) : TypeSymbol(type) + "_accepts";
+    internal static string ReferenceDescriptor(ObjectTypeId type) => TypeSymbol(type) + "_descriptor";
     private static string FieldSymbol(ObjectFieldId field) => "f_" + field.Token.ToString("x8", CultureInfo.InvariantCulture) + (field.Component < 0 ? "" : "_c" + N(field.Component));
 }

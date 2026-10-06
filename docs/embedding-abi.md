@@ -1,8 +1,9 @@
-# Embedding ABI: versioned scalar profiles
+# Embedding ABI: versioned scalar and object profiles
 
-The current module profile is `embedding-module-int32-v2`, described below. It
-adds a checked export manifest and shared instances to the original v1 profile.
-Both are locally tested on macOS ARM64; mobile support remains unverified.
+The current module profile is `embedding-object-handles-v3`, described below.
+It adds typed retained object handles, exact Integer64 values, void results and optional UTF-16 copying
+to shared export modules, with optional retained exception capture.
+V1/V2 remain supported. Local evidence is macOS ARM64; mobile support is unverified.
 
 ## Persistent Int32 profile v1
 
@@ -220,3 +221,287 @@ if (status == CILICA_V2_OK) {
     (void)destroyed;
 }
 ```
+
+## Retained object module v3
+
+`EmbeddingObjectModuleEmitter.EmitProgram` accepts ordinary object IR;
+`EmitExceptions` accepts composed managed-exception IR. Both return the same
+header/source/manifest artifact shape as v2. The prefix is
+`cilica_<module-name>_abi_v3`. Contracts select 1..64 public ordinary static methods
+already in one validated closure; creating the runtime does not execute its root.
+
+`EmbeddingObjectContract` declares stable reference aliases (`Id`, `Name`, bound
+`ObjectTypeId`) and `EmbeddingObjectExport` signatures. Shapes are Int32, Integer64, Handle
+with a reference alias ID, or Void for results only. Every alias must be used;
+alias IDs, names and bound types are unique. Parameters/results must exactly match
+logical IR signatures before lowering. At invocation, reference arguments accept
+null and runtime types assignable to the declared parameter, including derived
+classes. Unsupported shapes produce compiler-library argument errors.
+
+The canonical manifest hashes ABI version 3, module/schema names, sorted reference
+aliases and sorted typed exports. Physical method/type bindings are listed
+separately and do not participate in that hash. As in v2, the application maintains
+the semantic meaning of its stable IDs/schema; a hash is not a behavioral proof.
+
+### C layout and ownership
+
+`cilica_v3_value` contains UInt32 `kind`, UInt32 `reserved`, UInt64 `payload`, in
+that order (16 bytes, payload offset 8 on the tested target). The kinds are:
+
+| Kind | Payload |
+| --- | --- |
+| `CILICA_V3_INT32` (1) | Raw Int32 bits in the low 32 bits, zero-extended; upper 32 bits must be zero |
+| `CILICA_V3_HANDLE` (2) | Opaque object lease token; zero denotes a null reference |
+| `CILICA_V3_INTEGER64` (3) | All 64 raw integer bits; managed operations determine signedness |
+| `CILICA_V3_VOID` (0) | Result only; payload zero |
+
+`reserved` must be zero. Negative Int32 inputs are encoded by casting to UInt32
+before widening; sign extension to UInt64 is rejected. Use the low 32 result bits
+as the Int32 representation. No native managed pointer is public.
+
+`cilica_v3_result` contains `value`, then UInt32 `fault_code`, `method_token`,
+`il_offset`, then `char image_hash[65]`. Use the emitted header and native layout;
+do not pack records or serialize padding. Successful calls clear fault fields.
+Execution failures zero the value and copy the fault code/origin, with the same
+origin and lifetime rules as v1/v2. The ordinary invoke result does not transfer exception types/messages; the optional
+capture API below provides them separately.
+
+Object results grant one strong lease. Returning the same object again or calling
+`retain_handle(runtime, token, &copy)` grants another, distinct token. Tokens
+identify leases, not object identity. Use managed exports for identity comparisons.
+`release_handle(runtime, token)` removes that lease; other handles and managed
+references can keep the object alive. Reclamation occurs at a later collection.
+Neither passing a token as an argument nor an invocation failure consumes it.
+Destroy invalidates every lease belonging to the runtime. Release or reuse of an
+already released token fails. Retain/release of zero succeed with a valid runtime;
+retaining zero writes zero and uses no slot.
+
+Tokens are scoped to the originating emitted module and runtime. Foreign-instance
+and stale tokens are rejected. Never transfer tokens between modules, library
+loads or processes; separate modules can issue the same numeric token. Handle and
+runtime tokens are different domains even when their numeric values happen to
+match. Hosts keep pointer arguments readable/writable and stable during the call;
+the adapter retains no host buffer pointer.
+
+### Calls, quotas and failure order
+
+The API exports version/capabilities/create/invoke/destroy as in v2, using v3 types,
+and adds `retain_handle` and `release_handle`. Base capabilities total 255: the six v2
+bits plus `CILICA_V3_CAP_HANDLES` (64) and `CILICA_V3_CAP_VOID` (128).
+`cilica_v3_config` has six UInt32 fields in order: `struct_size`, `flags`,
+`heap_bytes`, `object_limit`, `execution_bytes`, `handle_limit` (24 bytes).
+`CILICA_V3_CONFIG_INIT` gives the v2 budgets plus 1,024 handles. All budgets may
+only be lowered, including to zero. The private handle table is a bounded native
+allocation separate from the managed heap budget. There are at most 64 runtimes
+per emitted module, as in v2.
+
+Statuses 0..9 keep the v2 meanings. V3 adds `INVALID_HANDLE` (10) and
+`TYPE_MISMATCH` (11). Unknown export/arity/pointer checks precede runtime admission;
+then each argument is validated in order for tag/reserved/scalar encoding, handle
+ownership and reference assignability. These errors leave result buffers unchanged
+and do not execute managed code. Invoke, retain, release and destroy share one
+admission guard; overlapping operations return `BUSY`. Hosts must serialize/retry
+as appropriate, including a release that returned `BUSY`.
+
+After argument validation, each reference-returning call reserves a strong-handle
+slot **before managed execution**. Full quotas return `LIMIT` with outputs and
+application state unchanged, even when the method would eventually return null or
+throw. Native allocation failure during reservation returns `ALLOCATION_FAILED`.
+The adapter immediately publishes a nonnull returned object into its reserved
+slot without any managed allocation. Null results use HANDLE/zero and release the
+reservation. Faults and execution-arena failures also release it; ordinary managed
+side effects before an execution failure are not rolled back. Scalar/void exports
+require no output handle slot. Retain is independently quota-limited and leaves
+its output unchanged on failure.
+
+The existing unloading, C linkage and platform rules continue to apply. V3 has
+local C11/shared-library and native race evidence under O0/O2 sanitizers, including
+forced collection and both emitter paths. The optional string extension below adds
+host-buffer copying. Structured value transfer, inner-exception traversal, stack traces, iOS and Android
+device evidence remain planned. Optional exception type/message copying is described
+below.
+
+### Optional UTF-16 copying (7c.2)
+
+Set `EmbeddingObjectContract.Utf16StringTypeId` to the ID of a declared reference
+alias bound to the closure's exact intrinsic String type. That alias must be used
+by an export, as with other reference aliases. Its default value zero disables
+this capability. Enabled contracts add `utf16StringTypeId` to the canonical schema
+and hash, and advertise `CILICA_V3_CAP_UTF16` (256; total capabilities 511). Disabled
+contracts retain the original v3 schema/hash and omit these function declarations.
+Existing v3 record layouts are unchanged.
+
+The enabled header adds:
+
+```c
+uint32_t cilica_example_abi_v3_string_create(
+    uint64_t runtime, const uint16_t* units, uint32_t length, uint64_t* handle);
+uint32_t cilica_example_abi_v3_string_copy(
+    uint64_t runtime, uint64_t handle, uint16_t* units,
+    uint32_t capacity, uint32_t* length);
+```
+
+Replace `example` with the module name. The UInt16 elements are numeric UTF-16 code
+units in native memory, not encoded bytes, C `wchar_t`, Unicode scalar values or a
+serialized endianness. Every unit is preserved, including zero and unpaired
+surrogates. There is no normalization, validation of surrogate pairing or appended
+terminator. Counts always mean code units, not bytes or displayed characters.
+
+`string_create` copies `length` units before returning. For zero length, `units`
+may be null and the result is a nonnull empty string handle. No interning or
+identity relationship with managed string literals is promised. The host may
+release/reuse the source buffer after return. The returned handle follows the
+ordinary retain/release rules and may be passed to compatible exported methods.
+Passing a null managed string still uses handle zero through `invoke`; import
+never creates that null value.
+
+`string_copy` requires a live nonzero string handle. Zero/stale/foreign-instance
+handles return `INVALID_HANDLE`; a live non-string handle returns `TYPE_MISMATCH`.
+A null `units` pointer is permitted only with zero capacity. On success, it writes
+exactly the string's code units and stores their count in `*length`, leaving spare
+buffer capacity untouched. With insufficient capacity it returns
+`CILICA_V3_BUFFER_TOO_SMALL` (12), writes the required count in `*length`, and writes
+no text. This is the only failure that modifies an output. Other failures leave
+both outputs untouched.
+
+To query the length, pass null/zero for the buffer/capacity. Empty strings return
+`OK` and zero; nonempty strings return `BUFFER_TOO_SMALL` and their length. Allocate
+that many UInt16 elements and call again. Strings are immutable, so their required
+length remains stable while the lease remains live. The caller owns the copied
+buffer even after releasing the handle or destroying the runtime.
+
+All pointer arguments must address appropriately aligned readable/writable storage
+of the declared extent for the duration of a call. Keep output fields and buffers
+separate and non-overlapping. Source buffers must remain stable during import;
+output buffers must not be accessed concurrently while the runtime writes them.
+Neither function retains host pointers. Copies require no managed allocation or
+execution arena. They do not create new object leases.
+
+Both calls validate pointer shape before runtime admission. Import additionally
+rejects lengths above Int32.MaxValue with `LIMIT` before admission or input reads.
+It then reserves a handle slot before attempting managed allocation. Handle quota
+or token exhaustion returns `LIMIT`. Failure to allocate the string within the
+heap/object budget, or native allocation failure, returns `ALLOCATION_FAILED`.
+The existing allocator can collect and retry; cancellation releases the reserved
+slot on failure. The output handle stays unchanged on every failed import.
+
+Import/copy share the same guard as invoke/retain/release/destroy. `BUSY` leaves
+outputs unchanged. Hosts must keep the string lease until copying finishes and
+handle/retry concurrent calls explicitly. This extension does not add a separate
+buffer-release API or expose an internal managed pointer.
+
+### Exact Integer64 transfer (7c.3)
+
+Use `EmbeddingValueKind.Integer64` in an export shape for a logical Int64 parameter
+or result. It must have `ReferenceTypeId = 0`. The manifest spells the kind
+`integer64`; it participates in the existing contract hash. A module advertises
+`CILICA_V3_CAP_INTEGER64` (512) if any export uses this shape, independently of the
+UTF-16 feature. Base plus wide capabilities total 767; adding UTF-16 totals 1023.
+Internal wide operations alone do not advertise wide host transfer.
+
+The value tag is `CILICA_V3_INTEGER64` (3), `reserved` must be zero, and all 64 bits
+of `payload` are significant. No bit pattern is excluded. The compiler represents
+both managed `long` and `ulong` with this storage type: the manifest does not
+separately certify declaration signedness. Application contracts decide how hosts
+interpret the bits; managed operations preserve their signed/unsigned behavior.
+To send a signed C Int64 value, cast it to UInt64 (defined modulo 2^64). On the
+tested target, recover signed result bits with `memcpy` into Int64; in C++20 use
+`std::bit_cast<int64_t>`. Unsigned values use the payload directly. Preserve all
+bits in future JavaScript adapters using an exact representation such as BigInt;
+do not route wide values through a floating-point number.
+
+Width tags must match exactly, even when a numeric value would fit both widths.
+There is no implicit widening/truncation or handle-to-integer conversion. Invalid
+tags/reserved fields return `INVALID_ARGUMENT` before managed effects and leave
+outputs unchanged. Successful results use kind 3 with cleared fault fields;
+execution failure has the existing zero-value/copied-fault behavior. Checked
+arithmetic and division retain managed fault ordering. Wide values need no handle
+slots but remain subject to the execution budget. Structured/borrowed values still
+cannot be disguised as wide scalars after lowering.
+
+### Retained exception capture (7c.4)
+
+Set `EmbeddingObjectContract.CaptureExceptions = true` when using `EmitExceptions`.
+The validated closure must include intrinsic String support; the ordinary object
+emitter rejects this option. It adds `captureExceptions: true` to the hashed
+contract and `CILICA_V3_CAP_EXCEPTION_CAPTURE` (1024) to capabilities. It is independent
+of the optional string-import capability and does not require a public String alias.
+Disabled contracts retain their original hashes and declarations.
+
+Enabled headers add two functions, using the module's usual prefix:
+
+```c
+uint32_t cilica_example_abi_v3_invoke_capture(
+    uint64_t runtime, uint32_t export_id,
+    const cilica_v3_value* arguments, uint32_t count,
+    cilica_v3_result* result, uint64_t* exception);
+uint32_t cilica_example_abi_v3_exception_copy(
+    uint64_t runtime, uint64_t exception,
+    uint16_t* type_name, uint32_t type_capacity,
+    uint16_t* message, uint32_t message_capacity,
+    cilica_v3_exception_info* info);
+```
+
+The existing `invoke` remains available and does not reserve an exception lease.
+Use it when only the copied code/origin is needed. Capturing invocation requires
+both output pointers and uses the same export, count, runtime and argument checks.
+After argument validation it reserves one handle slot before running managed code.
+If no slot is available, it returns `LIMIT`, leaves both outputs unchanged and
+executes no managed code. Native handle-table allocation failure similarly returns
+`ALLOCATION_FAILED`. Reference-returning exports share this single reservation
+between their result and an exception; two slots are not required.
+
+On success, `*exception` is zero and an unused reservation is released. A successful
+reference result uses the reserved slot for its normal result handle. Caught
+exceptions do not escape as handles. On `EXECUTION_FAILED`, the existing result
+copies the fault code/origin and zeroes its value. If a valid escaping managed
+exception object is available, `*exception` receives a new strong lease to it.
+Fatal faults such as execution-budget exhaustion, or failure to materialize a
+managed exception, instead set it to zero. Capture does not allocate a replacement
+exception or change the original fault. Other return statuses leave both outputs
+unchanged. Output fields and argument buffers must not overlap.
+
+A captured handle obeys ordinary retain/release rules: it belongs to this runtime
+and module, survives later calls/collection, and must be released (or destroyed
+with the runtime). It can be cloned independently. It does not contain the throw
+origin; keep the copied `cilica_v3_result` alongside it. The same managed exception
+object can be thrown more than once, so object identity is not an event identifier.
+
+`exception_copy` accepts a live handle to a supported managed exception. Zero,
+released or foreign-instance tokens return `INVALID_HANDLE`; a live non-exception
+returns `TYPE_MISMATCH`. `info` is required. Each text pointer may be null only when
+its corresponding capacity is zero. Buffers and `info` must be aligned, writable,
+non-overlapping host storage and remain valid for the call. Capacities and lengths
+are counts of numeric UInt16 code units. No normalization or terminator is added;
+embedded zero and unpaired surrogates are preserved.
+
+`cilica_v3_exception_info` contains, in order, UInt32 `type_name_length`,
+`message_length`, `type_token`, followed by `char type_image_hash[65]`. This describes
+the exception's source TypeDef declaration in the compiled closure, not its throw
+site or a host CLR reflection object. The hash is copied and null-terminated. Use
+the emitted native C layout, not packed records or serialized padding.
+
+Pass null/zero for both text buffers to query sizes. If either buffer is too small,
+the call returns `BUFFER_TOO_SMALL`, fills `info`, and leaves **both** text buffers
+untouched. Allocate the required capacities and retry the copy with the same live
+lease. On success it copies both complete texts, leaves spare capacity untouched
+and fills `info`. Neither query nor retry reexecutes the failed export. The copied
+buffers and metadata remain valid after releasing the handle or destroying the
+runtime.
+
+Message formatting uses the existing bounded native exception formatter, including
+supported default, supplied, parameter and contextual messages. It may allocate
+and collect within the existing heap/object budgets. The incoming exception lease
+roots its payloads throughout formatting; the final copy has no intervening managed
+allocation. Allocation failure returns `ALLOCATION_FAILED`; another formatter or
+internal consistency failure returns `EXECUTION_FAILED`. Both leave `info` and
+text buffers unchanged. These are failures of detail retrieval, not replacements
+for the already copied invocation fault. Retain that original report even when no
+message can be copied. Querying may allocate or populate runtime message caches;
+it is not guaranteed allocation-free.
+
+Both functions use the existing admission guard. Overlap with invoke, copy,
+retain/release or destruction on the same runtime returns `BUSY`; hosts serialize
+or retry accordingly. This profile copies type and message, not stack traces or
+an inner-exception graph. Its evidence is local macOS ARM64, with no phone-device
+compatibility claim.
