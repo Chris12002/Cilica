@@ -1,0 +1,23 @@
+#include "cilica.h"
+#include <stdio.h>
+_Static_assert(sizeof(cilica_v3_value) == 16, "value layout");
+_Static_assert(sizeof(cilica_v3_config) == 24, "config layout");
+#define CHECK(condition) do { if (!(condition)) return __LINE__; } while (0)
+int main(void) {
+    CHECK(@PREFIX@_version() == 3);
+    for (int stress = 0; stress < 2; ++stress) {
+        for (int cycle = 0; cycle < 3; ++cycle) {
+            cilica_v3_config config = CILICA_V3_CONFIG_INIT;
+            config.flags = stress ? CILICA_V3_COLLECT_BEFORE_ALLOCATION : 0;
+            uint64_t runtime = 0;
+            CHECK(@PREFIX@_create(3, @HASH@, &config, &runtime) == CILICA_V3_OK);
+            CHECK(runtime != 0);
+            cilica_v3_result result = {0};
+            CHECK(@PREFIX@_invoke(runtime, UINT32_MAX, NULL, 0, &result) == CILICA_V3_UNKNOWN_EXPORT);
+            CHECK(@PREFIX@_destroy(runtime) == CILICA_V3_OK);
+            CHECK(@PREFIX@_destroy(runtime) == CILICA_V3_INVALID_RUNTIME);
+        }
+    }
+    puts("PASS Android C11 lifecycle: six create/destroy cycles");
+    return 0;
+}

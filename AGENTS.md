@@ -39,6 +39,9 @@ feedback before implementation. Explain consequential choices in plain language.
   Slice 7d.5 composes the unchanged kernel transcript with real UIKit transitions;
   repeated simulator cycles preserve state/text and public retained fault details.
   This remains a scripted scenario, not the application's full command adapter.
+  Slice 7e.1 adds pinned NDK r27b arm64/API-26 shared-library packaging with private
+  libc++, C-only exports, verified 16 KB ELF alignment and C11 cross-link checks.
+  Android execution, JNI/Kotlin adaptation and device validation remain unverified.
   The broader runtime/library and full public embedding SDK remain planned. Never describe
   planned features as implemented or claim untested language/platform compatibility.
 - Cilica owns an independent IL-to-C++ compiler and managed runtime. Do not

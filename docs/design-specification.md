@@ -1245,6 +1245,14 @@ mutations. Build receipts associate sources and linked binaries with the test ru
 This strengthens simulator composition evidence without changing the compiler,
 native runtime, C ABI or Swift owner, and does not complete physical-device gates.
 
+Milestone 7e.1 adds pinned Android shared-library packaging
+([ADR 0191](decisions/0191-android-shared-packaging.md)). NDK r27b targets arm64-v8a
+at API 26, with private static libc++ and an explicit C export list. ELF checks
+verify architecture, SONAME, dependencies and 16 KB load alignment; a separate C11
+consumer is cross-linked. Apple and Android share emitted-artifact validation.
+The public fixture and unchanged kernel both package successfully; no Android
+execution, JNI/Kotlin adaptation, APK alignment or device behavior is implied.
+
 Serialize calls on a dedicated runtime worker. Queue callbacks to the host;
 initially reject reentrant managed calls. In the async profile, the worker
 drains the instance's continuation queue, and timers ask the host to schedule

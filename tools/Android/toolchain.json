@@ -1,0 +1,9 @@
+{
+  "ndkRevision": "27.1.12297006",
+  "hostTag": "darwin-x86_64",
+  "clangVersion": "Android (12285214, +pgo, -bolt, +lto, -mlgo, based on r522817b) clang version 18.0.2 (https://android.googlesource.com/toolchain/llvm-project d8003a456d14a3deb8054cdaa529ffbf02d9b262)",
+  "abi": "arm64-v8a",
+  "triple": "aarch64-linux-android",
+  "minimumAPI": 26,
+  "pageAlignment": 16384
+}

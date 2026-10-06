@@ -15,7 +15,7 @@ and the offline app flow belong to milestone 8; browser parity is milestone 9.
 | 7b | Export manifest and shared instance dispatch | Implemented for exports from one validated closure: stable application IDs, signature/schema checks, capabilities and lowerable per-instance quotas; independent multi-root discovery remains planned |
 | 7c | Values, retained objects and structured exceptions | Bounded desktop checkpoint validated: retained handles/void, UTF-16/Integer64, numeric records and captured type/message details; scripted persistent real-kernel C ABI transcript parity. Reference-bearing records remain outside this checkpoint |
 | 7d | iOS library and native adapter | In progress: pinned XCFramework, Swift owner/pauses and UIKit host; real kernel now passes repeated simulator foreground/background cycles. Full application commands, OS suspension and physical-device evidence remain open |
-| 7e | Android library and native adapter | Planned: pin NDK/targets, package library/header, exercise repeated calls and create/destroy on a physical Android device |
+| 7e | Android library and native adapter | In progress: pinned arm64 NDK shared libraries with ELF/C11 link checks. Android execution, JNI/Kotlin adaptation and physical-device tests remain open |
 | 7f | Composed lifecycle review | Planned: native adapters run equivalent kernel transcripts, repeated teardown/recreation, fault recovery and retention/collection stress; record exact devices, OS and toolchains |
 
 ## Slice 7a boundary
@@ -442,13 +442,37 @@ Main remains an ancestor and the remote advertised no heads. No hosted work or
 push ran. This closes the gap between the separate kernel and UIKit simulator
 checks; it does not close physical-device or full application-command gates.
 
+## Slice 7e.1 outcome
+
+[ADR 0191](../decisions/0191-android-shared-packaging.md) adds an Android native
+package using the locally installed NDK r27b (`27.1.12297006`) and Clang 18.0.2.
+The bounded target is arm64-v8a/API 26. One shared library exposes only the emitted
+C declarations; statically linked libc++ stays private. The unchanged header,
+manifest and NDK notice accompany a receipt with hashes and build/inspection data.
+Apple and Android now share the existing emitted-artifact validator.
+
+The public session and unchanged real kernel cross-build and link separate C11
+consumers. Both pass the 2 KiB generated-frame gate, exact export checks (12 and
+10 symbols), system-only dependency checks and 16 KB ELF load alignment checks.
+Six targeted Python tests pass across Android and Apple packaging. Review covered
+ownership, visibility, tool pins, ELF permissions/alignment and provenance; no
+unresolved defect remains in the packaging scope. See
+[builder usage](../../tools/Android/README.md) and private
+`artifacts/milestone7-android/evidence-7e1.json`.
+
+This is cross-compilation evidence only. No Android code was executed and no
+adb/emulator, device installation, signing, downloads, hosted work or push ran.
+API 26 and 16 KB runtime compatibility are not established by ELF inspection.
+Main remains an ancestor and the remote advertised no heads. JNI/Kotlin ownership,
+Android repeated-call/transcript execution and physical devices remain open.
+
 ## Remaining exit gates
 
 - Define the actual mobile application command contract and connect its native
   host adapter, using the validated numeric/handle/string boundary where sufficient.
   Reference-bearing records require a separate design if that contract needs them.
-- Keep the Apple pin/package checks current; pin and validate the Android toolchain
-  when beginning that separate slice.
+- Keep both platform toolchain/package pins current; add Android execution and
+  JNI/Kotlin ownership checks before claiming that adapter complete.
 - Obtain physical iOS and Android device evidence. Desktop or simulator tests
   alone do not close this milestone.
 - Review rooting, resource bounds, C layout, error order and lifecycle races for

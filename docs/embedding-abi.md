@@ -5,6 +5,7 @@ It adds typed retained object handles, exact Integer64 values, void results and 
 to shared export modules, with optional retained exception capture and bounded numeric records.
 V1/V2 remain supported. Local evidence covers macOS ARM64 and the bounded iOS
 simulator checks below; physical-device support remains unverified.
+Android arm64 shared libraries now have cross-build/layout/link evidence only.
 
 ## Persistent Int32 profile v1
 
@@ -679,3 +680,18 @@ transcript and resumed fields agree; public retained snapshots/fault details als
 survive repeated cycles. The [scenario harness](../tests/Apple/README.md) keeps
 contract-specific checks outside runtime code and verifies source/executable
 receipt hashes before running. This adds execution evidence, not an ABI feature.
+
+### Android shared package (7e.1)
+
+The [Android builder](../tools/Android/README.md) packages the same emitted v3 C
+boundary as an arm64 shared library using pinned NDK r27b and API 26. It preserves
+the header, manifest and contract fingerprint. A linker export list exposes only
+declared C functions, keeping the statically linked C++ runtime private. No C++
+objects or allocator ownership may cross library boundaries; use the existing
+host-owned buffers and explicit lease APIs. Tokens belong to that loaded module
+instance, and safe dynamic unloading is not promised.
+
+Receipts record input/output/toolchain hashes and ELF architecture, SONAME,
+dependencies, exports and 16 KB load alignment. A separate C11 consumer links
+against the package, but is not executed by the builder. Android runtime behavior,
+APK alignment, JNI/Kotlin wrapping and physical-device evidence remain open.

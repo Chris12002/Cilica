@@ -136,6 +136,13 @@ Both collection modes pass; device targets are linked only. This is a scripted
 integration scenario, not a full application command adapter or OS suspension
 guarantee. See [ADR 0190](decisions/0190-composed-uikit-kernel-validation.md).
 
+Milestone 7e.1 adds `android-shared-v3-arm64-v1`: pinned NDK r27b/Clang 18.0.2,
+arm64-v8a/API 26 shared libraries with private static libc++, exact C exports and
+verified 16 KB ELF load alignment. The public session and unchanged kernel
+cross-build; separate C11 consumers link. These are compile/layout checks only:
+Android execution, API-26/16-KB device compatibility, APK packaging and JNI/Kotlin
+adaptation remain unverified. See [ADR 0191](decisions/0191-android-shared-packaging.md).
+
 | Component/profile | Implemented stage | Boundaries |
 | --- | --- | --- |
 | Metadata frontend | Inspection, IL structure, explicit binding and bounded audits | Depth-level validation and incomplete dependency reports; no execution guarantee |
