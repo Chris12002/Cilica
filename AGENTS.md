@@ -383,3 +383,16 @@ adjacent checks pass. The baseline has 31 controls and 16 gaps. Comparers,
 enumeration, copying, capacity/enumerable constructors and set algebra remain
 unsupported. Frozen engine discovery next needs String.Concat(string[]); state
 still exceeds its identity quota. Full replay is unverified. See ADR AC0044.
+
+### String-array concatenation (AC7b.5)
+
+String.Concat(string[]) preserves null faults, canonical empty strings, single-
+element identity, fresh multi-element results and exact UTF-16. Managed length
+checking and copying reuse the existing private UTF-16 construction grant, with an
+extra bounded temporary vector. Six ordinary probes and a bounded oversized-total
+probe pass 1,770 repeated O0/O2 native/.NET comparisons with ASan/UBSan and forced
+collection. 34 adjacent checks and the corrected lexical-boundary assertion pass.
+Profiles/grants are unchanged. Object-array/enumerable and three/four-string
+concatenation remain unsupported; concurrent mutation is not validated. Frozen
+engine discovery next needs predicate FirstOrDefault; state remains over its type
+quota. Full replay is unverified. See ADR AC0045.

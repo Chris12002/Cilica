@@ -64,7 +64,7 @@ public sealed class StringBuilderLibraryTests
         });
         var hostile = scope.OpenInput(files.Write("hostile.dll", builder.Build())).Value!;
         var rejected = ValueTranslator.TranslateIntegerObjects(scope, hostile, method, implementation);
-        Assert.False(rejected.Success); Assert.Contains(rejected.Diagnostics, d => d.Message.Contains("private to the selected core", StringComparison.Ordinal));
+        Assert.False(rejected.Success); Assert.Contains(rejected.Diagnostics, d => d.Message.Contains("lexical declaring scope", StringComparison.Ordinal));
     }
     [Theory]
     [InlineData(false)] [InlineData(true)]

@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs",
+      "sha256": "1956723302dabe05550580baaf682491569dc3f825502d330d38978864d4679d"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs",
       "sha256": "2f3c12b3ee6d7e109e1f6cd019be8bb91da55784e00e115d8c752b17bd4446a0"
@@ -180,6 +185,18 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/StringConcatenation.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs",
+      "algorithms": [
+        "String.Concat(string[]) and string-span empty/single shortcuts, Int64 total, overflow, exact copies and defensive snapshot/retry."
+      ],
+      "changes": [
+        "Replace direct string allocation with a managed Int32 UTF-16 buffer and existing exact-granted FromCodeUnits construction.",
+        "Keep snapshot/retry in an ordinary private runtime helper; concurrent source mutation remains unvalidated."
+      ],
+      "scope": "String arrays only; existing bounded resource limits and additional temporary storage apply. No object-array/enumerable or three/four-string overloads."
+    },
     {
       "path": "library/Cilica.Core/HashSet.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs",
