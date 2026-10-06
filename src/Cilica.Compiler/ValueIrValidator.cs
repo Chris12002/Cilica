@@ -23,7 +23,8 @@ public static class ValueIrValidator
             .Where(t => t.Kind == IrTypeKind.Value).Select(t => t.Class!));
         foreach (var expression in program.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression))
         {
-            var box = expression switch { IrExpression.BoxValue b => b.Type, IrExpression.UnboxValue u => u.Type, IrExpression.UnboxLocation u => u.Type, _ => null };
+            var box = expression switch { IrExpression.BoxValue b => b.Type, IrExpression.UnboxValue u => u.Type, IrExpression.UnboxLocation u => u.Type,
+                IrExpression.IsInstance { BoxedTarget: true } t => t.Target, IrExpression.CastClass { BoxedTarget: true } t => t.Target, _ => null };
             if (box is not null) pending.Push(box);
         }
         foreach (var field in program.Types.References.Types.SelectMany(t => t.Fields).Select(f => f.Storage).OfType<ObjectStorage.Value>()) pending.Push(field.Type);
@@ -71,6 +72,9 @@ internal sealed class ValueIrRules
     internal bool Box(ObjectTypeId? type, IrType operand, IrType result) => type is not null
         && _boxTypes.Contains(type) && operand == BoxStorage(type)
         && result == IrType.Reference(Catalog.References.ObjectBase);
+
+    internal bool TypeTest(ObjectTypeId? type, IrType result) => Catalog.References.Integer64 && type is not null
+        && _boxTypes.Contains(type) && result == IrType.Reference(Catalog.References.ObjectBase);
 
     internal bool Unbox(ObjectTypeId? type, IrType operand, IrType result, bool borrow) => type is not null
         && _boxTypes.Contains(type) && operand.Kind is IrTypeKind.Reference or IrTypeKind.NullReference

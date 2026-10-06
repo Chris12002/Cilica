@@ -1859,7 +1859,8 @@ value profile. The empty Value exception matches the selected invariant resource
 
 AC1b.1 subsequently admits nullable box/unbox.any for already boxable named
 structs and implements direct conversion-operator bodies. AC1b.2 adds supported
-integer/Boolean/Char and public Int32-enum boxes. Raw scalar/nullable unbox, key null/equality/hash selection, Equals, GetHashCode and
+integer/Boolean/Char and public Int32-enum boxes. AC1b.3 adds exact boxed type
+tests, including nullable targets. Raw scalar/nullable unbox, key null/equality/hash selection, Equals, GetHashCode and
 ToString remain diagnostics.
 Existing internal/non-Int32 enum, static inline-field and direct-return-to-heap
 limits remain. An ordinary struct containing a nullable field can still use
@@ -1894,14 +1895,34 @@ nullable forms. Runtime-owned scalar slots preserve nominal box identity. Ordina
 unboxing allows Int32/Int32-enum compatibility; nullable copies require exact
 underlying identity. Narrow normalization and all 64 bits have native evidence.
 
-Scalar/nullable type tests and raw unbox remain diagnostic. Closures combining
+Scalar/nullable type tests are extended by AC1b.3 below; raw unbox remains
+diagnostic. Closures combining
 scalar boxes with interface casts/tests or interface dispatch are conservatively
 rejected because the bounded core's primitive interface contracts are incomplete.
 This does not admit new enum widths/visibility or general primitive APIs.
 [ADR AC0004](decisions/AC0004-nominal-scalar-boxes.md) records the exact boundary.
 
-Current native v39 evidence includes 18 scalar probes (5,292 comparisons), 31
+AC1b.2 native v39 evidence includes 18 scalar probes (5,292 comparisons), 31
 nullable probes (9,114), O0/O2 sanitizers/forced GC, and 146 focused regression
 checks. The larger nullable compile is split into batches of at most 16, preserving
 the 30-second compile timeout. Public baseline counts remain ten native controls
 and 37 expected gaps; private saved-game replay is still open.
+
+
+## Exact boxed type tests (AC1b.3)
+
+isinst/castclass now admit the existing scalar/enum and named-struct box types,
+including Guid and closed/reference-bearing values. Nullable<T> tests match T's
+exact box descriptor. A successful test preserves object identity and allocates
+nothing. Null isinst returns null; null castclass succeeds; a wrong non-null
+castclass throws. Type tests do not permit ordinary unboxing's Int32/enum
+compatibility. Failed castclass Nullable<T> names T, unlike nullable unbox.any.
+
+[ADR AC0005](decisions/AC0005-boxed-type-tests.md) documents the checked Object
+result view, descriptor-only roots, closed constraints and fault distinction.
+Nineteen C# and ten direct IL native probes provide 8,526 repeated .NET comparisons
+at O0/O2 with ASan/UBSan and forced GC on macOS ARM64 (native v40). Detached and
+malformed-metadata checks guard both compiler stages. Raw scalar/nullable unbox,
+scalar interface views/dispatch, nullable keys and general exception filters remain
+diagnostic. The 47-probe public baseline and historical private replay blockers
+are unchanged. Full AC1b and full saved-game replay remain unverified.

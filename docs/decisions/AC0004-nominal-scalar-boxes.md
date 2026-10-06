@@ -42,7 +42,8 @@ The actual-descriptor path avoids that cast and retains the owner across collect
 
 ## Explicit limits
 
-Scalar/nullable isinst and castclass still require nominal boxed type-test lowering.
+Scalar/nullable isinst and castclass were deferred by this slice and are now
+extended by [ADR AC0005](AC0005-boxed-type-tests.md).
 The bounded core does not yet declare all framework interfaces on primitives/enums.
 A closure containing scalar boxes and interface casts/tests or interface dispatch
 is conservatively rejected; an omitted contract must not silently become a false

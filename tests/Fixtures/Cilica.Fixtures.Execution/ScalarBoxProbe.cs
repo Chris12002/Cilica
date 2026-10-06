@@ -200,8 +200,6 @@ namespace Cilica.Fixtures.Execution
             var noise = new NullableNode(b);
             return unchecked((int)values[0] + (int)((long)values[1] >> 32) + (int)(BoxEnum)values[2] + noise.Value);
         }
-        public static int UnsupportedScalarTypeTest(int a, int b) { object value = (long)a; return value is int ? a : b; }
-        public static int UnsupportedNullableTypeTest(int a, int b) { object value = a; return (value as int?).HasValue ? a : b; }
         public static int UnsupportedInterfaceTest(int a, int b) { object value = a; return value is IComparable ? a : b; }
         public static int UnsupportedInterfaceCast(int a, int b) { object value = a; return (IComparable)value == null ? a : b; }
         public static int WideBits(int a, int b)

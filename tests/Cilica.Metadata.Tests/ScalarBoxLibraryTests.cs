@@ -44,8 +44,7 @@ public sealed class ScalarBoxLibraryTests
             await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = resolver.OpenInput(typeof(ScalarBoxProbe).Assembly.Location).Value!;
         var results = Probes.Select(p => p.Name).Where(n => n != "RawSByteBox")
-            .Concat([nameof(ScalarBoxProbe.UnsupportedInterfaceTest), nameof(ScalarBoxProbe.UnsupportedInterfaceCast),
-                nameof(ScalarBoxProbe.UnsupportedScalarTypeTest), nameof(ScalarBoxProbe.UnsupportedNullableTypeTest)])
+            .Concat([nameof(ScalarBoxProbe.UnsupportedInterfaceTest), nameof(ScalarBoxProbe.UnsupportedInterfaceCast)])
             .ToDictionary(n => n, n => ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ScalarBoxProbe).GetMethod(n)!.MetadataToken), implementation));
         var builder = new ResolutionAssemblyBuilder(new("RawScalarBox", new Version(1, 0, 0, 0)));
@@ -86,11 +85,6 @@ public sealed class ScalarBoxLibraryTests
         {
             Assert.False(results[name].Success);
             Assert.Contains("Scalar box interface casts and dispatch require", Assert.Single(results[name].Diagnostics).Message, StringComparison.Ordinal);
-        }
-        foreach (string name in new[] { nameof(ScalarBoxProbe.UnsupportedScalarTypeTest), nameof(ScalarBoxProbe.UnsupportedNullableTypeTest) })
-        {
-            Assert.False(results[name].Success);
-            Assert.Contains("Scalar and nullable type tests require", Assert.Single(results[name].Diagnostics).Message, StringComparison.Ordinal);
         }
         Assert.False(results["RawUnbox"].Success);
         Assert.Contains("Raw scalar unbox requires", Assert.Single(results["RawUnbox"].Diagnostics).Message, StringComparison.Ordinal);

@@ -1999,3 +1999,48 @@ blockers and historical audit inputs remain unchanged. No services, hosted CI,
 pushes or additional agents were used. Main remains 48ecf14; the independent
 milestone branch was inspected through 5fe186d (Swift ownership adapter) and was
 not merged into this slice.
+
+
+### AC1b.3 exact boxed type-test outcome
+
+Implemented [ADR AC0005](../decisions/AC0005-boxed-type-tests.md): isinst and
+castclass for existing scalar/enum and named-struct boxes, including Guid and
+nullable targets. Nullable<T> operands validate their closed constraints and then
+use T's exact descriptor. Both compiler stages check the explicit boxed target
+and Object result view, including descriptors used only for tests. Success keeps
+the original box and allocates nothing; failure/null behavior follows the existing
+checked reference and exception paths. No core source, grant, binding or public
+embedding ABI changed. Boxed IR v6, scalar boxed IR v7 and native v40 record scope.
+
+The .NET oracle confirms exact type-test identity even where ordinary Int32/enum
+unboxing allows compatible copies. Direct IL probes caught a separate fault-name
+distinction: failed castclass Nullable<T> names T; failed nullable unbox.any names
+Nullable<T>. The correction leaves the nullable-unbox diagnostic flag unchanged.
+The regression distinguishes a caught cast failure from successful identity, so
+accepting an invalid conversion cannot accidentally pass.
+
+Validation: 29 native probes (19 C#, ten authored IL) provide 8,526 repeated
+O0/O2 .NET comparisons on macOS ARM64 with ASan/UBSan and forced collection.
+Coverage includes each admitted scalar width, enum mismatches, nullable null/
+present forms, Guid, empty/closed/reference-bearing structs, test-only descriptors,
+identity and exact faults. Metadata/IR checks reject invalid nullable arity and
+constraints, forged targets/views and invalid operands. The 12-test main slice
+run passed; two focused Guid native tests and 142 existing cast/box/exception/
+embedding and public-ledger regression checks also passed. The unchanged
+30-second native timeout and 2,048-byte sanitizer frame limit were preserved.
+
+Review checked ownership/null order, exact versus compatible matching, rooted
+references, absence of payload reinterpretation, descriptor reachability, closed
+constraints and unchanged reference-type access. General filters remain diagnosed;
+the attempted broader filter probe was retained as a rejection test. Raw scalar/
+nullable unbox, primitive interface contracts/use proofs, nullable keys and
+ValueType/Enum views remain follow-on work. AC1b is still in progress until needed
+forms are implemented or proved absent from the accepted replay closure.
+
+Ignored logs, source/assembly hashes and the local .NET identity/fault oracle are
+preserved at `artifacts/alchemy-boxed-type-tests/validation/` in the primary
+checkout. No private Alchemy roots were rerun, so historical replay blockers are
+unchanged and full saved-game replay remains open. No hosted work, pushes, services
+or additional agents were used. Main remains 48ecf14 and is contained in this
+branch; the independent milestone branch was inspected through 68bae1d (UIKit
+scene lifecycle) and was not merged into this compatibility slice.

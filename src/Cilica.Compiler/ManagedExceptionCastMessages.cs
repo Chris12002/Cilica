@@ -13,7 +13,7 @@ internal static class ManagedExceptionCastMessages
     {
         var targets = methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression switch
         {
-            IrExpression.CastClass cast => (cast.Target, false, false), IrExpression.UnboxValue box => (box.Type, true, box.NullableTarget),
+            IrExpression.CastClass cast => (cast.Target, cast.BoxedTarget, false), IrExpression.UnboxValue box => (box.Type, true, box.NullableTarget),
             IrExpression.UnboxLocation box => (box.Type, true, false), IrExpression.CheckBox box => (box.Type, true, box.NullableTarget),
             IrExpression.AddressBoxSlot box => (box.Type, true, false), _ => ((ObjectTypeId?)null, false, false),
         }).Where(p => p.Item1 is not null).Select(p => (p.Item1!, p.Item2, p.Item3)).Distinct().ToArray();

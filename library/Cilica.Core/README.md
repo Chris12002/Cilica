@@ -72,7 +72,8 @@ delegate variance conversions remain unsupported (ADR 0136).
 and D/N/B/P/X formatting, adapted from the pinned source with four Int32 words.
 The local suite covers 14,400 repeated native comparisons, including every output
 code unit and null/default/empty exception messages. Parsing, random/byte/span
-APIs and boxed Guid type tests remain unsupported (ADR 0138).
+APIs remain unsupported (ADR 0138). Boxed Guid type tests are admitted by AC1b.3
+([ADR AC0005](../../docs/decisions/AC0005-boxed-type-tests.md)).
 
 `Dictionary.cs` maps the bounded public Dictionary constructor, Count, TryAdd,
 TryGetValue, ContainsKey and indexer setter, using the previously tested storage
@@ -158,7 +159,9 @@ Empty boxes are null; present boxes use the underlying type's ordinary box.
 AC1b.2 also admits selected integer/Boolean/Char and public Int32-enum boxes with
 exact nullable identity. Add the exact Boolean, Char, SByte, Byte, Int16 and UInt16
 reference mappings alongside the existing 32/64-bit mappings when composing a
-binding plan. No new intrinsic grants are required. Raw scalar/nullable unbox,
-scalar/nullable type tests, scalar interface views, nullable key operations and
-equality/hash/text members remain diagnostics. See
-[ADR AC0004](../../docs/decisions/AC0004-nominal-scalar-boxes.md).
+binding plan. AC1b.3 adds exact boxed isinst/castclass, including nullable targets,
+for these scalars and admitted named structs. Successful tests preserve the box's
+identity without allocating. No new intrinsic grants are required. Raw scalar/
+nullable unbox, scalar interface views, nullable key operations and equality/hash/
+text members remain diagnostics. See
+[ADR AC0005](../../docs/decisions/AC0005-boxed-type-tests.md).

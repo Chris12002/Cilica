@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 /// <summary>Scalar boxing operations with exact logical payload plans; not a public struct ABI.</summary>
 public sealed record ScalarBoxedIrProgram(ScalarLocationIrProgram Flow, ValueTypeCatalog Values)
 {
-    public const string Profile = "scalar-boxed-ir-v6";
+    public const string Profile = "scalar-boxed-ir-v7";
 }
 
 public static class ScalarBoxedIrValidator
@@ -36,12 +36,14 @@ internal sealed class ScalarBoxingRules
     private readonly Dictionary<ObjectTypeId, ValueTypePlan> _plans;
     private readonly IrTypeRules _types;
     private readonly ObjectTypeId _object;
+    private readonly bool _integers64;
     internal ScalarBoxingRules(ValueTypeCatalog values)
     {
         Plans = ValueLayoutPlanner.Build(values);
         _plans = Plans.ToDictionary(p => p.Type);
         InterfaceTypes = [.. values.Types.SelectMany(t => t.Interfaces).Distinct()];
         _object = values.References.ObjectBase;
+        _integers64 = values.References.Integer64;
         _types = new(values.References, locations: true);
     }
     private static IrType Scalar(ObjectStorage storage) => storage switch
@@ -56,6 +58,8 @@ internal sealed class ScalarBoxingRules
         && box.Values.Select((id, index) => id >= 0 && id < values.Count && _types.Assignable(values[id], Scalar(plan.Slots[index].Storage))).All(ok => ok);
     internal bool Check(ObjectTypeId? type, int operand, IrType result, IReadOnlyList<IrType> values) => type is not null
         && _plans.ContainsKey(type) && result == IrType.Reference(_object) && Reference(operand, values);
+    internal bool TypeTest(ObjectTypeId? type, int operand, IrType result, IReadOnlyList<IrType> values) =>
+        _integers64 && Check(type, operand, result, values);
     internal bool Slot(IrExpression.AddressBoxSlot slot, IrType result, IReadOnlyList<IrType> values) => slot.Type is not null
         && _plans.TryGetValue(slot.Type, out var plan) && slot.Slot >= 0 && slot.Slot < plan.Slots.Length
         && Reference(slot.Receiver, values) && ManagedLocationRules.Address(Scalar(plan.Slots[slot.Slot].Storage), result);

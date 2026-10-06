@@ -118,9 +118,10 @@ internal static class IrValidator
                     && call.Arguments.Length == target.Parameters.Length && result == target.ReturnType && !call.NullCheckReceiver && !call.VirtualDispatch
                     && call.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(valid => valid);
             }
-            bool TypeTest(ObjectTypeId target, int operand, IrType result) => objectRules is not null
-                && objectRules.TypeTest(method, target) && result == IrType.Reference(target)
-                && Earlier(operand) && valueTypes[operand].Kind is IrTypeKind.Reference or IrTypeKind.NullReference;
+            bool TypeTest(ObjectTypeId target, int operand, IrType result, bool boxed) => objectRules is not null
+                && Earlier(operand) && valueTypes[operand].Kind is IrTypeKind.Reference or IrTypeKind.NullReference
+                && (boxed ? valueRules?.TypeTest(target, result) == true || boxedRules?.TypeTest(target, operand, result, valueTypes) == true
+                    : objectRules.TypeTest(method, target) && result == IrType.Reference(target));
             void Offset(int offset)
             {
                 Require(offset >= previousOffset && offset < end, "statement/terminator offset is outside its block or out of order.");
@@ -203,8 +204,8 @@ internal static class IrValidator
                             IrExpression.LoadStatic f => objectRules is not null && objectRules.StaticField(method, f.Field, false, out var staticType) && value.Type == staticType,
                             IrExpression.LoadField f => objectRules is not null && objectRules.Field(method, f.Field, f.Receiver, valueTypes, out var storage)
                                 && value.Type == storage,
-                            IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type),
-                            IrExpression.IsInstance t => TypeTest(t.Target, t.Operand, value.Type),
+                            IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type, c.BoxedTarget),
+                            IrExpression.IsInstance t => TypeTest(t.Target, t.Operand, value.Type, t.BoxedTarget),
                             IrExpression.DefaultValue d => valueRules is not null && value.Type == IrType.Value(d.Type),
                             IrExpression.BoxValue b => valueRules is not null && Earlier(b.Operand)
                                 && valueRules.Box(b.Type, valueTypes[b.Operand], value.Type),

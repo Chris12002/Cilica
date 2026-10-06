@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v39";
+    public const string Profile = "object-frames-native-v40";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -377,6 +377,8 @@ public static class ObjectCppEmitter
                 code.Append("    ").Append(layout.Owner(kind, index, block)).Append(" = ").Append(storage).Append(".owner;\n");
             }
             string Matches(string value, ObjectTypeId type) => Predicate(type) + "(" + value + "->type)";
+            string TypeTestMatch(string value, ObjectTypeId type, bool boxed) => boxed
+                ? "(" + value + "->type == &" + ObjectCppBoxing.Symbol(type) + "_descriptor)" : Matches(value, type);
             void Check(string value, ObjectTypeId type, bool nullCheck, int offset)
             {
                 if (nullCheck) Guard(value + " == nullptr", "4u", offset);
@@ -641,12 +643,13 @@ public static class ObjectCppEmitter
                                     expression = Field(field.Field, field.Receiver); break;
                                 case IrExpression.CastClass cast:
                                     Guard("!context.instance.owns(" + Value(cast.Operand) + ")", "6u", value.ILOffset);
-                                    if (handlers) CastFault(Value(cast.Operand) + " != nullptr && !" + Matches(Value(cast.Operand), cast.Target), Value(cast.Operand), TypeSymbol(cast.Target), value.ILOffset);
-                                    else Guard(Value(cast.Operand) + " != nullptr && !" + Matches(Value(cast.Operand), cast.Target), "7u", value.ILOffset);
+                                    string castMismatch = Value(cast.Operand) + " != nullptr && !" + TypeTestMatch(Value(cast.Operand), cast.Target, cast.BoxedTarget);
+                                    if (handlers) CastFault(castMismatch, Value(cast.Operand), cast.BoxedTarget ? ObjectCppBoxing.Symbol(cast.Target) : TypeSymbol(cast.Target), value.ILOffset);
+                                    else Guard(castMismatch, "7u", value.ILOffset);
                                     expression = Value(cast.Operand); break;
                                 case IrExpression.IsInstance test:
                                     Guard("!context.instance.owns(" + Value(test.Operand) + ")", "6u", value.ILOffset);
-                                    expression = Value(test.Operand) + " != nullptr && " + Matches(Value(test.Operand), test.Target)
+                                    expression = Value(test.Operand) + " != nullptr && " + TypeTestMatch(Value(test.Operand), test.Target, test.BoxedTarget)
                                         + " ? " + Value(test.Operand) + " : nullptr"; break;
                                 case IrExpression.Null: expression = "nullptr"; break;
                                 case IrExpression.Parameter p: expression = layout.Storage(ObjectRootKind.Parameter, p.Index); break;

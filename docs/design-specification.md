@@ -1787,3 +1787,27 @@ Layout v3, boxed IR v5, scalar boxed IR v6, boxed runtime v3 and native v39 carr
 this scope. The 18 scalar and 31 nullable probes provide 14,406 repeated native/
 .NET comparisons at O0/O2 on macOS ARM64 with sanitizers and forced GC; 146
 focused regression checks also pass. No private replay evidence was regenerated.
+
+
+### Exact boxed type-test follow-on (AC1b.3)
+
+[ADR AC0005](decisions/AC0005-boxed-type-tests.md) admits isinst/castclass for
+existing scalar/enum and named-value boxes, including Nullable<T> targets. Those
+targets resolve to T after closed constraint/access/budget validation. Explicit
+boxed-target IR retains an Object result view, counts test-only payload roots and
+is checked at both value/scalar stages. Existing reference-type rules are retained.
+Native ownership/null checks precede exact descriptor comparison; success returns
+the original box without allocation or payload reinterpretation.
+
+Type tests require exact identity even where ordinary Int32/enum unboxing admits
+compatible copies. Direct .NET IL probes also distinguish failed castclass
+Nullable<T>, which names T, from nullable unbox.any, which names Nullable<T>.
+The existing nullable-unbox flag is not used for type tests. No core/manifest grant
+or public ABI changes are needed. Boxed IR v6, scalar boxed IR v7 and native v40
+record the extension.
+
+Twenty-nine native probes provide 8,526 repeated O0/O2 .NET comparisons with
+sanitizers/forced GC on macOS ARM64, alongside malformed-operand/IR checks and
+existing cast/box/exception regressions. Raw scalar/nullable unbox, primitive
+interface contracts/use proofs, nullable keys and general filters remain deferred.
+Full AC1b and private saved-game replay are still open; private roots were not rerun.

@@ -291,8 +291,10 @@ public static class ValueTranslator
                         case "isinst" or "castclass" when exceptions is not null:
                             int tested = Pop(offset); var testedType = method.TypeOperands[offset];
                             if (!Reference(values[tested])) Error(offset, "Type tests require a reference operand.");
-                            Push(offset, IrType.Reference(testedType), opcode == "isinst" ? new IrExpression.IsInstance(testedType, tested)
-                                : new IrExpression.CastClass(testedType, tested), true); break;
+                            bool boxedTest = method.BoxedTypeTestOperands.Contains(offset);
+                            Push(offset, IrType.Reference(boxedTest ? objectBase : testedType), opcode == "isinst"
+                                ? new IrExpression.IsInstance(testedType, tested) { BoxedTarget = boxedTest }
+                                : new IrExpression.CastClass(testedType, tested) { BoxedTarget = boxedTest }, true); break;
                         case "throw" when exceptions is not null:
                             int thrown = Pop(offset, IrType.Reference(exceptions.Base));
                             // CLI throw discards the remainder of the evaluation stack.

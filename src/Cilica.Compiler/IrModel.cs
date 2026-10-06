@@ -100,8 +100,16 @@ public abstract record IrExpression
     // Fresh immutable snapshot of the low UTF-16 units in an Int32 vector; empty is canonical.
     public sealed record StringFromCodeUnits(int Array) : IrExpression;
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
-    public sealed record CastClass(ObjectTypeId Target, int Operand) : IrExpression;
-    public sealed record IsInstance(ObjectTypeId Target, int Operand) : IrExpression;
+    // Boxed targets test exact payload identity and retain the Object view.
+    // Nullable<T> tests and cast faults use T's descriptor and name.
+    public sealed record CastClass(ObjectTypeId Target, int Operand) : IrExpression
+    {
+        public bool BoxedTarget { get; init; }
+    }
+    public sealed record IsInstance(ObjectTypeId Target, int Operand) : IrExpression
+    {
+        public bool BoxedTarget { get; init; }
+    }
     // Pure inline operations: copy the operand rather than alias mutable storage.
     public sealed record DefaultValue(ObjectTypeId Type) : IrExpression;
     public sealed record ValueField(ObjectFieldId Field, int Operand) : IrExpression;

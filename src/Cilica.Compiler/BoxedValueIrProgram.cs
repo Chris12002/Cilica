@@ -7,7 +7,7 @@ namespace Cilica.Compiler;
 /// <summary>Detached named-struct boxing, exact unbox copies and nonescaping payload borrows.</summary>
 public sealed record BoxedValueIrProgram(ManagedLocationIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "boxed-value-ir-v5";
+    public const string Profile = "boxed-value-ir-v6";
 }
 
 public static class BoxedValueIrValidator
@@ -28,6 +28,8 @@ public static class BoxedValueIrValidator
                 IrExpression.BoxValue b => b.Type,
                 IrExpression.UnboxValue u => u.Type,
                 IrExpression.UnboxLocation u => u.Type,
+                IrExpression.IsInstance { BoxedTarget: true } t => t.Target,
+                IrExpression.CastClass { BoxedTarget: true } t => t.Target,
                 _ => null,
             }).Where(t => t is not null).ToHashSet();
         return [.. rules.Plans.Where(p => used.Contains(p.Type))];
