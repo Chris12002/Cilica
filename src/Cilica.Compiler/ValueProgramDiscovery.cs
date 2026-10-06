@@ -847,16 +847,33 @@ public static partial class ValueProgramDiscovery
             return input.BaseType is TypeSignature.Named parent && ObjectModelBuilder.Id(parent.Definition) == _valueBase;
         }
 
+        private void FailTypeSnapshot(string phase, ObjectTypeId attempted, Work? work, int offset)
+        {
+            int closed = _snapshots.Keys.Count(id => id.Specialization.Length != 0);
+            int declarations = _snapshots.Keys.Select(id => (id.ContentHash, id.Token)).Distinct().Count();
+            int enumScalars = _enumScalars.Count(pair => pair.Value);
+            var outsideRoots = _snapshots.Where(pair => !_values.ContainsKey(pair.Key) && !_references.ContainsKey(pair.Key)).ToArray();
+            var images = _snapshots.Keys.GroupBy(id => id.ContentHash).OrderByDescending(group => group.Count())
+                .ThenBy(group => group.Key, StringComparer.Ordinal).ToArray();
+            string distribution = string.Join(", ", images.Take(8).Select(group => group.Key + "=" + group.Count().ToString(CultureInfo.InvariantCulture)))
+                + (images.Length > 8 ? ", additional images=" + (images.Length - 8).ToString(CultureInfo.InvariantCulture) : "");
+            string sample = string.Join(", ", outsideRoots.OrderBy(pair => pair.Value.Source.Name, StringComparer.Ordinal)
+                .ThenBy(pair => pair.Key.ContentHash, StringComparer.Ordinal).ThenBy(pair => pair.Key.Token)
+                .ThenBy(pair => pair.Key.Specialization, StringComparer.Ordinal).Take(8)
+                .Select(pair => pair.Value.Source.Name.Length > 128 ? pair.Value.Source.Name[..128] + "..." : pair.Value.Source.Name));
+            Fail(work, FormattableString.Invariant($"{phase} metadata limit exceeded. Cached {_snapshots.Count}/{ObjectModelLimits.MaximumTypes} type snapshots: {declarations} distinct nominal declarations, {closed} closed generic snapshots; {_snapshotFields}/{ObjectModelLimits.MaximumFields} field declarations; {_metadata.Remaining}/{ObjectModelLimits.MaximumMetadataMembers} metadata work units remaining. Explicit roots: {_values.Count} value, {_references.Count} reference, {_vectors.Count} vector. Validated Int32 enums: {enumScalars}. Snapshots outside explicit value/reference roots: {outsideRoots.Length} (sample: {sample}). Partial discovery only; snapshots and explicit roots are not emitted runtime layouts. Per-image snapshots: {distribution}. Attempted identity: {attempted.ContentHash}:0x{attempted.Token:x8}:{attempted.Specialization}."), offset, DiagnosticIds.TranslationLimit);
+        }
+
         private TypeInput SnapshotClosed(ConstructedType type, Work? work, int offset)
         {
             if (type.Arguments.Count == 0) return Snapshot(type.Definition, work, offset);
             var id = ClosedId(type, work, offset);
             if (_snapshots.TryGetValue(id, out var known)) return known;
             if (_snapshots.Count >= ObjectModelLimits.MaximumTypes || _metadata.Remaining == 0)
-                Fail(work, "Closed reference metadata limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                FailTypeSnapshot("Closed reference", id, work, offset);
             var input = Require(resolver.ReadClosedTypeInput(type, library,
                 new(MaximumFields: ObjectModelLimits.MaximumFields - _snapshotFields, MaximumMembers: _metadata.Remaining)), work, offset);
-            if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Closed reference metadata limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+            if (!_metadata.TryConsume(input.MetadataMembersRead)) FailTypeSnapshot("Closed reference", id, work, offset);
             _snapshotFields += input.Fields.Length;
             _snapshots.Add(id, input); return input;
         }
@@ -866,10 +883,10 @@ public static partial class ValueProgramDiscovery
             var id = ObjectModelBuilder.Id(type);
             if (_snapshots.TryGetValue(id, out var known)) return known;
             if (_snapshots.Count >= ObjectModelLimits.MaximumTypes || _metadata.Remaining == 0)
-                Fail(work, "Type classification metadata limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                FailTypeSnapshot("Type classification", id, work, offset);
             var input = Require(resolver.ReadTypeInput(type.Assembly, type.Handle,
                 new(MaximumFields: ObjectModelLimits.MaximumFields - _snapshotFields, MaximumMembers: _metadata.Remaining)), work, offset);
-            if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Type classification metadata limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+            if (!_metadata.TryConsume(input.MetadataMembersRead)) FailTypeSnapshot("Type classification", id, work, offset);
             _snapshotFields += input.Fields.Length;
             _snapshots.Add(id, input); return input;
         }

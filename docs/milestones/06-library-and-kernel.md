@@ -2796,3 +2796,16 @@ Frozen EngineStep advances to a metadata-classification limit in FinalizeAccepte
 IL_0165; StateLookup remains at 257/256 discovered identities. These are partial
 closure failures, not measured emitted layouts. Full replay remains unverified.
 See ADR AC0055 and artifacts/alchemy-single.
+
+
+### Type-classification budget evidence (AC8.10)
+
+Snapshot-limit diagnostics now distinguish cached declarations/specializations,
+field reads, remaining metadata work, explicit roots and validated Int32 enums.
+Samples and per-image distributions are bounded; no limits or admission rules
+change. Thirty-six focused metadata checks pass. Frozen EngineStep reaches 256
+snapshots with 27,208 metadata work units left, 23 value/176 reference/5 vector
+roots and 65 snapshots outside explicit value/reference roots. These are partial
+counts, not emitted layouts. StateLookup remains at 257/256 discovered identities.
+Next separate lexical visibility reads from structural layout reads; do not infer
+capacity from either failure. See ADR AC0056 and artifacts/alchemy-type-classification.
