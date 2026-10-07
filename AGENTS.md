@@ -839,3 +839,19 @@ layouts, 166 interfaces and two reference arrays. This is metadata/IR evidence
 only: no C++ emission or native execution. Production limits remain unchanged;
 full engine size and saved-game replay remain unverified.
 See [ADR AC0085](docs/decisions/AC0085-capacity-only-engine-probe.md).
+
+### Comparison-based List sorting (AC3.10)
+
+List.Sort(Comparison<T>) uses pinned managed introsort over captured backing
+storage, preserving callback order, partial mutation, fault wrapping and version
+changes. Int32, reference and reference-bearing inline-value cases pass 3,324
+repeated native/.NET comparisons at O0/O2 with forced GC and sanitizers. Reentrant
+sorting exposed and fixed Clear/RemoveAt: reference-bearing slots are cleared,
+scalar slots remain intact. Exact sort-type diagnostic names use a private granted
+helper lowered to bounded string literals; general Type.ToString stays unsupported.
+All 34 selected checks pass across final focused runs. Integer CIL v25 records
+admission; native v57, layouts and resource limits remain unchanged. The public
+baseline stays 39 controls/8 gaps because parameterless Sort is still unsupported.
+An isolated larger-type diagnostic copy advances the engine to a metadata-work
+limit in ApplyFallingUnconscious. Full replay remains unfinished.
+See [ADR AC0086](docs/decisions/AC0086-comparison-list-sort.md).

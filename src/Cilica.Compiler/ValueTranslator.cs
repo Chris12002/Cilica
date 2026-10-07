@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v24";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v25";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -279,6 +279,7 @@ public static class ValueTranslator
                         case "nop": break;
                         case "constrained." when types.IntegerCasts && constrainedPrefixes.Contains(offset): break;
                         case "ldsfld" when exceptions is not null && method.Literals.ContainsKey(offset):
+                        case "call" when exceptions is not null && method.Literals.ContainsKey(offset):
                         case "ldstr" when exceptions is not null:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var enumQuery) && enumQuery.Kind is ValueIntrinsic.EnumQuery or ValueIntrinsic.EnumErrorMessage:

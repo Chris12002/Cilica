@@ -491,15 +491,16 @@
         "Concrete Insert, RemoveAt, Clear and ToArray with overlap-safe shifts and pinned empty snapshot identity",
         "AC3.4 Contains/IndexOf/Remove with array-search equality receiver semantics",
         "AC3.6 direct generic CopyTo with complete bounds validation, unchanged version and per-element reference downcasts.",
-        "AC3.8 IEnumerable constructor collection branch: Count snapshot, zero count, exact capacity and CopyTo before size publication."
+        "AC3.8 IEnumerable constructor collection branch: Count snapshot, zero count, exact capacity and CopyTo before size publication.",
+        "AC3.10 Comparison<T> sorting with captured backing storage, callback faults and version semantics."
       ],
       "changes": [
         "Replace Array.Copy with typed managed loops; retain allocation-before-publication and exception ordering.",
-        "Use Array.Empty<T> for private empty storage; private backing identity is not exposed by the admitted surface.",
+        "Use Array.Empty<T> for private empty storage; sorting captures backing storage across callbacks, including reentrant capacity changes.",
         "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile.",
         "Read growth length through Capacity to retain explicit Int32 length conversion in supported IL.",
         "AC3.1 uses a separate lazily published per-closed-type managed static empty snapshot, distinct from Array.Empty<T>; existing runtime instances own and trace the cache.",
-        "Clear all admitted element shapes and vacated slots through typed loops; this also zeroes primitive elements instead of adding a reference-shape intrinsic.",
+        "Clear and RemoveAt now use the existing ContainsReferences classification: clear reference-bearing slots while preserving scalar backing contents observable during reentrant sorting.",
         "Select ordinary copied or borrowed-element search loops through an exact private grant; preserve mutation of value equality receivers observed on .NET 10.0.11.",
         "AC4.1 adapts the pinned nested Enumerator with value-copy state, version validation, current reset and no-op Dispose. Use ordinary list accessors because closed generic lexical private field access remains gated. Interface factories and nongeneric Current remain diagnostic.",
         "Read private source/count before validation. Selected CopyStore preserves Array.Copy cast names and partial stores; ordinary stelem retains ArrayTypeMismatchException. Negative destinationIndex uses the bounded actual-Int32 range constructor.",
@@ -1125,6 +1126,16 @@
         "Four-word copy after complete parsing; shared UnicodeWhitespace classification with String.IsNullOrWhiteSpace."
       ],
       "scope": "String constructor only; spans, static parsing APIs, byte constructors and random generation remain unmapped. Bounded Int32 result buffer and optional character/string whitespace copy replace explicit layouts and spans. Private overflow state uses Int32 borrowing, delimiter selection precedes borrowing, and scalar array words use explicit loads/stores."
+    },
+    {
+      "path": "library/Cilica.Core/ComparisonSort.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/ArraySortHelper.cs",
+      "contracts": [
+        "Pinned comparison-based introsort with insertion/heapsort fallbacks, callback order, partial mutation and exception wrapping.",
+        "Captured T[] prefix with explicit partition bounds replaces Span<T>; by-value locals retain normal copy and rooting semantics.",
+        "Exact private SortComparisonName grant emits the validated closed Comparison<T> display name as a budgeted string literal."
+      ],
+      "scope": "List.Sort(Comparison<T>) for admitted delegate element shapes only. General Type.ToString, default/comparer/section Sort and public Array.Sort remain outside this slice."
     }
   ]
 }

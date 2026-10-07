@@ -282,6 +282,8 @@ public static partial class ValueProgramDiscovery
                                 foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
                                     CheckArgumentAccess(argument, work, offset);
                             }
+                            if (exceptions && SortComparisonName(work, instruction, target) is { } comparisonName)
+                            { literals.Add(offset, comparisonName); continue; }
                             if (exceptions && !factoryConstructors.ContainsKey(offset) && (ArrayCopyStoreCall(work, instruction, target) ?? EnumQueryCall(work, instruction, target) ?? RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
                             {
                                 _arguments += intrinsic.Parameters;

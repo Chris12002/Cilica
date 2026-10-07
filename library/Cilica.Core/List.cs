@@ -93,8 +93,15 @@ namespace System.Collections.Generic
             version++;
             int oldSize = size;
             size = 0;
-            // Clear every admitted element shape, including references inside values.
-            for (int i = 0; i < oldSize; ++i) items[i] = default;
+            // Match the managed backing-store contract when callbacks still hold it.
+            if (Cilica.Runtime.KeyOperations<T>.ContainsReferences())
+                for (int i = 0; i < oldSize; ++i) items[i] = default;
+        }
+        public void Sort(Comparison<T> comparison)
+        {
+            if (comparison == null) throw new ArgumentNullException("comparison");
+            if (size > 1) Cilica.Runtime.ComparisonSort<T>.Sort(items, size, comparison);
+            version++;
         }
         public T[] ToArray()
         {
@@ -135,7 +142,7 @@ namespace System.Collections.Generic
                 throw new ArgumentOutOfRangeException("index", "Index was out of range. Must be non-negative and less than the size of the collection.");
             size--;
             for (int i = index; i < size; ++i) items[i] = items[i + 1];
-            items[size] = default;
+            if (Cilica.Runtime.KeyOperations<T>.ContainsReferences()) items[size] = default;
             version++;
         }
         // Use ordinary same-assembly accessors until generic lexical private

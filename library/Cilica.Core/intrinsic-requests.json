@@ -859,5 +859,12 @@
     "Member": "StartsWith",
     "ParameterCount": 2,
     "Capability": "StringOrdinalPrefix"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ComparisonSort`1",
+    "Member": "ComparisonName",
+    "ParameterCount": 0,
+    "Capability": "SortComparisonName"
   }
 ]
