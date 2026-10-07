@@ -2866,3 +2866,16 @@ all 77 selected metadata, cast and enum checks pass. Native v57 records the
 diagnostic correction. No layout, admission or resource limits change. UTF-8
 work exposed this defect; its library slice and full replay remain unfinished.
 See [ADR AC0081](decisions/AC0081-nested-cast-names.md).
+
+### Default UTF-8 byte encoding (AC7b.10)
+
+Encoding.UTF8.GetBytes(String) now runs as owned managed IL over existing byte
+vectors. Two passes preserve exact UTF-8 bytes, valid surrogate pairs and U+FFFD
+replacement for isolated surrogates. Null/fault order, empty-array identity,
+independent results, encoder identity and exact cast messages match .NET. Ten
+probes pass 15,360 repeated O0/O2 comparisons; two-runtime ownership and allocation
+quota recovery checks pass. Other encodings, decoding, sections and configurable
+fallbacks remain diagnostic. No new intrinsics, layouts or resource limits.
+The baseline now has 37 native controls and 10 gaps, compiled in smaller batches
+under the existing subprocess limit. Frozen engine/state still hit type limits;
+full replay is unfinished. See [ADR AC0082](decisions/AC0082-default-utf8.md).

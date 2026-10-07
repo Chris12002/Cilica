@@ -41,6 +41,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/StringConcatenation.cs \
   --source library/Cilica.Core/StringSubstring.cs \
   --source library/Cilica.Core/StringCharacters.cs \
+  --source library/Cilica.Core/Utf8Encoding.cs \
   --source library/Cilica.Core/List.cs \
   --source library/Cilica.Core/ReadOnlyCollection.cs \
   --source library/Cilica.Core/ValueTuple.cs \

@@ -302,6 +302,21 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/RuntimeType.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/RuntimeType.cs",
       "sha256": "df4e3b58c02c162fb9263d7de6e6065a3b0dd6488a1ae53f6a7f202151713a55"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/Encoding.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Text/Encoding.cs",
+      "sha256": "44b11ddb443bd71b1c7a4406a8749d234c0e0b135d9a36dc53c4f0887b197db4"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/UTF8Encoding.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Text/UTF8Encoding.cs",
+      "sha256": "47f5e4c98751367a86329ab1e0a76d86b39fd076a5b019284694f39d40fd9011"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/UTF8Encoding.Sealed.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Text/UTF8Encoding.Sealed.cs",
+      "sha256": "6dff14b632dfa6740048f92be5d00cf8d7158fa7d3c741cabee85d53a7d1834d"
     }
   ],
   "adaptations": [
@@ -1080,6 +1095,16 @@
         "Null and zero-length inputs return canonical Empty; other arrays copy exact UTF-16 code units into an independent immutable string."
       ],
       "scope": "Single Char[] constructor only; rooted temporary Int32 buffer and existing FromCodeUnits helper retain allocation quotas. Section, repetition and pointer constructors remain unsupported."
+    },
+    {
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Text/UTF8Encoding.cs; Encoding.cs; UTF8Encoding.Sealed.cs",
+      "contracts": [
+        "Encoding.UTF8 singleton and virtual GetBytes(string).",
+        "Exact UTF-8 scalar encoding without a preamble, U+FFFD per isolated surrogate, null parameter s, shared empty byte array and independent nonempty results.",
+        "Preserve the UTF8Encoding/UTF8EncodingSealed hierarchy and exact selected virtual GetBytes declaration; a public abstract Encode bridge uses the existing dispatch contract."
+      ],
+      "scope": "Default read-only UTF-8 encoding only. Two managed passes over immutable UTF-16 replace spans, pointers, SIMD and mutable fallback objects. Byte arrays retain existing runtime quotas; other encodings, decoder/streaming APIs, configurable fallbacks and UTF8Encoding constructors are not mapped.",
+      "path": "library/Cilica.Core/Utf8Encoding.cs"
     }
   ]
 }

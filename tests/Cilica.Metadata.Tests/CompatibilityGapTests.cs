@@ -131,8 +131,12 @@ public sealed class CompatibilityGapTests
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             // Roslyn caches the noncapturing Where predicate in traced static fields.
             // Keep the stricter no-extra-roots check for all other controls.
-            await IntegerObjectTranslationTests.VerifyTranslated(optimized, controls.Where(p => p.name != "Probe_LinqWhere").ToArray());
+            // Keep each native compilation within the existing 30-second subprocess budget.
+            foreach (var batch in controls.Where(p => p.name != "Probe_LinqWhere" && p.name != "Probe_Utf8").Chunk(6))
+                await IntegerObjectTranslationTests.VerifyTranslated(optimized, batch);
             await IntegerObjectTranslationTests.VerifyTranslated(optimized, controls.Where(p => p.name == "Probe_LinqWhere").ToArray(), persistentRoots: true);
+            // The owned UTF-8 encoder contributes exactly one traced static singleton.
+            await IntegerObjectTranslationTests.VerifyTranslated(optimized, controls.Where(p => p.name == "Probe_Utf8").ToArray(), expectedStaticRoots: 1);
         }
         finally { CultureInfo.CurrentCulture = savedCulture; }
     }
