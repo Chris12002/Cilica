@@ -459,7 +459,8 @@ internal sealed partial class ObjectIrRules
         if (allocation ? !Constructor(callee) || (_layouts[callee.Owner].Attributes & TypeAttributes.Abstract) != 0 : Constructor(callee)) return false;
         if (nullCheck && callee.Kind != ObjectMethodKind.Instance) return false;
         if (virtualDispatch ? allocation || !nullCheck || callee.VirtualSlot is null || !_dispatch.Has(target)
-            : nullCheck && callee.VirtualSlot is not null) return false;
+            : nullCheck && callee.VirtualSlot is not null
+                && (!_program.Flow.Types.Integer64 || (callee.Attributes & MethodAttributes.Final) == 0)) return false;
         if (callee.InvariantProviderOnly && (arguments.Length != 2 || expressions is null || arguments[1] < 0
             || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.InvariantCulture)) return false;
         for (int index = 0; index < arguments.Length; index++)

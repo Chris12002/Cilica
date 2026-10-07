@@ -376,7 +376,8 @@ public static partial class ValueProgramDiscovery
                             var callee = Discover(target, work, offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.Kind != (constrainedCalls.ContainsKey(offset) ? ObjectMethodKind.ValueInstance : ObjectMethodKind.Instance))
                                 Fail(work, "callvirt requires a class instance method.", offset);
-                            if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null)
+                            if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null
+                                && (callee.Binding.Attributes & MethodAttributes.Final) == 0)
                                 _virtualCalls.TryAdd(callee.Binding.Method, (work, offset));
                             bool factoryConstructor = factoryConstructors.ContainsKey(offset);
                             if (factoryConstructor && (callee.Binding.Kind != ObjectMethodKind.Static || callee.Binding.Owner != factoryConstructors[offset]

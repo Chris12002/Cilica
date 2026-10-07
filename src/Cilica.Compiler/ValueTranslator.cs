@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v51";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v52";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -654,6 +654,9 @@ public static class ValueTranslator
                             if (constrained && (target.Binding.Kind != ObjectMethodKind.ValueInstance || target.Binding.Owner != constrainedCall!.Receiver))
                                 Error(offset, "Constrained call does not match its exact checked value receiver.");
                             bool nullCheck = opcode == "callvirt" && !constrained;
+                            // Final class methods keep callvirt null semantics but have a fixed body.
+                            bool virtualDispatch = nullCheck && target.Binding.VirtualSlot is not null
+                                && (target.Binding.Attributes & System.Reflection.MethodAttributes.Final) == 0;
                             // The authenticated ordinary renderer ignores format text. Consume its
                             // original call operands before adapting the exact payload receiver.
                             if (method.BoxedRenderCalls.ContainsKey(offset))
@@ -701,8 +704,8 @@ public static class ValueTranslator
                                 Push(offset, constructed, new IrExpression.LoadLocation(address), true);
                             }
                             else if (skip != 0) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
-                            else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: nullCheck && target.Binding.VirtualSlot is not null), offset);
-                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: nullCheck && target.Binding.VirtualSlot is not null), true);
+                            else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: virtualDispatch), offset);
+                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: virtualDispatch), true);
                             break;
                         case "ldfld" or "ldflda" or "stfld":
                             var field = fields[method.Fields[offset]]; var fieldType = Storage(field.Storage);

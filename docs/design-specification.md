@@ -3440,3 +3440,18 @@ GC and allocation-failure recovery. Integer CIL v51, exception IR v8/native v66;
 layout v24 and discovery limits unchanged. SHA256 lifecycle binding and full engine
 execution/replay remain unfinished. See ADR AC0130 and
 artifacts/alchemy-disposed-exception.
+
+### AC8.35: Final class calls (2026-10-07)
+
+Final virtual class methods now use the existing exact-body call with its receiver
+null check. Arguments still evaluate first; inherited final bodies remain fixed
+when a derived class hides the method. Interface calls retain interface dispatch.
+This also permits null-only closures whose abstract owner has no concrete receiver.
+Both IR validators require final-method evidence for this direct checked call.
+Integer CIL v52 and object IR v39 record the admission; native v66/layout v24 and
+all resource limits are unchanged. Five probes supply 1,470 repeated native/.NET
+comparisons at O0/O2 with forced GC and ASan/UBSan. All 85 focused and surrounding
+dispatch checks pass, including removal of final evidence at both IR stages.
+Review covered argument/null order, fixed target identity, interface separation,
+rooting and unchanged native emission. Full engine/replay remains unfinished.
+See ADR AC0131.
