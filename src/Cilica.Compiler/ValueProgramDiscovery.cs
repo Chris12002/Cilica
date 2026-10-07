@@ -693,7 +693,10 @@ public static partial class ValueProgramDiscovery
                 [.. (instance ? new[] { primitive is not null ? IrType.Location(primitive.Storage) : inlineInstance ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
                 Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
-                [.. input.Locals.Select(t => Storage(t, parent, offset))], parent, offset);
+                [.. input.Locals.Select(t => Storage(t, parent, offset, borrow: integers64))], parent, offset);
+            if (work.Locals.Any(t => t.Kind == IrTypeKind.ManagedLocation) && (input.ExceptionRegionCount != 0
+                || work.Locals.Any(t => t.Kind == IrTypeKind.ManagedLocation && t.Element!.Kind == IrTypeKind.Value)))
+                Fail(parent, "Ref locals currently require scalar/reference storage in methods without exception regions.", offset);
             if (integers64)
                 CheckSourceTypeUses(input.DeclarationSignature.Parameters.Prepend(input.DeclarationSignature.ReturnType)
                     .Concat(input.DeclarationLocals), work, 0);
@@ -770,7 +773,7 @@ public static partial class ValueProgramDiscovery
             TypeSignature.Vector vector when integers64 => IrType.Reference(Vector(vector.Element, caller, offset)),
             TypeSignature.ByReference reference when integers64 && borrow && IntegerCasts.NarrowStorage(reference.Element) is not null =>
                 throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
-                    "Narrow by-reference parameters require storage-width-aware carriers before execution." + Path(caller), Location(caller, offset))),
+                    "Narrow by-reference storage requires storage-width-aware carriers before execution." + Path(caller), Location(caller, offset))),
             TypeSignature.ByReference reference when borrow && IntegerCasts.NarrowStorage(reference.Element) is null => IrType.Location(Storage(reference.Element, caller, offset)),
             _ => throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
                 "Initial value CIL signatures require Int32 or named nongeneric structs, void returns, and synchronous byref parameters. "

@@ -79,7 +79,8 @@ internal static class IrValidator
             && method.ReturnType?.Kind != IrTypeKind.ManagedLocation
             && (types.Valid(method.ReturnType, storage: true) || (objectRules is not null || locations is not null) && method.ReturnType == IrType.Void), "signature is outside the bounded value profile.");
         Require(!method.Locals.IsDefault && method.Locals.Length <= IrLimits.MaximumLocals
-            && method.Locals.All(l => types.Valid(l, storage: true) && l.Kind != IrTypeKind.ManagedLocation), "locals must be bounded typed storage; locations cannot escape into locals.");
+            && method.Locals.All(l => types.Valid(l, storage: true) && (l.Kind != IrTypeKind.ManagedLocation
+                || locations is not null && types.IntegerCasts && l.Element!.Kind != IrTypeKind.Value)), "locals require bounded storage or scoped scalar/reference borrows.");
         Require(!method.Blocks.IsDefault && method.Blocks.Length is > 0 and <= IrLimits.MaximumBlocks, "invalid block count.");
         int inputs = 0, statements = 0, edgeArguments = 0, callArguments = 0, previousBlockOffset = -1;
         for (int id = 0; id < method.Blocks.Length; id++)
@@ -364,6 +365,7 @@ internal static class IrValidator
         while (pending.TryPop(out int id))
             if (visited.Add(id)) foreach (int target in successors[id]) pending.Push(target);
         Require(visited.Count == method.Blocks.Length, "all blocks must be reachable from entry.");
+        ScopedLocationLocals.Validate(method, successors);
         exceptions?.ValidateFlow(method);
         objectRules?.Method(method);
     }

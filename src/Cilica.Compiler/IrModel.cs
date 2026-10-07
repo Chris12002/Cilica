@@ -251,7 +251,7 @@ public sealed record ValueIrProgram(IrMethodId Entry, ImmutableArray<IrMethod> M
 /// <summary>Detached synchronous borrows, with checked frame/heap origins; not native addresses or CIL lowering.</summary>
 public sealed record ManagedLocationIrProgram(ValueIrProgram Flow)
 {
-    public const string Profile = "managed-location-ir-v1";
+    public const string Profile = "managed-location-ir-v2";
 }
 
 public static class ProgramLimits

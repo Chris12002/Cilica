@@ -3206,3 +3206,19 @@ reference-bearing value lists. All 25 selected checks pass, including FindIndex
 regressions and the unchanged 43-control/four-gap public baseline. Forced GC and
 sanitizers remain enabled. Profiles and resource limits are unchanged; full engine
 and saved-game replay remain unfinished. See [ADR AC0108](decisions/AC0108-list-exists.md).
+
+### Scoped scalar/reference ref locals (AC5b.10)
+
+The integer CIL profile now admits Int32, Int64 and reference borrows stored in
+method locals with one assignment site that dominates every read. The bounded
+proof runs at both IR stages. Each local publishes its heap-owner root and retains
+existing frame-token lifetime checks. Ref returns, heap-stored refs, stack joins,
+inline-value ref locals and ref locals in methods with exception regions remain
+unsupported. Reference-array slot borrows are the next prerequisite.
+
+Seven probes supply 2,058 repeated O0/O2 native/.NET comparisons. All 98 selected
+checks pass, including five malformed-IR cases at both stages, source boundaries,
+root plans, native carrier/lifetime regressions and the 43-control/four-gap baseline.
+Integer CIL v35, managed-location IR v2, scalar-location IR v3, object IR v35 and
+native v62 record this extension. Layout, library and production limits are
+unchanged. Full engine/replay remains unfinished. See [ADR AC0109](decisions/AC0109-scoped-ref-locals.md).

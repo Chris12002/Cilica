@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v61";
+    public const string Profile = "object-frames-native-v62";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -730,7 +730,10 @@ public static class ObjectCppEmitter
                             break;
                         }
                         case IrStatement.StoreLocal store:
-                            code.Append("    ").Append(layout.Storage(ObjectRootKind.Local, store.Local)).Append(" = ").Append(Value(store.Value)).Append(";\n"); break;
+                            code.Append("    ").Append(layout.Storage(ObjectRootKind.Local, store.Local)).Append(" = ").Append(Value(store.Value)).Append(";\n");
+                            if (method.Locals[store.Local].Kind == IrTypeKind.ManagedLocation)
+                                PublishLocation(ObjectRootKind.Local, store.Local, method.Locals[store.Local]);
+                            break;
                         case IrStatement.StoreLocation store:
                             Guard("store_location_" + LocationKind(values[store.Location].Type.Element!)
                                 + "(context, " + Value(store.Location) + ", " + Value(store.Value) + ") != LocationStatus::complete", "6u", store.ILOffset); break;
