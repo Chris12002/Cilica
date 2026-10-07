@@ -3136,3 +3136,13 @@ negative IList counts for ToArray versus ToList and checks fixed destinations
 before invoking selectors, including composed projections. No compiler/native
 profile, helper grant or budget changes are required. Full engine/saved-game replay
 remains unfinished. See [ADR AC0093](decisions/AC0093-query-list-materialization.md).
+
+### Predicate list search (AC3.13)
+
+All three FindIndex overloads now use the pinned start/count/match validation order
+and resource messages. Search captures its ending index and reads current backing
+storage on each iteration, preserving predicate mutations without enumerator
+version checks. Five probes pass 2,148 repeated native/.NET comparisons at O0/O2
+with forced collection, sanitizers and exact quota cleanup. No compiler/native
+profile, grant or budget changes are introduced. Full engine/replay remains open.
+See [ADR AC0094](decisions/AC0094-list-find-index.md).

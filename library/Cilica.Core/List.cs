@@ -126,6 +126,20 @@ namespace System.Collections.Generic
             if (Cilica.Runtime.KeyOperations<T>.ContainsReferences())
                 for (int i = 0; i < oldSize; ++i) items[i] = default;
         }
+        public int FindIndex(Predicate<T> match) => FindIndex(0, size, match);
+        public int FindIndex(int startIndex, Predicate<T> match) => FindIndex(startIndex, unchecked(size - startIndex), match);
+        public int FindIndex(int startIndex, int count, Predicate<T> match)
+        {
+            if ((uint)startIndex > (uint)size)
+                throw new ArgumentOutOfRangeException("startIndex", "Index was out of range. Must be non-negative and less than or equal to the size of the collection.");
+            if (count < 0 || startIndex > size - count)
+                throw new ArgumentOutOfRangeException("count", "Count must be positive and count must refer to a location within the string/array/collection.");
+            if (match == null) throw new ArgumentNullException("match");
+            int endIndex = startIndex + count;
+            for (int i = startIndex; i < endIndex; i++)
+                if (match(items[i])) return i;
+            return -1;
+        }
         public void Sort(Comparison<T> comparison)
         {
             if (comparison == null) throw new ArgumentNullException("comparison");

@@ -501,7 +501,8 @@
         "AC3.8/AC3.11 IEnumerable construction: dynamic collection Count snapshot, zero count, exact capacity and CopyTo before size publication; other sources enumerate with Add growth and finally-disposal.",
         "AC3.10 Comparison<T> sorting with captured backing storage, callback faults and version semantics.",
         "AC3.12 AddRange with collection Count/CopyTo, checked growth, post-copy size/version updates and per-item enumerable fallback.",
-        "AC6.13 capture list count and backing array with the pinned CollectionsMarshal.AsSpan corruption check for owned query materialization."
+        "AC6.13 capture list count and backing array with the pinned CollectionsMarshal.AsSpan corruption check for owned query materialization.",
+        "AC3.13 all three FindIndex overloads: start/count/match validation, captured end index and live backing-array reads through predicate mutation."
       ],
       "changes": [
         "Replace Array.Copy with typed managed loops; retain allocation-before-publication and exception ordering.",
