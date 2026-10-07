@@ -238,8 +238,8 @@ public static class ObjectInterfacePlanBuilder
             if (input.OwnerGenericArity != method.DeclaringType.Arguments.Count || input.Signature.GenericArity != method.MethodArguments.Count
                 || arrayHelper && input.Signature.GenericArity != 0
                 || input.Signature.Header != (arrayHelper ? 0 : method.MethodArguments.Count == 0 ? 0x20 : 0x30)
-                || input.IsReferenceAssembly || input.HasTypeInitializer || input.HasModuleInitializer)
-                Fail("Interface dispatch preparation requires exact admitted instance owners with closed method arguments and without initialization.", input.Source.Name);
+                || input.IsReferenceAssembly || input.HasTypeInitializer && (!closed || (input.OwnerAttributes & TypeAttributes.BeforeFieldInit) == 0) || input.HasModuleInitializer)
+                Fail("Interface dispatch preparation requires exact admitted instance owners with closed method arguments and without strict type or module initialization.", input.Source.Name);
             _inputs.Add(id, input); _resolved.Add(id, method); return input;
         }
         private void Method(ResolvedMethod method, ObjectVirtualSlot? slot, ObjectTypeCatalog catalog)

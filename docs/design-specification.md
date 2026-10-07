@@ -3669,3 +3669,16 @@ IR v42, layout v26, interface plan v14 and native v68 record the extension;
 core and budgets are unchanged. See [ADR AC0147](decisions/AC0147-int32-enum-array-interfaces.md).
 The frozen engine previously reached IEnumerable<PriorityWindowTiming> after
 386,000 metadata units; full engine/fingerprint execution and replay remain open.
+
+
+### AC8.41: BeforeFieldInit interface targets (2026-10-07)
+
+Closed interface planning now admits BeforeFieldInit owners, matching ordinary
+method and layout admission. Existing static-field access performs initialization;
+interface dispatch adds no new trigger. Strict/module initialization and the
+older non-closed profile remain diagnostic. Six probes supply 1,764 repeated
+O0/O2 native/.NET comparisons with forced GC and ASan/UBSan; 90 focused checks pass.
+Integer CIL v65; IR/native profiles, core and budgets are unchanged. See
+[ADR AC0148](decisions/AC0148-initialized-interface-targets.md).
+The frozen engine previously reached SpellResolutionHandler.get_Id after 440,238
+metadata units. Full engine/fingerprint execution and saved-game replay remain open.
