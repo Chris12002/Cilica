@@ -567,6 +567,13 @@
       "scope": "Private dictionary/tuple ordinal string keys; public String.GetHashCode and arbitrary reference equality remain diagnostic."
     },
     {
+      "path": "library/Cilica.Core/HashCode.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/HashCode.cs",
+      "algorithms": ["Combine<T1,T2> hashes by-value arguments in order, treating null as zero."],
+      "changes": ["Use the existing granted closed key operations and PairHash fixed-seed combiner."],
+      "scope": "Two-argument static Combine for admitted key types only. Nullable/array arguments, other arities and the mutable HashCode builder remain diagnostic; numeric hashes are implementation-specific."
+    },
+    {
       "path": "library/Cilica.Core/PairHash.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/HashCode.cs",
       "algorithms": [
@@ -576,7 +583,7 @@
         "Retain complete MIT and xxHash BSD 2-Clause notices.",
         "Use a fixed zero seed instead of runtime random seeding; hash results remain implementation-specific."
       ],
-      "scope": "Private two-component tuple hash combination; no public HashCode API or cross-runtime numeric hash equivalence."
+      "scope": "Private two-component tuple hash combination and AC5a.6 HashCode.Combine<T1,T2>; no cross-runtime numeric hash equivalence."
     },
     {
       "path": "library/Cilica.Core/BoxedFormatting.cs",

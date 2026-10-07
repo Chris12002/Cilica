@@ -52,6 +52,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/ValueTuple.cs \
   --source library/Cilica.Core/StringKeyOperations.cs \
   --source library/Cilica.Core/PairHash.cs \
+  --source library/Cilica.Core/HashCode.cs \
   --source library/Cilica.Core/BoxedFormatting.cs \
   --source library/Cilica.Core/StringComparison.cs \
   --source library/Cilica.Core/StringComparer.cs \
@@ -957,3 +958,16 @@ forced collection. All 44 tuple-family checks pass. Hashing, text, object/struct
 equality, comparison and ITuple indexing remain explicit diagnostics. No compiler
 profile, intrinsic grant or resource-bound change. See ADR AC0157. Full engine and
 saved-game replay remain unverified.
+
+### Two-argument HashCode.Combine (AC5a.6)
+
+HashCode.Combine<T1,T2> uses existing closed key hashing and the fixed-seed PairHash
+combiner. Arguments are by-value copies, hashed in order with zero for null. Six
+probes provide 1,764 repeated native/.NET behavioral comparisons; 294 additional
+comparisons validate numeric output against an independent pinned-algorithm model
+with Cilica's seed. Cross-runtime numeric hash equality is not claimed.
+All 29 distinct selected hash/key/tuple checks pass after repairing an older array-key
+diagnostic: unsupported array hashing/equality now fails before layout validation.
+Nullable/array components, other arities and the mutable builder remain unsupported.
+Existing grants and compiler/native profiles are unchanged. See ADR AC0158.
+Full engine, fingerprint execution and saved-game replay remain unverified.

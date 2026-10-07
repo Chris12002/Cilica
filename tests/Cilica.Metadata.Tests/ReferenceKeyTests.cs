@@ -34,7 +34,7 @@ public sealed class ReferenceKeyTests
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(ReferenceKeyProbe).Assembly.Location).Value!;
         var result = ValueTranslator.TranslateIntegerObjects(scope, input, (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ReferenceKeyProbe).GetMethod(name)!.MetadataToken), implementation);
-        Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("Object-slot virtual calls require a statically known ordinary class receiver", StringComparison.Ordinal));
+        Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains(name == "Vectors" ? "Default key equality/hashing for array identity receivers" : "Object-slot virtual calls require a statically known ordinary class receiver", StringComparison.Ordinal));
     }
     [Theory]
     [InlineData(false)] [InlineData(true)]

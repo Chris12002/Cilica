@@ -28,7 +28,7 @@ public sealed class ValueTupleLibraryTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Probes.Select((p, i) => (p.Name, programs[i], p.Oracle)).ToArray());
     }
     [Theory]
-    [InlineData(1)] [InlineData(2)] [InlineData(5)] [InlineData(8)]
+    [InlineData(1)] [InlineData(2)] [InlineData(3)] [InlineData(5)] [InlineData(8)]
     public async Task Tuple_nominal_contract_and_fields_match_reference_metadata(int arity)
     {
         using var files = new ResolverFiles();
