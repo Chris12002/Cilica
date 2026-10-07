@@ -200,3 +200,13 @@ namespace Cilica.Runtime
         { Default(length); return Cilica.Library.IntegerFormatting.UInt64Invariant((ulong)value); }
     }
 }
+
+namespace Cilica.Runtime
+{
+    internal static class DefaultReferenceKeyText<T> where T : class
+    {
+        internal static string Render(T value) => Name();
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        private static extern string Name();
+    }
+}

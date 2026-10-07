@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v67",
-    "nativeProfileEvidence": "Public baseline revalidated at AC3.25 on native v67/layout v25; 46 native controls and 1 diagnostic gap.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC3.26 on native v67/layout v25; 46 native controls and 1 diagnostic gap.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 46,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "81305d5f982a3e4a3d0a2899ad253104c9a01013b500cd962f02c51644504836",
-    "latestSlice": "AC3.25",
+    "fixtureSha256": "c8ca03345f9a93546f86c2917cb640d74fed9f314e61694c38719549e708705a",
+    "latestSlice": "AC3.26",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -140,8 +140,13 @@
     "AC3": {
       "prerequisites": ["AC0"],
       "status": "in-progress",
-      "completedSubslices": ["AC3.1", "AC3.2", "AC3.3", "AC3.4", "AC3.5", "AC3.6", "AC3.7", "AC3.8", "AC3.9", "AC3.10", "AC3.11", "AC3.12", "AC3.13", "AC3.14", "AC3.15", "AC3.16", "AC3.17", "AC3.18", "AC3.19", "AC3.20", "AC3.21", "AC3.22", "AC3.23", "AC3.24", "AC3.25"],
+      "completedSubslices": ["AC3.1", "AC3.2", "AC3.3", "AC3.4", "AC3.5", "AC3.6", "AC3.7", "AC3.8", "AC3.9", "AC3.10", "AC3.11", "AC3.12", "AC3.13", "AC3.14", "AC3.15", "AC3.16", "AC3.17", "AC3.18", "AC3.19", "AC3.20", "AC3.21", "AC3.22", "AC3.23", "AC3.24", "AC3.25", "AC3.26"],
       "remaining": "Section/nongeneric copying, broader list equality types and remaining range overloads, Dictionary comparer/enumerable/copy constructors and broader key formatting, HashSet comparer/capacity constructors, remaining primitive vector-dependent enumeration, public copying/set algebra and exact required overloads. AC3.11/AC3.12 cover general enumerable construction and AddRange; enumeration joins AC4."
+    },
+    "AC3.26": {
+      "prerequisites": ["AC3.25"],
+      "status": "complete-bounded-sealed-reference-key-text",
+      "decision": "docs/decisions/AC0142-sealed-reference-key-text.md"
     },
     "AC3.25": {
       "prerequisites": ["AC3.24", "AC8.37"],

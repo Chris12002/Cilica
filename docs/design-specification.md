@@ -3585,3 +3585,18 @@ nullable value search and reference-key error text are separate remaining work.
 Integer CIL v59 records admission; object IR v41, native v67, layout v25 and all
 production limits are unchanged. See [ADR AC0141](decisions/AC0141-reference-key-operations.md).
 Full-engine/fingerprint execution and saved-game replay remain unverified.
+
+### AC3.26: Sealed reference-key error text (2026-10-07)
+
+Dictionary duplicate/missing messages now render sealed ordinary class keys.
+The compiler resolves the exact inherited ToString target: ordinary overrides
+remain normal managed calls; the default Object implementation uses a private,
+independently granted closed-type-name literal. Nested and closed generic names
+use metadata's bounded runtime spelling. Existing dictionary null checks run
+before rendering. No public reflection or general Object.ToString API is added.
+
+Non-sealed keys and inherited IFormattable contracts remain diagnostic. Integer
+CIL v60 records admission and ReferenceKeyTypeName grants the private helper;
+object IR v41, native v67, layout v25 and all production limits are unchanged.
+See [ADR AC0142](decisions/AC0142-sealed-reference-key-text.md).
+Full-engine/fingerprint execution and saved-game replay remain unverified.

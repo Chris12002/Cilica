@@ -1034,5 +1034,12 @@
     "Member": "get_Message",
     "ParameterCount": 0,
     "Capability": "ExceptionMessage"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "DefaultReferenceKeyText`1",
+    "Member": "Name",
+    "ParameterCount": 0,
+    "Capability": "ReferenceKeyTypeName"
   }
 ]
