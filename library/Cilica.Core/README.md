@@ -903,3 +903,17 @@ and flags formatting stay diagnostic. All 43 selected checks pass, including
 baseline remains 45 controls/two gaps. Integer CIL v54/object IR v41; layout v25,
 native v67 and production limits unchanged. See ADR AC0134 and
 artifacts/alchemy-invariant-int32-parse. Full engine/replay remains open.
+
+### AC7b.17: Literal default formatting for boxed integers (2026-10-07)
+
+Directly boxed Int32/UInt32/Int64/UInt64 now use owned invariant decimal rendering
+in one/two/three-position String.Format, with a proven literal and no placeholder
+format suffixes. Discovery and translation both check the literal; actual boxes
+retain same-block identity proof. Existing alignment, callbacks and parser errors
+are preserved. All 60 distinct selected checks pass, including 3,234 new native/.NET
+comparisons and 294 for the advanced public probe, at O0/O2 with forced GC and
+sanitizers. The public baseline is 46 controls/one gap. Dynamic formats, suffixes,
+object aliases and other scalar kinds remain diagnostic. Integer CIL v57; object
+IR v41, native v67, layout v25 and limits unchanged. See ADR AC0139 and
+artifacts/alchemy-boxed-integer-format. Full engine/fingerprint execution and replay
+remain open.

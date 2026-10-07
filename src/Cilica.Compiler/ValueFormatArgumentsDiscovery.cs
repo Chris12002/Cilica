@@ -13,7 +13,7 @@ public static partial class ValueProgramDiscovery
         private readonly Dictionary<IrMethodId, HashSet<int>> _formatEntries = [];
         // A bounded candidate scan only. Translation independently checks actual
         // argument types and each box producer before accepting the selected helper.
-        private ImmutableArray<(TypeSignature Signature, ObjectTypeId Proof)>? MixedFormatArguments(Work work, int callIndex, int count)
+        private ImmutableArray<(TypeSignature Signature, ObjectTypeId Proof, bool Integer)>? MixedFormatArguments(Work work, int callIndex, int count)
         {
             if (!_formatEntries.TryGetValue(work.Binding.Method, out var entries))
             {
@@ -38,19 +38,36 @@ public static partial class ValueProgramDiscovery
                 if (storage != IrType.Reference(text) && storage != IrType.NullReference) return null;
                 hasString = true;
             }
-            // Preserve the established one/two-box path without resolving its
-            // candidate declarations a second time.
-            if (!hasString && count != 3) return null;
-            var result = ImmutableArray.CreateBuilder<(TypeSignature Signature, ObjectTypeId Proof)>(count);
+            var signatures = new TypeSignature?[count]; bool hasInteger = false;
+            for (int i = 0; i < count; ++i)
+            {
+                if (candidates[i].OpCode != "box") continue;
+                signatures[i] = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
+                    MetadataTokens.EntityHandle(Token(work, candidates[i], 0x01, 0x02, 0x1b))), work, candidates[i].Offset);
+                if (OperandSignature(signatures[i]!, work, candidates[i].Offset) is TypeSignature.Primitive primitive && DefaultIntegerFormat.Supports(primitive.Code)) hasInteger = true;
+            }
+            if (!hasString && !hasInteger && count != 3) return null;
+            if (hasInteger)
+            {
+                if (cursor < 0 || work.Input.Instructions[cursor].OpCode != "ldstr")
+                    Fail(work, "Integer composite formatting requires a directly proven literal without format suffixes.", work.Input.Instructions[callIndex].Offset);
+                var literal = Require(resolver.ReadUserString(work.Assembly, work.Input.Instructions[cursor].IntegerOperand ?? 0,
+                    ObjectStringLimits.MaximumLiteralCodeUnits), work, work.Input.Instructions[cursor].Offset);
+                if (!DefaultIntegerFormat.Literal(literal.CodeUnits))
+                    Fail(work, "Integer composite formatting requires a directly proven literal without format suffixes.", work.Input.Instructions[callIndex].Offset);
+            }
+            var result = ImmutableArray.CreateBuilder<(TypeSignature Signature, ObjectTypeId Proof, bool Integer)>(count);
+            int candidateIndex = 0;
             foreach (var producer in candidates)
             {
+                var signature = signatures[candidateIndex++];
                 if (producer.OpCode != "box")
-                { result.Add((new TypeSignature.Primitive(PrimitiveTypeCode.String), text)); continue; }
-                var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
-                    MetadataTokens.EntityHandle(Token(work, producer, 0x01, 0x02, 0x1b))), work, producer.Offset);
-                var receiver = FormattingReceiver(signature, work, producer.Offset);
+                { result.Add((new TypeSignature.Primitive(PrimitiveTypeCode.String), text, false)); continue; }
+                if (OperandSignature(signature!, work, producer.Offset) is TypeSignature.Primitive primitive && DefaultIntegerFormat.Supports(primitive.Code))
+                { result.Add((primitive, ScalarBoxOperand(primitive, work, producer.Offset)!.Value.Type, true)); continue; }
+                var receiver = FormattingReceiver(signature!, work, producer.Offset);
                 var named = new TypeSignature.Named(receiver.Definition, SignatureTypeKind.ValueType);
-                result.Add((receiver.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, receiver.Arguments), Include(receiver, work, producer.Offset)));
+                result.Add((receiver.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, receiver.Arguments), Include(receiver, work, producer.Offset), false));
             }
             return result.ToImmutable();
 

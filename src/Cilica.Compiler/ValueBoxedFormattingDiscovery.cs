@@ -12,8 +12,9 @@ public static partial class ValueProgramDiscovery
 {
     private sealed partial class Session
     {
-        private ImmutableArray<ObjectTypeId>? BoxedFormat(Work work, MethodInstruction instruction, int instructionIndex, ref ResolvedMethod target)
+        private ImmutableArray<ObjectTypeId>? BoxedFormat(Work work, MethodInstruction instruction, int instructionIndex, ref ResolvedMethod target, out bool literalIntegerFormat)
         {
+            literalIntegerFormat = false;
             if (!integers64 || target.DeclaringType.Definition.Assembly != library) return null;
             var text = resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String).Value;
             if (text is null || target.DeclaringType.Definition != text || target.Signature.Parameters.Count is not (2 or 3 or 4)
@@ -27,6 +28,7 @@ public static partial class ValueProgramDiscovery
             {
                 var mixedHelper = Require(resolver.ResolveType(library, "Cilica.Runtime", "BoxedFormatting`" + count), work, offset);
                 target = Require(resolver.ResolveClosedDeclaration(new(mixedHelper, new(mixed.Select(p => p.Signature))), "Format", count + 1, _metadata), work, offset);
+                literalIntegerFormat = mixed.Any(p => p.Integer);
                 return [.. mixed.Select(p => p.Proof)];
             }
             if (count == 3) Fail(work, "String.Format requires directly boxed values or proven strings in one supported same control-flow block.", offset);
@@ -71,6 +73,12 @@ public static partial class ValueProgramDiscovery
                 target = Require(resolver.ResolveClosedDeclaration(new(textHelper, SignatureList<TypeSignature>.Empty), "Render", 4, _metadata), work, offset);
                 return null;
             }
+            if (OperandSignature(target.DeclaringType.Arguments[0], work, offset) is TypeSignature.Primitive integer && DefaultIntegerFormat.Supports(integer.Code))
+            {
+                var integerHelper = Require(resolver.ResolveType(library, "Cilica.Runtime", "IntegerFormatText"), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(integerHelper, SignatureList<TypeSignature>.Empty), "Render" + integer.Code, 4, _metadata), work, offset);
+                return null;
+            }
             var receiver = FormattingReceiver(target.DeclaringType.Arguments[0], work, offset);
             if (EnumScalar(target.DeclaringType.Arguments[0], work, offset))
             {
@@ -109,7 +117,7 @@ public static partial class ValueProgramDiscovery
         {
             var normalized = OperandSignature(signature, work, offset);
             if (normalized is TypeSignature.Primitive primitive && ScalarBoxing.Supported(primitive.Code))
-                Fail(work, "Scalar boxed formatting requires supported format/provider dispatch before execution.", offset);
+                Fail(work, "Scalar boxed formatting requires a directly proven literal without format suffixes for 32/64-bit integers; other scalar or provider formatting requires later lowering.", offset);
             var receiver = signature switch {
                 TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
                 TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),

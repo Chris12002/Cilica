@@ -51,7 +51,7 @@ namespace Cilica.Fixtures.Execution
         public static int UnsupportedAlias(int a,int b) { object value=(TextEnum)a;return string.Format("{0}{1}{2}","a",value,"b").Length; }
         public static int UnsupportedStringAlias(int a,int b) { object value=Text(a);return string.Format("{0}{1}{2}","a",value,"b").Length; }
         public static int UnsupportedJoin(int a,int b)=>string.Format("{0}{1}{2}","a",a<0?null:(object)(TextEnum)b,"b").Length;
-        public static int UnsupportedScalar(int a,int b)=>string.Format("{0}{1}{2}","a",a,"b").Length;
+        public static int UnsupportedScalar(int a,int b)=>string.Format("{0}{1:X}{2}","a",a,"b").Length;
         public static int UnsupportedCustom(int a,int b)=>string.Format("{0}{1}{2}","a",new CustomFormattingValue(),"b").Length;
         public static int UnsupportedFlags(int a,int b)=>string.Format("{0}{1}{2}","a",(FlagTextEnum)a,"b").Length;
     }

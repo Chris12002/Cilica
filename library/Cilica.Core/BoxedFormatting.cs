@@ -181,3 +181,22 @@ namespace Cilica.Runtime
         internal static string Render(string value) => value;
     }
 }
+
+namespace Cilica.Runtime
+{
+    // Compiler admission requires a literal with no format suffixes. Keep a
+    // defensive guard for direct implementation-library calls outside that API.
+    internal static class IntegerFormatText
+    {
+        private static void Default(int length)
+        { if (length != 0) throw new System.NotSupportedException("Only default integer composite formatting is supported."); }
+        internal static string RenderInt32(object value, string format, int start, int length)
+        { Default(length); return Cilica.Library.IntegerFormatting.Int32Invariant((int)value); }
+        internal static string RenderUInt32(object value, string format, int start, int length)
+        { Default(length); return Cilica.Library.IntegerFormatting.UInt32Invariant((uint)value); }
+        internal static string RenderInt64(object value, string format, int start, int length)
+        { Default(length); return Cilica.Library.IntegerFormatting.Int64Invariant((long)value); }
+        internal static string RenderUInt64(object value, string format, int start, int length)
+        { Default(length); return Cilica.Library.IntegerFormatting.UInt64Invariant((ulong)value); }
+    }
+}

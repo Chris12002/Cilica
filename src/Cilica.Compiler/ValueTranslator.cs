@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v56";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v57";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -691,6 +691,9 @@ public static class ValueTranslator
                                         ? values[arguments[i + 1]] != IrType.Reference(stringType!) && values[arguments[i + 1]] != IrType.NullReference
                                         : valueExpressions[arguments[i + 1]] is not IrExpression.BoxValue proof || proof.Type != box).Any()))
                                 Error(offset, "String.Format requires each directly proven box or typed string in the same control-flow block.", DiagnosticIds.ExecutionUnsupported);
+                            if (method.LiteralIntegerFormats.Contains(offset) && (valueExpressions[arguments[0]] is not IrExpression.StringLiteral formatLiteral
+                                || !DefaultIntegerFormat.Literal(formatLiteral.CodeUnits)))
+                                Error(offset, "Integer composite formatting requires a directly proven literal without format suffixes in the same block.", DiagnosticIds.ExecutionUnsupported);
                             if (target.Binding.IntegerParser is not null && (arguments.Length != 4
                                 || valueExpressions[arguments[1]] is not IrExpression.Constant { Value: 7 }
                                 || valueExpressions[arguments[2]] is not IrExpression.InvariantCulture))
