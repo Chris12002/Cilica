@@ -2945,3 +2945,18 @@ root plans, native carrier/lifetime regressions and the 43-control/four-gap base
 Integer CIL v35, managed-location IR v2, scalar-location IR v3, object IR v35 and
 native v62 record this extension. Layout, library and production limits are
 unchanged. Full engine/replay remains unfinished. See [ADR AC0109](../decisions/AC0109-scoped-ref-locals.md).
+
+
+### AC8.40: BeforeFieldInit struct storage (2026-10-07)
+
+Closed structs with BeforeFieldInit initializers now share the existing lazy
+static-storage path. Static fields are excluded from inline layouts, including
+otherwise empty structs and static copies of the declaring value. Generic state,
+reference roots, reentrant zero reads and cached failures retain the existing
+runtime behavior. Strict/module initialization and static addresses remain
+unsupported. Integer CIL v63; IR/native profiles and budgets are unchanged.
+Six probes provide 1,764 O0/O2 native/.NET comparisons, with forced collection,
+ASan/UBSan, plus runtime isolation/root-release checks. All 88 selected
+struct/static/layout checks pass. See [ADR AC0146](../decisions/AC0146-beforefieldinit-structs.md).
+The frozen engine previously reached EffectTarget layout after 372,047 metadata
+units; complete engine/fingerprint execution and saved-game replay remain open.

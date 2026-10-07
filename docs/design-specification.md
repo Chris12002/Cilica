@@ -3637,3 +3637,18 @@ components, and other tuple arities, remain diagnostic. No allocation-count or
 interning equivalence is claimed. Integer CIL v62; existing IR/native profiles
 and budgets remain unchanged. See [ADR AC0145](decisions/AC0145-pair-tuple-text.md).
 Full engine/fingerprint execution and saved-game replay remain open.
+
+
+### AC8.40: BeforeFieldInit struct storage (2026-10-07)
+
+Closed structs with BeforeFieldInit initializers now share the existing lazy
+static-storage path. Static fields are excluded from inline layouts, including
+otherwise empty structs and static copies of the declaring value. Generic state,
+reference roots, reentrant zero reads and cached failures retain the existing
+runtime behavior. Strict/module initialization and static addresses remain
+unsupported. Integer CIL v63; IR/native profiles and budgets are unchanged.
+Six probes provide 1,764 O0/O2 native/.NET comparisons, with forced collection,
+ASan/UBSan, plus runtime isolation/root-release checks. All 88 selected
+struct/static/layout checks pass. See [ADR AC0146](decisions/AC0146-beforefieldinit-structs.md).
+The frozen engine previously reached EffectTarget layout after 372,047 metadata
+units; complete engine/fingerprint execution and saved-game replay remain open.

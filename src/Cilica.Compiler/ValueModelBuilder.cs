@@ -192,15 +192,16 @@ public static class ValueModelBuilder
                 catch (Failure failure) { throw new Failure([.. failure.Diagnostics.Select(d => d with { Location = d.Location + "; value inclusion: " + paths[id] })]); }
                 PrimitiveTypeCode? scalarBox = scalarBoxes is not null && scalarBoxes.TryGetValue(id, out var scalarCode) ? scalarCode : null;
                 if (input.IsByRefLike) Fail("ByRefLike values require stack-only lifetime and escape checking before executable layout.", input.Source.Name);
-                if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count || input.HasTypeInitializer || input.HasModuleInitializer
+                if (input.IsReferenceAssembly || input.OwnerGenericArity != type.Arguments.Count
+                    || input.HasTypeInitializer && (!integers64 || (input.Attributes & TypeAttributes.BeforeFieldInit) == 0) || input.HasModuleInitializer
                     || input.PackingSize != 0 || input.ClassSize != 0 && !(input.ClassSize == 1 && (input.Fields.IsEmpty
-                        || integers64 && input.Fields.All(f => f.IsMetadataConstant || DefaultStaticFields.IsDefault(input, f)))
+                        || integers64 && input.Fields.All(f => f.IsMetadataConstant || DefaultStaticFields.IsStorage(input, f)))
                         && (input.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.SequentialLayout) || !integers64 && input.InterfaceCount != 0
                     || !ValueLayoutPlanner.AttributesSupported(input.Attributes)
                     || input.BaseType is not TypeSignature.Named { Kind: SignatureTypeKind.Unknown or SignatureTypeKind.Class } declaredBase
                     || Id(declaredBase.Definition) != Id(valueBase) && !(scalarBox == PrimitiveTypeCode.Int32
                         && EnumScalar(new TypeSignature.Named(type.Definition, SignatureTypeKind.ValueType))))
-                    Fail("Value layouts require sealed nongeneric direct children of the selected System.ValueType, default managed layout, and no interfaces or type/module initialization.", input.Source.Name + "; value inclusion: " + paths[id]);
+                    Fail("Value layouts require sealed closed direct children of the selected System.ValueType, default managed layout, and no strict type or module initialization; interfaces and BeforeFieldInit initialization require the integer profile.", input.Source.Name + "; value inclusion: " + paths[id]);
                 var declared = new List<ObjectField>();
                 var contracts = new List<ObjectTypeId>();
                 if (input.Interfaces.IsDefault || input.InterfaceCount != input.Interfaces.Length)
@@ -218,7 +219,7 @@ public static class ValueModelBuilder
                 }
                 foreach (var field in scalarBox is null ? input.Fields : [])
                 {
-                    if (integers64 && (field.IsMetadataConstant || DefaultStaticFields.IsDefault(input, field))) continue;
+                    if (integers64 && (field.IsMetadataConstant || DefaultStaticFields.IsStorage(input, field))) continue;
                     string location = paths[id] + " -> " + input.Source.Name + "::" + field.Name + " field 0x" + field.Token.ToString("x8", CultureInfo.InvariantCulture);
                     if (field.HasExplicitStorage || !ObjectModelValidator.FieldAttributesSupported(field.Attributes))
                         Fail("Static, literal, marshalled, RVA, explicit-offset and constant field storage require later lowering.", location);
