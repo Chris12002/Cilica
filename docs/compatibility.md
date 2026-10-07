@@ -3461,3 +3461,14 @@ pass with forced GC/sanitizers. Hidden-value generic arrays retain their separat
 diagnostic. Integer CIL v49; object IR v38/native v65/layout v24 and production
 limits unchanged. Full engine execution/replay remains unfinished. See ADR AC0126
 and artifacts/alchemy-hidden-value-generics.
+
+### AC3.22: Explicit ordinal dictionary construction (2026-10-07)
+
+Dictionary<string,TValue>(StringComparer.Ordinal) now uses the shared exact
+ordinal collection-constructor proof with a separate factory grant. Existing
+string-key algorithms and value ownership are reused. Four new probes provide
+1,176 repeated native/.NET comparisons; all 58 selected checks pass with forced
+GC/sanitizers. Comparer exposure/copy constructors remain diagnostic and require
+separate identity semantics. Integer CIL v50; object IR v38/native v65/layout v24
+and production limits unchanged. Full engine execution/replay remains unfinished.
+See ADR AC0127 and artifacts/alchemy-ordinal-dictionary.

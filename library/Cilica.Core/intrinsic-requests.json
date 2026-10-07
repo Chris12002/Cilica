@@ -971,5 +971,12 @@
     "Member": "ToString",
     "ParameterCount": 0,
     "Capability": "InvariantIntegerFormatting"
+  },
+  {
+    "Namespace": "System.Collections.Generic",
+    "Type": "Dictionary`2",
+    "Member": "CreateOrdinal",
+    "ParameterCount": 1,
+    "Capability": "DictionaryOrdinalConstruction"
   }
 ]
