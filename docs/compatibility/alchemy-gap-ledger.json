@@ -19,8 +19,8 @@
   },
   "baseline": {
     "integrationCommit": "e317e93",
-    "nativeProfile": "object-frames-native-v57",
-    "nativeProfileEvidence": "Public baseline revalidated at AC3.10 on native v57/layout v22; 39 native controls and 8 diagnostic gaps.",
+    "nativeProfile": "object-frames-native-v58",
+    "nativeProfileEvidence": "Public baseline revalidated at AC8.25 on native v58/layout v22; 39 native controls and 8 diagnostic gaps.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 39,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "5dfeec54ff02ca57b3aa071e191b0b79c98f7ce065538d0cc65510f693895549",
-    "latestSlice": "AC3.10",
+    "fixtureSha256": "6e74ba743b7b31e3f637550b5d4fbfc08c519c7c6bf80df6a5c9e3c09a7a7ec7",
+    "latestSlice": "AC8.25",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -562,6 +562,11 @@
       "prerequisites": ["AC8.8"],
       "status": "complete-bounded-protected-base-constructors",
       "decision": "docs/decisions/AC0049-protected-base-constructors.md"
+    },
+    "AC8.25": {
+      "prerequisites": ["AC4.1", "AC8.24"],
+      "status": "complete-bounded-boxed-interface-receivers",
+      "decision": "docs/decisions/AC0088-boxed-interface-receivers.md"
     },
     "AC8.24": {
       "prerequisites": ["AC8.23", "AC3.10"],

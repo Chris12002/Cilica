@@ -143,6 +143,28 @@ public static class ObjectInterfacePlanBuilder
                     Method(exact.Mapping, slot, catalog); Method(exact.Implementation, slot, catalog);
                     targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit));
                 }
+                if (_values is not null)
+                {
+                    var boxes = new BoxedTypeRelations(_values);
+                    foreach (var value in _values.Types.Where(v => v.ScalarBox is null))
+                    {
+                        var receiver = ObjectTypeId.From(value.Source);
+                        if (!boxes.Accepts(receiver, declaration.Owner)) continue;
+                        if (++targetCount > ObjectDispatchLimits.MaximumTargets) Fail("Interface dispatch target limit exceeded.", limit: true);
+                        if (!_choices.TryGetValue((id, receiver), out var exact))
+                        {
+                            try { exact = Value(resolver.ResolveClosedInterfaceMethodTarget(resolved, _knownTypes[receiver], runtimeLibrary, budget)); }
+                            catch (PlanFailure failure) { throw new PlanFailure(failure.Diagnostic, id); }
+                            _choices.Add((id, receiver), exact);
+                        }
+                        if (exact.Mapping != exact.Implementation || ObjectModelBuilder.Id(exact.Implementation.DeclaringType) != receiver
+                            || exact.Implementation.MethodArguments.Count != 0)
+                            throw new PlanFailure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error,
+                                "Boxed interface dispatch requires a declared nongeneric instance body on the exact named value receiver.", declaration.Source.Name), id);
+                        BoxedMethod(exact.Implementation, catalog);
+                        targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit));
+                    }
+                }
                 foreach (var receiver in catalog.Arrays)
                 {
                     if (!types.Assignable(IrType.Reference(receiver), IrType.Reference(declaration.Owner))) continue;
@@ -242,6 +264,24 @@ public static class ObjectInterfacePlanBuilder
             _methods.Add(id, new(new(id, owner, ObjectMethodKind.Instance, input.Attributes, input.OwnerExternallyVisible)
                 { LexicalOwners = catalog.Integer64 ? input.LexicalOwners : [], VirtualSlot = slot, VirtualName = slot is null ? null : input.DeclaredName,
                     OwnerAssemblyVisible = closed && input.OwnerAssemblyVisible, GenericInterfaceMethod = Evidence(method) }, input.DeclaredName, parameters, returned));
+        }
+        private void BoxedMethod(ResolvedMethod method, ObjectTypeCatalog catalog)
+        {
+            var input = Read(method); var id = Id(method); var owner = ObjectModelBuilder.Id(method.DeclaringType);
+            if (!input.HasBody || (input.Attributes & (MethodAttributes.Static | MethodAttributes.Abstract | MethodAttributes.RTSpecialName)) != 0
+                || (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask
+                    | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL)
+                Fail("Boxed interface targets require ordinary managed value-instance bodies.", input.Source.Name);
+            if (_methods.ContainsKey(id)) return;
+            var parameters = Parameters(input, owner).SetItem(0, IrType.Location(IrType.Value(owner)));
+            var returned = Type(input.Signature.ReturnType, true);
+            var rules = new IrTypeRules(catalog, _values, locations: true);
+            if (parameters.Any(t => !rules.Valid(t, true)) || returned != IrType.Void && !rules.Valid(returned, true))
+                Fail("Boxed interface signature introduced a type outside the prepared catalog.", input.Source.Name);
+            Count(parameters.Length);
+            var binding = new ObjectMethodBinding(id, owner, ObjectMethodKind.ValueInstance, input.Attributes, input.OwnerExternallyVisible)
+                { LexicalOwners = input.LexicalOwners, OwnerAssemblyVisible = input.OwnerAssemblyVisible };
+            _methods.Add(id, new(binding, input.DeclaredName, parameters, returned) { BoxedDeclaration = binding });
         }
         private IrMethodId ArrayMethod(ObjectInterfaceDeclaration declaration, ObjectTypeId receiver, ObjectTypeCatalog catalog)
         {

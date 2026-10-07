@@ -6,7 +6,7 @@ using System.Linq;
 namespace Cilica.Compiler;
 
 // Box descriptors retain the nominal interface closure of their value payload.
-// These relationships admit casts/storage, not boxed method dispatch.
+// Named payload dispatch requires separately validated complete interface maps.
 internal sealed class BoxedTypeRelations
 {
     private readonly Dictionary<ObjectTypeId, HashSet<ObjectTypeId>> _ancestors = [];
@@ -73,7 +73,10 @@ internal sealed class BoxedTypeRelations
             {
                 if (++work > ObjectModelLimits.MaximumTypeRelationWork)
                     throw new ArgumentException("Boxed dispatch closure exceeds the type-relation work limit.");
-                if (Accepts(type, owner) && !proof.Safe(block, value.Id))
+                bool payloadDispatch = !_scalarBoxes.Contains(type) && !classOwners.Contains(owner) && dispatch is not null
+                    && dispatch.Declarations.Where(d => d.Owner == owner).All(d => dispatch.Dispatch
+                        .Single(m => m.Declaration == IrMethodId.From(d.Source)).Targets.Any(t => t.Receiver == type));
+                if (Accepts(type, owner) && !proof.Safe(block, value.Id) && !payloadDispatch)
                     throw new ArgumentException(classOwners.Contains(owner)
                         ? "Boxed class method dispatch requires payload receiver lowering before execution."
                         : "Boxed interface method dispatch requires payload receiver lowering before execution.");

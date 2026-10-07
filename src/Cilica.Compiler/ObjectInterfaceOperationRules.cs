@@ -20,6 +20,8 @@ internal sealed class ObjectInterfaceOperationRules
         Require(CatalogMatches(program.Flow.Types, plan.Types), "interface plan and executable catalog disagree.");
         Require(plan.Values is null || values is not null && ValueCatalogMatches(plan.Values, values),
             "interface value layouts and executable catalog disagree.");
+        Require(plan.BoxedValues is null || values is not null && ValueCatalogMatches(plan.BoxedValues, values),
+            "scalar boxed interface receiver layouts and executable catalog disagree.");
         foreach (var declaration in plan.Declarations)
         {
             var id = IrMethodId.From(declaration.Source);
@@ -70,7 +72,10 @@ internal sealed class ObjectInterfaceOperationRules
         var types = right.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         return left.Types.All(t => types.TryGetValue(ObjectTypeId.From(t.Source), out var other)
             && t.Source == other.Source && t.Attributes == other.Attributes && t.ExternallyVisible == other.ExternallyVisible
-            && t.Fields.SequenceEqual(other.Fields) && t.Interfaces.SequenceEqual(other.Interfaces));
+            && t.Fields.SequenceEqual(other.Fields) && t.Interfaces.SequenceEqual(other.Interfaces)
+            && t.ScalarBox == other.ScalarBox && t.ScalarEnum == other.ScalarEnum
+            && t.EnumConstants.IsDefault == other.EnumConstants.IsDefault
+            && (t.EnumConstants.IsDefault || t.EnumConstants.SequenceEqual(other.EnumConstants)));
     }
 
     internal static bool CatalogMatches(ObjectTypeCatalog left, ObjectTypeCatalog right)

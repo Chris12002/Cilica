@@ -33,6 +33,7 @@ public sealed class ListEnumerationTests
         var result = ValueTranslator.TranslateIntegerObjects(scope, input,
             (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ListEnumerationProbe).GetMethod("UnsupportedLegacyCurrent")!.MetadataToken), implementation);
         Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.ExecutionUnsupported && d.Message.Contains("Boxed interface method dispatch requires payload receiver lowering", StringComparison.Ordinal));
+        Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.ExecutionUnsupported && d.Message.Contains("This library member has no implemented managed body", StringComparison.Ordinal)
+            && d.Location!.Contains("System.Collections.IEnumerator.get_Current", StringComparison.Ordinal));
     }
 }

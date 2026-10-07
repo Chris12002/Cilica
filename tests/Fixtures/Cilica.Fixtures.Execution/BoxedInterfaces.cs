@@ -19,8 +19,105 @@ namespace Cilica.Fixtures.Execution
     }
     public struct OtherInterfaceBoxValue : IBoxChild { public int Number; }
     public sealed class InterfaceBoxHolder { public IBoxParent Value; }
+    public struct BoxPair { public int Number; public long Wide; public string Text; }
+    public interface IBoxState
+    {
+        void Advance(int amount);
+        BoxPair Exchange(BoxPair value, int marker);
+        int Inspect();
+        void Fail(int amount);
+        object Snapshot();
+    }
+    public struct BoxState : IBoxState
+    {
+        public BoxPair Pair;
+        public int Count;
+        public void Advance(int amount)
+        {
+            Pair.Number = unchecked(Pair.Number + amount); Count++;
+            Pair.Wide = unchecked(Pair.Wide + amount);
+            Pair.Text = string.Concat(Pair.Text, "!");
+        }
+        public BoxPair Exchange(BoxPair value, int marker)
+        {
+            BoxPair previous = Pair; Pair = value; Count = marker;
+            Pair.Text = string.Concat(Pair.Text, "swap");
+            return previous;
+        }
+        public int Inspect() => unchecked(Pair.Number + (int)Pair.Wide + Pair.Text.Length + Count);
+        public void Fail(int amount) { Advance(amount); throw new System.InvalidOperationException("after mutation"); }
+        public object Snapshot() { string pressure = string.Concat(Pair.Text, "copy"); Count += pressure.Length; return this; }
+    }
+    public interface IBoxCursor<T> { T Next(int delta); int Count(); }
+    public struct BoxCursor<T> : IBoxCursor<T>
+    {
+        public T Item; public int Position;
+        T IBoxCursor<T>.Next(int delta) { Position = unchecked(Position + delta); return Item; }
+        int IBoxCursor<T>.Count() => Position;
+    }
+    public interface IBoxEmpty { int Read(int value); void Touch(int mode); }
+    public struct EmptyBoxCall : IBoxEmpty
+    {
+        public int Read(int value) => unchecked(value + 117);
+        public void Touch(int mode) { if (mode < 0) throw new System.InvalidOperationException(); }
+    }
     public static class BoxedInterfaces
     {
+        public static int Mutable(int input, int mode)
+        {
+            var raw = new BoxState(); raw.Pair.Number = input; raw.Pair.Wide = ((long)input << 32) | (uint)mode; raw.Pair.Text = "initial";
+            raw.Advance(1);
+            IBoxState first = raw; IBoxState alias = first; IBoxState independent = raw;
+            first.Advance(mode); alias.Advance(2);
+            var copied = (BoxState)first; copied.Advance(3);
+            return unchecked(first.Inspect() + independent.Inspect() + copied.Inspect() + raw.Inspect());
+        }
+        public static int PayloadReturn(int input, int mode)
+        {
+            var raw = new BoxState(); raw.Pair.Number = input; raw.Pair.Wide = (long)input << 33; raw.Pair.Text = "old";
+            IBoxState box = raw;
+            var replacement = new BoxPair(); replacement.Number = mode; replacement.Wide = (long)mode << 31; replacement.Text = "new";
+            var previous = box.Exchange(replacement, input);
+            replacement.Number = 7;
+            return unchecked(box.Inspect() + previous.Number + (int)previous.Wide + previous.Text.Length);
+        }
+        public static int MutationFault(int input, int mode)
+        {
+            var raw = new BoxState(); raw.Pair.Number = input; raw.Pair.Text = "fault";
+            IBoxState box = raw; int result = 0;
+            try { box.Fail(mode); } catch (System.InvalidOperationException) { result = box.Inspect(); }
+            IBoxState missing = null;
+            try { missing.Advance(input); } catch (System.NullReferenceException) { result = unchecked(result + 101); }
+            try { result = missing.Inspect(); } catch (System.NullReferenceException) { result = unchecked(result + 211); }
+            return result;
+        }
+        private static IBoxState CreateState(int input) { var value = new BoxState(); value.Pair.Number = input; value.Pair.Text = "only root"; return value; }
+        public static int Allocation(int input, int mode)
+        {
+            IBoxState box = CreateState(input); box.Advance(mode);
+            var copy = (BoxState)box.Snapshot();
+            return unchecked(CreateState(mode).Inspect() + copy.Inspect() + box.Inspect());
+        }
+        public static int GenericValue(int input, int mode)
+        {
+            var raw = new BoxCursor<BoxPair>(); raw.Position = input; raw.Item.Number = mode; raw.Item.Wide = (long)input << 32; raw.Item.Text = "generic";
+            IBoxCursor<BoxPair> box = raw;
+            var first = box.Next(mode); var second = box.Next(input);
+            return unchecked(first.Number + second.Text.Length + (int)second.Wide + box.Count() + raw.Position);
+        }
+        public static int GenericReference(int input, int mode)
+        {
+            var raw = new BoxCursor<BoxedCallClass>(); raw.Position = mode; raw.Item = new BoxedCallClass(input);
+            IBoxCursor<BoxedCallClass> box = raw;
+            var item = box.Next(input); item.Number = unchecked(item.Number + mode);
+            return unchecked(box.Next(3).Number + box.Count() + raw.Position);
+        }
+        public static int Empty(int input, int mode)
+        {
+            IBoxEmpty box = new EmptyBoxCall(); int result = box.Read(input);
+            try { box.Touch(mode); } catch (System.InvalidOperationException) { result = unchecked(result + 33); }
+            return unchecked(result + box.Read(mode));
+        }
         public static int ReadConfined(object value) => ((BoxedCallValue)value).Number;
         private static IBoxCall Escape(object value) => (IBoxCall)value;
         public static int ConfinedWithDispatch(int input, int mode)

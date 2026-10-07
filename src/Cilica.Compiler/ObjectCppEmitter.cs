@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v57";
+    public const string Profile = "object-frames-native-v58";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -120,7 +120,13 @@ public static class ObjectCppEmitter
             : referenceTypes.Concat(boxedPayloads.Select(p => p.Type)).Distinct().ToArray())
             .Select((type, index) => (type, index)).ToDictionary(p => p.type, p => p.index);
         string Predicate(ObjectTypeId type) => contracts.Contains(type) ? ContractSymbol(type) : TypeSymbol(type) + "_accepts";
-        var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key], exceptions?.Base));
+        var boxedTargets = program.InterfaceDispatch?.Methods.Where(m => m.BoxedDeclaration is not null)
+            .ToDictionary(m => m.Binding.Method, m => m.Binding.Owner!) ?? [];
+        var payloadWidths = boxedPayloads.ToDictionary(p => p.Type, p => p.Slots.Length);
+        var boxedDispatchArguments = program.InterfaceDispatch?.Dispatch
+            .Where(m => m.Targets.Any(t => boxedTargets.ContainsKey(t.Implementation)))
+            .ToDictionary(m => m.Declaration, m => m.Targets.Max(t => methods[t.Implementation].Parameters.Length)) ?? [];
+        var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key], exceptions?.Base, boxedDispatchArguments));
         var entry = methods[program.Flow.Entry];
         string symbol = CppEmitter.Symbol(program.Flow.Entry) + "_objects_packed", scope = symbol + "_closure";
         var text = new StringBuilder();
@@ -266,6 +272,7 @@ public static class ObjectCppEmitter
                 .Append("    std::uint64_t borrow_token = 0; LocationResult location_result{};\n");
             if (!boxedPayloads.IsEmpty) text.Append("    std::array<Argument, ").Append(N(layout.BoxArgumentCount))
                 .Append("> box_arguments{}; BoxResult box_result{};\n");
+            if (layout.HasBoxedDispatch) text.Append("    const Descriptor* dispatch_box_type = nullptr; std::size_t dispatch_payload = 0;\n");
             if (delegates is not null) text.Append("    DelegateResult delegate_result{};\n");
             if (handlers) text.Append("    std::uint32_t active_block = 0; bool exception_routed = false; ExceptionResult exception_result{};\n")
                 .Append("    std::array<ExceptionOrigin, ").Append(N(method.ExceptionRegions.Length * 2)).Append("> exception_origins{};\n")
@@ -286,23 +293,34 @@ public static class ObjectCppEmitter
                     .Append(string.Join(", ", initializer.binding.TypeInitializerName!.Select(ch => N(ch)))).Append("};\n");
         }
         delegates?.AppendTargets(text, TypeSymbol, Predicate);
+        if (boxedTargets.Count != 0) text.Append(ObjectCppBoxedDispatch.Text);
         var dispatch = program.Dispatch.Concat(program.InterfaceDispatch is { } prepared
             ? prepared.Dispatch.Select(m => new ObjectVirtualDispatch(m.Declaration,
                 [.. m.Targets.Select(t => new ObjectVirtualTarget(t.Receiver, t.Implementation))])) : []);
         foreach (var map in dispatch)
         {
             string name = DispatchSymbol(map.Declaration);
+            bool boxedMap = boxedDispatchArguments.ContainsKey(map.Declaration);
             text.Append("using ").Append(name).Append("_body = ").Append(CType(signatures[map.Declaration].ReturnType))
                 .Append(" (*)(Context&, const ").Append(argumentType).Append("*) noexcept;\nstruct ").Append(name)
-                .Append("_entry { const Descriptor* type; ").Append(name).Append("_body body; };\n")
+                .Append("_entry { const Descriptor* type; ").Append(name).Append("_body body;")
+                .Append(boxedMap ? " bool boxed; std::size_t payload;" : "").Append(" };\n")
                 .Append("static constexpr std::array<").Append(name).Append("_entry, ").Append(N(map.Targets.Length)).Append("> ")
                 .Append(name).Append("_table = {{\n");
             foreach (var target in map.Targets)
-                text.Append("    { &").Append(TypeSymbol(target.Receiver)).Append("_descriptor, ")
-                    .Append(CppEmitter.Symbol(target.Implementation)).Append(" },\n");
+            {
+                bool boxed = boxedTargets.ContainsKey(target.Implementation);
+                text.Append("    { &").Append(boxed ? ObjectCppBoxing.Symbol(target.Receiver) : TypeSymbol(target.Receiver)).Append("_descriptor, ")
+                    .Append(CppEmitter.Symbol(target.Implementation));
+                if (boxedMap) text.Append(boxed ? ", true, " + N(payloadWidths[target.Receiver]) : ", false, 0");
+                text.Append(" },\n");
+            }
             text.Append("}};\n[[maybe_unused, gnu::noinline]] static ").Append(name).Append("_body ").Append(name)
-                .Append("(const Descriptor* type) noexcept {\n    for (const auto& entry : ").Append(name)
-                .Append("_table) if (entry.type == type) return entry.body;\n    return nullptr;\n}\n");
+                .Append("(const Descriptor* type").Append(boxedMap ? ", const Descriptor*& boxed, std::size_t& payload" : "")
+                .Append(") noexcept {\n").Append(boxedMap ? "    boxed = nullptr; payload = 0;\n" : "")
+                .Append("    for (const auto& entry : ").Append(name).Append("_table) if (entry.type == type) { ")
+                .Append(boxedMap ? "boxed = entry.boxed ? entry.type : nullptr; payload = entry.payload; " : "")
+                .Append("return entry.body; }\n    return nullptr;\n}\n");
         }
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)) AppendMethod(method);
         text.Append("}\n// Private experimental boundary; valid disjoint outputs, references remain internal.\n")
@@ -402,7 +420,7 @@ public static class ObjectCppEmitter
                     Flush();
                 }
             }
-            string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false)
+            string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false, int offset = 0)
             {
                 var parameters = signatures[target].Parameters;
                 int start = receiver is null ? 0 : 1;
@@ -414,6 +432,12 @@ public static class ObjectCppEmitter
                     if ((i + 1) % CopiesPerStep == 0) Flush();
                 }
                 Flush();
+                if (dispatch && boxedDispatchArguments.ContainsKey(target))
+                {
+                    code.Append("    f->unsigned_scratch = adapt_boxed_call(context, f->arguments.data(), ").Append(N(args.Length))
+                        .Append(", f->arguments.size(), f->dispatch_box_type, f->dispatch_payload);\n");
+                    Guard("f->unsigned_scratch != 0u", "static_cast<std::uint32_t>(f->unsigned_scratch)", offset); Flush();
+                }
                 return (dispatch ? DispatchPointer(signatures[target].ReturnType.Kind) : CppEmitter.Symbol(target)) + "(context, f->arguments.data())";
             }
             string DelegateCall(ObjectTypeId type, int receiver, ImmutableArray<int> arguments, int offset)
@@ -439,7 +463,8 @@ public static class ObjectCppEmitter
                 Check(Value(arguments[0]), signatures[target].Parameters[0].Class!, true, offset); Flush();
                 string pointer = DispatchPointer(signatures[target].ReturnType.Kind);
                 code.Append("    ").Append(pointer).Append(" = ").Append(DispatchSymbol(target)).Append('(')
-                    .Append(Value(arguments[0])).Append("->type);\n");
+                    .Append(Value(arguments[0])).Append("->type")
+                    .Append(boxedDispatchArguments.ContainsKey(target) ? ", f->dispatch_box_type, f->dispatch_payload" : "").Append(");\n");
                 Guard(pointer + " == nullptr", "6u", offset); Flush();
             }
             void Pending() => code.Append("    if (context.pending != 0u) ").Append(Exit()).Append('\n');
@@ -674,7 +699,7 @@ public static class ObjectCppEmitter
                                 case IrExpression.Call call:
                                     if (call.VirtualDispatch) SelectDispatch(call.Target, call.Arguments, value.ILOffset);
                                     else if (call.NullCheckReceiver) Guard(Value(call.Arguments[0]) + " == nullptr", "4u", value.ILOffset);
-                                    expression = Call(call.Target, call.Arguments, dispatch: call.VirtualDispatch);
+                                    expression = Call(call.Target, call.Arguments, dispatch: call.VirtualDispatch, offset: value.ILOffset);
                                     if (value.Type.Kind is IrTypeKind.Int32 or IrTypeKind.Int64)
                                         expression = "std::bit_cast<" + (value.Type.Kind == IrTypeKind.Int64 ? "std::uint64_t" : "std::uint32_t") + ">(" + expression + ")";
                                     break;
@@ -719,7 +744,7 @@ public static class ObjectCppEmitter
                         case IrStatement.Invoke invoke:
                             if (invoke.VirtualDispatch) SelectDispatch(invoke.Target, invoke.Arguments, invoke.ILOffset);
                             else if (invoke.NullCheckReceiver) Guard(Value(invoke.Arguments[0]) + " == nullptr", "4u", invoke.ILOffset);
-                            string invocation = Call(invoke.Target, invoke.Arguments, dispatch: invoke.VirtualDispatch);
+                            string invocation = Call(invoke.Target, invoke.Arguments, dispatch: invoke.VirtualDispatch, offset: invoke.ILOffset);
                             code.Append("    ").Append(invocation).Append(";\n"); Pending(); break;
                         case IrStatement.StoreElement store:
                             ArrayCheck(store.Array, store.ArrayType, store.Index, store.ILOffset);

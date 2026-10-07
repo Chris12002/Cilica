@@ -13,13 +13,14 @@ internal sealed class ObjectFrameLayout
     internal int WideIntegerCount { get; }
     internal int RootCount { get; }
     internal int CallArgumentCount { get; }
+    internal bool HasBoxedDispatch { get; }
     internal int BoxArgumentCount { get; }
     internal int LocationCount { get; }
     internal bool BorrowsFrame { get; }
     internal List<IrType> RootTypes { get; } = [];
     internal HashSet<IrTypeKind> DispatchKinds { get; } = [];
 
-    internal ObjectFrameLayout(IrMethod method, ObjectMethodRoots roots, ObjectTypeId? exceptionBase = null)
+    internal ObjectFrameLayout(IrMethod method, ObjectMethodRoots roots, ObjectTypeId? exceptionBase = null, IReadOnlyDictionary<IrMethodId, int>? boxedDispatchArguments = null)
     {
         RootCount = roots.Slots.Length;
         var valueTypes = method.Blocks.SelectMany(b => b.Values.Select(v => (b.Id, v)))
@@ -39,6 +40,15 @@ internal sealed class ObjectFrameLayout
             RootTypes.Add(type);
         }
         int integers = 0, wideIntegers = 0, arguments = 0, locations = 0;
+        int CallWidth(IrMethodId target, int count, bool dispatch)
+        {
+            if (dispatch && boxedDispatchArguments?.TryGetValue(target, out int expanded) == true)
+                return System.Math.Max(count, expanded);
+            return count;
+        }
+        HasBoxedDispatch = method.Blocks.Any(b => b.Values.Any(v => v.Expression is IrExpression.Call { VirtualDispatch: true } call
+                && boxedDispatchArguments?.ContainsKey(call.Target) == true)
+            || b.Statements.OfType<IrStatement.Invoke>().Any(c => c.VirtualDispatch && boxedDispatchArguments?.ContainsKey(c.Target) == true));
         void Add(ObjectRootKind kind, int index, IrType type, int block = -1)
         {
             if (type.Kind == IrTypeKind.Int32)
@@ -68,7 +78,7 @@ internal sealed class ObjectFrameLayout
                 if (value.Expression is IrExpression.Call { VirtualDispatch: true }) DispatchKinds.Add(value.Type.Kind);
                 int count = value.Expression switch
                 {
-                    IrExpression.Call call => call.Arguments.Length,
+                    IrExpression.Call call => CallWidth(call.Target, call.Arguments.Length, call.VirtualDispatch),
                     IrExpression.NewObject creation => creation.Arguments.Length + 1,
                     IrExpression.CallDelegate call => call.Arguments.Length + 1,
                     _ => 0,
@@ -80,7 +90,7 @@ internal sealed class ObjectFrameLayout
                 arguments = System.Math.Max(arguments, call.Arguments.Length + 1);
             foreach (var call in block.Statements.OfType<IrStatement.Invoke>())
             {
-                arguments = System.Math.Max(arguments, call.Arguments.Length);
+                arguments = System.Math.Max(arguments, CallWidth(call.Target, call.Arguments.Length, call.VirtualDispatch));
                 if (call.VirtualDispatch) DispatchKinds.Add(IrTypeKind.Void);
             }
         }

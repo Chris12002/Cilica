@@ -2941,3 +2941,19 @@ StateLookup translates eight methods with 9,917 units. These partial measurement
 leave full engine capacity unknown. Production limits remain unchanged, and this
 audit neither emits nor executes native code. Full replay remains unfinished.
 See [ADR AC0087](decisions/AC0087-metadata-work-audit.md).
+
+### Boxed named-value interface receivers (AC8.25)
+
+Named non-scalar structs now dispatch through exact interface implementations,
+including explicit methods and closed generic owners. Calls borrow the original
+boxed payload, preserving mutable state, independent boxed copies and references.
+The caller adapts arguments in its existing budgeted frame; empty payloads and
+inline results retain correct packet ordering without an extra allocation.
+Ten probes pass 2,940 O0/O2 native/.NET comparisons with forced GC and sanitizers;
+113 distinct checks pass across the final focused runs, including four native
+packet guard checks and the unchanged 39-control/8-gap baseline. Integer CIL v26,
+interface plan/scalar boxed IR v12, object IR v31 and native v58 record this slice.
+Scalar/enum and inherited class dispatch, generic methods on boxes and variance
+adapters remain unsupported. Collection interface factories are the next library
+slice. Production quotas and the frozen engine's type-limit stop are unchanged;
+full replay remains unfinished. See [ADR AC0088](decisions/AC0088-boxed-interface-receivers.md).

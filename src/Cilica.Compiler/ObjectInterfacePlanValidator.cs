@@ -21,6 +21,7 @@ public static class ObjectInterfacePlanValidator
                 "interface value signatures require the same explicit integer-object catalog.");
         }
         var types = new IrTypeRules(plan.Types, plan.Values, locations: plan.Types.Integer64);
+        var boxes = new BoxedInterfacePlanRules(plan);
         var classes = plan.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var contracts = plan.Types.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
         Require(!plan.Declarations.IsDefault && plan.Declarations.Length is > 0 and <= ProgramLimits.MaximumMethods
@@ -65,6 +66,15 @@ public static class ObjectInterfacePlanValidator
         var bodies = new Dictionary<(ObjectVirtualSlot, ObjectTypeId), ObjectDispatchMethod>();
         foreach (var method in plan.Methods)
         {
+            if (method?.BoxedDeclaration is not null)
+            {
+                boxes.Method(method);
+                Require(methods.TryAdd(method.Binding.Method, method) && !declarations.ContainsKey(method.Binding.Method), "duplicate boxed method identity.");
+                methodArguments.Add(method.Binding.Method, null);
+                parameters += method.Parameters.Length;
+                Require(parameters <= ProgramLimits.MaximumCallArguments, "aggregate declaration parameter limit exceeded.");
+                continue;
+            }
             if (method is { ArrayHelper: true })
             {
                 var helper = method.Binding;
@@ -145,7 +155,7 @@ public static class ObjectInterfacePlanValidator
                 && maps.Add(map.Declaration) && !map.Targets.IsDefault && map.Targets.Length <= ObjectModelLimits.MaximumTypes,
                 "invalid/duplicate interface map.");
             var declaration = declarations[map.Declaration];
-            var expected = classes.Keys.Where(id => (classes[id].Attributes & TypeAttributes.Abstract) == 0).Concat(plan.Types.Arrays).Where(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();
+            var expected = classes.Keys.Where(id => (classes[id].Attributes & TypeAttributes.Abstract) == 0).Concat(plan.Types.Arrays).Where(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).Concat(boxes.Receivers(declaration.Owner)).ToHashSet();
             var receivers = new Dictionary<ObjectTypeId, ObjectInterfaceTarget>();
             foreach (var target in map.Targets)
             {
@@ -154,6 +164,11 @@ public static class ObjectInterfacePlanValidator
                     && target.Implementation is not null && methods.ContainsKey(target.Implementation), "invalid/duplicate receiver or missing method facts.");
                 var mapping = methods[target.Mapping]; var implementation = methods[target.Implementation];
                 Require((implementation.Binding.Attributes & MethodAttributes.Abstract) == 0, "interface implementations must have concrete bodies.");
+                if (boxes.IsReceiver(target.Receiver))
+                {
+                    boxes.Target(declaration, target, implementation); used.Add(target.Implementation); continue;
+                }
+                Require(mapping.BoxedDeclaration is null && implementation.BoxedDeclaration is null, "reference mappings cannot use boxed receiver methods.");
                 if (target.Receiver.ArrayElement is not null)
                 {
                     var kind = contracts[declaration.Owner].ArrayContract;
@@ -195,7 +210,7 @@ public static class ObjectInterfacePlanValidator
                 used.Add(target.Mapping); used.Add(target.Implementation);
             }
             Require(expected.SetEquals(receivers.Keys), "map must cover every compatible catalog class exactly once.");
-            foreach (var target in map.Targets.Where(t => t.Receiver.ArrayElement is null))
+            foreach (var target in map.Targets.Where(t => t.Receiver.ArrayElement is null && !boxes.IsReceiver(t.Receiver)))
             {
                 var receiver = classes[target.Receiver];
                 bool reimplements = receiver.Interfaces.Any(id => types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner)));

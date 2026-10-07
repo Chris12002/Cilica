@@ -23,7 +23,7 @@ public static class ValueScalarLowering
         return result;
     }
 
-    private static ImmutableArray<ObjectMethodBinding> LowerBindings(ImmutableArray<ObjectMethodBinding> bindings) =>
+    internal static ImmutableArray<ObjectMethodBinding> LowerBindings(ImmutableArray<ObjectMethodBinding> bindings) =>
         [.. bindings.Select(binding => binding.Kind is ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance ? binding with {
             Kind = ObjectMethodKind.Static, Primitive = null, InvariantProviderOnly = false,
             Attributes = (binding.Attributes & ~(System.Reflection.MethodAttributes.SpecialName | System.Reflection.MethodAttributes.RTSpecialName
@@ -121,10 +121,10 @@ public static class ValueScalarLowering
             return result.ToImmutable();
         }
         var lowered = plan with {
-            Values = null, Types = new HeapValueFields(values, layouts).Catalog,
+            Values = null, BoxedValues = plan.Methods.Any(m => m.BoxedDeclaration is not null) ? values : null, Types = new HeapValueFields(values, layouts).Catalog,
             Declarations = [.. plan.Declarations.Select(d => d with { Parameters = Parameters(d.Parameters, d.ReturnType),
                 ReturnType = d.ReturnType.Kind == IrTypeKind.Value ? IrType.Void : d.ReturnType })],
-            Methods = [.. plan.Methods.Select(m => m with { Parameters = Parameters(m.Parameters, m.ReturnType),
+            Methods = [.. plan.Methods.Select(m => m with { Binding = m.BoxedDeclaration is null ? m.Binding : LowerBindings([m.Binding])[0], Parameters = Parameters(m.Parameters, m.ReturnType),
                 ReturnType = m.ReturnType.Kind == IrTypeKind.Value ? IrType.Void : m.ReturnType })] };
         ObjectInterfacePlanValidator.Validate(lowered);
         return lowered;

@@ -13,11 +13,13 @@ public sealed record ObjectInterfaceDeclaration(MethodSource Source, ObjectTypeI
     public ClosedGenericEvidence? GenericMethod { get; init; }
 }
 
-/// <summary>Class method facts needed for mapping/slot validation, without IL or executable IR.</summary>
+/// <summary>Method facts needed for mapping/slot validation, without IL or executable IR.</summary>
 public sealed record ObjectDispatchMethod(ObjectMethodBinding Binding, string Name,
     ImmutableArray<IrType> Parameters, IrType ReturnType)
 {
     public bool ArrayHelper { get; init; }
+    // Logical value-instance provenance retained when payload parameters become scalar.
+    public ObjectMethodBinding? BoxedDeclaration { get; init; }
 }
 
 public sealed record ObjectInterfaceTarget(ObjectTypeId Receiver, IrMethodId Mapping, IrMethodId Implementation, bool IsExplicit);
@@ -28,8 +30,10 @@ public sealed record ObjectInterfaceDispatchPlan(ObjectTypeCatalog Types,
     ImmutableArray<ObjectInterfaceDeclaration> Declarations, ImmutableArray<ObjectDispatchMethod> Methods,
     ImmutableArray<ObjectInterfaceDispatch> Dispatch)
 {
-    public const string Profile = "interface-dispatch-plan-v11";
+    public const string Profile = "interface-dispatch-plan-v12";
     public ValueTypeCatalog? Values { get; init; }
+    // Original value catalog authenticates scalar receiver packets after lowering.
+    public ValueTypeCatalog? BoxedValues { get; init; }
 }
 
 public sealed record ObjectInterfacePlanResult(ObjectInterfaceDispatchPlan? Plan, ImmutableArray<Diagnostic> Diagnostics)

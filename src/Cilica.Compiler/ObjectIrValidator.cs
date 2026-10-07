@@ -219,7 +219,7 @@ internal sealed partial class ObjectIrRules
             .Concat(flow.Types.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
             .Concat(flow.Types.Statics.Select(f => (f.Id.Owner, f.LexicalOwners)))
             .Concat(flow.Types.Delegates.Select(d => (ObjectTypeId.From(d.Source), d.LexicalOwners))));
-        _interfaces = new(program, _bindings, _methods, values);
+        _interfaces = new(program, _bindings, _methods, values ?? boxes?.Catalog);
         _dispatch = new(program, _bindings, _methods, _types, _interfaces);
     }
 
