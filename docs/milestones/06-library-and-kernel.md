@@ -3039,3 +3039,17 @@ See [ADR AC0151](../decisions/AC0151-interface-signature-context.md).
 The frozen engine previously reached hidden WaveKind inside a generic array
 helper signature after 776,942 metadata units. Full engine/fingerprint execution
 and saved-game replay remain open.
+
+
+### AC8.45: Retain delegate metadata for vector helpers (2026-10-07)
+
+Validated delegate declarations now retain their exact constructed metadata
+identity for selected array-interface helper binding. Delegate shape validation,
+visibility, source access and helper grants are unchanged. Four probes cover
+nongeneric Count, indexed private-delegate reads, closed Func copies and
+nongeneric Clear, with captured target lifetime checks. They provide 1,176
+repeated O0/O2 native/.NET comparisons with forced GC and ASan/UBSan; all 64
+focused checks pass. Integer CIL v68 records admission; IR/native profiles and
+budgets are unchanged. See [ADR AC0152](../decisions/AC0152-delegate-vector-metadata.md).
+The frozen engine previously reached a CommandHandler[] array helper after
+780,053 metadata units. Full engine/fingerprint execution and replay remain open.

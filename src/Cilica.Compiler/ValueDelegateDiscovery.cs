@@ -92,6 +92,9 @@ public static partial class ValueProgramDiscovery
             if (callable.ParameterCount >= IrLimits.MaximumParameters || _delegateFacts.Values.Sum(d => d.Type.ParameterCount) + callable.ParameterCount > IrLimits.MaximumParameters)
                 Fail(work, "Aggregate delegate signature limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             _delegateFacts.Add(id, new(callable, constructorHandle, invokeHandle, invoke.Signature));
+            // Delegate catalogs bypass ordinary class layout observation. Preserve
+            // the authenticated closed identity for selected vector helper binding.
+            _knownTypes.TryAdd(id, type);
             return callable;
         }
     }
