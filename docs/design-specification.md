@@ -3760,3 +3760,21 @@ v70 record the extension; core and budgets are unchanged. See
 [ADR AC0153](decisions/AC0153-narrow-array-interface-metadata.md).
 The frozen engine previously reached narrow array Count after 782,813 metadata
 units. Full engine/fingerprint execution and saved-game replay remain open.
+
+
+### AC8.46: Diagnostic metadata and dispatch-method capacity (2026-10-07)
+
+After AC7a.7, the copied 786,432-unit metadata budget exhausts with 786,428 units
+charged. Raising only copied metadata to 1,048,576 reaches the method limit after
+817,418 units. A counter-only audit measures 4,246/4,096 combined method identities:
+2,997 bodies, four abstract methods, 273 interface declarations, 1,017 mapping facts
+and 38 exception declarations (categories overlap). Other counters remain within
+their diagnostic limits: 1,207 type roots, 72,751 instructions, 5,870 parameters and
+3,239 locals.
+
+A copied 6,144-method allowance then reaches HashSet<string>(IEnumerable<string>,
+StringComparer.Ordinal) in HandLimitHandler.Resolve after 820,241 metadata units
+in 3,477 ms. StateLookup remains 15 methods/11,511 units. Production bounds and
+60-second probe caps are unchanged; no native engine emission/execution occurred.
+See [ADR AC0154](decisions/AC0154-dispatch-capacity-audit.md). Full engine/fingerprint
+execution and saved-game replay remain open.

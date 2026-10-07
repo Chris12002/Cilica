@@ -615,6 +615,11 @@
       "status": "complete-format-range-transport",
       "decision": "docs/decisions/AC0097-format-range-transport.md"
     },
+    "AC8.46": {
+      "prerequisites": ["AC7a.7"],
+      "status": "diagnostic-only-measured-metadata-and-dispatch-capacity",
+      "decision": "docs/decisions/AC0154-dispatch-capacity-audit.md"
+    },
     "AC8.45": {
       "prerequisites": ["AC8.44"],
       "status": "complete-bounded-delegate-vector-metadata",
@@ -719,7 +724,7 @@
     "AC8": {
       "prerequisites": ["required AC1-AC7 slices"],
       "status": "in-progress",
-      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12", "AC8.13", "AC8.14", "AC8.15", "AC8.16", "AC8.17", "AC8.18", "AC8.19", "AC8.20", "AC8.21", "AC8.22", "AC8.25", "AC8.26", "AC8.29", "AC8.30", "AC8.31", "AC8.32", "AC8.33", "AC8.34", "AC8.35", "AC8.37", "AC8.38", "AC8.39", "AC8.40", "AC8.41", "AC8.42", "AC8.43", "AC8.44", "AC8.45"],
+      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12", "AC8.13", "AC8.14", "AC8.15", "AC8.16", "AC8.17", "AC8.18", "AC8.19", "AC8.20", "AC8.21", "AC8.22", "AC8.25", "AC8.26", "AC8.29", "AC8.30", "AC8.31", "AC8.32", "AC8.33", "AC8.34", "AC8.35", "AC8.37", "AC8.38", "AC8.39", "AC8.40", "AC8.41", "AC8.42", "AC8.43", "AC8.44", "AC8.45", "AC8.46"],
       "remaining": "Generic type-test origin evidence, catalog budget audit and remaining real closure gaps; private generic arrays are validated in AC8.4."
     },
     "AC8.1": {
