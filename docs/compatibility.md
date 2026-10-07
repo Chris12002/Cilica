@@ -2995,3 +2995,17 @@ fallbacks remain diagnostic. No new intrinsics, layouts or resource limits.
 The baseline now has 37 native controls and 10 gaps, compiled in smaller batches
 under the existing subprocess limit. Frozen engine/state still hit type limits;
 full replay is unfinished. See [ADR AC0082](decisions/AC0082-default-utf8.md).
+
+### Ordinal String prefix checks (AC7b.11)
+
+Exact granted StartsWith(String,StringComparison) sites require a directly proven
+Ordinal constant, then call an ordinary managed String prefix helper. callvirt
+preserves receiver-first null checks; direct call requires a proven non-null
+string literal. Other direct receivers remain diagnostic because the installed
+.NET JIT differs for literal versus dynamic empty prefixes with a null receiver.
+Seven probes pass 5,220 repeated native/.NET comparisons; denied grants, modes,
+raw-null calls and malformed IR remain checked. All 43 distinct selected checks
+pass across final focused runs. Integer CIL v24 records admission; native v57,
+layouts and quotas are unchanged. The public baseline is 38 controls/9 gaps.
+Frozen engine/state remain at type limits; full saved-game replay is unfinished.
+See [ADR AC0083](decisions/AC0083-ordinal-string-prefix.md).

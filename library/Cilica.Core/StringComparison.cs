@@ -18,6 +18,15 @@ namespace System
 {
     public sealed partial class String
     {
+        // Selected StartsWith(..., Ordinal) calls erase the proven mode before entry.
+        public bool StartsWithOrdinal(string value)
+        {
+            if (value == null) throw new ArgumentNullException("value");
+            if ((object)this == (object)value || value.Length == 0) return true;
+            if (Length < value.Length) return false;
+            for (int i = 0; i < value.Length; i++) if (this[i] != value[i]) return false;
+            return true;
+        }
         public static bool IsNullOrEmpty(string value) => value == null || value.Length == 0;
         public static int CompareOrdinal(string left, string right)
         {

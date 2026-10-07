@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v23";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v24";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -563,6 +563,16 @@ public static class ValueTranslator
                         case "call":
                         case "box" or "unbox.any" when boxing && method.Calls.ContainsKey(offset):
                             var target = methods[method.Calls[offset]];
+                            if (method.OrdinalPrefixCalls.Contains(offset))
+                            {
+                                if (opcode is not ("call" or "callvirt") || target.Binding.Kind != ObjectMethodKind.Instance
+                                    || target.Binding.Owner != stringType || target.ReturnType != IrType.Int32
+                                    || target.Parameters.Length != 2 || target.Parameters.Any(p => p != IrType.Reference(stringType!)))
+                                    Error(offset, "Ordinal prefix bridge requires its exact instance String-to-Boolean signature.");
+                                int prefixMode = Pop(offset, IrType.Int32);
+                                if (valueExpressions[prefixMode] is not IrExpression.Constant { Value: 4 })
+                                    Error(offset, "String.StartsWith currently requires a directly proven StringComparison.Ordinal constant; other modes and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            }
                             bool factoryConstructor = method.FactoryConstructorCalls.TryGetValue(offset, out var factoryOwner);
                             if (factoryConstructor && (opcode != "newobj" || target.Binding.Kind != ObjectMethodKind.Static
                                 || target.Binding.Owner != factoryOwner || target.ReturnType != IrType.Reference(factoryOwner!) || target.Parameters.Length != 1))
@@ -593,6 +603,8 @@ public static class ValueTranslator
                                 }
                                 else arguments[i] = Pop(offset, target.Parameters[i + skip]);
                             }
+                            if (method.OrdinalPrefixCalls.Contains(offset) && opcode == "call" && valueExpressions[arguments[0]] is not IrExpression.StringLiteral)
+                                Error(offset, "Direct String.StartsWith calls require a proven non-null literal receiver; other direct calls have JIT-dependent null behavior and require later lowering.", DiagnosticIds.ExecutionUnsupported);
                             if (method.BoxedFormatCalls.TryGetValue(offset, out var formatBoxes)
                                 && (formatBoxes.Length is not (1 or 2) || arguments.Length != formatBoxes.Length + 1
                                     || formatBoxes.Where((box, i) => valueExpressions[arguments[i + 1]] is not IrExpression.BoxValue proof || proof.Type != box).Any()))

@@ -852,5 +852,12 @@
     "Member": "CopyCharacters",
     "ParameterCount": 1,
     "Capability": "StringCharacterConstruction"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "StartsWith",
+    "ParameterCount": 2,
+    "Capability": "StringOrdinalPrefix"
   }
 ]

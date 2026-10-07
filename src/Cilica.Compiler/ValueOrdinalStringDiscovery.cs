@@ -32,6 +32,11 @@ public static partial class ValueProgramDiscovery
                 || input.Implementation != MethodImplAttributes.InternalCall)
                 Fail(work, "Only the exact selected ordinal String.Equals declaration is implemented.", offset);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.StringOrdinalEqual), work, offset);
+            ValidateStringComparison(comparison, work, offset);
+            return new(ValueIntrinsic.StringOrdinalEqual, IncludeString(work, offset), 3);
+        }
+        private void ValidateStringComparison(ResolvedType comparison, Work work, int offset)
+        {
             var metadata = Snapshot(comparison, work, offset);
             var enumBase = Require(resolver.ResolveType(library, "System", "Enum"), work, offset);
             var fields = metadata.Fields.Where(f => (f.Attributes & FieldAttributes.Static) == 0).ToArray();
@@ -42,7 +47,7 @@ public static partial class ValueProgramDiscovery
                 || fields[0].Signature is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }
                 || fields[0].Attributes != (FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName))
                 Fail(work, "StringComparison requires its exact public Int32 enum storage contract.", offset);
-            return new(ValueIntrinsic.StringOrdinalEqual, IncludeString(work, offset), 3);
         }
+
     }
 }

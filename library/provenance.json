@@ -1105,6 +1105,15 @@
       ],
       "scope": "Default read-only UTF-8 encoding only. Two managed passes over immutable UTF-16 replace spans, pointers, SIMD and mutable fallback objects. Byte arrays retain existing runtime quotas; other encodings, decoder/streaming APIs, configurable fallbacks and UTF8Encoding constructors are not mapped.",
       "path": "library/Cilica.Core/Utf8Encoding.cs"
+    },
+    {
+      "path": "library/Cilica.Core/StringComparison.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/String.Comparison.cs",
+      "contracts": [
+        "Exact granted StartsWith(String,StringComparison) call sites require directly proven Ordinal before erasing the mode and calling the managed prefix helper.",
+        "Exact UTF-16 prefix checks preserve callvirt null order and proven non-null literal call receivers, null parameter value, identity and empty shortcuts."
+      ],
+      "scope": "Ordinal constant only. Other comparison modes, aliases and the default-culture overload remain diagnostic. Uses existing String indexing and managed instance-call lowering without new native operations. Direct calls require a proven literal receiver; other raw calls/function pointers remain diagnostic because .NET JIT expansion changes null-receiver behavior for literal prefixes."
     }
   ]
 }
