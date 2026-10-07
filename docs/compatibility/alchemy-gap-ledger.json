@@ -19,8 +19,8 @@
   },
   "baseline": {
     "integrationCommit": "e317e93",
-    "nativeProfile": "object-frames-native-v62",
-    "nativeProfileEvidence": "Public baseline revalidated at AC5b.10 on native v62/layout v23; 43 native controls and 4 diagnostic gaps.",
+    "nativeProfile": "object-frames-native-v63",
+    "nativeProfileEvidence": "Public baseline revalidated at AC7a.4 on native v63/layout v23; 43 native controls and 4 diagnostic gaps.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 43,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "a1469af07041c881a695e3241d0df172ad56a2fd3147915f426a849f6d42209d",
-    "latestSlice": "AC5b.10",
+    "fixtureSha256": "c4954931d9a7cd5907dcb6bda9fdcd76d28320e5f6942b3f8728bc801442f5e0",
+    "latestSlice": "AC7a.4",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -455,8 +455,13 @@
     "AC7a": {
       "prerequisites": ["AC0"],
       "status": "in-progress",
-      "completedSubslices": ["AC7a.1", "AC7a.2", "AC7a.3"],
+      "completedSubslices": ["AC7a.1", "AC7a.2", "AC7a.3", "AC7a.4"],
       "remaining": "Narrow array interface dispatch, primitive array borrows, UInt64/other primitive widths, general field-data initialization and required binary-reader operations."
+    },
+    "AC7a.4": {
+      "prerequisites": ["AC5b.10", "AC7a.2"],
+      "status": "complete-bounded-reference-array-borrows",
+      "decision": "docs/decisions/AC0110-reference-array-borrows.md"
     },
     "AC7a.3": {
       "prerequisites": ["AC7a.1", "AC7a.2", "AC8.28"],

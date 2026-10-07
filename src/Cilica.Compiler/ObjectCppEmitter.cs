@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v62";
+    public const string Profile = "object-frames-native-v63";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -382,7 +382,7 @@ public static class ObjectCppEmitter
                 code.Append("    if (").Append(condition).Append(") {\n"); Fault(status, offset); code.Append("    }\n");
             }
             void CheckLocationResult(int offset) => Guard("f->location_result.status != LocationStatus::complete",
-                "f->location_result.status == LocationStatus::null_reference ? 4u : f->location_result.status == LocationStatus::index_bounds ? 10u : 6u", offset);
+                "f->location_result.status == LocationStatus::null_reference ? 4u : f->location_result.status == LocationStatus::index_bounds ? 10u : f->location_result.status == LocationStatus::array_type_mismatch ? 11u : 6u", offset);
             void CastFault(string condition, string receiver, string target, int offset, bool nullableTarget = false, bool dynamicTarget = false)
             {
                 code.Append("    if (").Append(condition).Append(") {\n        raise_cast_exception(context, ").Append(receiver).Append(", ")

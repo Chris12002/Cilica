@@ -3222,3 +3222,17 @@ root plans, native carrier/lifetime regressions and the 43-control/four-gap base
 Integer CIL v35, managed-location IR v2, scalar-location IR v3, object IR v35 and
 native v62 record this extension. Layout, library and production limits are
 unchanged. Full engine/replay remains unfinished. See [ADR AC0109](decisions/AC0109-scoped-ref-locals.md).
+
+### Reference-array element borrows (AC7a.4)
+
+Exact reference-array element addresses now compose with scoped ref locals.
+Carriers retain and root the original array owner across allocations and source
+variable replacement. Writable addresses check null, bounds and exact runtime
+array type in .NET order; covariance does not permit a differently typed writable
+slot. Existing carrier checks protect ownership, readonly state and payloads.
+Six probes provide 1,764 native/.NET comparisons, with 54 focused positive,
+safety and regression checks passing at O0/O2 under ASan/UBSan and forced GC.
+Integer CIL v36, value-array IR v3, scalar-location IR v4, object IR v36 and native
+v63 record the change. Layout, library and production bounds are unchanged.
+Primitive array borrows and full engine/replay remain unfinished.
+See [ADR AC0110](decisions/AC0110-reference-array-borrows.md).

@@ -7,7 +7,7 @@ namespace Cilica.Compiler;
 /// <summary>Inline copies and synchronous borrows composed with bounded vector allocation/access.</summary>
 public sealed record ValueArrayIrProgram(ManagedLocationIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "value-arrays-ir-v2";
+    public const string Profile = "value-arrays-ir-v3";
 }
 
 public static class ValueArrayIrValidator

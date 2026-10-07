@@ -4,7 +4,7 @@ namespace Cilica.Compiler;
 internal static class ObjectCppLocations
 {
     internal const string Text = """
-enum class LocationStatus { complete, invalid, read_only, limit, busy, null_reference, index_bounds };
+enum class LocationStatus { complete, invalid, read_only, limit, busy, null_reference, index_bounds, array_type_mismatch };
 enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field, frame_wide_integer, array_slot };
 struct Location {
     // A heap location's owner must be published as a root across allocations.
@@ -131,20 +131,31 @@ struct LocationStorage {
     if (write && storage.read_only) return {LocationStatus::read_only};
     return {LocationStatus::complete, storage.kind, field_address(location.owner, location.slot), storage.accepts};
 }
+// The dispatcher validates ownership, exact type, backing buffers and element bounds.
+// Keep component address arithmetic separate from those checks to bound O0 ASan frames.
+[[gnu::noinline]] static LocationStorage array_component_location_storage(ArrayObject* array,
+    const Descriptor& type, std::size_t element, std::size_t slot) noexcept {
+    if (slot >= type.array_component_count || type.array_components == nullptr)
+        return {LocationStatus::invalid};
+    const auto& component = type.array_components[slot];
+    if (component.kind == StorageKind::integer)
+        return {LocationStatus::complete, component.kind, &array->integers[element * type.array_int32_count + component.offset]};
+    if (component.kind == StorageKind::wide_integer)
+        return {LocationStatus::complete, component.kind, &array->wide_integers[element * type.array_int64_count + component.offset]};
+    return {LocationStatus::complete, component.kind, &array->references[element * type.array_reference_slots + component.offset], component.accepts};
+}
 [[gnu::noinline]] static LocationStorage array_location_storage(Context& context, const Location& location) noexcept {
     if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)
         || !known_type(location.declaring) || location.owner->type != location.declaring
-        || location.declaring->array_kind != 3 || !valid_array_storage(location.owner)) return {LocationStatus::invalid};
+        || (location.declaring->array_kind != 2 && location.declaring->array_kind != 3) || !valid_array_storage(location.owner)) return {LocationStatus::invalid};
     auto* array = reinterpret_cast<ArrayObject*>(location.owner);
     const auto& type = *location.declaring;
-    if (location.element >= array->length || location.slot >= type.array_component_count || type.array_components == nullptr)
-        return {LocationStatus::invalid};
-    const auto& component = type.array_components[location.slot];
-    if (component.kind == StorageKind::integer)
-        return {LocationStatus::complete, component.kind, &array->integers[location.element * type.array_int32_count + component.offset]};
-    if (component.kind == StorageKind::wide_integer)
-        return {LocationStatus::complete, component.kind, &array->wide_integers[location.element * type.array_int64_count + component.offset]};
-    return {LocationStatus::complete, component.kind, &array->references[location.element * type.array_reference_slots + component.offset], component.accepts};
+    if (location.element >= array->length) return {LocationStatus::invalid};
+    if (type.array_kind == 2) {
+        if (location.slot != 0 || type.accepts_element == nullptr) return {LocationStatus::invalid};
+        return {LocationStatus::complete, StorageKind::reference, &array->references[location.element], type.accepts_element};
+    }
+    return array_component_location_storage(array, type, location.element, location.slot);
 }
 [[gnu::noinline]] static LocationStorage location_storage(Context& context, const Location& location, bool write) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
@@ -170,9 +181,13 @@ struct LocationStorage {
     const Descriptor* declaring, std::uint32_t index, std::size_t slot, bool read_only = false) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
     if (owner == nullptr) return {LocationStatus::null_reference};
-    if (!traceable_reference(context.instance, owner) || !known_type(declaring) || owner->type != declaring
-        || declaring->array_kind != 3 || !valid_array_storage(owner)) return {LocationStatus::invalid};
+    if (!traceable_reference(context.instance, owner) || !known_type(declaring)
+        || (declaring->array_kind != 2 && declaring->array_kind != 3)
+        || owner->type->array_kind != declaring->array_kind || !valid_array_storage(owner)) return {LocationStatus::invalid};
+    if (declaring->array_kind == 3 && owner->type != declaring) return {LocationStatus::invalid};
     if (index >= reinterpret_cast<ArrayObject*>(owner)->length) return {LocationStatus::index_bounds};
+    // A writable reference slot is invariant even when its array view is covariant.
+    if (owner->type != declaring) return {declaring->array_kind == 2 ? LocationStatus::array_type_mismatch : LocationStatus::invalid};
     Location value{owner, 0, slot, declaring, LocationOrigin::array_slot, read_only, index};
     const auto storage = location_storage(context, value, false);
     return storage.status == LocationStatus::complete ? LocationResult{storage.status, value} : LocationResult{storage.status};

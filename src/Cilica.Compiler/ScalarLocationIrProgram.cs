@@ -5,7 +5,7 @@ namespace Cilica.Compiler;
 /// <summary>Scalar, synchronous borrows composed with existing object operations. Inline values require expansion first.</summary>
 public sealed record ScalarLocationIrProgram(ObjectIrProgram Flow)
 {
-    public const string Profile = "scalar-location-ir-v3";
+    public const string Profile = "scalar-location-ir-v4";
 }
 
 public static class ScalarLocationIrValidator
