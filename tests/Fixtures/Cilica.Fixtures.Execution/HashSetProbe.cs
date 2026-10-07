@@ -107,7 +107,6 @@ namespace Cilica.Fixtures.Execution
         public static void RemoveTracked(HashSet<CollisionKey> set) { set.Remove(new CollisionKey(1, new KeyTrace())); }
         public static void ClearTracked(HashSet<CollisionKey> set) { set.Clear(); }
         public static int Tracked(int a, int b) { var set = CreateTracked(); RemoveTracked(set); ClearTracked(set); return set.Count + a; }
-        public static int UnsupportedEnumeration(int a, int b) { var set = new HashSet<int>(); foreach (var value in (IEnumerable<int>)set) a += value; return a; }
         public static int UnsupportedComparer(int a, int b) => new HashSet<int>(EqualityComparer<int>.Default).Count;
     }
 }

@@ -54,7 +54,7 @@ public sealed class HashSetTests
             Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         }
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        foreach (string name in new[] { "UnsupportedEnumeration", "UnsupportedComparer" })
+        foreach (string name in new[] { "UnsupportedComparer" })
             Assert.False(ValueTranslator.TranslateIntegerObjects(scope, input, Method(name), implementation).Success);
         var b = new ResolutionAssemblyBuilder(new("ExternalReferenceShape", new Version(1,0,0,0)));
         var owner = b.TypeReference("Cilica.Runtime", "KeyOperations`1", b.Reference(implementation.Identity));

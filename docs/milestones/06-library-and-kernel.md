@@ -2854,3 +2854,21 @@ sanitizers. All 45 selected checks pass, including predicate/distinct regression
 and the unchanged 42-control/five-gap baseline. Grants, compiler/native profiles,
 runtime layout and production bounds are unchanged. Full frozen-engine execution
 and saved-game replay remain unfinished. See [ADR AC0101](../decisions/AC0101-direct-first.md).
+
+### HashSet cursors and enumerable construction (AC4.9 / AC3.15)
+
+HashSet now supplies mapped value cursors and boxed interface cursors, with exact
+version/current/reset behavior and the shared empty cursor. Enumerable construction
+validates collection, reads ICollection Count once and enumerates with disposal.
+Existing-set sources preserve the dense clone versus sparse reinsertion threshold;
+duplicate-heavy construction trims stored hashes without callbacks.
+
+Seventeen probes provide 7,956 O0/O2 native/.NET comparisons with forced GC and
+sanitizers. All 38 final selected checks pass, including set lifetime/grant tests
+and the unchanged 42-control/five-gap baseline. Int64 enumerable construction still
+reaches the unsupported wide vector needed by its empty cursor; an explicit negative
+probe pins that dependency. Wide fields in admitted value keys pass. Custom
+comparers, capacity constructors, public copying, set algebra and serialization
+remain unimplemented. Compiler/native profiles, runtime layout and resource limits
+are unchanged; full engine/replay remains unfinished. See [ADR AC0102](../decisions/AC0102-set-enumeration.md)
+and [ADR AC0103](../decisions/AC0103-enumerable-set-construction.md).

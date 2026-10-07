@@ -31,6 +31,18 @@ namespace System.Collections.Generic
     {
         private readonly Cilica.Runtime.SetStorage<T> storage;
         public HashSet() { storage = new Cilica.Runtime.SetStorage<T>(); }
+        public HashSet(IEnumerable<T> collection) { storage = CopyEnumerable(collection); }
+        private static Cilica.Runtime.SetStorage<T> CopyEnumerable(IEnumerable<T> collection)
+        {
+            if (collection == null) throw new ArgumentNullException("collection");
+            if (collection is HashSet<T> other) return Cilica.Runtime.SetStorage<T>.CopySet(other.storage);
+            int capacity = 0;
+            if (collection is ICollection<T> counted) capacity = counted.Count;
+            var result = Cilica.Runtime.SetStorage<T>.ForQuery(capacity);
+            foreach (T item in collection) result.Add(item);
+            result.TrimConstructionExcess();
+            return result;
+        }
         public int Count => storage.Count;
         bool ICollection<T>.IsReadOnly => false;
         public bool Contains(T item) => storage.Contains(item);
@@ -40,8 +52,51 @@ namespace System.Collections.Generic
         public bool Remove(T item) => storage.Remove(item);
         public void Clear() { storage.Clear(); }
         public void CopyTo(T[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
-        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+        internal int EnumerationVersion => storage.EnumerationVersion;
+        internal int EnumerationCount => storage.EnumerationCount;
+        internal int EntryNext(int index) => storage.EntryNext(index);
+        internal T EntryValue(int index) => storage.EntryValue(index);
+        public Enumerator GetEnumerator() => new Enumerator(this);
+        public struct Enumerator : IEnumerator<T>
+        {
+            private readonly HashSet<T> owner;
+            private readonly int version;
+            private int index;
+            private T current;
+            internal Enumerator(HashSet<T> owner)
+            { this.owner = owner; version = owner.EnumerationVersion; index = 0; current = default; }
+            public bool MoveNext()
+            {
+                if (version != owner.EnumerationVersion)
+                    throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                while ((uint)index < (uint)owner.EnumerationCount)
+                {
+                    int entry = index++;
+                    if (owner.EntryNext(entry) >= -1) { current = owner.EntryValue(entry); return true; }
+                }
+                index = unchecked(owner.EnumerationCount + 1); current = default; return false;
+            }
+            public T Current => current;
+            public void Dispose() { }
+            object Collections.IEnumerator.Current
+            {
+                get
+                {
+                    if (index == 0 || index == unchecked(owner.EnumerationCount + 1))
+                        throw new InvalidOperationException("Enumeration has either not started or has already finished.");
+                    return current;
+                }
+            }
+            void Collections.IEnumerator.Reset()
+            {
+                if (version != owner.EnumerationVersion)
+                    throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                index = 0; current = default;
+            }
+        }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Count == 0
+            ? System.SZGenericArrayEnumerator<T>.Create(null, 0) : GetEnumerator();
+        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
         public void UnionWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         public void IntersectWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         public void ExceptWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
@@ -73,6 +128,10 @@ namespace Cilica.Runtime
         private int version;
         public SetStorage() { }
         public int Count => count - freeCount;
+        internal int EnumerationVersion => version;
+        internal int EnumerationCount => count;
+        internal int EntryNext(int index) => entries[index].Next;
+        internal T EntryValue(int index) => entries[index].Value;
         private static int Hash(ref T item) => Cilica.Runtime.KeyOperations<T>.IsNull(item) ? 0 : Cilica.Runtime.KeyOperations<T>.Hash(ref item);
         private static bool Equal(T left, T right) => Cilica.Runtime.KeyOperations<T>.Equal(ref left, right);
         private static void Concurrent()
@@ -185,6 +244,50 @@ namespace Cilica.Runtime
             var result = new SetStorage<T>();
             if (capacity > 0) result.InitializeCapacity(capacity);
             return result;
+        }
+        internal static SetStorage<T> CopySet(SetStorage<T> source)
+        {
+            var result = new SetStorage<T>();
+            if (source.Count == 0) return result;
+            int capacity = source.buckets.Length;
+            int threshold = DictionaryPrimes.ExpandPrime(source.Count + 1);
+            if (threshold >= capacity)
+            {
+                var copiedBuckets = new int[capacity];
+                for (int i = 0; i < capacity; i++) copiedBuckets[i] = source.buckets[i];
+                var original = source.entries;
+                var copiedEntries = new HashSetEntry<T>[original.Length];
+                for (int i = 0; i < original.Length; i++) copiedEntries[i] = original[i];
+                result.buckets = copiedBuckets; result.entries = copiedEntries;
+                result.freeList = source.freeList; result.freeCount = source.freeCount; result.count = source.count;
+            }
+            else
+            {
+                result.InitializeCapacity(source.Count);
+                var captured = source.entries;
+                for (int i = 0; i < source.count; i++)
+                    if (captured[i].Next >= -1) result.Add(captured[i].Value);
+            }
+            return result;
+        }
+        internal void TrimConstructionExcess()
+        {
+            if (count == 0 || entries.Length / count <= 3) return;
+            int size = DictionaryPrimes.GetPrime(Count);
+            if (size >= entries.Length) return;
+            var original = entries;
+            int oldCount = count; version++;
+            InitializeCapacity(size);
+            int output = 0;
+            for (int i = 0; i < oldCount; i++)
+            {
+                if (original[i].Next < -1) continue;
+                entries[output] = original[i];
+                int bucket = (int)((uint)original[i].Hash % (uint)size);
+                entries[output].Next = buckets[bucket] - 1; buckets[bucket] = output + 1;
+                output++;
+            }
+            count = output; freeCount = 0;
         }
         internal T[] QueryArray()
         {
