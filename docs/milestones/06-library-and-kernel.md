@@ -2839,3 +2839,18 @@ restricted. Sixty-one focused metadata checks pass. Closed class and interface
 target profiles advance to v3. This is metadata foundation only: executable
 abstract class calls still require a bodyless IR declaration path. No placeholder
 implementation is emitted. Full replay remains unverified. See ADR AC0058.
+
+### First-element terminals and captured lists (AC6.15)
+
+Non-predicate First and FirstOrDefault now reuse owned query dispatch, one IList
+Count/index read or a single enumerator step with disposal. First preserves the
+empty-versus-default distinction. Review also reproduced and fixed predicate and
+filtered-list First mutation behavior: capture original backing storage/count and
+return the element loaded before the callback. A private first-element traversal
+mode carries that behavior through projections without consuming existing cursors.
+
+Sixteen probes supply 9,792 O0/O2 native/.NET comparisons with forced GC and
+sanitizers. All 45 selected checks pass, including predicate/distinct regressions
+and the unchanged 42-control/five-gap baseline. Grants, compiler/native profiles,
+runtime layout and production bounds are unchanged. Full frozen-engine execution
+and saved-game replay remain unfinished. See [ADR AC0101](../decisions/AC0101-direct-first.md).

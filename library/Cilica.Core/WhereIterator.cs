@@ -52,7 +52,7 @@ namespace Cilica.Runtime
         public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)
         {
             count = -1;
-            if ((terminal == 3 || terminal == 4) && array == null && source is List<T> list)
+            if ((terminal == 3 || terminal == 4 || terminal == 5) && array == null && source is List<T> list)
             {
                 var captured = list.QueryStorage(out int capturedCount);
                 return new WhereIterator<T>(captured, captured, predicate, capturedCount).GetEnumerator();
@@ -123,11 +123,14 @@ namespace Cilica.Runtime
         }
         public T TryFirst(out int found)
         {
-            if (array != null)
+            T[] values = array;
+            int count = values == null ? 0 : values.Length;
+            if (values == null && source is List<T> list) values = list.QueryStorage(out count);
+            if (values != null)
             {
-                for (int index = 0; index < array.Length; index++)
+                for (int index = 0; index < count; index++)
                 {
-                    T item = array[index]; if (predicate(item)) { found = 1; return item; }
+                    T item = values[index]; if (predicate(item)) { found = 1; return item; }
                 }
             }
             else

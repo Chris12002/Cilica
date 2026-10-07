@@ -79,6 +79,18 @@ namespace System.Linq
             }
             found = 0; return default;
         }
+        public static TSource FirstOrDefault<TSource>(IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            return Cilica.Runtime.QueryFirst<TSource>.Read(source, out _);
+        }
+        public static TSource First<TSource>(IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            TSource value = Cilica.Runtime.QueryFirst<TSource>.Read(source, out int found);
+            if (found == 0) throw new InvalidOperationException("Sequence contains no elements");
+            return value;
+        }
         public static TSource FirstOrDefault<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate) =>
             TryGetFirst(source, predicate, out _);
         public static TSource First<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
@@ -92,9 +104,12 @@ namespace System.Linq
         {
             if (source == null) throw new ArgumentNullException("source");
             if (predicate == null) throw new ArgumentNullException("predicate");
-            if (source is TSource[] array)
+            TSource[] array = source as TSource[];
+            int length = array == null ? 0 : array.Length;
+            if (array == null && source is List<TSource> list) array = list.QueryStorage(out length);
+            if (array != null)
             {
-                for (int i = 0; i < array.Length; i++)
+                for (int i = 0; i < length; i++)
                 {
                     TSource item = array[i];
                     if (predicate(item)) { found = 1; return item; }

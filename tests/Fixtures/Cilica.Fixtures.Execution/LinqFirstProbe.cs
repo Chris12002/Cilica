@@ -71,7 +71,6 @@ namespace Cilica.Fixtures.Execution
         }
         private static bool IsZero(int value) => value == 0;
         private static bool IsNull(ValueVectorBox value) => value == null;
-        public static int UnsupportedNoPredicate(int a, int b) => new[] { a, b }.FirstOrDefault();
         public static int ValuePredicate(int a, int b) => new ValueVectorCell[1].FirstOrDefault(Match).Number;
         private static bool Match(ValueVectorCell value) => true;
     }

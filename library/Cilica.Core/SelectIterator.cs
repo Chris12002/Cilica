@@ -13,6 +13,8 @@ namespace Cilica.Runtime
     // evaluating selectors and must not add a count-getter callback. Terminal 3
     // materializes to an array; terminal 4 materializes to a list. Both capture
     // List storage and guard preallocated destinations before invoking selectors.
+    // Terminal 5 reads a first element; filtered lists capture storage without
+    // changing ordinary iteration or materialization-count callbacks.
     public interface IQueryTraversal<T>
     {
         IEnumerator<T> GetQueryEnumerator(int terminal, out int count);
@@ -145,7 +147,7 @@ namespace Cilica.Runtime
             {
                 TSource item = query.TryFirst(out found); return found != 0 ? selector(item) : default(TResult);
             }
-            using (var e = GetQueryEnumerator(1, out _))
+            using (var e = GetQueryEnumerator(5, out _))
             {
                 if (e.MoveNext()) { found = 1; return e.Current; }
             }

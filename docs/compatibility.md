@@ -3182,3 +3182,18 @@ still translates eight methods with 9,917 charged units. Neither copy emits or
 executes native code. Production bounds stay at 256 types, 512 methods and 65,536
 metadata units; full closure capacity and saved-game replay remain unverified.
 See [ADR AC0096](decisions/AC0096-engine-method-capacity.md).
+
+### First-element terminals and captured lists (AC6.15)
+
+Non-predicate First and FirstOrDefault now reuse owned query dispatch, one IList
+Count/index read or a single enumerator step with disposal. First preserves the
+empty-versus-default distinction. Review also reproduced and fixed predicate and
+filtered-list First mutation behavior: capture original backing storage/count and
+return the element loaded before the callback. A private first-element traversal
+mode carries that behavior through projections without consuming existing cursors.
+
+Sixteen probes supply 9,792 O0/O2 native/.NET comparisons with forced GC and
+sanitizers. All 45 selected checks pass, including predicate/distinct regressions
+and the unchanged 42-control/five-gap baseline. Grants, compiler/native profiles,
+runtime layout and production bounds are unchanged. Full frozen-engine execution
+and saved-game replay remain unfinished. See [ADR AC0101](decisions/AC0101-direct-first.md).

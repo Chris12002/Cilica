@@ -329,13 +329,13 @@
       "path": "library/Cilica.Core/Enumerable.cs",
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/First.cs",
       "algorithms": [
-        "Predicate First and FirstOrDefault null validation, loaded-element return, early stop and fallback enumerator disposal."
+        "First and FirstOrDefault with and without predicates: null validation, loaded-element return, early stop, list indexing/captured storage and fallback enumerator disposal."
       ],
       "changes": [
-        "Use indexed admitted arrays instead of runtime-private spans. Use a private Int32 found flag because narrow by-reference carriers remain unsupported.",
+        "Use indexed admitted arrays and checked captured List storage instead of runtime-private spans. Use a private Int32 found flag because narrow by-reference carriers remain unsupported. AC6.15 uses QueryFirst for nonpredicate terminals and private traversal mode 5 through filtered-list projections.",
         "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
-      "scope": "Int32/reference predicate parameters only. Nonpredicate overloads, List specializations and value-payload delegates remain unsupported."
+      "scope": "Admitted scalar/reference/value payloads and predicate delegates. AC6.15 adds nonpredicate terminals and captured-list first searches; other overloads and query specializations remain bounded by their recorded slices."
     },
     {
       "path": "library/Cilica.Core/StringConcatenation.cs",

@@ -3116,3 +3116,18 @@ All 52 selected distinct checks pass, including dictionary state/ownership
 regressions; the public baseline advances to 42 native controls and five gaps.
 Integer CIL v32; native IR/layout/resource bounds unchanged. See
 [ADR AC0100](decisions/AC0100-dictionary-add-read.md).
+
+### First-element terminals and captured lists (AC6.15)
+
+Non-predicate First and FirstOrDefault now reuse owned query dispatch, one IList
+Count/index read or a single enumerator step with disposal. First preserves the
+empty-versus-default distinction. Review also reproduced and fixed predicate and
+filtered-list First mutation behavior: capture original backing storage/count and
+return the element loaded before the callback. A private first-element traversal
+mode carries that behavior through projections without consuming existing cursors.
+
+Sixteen probes supply 9,792 O0/O2 native/.NET comparisons with forced GC and
+sanitizers. All 45 selected checks pass, including predicate/distinct regressions
+and the unchanged 42-control/five-gap baseline. Grants, compiler/native profiles,
+runtime layout and production bounds are unchanged. Full frozen-engine execution
+and saved-game replay remain unfinished. See [ADR AC0101](decisions/AC0101-direct-first.md).
