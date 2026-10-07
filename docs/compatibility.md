@@ -3992,3 +3992,16 @@ Full engine, unchanged fingerprint execution and saved-game replay remain unveri
 
 AC4.11 validation: 33 distinct checks pass, including 4,212 repeated native/.NET
 comparisons and the public baseline, with forced collection and ASan/UBSan.
+
+
+### Measured diagnostic local capacity (AC8.50)
+
+The frozen engine exhausts the diagnostic copy's aggregate local bound at 4,115/4,096
+slots, with 7,549/8,192 parameters. A fresh disposable copy raises only locals to
+6,144. Other copied limits remain types 2,048, methods 6,144, metadata 1,572,864,
+instructions 131,072 and parameters 8,192; command timeout stays 60 seconds.
+It reaches Boolean.TryParse(String, Boolean&) in ContributeShieldCardPrimitive's
+bond-policy parser after 1,127,785 charged metadata units in 3,843 ms. StateLookup
+remains 15 methods/11,527 units. Production limits/profiles are unchanged; no engine
+C++ is emitted or executed. See ADR AC0165 and artifacts/alchemy-locals-6144.
+Full engine, unchanged fingerprint execution and saved-game replay remain unverified.
