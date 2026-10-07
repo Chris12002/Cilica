@@ -925,3 +925,15 @@ object aliases and other scalar kinds remain diagnostic. Integer CIL v57; object
 IR v41, native v67, layout v25 and limits unchanged. See ADR AC0139 and
 artifacts/alchemy-boxed-integer-format. Full engine/fingerprint execution and replay
 remain open.
+
+### AC8.37: Constrained reference calls (2026-10-07)
+
+Closed reference receivers now load from an exact managed location after argument
+evaluation and use existing null checks and class/interface dispatch. The value
+receiver path remains separate; no receiver boxing or new native operation.
+All 64 distinct selected checks pass, including 2,058 new repeated O0/O2 native/.NET
+comparisons, forced GC, ASan/UBSan, malformed prefixes/locations and the public
+baseline. Roslyn receiver-replacement shapes that cross managed-location joins
+remain explicitly diagnostic. Integer CIL v58; object IR v41, native v67, layout
+v25 and limits unchanged. See ADR AC0140 and artifacts/alchemy-constrained-reference.
+Full engine/fingerprint execution and saved-game replay remain open.

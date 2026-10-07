@@ -47,10 +47,12 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableHashSet<int> LiteralIntegerFormats { get; init; } = ImmutableHashSet<int>.Empty;
     public ImmutableHashSet<int> OrdinalCompareCalls { get; init; } = ImmutableHashSet<int>.Empty;
     public ImmutableHashSet<int> OrdinalPrefixCalls { get; init; } = ImmutableHashSet<int>.Empty;
+    public ImmutableDictionary<int, ConstrainedReferenceCall> ConstrainedReferenceCalls { get; init; } = ImmutableDictionary<int, ConstrainedReferenceCall>.Empty;
     public ImmutableDictionary<int, ConstrainedValueCall> ConstrainedCalls { get; init; } = ImmutableDictionary<int, ConstrainedValueCall>.Empty;
 }
 public sealed record OrdinalListSortCall(IrMethodId Getter, ObjectTypeId Owner);
 public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receiver);
+public sealed record ConstrainedReferenceCall(int PrefixOffset, ObjectTypeId Receiver, int ParameterCount);
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
 public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, NewArgumentOutOfRangeActual, ArrayCopyStore, ArrayCopyCompatible, StringOrdinalEqual, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash, NewInvalidOperationInner, EnumQuery, EnumErrorMessage, EnumBits, EnumCount, EnumValueAt, EnumNameAt, ClosedTupleShape, NewObjectDisposedException, ExceptionObjectName }
@@ -192,6 +194,7 @@ public static partial class ValueProgramDiscovery
                     var referenceBoxes = ImmutableDictionary.CreateBuilder<int, IrType>();
                     var constrained = ConstrainedPrefixes(work);
                     var constrainedCalls = ImmutableDictionary.CreateBuilder<int, ConstrainedValueCall>();
+                    var constrainedReferences = ImmutableDictionary.CreateBuilder<int, ConstrainedReferenceCall>();
                     var boxedRenderCalls = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                     var boxedFormatCalls = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ObjectTypeId>>();
                     var factoryConstructors = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
@@ -300,14 +303,28 @@ public static partial class ValueProgramDiscovery
                             {
                                 var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
                                     MetadataTokens.EntityHandle(Token(work, prefix, 0x01, 0x02, 0x1b))), work, prefix.Offset);
-                                var receiver = signature switch {
-                                    TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
-                                    TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
-                                    _ => null };
-                                if (receiver is null) Fail(work, "Constrained direct calls require a closed inline value receiver; primitive/reference fallbacks require later lowering.", prefix.Offset);
-                                var exact = Require(resolver.ResolveConstrainedValueTarget(target, receiver!, library, _metadata), work, offset);
-                                target = exact.Implementation;
-                                constrainedCalls.Add(offset, new(prefix.Offset, Include(receiver!, work, prefix.Offset)));
+                                var normalized = OperandSignature(signature, work, prefix.Offset);
+                                if (normalized is TypeSignature.Named { Kind: SignatureTypeKind.Class }
+                                    or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class }
+                                    or TypeSignature.Primitive { Code: PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
+                                    or TypeSignature.Vector)
+                                {
+                                    if ((target.Signature.Header & 0x20) == 0)
+                                        Fail(work, "Constrained reference calls require an instance declaration.", offset);
+                                    var storage = Storage(normalized, work, prefix.Offset);
+                                    constrainedReferences.Add(offset, new(prefix.Offset, storage.Class!, target.Signature.Parameters.Count));
+                                }
+                                else
+                                {
+                                    var receiver = signature switch {
+                                        TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
+                                        TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                                        _ => null };
+                                    if (receiver is null) Fail(work, "Constrained direct value calls require a closed inline receiver; primitive fallbacks require later lowering.", prefix.Offset);
+                                    var exact = Require(resolver.ResolveConstrainedValueTarget(target, receiver!, library, _metadata), work, offset);
+                                    target = exact.Implementation;
+                                    constrainedCalls.Add(offset, new(prefix.Offset, Include(receiver!, work, prefix.Offset)));
+                                }
                             }
                             if (generics)
                             {
@@ -499,7 +516,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { LiteralIntegerFormats = literalIntegerFormats.ToImmutable(), OrdinalCollectionGetters = ordinalCollections.ToImmutable(), OrdinalCompareCalls = ordinalComparisons.ToImmutable(), EnumCompareCalls = enumComparisons.ToImmutable(), OrdinalSortCalls = ordinalSorts.ToImmutable(), StaticArrays = staticArrays, OrdinalPrefixCalls = ordinalPrefixes.ToImmutable(), FactoryConstructorCalls = factoryConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { LiteralIntegerFormats = literalIntegerFormats.ToImmutable(), OrdinalCollectionGetters = ordinalCollections.ToImmutable(), OrdinalCompareCalls = ordinalComparisons.ToImmutable(), EnumCompareCalls = enumComparisons.ToImmutable(), OrdinalSortCalls = ordinalSorts.ToImmutable(), StaticArrays = staticArrays, OrdinalPrefixCalls = ordinalPrefixes.ToImmutable(), FactoryConstructorCalls = factoryConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedReferenceCalls = constrainedReferences.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {

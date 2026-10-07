@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v57";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v58";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -209,7 +209,8 @@ public static class ValueTranslator
             var input = method.Input;
             var locals = method.Locals.ToBuilder();
             var constructorTemporaries = new Dictionary<int, int>();
-            var constrainedPrefixes = method.ConstrainedCalls.Values.Concat(method.EnumCompareCalls.Values).Select(c => c.PrefixOffset).ToHashSet();
+            var constrainedPrefixes = method.ConstrainedCalls.Values.Concat(method.EnumCompareCalls.Values).Select(c => c.PrefixOffset)
+                .Concat(method.ConstrainedReferenceCalls.Values.Select(c => c.PrefixOffset)).ToHashSet();
             // Re-reading a carried class receiver is valid only while its argument
             // slot cannot be changed through a managed address. Direct starg.0 is
             // separately rejected for every instance method.
@@ -257,6 +258,18 @@ public static class ValueTranslator
                 for (int index = start; index < end; index++)
                 {
                     var instruction = input.Instructions[index]; int offset = switchCase > 0 ? blockOffset : instruction.Offset; string opcode = instruction.OpCode;
+                    if (opcode == "callvirt" && method.ConstrainedReferenceCalls.TryGetValue(offset, out var referenceCall))
+                    {
+                        int receiverIndex = stack.Count - referenceCall.ParameterCount - 1;
+                        if (receiverIndex < 0) Error(offset, "Constrained reference call has an incomplete argument stack.");
+                        int location = stack[receiverIndex];
+                        var receiverType = IrType.Reference(referenceCall.Receiver);
+                        if (values[location] != IrType.Location(receiverType))
+                            Error(offset, "Constrained reference call requires the exact managed receiver location.");
+                        // Arguments have already been evaluated. Read the current
+                        // reference now; normal call lowering owns null/dispatch checks.
+                        stack[receiverIndex] = Define(offset, receiverType, new IrExpression.LoadLocation(location), true);
+                    }
                     if (method.Initializers.TryGetValue(offset, out var initializerTarget)) Add(new IrStatement.InitializeType(offset, initializerTarget), offset);
                     if (Int32Operations.FromOpcode(opcode) is { } operation)
                     {
