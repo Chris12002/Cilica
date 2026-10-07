@@ -14,7 +14,7 @@ using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class ArrayEnumerationTests
 {
-    private static readonly string[] Names = ["Integers", "States", "Empty", "Reference", "Value", "Covariance", "FreshAndNull"];
+    private static readonly string[] Names = ["Integers", "States", "Empty", "Reference", "Value", "Covariance", "FreshAndNull", "VariantClosure"];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() => CoreLibraryBuildTests.TranslateFixtures(typeof(ArrayEnumerationProbe), Names));
     [Theory]
     [InlineData(false, 0)] [InlineData(true, 0)]
@@ -44,7 +44,7 @@ public sealed class ArrayEnumerationTests
         var result = ValueTranslator.TranslateIntegerObjects(denied, input, Method("Integers"), implementation);
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        foreach (var (name, message) in new[] { ("UnsupportedAlias", "scalar aliases"), ("UnsupportedVariantClosure", "requested interface contract") })
+        foreach (var (name, message) in new[] { ("UnsupportedAlias", "scalar aliases") })
         {
             var unsupported = ValueTranslator.TranslateIntegerObjects(scope, input, Method(name), implementation);
             Assert.False(unsupported.Success);

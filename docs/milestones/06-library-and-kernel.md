@@ -3182,3 +3182,19 @@ collection and boxed-value checks pass. CIL v72, object IR v46 and native v72 re
 the operation; layout v26, interface plan v16 and resource limits are unchanged.
 See ADR AC0161. Full engine, unchanged fingerprint execution and saved-game replay
 remain unverified.
+
+
+### Read-only collection enumeration (AC4.10)
+
+ReadOnlyCollection<T> now forwards enumeration to its backing list using existing
+managed cursor support. The generic factory reads Count first and returns the shared
+per-type empty array cursor at zero; otherwise it forwards GetEnumerator. The
+nongeneric factory directly forwards without reading Count. This preserves live
+array reads, list version checks, Current/Reset/Dispose behavior, empty cursor identity
+and custom-list callback/fault order from the pinned .NET implementation.
+Nine probes provide 2,646 repeated O0/O2 native/.NET comparisons with ASan/UBSan,
+forced collection and exact static-root cleanup. All seven focused checks pass.
+No compiler profile, intrinsic grant, native layout or resource-bound changes.
+CopyTo and the remaining nongeneric search/index surface remain diagnostic. See
+ADR AC0162. Full engine, unchanged fingerprint execution and saved-game replay
+remain unverified.

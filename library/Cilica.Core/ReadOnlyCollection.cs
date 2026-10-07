@@ -47,8 +47,9 @@ namespace System.Collections.ObjectModel
         public bool Contains(T value) => list.Contains(value);
         public int IndexOf(T value) => list.IndexOf(value);
         public void CopyTo(T[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        public IEnumerator<T> GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
-        IEnumerator IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator>.Invoke();
+        public IEnumerator<T> GetEnumerator() => list.Count == 0
+            ? System.SZGenericArrayEnumerator<T>.Create(null, 0) : list.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)list).GetEnumerator();
         bool IList.Contains(object value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         int IList.IndexOf(object value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
         void ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }

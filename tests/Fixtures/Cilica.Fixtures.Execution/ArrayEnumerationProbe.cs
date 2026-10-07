@@ -61,7 +61,7 @@ namespace Cilica.Fixtures.Execution
             var emptyObject = ((IEnumerable<object>)new object[0]).GetEnumerator();
             return emptyWide == emptyObject ? ((string)wide.Current).Length : -102;
         }
-        public static int UnsupportedVariantClosure(int a, int b)
+        public static int VariantClosure(int a, int b)
         {
             var values = new[] { "a" };
             var wide = ((IEnumerable<object>)values).GetEnumerator();
