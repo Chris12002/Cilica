@@ -9,6 +9,16 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Cast.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Cast.cs",
+      "sha256": "42972428d3cc80521d701ab42c09915e893639dfc9309867820ab7be0234b9e5"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Cast.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Cast.SpeedOpt.cs",
+      "sha256": "7aafa8a792229716a4582def400956b61e7f623754f5b8bd5e88368ac7d70850"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Runtime/InteropServices/CollectionsMarshal.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Runtime/InteropServices/CollectionsMarshal.cs",
       "sha256": "7b4fa6a94e3125470d88854a58e3618332cebef0c5418c8cf63ef854ab21482c"
@@ -1221,6 +1231,15 @@
         "Fresh exact-type object, shallow inherited/embedded field copies, no constructor invocation or runtime-header copy."
       ],
       "scope": "Integer-object profile only. Caller-bound sealed ordinary application hierarchy; nonsealed classes and special runtime objects remain diagnostic. Existing allocator, roots and managed allocation faults are reused."
+    },
+    {
+      "path": "library/Cilica.Core/CastIterator.cs",
+      "behavioralSource": "src/libraries/System.Linq/src/System/Linq/Cast.cs and Cast.SpeedOpt.cs",
+      "contracts": [
+        "AC6.17 Cast<TResult>(IEnumerable): typed source identity, immediate source null check and deferred casts.",
+        "Separate general yield-state cleanup and ICollection iterator/terminal behavior, using existing managed operations."
+      ],
+      "scope": "Admitted reference, scalar, nullable and reference-bearing value casts only. Count/Any, ToArray/ToList, First and Contains collection shortcuts preserve source callbacks; existing query interfaces retain Select composition. Source enumerators and element casts must already be supported."
     }
   ]
 }

@@ -16,6 +16,13 @@ namespace System.Linq
             if (second is TSource[] right && NoElements(right.Length)) return first;
             return first is Cilica.Runtime.ConcatIterator<TSource> chain ? chain.Append(second) : new Cilica.Runtime.ConcatIterator<TSource>(first, second);
         }
+        public static IEnumerable<TResult> Cast<TResult>(IEnumerable source)
+        {
+            if (source is IEnumerable<TResult> typed) return typed;
+            if (source == null) throw new ArgumentNullException("source");
+            if (source is ICollection collection) return new Cilica.Runtime.CastCollectionIterator<TResult>(collection);
+            return new Cilica.Runtime.CastIterator<TResult>(source);
+        }
         public static IEnumerable<TResult> OfType<TResult>(IEnumerable source)
         {
             if (source == null) throw new ArgumentNullException("source");

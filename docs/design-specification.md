@@ -3890,3 +3890,21 @@ No compiler profile, intrinsic grant, native layout or resource-bound changes.
 CopyTo and the remaining nongeneric search/index surface remain diagnostic. See
 ADR AC0162. Full engine, unchanged fingerprint execution and saved-game replay
 remain unverified.
+
+
+### Deferred LINQ casts (AC6.17)
+
+Enumerable.Cast<TResult>(IEnumerable) returns an already compatible generic source
+unchanged, checks null immediately and otherwise defers element casts. Separate
+managed cursors preserve the general yield iterator's automatic fault cleanup and
+retained Current versus the ICollection iterator's caller-driven cleanup and cleared
+Current. Collection Count/Any, materialization, First and Contains use the pinned
+shortcuts; existing query interfaces preserve Select callbacks and cursor identity.
+Reference, scalar, nullable and reference-bearing value targets use existing casts,
+boxes, roots and managed exceptions. No compiler profile, intrinsic grant, layout or
+resource bound changes. Unsupported source/element operations remain diagnostic.
+See ADR AC0163 for differential evidence, source provenance and exact boundaries.
+Full engine, unchanged fingerprint execution and saved-game replay remain unverified.
+
+AC6.17 validation: 40 distinct checks pass, including 5,382 repeated native/.NET
+Cast comparisons and the public baseline; O0/O2, forced GC and ASan/UBSan remain active.
