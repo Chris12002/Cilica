@@ -404,15 +404,15 @@
         "Four-word equality and XOR hash",
         "Unsigned field-order comparison",
         "D/N/B/P/X hexadecimal formatting and format validation",
-        "String constructor delegates to the owned GuidParsing adapter and copies four validated words only after successful parsing."
+        "String constructor and static Parse delegate to the owned GuidParsing adapter and copies four validated words only after successful parsing."
       ],
       "changes": [
         "Pack narrow fields into four managed Int32 words; no unsafe aliases, vectors, spans, serialization layout or native ABI claim.",
         "Use bounded managed string composition and hexadecimal digits in place of pointer/span writes.",
         "Retain the pinned English Guid error resources from src/libraries/System.Private.CoreLib/src/Resources/Strings.resx.",
-        "Omit static Parse/TryParse, byte/span APIs, random generation and other unimplemented members; string construction is recorded in GuidParsing.cs."
+        "Omit TryParse/ParseExact, byte/span APIs, random generation and other unimplemented members; string construction and static Parse are recorded in GuidParsing.cs."
       ],
-      "scope": "Owned-core numeric and string constructors, Empty, typed equality/hash/comparison and standard formatting. Boxed overload admission follows the compiler profile; hash evidence is the pinned local little-endian oracle."
+      "scope": "Owned-core numeric and string constructors, Parse(String), Empty, typed equality/hash/comparison and standard formatting. Boxed overload admission follows the compiler profile; hash evidence is the pinned local little-endian oracle."
     },
     {
       "path": "library/Cilica.Core/Dictionary.cs",
@@ -552,7 +552,7 @@
         "Equality copies each component receiver before its callback; storage reuses existing generic values, vectors, boxes and nullable support.",
         "An exact private closed-type predicate replaces the nonescaping Rest marker-interface test; admitted owned tuple identities are 1, 2, 5 and 8. A default long tuple is recognized without recursively validating its Rest."
       ],
-      "scope": "Bounded pair fields, constructor, typed equality and hashing for admitted integer, string and exact inline keys. No object equality, comparison, structural APIs or tuple indexing. AC7b.18 adds bounded pair formatting for 32/64-bit integers, strings and implemented named value overrides, including nested pairs; other component categories and tuple arities remain diagnostic. AC5b.8 adds five-component storage/equality; AC5b.9 adds one-field and long-tuple storage/equality with constructor Rest checking. Non-pair hashing and remaining tuple arities stay diagnostic."
+      "scope": "Bounded pair fields, constructor, typed equality and hashing for admitted integer, string and exact inline keys. No object equality, comparison, structural APIs or tuple indexing. AC7b.18 adds bounded pair formatting for 32/64-bit integers, strings and implemented named value overrides, including nested pairs; other component categories and tuple arities remain diagnostic. AC5b.15 adds three-component storage/equality; AC5b.8 adds five-component storage/equality; AC5b.9 adds one-field and long-tuple storage/equality with constructor Rest checking. Non-pair hashing and remaining tuple arities stay diagnostic."
     },
     {
       "path": "library/Cilica.Core/StringKeyOperations.cs",

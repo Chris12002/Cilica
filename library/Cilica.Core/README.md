@@ -945,3 +945,15 @@ native/.NET comparisons with ASan/UBSan, forced collection and exact cleanup.
 Constructor and static tests share malformed-input, whitespace and mutation corpora.
 All 24 focused GUID checks pass. See ADR AC0156. TryParse/ParseExact and span/byte
 inputs remain unmapped. Full engine and saved-game replay remain unverified.
+
+### Three-component tuples (AC5b.15)
+
+The owned ValueTuple<T1,T2,T3> supplies three fields, construction and typed
+equality through the established value/key model. Comparisons copy each component,
+read in order and stop on the first mismatch. Numeric and reference-bearing tuple
+copies, returns, heap/vector storage, boxing and nullable values use existing paths.
+Ten probes add 2,940 repeated O0/O2 native/.NET comparisons with ASan/UBSan and
+forced collection. All 44 tuple-family checks pass. Hashing, text, object/structural
+equality, comparison and ITuple indexing remain explicit diagnostics. No compiler
+profile, intrinsic grant or resource-bound change. See ADR AC0157. Full engine and
+saved-game replay remain unverified.
