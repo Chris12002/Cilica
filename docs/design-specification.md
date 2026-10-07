@@ -2825,3 +2825,18 @@ No compiler/runtime profile, intrinsic grant or resource bound changes. The publ
 baseline advances to 34 native controls and 13 diagnostic gaps. Frozen engine/state
 remain at their type limits; full saved-game replay is not yet executable.
 See [ADR AC0078](decisions/AC0078-five-component-tuples.md).
+
+### Byte and Char vectors (AC7a.1)
+
+The integer-object profile admits distinct Byte/Char vector identities, allocation,
+unsigned loads, narrowed stores, generic element copies, heap fields and shared
+empty arrays. Runtime backing uses existing UInt32 slots, not a packed host buffer;
+all allocations retain existing quotas. Exact casts/GetType and interface type
+tests preserve nominal rules, including Byte/SByte list compatibility and distinct
+Char/UInt16 behavior. Narrow vector interface calls and element borrows still
+reject explicitly; wider/Boolean/signed-byte array storage remains unsupported.
+Eleven probes and raw store instructions pass 6,198 repeated native/.NET comparisons.
+All 142 selected checks pass; the public baseline is 35 native controls/12 gaps.
+Integer CIL v22, object layout v22, object IR v30 and native v56 record the new
+array identities and store narrowing. Frozen engine/state type limits remain;
+full saved-game replay is unfinished. See [ADR AC0079](decisions/AC0079-byte-char-vectors.md).

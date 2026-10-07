@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v55";
+    public const string Profile = "object-frames-native-v56";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -723,9 +723,10 @@ public static class ObjectCppEmitter
                             code.Append("    ").Append(invocation).Append(";\n"); Pending(); break;
                         case IrStatement.StoreElement store:
                             ArrayCheck(store.Array, store.ArrayType, store.Index, store.ILOffset);
-                            if (store.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Int32)
+                            if (store.ArrayType.ArrayElement!.Integer32)
                                 code.Append("    store_integer_element(").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ")
-                                    .Append(Value(store.Value)).Append(");\n");
+                                    .Append(Value(store.Value)).Append(store.ArrayType.ArrayElement.Kind == ObjectArrayElementKind.Byte ? " & 255u"
+                                        : store.ArrayType.ArrayElement.Kind == ObjectArrayElementKind.Char ? " & 65535u" : "").Append(");\n");
                             else if (store.CopyCast)
                             {
                                 code.Append("    if (!store_reference_element(context, ").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ").Append(Value(store.Value)).Append(")) {\n");
@@ -843,6 +844,8 @@ public static class ObjectCppEmitter
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture)
         + (type.Specialization.Length == 0 ? "" : "_g_" + type.Specialization)
         + (type.ArrayElement is null ? "" : type.ArrayElement.Kind == ObjectArrayElementKind.Int32 ? "_vector_i4"
+            : type.ArrayElement.Kind == ObjectArrayElementKind.Byte ? "_vector_u1"
+            : type.ArrayElement.Kind == ObjectArrayElementKind.Char ? "_vector_char"
             : (type.ArrayElement.Kind == ObjectArrayElementKind.Value ? "_vector_value_" : "_vector_ref_") + TypeSymbol(type.ArrayElement.Type!));
     private static string DispatchSymbol(IrMethodId method) => CppEmitter.Symbol(method) + "_dispatch";
     private static string ContractSymbol(ObjectTypeId type) => TypeSymbol(type) + "_implements";

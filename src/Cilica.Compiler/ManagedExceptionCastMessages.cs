@@ -39,7 +39,8 @@ internal static class ManagedExceptionCastMessages
         foreach (var array in catalog.Arrays)
         {
             string elementName;
-            if (array.ArrayElement!.Kind == ObjectArrayElementKind.Int32) elementName = "System.Int32";
+            if (array.ArrayElement!.Integer32) elementName = array.ArrayElement.Kind switch {
+                ObjectArrayElementKind.Byte => "System.Byte", ObjectArrayElementKind.Char => "System.Char", _ => "System.Int32" };
             else if (!(array.ArrayElement.Kind == ObjectArrayElementKind.Value ? boxes : names).TryGetValue(array.ArrayElement.Type!, out elementName!))
                 throw new ArgumentException("Array cast messages require the exact element's runtime type display name.");
             names.Add(array, elementName + "[]");

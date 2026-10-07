@@ -289,6 +289,8 @@ public sealed class ObjectArrayContractTests
     [InlineData("anchor")]
     [InlineData("element_missing")]
     [InlineData("int_with_type")]
+    [InlineData("byte_with_type")]
+    [InlineData("char_without_profile")]
     [InlineData("reference_without_type")]
     [InlineData("unknown_kind")]
     [InlineData("nested")]
@@ -307,6 +309,8 @@ public sealed class ObjectArrayContractTests
             case "nominal": array = Object; break;
             case "anchor": array = array with { Token = Driver.Token }; break;
             case "element_missing": array = Vector(Id(99)); break;
+            case "byte_with_type": array = array with { ArrayElement = new(ObjectArrayElementKind.Byte, Object) }; break;
+            case "char_without_profile": array = array with { ArrayElement = ObjectArrayElement.Char }; break;
             case "int_with_type": array = array with { ArrayElement = new(ObjectArrayElementKind.Int32, Object) }; break;
             case "reference_without_type": array = array with { ArrayElement = new(ObjectArrayElementKind.Reference) }; break;
             case "unknown_kind": array = array with { ArrayElement = new((ObjectArrayElementKind)42) }; break;
@@ -317,7 +321,7 @@ public sealed class ObjectArrayContractTests
             case "array_interface": catalog = catalog with { Types = catalog.Types.SetItem(4, catalog.Types[4] with { Interfaces = [Vector(Contract)] }) }; break;
             case "unused": catalog = catalog with { Roots = [.. catalog.Roots.Where(r => r != Integers)] }; break;
         }
-        if (shape is "nominal" or "anchor" or "element_missing" or "int_with_type" or "reference_without_type" or "unknown_kind" or "nested" or "null")
+        if (shape is "nominal" or "anchor" or "element_missing" or "byte_with_type" or "char_without_profile" or "int_with_type" or "reference_without_type" or "unknown_kind" or "nested" or "null")
             catalog = catalog with { Arrays = catalog.Arrays.SetItem(0, array) };
         Assert.Throws<ArgumentException>(() => ObjectModelValidator.Validate(catalog));
     }

@@ -70,8 +70,8 @@ public static class ObjectModelValidator
             delegateParameters += declaration.ParameterCount;
             Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
         }
-        Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase)) && model.Arrays.Distinct().Count() == model.Arrays.Length,
-            "array identities require a unique selected-Object anchor and Int32, nominal reference or closed value elements.");
+        Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase) && (model.Integer64 || !a.ArrayElement!.Narrow)) && model.Arrays.Distinct().Count() == model.Arrays.Length,
+            "array identities require a unique selected-Object anchor, supported elements and the integer-object profile for Byte/Char.");
         var arrays = model.Arrays.ToHashSet();
         var types = new Dictionary<ObjectTypeId, ObjectTypeLayout>();
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
@@ -303,7 +303,7 @@ public static class ObjectModelValidator
     internal static bool ReferenceIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => Identity(id, 0x02) || ArrayIdentity(id, objectBase);
     private static bool ArrayIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => id?.ArrayElement is { } element
         && id.Specialization == "" && id.ContentHash == objectBase.ContentHash && id.Token == objectBase.Token
-        && (element.Kind == ObjectArrayElementKind.Int32 ? element.Type is null
+        && (element.Integer32 ? element.Type is null
             : element.Kind is ObjectArrayElementKind.Reference or ObjectArrayElementKind.Value && Identity(element.Type, 0x02));
     internal static bool Identity(ObjectTypeId? id, uint table) => id is not null && id.ArrayElement is null && Hash(id.ContentHash)
         && id.ContentHash == id.ContentHash.ToLowerInvariant() && Specialization(id.Specialization) && DefinitionToken(id.Token, table)

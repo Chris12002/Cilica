@@ -79,7 +79,7 @@ internal static class ObjectArrayInterfaceRecipes
     internal static int Arity(string name) => name is "CopyTo" or "Set" or "Insert" or "InsertObject" ? 3 : name is "Get" or "Add" or "RemoveAt" or "IndexOf" or "Contains" or "Remove" ? 2 : 1;
     internal static bool Signature(ObjectDispatchMethod method, ObjectInterfaceDispatchPlan plan)
     {
-        if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector)
+        if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector || vector.ArrayElement.Narrow)
             return false;
         var element = Result("Get", vector)!;
         if (element.Kind == IrTypeKind.Value && plan.Values is null && method.Name is "Get" or "Set" or "Add" or "Insert" or "IndexOf" or "Contains" or "Remove")

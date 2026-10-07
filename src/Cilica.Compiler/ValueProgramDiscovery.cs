@@ -230,6 +230,8 @@ public static partial class ValueProgramDiscovery
                             vectors.Add(offset, IntegerArray());
                         }
                         else if (arrays && (instruction.OpCode is ("ldelem.i4" or "stelem.i4") || !integers64 && instruction.OpCode == "ldlen")) _ = IntegerArray();
+                        else if (integers64 && instruction.OpCode is ("ldelem.u1" or "stelem.i1")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Byte), work, offset);
+                        else if (integers64 && instruction.OpCode is ("ldelem.u2" or "stelem.i2")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Char), work, offset);
                         else if (integers64 && instruction.OpCode is ("ldelem.ref" or "stelem.ref")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Object), work, offset);
                         else if (integers64 && instruction.OpCode is ("ldelem" or "stelem" or "ldelema"))
                         {
@@ -772,6 +774,9 @@ public static partial class ValueProgramDiscovery
             {
                 var definition = named.Definition;
                 if (definition == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), caller, offset)) return IntegerArray();
+                foreach (var narrowCode in new[] { PrimitiveTypeCode.Byte, PrimitiveTypeCode.Char })
+                    if (definition == Require(resolver.ResolveRuntimeType(library, narrowCode), caller, offset))
+                        return Vector(new TypeSignature.Primitive(narrowCode), caller, offset);
                 foreach (var code in new[] { PrimitiveTypeCode.UInt32, PrimitiveTypeCode.Int64, PrimitiveTypeCode.UInt64,
                     PrimitiveTypeCode.Boolean, PrimitiveTypeCode.Char, PrimitiveTypeCode.SByte, PrimitiveTypeCode.Byte, PrimitiveTypeCode.Int16, PrimitiveTypeCode.UInt16 })
                     if (definition == Require(resolver.ResolveRuntimeType(library, code), caller, offset))
@@ -782,6 +787,14 @@ public static partial class ValueProgramDiscovery
                     signature = named with { Kind = Inline(definition, caller, offset) ? SignatureTypeKind.ValueType : SignatureTypeKind.Class };
             }
             if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }) return IntegerArray();
+            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char } narrow)
+            {
+                var numericVector = ObjectTypeId.Vector(ObjectBase(), narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char);
+                _vectors.Add(numericVector);
+                if (_vectors.Count + _values.Count + _references.Count > ObjectModelLimits.MaximumTypes)
+                    Fail(caller, "Combined vector/value/reference type limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                return numericVector;
+            }
             if (signature is TypeSignature.Vector or TypeSignature.ByReference)
                 Fail(caller, "Nested vectors and byref array elements require later lowering.", offset);
             if (signature is TypeSignature.Generic generic && caller is not null)

@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v21";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v22";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -440,13 +440,13 @@ public static class ValueTranslator
                             if (addressView.ArrayElement!.Kind != ObjectArrayElementKind.Value)
                                 Error(offset, "Element addresses currently require a closed inline value array.", DiagnosticIds.ExecutionUnsupported);
                             Push(offset, IrType.Location(ElementType(addressView)), new IrExpression.AddressElement(addressView, addressArray, addressIndex), true); break;
-                        case "ldelem.ref" or "ldelem" when types.IntegerCasts:
+                        case "ldelem.ref" or "ldelem" or "ldelem.u1" or "ldelem.u2" when types.IntegerCasts:
                         case "ldelem.i4" when arrays:
                             int loadIndex = Pop(offset, IrType.Int32), loadArray = PopArray(offset);
                             var loadView = ArrayView(loadArray, opcode, offset);
                             Push(offset, ElementType(loadView),
                                 new IrExpression.LoadElement(loadView, loadArray, loadIndex), true); break;
-                        case "stelem.ref" or "stelem" when types.IntegerCasts:
+                        case "stelem.ref" or "stelem" or "stelem.i1" or "stelem.i2" when types.IntegerCasts:
                         case "stelem.i4" when arrays:
                             int elementValue = Pop(offset), storeIndex = Pop(offset, IrType.Int32), storeArray = PopArray(offset);
                             var storeView = ArrayView(storeArray, opcode, offset);
@@ -790,7 +790,7 @@ public static class ValueTranslator
                     return array;
                 }
                 static IrType ElementType(ObjectTypeId array) => array.ArrayElement!.Kind switch {
-                    ObjectArrayElementKind.Int32 => IrType.Int32,
+                    ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char => IrType.Int32,
                     ObjectArrayElementKind.Value => IrType.Value(array.ArrayElement.Type!),
                     _ => IrType.Reference(array.ArrayElement.Type!) };
                 ObjectTypeId ArrayView(int receiver, string opcode, int offset)
@@ -799,11 +799,14 @@ public static class ValueTranslator
                     {
                         Compatible(values[receiver], IrType.Reference(declared), offset); return declared;
                     }
-                    bool reference = opcode.EndsWith(".ref", StringComparison.Ordinal);
+                    var expected = opcode switch {
+                        "ldelem.u1" or "stelem.i1" => ObjectArrayElement.Byte,
+                        "ldelem.u2" or "stelem.i2" => ObjectArrayElement.Char,
+                        "ldelem.ref" or "stelem.ref" => ObjectArrayElement.Reference(objectBase),
+                        _ => ObjectArrayElement.Int32 };
                     var view = values[receiver] == IrType.NullReference
-                        ? reference ? ObjectTypeId.Vector(objectBase, ObjectArrayElement.Reference(objectBase)) : integerArray!
-                        : values[receiver].Class!;
-                    if (view.ArrayElement!.Kind != (reference ? ObjectArrayElementKind.Reference : ObjectArrayElementKind.Int32))
+                        ? ObjectTypeId.Vector(objectBase, expected) : values[receiver].Class!;
+                    if (view.ArrayElement!.Kind != expected.Kind)
                         Error(offset, "Array element opcode does not match its storage width/kind.");
                     return view;
                 }

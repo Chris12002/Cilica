@@ -87,6 +87,9 @@ internal sealed class ObjectTypeRelations
         }
         string integerArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int32)]), SignatureList<TypeSignature>.Empty);
         string unsignedArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.UInt32)]), SignatureList<TypeSignature>.Empty);
+        string byteArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Byte)]), SignatureList<TypeSignature>.Empty);
+        string signedByteArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.SByte)]), SignatureList<TypeSignature>.Empty);
+        string charArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Char)]), SignatureList<TypeSignature>.Empty);
         // Monotone bounded fixed point: interface variance can enable class and
         // array conversions which in turn enable outer generic conversions.
         bool changed;
@@ -117,7 +120,11 @@ internal sealed class ObjectTypeRelations
                         compatible = array.ArrayElement is { Kind: ObjectArrayElementKind.Reference, Type: { } element }
                             ? argument.Reference is { } reference && Ancestors[element].Contains(reference)
                             : array.ArrayElement is { Kind: ObjectArrayElementKind.Value, Type: { } value } ? argument.Value == value
-                            : array.ArrayElement!.Kind == ObjectArrayElementKind.Int32 && (argument.Identity == integerArgument || argument.Identity == unsignedArgument);
+                            : array.ArrayElement!.Kind switch {
+                                ObjectArrayElementKind.Int32 => argument.Identity == integerArgument || argument.Identity == unsignedArgument,
+                                ObjectArrayElementKind.Byte => argument.Identity == byteArgument || argument.Identity == signedByteArgument,
+                                ObjectArrayElementKind.Char => argument.Identity == charArgument,
+                                _ => false };
                     }
                     if (compatible) changed |= Ancestors[array].Add(ObjectTypeId.From(contract.Source));
                 }

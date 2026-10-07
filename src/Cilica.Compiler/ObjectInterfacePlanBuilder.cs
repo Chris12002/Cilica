@@ -248,6 +248,8 @@ public static class ObjectInterfacePlanBuilder
             var key = (IrMethodId.From(declaration.Source), receiver);
             if (_arrayChoices.TryGetValue(key, out var cached)) return cached;
             var contract = catalog.Interfaces.Single(i => ObjectTypeId.From(i.Source) == declaration.Owner);
+            if (receiver.ArrayElement!.Narrow)
+                Fail("Narrow vector interface dispatch requires width-aware helper contracts before execution.");
             var recipe = ObjectArrayInterfaceRecipes.Select(declaration, contract.ArrayContract, catalog.ObjectBase);
             if (!closed || !catalog.Integer64 || recipe is null)
                 Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, IndexOf/Contains, fixed-size Add/Insert/Remove/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags, SyncRoot, generic/nongeneric GetEnumerator and generic CopyTo are admitted.", declaration.Source.Name);

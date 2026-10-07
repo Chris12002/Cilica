@@ -17,6 +17,9 @@ internal static class ObjectSignatureTypes
             return IrType.Reference(closedReference(closed));
         if (signature is TypeSignature.Vector vector)
         {
+            if (integers64 && vector.Element is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char } narrow)
+                return IrType.Reference(array(ObjectTypeId.Vector(objectBase,
+                    narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char)));
             if (integers64 && inline is not null)
             {
                 ConstructedType? value = vector.Element switch {
