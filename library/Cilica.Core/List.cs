@@ -15,19 +15,28 @@ namespace System.Collections.Generic
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         public extern List(IEnumerable<T> collection);
         private List(bool uninitialized) { }
-        // Public metadata bridge for compiler-proven collection sources. Allocating
+        // Public metadata bridge for admitted enumerable sources. Allocating
         // first preserves newobj order without allocating empty storage before null.
-        public static List<T> CopyCollection(ICollection<T> collection)
+        public static List<T> CopyEnumerable(IEnumerable<T> collection)
         {
             var result = new List<T>(true);
             if (collection == null) throw new ArgumentNullException("collection");
-            int count = collection.Count;
-            if (count == 0) result.items = Array.Empty<T>();
+            if (collection is ICollection<T> source)
+            {
+                int count = source.Count;
+                if (count == 0) result.items = Array.Empty<T>();
+                else
+                {
+                    result.items = new T[count];
+                    source.CopyTo(result.items, 0);
+                    result.size = count;
+                }
+            }
             else
             {
-                result.items = new T[count];
-                collection.CopyTo(result.items, 0);
-                result.size = count;
+                result.items = Array.Empty<T>();
+                using (IEnumerator<T> cursor = collection.GetEnumerator())
+                    while (cursor.MoveNext()) result.Add(cursor.Current);
             }
             return result;
         }

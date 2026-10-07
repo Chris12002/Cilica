@@ -32,14 +32,13 @@ public static partial class ValueProgramDiscovery
                 || input.Signature.Parameters.Count != 1 || !Contract(input.Signature.Parameters[0], enumerable))
                 Fail(work, "List collection construction requires the exact selected IEnumerable<T> newobj declaration.", offset);
             var owner = target.DeclaringType;
-            var collection = Require(resolver.ResolveType(library, "System.Collections.Generic", "ICollection`1"), work, offset);
-            target = Require(resolver.ResolveClosedDeclaration(owner, "CopyCollection", 1, _metadata), work, offset);
+            target = Require(resolver.ResolveClosedDeclaration(owner, "CopyEnumerable", 1, _metadata), work, offset);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.ListCollectionConstruction), work, offset);
             if (_metadata.Remaining == 0) Fail(work, "List bridge metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);
             var bridge = Require(resolver.ReadMethodDeclarationInput(library, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
             if (!_metadata.TryConsume(bridge.MetadataMembersRead)) Fail(work, "List bridge metadata budget exceeded.", offset, DiagnosticIds.TranslationLimit);
             if (bridge.Signature.Header != 0 || bridge.Signature.GenericArity != 0 || bridge.Signature.Parameters.Count != 1
-                || !Contract(bridge.Signature.Parameters[0], collection) || !Contract(bridge.Signature.ReturnType, list)
+                || !Contract(bridge.Signature.Parameters[0], enumerable) || !Contract(bridge.Signature.ReturnType, list)
                 || bridge.Attributes != (MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig)
                 || !bridge.HasBody || bridge.Implementation != MethodImplAttributes.IL)
                 Fail(work, "List collection bridge requires the exact selected managed copy declaration.", offset);

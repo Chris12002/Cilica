@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v27";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v28";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -599,7 +599,7 @@ public static class ValueTranslator
                                     int source = Pop(offset);
                                     if (!types.Assignable(values[source], target.Parameters[0]))
                                         Error(offset, factoryOwner == stringType ? "Character-string constructor requires the exact Char[] source or null."
-                                            : "List(IEnumerable<T>) currently requires a statically proven ICollection<T> source; general enumeration and widened enumerable aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                                            : "List(IEnumerable<T>) requires a source assignable to the exact selected enumerable contract or null.", DiagnosticIds.ExecutionUnsupported);
                                     arguments[i] = source;
                                 }
                                 else arguments[i] = Pop(offset, target.Parameters[i + skip]);

@@ -16,10 +16,10 @@ using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class ListConstructionTests
 {
-    private static readonly string[] Names = ["Integers", "Lists", "Null", "Custom", "References", "Values", "EmptyValues", "Covariant"];
+    private static readonly string[] Names = ["Integers", "Lists", "Null", "Custom", "References", "Values", "EmptyValues", "Covariant", "UnsupportedAlias", "UnsupportedIterator"];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() => CoreLibraryBuildTests.TranslateFixtures(typeof(ListConstructionProbe), Names));
     [Theory]
-    [InlineData(false, 0)] [InlineData(true, 0)] [InlineData(false, 1)] [InlineData(true, 1)] [InlineData(false, 2)] [InlineData(true, 2)]
+    [InlineData(false, 0)] [InlineData(true, 0)] [InlineData(false, 1)] [InlineData(true, 1)] [InlineData(false, 2)] [InlineData(true, 2)] [InlineData(false, 3)] [InlineData(true, 3)]
     public async Task Proven_collection_construction_matches_dotnet(bool optimized, int group)
     {
         var programs = await Programs.Value;
@@ -27,7 +27,7 @@ public sealed class ListConstructionTests
             (name, programs[i], typeof(ListConstructionProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Fact]
-    public async Task Construction_requires_grant_and_rejects_unproven_enumerables()
+    public async Task Construction_requires_grant_and_keeps_unsigned_array_boundary()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -45,11 +45,10 @@ public sealed class ListConstructionTests
             Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         }
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        foreach (string name in new[] { "UnsupportedAlias", "UnsupportedIterator", "UnsupportedUnsigned" })
+        foreach (string name in new[] { "UnsupportedUnsigned" })
         {
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, Method(name), implementation);
             Assert.False(result.Success);
-            if (name == "UnsupportedAlias") Assert.Contains(result.Diagnostics, d => d.Message.Contains("statically proven ICollection<T>", StringComparison.Ordinal));
         }
     }
 
@@ -58,7 +57,7 @@ public sealed class ListConstructionTests
     public async Task Copy_bridge_calls_remain_typed_at_both_detached_stages(string mutation)
     {
         var program = (await Programs.Value)[0]; var flow = program.Flow.Flow.Flow;
-        var target = IrMethodId.From(Assert.Single(flow.Methods.Where(m => m.Source.Name.Contains("::CopyCollection", StringComparison.Ordinal))).Source);
+        var target = IrMethodId.From(Assert.Single(flow.Methods.Where(m => m.Source.Name.Contains("::CopyEnumerable", StringComparison.Ordinal))).Source);
         IrMethod Change(IrMethod method) => method with { Blocks = [.. method.Blocks.Select(block => block with { Statements = [.. block.Statements.Select(statement =>
             statement is IrStatement.Define { Value.Expression: IrExpression.Call call } define && call.Target == target
                 ? define with { Value = define.Value with { Expression = call with { Arguments = mutation switch {

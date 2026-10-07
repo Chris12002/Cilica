@@ -2972,3 +2972,16 @@ casts remain checked at both IR stages. Integer CIL v27, boxed IR v9 and scalar
 boxed IR v13 record this refinement; native v58 and quotas are unchanged.
 Constructor fallback and ToList remain next; full replay remains unfinished.
 See [ADR AC0089](decisions/AC0089-list-interface-enumeration.md).
+
+### General enumerable List construction (AC3.11)
+
+List(IEnumerable<T>) now admits exact enumerable aliases and ordinary/yield/boxed
+cursor sources. Its granted managed factory preserves the dynamic ICollection<T>
+Count/CopyTo fast branch and uses MoveNext/Current/Add with finally-disposal for
+other sources. New and advanced probes pass 2,874 repeated native/.NET comparisons,
+including every fault/disposal stage and dynamic count/copy failure mode. All 36
+selected checks pass; a further 96 comparisons cover every list-cursor mutation
+mode. Integer CIL v28 records admission; native v58 and quotas are unchanged.
+The public baseline remains 39 controls/8 gaps and frozen roots still hit production
+type limits. Full replay remains unfinished.
+See [ADR AC0090](decisions/AC0090-enumerable-list-construction.md).

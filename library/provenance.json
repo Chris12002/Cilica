@@ -491,7 +491,7 @@
         "Concrete Insert, RemoveAt, Clear and ToArray with overlap-safe shifts and pinned empty snapshot identity",
         "AC3.4 Contains/IndexOf/Remove with array-search equality receiver semantics",
         "AC3.6 direct generic CopyTo with complete bounds validation, unchanged version and per-element reference downcasts.",
-        "AC3.8 IEnumerable constructor collection branch: Count snapshot, zero count, exact capacity and CopyTo before size publication.",
+        "AC3.8/AC3.11 IEnumerable construction: dynamic collection Count snapshot, zero count, exact capacity and CopyTo before size publication; other sources enumerate with Add growth and finally-disposal.",
         "AC3.10 Comparison<T> sorting with captured backing storage, callback faults and version semantics."
       ],
       "changes": [
@@ -504,7 +504,7 @@
         "Select ordinary copied or borrowed-element search loops through an exact private grant; preserve mutation of value equality receivers observed on .NET 10.0.11.",
         "AC4.1 adapts the pinned nested Enumerator with value-copy state, version validation, current reset and no-op Dispose. Use ordinary list accessors because closed generic lexical private field access remains gated. AC4.8 returns boxed cursors for nonempty interface enumeration, shares SZGenericArrayEnumerator<T> for empty lists and implements nongeneric Current state checks/element boxing.",
         "Read private source/count before validation. Selected CopyStore preserves Array.Copy cast names and partial stores; ordinary stelem retains ArrayTypeMismatchException. Negative destinationIndex uses the bounded actual-Int32 range constructor.",
-        "An exact-granted CopyCollection bridge handles only statically proven ICollection<T>/null constructor arguments. Allocate the list first through a private uninitialized constructor; general IEnumerable/boxed enumerator fallback remains unsupported."
+        "AC3.11 uses the exact-granted CopyEnumerable bridge for IEnumerable<T>/null constructor arguments. Allocate the list first through a private uninitialized constructor; retain the ICollection<T> fast path and add a managed using/MoveNext/Current/Add fallback."
       ],
       "scope": "Int32, admitted reference and supported inline-value elements for storage. AC3.1 mutation/snapshots, AC3.2 interface mutation and AC3.4 search/removal for admitted equality types are tested. Nullable/arbitrary-reference equality, range/bulk and interface-copy APIs and enumeration remain gaps. Concrete nested Enumerator is supported by AC4.1; AC4.8 adds generic/nongeneric interface factories and boxed cursor calls with exact element types. AC3.6 admits direct CopyTo(T[]) and CopyTo(T[],Int32); section and nongeneric copies remain unsupported."
     },

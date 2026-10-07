@@ -786,7 +786,7 @@
   {
     "Namespace": "System.Collections.Generic",
     "Type": "List`1",
-    "Member": "CopyCollection",
+    "Member": "CopyEnumerable",
     "ParameterCount": 1,
     "Capability": "ListCollectionConstruction"
   },

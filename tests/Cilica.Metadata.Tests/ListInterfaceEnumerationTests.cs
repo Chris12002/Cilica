@@ -22,6 +22,14 @@ public sealed class ListInterfaceEnumerationTests
         if (batch == 2) await IntegerObjectTranslationTests.VerifyTranslated(optimized, probes.Skip(8).ToArray(), expectedStaticRoots: 1);
     }
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Every_mutation_mode_preserves_cursor_version_rules(bool optimized)
+    {
+        var program = (await Programs.Value)[3];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized, [("MutationModes", program, ListInterfaceEnumerationProbe.Mutation)],
+            pairs: (from input in new[] { -3, int.MaxValue } from mode in Enumerable.Range(0, 8) select (input, mode)).ToArray());
+    }
+    [Theory]
     [InlineData(false, 0)] [InlineData(true, 0)]
     [InlineData(false, 1)] [InlineData(true, 1)]
     [InlineData(false, 2)] [InlineData(true, 2)]
