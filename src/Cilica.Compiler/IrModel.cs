@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 public enum IrTypeKind { Int32, Reference, NullReference, Void, Value, ManagedLocation, Int64 }
 
 /// <summary>References and inline values retain distinct kinds and content-scoped identities; null is a stack value.</summary>
-public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null, IrType? Element = null, bool ReadOnly = false)
+public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null, IrType? Element = null, bool ReadOnly = false, IntegerCastTarget? Narrow = null)
 {
     public static IrType Int32 { get; } = new(IrTypeKind.Int32);
     public static IrType Int64 { get; } = new(IrTypeKind.Int64);
@@ -17,7 +17,8 @@ public sealed record IrType(IrTypeKind Kind, ObjectTypeId? Class = null, IrType?
     public static IrType Reference(ObjectTypeId type) => new(IrTypeKind.Reference, type);
     public static IrType Value(ObjectTypeId type) => new(IrTypeKind.Value, type);
     // A borrowed storage location, never an object identity or unmanaged pointer.
-    public static IrType Location(IrType element, bool readOnly = false) => new(IrTypeKind.ManagedLocation, Element: element, ReadOnly: readOnly);
+    public static IrType Location(IrType element, bool readOnly = false, IntegerCastTarget? narrow = null) =>
+        new(IrTypeKind.ManagedLocation, Element: element, ReadOnly: readOnly, Narrow: narrow);
 }
 
 /// <summary>32-bit operations with explicit wrapping/checked arithmetic; shifts mask the count to five bits.</summary>

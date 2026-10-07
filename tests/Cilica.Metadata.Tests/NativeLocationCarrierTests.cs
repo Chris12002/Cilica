@@ -68,6 +68,21 @@ public sealed class NativeLocationCarrierTests
                 assert(frame_location(c, borrow.frame.token, LocationOrigin::frame_reference, 2).status == LocationStatus::invalid);
                 assert(frame_location(c, borrow.frame.token, LocationOrigin::heap_field, 0).status == LocationStatus::invalid);
                 assert(frame_location(c, 0, LocationOrigin::frame_integer, 0).status == LocationStatus::invalid);
+                for (auto narrow : {LocationNarrow::Int8, LocationNarrow::UInt8, LocationNarrow::Int16, LocationNarrow::UInt16}) {
+                    const auto small = frame_location(c, borrow.frame.token, LocationOrigin::frame_integer, 0, false, narrow);
+                    assert(small.status == LocationStatus::complete);
+                    assert(store_location_integer(c, small.value, 0xffffffffu) == LocationStatus::complete);
+                    const auto expected = narrow == LocationNarrow::UInt8 ? 255u : narrow == LocationNarrow::UInt16 ? 65535u : 0xffffffffu;
+                    assert(numbers[0] == expected);
+                    assert(load_location_integer(c, small.value, bits) == LocationStatus::complete && bits == expected);
+                    assert(valid_location_argument(c, small.value, StorageKind::integer, nullptr, false, narrow));
+                    assert(!valid_location_argument(c, small.value, StorageKind::integer, nullptr, false));
+                    auto frozen = small.value; frozen.read_only = true;
+                    assert(store_location_integer(c, frozen, 1u) == LocationStatus::read_only && numbers[0] == expected);
+                    assert(frame_location(c, borrow.frame.token, LocationOrigin::frame_reference, 1, false, narrow).status == LocationStatus::invalid);
+                }
+                assert(frame_location(c, borrow.frame.token, LocationOrigin::frame_integer, 0, false,
+                    static_cast<LocationNarrow>(99)).status == LocationStatus::invalid);
             }
             [[gnu::noinline]] static void frame_reuse_and_context_isolation() {
                 Instance heap; Context c(heap), other(heap);

@@ -40,9 +40,10 @@ internal sealed class ManagedLocationRules
         _types = new(references, catalog, locations: true); _values = values;
     }
 
-    internal static bool Address(IrType storage, IrType result, bool readOnly = false) =>
+    internal static bool Address(IrType storage, IrType result, bool readOnly = false, bool allowNarrow = false) =>
         storage.Kind is IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.Value
-        && result.Kind == IrTypeKind.ManagedLocation && result.Element == storage && (!readOnly || result.ReadOnly);
+        && result.Kind == IrTypeKind.ManagedLocation && result.Element == storage && (!readOnly || result.ReadOnly)
+        && (result.Narrow is null || allowNarrow && storage == IrType.Int32);
 
     internal bool HeapField(IrType receiver, ObjectFieldId? id, IrType result) => id is not null
         && _heapFields.TryGetValue(id, out var field) && _types.Assignable(receiver, IrType.Reference(id.Owner))

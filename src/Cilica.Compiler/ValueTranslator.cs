@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v72";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v73";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -552,16 +552,14 @@ public static class ValueTranslator
                             Push(offset, method.Locals[local], new IrExpression.Local(local)); break;
                         case "ldloca" or "ldloca.s":
                             int localAddress = Variable(instruction, method.Locals.Length);
-                            if (IntegerCasts.NarrowStorage(input.Locals[localAddress]) is not null)
-                                Error(offset, "Narrow local addresses require width-preserving borrow storage.", DiagnosticIds.ExecutionUnsupported);
-                            Push(offset, IrType.Location(method.Locals[localAddress]), new IrExpression.AddressLocal(localAddress)); break;
+                            Push(offset, IrType.Location(method.Locals[localAddress], narrow: IntegerCasts.NarrowStorage(input.Locals[localAddress])),
+                                new IrExpression.AddressLocal(localAddress)); break;
                         case "ldarga" or "ldarga.s":
                             int parameterAddress = Variable(instruction, method.Parameters.Length);
-                            if (ParameterStorage(parameterAddress) is { } parameterStorage && IntegerCasts.NarrowStorage(parameterStorage) is not null)
-                                Error(offset, "Narrow parameter addresses require width-preserving borrow storage.", DiagnosticIds.ExecutionUnsupported);
                             if (method.Parameters[parameterAddress].Kind == IrTypeKind.ManagedLocation)
                                 Error(offset, "Taking the address of a borrowed parameter would create a nested byref.", DiagnosticIds.ExecutionUnsupported);
-                            Push(offset, IrType.Location(method.Parameters[parameterAddress]), new IrExpression.AddressParameter(parameterAddress)); break;
+                            Push(offset, IrType.Location(method.Parameters[parameterAddress], narrow: ParameterStorage(parameterAddress) is { } parameterStorage
+                                ? IntegerCasts.NarrowStorage(parameterStorage) : null), new IrExpression.AddressParameter(parameterAddress)); break;
                         case "starg" or "starg.s" when types.IntegerCasts:
                             int storedParameter = Variable(instruction, method.Parameters.Length);
                             if (method.Parameters[storedParameter].Kind == IrTypeKind.ManagedLocation || storedParameter == 0 && method.Binding.Kind != ObjectMethodKind.Static)
@@ -806,6 +804,20 @@ public static class ValueTranslator
                                     : new IrStatement.StoreLocation(offset, destination, stored), offset);
                             }
                             break;
+                        case "ldind.i1" or "ldind.u1" or "ldind.i2" or "ldind.u2" when types.IntegerCasts:
+                            int narrowRead = Location(offset, IrType.Int32, allowNarrow: true);
+                            var readCast = opcode switch { "ldind.i1" => IntegerCastTarget.Int8, "ldind.u1" => IntegerCastTarget.UInt8,
+                                "ldind.i2" => IntegerCastTarget.Int16, _ => IntegerCastTarget.UInt16 };
+                            if (values[narrowRead].Narrow is not { } readWidth || IntegerCasts.Bits(readWidth) != IntegerCasts.Bits(readCast))
+                                Error(offset, "Narrow indirect load requires a matching storage width.");
+                            int narrowLoaded = Define(offset, IrType.Int32, new IrExpression.LoadLocation(narrowRead), true);
+                            Push(offset, IrType.Int32, new IrExpression.IntegerCast(readCast, narrowLoaded, false, false)); break;
+                        case "stind.i1" or "stind.i2" when types.IntegerCasts:
+                            int narrowValue = Pop(offset, IrType.Int32), narrowWrite = Location(offset, IrType.Int32, allowNarrow: true);
+                            if (values[narrowWrite].Narrow is not { } writeWidth || IntegerCasts.Bits(writeWidth) != (opcode == "stind.i1" ? 8 : 16))
+                                Error(offset, "Narrow indirect store requires a matching storage width.");
+                            Writable(narrowWrite, offset);
+                            Add(new IrStatement.StoreLocation(offset, narrowWrite, narrowValue), offset); break;
                         case "ldind.i8" or "ldind.u4" when types.IntegerCasts:
                         case "ldind.i4" or "ldind.ref":
                             int read = Location(offset, opcode == "ldind.i8" ? IrType.Int64 : opcode is "ldind.i4" or "ldind.u4" ? IrType.Int32 : null);
@@ -892,10 +904,11 @@ public static class ValueTranslator
                         return Define(offset, expected, new IrExpression.CastClass(expected.Class!, id), true);
                     return id;
                 }
-                int Location(int offset, IrType? element)
+                int Location(int offset, IrType? element, bool allowNarrow = false)
                 {
                     int id = Pop(offset);
-                    if (values[id].Kind != IrTypeKind.ManagedLocation || element is not null && values[id].Element != element)
+                    if (values[id].Kind != IrTypeKind.ManagedLocation || element is not null && values[id].Element != element
+                        || !allowNarrow && values[id].Narrow is not null)
                         Error(offset, "Instruction requires a managed location with the exact element type.");
                     return id;
                 }

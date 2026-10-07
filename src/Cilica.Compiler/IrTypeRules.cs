@@ -24,9 +24,10 @@ internal sealed class IrTypeRules
     }
 
     internal bool Valid(IrType? type, bool storage) => type is not null && (type.Kind == IrTypeKind.ManagedLocation
-        ? _locations && type.Class is null && type.Element is { Element: null, ReadOnly: false } element
+        ? _locations && type.Class is null && type.Element is { Element: null, ReadOnly: false, Narrow: null } element
+            && (type.Narrow is null || _integers64 && element == IrType.Int32 && type.Narrow is IntegerCastTarget.Int8 or IntegerCastTarget.UInt8 or IntegerCastTarget.Int16 or IntegerCastTarget.UInt16)
             && element.Kind is IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.Value && Valid(element, true)
-        : type.Element is null && !type.ReadOnly && (type.Kind switch
+        : type.Element is null && type.Narrow is null && !type.ReadOnly && (type.Kind switch
     {
         IrTypeKind.Int32 => type.Class is null,
         IrTypeKind.Int64 => _integers64 && type.Class is null,
@@ -42,7 +43,7 @@ internal sealed class IrTypeRules
     internal bool Assignable(IrType? source, IrType? target) => source is not null && target is not null
         && Valid(source, false) && Valid(target, false) &&
         (source == target || source.Kind == IrTypeKind.ManagedLocation && target.Kind == IrTypeKind.ManagedLocation
-            && source.Element == target.Element && (!source.ReadOnly || target.ReadOnly)
+            && source.Element == target.Element && source.Narrow == target.Narrow && (!source.ReadOnly || target.ReadOnly)
         || target.Kind == IrTypeKind.Reference && (source == IrType.NullReference ||
             source.Kind == IrTypeKind.Reference && source.Class is { } id && target.Class is { } targetId
                 && _ancestors.TryGetValue(id, out var ancestors) && ancestors.Contains(targetId)));

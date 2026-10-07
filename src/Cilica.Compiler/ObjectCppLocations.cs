@@ -5,6 +5,7 @@ internal static class ObjectCppLocations
 {
     internal const string Text = """
 enum class LocationStatus { complete, invalid, read_only, limit, busy, null_reference, index_bounds, array_type_mismatch };
+enum class LocationNarrow { none, Int8, UInt8, Int16, UInt16 };
 enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field, frame_wide_integer, array_slot };
 struct Location {
     // A heap location's owner must be published as a root across allocations.
@@ -16,6 +17,7 @@ struct Location {
     LocationOrigin origin = LocationOrigin::invalid;
     bool read_only = false;
     std::size_t element = 0;
+    LocationNarrow narrow = LocationNarrow::none;
 };
 struct LocationResult { LocationStatus status; Location value{}; };
 struct BorrowFrame {
@@ -159,6 +161,9 @@ struct LocationStorage {
 }
 [[gnu::noinline]] static LocationStorage location_storage(Context& context, const Location& location, bool write) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
+    if (location.narrow != LocationNarrow::none && (location.origin != LocationOrigin::frame_integer
+        || (location.narrow != LocationNarrow::Int8 && location.narrow != LocationNarrow::UInt8
+            && location.narrow != LocationNarrow::Int16 && location.narrow != LocationNarrow::UInt16))) return {LocationStatus::invalid};
     if (write && location.read_only) return {LocationStatus::read_only};
     if (location.origin == LocationOrigin::frame_integer || location.origin == LocationOrigin::frame_reference || location.origin == LocationOrigin::frame_wide_integer)
         return frame_location_storage(context, location);
@@ -166,16 +171,16 @@ struct LocationStorage {
     return heap_location_storage(context, location, write);
 }
 [[maybe_unused, gnu::noinline]] static LocationResult frame_location(Context& context, std::uint64_t token,
-    LocationOrigin origin, std::size_t slot, bool read_only = false) noexcept {
-    Location value{nullptr, token, slot, nullptr, origin, read_only};
+    LocationOrigin origin, std::size_t slot, bool read_only = false, LocationNarrow narrow = LocationNarrow::none) noexcept {
+    Location value{nullptr, token, slot, nullptr, origin, read_only, 0, narrow};
     if (origin != LocationOrigin::frame_integer && origin != LocationOrigin::frame_reference && origin != LocationOrigin::frame_wide_integer) return {LocationStatus::invalid};
     const auto storage = location_storage(context, value, false);
     return storage.status == LocationStatus::complete ? LocationResult{storage.status, value} : LocationResult{storage.status};
 }
 [[maybe_unused, gnu::noinline]] static bool valid_location_argument(Context& context, const Location& location,
-    StorageKind kind, ReferencePredicate accepts, bool read_only) noexcept {
+    StorageKind kind, ReferencePredicate accepts, bool read_only, LocationNarrow narrow = LocationNarrow::none) noexcept {
     const auto storage = location_storage(context, location, !read_only);
-    return storage.status == LocationStatus::complete && storage.kind == kind && storage.accepts == accepts;
+    return storage.status == LocationStatus::complete && storage.kind == kind && storage.accepts == accepts && location.narrow == narrow;
 }
 [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
     const Descriptor* declaring, std::uint32_t index, std::size_t slot, bool read_only = false) noexcept {
@@ -202,17 +207,26 @@ struct LocationStorage {
     value.read_only |= owner->type->storage[slot].read_only;
     return {LocationStatus::complete, value};
 }
+static std::uint32_t normalize_location_integer(std::uint32_t value, LocationNarrow narrow) noexcept {
+    switch (narrow) {
+        case LocationNarrow::Int8: value &= 255u; return (value ^ 128u) - 128u;
+        case LocationNarrow::UInt8: return value & 255u;
+        case LocationNarrow::Int16: value &= 65535u; return (value ^ 32768u) - 32768u;
+        case LocationNarrow::UInt16: return value & 65535u;
+        default: return value;
+    }
+}
 [[maybe_unused, gnu::noinline]] static LocationStatus load_location_integer(Context& context, const Location& location, std::uint32_t& result) noexcept {
     const auto storage = location_storage(context, location, false);
     if (storage.status != LocationStatus::complete) return storage.status;
     if (storage.kind != StorageKind::integer) return LocationStatus::invalid;
-    result = *static_cast<const std::uint32_t*>(storage.address); return LocationStatus::complete;
+    result = normalize_location_integer(*static_cast<const std::uint32_t*>(storage.address), location.narrow); return LocationStatus::complete;
 }
 [[maybe_unused, gnu::noinline]] static LocationStatus store_location_integer(Context& context, const Location& location, std::uint32_t value) noexcept {
     const auto storage = location_storage(context, location, true);
     if (storage.status != LocationStatus::complete) return storage.status;
     if (storage.kind != StorageKind::integer) return LocationStatus::invalid;
-    *static_cast<std::uint32_t*>(storage.address) = value; return LocationStatus::complete;
+    *static_cast<std::uint32_t*>(storage.address) = normalize_location_integer(value, location.narrow); return LocationStatus::complete;
 }
 [[maybe_unused, gnu::noinline]] static LocationStatus load_location_wide_integer(Context& context, const Location& location, std::uint64_t& result) noexcept {
     const auto storage = location_storage(context, location, false);

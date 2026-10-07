@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v72";
+    public const string Profile = "object-frames-native-v73";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -506,7 +506,7 @@ public static class ObjectCppEmitter
                     var type = method.Parameters[i]; string storage = layout.Storage(ObjectRootKind.Parameter, i);
                     Guard("!valid_location_argument(context, " + storage + ", "
                         + "StorageKind::" + LocationKind(type.Element!) + ", " + (type.Element!.Kind == IrTypeKind.Reference ? Predicate(type.Element.Class!) : "nullptr")
-                        + ", " + (type.ReadOnly ? "true" : "false") + ")", "6u", method.Blocks[0].ILOffset);
+                        + ", " + (type.ReadOnly ? "true" : "false") + ", LocationNarrow::" + (type.Narrow?.ToString() ?? "none") + ")", "6u", method.Blocks[0].ILOffset);
                     Flush();
                 }
             foreach (var block in method.Blocks)
@@ -610,12 +610,14 @@ public static class ObjectCppEmitter
                                 case IrExpression.AddressLocal local:
                                     code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")
                                         .Append("frame_" + LocationKind(value.Type.Element!)).Append(", ")
-                                        .Append(N(layout.Index(ObjectRootKind.Local, local.Index))).Append(");\n");
+                                        .Append(N(layout.Index(ObjectRootKind.Local, local.Index))).Append(", false, LocationNarrow::")
+                                        .Append(value.Type.Narrow?.ToString() ?? "none").Append(");\n");
                                     CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.AddressParameter parameter:
                                     code.Append("    f->location_result = frame_location(context, f->borrow_token, LocationOrigin::")
                                         .Append("frame_" + LocationKind(value.Type.Element!)).Append(", ")
-                                        .Append(N(layout.Index(ObjectRootKind.Parameter, parameter.Index))).Append(");\n");
+                                        .Append(N(layout.Index(ObjectRootKind.Parameter, parameter.Index))).Append(", false, LocationNarrow::")
+                                        .Append(value.Type.Narrow?.ToString() ?? "none").Append(");\n");
                                     CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.AddressArraySlot element:
                                     code.Append("    f->location_result = array_location(context, ").Append(Value(element.Array)).Append(", &")

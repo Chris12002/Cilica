@@ -232,9 +232,9 @@ internal static class IrValidator
                                 && value.Type == valueTypes[f.Operand] && valueRules.Field(value.Type, f.Field) is { } fieldType
                                 && types.Assignable(valueTypes[f.Value], fieldType),
                             IrExpression.AddressLocal a => locations is not null && Local(a.Index)
-                                && ManagedLocationRules.Address(method.Locals[a.Index], value.Type),
+                                && ManagedLocationRules.Address(method.Locals[a.Index], value.Type, allowNarrow: true),
                             IrExpression.AddressParameter a => locations is not null && a.Index >= 0 && a.Index < method.Parameters.Length
-                                && ManagedLocationRules.Address(method.Parameters[a.Index], value.Type),
+                                && ManagedLocationRules.Address(method.Parameters[a.Index], value.Type, allowNarrow: true),
                             IrExpression.AddressElement a => valueRules?.Locations is not null && objectRules is not null
                                 && objectRules.Element(a.ArrayType, a.Array, a.Index, valueTypes)
                                 && objectRules.ArrayElement(a.ArrayType) is { } arrayValue
@@ -250,7 +250,8 @@ internal static class IrValidator
                             IrExpression.ReadOnlyLocation view => locations is not null && Earlier(view.Location)
                                 && value.Type.Kind == IrTypeKind.ManagedLocation && value.Type.ReadOnly
                                 && valueTypes[view.Location].Kind == IrTypeKind.ManagedLocation
-                                && valueTypes[view.Location].Element == value.Type.Element,
+                                && valueTypes[view.Location].Element == value.Type.Element
+                                && valueTypes[view.Location].Narrow == value.Type.Narrow,
                             IrExpression.LoadLocation l => locations is not null && Earlier(l.Location)
                                 && ManagedLocationRules.Load(valueTypes[l.Location], value.Type),
                             _ => false,

@@ -844,9 +844,8 @@ public static partial class ValueProgramDiscovery
                 Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object), caller, offset), caller, offset)),
             TypeSignature.Vector { Element: TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } } when arrays => IrType.Reference(IntegerArray()),
             TypeSignature.Vector vector when integers64 => IrType.Reference(Vector(vector.Element, caller, offset)),
-            TypeSignature.ByReference reference when integers64 && borrow && IntegerCasts.NarrowStorage(reference.Element) is not null =>
-                throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
-                    "Narrow by-reference storage requires storage-width-aware carriers before execution." + Path(caller), Location(caller, offset))),
+            TypeSignature.ByReference reference when integers64 && borrow && IntegerCasts.NarrowStorage(reference.Element) is { } narrow =>
+                IrType.Location(IrType.Int32, narrow: narrow),
             TypeSignature.ByReference reference when borrow && IntegerCasts.NarrowStorage(reference.Element) is null => IrType.Location(Storage(reference.Element, caller, offset)),
             _ => throw new Failure(new(DiagnosticIds.ExecutionSignatureUnsupported, DiagnosticSeverity.Error,
                 "Initial value CIL signatures require Int32 or named nongeneric structs, void returns, and synchronous byref parameters. "

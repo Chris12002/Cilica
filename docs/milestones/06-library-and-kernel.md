@@ -3247,3 +3247,13 @@ bond-policy parser after 1,127,785 charged metadata units in 3,843 ms. StateLook
 remains 15 methods/11,527 units. Production limits/profiles are unchanged; no engine
 C++ is emitted or executed. See ADR AC0165 and artifacts/alchemy-locals-6144.
 Full engine, unchanged fingerprint execution and saved-game replay remain unverified.
+
+### Width-preserving frame borrows (AC8.51)
+
+Byte, short, Char and Boolean locals/parameters now support synchronous borrows
+with explicit storage widths, preserved through both IR stages and checked native
+carriers. Boolean retains its low byte. Mismatched widths and narrow field/array
+addresses remain diagnostic. Fifteen probes supply 2,250 repeated O0/O2 native/.NET
+comparisons with forced GC and sanitizers; see ADR AC0166. Integer CIL v73, object
+IR v47 and native v73 record the extension. Limits are unchanged. The measured
+Boolean.TryParse API and full saved-game replay remain unfinished.
