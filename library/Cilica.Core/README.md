@@ -733,3 +733,13 @@ selected checks pass, including dictionary/view/error-message regressions and th
 43-control/four-gap public baseline. Compiler/native profiles and production limits
 are unchanged. Comparer and other constructors remain diagnostic; full engine and
 saved-game replay remain unfinished. See [ADR AC0107](../../docs/decisions/AC0107-dictionary-capacity.md).
+
+### List predicate existence (AC3.17)
+
+List.Exists now uses FindIndex(match) != -1, matching the pinned source. Four
+probes provide 2,160 repeated O0/O2 native/.NET comparisons covering null/empty
+behavior, short-circuiting, faults and predicate mutation of scalar, reference and
+reference-bearing value lists. All 25 selected checks pass, including FindIndex
+regressions and the unchanged 43-control/four-gap public baseline. Forced GC and
+sanitizers remain enabled. Profiles and resource limits are unchanged; full engine
+and saved-game replay remain unfinished. See [ADR AC0108](../../docs/decisions/AC0108-list-exists.md).

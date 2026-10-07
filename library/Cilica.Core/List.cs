@@ -126,6 +126,7 @@ namespace System.Collections.Generic
             if (Cilica.Runtime.KeyOperations<T>.ContainsReferences())
                 for (int i = 0; i < oldSize; ++i) items[i] = default;
         }
+        public bool Exists(Predicate<T> match) => FindIndex(match) != -1;
         public int FindIndex(Predicate<T> match) => FindIndex(0, size, match);
         public int FindIndex(int startIndex, Predicate<T> match) => FindIndex(startIndex, unchecked(size - startIndex), match);
         public int FindIndex(int startIndex, int count, Predicate<T> match)
