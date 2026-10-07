@@ -449,7 +449,7 @@
         "AC3.14 adds checked Add/indexer reads. Pass the private insertion key byref so duplicate messages use hash mutations; retain the original lookup key for missing-key messages. Keep formatting outside the shared insert body so TryAdd/setters preserve their accepted key scope.",
         "Use exact private selected integer/string/ordinary-value key text and managed concatenation for pinned error resources; no general provider/IFormattable dispatch or allocation-count equivalence claim."
       ],
-      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types. AC4.3 supports concrete GetEnumerator/MoveNext/Current/Dispose; generic/nongeneric interface factories are not yet executable. AC4.4 also supports concrete key/value view enumerators; their interface factories remain diagnostic. AC3.14 adds Add/indexer reads for keys with admitted error formatting. AC3.16 adds default-comparer Int32 capacity construction with negative validation and atomic publication of allocated storage."
+      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types. AC4.3 supports concrete GetEnumerator/MoveNext/Current/Dispose; AC4.11 adds generic/nongeneric ordinary pair factories and checked boxed Current. AC4.4 supports concrete key/value view enumerators; AC4.11 adds their interface factories and boxed Current. Dictionary pairs use a distinct stateless empty singleton; views retain the array singleton. Legacy IDictionary entry factories/accessors remain diagnostic. AC3.14 adds Add/indexer reads for keys with admitted error formatting. AC3.16 adds default-comparer Int32 capacity construction with negative validation and atomic publication of allocated storage."
     },
     {
       "path": "library/Cilica.Core/ArrayInterface.cs",
@@ -651,7 +651,8 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Array.Enumerators.cs",
       "algorithms": [
         "SZGenericArrayEnumerator<T> and base index state, live Current, Reset and no-op Dispose.",
-        "Per-closed-T mutable empty enumerator with null array storage."
+        "Per-closed-T mutable empty enumerator with null array storage.",
+        "AC4.11 adds a separate stateless GenericEmptyEnumerator<T> singleton for dictionary pairs, preserving distinct identity and always-before-start Current faults."
       ],
       "changes": [
         "Flatten the private runtime base into the owned class; use a lazy instance-owned static cache.",

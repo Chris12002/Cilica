@@ -3908,3 +3908,21 @@ Full engine, unchanged fingerprint execution and saved-game replay remain unveri
 
 AC6.17 validation: 40 distinct checks pass, including 5,382 repeated native/.NET
 Cast comparisons and the public baseline; O0/O2, forced GC and ASan/UBSan remain active.
+
+
+### Dictionary and view interface enumeration (AC4.11)
+
+Dictionary<TKey,TValue>, KeyCollection and ValueCollection now return boxed existing
+cursors for nonempty generic/nongeneric enumeration. Their nongeneric Current checks
+state before returning fresh value boxes or the original reference. Existing slot,
+version, copy, Reset and no-op Dispose behavior is retained. Empty key/value views
+share the mutable array cursor; empty dictionary pairs use a distinct stateless
+per-type singleton whose Current always reports enumeration not started.
+Reference, nullable and reference-bearing value payloads use existing tracing and
+boxing. Legacy IDictionary.GetEnumerator and IDictionaryEnumerator.Entry/Key/Value
+remain explicit unsupported bodies. No compiler profile, intrinsic grant, native
+layout or resource-bound changes. See ADR AC0164 for tests and review.
+Full engine, unchanged fingerprint execution and saved-game replay remain unverified.
+
+AC4.11 validation: 33 distinct checks pass, including 4,212 repeated native/.NET
+comparisons and the public baseline, with forced collection and ASan/UBSan.

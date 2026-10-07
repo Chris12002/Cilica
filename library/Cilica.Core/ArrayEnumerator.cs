@@ -45,6 +45,23 @@ namespace System
         public void Dispose() { }
         object Collections.IEnumerator.Current => Current;
     }
+    // Dictionary pairs use the pinned stateless empty cursor, distinct from
+    // the mutable array/list/view empty cursor even for the same closed T.
+    internal sealed class GenericEmptyEnumerator<T> : IEnumerator<T>
+    {
+        private static GenericEmptyEnumerator<T> empty;
+        private GenericEmptyEnumerator() { }
+        internal static IEnumerator<T> Create()
+        {
+            if (empty == null) empty = new GenericEmptyEnumerator<T>();
+            return empty;
+        }
+        public bool MoveNext() => false;
+        public T Current { get { throw new InvalidOperationException("Enumeration has not started. Call MoveNext."); } }
+        object Collections.IEnumerator.Current => Current;
+        public void Reset() { }
+        public void Dispose() { }
+    }
 }
 
 namespace Cilica.Runtime

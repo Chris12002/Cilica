@@ -278,8 +278,9 @@ namespace System.Collections.Generic
         bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<KeyValuePair<TKey, TValue>>>.Invoke();
-        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => Count == 0
+            ? System.GenericEmptyEnumerator<KeyValuePair<TKey, TValue>>.Create() : GetEnumerator();
+        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => ((IEnumerable<KeyValuePair<TKey, TValue>>)this).GetEnumerator();
         bool Collections.ICollection.IsSynchronized => false;
         object Collections.ICollection.SyncRoot => this;
         void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
@@ -339,7 +340,15 @@ namespace System.Collections.Generic
                 index = 0;
                 current = default;
             }
-            object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+            object Collections.IEnumerator.Current
+            {
+                get
+                {
+                    if (index == 0 || index == unchecked(dictionary.EnumerationCount + 1))
+                        throw new InvalidOperationException("Enumeration has either not started or has already finished.");
+                    return current;
+                }
+            }
             Collections.DictionaryEntry Collections.IDictionaryEnumerator.Entry => Cilica.Runtime.UnsupportedLibraryMember<Collections.DictionaryEntry>.Invoke();
             object Collections.IDictionaryEnumerator.Key => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
             object Collections.IDictionaryEnumerator.Value => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
@@ -393,7 +402,15 @@ namespace System.Collections.Generic
                     index = 0;
                     current = default;
                 }
-                object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+                object Collections.IEnumerator.Current
+                {
+                    get
+                    {
+                        if (index == 0 || index == unchecked(dictionary.EnumerationCount + 1))
+                            throw new InvalidOperationException("Enumeration has either not started or has already finished.");
+                        return current;
+                    }
+                }
             }
             public int Count => dictionary.Count;
             bool ICollection<TKey>.IsReadOnly => true;
@@ -405,8 +422,9 @@ namespace System.Collections.Generic
             public bool Contains(TKey item) => dictionary.ContainsKey(item);
             public void CopyTo(TKey[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
             void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-            IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<TKey>>.Invoke();
-            Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+            IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator() => Count == 0
+                ? System.SZGenericArrayEnumerator<TKey>.Create(null, 0) : GetEnumerator();
+            Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => ((IEnumerable<TKey>)this).GetEnumerator();
         }
         public sealed class ValueCollection : ICollection<TValue>, Collections.ICollection, IReadOnlyCollection<TValue>
         {
@@ -457,7 +475,15 @@ namespace System.Collections.Generic
                     index = 0;
                     current = default;
                 }
-                object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+                object Collections.IEnumerator.Current
+                {
+                    get
+                    {
+                        if (index == 0 || index == unchecked(dictionary.EnumerationCount + 1))
+                            throw new InvalidOperationException("Enumeration has either not started or has already finished.");
+                        return current;
+                    }
+                }
             }
             public int Count => dictionary.Count;
             bool ICollection<TValue>.IsReadOnly => true;
@@ -469,8 +495,9 @@ namespace System.Collections.Generic
             bool ICollection<TValue>.Contains(TValue item) => dictionary.ContainsValue(item);
             public void CopyTo(TValue[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
             void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
-            IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<TValue>>.Invoke();
-            Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+            IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => Count == 0
+                ? System.SZGenericArrayEnumerator<TValue>.Create(null, 0) : GetEnumerator();
+            Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => ((IEnumerable<TValue>)this).GetEnumerator();
         }
         private bool Insert(ref TKey key, TValue value, bool overwrite)
         {
