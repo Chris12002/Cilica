@@ -3063,3 +3063,21 @@ the existing payload borrow/ToString call. No substring allocation or new native
 operation is added. Eight focused checks pass, including 2,940 O0/O2 native/.NET
 comparisons with forced collection and sanitizers. Enum rendering is still
 diagnostic; this is its parser prerequisite. See [ADR AC0097](decisions/AC0097-format-range-transport.md).
+
+### Bounded Int32 enum composite formatting (AC7b.13)
+
+Directly boxed Int32 enums with unique values and no custom attributes now use the
+shared one/two-argument String.Format parser. Ordinary managed bodies implement
+default/G/D/X/F suffixes, exact format errors, numeric fallback and unsigned F
+decomposition. Four exact private grants provide scalar unboxing, constant count
+and immutable sorted value/name table reads. The new EnumEntry operation checks
+metadata, index type, result type, roots and exceptional edges at both IR stages;
+native bounds/descriptor checks and name allocation preserve managed faults.
+
+Six probes provide 7,956 O0/O2 native/.NET comparisons with forced collection and
+sanitizers. All 74 selected distinct checks pass after correcting the stale scalar
+diagnostic expectation. Public baseline remains 40 native controls and seven gaps
+on native v60/object IR v33/integer CIL v30; runtime layout and production limits
+are unchanged. Flags attributes, aliases, other carriers, providers and general
+IFormattable dispatch remain diagnostic. Decimal fallback retains the existing
+invariant culture contract. See [ADR AC0098](decisions/AC0098-int32-enum-formatting.md).

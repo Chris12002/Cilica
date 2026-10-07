@@ -40,6 +40,7 @@ internal sealed partial class ObjectIrRules
     private readonly Dictionary<ObjectTypeId, ValueTypeLayout>? _valueLayouts;
     private readonly HashSet<ObjectTypeId> _scalarTypeTargets;
     private readonly bool _enumQueryReady;
+    private readonly HashSet<ObjectTypeId> _enumEntryTypes;
     private readonly IrTypeRules _types;
     private readonly ObjectDispatchRules _dispatch;
     private readonly ObjectInterfaceOperationRules _interfaces;
@@ -66,6 +67,7 @@ internal sealed partial class ObjectIrRules
             ? values.Types.Where(t => t.ScalarBox is not null).Select(t => ObjectTypeId.From(t.Source)).ToHashSet()
             : boxes is not null ? boxes.Plans.Where(p => p.ScalarBox is not null).Select(p => p.Type).ToHashSet() : [];
         var enumCatalog = values ?? boxes?.Catalog;
+        _enumEntryTypes = enumCatalog is null ? [] : enumCatalog.Types.Where(t => t.ScalarEnum && !t.EnumConstants.IsDefault).Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _enumQueryReady = enumCatalog is not null && enumCatalog.Types.All(t => !t.ScalarEnum || !t.EnumConstants.IsDefault);
         if (!flow.Methods.IsDefault && flow.Methods.Any(m => m is not null && !m.Blocks.IsDefault
             && m.Blocks.Any(b => b is not null && !b.Statements.IsDefault && b.Values.Any(v => v.Expression is IrExpression.EnumQuery))))
@@ -266,6 +268,7 @@ internal sealed partial class ObjectIrRules
         IrStatement.InvokeDelegate d => new[] { d.Type },
         IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeLiteral t } => _scalarTypeTargets.Contains(t.Target)
             ? new[] { t.Implementation } : new[] { t.Target, t.Implementation },
+        IrStatement.Define { Value.Expression: IrExpression.EnumEntry } => new[] { _program.Flow.Types.String! },
         IrStatement.Define { Value.Expression: IrExpression.EnumQuery t } => new[] { t.Implementation, _program.Flow.Types.String! },
         IrStatement.Define { Value.Expression: IrExpression.ObjectGetType t } => new[] { t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeHash t } => new[] { t.Implementation },
@@ -346,6 +349,11 @@ internal sealed partial class ObjectIrRules
         && (_layouts.ContainsKey(target) || _contracts.Contains(target) || _arrays.Contains(target)
             || _delegates.ContainsKey(target) || _program.Flow.Types.String == target
             || _program.Flow.Types.Integer64 && _scalarTypeTargets.Contains(target));
+
+    internal bool EnumEntry(IrExpression.EnumEntry entry, IReadOnlyList<IrType> values, IrType result) =>
+        _program.Flow.Types.Integer64 && entry.EnumType is not null && _enumEntryTypes.Contains(entry.EnumType)
+        && entry.Index >= 0 && entry.Index < values.Count && values[entry.Index] == IrType.Int32
+        && StringType is not null && result == (entry.Name ? StringType : IrType.Int32);
 
     internal bool EnumQuery(IrExpression.EnumQuery query, IReadOnlyList<IrType> values, IrType result) =>
         _program.Flow.Types.Integer64 && _enumQueryReady && RuntimeTypeBase(query.Implementation) is { } type

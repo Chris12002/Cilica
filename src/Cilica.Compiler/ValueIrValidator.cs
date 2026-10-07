@@ -23,7 +23,7 @@ public static class ValueIrValidator
             .Where(t => t.Kind == IrTypeKind.Value).Select(t => t.Class!));
         foreach (var expression in program.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression))
         {
-            var box = expression switch { IrExpression.BoxValue b => b.Type, IrExpression.UnboxValue u => u.Type, IrExpression.UnboxLocation u => u.Type,
+            var box = expression switch { IrExpression.EnumEntry e => e.EnumType, IrExpression.BoxValue b => b.Type, IrExpression.UnboxValue u => u.Type, IrExpression.UnboxLocation u => u.Type,
                 IrExpression.IsInstance { BoxedTarget: true } t => t.Target, IrExpression.CastClass { BoxedTarget: true } t => t.Target, _ => null };
             if (box is not null) pending.Push(box);
             if (expression is IrExpression.RuntimeTypeLiteral literal

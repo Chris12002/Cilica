@@ -666,6 +666,34 @@
   },
   {
     "Namespace": "Cilica.Runtime",
+    "Type": "EnumText`1",
+    "Member": "Bits",
+    "ParameterCount": 1,
+    "Capability": "EnumFormatting"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "EnumText`1",
+    "Member": "Count",
+    "ParameterCount": 0,
+    "Capability": "EnumFormatting"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "EnumText`1",
+    "Member": "ValueAt",
+    "ParameterCount": 1,
+    "Capability": "EnumFormatting"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "EnumText`1",
+    "Member": "NameAt",
+    "ParameterCount": 1,
+    "Capability": "EnumFormatting"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
     "Type": "BoxedText`1",
     "Member": "Render",
     "ParameterCount": 4,

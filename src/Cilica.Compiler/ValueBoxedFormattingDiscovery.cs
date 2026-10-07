@@ -24,7 +24,7 @@ public static partial class ValueProgramDiscovery
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.BoxedStringFormat), work, offset);
             int count = target.Signature.Parameters.Count - 1;
             if (instructionIndex == 0 || work.Input.Instructions[instructionIndex - 1].OpCode != "box")
-                Fail(work, "String.Format currently requires one or two directly boxed named values with ordinary ToString overrides and no IFormattable contracts.", offset);
+                Fail(work, "String.Format currently requires one or two directly boxed admitted enums or named values with ordinary ToString overrides and no IFormattable contracts.", offset);
             // These are candidate types, never access/flow proof. Translation must
             // independently match every actual argument to its same-block BoxValue.
             // The immediately preceding last box bounds repeated backward scans.
@@ -59,6 +59,12 @@ public static partial class ValueProgramDiscovery
             _ = FormattingDeclaration(work, instruction, target, true);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.BoxedTextRender), work, offset);
             var receiver = FormattingReceiver(target.DeclaringType.Arguments[0], work, offset);
+            if (EnumScalar(target.DeclaringType.Arguments[0], work, offset))
+            {
+                var enumHelper = Require(resolver.ResolveType(library, "Cilica.Runtime", "EnumText`1"), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(enumHelper, target.DeclaringType.Arguments), "Render", 4, _metadata), work, offset);
+                return null;
+            }
             var obj = Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object), work, offset);
             var method = Require(resolver.ResolveClosedDeclaration(new(obj, SignatureList<TypeSignature>.Empty), "ToString", 0, _metadata), work, offset);
             target = Require(resolver.ResolveConstrainedValueTarget(method, receiver, library, _metadata), work, offset).Implementation;
@@ -89,13 +95,18 @@ public static partial class ValueProgramDiscovery
         private ConstructedType FormattingReceiver(TypeSignature signature, Work work, int offset)
         {
             var normalized = OperandSignature(signature, work, offset);
-            if (normalized is TypeSignature.Primitive primitive && ScalarBoxing.Supported(primitive.Code) || EnumScalar(normalized, work, offset))
-                Fail(work, "Scalar and enum boxed formatting require supported format/provider dispatch before execution.", offset);
+            if (normalized is TypeSignature.Primitive primitive && ScalarBoxing.Supported(primitive.Code))
+                Fail(work, "Scalar boxed formatting requires supported format/provider dispatch before execution.", offset);
             var receiver = signature switch {
                 TypeSignature.Named { Kind: SignatureTypeKind.ValueType or SignatureTypeKind.Unknown } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
                 TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
                 _ => null };
             if (receiver is null) Fail(work, "Boxed formatting requires an exact named inline value; primitive/reference formatting requires later lowering.", offset);
+            if (EnumScalar(normalized, work, offset))
+            {
+                EnumFormattingConstants(receiver!.Definition, work);
+                return receiver;
+            }
             if (!Inline(receiver!.Definition, work, offset)) Fail(work, "Boxed formatting requires an inline value receiver.", offset);
             var formattable = Require(resolver.ResolveType(library, "System", "IFormattable"), work, offset);
             var pending = new Queue<ConstructedType>(); pending.Enqueue(receiver!);

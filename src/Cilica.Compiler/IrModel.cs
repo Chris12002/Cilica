@@ -85,6 +85,8 @@ public abstract record IrExpression
     public sealed record StringLiteral(ImmutableArray<ushort> CodeUnits) : IrExpression;
     public sealed record IntegerTextFind(int Index) : IrExpression;
     public sealed record IntegerTextPublish(int Index, int Text) : IrExpression;
+    // Unsigned-value-sorted enum constants; ties retain declaration order.
+    public sealed record EnumEntry(ObjectTypeId EnumType, int Index, bool Name) : IrExpression;
     public sealed record EnumQuery(int Type, int Value, ObjectTypeId Implementation, bool Message) : IrExpression;
     public sealed record RuntimeTypeLiteral(ObjectTypeId Target, ObjectTypeId Implementation) : IrExpression;
     public sealed record ObjectGetType(int Operand, ObjectTypeId Implementation) : IrExpression;

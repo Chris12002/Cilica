@@ -93,3 +93,65 @@ namespace Cilica.Runtime
         public static string Format(string format, object first, object second) => CompositeFormatting.Format<TFirst, TSecond>(format, first, second, 2);
     }
 }
+
+namespace Cilica.Runtime
+{
+    // Bounded Int32 enum formatting, adapted from the pinned System.Enum source.
+    // Discovery admits unique values with no custom attributes (including Flags).
+    internal static class EnumText<T>
+    {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern int Bits(object value);
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern int Count();
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern int ValueAt(int index);
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern string NameAt(int index);
+        internal static string Render(object box, string format, int start, int length)
+        {
+            int bits = Bits(box);
+            int specifier = length == 0 ? 'g' : format[start] | 0x20;
+            if (length > 1 || (specifier != 'g' && specifier != 'd' && specifier != 'x' && specifier != 'f'))
+                throw new System.FormatException("Format string can be only \"G\", \"g\", \"X\", \"x\", \"F\", \"f\", \"D\" or \"d\".");
+            if (specifier == 'x')
+            {
+                var chars = new char[8];
+                uint value = (uint)bits;
+                for (int i = 7; i >= 0; i--) { int digit = (int)(value & 15); chars[i] = (char)(digit < 10 ? '0' + digit : 'A' + digit - 10); value >>= 4; }
+                return new string(chars);
+            }
+            if (specifier != 'd')
+            {
+                int count = Count();
+                for (int i = 0; i < count; i++) if (ValueAt(i) == bits) return NameAt(i);
+                if (specifier == 'f' && bits != 0)
+                {
+                    uint remaining = (uint)bits;
+                    for (int i = count - 1; i >= 0; i--)
+                    {
+                        uint candidate = (uint)ValueAt(i);
+                        if (candidate != 0 && (remaining & candidate) == candidate) remaining &= ~candidate;
+                    }
+                    // Do not allocate names for a failed decomposition.
+                    if (remaining == 0)
+                    {
+                        remaining = (uint)bits; string result = null;
+                        for (int i = count - 1; i >= 0; i--)
+                        {
+                            uint candidate = (uint)ValueAt(i);
+                            if (candidate != 0 && (remaining & candidate) == candidate)
+                            {
+                                remaining &= ~candidate;
+                                string name = NameAt(i);
+                                result = result == null ? name : string.Concat(name, string.Concat(", ", result));
+                            }
+                        }
+                        return result;
+                    }
+                }
+            }
+            return Cilica.Library.IntegerFormatting.Int32Invariant(bits);
+        }
+    }
+}

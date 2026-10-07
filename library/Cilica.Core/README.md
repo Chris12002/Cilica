@@ -160,7 +160,15 @@ grants and the render grant retain each box and borrow its payload per callback.
 Both entry shapes share managed alignment, escape, format-suffix and error parsing.
 The private renderer receives the original string plus a UTF-16 range without a
 substring allocation; ordinary non-IFormattable receivers ignore that range.
-Other overloads, providers, primitive/reference arguments and aliases are diagnostic.
+The same bridge admits Int32 enums with unique values and no custom attributes.
+EnumText<T> keeps default/G/D/X/F selection, eight-digit uppercase hexadecimal,
+numeric fallback and unsigned greedy F decomposition in managed code. Four exact
+private grants expose checked payload bits, constant count and bounded sorted
+value/name table reads. Flags attributes, duplicate-value enum aliases, other
+underlying types, general IFormattable dispatch, other overloads/providers,
+primitive/reference arguments and object aliases remain diagnostic. Decimal
+fallback uses the existing invariant culture contract. Name construction changes
+allocation counts and does not promise .NET memory thresholds.
 
 StringComparison.cs preserves the pinned enum declaration. The exact granted
 three-argument String.Equals overload requires a directly proven Ordinal constant

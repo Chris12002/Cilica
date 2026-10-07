@@ -10,6 +10,47 @@ namespace Cilica.Metadata.Tests;
 public sealed class EnumConstantMetadataTests
 {
     [Theory]
+    [InlineData("unique")] [InlineData("empty")] [InlineData("aliases")] [InlineData("attribute")] [InlineData("budget")]
+    public void Formatting_admission_rejects_attributes_aliases_and_exhausted_work(string shape)
+    {
+        using var files = new ResolverFiles();
+        using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
+        var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
+        var b = new ResolutionAssemblyBuilder(new("EnumFormatConstants", new Version(1,0,0,0)));
+        var reference = b.Reference(library.Identity);
+        var parent = b.TypeReference("System", "Enum", reference);
+        var owner = b.Type("Test", "Status", baseType: parent, attributes: TypeAttributes.Public | TypeAttributes.Sealed);
+        b.FieldWithAttributes("value__", FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName, 6, 8);
+        if (shape == "attribute")
+        {
+            var attribute = b.TypeReference("System", "FlagsAttribute", reference);
+            var ctor = b.Member(attribute, ".ctor", 0x20, 0, 1);
+            b.CustomAttribute(owner, ctor, 1, 0, 0, 0);
+        }
+        if (shape != "empty") for (int i = 0; i < 3; i++)
+        {
+            var field = b.FieldWithAttributes("Name" + i, FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.Literal | FieldAttributes.HasDefault,
+                6, 0x11, checked((byte)(MetadataTokens.GetRowNumber(owner) << 2)));
+            b.Constant(field, shape == "aliases" ? 7 : i == 0 ? -7 : i == 1 ? int.MaxValue : 0);
+        }
+        var input = resolver.OpenInput(files.Write("input.dll", b.Build())).Value!;
+        var type = resolver.ResolveType(input, owner).Value!;
+        var result = resolver.ReadInt32EnumFormattingConstants(type, new(shape == "budget" ? 1 : 65536));
+        if (shape is "unique" or "empty")
+        {
+            Assert.True(result.Success, string.Join("; ", result.Diagnostics));
+            Assert.Equal(shape == "empty" ? Array.Empty<int>() : new[] { -7, int.MaxValue, 0 }, result.Value!.Constants.Select(c => c.Value));
+        }
+        else
+        {
+            Assert.False(result.Success);
+            Assert.Contains(result.Diagnostics, d => shape == "budget" ? d.Id == DiagnosticIds.TranslationLimit
+                : d.Message.Contains(shape == "aliases" ? "duplicate-value" : "custom attributes", StringComparison.Ordinal));
+            // IsDefined's independent metadata contract still admits flags and aliases.
+            Assert.True(resolver.ReadInt32EnumConstants(type, new(65536)).Success);
+        }
+    }
+    [Theory]
     [InlineData("valid")] [InlineData("empty")] [InlineData("missing")] [InlineData("wide")]
     [InlineData("flags")] [InlineData("duplicate")] [InlineData("offset")] [InlineData("long-name")]
     [InlineData("total-names")] [InlineData("fields")] [InlineData("budget")]

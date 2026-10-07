@@ -15,6 +15,26 @@ public sealed record EnumConstantsInput(ImmutableArray<EnumConstantInput> Consta
 
 public sealed partial class AssemblyResolver
 {
+    /// <summary>Formatting initially excludes custom attributes and duplicate-value aliases.</summary>
+    public ResolutionResult<EnumConstantsInput> ReadInt32EnumFormattingConstants(ResolvedType type, MemberResolutionBudget budget)
+    {
+        ArgumentNullException.ThrowIfNull(type); ArgumentNullException.ThrowIfNull(budget);
+        var attributes = Bind(type.Assembly, type.Handle, () => {
+            InspectMember(budget);
+            if (type.Assembly.Image.Reader.GetTypeDefinition(type.Handle).GetCustomAttributes().Count != 0)
+                throw Failure(DiagnosticIds.ExecutionUnsupported, "Enum formatting with custom attributes, including FlagsAttribute, requires later name-selection support.");
+            return new EnumConstantsInput([]);
+        });
+        if (!attributes.Success) return attributes;
+        var constants = ReadInt32EnumConstants(type, budget);
+        if (!constants.Success) return constants;
+        var seen = new System.Collections.Generic.HashSet<int>();
+        foreach (var value in constants.Value!.Constants)
+            if (!seen.Add(value.Value)) return ResolutionResult<EnumConstantsInput>.Failed(DiagnosticIds.ExecutionUnsupported,
+                "Enum formatting with duplicate-value aliases requires later name-selection support.");
+        return constants;
+    }
+
     /// <summary>Reads bounded Int32 constant rows; selected Enum shape is validated by the compiler.</summary>
     public ResolutionResult<EnumConstantsInput> ReadInt32EnumConstants(ResolvedType type, MemberResolutionBudget budget)
     {

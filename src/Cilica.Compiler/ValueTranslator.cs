@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v29";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v30";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -282,6 +282,13 @@ public static class ValueTranslator
                         case "call" when exceptions is not null && method.Literals.ContainsKey(offset):
                         case "ldstr" when exceptions is not null:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var enumText) && enumText.Kind is ValueIntrinsic.EnumBits or ValueIntrinsic.EnumCount or ValueIntrinsic.EnumNameAt or ValueIntrinsic.EnumValueAt:
+                            if (enumText.Kind == ValueIntrinsic.EnumCount) Push(offset, IrType.Int32, new IrExpression.Constant(enumText.ConstantValue));
+                            else if (enumText.Kind == ValueIntrinsic.EnumBits) Push(offset, IrType.Int32,
+                                new IrExpression.UnboxValue(enumText.Type, Pop(offset, IrType.Reference(objectBase))), true);
+                            else Push(offset, enumText.Kind == ValueIntrinsic.EnumNameAt ? IrType.Reference(stringType!) : IrType.Int32,
+                                new IrExpression.EnumEntry(enumText.Type, Pop(offset, IrType.Int32), enumText.Kind == ValueIntrinsic.EnumNameAt), true);
+                            break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var enumQuery) && enumQuery.Kind is ValueIntrinsic.EnumQuery or ValueIntrinsic.EnumErrorMessage:
                             int enumValue = Pop(offset, IrType.Reference(objectBase)), enumType = Pop(offset, IrType.Reference(enumQuery.RuntimeTypeBase!));
                             bool enumMessage = enumQuery.Kind == ValueIntrinsic.EnumErrorMessage;

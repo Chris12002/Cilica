@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v59";
+    public const string Profile = "object-frames-native-v60";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -258,6 +258,7 @@ public static class ObjectCppEmitter
                 text.Append("    if (type == &").Append(ObjectCppBoxing.Symbol(type.Type)).Append("_descriptor) return ").Append(N(runtimeIdentities[type.Type])).Append("u;\n");
             text.Append("    return runtime_type_count;\n}\n");
         }
+        if (runtimeOperations.Any(e => e is IrExpression.EnumEntry)) ObjectCppEnumEntries.Append(text, valueLayouts);
         if (runtimeOperations.Any(e => e is IrExpression.EnumQuery)) ObjectCppEnums.Append(text, valueLayouts, runtimeIdentities);
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
@@ -509,7 +510,7 @@ public static class ObjectCppEmitter
                         or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.InitializeType or IrStatement.StoreStatic or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
                     // Array/field access, type tests and virtual calls include ownership/type checks.
@@ -622,6 +623,9 @@ public static class ObjectCppEmitter
                                     Check(Value(objectType.Operand), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
                                     string objectImplementation = TypeSymbol(objectType.Implementation);
                                     expression = "runtime_type<" + objectImplementation + ">(context, " + objectImplementation + "_descriptor, runtime_type_index(" + Value(objectType.Operand) + "->type))"; break;
+                                case IrExpression.EnumEntry enumEntry:
+                                    expression = (enumEntry.Name ? "enum_entry_name(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " : "enum_entry_value(context, ")
+                                        + ObjectCppEnumEntries.Symbol(enumEntry.EnumType) + ".data(), " + ObjectCppEnumEntries.Symbol(enumEntry.EnumType) + ".size(), " + Value(enumEntry.Index) + ")"; break;
                                 case IrExpression.EnumQuery query:
                                     Check(Value(query.Type), query.Implementation, true, value.ILOffset); Flush();
                                     Check(Value(query.Value), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
@@ -716,13 +720,13 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
-                            else if (value.Expression is IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.EnumQuery { Message: true })
+                            else if (value.Expression is IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.EnumEntry { Name: true } or IrExpression.EnumQuery { Message: true })
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
                             else if (value.Expression is (IrExpression.LoadElement or IrExpression.LoadStatic) && value.Type.Kind == IrTypeKind.Reference)
                             {
                                 Flush(); Check(Value(value.Id), value.Type.Class!, false, value.ILOffset);
                             }
-                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate or IrExpression.IntegerTextFind or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.EnumQuery) Pending();
+                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate or IrExpression.IntegerTextFind or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery) Pending();
                             break;
                         }
                         case IrStatement.StoreLocal store:
