@@ -3405,3 +3405,13 @@ Hidden structs, other enum widths and enum-array interfaces retain their separat
 boundaries. Integer CIL v45 changes admission; native v65/layout v24 and production
 limits stay unchanged. Full engine/replay remains unfinished.
 See [ADR AC0119](decisions/AC0119-hidden-enum-generic-arguments.md).
+
+### AC3.20: List predicate lookup (2026-10-07)
+
+List.Find now scans live size/storage and rereads the matched slot after the
+callback, matching pinned .NET mutation behavior. Four probes supply 2,160
+repeated O0/O2 comparisons for scalar, reference and reference-bearing values.
+All 33 selected checks pass, plus 15 checks after strengthening null fault order.
+Forced GC, sanitizers and existing resource limits remain. No compiler/native
+profile or grant changes. Full engine execution/replay remains unfinished.
+See ADR AC0120 and artifacts/alchemy-list-find.
