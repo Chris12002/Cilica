@@ -3748,3 +3748,19 @@ Integer CIL v65; IR/native profiles, core and budgets are unchanged. See
 [ADR AC0148](decisions/AC0148-initialized-interface-targets.md).
 The frozen engine previously reached SpellResolutionHandler.get_Id after 440,238
 metadata units. Full engine/fingerprint execution and saved-game replay remain open.
+
+
+### AC8.42: Single-candidate interface variance dispatch (2026-10-07)
+
+Reference receivers can now dispatch through one compatible declared generic
+interface when no exact contract is present. Exact matches take precedence;
+multiple candidates, generic variant methods and value/byref adaptation remain
+diagnostic. Selected declaration identity and compatible argument/result types
+are retained and validated before and after lowering. Seven new probes and one
+promoted control provide 2,352 O0/O2 native/.NET comparisons with forced GC and
+ASan/UBSan. The 152 distinct focused checks pass. Integer CIL v66, object IR v43,
+interface plan v15 and native v69 record this extension; core and budgets are
+unchanged. See [ADR AC0149](decisions/AC0149-variant-interface-dispatch.md).
+The frozen engine previously reached an OfTypeIterator<RoundStartedEvent> through
+IEnumerable<DomainEvent> after 466,593 metadata units. Full engine/fingerprint
+execution and saved-game replay remain open.

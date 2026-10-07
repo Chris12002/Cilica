@@ -46,6 +46,10 @@ public sealed class InterfaceValueTranslationTests
         // detached model equivalence without defining a new public wire format.
         var resolver = new DefaultJsonTypeInfoResolver();
         resolver.Modifiers.Add(info => {
+            // Optional enum constants use default to mean absent on ordinary values.
+            if (info.Type == typeof(ValueTypeLayout))
+                info.Properties.Single(p => p.Name == nameof(ValueTypeLayout.EnumConstants)).ShouldSerialize =
+                    (owner, _) => !((ValueTypeLayout)owner).EnumConstants.IsDefault;
             if (info.Type == typeof(ObjectStorage)) info.PolymorphismOptions = new() {
                 DerivedTypes = { new(typeof(ObjectStorage.Int32), "i32"), new(typeof(ObjectStorage.Int64), "i64"),
                     new(typeof(ObjectStorage.Reference), "reference"), new(typeof(ObjectStorage.Value), "value") } };

@@ -38,10 +38,7 @@ public sealed class ClosedInterfaceTranslationTests
     }
 
     [Theory]
-    [InlineData("VariantCall")]
-    public void Unimplemented_dispatch_extensions_remain_actionable(string name)
-    {
-        var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(ClosedDispatchProbe));
-        Assert.False(result.Success); Assert.Null(result.Program); Assert.NotEmpty(result.Diagnostics);
-    }
+    [InlineData(false)] [InlineData(true)]
+    public Task Variant_interface_results_match_dotnet(bool optimized) => IntegerObjectTranslationTests.Verify(optimized,
+        [(nameof(ClosedDispatchProbe.VariantCall), ClosedDispatchProbe.VariantCall)], typeof(ClosedDispatchProbe));
 }

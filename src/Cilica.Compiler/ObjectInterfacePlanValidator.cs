@@ -22,6 +22,7 @@ public static class ObjectInterfacePlanValidator
         }
         var types = new IrTypeRules(plan.Types, plan.Values, locations: plan.Types.Integer64);
         var boxes = new BoxedInterfacePlanRules(plan);
+        var variance = new ObjectInterfaceVarianceRules(plan.Types, types);
         var classes = plan.Types.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         var contracts = plan.Types.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
         Require(!plan.Declarations.IsDefault && plan.Declarations.Length is > 0 and <= ProgramLimits.MaximumMethods
@@ -166,11 +167,13 @@ public static class ObjectInterfacePlanValidator
                 Require((implementation.Binding.Attributes & MethodAttributes.Abstract) == 0, "interface implementations must have concrete bodies.");
                 if (boxes.IsReceiver(target.Receiver))
                 {
+                    Require(target.VariantDeclaration is null, "boxed interface targets do not admit variant declarations.");
                     boxes.Target(declaration, target, implementation); used.Add(target.Implementation); continue;
                 }
                 Require(mapping.BoxedDeclaration is null && implementation.BoxedDeclaration is null, "reference mappings cannot use boxed receiver methods.");
                 if (target.Receiver.ArrayElement is not null)
                 {
+                    Require(target.VariantDeclaration is null, "array interface targets do not admit variant declarations.");
                     Require(mapping.Name != "EnumerateObjects" || mapping.Parameters[0].Class == target.Receiver,
                         "Nongeneric enumeration must retain the actual array element boxing identity.");
                     var requestedEnum = contracts[declaration.Owner].Arguments.FirstOrDefault()?.Enum32;
@@ -187,11 +190,32 @@ public static class ObjectInterfacePlanValidator
                     used.Add(target.Implementation); continue;
                 }
                 Require(!mapping.ArrayHelper && !implementation.ArrayHelper, "class mapping cannot use array helpers.");
+                var selected = declaration;
+                if (target.VariantDeclaration is { } variant)
+                {
+                    var candidates = variance.Candidates(target.Receiver, declaration.Owner);
+                    Require(plan.Types.Integer64 && declaration.GenericMethod is null && variant.GenericMethod is null
+                        && !variance.Nominal(target.Receiver).Contains(declaration.Owner)
+                        && candidates.Length == 1 && candidates[0] == variant.Owner
+                        && variant.Source is not null && variant.Source.ContentHash == declaration.Source.ContentHash
+                        && variant.Source.Token == declaration.Source.Token && variant.Source.AssemblyIdentity == declaration.Source.AssemblyIdentity
+                        && variant.Source.Name == declaration.Source.Name && variant.Name == declaration.Name && variant.Attributes == declaration.Attributes
+                        && variant.Source.Specialization == variant.Owner.Specialization
+                        && variant.OwnerExternallyVisible == contracts[variant.Owner].ExternallyVisible
+                        && Signature(variant.Parameters, variant.ReturnType, variant.Owner)
+                        && ObjectInterfaceVarianceRules.Packet(declaration, variant, types),
+                        "variant interface targets require one exact declared source contract and compatible reference/scalar packets.");
+                    parameters += variant.Parameters.Length;
+                    Require(parameters <= ProgramLimits.MaximumCallArguments, "variant declaration parameter limit exceeded.");
+                    selected = variant;
+                }
+                else Require(variance.Nominal(target.Receiver).Contains(declaration.Owner),
+                    "variant interface targets require explicit selected declaration evidence.");
                 Require(methodArguments[map.Declaration] == methodArguments[target.Mapping]
                     && methodArguments[map.Declaration] == methodArguments[target.Implementation],
                     "generic interface mapping must preserve exact method arguments.");
                 Require(types.Assignable(IrType.Reference(target.Receiver), IrType.Reference(mapping.Binding.Owner))
-                    && declaration.ReturnType == mapping.ReturnType && declaration.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1)),
+                    && selected.ReturnType == mapping.ReturnType && selected.Parameters.Skip(1).SequenceEqual(mapping.Parameters.Skip(1)),
                     "mapping owner/signature does not implement its contract.");
                 Require(target.IsExplicit ? mapping.Binding.VirtualSlot is not null
                     : (mapping.Binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public && mapping.Name == declaration.Name,

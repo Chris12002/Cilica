@@ -58,6 +58,7 @@ public static class ObjectInterfacePlanBuilder
         private readonly Dictionary<IrMethodId, ResolvedMethod> _resolved = [];
         private readonly Dictionary<ObjectTypeId, TypeInput> _typeInputs = [];
         private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ClosedInterfaceMethodTarget> _choices = [];
+        private readonly Dictionary<(IrMethodId Declaration, ObjectTypeId Receiver), ObjectInterfaceDeclaration> _variants = [];
         private readonly Dictionary<(IrMethodId, ObjectTypeId), IrMethodId> _arrayChoices = [];
         private ObjectTypeId _object = null!;
         private int _parameters;
@@ -109,7 +110,7 @@ public static class ObjectInterfacePlanBuilder
 
         private ObjectInterfaceDispatchPlan Prepare(ObjectTypeCatalog catalog, ImmutableArray<ResolvedMethod> declarations)
         {
-            var types = new IrTypeRules(catalog); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
+            var types = new IrTypeRules(catalog); var variance = new ObjectInterfaceVarianceRules(catalog, types); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
             foreach (var resolved in declarations)
             {
                 var id = Id(resolved); var declaration = _declarations[id]; var targets = new List<ObjectInterfaceTarget>();
@@ -123,7 +124,26 @@ public static class ObjectInterfacePlanBuilder
                     {
                         try
                         {
-                            if (closed) exact = Value(resolver.ResolveClosedInterfaceMethodTarget(resolved, _knownTypes[receiver], runtimeLibrary, budget));
+                            if (closed)
+                            {
+                                var selected = resolved;
+                                if (!variance.Nominal(receiver).Contains(declaration.Owner))
+                                {
+                                    var candidates = variance.Candidates(receiver, declaration.Owner);
+                                    if (candidates.Length != 1 || resolved.MethodArguments.Count != 0)
+                                        Fail("Variant interface dispatch requires exactly one declared compatible contract and a nongeneric method.", declaration.Source.Name);
+                                    selected = Value(resolver.ResolveClosedDeclaration(_knownTypes[candidates[0]], declaration.Name, declaration.Parameters.Length - 1, budget, publicOnly: true));
+                                    if (selected.Handle != resolved.Handle || selected.DeclaringType.Definition != resolved.DeclaringType.Definition)
+                                        Fail("Variant interface dispatch must preserve the exact open member declaration.", declaration.Source.Name);
+                                    var variantInput = Read(selected); var variantParameters = Parameters(variantInput, candidates[0]);
+                                    var variant = new ObjectInterfaceDeclaration(variantInput.Source, candidates[0], variantInput.DeclaredName,
+                                        variantInput.Attributes, variantInput.OwnerExternallyVisible, variantParameters, Type(variantInput.Signature.ReturnType, true));
+                                    if (!ObjectInterfaceVarianceRules.Packet(declaration, variant, types))
+                                        Fail("Variant interface dispatch requires compatible reference/scalar packets without value or byref adaptation.", declaration.Source.Name);
+                                    Count(variantParameters.Length); _variants.Add((id, receiver), variant);
+                                }
+                                exact = Value(resolver.ResolveClosedInterfaceMethodTarget(selected, _knownTypes[receiver], runtimeLibrary, budget));
+                            }
                             else
                             {
                                 var legacy = Value(resolver.ResolveInterfaceMethodTarget(resolved.DeclaringType.Definition.Assembly,
@@ -141,7 +161,7 @@ public static class ObjectInterfacePlanBuilder
                         Method(introduction, slot, catalog);
                     }
                     Method(exact.Mapping, slot, catalog); Method(exact.Implementation, slot, catalog);
-                    targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit));
+                    targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit) { VariantDeclaration = _variants.GetValueOrDefault((id, receiver)) });
                 }
                 if (_values is not null)
                 {

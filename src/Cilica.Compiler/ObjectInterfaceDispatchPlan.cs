@@ -22,7 +22,10 @@ public sealed record ObjectDispatchMethod(ObjectMethodBinding Binding, string Na
     public ObjectMethodBinding? BoxedDeclaration { get; init; }
 }
 
-public sealed record ObjectInterfaceTarget(ObjectTypeId Receiver, IrMethodId Mapping, IrMethodId Implementation, bool IsExplicit);
+public sealed record ObjectInterfaceTarget(ObjectTypeId Receiver, IrMethodId Mapping, IrMethodId Implementation, bool IsExplicit)
+{
+    public ObjectInterfaceDeclaration? VariantDeclaration { get; init; }
+}
 public sealed record ObjectInterfaceDispatch(IrMethodId Declaration, ImmutableArray<ObjectInterfaceTarget> Targets);
 
 /// <summary>Detached metadata-backed dispatch preparation. It does not grant executable access or validate IL.</summary>
@@ -30,7 +33,7 @@ public sealed record ObjectInterfaceDispatchPlan(ObjectTypeCatalog Types,
     ImmutableArray<ObjectInterfaceDeclaration> Declarations, ImmutableArray<ObjectDispatchMethod> Methods,
     ImmutableArray<ObjectInterfaceDispatch> Dispatch)
 {
-    public const string Profile = "interface-dispatch-plan-v14";
+    public const string Profile = "interface-dispatch-plan-v15";
     public ValueTypeCatalog? Values { get; init; }
     // Original value catalog authenticates scalar receiver packets after lowering.
     public ValueTypeCatalog? BoxedValues { get; init; }
