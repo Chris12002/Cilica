@@ -83,7 +83,7 @@ public static partial class ValueProgramDiscovery
                 if (!seen.Add(id) || seen.Count > ObjectModelLimits.MaximumOwnerDepth) Fail(work, "Cyclic or excessive exception class ancestry.", offset);
                 if (_exceptionTypes.Contains(id)) break;
                 string name = TypeAccess(current, work, offset).Source.Name;
-                if (integers64 && name is ("System.FormatException" or "System.TypeInitializationException" or "System.Collections.Generic.KeyNotFoundException")
+                if (integers64 && name is ("System.FormatException" or "System.TypeInitializationException" or "System.Collections.Generic.KeyNotFoundException" or "System.ObjectDisposedException")
                     && current == Require(resolver.ResolveType(library, name == "System.Collections.Generic.KeyNotFoundException" ? "System.Collections.Generic" : "System",
                         name[(name.LastIndexOf('.') + 1)..]), work, offset))
                 {
@@ -91,21 +91,23 @@ public static partial class ValueProgramDiscovery
                     _ = Require(resolver.AuthorizeLibraryIntrinsic(current.Assembly, current.Handle, LibraryIntrinsicCapability.ExceptionLayout), work, offset);
                     if (input.IsReferenceAssembly || input.OwnerGenericArity != 0 || !input.ExternallyVisible
                         || input.BaseType is not TypeSignature.Named formatBase
-                        || ObjectModelBuilder.Id(formatBase.Definition) != _exceptionResources.Single(r => r.Kind == ExceptionResourceKind.System).Type)
-                        Fail(work, "Selected framework resource exception requires a public nongeneric implementation directly derived from selected SystemException.", offset);
+                        || ObjectModelBuilder.Id(formatBase.Definition) != _exceptionResources.Single(r => r.Kind == (name == "System.ObjectDisposedException" ? ExceptionResourceKind.InvalidOperation : ExceptionResourceKind.System)).Type)
+                        Fail(work, "Selected framework resource exception requires a public nongeneric implementation directly derived from its selected framework base.", offset);
                     _snapshots[id] = input with { Fields = [], Interfaces = [], InterfaceCount = 0,
                         Attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit, PackingSize = 0, ClassSize = 0,
                         HasTypeInitializer = false, HasModuleInitializer = false };
                     _frameworkExceptions.Add(id); _exceptionTypes.Add(id);
                     _references.TryAdd(id, new(current, SignatureList<TypeSignature>.Empty));
                     if (input.Source.Name == "System.TypeInitializationException") _typeInitializationException = id;
-                    else _exceptionResources.Add(new(id, input.Source.Name == "System.Collections.Generic.KeyNotFoundException" ? ExceptionResourceKind.KeyNotFound : ExceptionResourceKind.Format));
+                    else _exceptionResources.Add(new(id, input.Source.Name == "System.ObjectDisposedException" ? ExceptionResourceKind.ObjectDisposed : input.Source.Name == "System.Collections.Generic.KeyNotFoundException" ? ExceptionResourceKind.KeyNotFound : ExceptionResourceKind.Format));
                     break;
                 }
                 chain.Add(current);
                 if (TypeBase(current, work, offset).BaseType is not TypeSignature.Named parent) return;
                 current = parent.Definition;
             }
+            if (chain.Count != 0 && _exceptionResources.Any(r => r.Type == ObjectModelBuilder.Id(current) && r.Kind == ExceptionResourceKind.ObjectDisposed))
+                Fail(work, "Custom ObjectDisposedException descendants require explicit constructor and ObjectName semantics.", offset);
             foreach (var definition in chain)
             {
                 var input = Snapshot(definition, work, offset);
@@ -166,6 +168,7 @@ public static partial class ValueProgramDiscovery
             {
                 IncludeReference(target.DeclaringType, work, offset);
                 if (TypeInitializationExceptionCall(work, instruction, target, owner, input) is { } special) return special;
+                if (ObjectDisposedExceptionCall(work, instruction, target, owner, input) is { } disposed) return disposed;
                 if (integers64 && instruction.OpCode == "newobj" && input.DeclaredName == ".ctor"
                     && _exceptionResources.Any(r => r.Type == owner && r.Kind == ExceptionResourceKind.InvalidOperation)
                     && signature.Parameters.Count == 2)
@@ -206,7 +209,7 @@ public static partial class ValueProgramDiscovery
                         named ? count == 0 ? -1 : 0 : owner == _argumentBase && count == 2 ? 1 : -1)
                         { ExceptionMessage = _exceptionMessages.GetValueOrDefault(new(owner.ContentHash, MetadataTokens.GetToken(target.Handle))) };
                 }
-                if (instruction.OpCode == "callvirt" && (owner == _exceptionBase || owner == _argumentBase || _exceptionResources.Any(r => r.Type == owner && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)) && input.DeclaredName == "get_Message"
+                if (instruction.OpCode == "callvirt" && (owner == _exceptionBase || owner == _argumentBase || _exceptionResources.Any(r => r.Type == owner && r.Kind is ExceptionResourceKind.ArgumentOutOfRange or ExceptionResourceKind.ObjectDisposed)) && input.DeclaredName == "get_Message"
                     && signature.Header == 0x20 && signature.Parameters.Count == 0 && Primitive(signature.ReturnType, PrimitiveTypeCode.String))
                 { Authorize(LibraryIntrinsicCapability.ExceptionMessage); _ = IncludeString(work, offset); return new(ValueIntrinsic.ExceptionMessage, owner, 1); }
                 if (integers64 && instruction.OpCode == "callvirt" && owner == _argumentBase && input.DeclaredName == "get_ParamName"

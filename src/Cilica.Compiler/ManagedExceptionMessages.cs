@@ -41,6 +41,7 @@ internal static class ManagedExceptionMessages
                 ExceptionResourceKind.System => "System error.",
                 ExceptionResourceKind.Arithmetic => "Overflow or underflow in the arithmetic operation.",
                 ExceptionResourceKind.KeyNotFound => "The given key was not present in the dictionary.",
+                ExceptionResourceKind.ObjectDisposed => "Cannot access a disposed object.",
                 _ => throw new ArgumentException("Unknown exception resource.") };
             for (int kind = 0; kind < 3; ++kind)
             {

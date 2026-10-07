@@ -191,6 +191,13 @@ namespace System
         [MethodImpl(MethodImplOptions.InternalCall)] public extern NotSupportedException();
         [MethodImpl(MethodImplOptions.InternalCall)] public extern NotSupportedException(string message);
     }
+    public class ObjectDisposedException : InvalidOperationException
+    {
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern ObjectDisposedException(string objectName);
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern ObjectDisposedException(string objectName, string message);
+        public extern string ObjectName { [MethodImpl(MethodImplOptions.InternalCall)] get; }
+        public override extern string Message { [MethodImpl(MethodImplOptions.InternalCall)] get; }
+    }
     public class ArgumentException : SystemException
     {
         [MethodImpl(MethodImplOptions.InternalCall)] public extern ArgumentException();

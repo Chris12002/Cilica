@@ -978,5 +978,40 @@
     "Member": "CreateOrdinal",
     "ParameterCount": 1,
     "Capability": "DictionaryOrdinalConstruction"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ObjectDisposedException",
+    "Member": null,
+    "ParameterCount": null,
+    "Capability": "ExceptionLayout"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ObjectDisposedException",
+    "Member": ".ctor",
+    "ParameterCount": 1,
+    "Capability": "ObjectDisposedConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ObjectDisposedException",
+    "Member": ".ctor",
+    "ParameterCount": 2,
+    "Capability": "ObjectDisposedConstructor"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ObjectDisposedException",
+    "Member": "get_ObjectName",
+    "ParameterCount": 0,
+    "Capability": "ExceptionObjectName"
+  },
+  {
+    "Namespace": "System",
+    "Type": "ObjectDisposedException",
+    "Member": "get_Message",
+    "ParameterCount": 0,
+    "Capability": "ExceptionMessage"
   }
 ]

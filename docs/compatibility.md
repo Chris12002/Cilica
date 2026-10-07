@@ -3494,3 +3494,15 @@ The framework factory, lifecycle/disposed exception, and unchanged engine
 fingerprint remain unimplemented. No compiler/core grants, profiles or limits
 change. Full engine execution/replay remains unfinished. See ADR AC0129 and
 artifacts/alchemy-sha256-algorithm.
+
+### AC8.34: Disposed-object exception payloads (2026-10-07)
+
+Selected ObjectDisposedException string constructors and ObjectName/Message now
+preserve exact UTF-16, default/null behavior, identity and typed catch/rethrow.
+Explicit ObjectName IR reuses the existing traced native name slot only for the
+validated disposed exception. Both IR stages reject malformed payloads. All 89
+selected checks pass, including 36,864 new native/.NET comparisons, exact grants,
+GC and allocation-failure recovery. Integer CIL v51, exception IR v8/native v66;
+layout v24 and discovery limits unchanged. SHA256 lifecycle binding and full engine
+execution/replay remain unfinished. See ADR AC0130 and
+artifacts/alchemy-disposed-exception.

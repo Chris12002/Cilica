@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v50";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v51";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -400,6 +400,14 @@ public static class ValueTranslator
                                     constructorIntrinsic.MessageArgument < 0 ? null : constructorArguments[constructorIntrinsic.MessageArgument],
                                     constructorIntrinsic.ParameterArgument < 0 ? null : constructorArguments[constructorIntrinsic.ParameterArgument]), true);
                             break;
+                        case "newobj" when method.Intrinsics.TryGetValue(offset, out var disposed) && disposed.Kind == ValueIntrinsic.NewObjectDisposedException:
+                            int? disposedMessage = disposed.Parameters == 2 ? Pop(offset, IrType.Reference(stringType!)) : null;
+                            int disposedName = Pop(offset, IrType.Reference(stringType!));
+                            Push(offset, IrType.Reference(disposed.Type), new IrExpression.NewException(disposed.Type,
+                                Message: disposedMessage, ObjectName: disposedName), true); break;
+                        case "callvirt" when method.Intrinsics.TryGetValue(offset, out var disposedRead) && disposedRead.Kind == ValueIntrinsic.ExceptionObjectName:
+                            int disposedReceiver = Pop(offset, IrType.Reference(disposedRead.Type));
+                            Push(offset, IrType.Reference(stringType!), new IrExpression.ExceptionObjectName(disposedReceiver), true); break;
                         case "newobj" when method.Intrinsics.TryGetValue(offset, out var actualFault) && actualFault.Kind == ValueIntrinsic.NewArgumentOutOfRangeActual:
                             int actualMessage = Pop(offset, IrType.Reference(stringType!));
                             int actualValue = Pop(offset, IrType.Reference(objectBase));

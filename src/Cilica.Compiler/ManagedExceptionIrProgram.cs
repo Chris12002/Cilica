@@ -11,7 +11,7 @@ public enum IrExceptionClause { Catch, Filter, Finally, Fault }
 public sealed record IrExceptionRegion(int TryStart, int TryEnd, int HandlerStart, int HandlerEnd,
     IrExceptionClause Kind, ObjectTypeId? CatchType = null, int? FilterStart = null);
 public sealed record RuntimeExceptionBinding(uint Status, ObjectTypeId Type);
-public enum ExceptionResourceKind { ArgumentNull, ArgumentOutOfRange, InvalidOperation, NotSupported, Format, System, Arithmetic, KeyNotFound }
+public enum ExceptionResourceKind { ArgumentNull, ArgumentOutOfRange, InvalidOperation, NotSupported, Format, System, Arithmetic, KeyNotFound, ObjectDisposed }
 public sealed record ExceptionResourceBinding(ObjectTypeId Type, ExceptionResourceKind Kind);
 
 /// <summary>Intrinsic fieldless exception shells in the ordinary nominal class graph.</summary>
@@ -25,7 +25,7 @@ public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<Obj
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "managed-exceptions-ir-v7";
+    public const string Profile = "managed-exceptions-ir-v8";
 }
 
 public static class ManagedExceptionIrValidator
@@ -85,7 +85,7 @@ internal sealed class ManagedExceptionRules
             && types.RuntimeFaults.Select(b => b.Status).Order().SequenceEqual(statuses)
             && types.RuntimeFaults.Select(b => b.Type).Distinct().Count() == statuses.Length,
             "runtime faults require distinct exact exception identities for statuses 1, 2, 4, 5, 7, 10, 11 and 12.");
-        Require(!types.Resources.IsDefault && types.Resources.Length <= 8
+        Require(!types.Resources.IsDefault && types.Resources.Length <= 9
             && types.Resources.All(r => r is not null && _types.Contains(r.Type) && Enum.IsDefined(r.Kind))
             && types.Resources.Select(r => r.Type).Distinct().Count() == types.Resources.Length
             && types.Resources.Select(r => r.Kind).Distinct().Count() == types.Resources.Length
@@ -99,16 +99,19 @@ internal sealed class ManagedExceptionRules
                 && resource.Type.ContentHash == catalog.ObjectBase.ContentHash
                 && classes[resource.Type].Source.Name == "System." + resource.Kind + "Exception",
                 "argument resources require exact selected names, images and direct descendants of the selected argument base.");
-        foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.System or ExceptionResourceKind.Arithmetic or ExceptionResourceKind.Format or ExceptionResourceKind.KeyNotFound or ExceptionResourceKind.InvalidOperation))
+        foreach (var resource in types.Resources.Where(r => r.Kind is ExceptionResourceKind.System or ExceptionResourceKind.Arithmetic or ExceptionResourceKind.Format or ExceptionResourceKind.KeyNotFound or ExceptionResourceKind.InvalidOperation or ExceptionResourceKind.ObjectDisposed))
         {
             var parent = resource.Kind == ExceptionResourceKind.System ? types.Base
-                : types.Resources.SingleOrDefault(r => r.Kind == ExceptionResourceKind.System)?.Type;
+                : types.Resources.SingleOrDefault(r => r.Kind == (resource.Kind == ExceptionResourceKind.ObjectDisposed ? ExceptionResourceKind.InvalidOperation : ExceptionResourceKind.System))?.Type;
             Require(parent is not null && classes[resource.Type].BaseType == parent
                 && resource.Type.ContentHash == catalog.ObjectBase.ContentHash
                 && classes[resource.Type].Source.Name == (resource.Kind == ExceptionResourceKind.KeyNotFound
                     ? "System.Collections.Generic.KeyNotFoundException" : "System." + resource.Kind + "Exception"),
                 "framework message resources require exact selected names, images and ancestry.");
         }
+        if (types.Resources.SingleOrDefault(r => r.Kind == ExceptionResourceKind.ObjectDisposed) is { } disposed)
+            Require(catalog.Integer64 && !_types.Any(t => t != disposed.Type && _relations.Ancestors[t].Contains(disposed.Type)),
+                "disposed-object resources require the integer profile and do not admit custom descendants.");
         if (types.TypeInitialization is { } initialization)
             Require(catalog.Integer64 && _types.Contains(initialization) && initialization.ContentHash == catalog.ObjectBase.ContentHash
                 && classes[initialization].Source.Name == "System.TypeInitializationException"
@@ -123,6 +126,10 @@ internal sealed class ManagedExceptionRules
     internal bool Creation(IrExpression.NewException creation, IrType result, IReadOnlyList<IrType> values, IrBlock block) =>
         creation.Type is not null && _types.Contains(creation.Type) && result == IrType.Reference(creation.Type)
         && StringOperand(creation.Message, values) && StringOperand(creation.ParameterName, values)
+        && (Types.Resources.Any(r => r.Type == creation.Type && r.Kind == ExceptionResourceKind.ObjectDisposed)
+            ? _catalog.Integer64 && creation.ObjectName is not null && StringOperand(creation.ObjectName, values) && creation.ParameterName is null
+                && creation.Inner is null && creation.TypeName is null && creation.ActualValue is null
+            : creation.ObjectName is null)
         && (creation.ActualValue is null || _catalog.Integer64
             && Types.Resources.Any(r => r.Type == creation.Type && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)
             && creation.Message is not null && creation.ParameterName is not null && ActualValue(creation.ActualValue.Value, values, block))
@@ -147,11 +154,15 @@ internal sealed class ManagedExceptionRules
     internal bool TypeName(IrExpression.ExceptionTypeName read, IrType result, IReadOnlyList<IrType> values) =>
         Types.TypeInitialization is not null && _catalog.String is not null && result == IrType.Reference(_catalog.String)
         && read.Operand >= 0 && read.Operand < values.Count && (values[read.Operand] == IrType.NullReference || values[read.Operand] == IrType.Reference(Types.TypeInitialization));
+    internal bool ObjectName(IrExpression.ExceptionObjectName read, IrType result, IReadOnlyList<IrType> values) =>
+        _catalog.Integer64 && _catalog.String is not null && result == IrType.Reference(_catalog.String)
+        && read.Operand >= 0 && read.Operand < values.Count && (values[read.Operand] == IrType.NullReference
+            || values[read.Operand].Kind == IrTypeKind.Reference && Types.Resources.Any(r => r.Type == values[read.Operand].Class && r.Kind == ExceptionResourceKind.ObjectDisposed));
     internal bool InitializeMessage(IrExpression.InitializeExceptionMessage initialize, IrType result, IReadOnlyList<IrType> values, IrBlock block) =>
         _catalog.Integer64 && _catalog.String is not null && initialize.Operand >= 0 && initialize.Operand < values.Count
         && result == values[initialize.Operand] && Throwable(result)
         && initialize.Message >= 0 && initialize.Message < values.Count && values[initialize.Message] == IrType.Reference(_catalog.String)
-        && block.Values[initialize.Operand].Expression is IrExpression.NewException { Message: null, ParameterName: null, Inner: null, TypeName: null, ActualValue: null };
+        && block.Values[initialize.Operand].Expression is IrExpression.NewException { Message: null, ParameterName: null, Inner: null, TypeName: null, ActualValue: null, ObjectName: null };
     internal bool Message(IrExpression.ExceptionMessage message, IrType result, IReadOnlyList<IrType> values) =>
         _catalog.String is not null && result == IrType.Reference(_catalog.String)
         && message.Operand >= 0 && message.Operand < values.Count && Throwable(values[message.Operand]);

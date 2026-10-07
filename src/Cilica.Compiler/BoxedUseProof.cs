@@ -70,7 +70,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
                         // The exception validator proves a direct Int32 box retained in an
                         // opaque payload. No ActualValue getter is admitted in this slice.
                         case IrExpression.NewException e when e.ActualValue is not null
-                            && !Used(new[] {e.Message, e.ParameterName, e.Inner, e.TypeName}.Where(v => v.HasValue).Select(v => v!.Value)):
+                            && !Used(new[] {e.Message, e.ParameterName, e.Inner, e.TypeName, e.ObjectName}.Where(v => v.HasValue).Select(v => v!.Value)):
                             break;
                         case IrExpression.CheckBox check when aliases.Contains(check.Operand): aliases.Add(value.Id); break;
                         // Exact payload tests preserve the original reference on
@@ -113,14 +113,14 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
         IrExpression.Binary b => [b.Left, b.Right], IrExpression.Binary64 b => [b.Left, b.Right],
         IrExpression.Unary u => [u.Operand], IrExpression.Not64 u => [u.Operand],
         IrExpression.ConvertInteger c => [c.Operand], IrExpression.IntegerCast c => [c.Operand],
-        IrExpression.NewException e => new[] {e.Message, e.ParameterName, e.Inner, e.TypeName, e.ActualValue}.Where(v => v.HasValue).Select(v => v!.Value),
+        IrExpression.NewException e => new[] {e.Message, e.ParameterName, e.Inner, e.TypeName, e.ActualValue, e.ObjectName}.Where(v => v.HasValue).Select(v => v!.Value),
         IrExpression.ObjectIdentityHash e => [e.Operand],
         IrExpression.EnumEntry e => [e.Index],
         IrExpression.EnumQuery e => [e.Type, e.Value],
         IrExpression.ObjectGetType e => [e.Operand], IrExpression.RuntimeTypeHash e => [e.Operand],
         IrExpression.InitializeExceptionMessage e => [e.Operand, e.Message],
         IrExpression.ExceptionMessage e => [e.Operand], IrExpression.ExceptionParameterName e => [e.Operand],
-        IrExpression.ExceptionInnerException e => [e.Operand], IrExpression.ExceptionTypeName e => [e.Operand],
+        IrExpression.ExceptionInnerException e => [e.Operand], IrExpression.ExceptionTypeName e => [e.Operand], IrExpression.ExceptionObjectName e => [e.Operand],
         IrExpression.NewDelegate d => [d.Receiver], IrExpression.CallDelegate d => d.Arguments.Prepend(d.Delegate),
         IrExpression.NewObject n => n.Arguments, IrExpression.NewArray n => [n.Length], IrExpression.ArrayLength a => [a.Array],
         IrExpression.ArrayCopyCompatible c => [c.Source, c.Destination],
