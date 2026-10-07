@@ -1,5 +1,12 @@
 [
   {
+    "Namespace": "System",
+    "Type": "Int32",
+    "Member": "TryParse",
+    "ParameterCount": 4,
+    "Capability": "InvariantIntegerParsing"
+  },
+  {
     "Namespace": "System.Runtime.CompilerServices",
     "Type": "RuntimeHelpers",
     "Member": "InitializeArray",

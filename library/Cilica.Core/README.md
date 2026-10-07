@@ -19,6 +19,8 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/Environment.cs \
   --source library/Cilica.Core/Nullable.cs \
   --source library/Cilica.Core/IntegerText.cs \
+  --source library/Cilica.Core/NumberStyles.cs \
+  --source library/Cilica.Library/IntegerParsing.cs \
   --source library/Cilica.Core/CollectionContracts.cs \
   --source library/Cilica.Core/DelegateContracts.cs \
   --source library/Cilica.Core/Guid.cs \
@@ -887,3 +889,15 @@ algorithm and public-baseline checks pass. The baseline advances to 44 controls
 and three gaps. No new intrinsic grants, native algorithms or production limits.
 Full frozen fingerprint execution and engine/replay remain open. See ADR AC0132
 and artifacts/alchemy-sha256-provider (core/manifest/fixture pins included).
+
+### AC5a.4: Invariant Int32 parsing (2026-10-07)
+
+The exact four-argument Int32.TryParse form now supports proven Integer style and
+InvariantCulture, including overflow, ASCII whitespace/signs, trailing NULs and
+zeroed failed outputs. Both IR stages retain exact parser identity/signature and
+operand proof. Flags metadata remains present; other styles/providers/overloads
+and flags formatting stay diagnostic. All 43 selected checks pass, including
+2,892 new native/.NET comparisons and 131,648 managed-only parser cases. Public
+baseline remains 45 controls/two gaps. Integer CIL v54/object IR v41; layout v25,
+native v67 and production limits unchanged. See ADR AC0134 and
+artifacts/alchemy-invariant-int32-parse. Full engine/replay remains open.

@@ -52,6 +52,12 @@ namespace System
     public struct UInt16 { }
     public struct Int32 : IConvertible, IComparable<int>
     {
+        public static bool TryParse(string text, Globalization.NumberStyles style, IFormatProvider provider, out int result)
+        {
+            if (style != Globalization.NumberStyles.Integer || provider != Globalization.CultureInfo.InvariantCulture)
+                throw new NotSupportedException("Only invariant Integer parsing is supported.");
+            return Cilica.Library.IntegerParsing.Int32Integer(text, out result);
+        }
         public int CompareTo(int value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => this;
         public override string ToString() => Cilica.Runtime.IntegerText.Int32(this);

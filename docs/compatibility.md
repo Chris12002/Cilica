@@ -3550,3 +3550,15 @@ non-Int32 enums and UInt32 vectors remain diagnostic. Integer CIL v53, object IR
 v40, layout v25 and native v67 record the new nominal descriptor/facts. Production
 limits and grants remain unchanged. See ADR AC0133 and
 artifacts/alchemy-enum-array-audit. Full engine execution/replay is still open.
+
+### AC5a.4: Invariant Int32 parsing (2026-10-07)
+
+The exact four-argument Int32.TryParse form now supports proven Integer style and
+InvariantCulture, including overflow, ASCII whitespace/signs, trailing NULs and
+zeroed failed outputs. Both IR stages retain exact parser identity/signature and
+operand proof. Flags metadata remains present; other styles/providers/overloads
+and flags formatting stay diagnostic. All 43 selected checks pass, including
+2,892 new native/.NET comparisons and 131,648 managed-only parser cases. Public
+baseline remains 45 controls/two gaps. Integer CIL v54/object IR v41; layout v25,
+native v67 and production limits unchanged. See ADR AC0134 and
+artifacts/alchemy-invariant-int32-parse. Full engine/replay remains open.
