@@ -3990,3 +3990,13 @@ all 35 selected checks pass. No profiles, grants or production/native limits cha
 Frozen engine discovery next exhausts the diagnostic parameter budget at 8,193/8,192
 (4,504/6,144 locals; 1,159,312 charged units). StateLookup remains 15 methods/11,529
 units. Full replay remains unfinished. See ADR AC0170.
+
+### Measured diagnostic parameter capacity (AC8.52)
+
+After observing 8,193/8,192 parameters, a fresh diagnostic copy raises only that
+budget to 12,288. Other copied capacities, production/native limits and 60-second
+commands stay unchanged. Frozen discovery reaches OrdinalCaseSensitiveComparer
+hashing through TypeKeyOperations.Hash (1,159,620 charged units). Its exact IL calls
+Object.GetHashCode on a loaded Type&; investigate over-broad virtual reachability
+before treating this as a required hash API. StateLookup remains 15 methods/11,529
+units; full replay is unfinished. See ADR AC0171.
