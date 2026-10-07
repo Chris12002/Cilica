@@ -103,6 +103,7 @@ namespace System
         public static readonly string Empty;
         private String() { }
         [MethodImpl(MethodImplOptions.InternalCall)] public extern String(char[] value);
+        [MethodImpl(MethodImplOptions.InternalCall)] public static extern int Compare(string left, string right, StringComparison comparisonType);
         [MethodImpl(MethodImplOptions.InternalCall)] public extern bool StartsWith(string value, StringComparison comparisonType);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0, object arg1);

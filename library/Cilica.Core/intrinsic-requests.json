@@ -929,5 +929,12 @@
     "Member": "CompareTo",
     "ParameterCount": 1,
     "Capability": "EnumCompareTo"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "Compare",
+    "ParameterCount": 3,
+    "Capability": "StringOrdinalCompare"
   }
 ]

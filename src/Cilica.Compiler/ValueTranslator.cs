@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v39";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v40";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -611,15 +611,17 @@ public static class ValueTranslator
                                 if (valueExpressions[comparer] is not IrExpression.Call { Arguments.IsEmpty: true } proof || proof.Target != ordinalSort.Getter)
                                     Error(offset, "List.Sort(IComparer<T>) currently requires List<string> and a directly proven StringComparer.Ordinal getter in the same block; null, custom comparers and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
                             }
-                            if (method.OrdinalPrefixCalls.Contains(offset))
+                            if (method.OrdinalPrefixCalls.Contains(offset) || method.OrdinalCompareCalls.Contains(offset))
                             {
-                                if (opcode is not ("call" or "callvirt") || target.Binding.Kind != ObjectMethodKind.Instance
+                                bool prefixBridge = method.OrdinalPrefixCalls.Contains(offset);
+                                if ((prefixBridge ? opcode is not ("call" or "callvirt") : opcode != "call")
+                                    || target.Binding.Kind != (prefixBridge ? ObjectMethodKind.Instance : ObjectMethodKind.Static)
                                     || target.Binding.Owner != stringType || target.ReturnType != IrType.Int32
                                     || target.Parameters.Length != 2 || target.Parameters.Any(p => p != IrType.Reference(stringType!)))
-                                    Error(offset, "Ordinal prefix bridge requires its exact instance String-to-Boolean signature.");
+                                    Error(offset, "Ordinal text bridge requires its exact selected String signature.");
                                 int prefixMode = Pop(offset, IrType.Int32);
                                 if (valueExpressions[prefixMode] is not IrExpression.Constant { Value: 4 })
-                                    Error(offset, "String.StartsWith currently requires a directly proven StringComparison.Ordinal constant; other modes and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                                    Error(offset, "Ordinal text calls require a directly proven StringComparison.Ordinal constant; other modes and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
                             }
                             bool factoryConstructor = method.FactoryConstructorCalls.TryGetValue(offset, out var factoryOwner);
                             if (factoryConstructor && (opcode != "newobj" || target.Binding.Kind != ObjectMethodKind.Static

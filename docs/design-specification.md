@@ -3272,3 +3272,14 @@ constraints remain diagnostic. Six probes provide 1,764 native/.NET comparisons;
 74 selected checks pass under forced GC and ASan/UBSan. Integer CIL v39 records
 the extension; native v64/layout v24 and production limits remain unchanged.
 Full engine/replay remains unfinished. See [ADR AC0113](decisions/AC0113-proven-enum-comparison.md).
+
+### Proven ordinal String.Compare (AC7b.14)
+
+String.Compare(String,String,StringComparison) accepts a directly proven Ordinal
+constant under its exact StringOrdinalCompare grant. Shared text-bridge validation
+selects the existing managed CompareOrdinal helper and preserves argument order,
+null behavior and exact integer results. Culture/ignore-case/unknown/aliased modes
+remain diagnostic. Four probes provide 4,338 new native/.NET comparisons; all 47
+selected checks pass. Integer CIL v40 records the extension; native v64/layout v24
+and production limits remain unchanged. Full engine/replay remains unfinished.
+See [ADR AC0114](decisions/AC0114-proven-ordinal-string-compare.md).

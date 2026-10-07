@@ -1173,10 +1173,10 @@
       "path": "library/Cilica.Core/StringComparison.cs",
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/String.Comparison.cs",
       "contracts": [
-        "Exact granted StartsWith(String,StringComparison) call sites require directly proven Ordinal before erasing the mode and calling the managed prefix helper.",
+        "Exact granted StartsWith(String,StringComparison) and AC7b.14 Compare(String,String,StringComparison) sites require directly proven Ordinal before erasing the mode and calling their exact managed helpers.",
         "Exact UTF-16 prefix checks preserve callvirt null order and proven non-null literal call receivers, null parameter value, identity and empty shortcuts."
       ],
-      "scope": "Ordinal constant only. Other comparison modes, aliases and the default-culture overload remain diagnostic. Uses existing String indexing and managed instance-call lowering without new native operations. Direct calls require a proven literal receiver; other raw calls/function pointers remain diagnostic because .NET JIT expansion changes null-receiver behavior for literal prefixes."
+      "scope": "Ordinal constant only. Other comparison modes, aliases and the default-culture overload remain diagnostic. Uses existing String indexing, CompareOrdinal and managed call lowering without new native operations. Direct calls require a proven literal receiver; other raw calls/function pointers remain diagnostic because .NET JIT expansion changes null-receiver behavior for literal prefixes."
     },
     {
       "path": "library/Cilica.Core/GuidParsing.cs",

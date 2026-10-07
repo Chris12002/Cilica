@@ -754,3 +754,8 @@ AC5b.11 supplies a granted Enum.CompareTo(Object) declaration with exact interfa
 implementation flags. The compiler admits constrained Int32 receivers and directly
 boxed matching-enum/null arguments only. General boxed/IComparable dispatch and
 dynamic mismatched targets remain unsupported; see ADR AC0113.
+
+AC7b.14 maps String.Compare(String,String,StringComparison) under the exact
+StringOrdinalCompare grant and a directly proven Ordinal constant. It reuses
+CompareOrdinal and the shared StartsWith bridge validation; other modes/aliases
+remain diagnostic. See ADR AC0114 for exact-return-value differential evidence.
