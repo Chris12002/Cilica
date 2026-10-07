@@ -27,6 +27,11 @@ public static partial class ValueProgramDiscovery
             }
             var input = Read(target);
             if (input.DeclaredName != ".ctor" || input.HasBody) return null; // Enumerable construction retains its ordinary body.
+            bool firstParameter = parameterCount == 1 || input.Signature.Parameters.Count == 2 && (dictionary
+                ? input.Signature.Parameters[0] is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }
+                : input.Signature.Parameters[0] is TypeSignature.Generic source && source.Definition.Kind == SignatureTypeKind.Class
+                    && source.Definition.Definition == Require(resolver.ResolveType(library, "System.Collections.Generic", "IEnumerable`1"), work, offset)
+                    && source.Arguments.Count == 1 && source.Arguments[0] is TypeSignature.Variable { IsMethod: false, Index: 0 });
             var comparer = Require(resolver.ResolveType(library, "System.Collections.Generic", "IEqualityComparer`1"), work, offset);
             if (instruction.OpCode != "newobj" || input.IsReferenceAssembly || input.HasTypeInitializer || input.HasModuleInitializer
                 || input.OwnerGenericArity != arity || target.DeclaringType.Arguments.Count != arity || target.MethodArguments.Count != 0
@@ -35,7 +40,7 @@ public static partial class ValueProgramDiscovery
                 || input.Attributes != (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName) || input.Implementation != MethodImplAttributes.InternalCall
                 || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }
                 || input.Signature.Parameters.Count != parameterCount
-                || parameterCount == 2 && (!dictionary || input.Signature.Parameters[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 })
+                || !firstParameter
                 || input.Signature.Parameters[^1] is not TypeSignature.Generic contract
                 || contract.Definition.Kind != SignatureTypeKind.Class || contract.Definition.Definition != comparer
                 || contract.Arguments.Count != 1 || contract.Arguments[0] is not TypeSignature.Variable { IsMethod: false, Index: 0 })

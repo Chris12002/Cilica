@@ -959,6 +959,13 @@
     "Capability": "HashSetOrdinalConstruction"
   },
   {
+    "Namespace": "System.Collections.Generic",
+    "Type": "HashSet`1",
+    "Member": "CreateOrdinal",
+    "ParameterCount": 2,
+    "Capability": "HashSetOrdinalConstruction"
+  },
+  {
     "Namespace": "System",
     "Type": "Int32",
     "Member": "ToString",

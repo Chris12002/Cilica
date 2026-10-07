@@ -37,17 +37,18 @@ public sealed class OrdinalSetTests
             Assert.False(result.Success,suffix); Assert.Contains(result.Diagnostics,d=>d.Message.Contains("directly proven StringComparer.Ordinal",StringComparison.Ordinal));
         }
     }
-    [Fact]
-    public async Task Ordinal_bridge_requires_its_exact_grant()
+    [Theory]
+    [InlineData(1)] [InlineData(2)]
+    public async Task Ordinal_bridge_requires_its_exact_grant(int parameterCount)
     {
         using var files=new ResolverFiles();var (built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
         var manifest=JsonSerializer.Deserialize<LibraryBuildManifest>(await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),
             new JsonSerializerOptions{Converters={new JsonStringEnumConverter<LibraryIntrinsicCapability>()}})!;
-        var artifact=Assert.Single(manifest.Artifacts);var grant=Assert.Single(artifact.Grants.Where(g=>g.Capability==LibraryIntrinsicCapability.HashSetOrdinalConstruction));
+        var artifact=Assert.Single(manifest.Artifacts);var grant=Assert.Single(artifact.Grants.Where(g=>g.Capability==LibraryIntrinsicCapability.HashSetOrdinalConstruction && resolver.ReadMethodDeclarationInput(implementation,(MethodDefinitionHandle)MetadataTokens.EntityHandle(g.Token),new()).Value!.Signature.Parameters.Count==parameterCount));
         var bytes=AssemblyResolver.SerializeLibraryBuildManifest(manifest with {Artifacts=[artifact with {Grants=artifact.Grants.Remove(grant)}]});
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,bytes,Convert.ToHexStringLower(SHA256.HashData(bytes))).Value!;
         var input=scope.OpenInput(typeof(OrdinalSetProbe).Assembly.Location).Value!;
-        var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(OrdinalSetProbe).GetMethod("Cases")!.MetadataToken),implementation);
+        var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle((parameterCount==1?typeof(OrdinalSetProbe):typeof(OrdinalSetSourceProbe)).GetMethod("Cases")!.MetadataToken),implementation);
         Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Id==DiagnosticIds.LibraryIntrinsicDenied);
     }
 }

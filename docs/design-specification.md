@@ -3778,3 +3778,18 @@ in 3,477 ms. StateLookup remains 15 methods/11,511 units. Production bounds and
 60-second probe caps are unchanged; no native engine emission/execution occurred.
 See [ADR AC0154](decisions/AC0154-dispatch-capacity-audit.md). Full engine/fingerprint
 execution and saved-game replay remain open.
+
+
+### AC3.27: Source collection plus proven ordinal HashSet construction (2026-10-07)
+
+HashSet<string>(IEnumerable<string>, comparer) now admits a directly proven
+StringComparer.Ordinal getter through its exact selected constructor/factory and
+separate two-argument grant. Construction retains source-expression/getter order,
+duplicate and null-key behavior, enumeration faults and comparer-sensitive copying.
+Same-comparer source sets may preserve slots; different comparer identities rebuild
+by enumeration. Seven probes supply 2,058 repeated O0/O2 native/.NET comparisons
+with forced GC and ASan/UBSan; 68 distinct focused checks pass. Integer CIL v70
+records admission; native v70/layout v26 and production budgets are unchanged.
+See [ADR AC0155](decisions/AC0155-ordinal-set-source-construction.md).
+The frozen engine previously reached this constructor in HandLimitHandler.Resolve
+after 820,241 metadata units. Full engine/fingerprint execution and replay remain open.

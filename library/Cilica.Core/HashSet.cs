@@ -34,17 +34,22 @@ namespace System.Collections.Generic
         public HashSet() { storage = new Cilica.Runtime.SetStorage<T>(); }
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         public extern HashSet(IEqualityComparer<T> comparer);
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public extern HashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer);
         // Selected only with a directly proven StringComparer.Ordinal argument.
         public static HashSet<T> CreateOrdinal(IEqualityComparer<T> comparer) => new HashSet<T>(true);
+        public static HashSet<T> CreateOrdinal(IEnumerable<T> collection, IEqualityComparer<T> comparer) => new HashSet<T>(collection, true);
         private HashSet(bool ordinalComparer)
         { storage = new Cilica.Runtime.SetStorage<T>(); this.ordinalComparer = ordinalComparer; }
-        public HashSet(IEnumerable<T> collection) { storage = CopyEnumerable(collection); }
-        private static Cilica.Runtime.SetStorage<T> CopyEnumerable(IEnumerable<T> collection)
+        public HashSet(IEnumerable<T> collection) { storage = CopyEnumerable(collection, false); }
+        private HashSet(IEnumerable<T> collection, bool ordinalComparer)
+        { storage = CopyEnumerable(collection, ordinalComparer); this.ordinalComparer = ordinalComparer; }
+        private static Cilica.Runtime.SetStorage<T> CopyEnumerable(IEnumerable<T> collection, bool ordinalComparer)
         {
             if (collection == null) throw new ArgumentNullException("collection");
             // CopySet preserves slots only when comparer identity agrees. The default
             // string comparer and explicit Ordinal have different comparer identities.
-            if (collection is HashSet<T> other && !other.ordinalComparer) return Cilica.Runtime.SetStorage<T>.CopySet(other.storage);
+            if (collection is HashSet<T> other && other.ordinalComparer == ordinalComparer) return Cilica.Runtime.SetStorage<T>.CopySet(other.storage);
             int capacity = 0;
             if (collection is ICollection<T> counted) capacity = counted.Count;
             var result = Cilica.Runtime.SetStorage<T>.ForQuery(capacity);

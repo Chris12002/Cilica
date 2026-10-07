@@ -917,3 +917,17 @@ object aliases and other scalar kinds remain diagnostic. Integer CIL v57; object
 IR v41, native v67, layout v25 and limits unchanged. See ADR AC0139 and
 artifacts/alchemy-boxed-integer-format. Full engine/fingerprint execution and replay
 remain open.
+
+
+### AC3.27: Ordinal set construction from an enumerable (2026-10-07)
+
+The source-plus-comparer HashSet<string> constructor now uses a separately granted
+CreateOrdinal(IEnumerable<T>, IEqualityComparer<T>) factory after direct selected
+StringComparer.Ordinal proof. The managed copy routine receives comparer identity:
+matching set sources can preserve slots, while default-versus-ordinal sources
+rebuild by enumeration. Source expression evaluation precedes getter evaluation;
+null-source validation follows both. Unknown/null/aliased/custom comparers and
+non-string owners remain diagnostic. Seven probes provide 2,058 O0/O2 native/.NET
+comparisons with forced GC and sanitizers, and existing set construction/cursor/
+operation tests pass. Integer CIL v70; IR/native profiles and budgets are unchanged.
+See docs/decisions/AC0155-ordinal-set-source-construction.md for evidence and limits.

@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v69";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v70";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -670,7 +670,7 @@ public static class ValueTranslator
                             bool factoryConstructor = method.FactoryConstructorCalls.TryGetValue(offset, out var factoryOwner);
                             if (factoryConstructor && (opcode != "newobj" || target.Binding.Kind != ObjectMethodKind.Static
                                 || target.Binding.Owner != factoryOwner || target.ReturnType != IrType.Reference(factoryOwner!)
-                                || (target.Parameters.Length != 1 && !(method.OrdinalCollectionGetters.ContainsKey(offset) && target.Parameters.Length == 2 && target.Parameters[0] == IrType.Int32))))
+                                || (target.Parameters.Length != 1 && !(method.OrdinalCollectionGetters.ContainsKey(offset) && target.Parameters.Length == 2 && target.Parameters[0].Kind is IrTypeKind.Int32 or IrTypeKind.Reference))))
                                 Error(offset, "Constructor factory requires its exact checked static signature.");
                             int skip = opcode == "newobj" && !factoryConstructor ? 1 : 0;
                             bool constrained = method.ConstrainedCalls.TryGetValue(offset, out var constrainedCall);
