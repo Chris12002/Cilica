@@ -6,6 +6,11 @@
     <RootNamespace>Cilica.Metadata.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Execute the exact owned parser/classifier only in the authored managed oracle. -->
+    <Compile Include="../../library/Cilica.Core/BooleanParsing.cs" Link="OwnedBooleanParsing.cs" />
+    <Compile Include="../../library/Cilica.Core/UnicodeWhitespace.cs" Link="OwnedUnicodeWhitespace.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="../../docs/compatibility/alchemy-gap-ledger.json" Link="compatibility-gap-ledger.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>

@@ -3949,3 +3949,14 @@ addresses remain diagnostic. Fifteen probes supply 2,250 repeated O0/O2 native/.
 comparisons with forced GC and sanitizers; see ADR AC0166. Integer CIL v73, object
 IR v47 and native v73 record the extension. Limits are unchanged. The measured
 Boolean.TryParse API and full saved-game replay remain unfinished.
+
+### Boolean string parsing (AC5a.7)
+
+The owned Boolean.TryParse(String, out Boolean) now preserves case-insensitive
+true/false, surrounding Unicode whitespace/NUL, and failed-output reset through
+local/parameter borrows. Four probes supply 3,660 repeated native comparisons;
+852,096 additional managed character cases and all 29 selected checks pass.
+Profiles, grants and limits are unchanged. The frozen engine now reaches generic
+ReadOnlyCollection<T>.CopyTo after 1,124,897 charged diagnostic units; StateLookup
+remains 15 methods/11,527 units. Full engine/fingerprint/replay execution remains
+unfinished. See ADR AC0167 and artifacts/alchemy-boolean-tryparse-engine.

@@ -50,7 +50,10 @@ namespace System
     public abstract class Attribute { protected Attribute() { } }
     // Primitive storage is owned by the compiler/runtime, not managed fields.
     public struct Void { }
-    public struct Boolean { }
+    public struct Boolean
+    {
+        public static bool TryParse(string value, out bool result) => Cilica.Runtime.BooleanParsing.TryParse(value, out result);
+    }
     public struct Char { }
     public struct SByte { }
     public struct Byte { }

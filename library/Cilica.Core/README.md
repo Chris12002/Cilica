@@ -59,6 +59,8 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/StringComparer.cs \
   --source library/Cilica.Core/Comparer.cs \
   --source library/Cilica.Core/StringWhitespace.cs \
+  --source library/Cilica.Core/UnicodeWhitespace.cs \
+  --source library/Cilica.Core/BooleanParsing.cs \
   --source library/Cilica.Core/Math.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
   --source library/Cilica.Library/ManagedSha256.cs \
@@ -193,7 +195,7 @@ three-argument String.Equals overload requires a directly proven Ordinal constan
 and reuses UTF-16 ordinal equality. Other modes and mode aliases remain diagnostic.
 
 StringWhitespace.cs implements IsNullOrWhiteSpace as ordinary managed code with
-pinned BMP whitespace ranges. Exhaustive UTF-16 and mixed-string differential tests
+the shared UnicodeWhitespace.cs classifier and pinned BMP whitespace ranges. Exhaustive UTF-16 and mixed-string differential tests
 cover the implementation. No general Unicode classification API is supplied.
 
 The exact readonly String.Empty field has its own field-token/signature grant.
@@ -1043,3 +1045,9 @@ Full engine, unchanged fingerprint execution and saved-game replay remain unveri
 
 AC4.11 validation: 33 distinct checks pass, including 4,212 repeated native/.NET
 comparisons and the public baseline, with forced collection and ASan/UBSan.
+
+Boolean.TryParse(String, out Boolean) uses the ordinary managed BooleanParsing.cs
+helper and shared whitespace classifier. Case-insensitive true/false accept leading
+and trailing Unicode whitespace/NUL. Failed parsing clears the output. Local and
+parameter outputs use width-preserving Boolean borrows (ADR AC0166); heap/array
+outputs, Boolean.Parse and span APIs remain outside this slice (ADR AC0167).

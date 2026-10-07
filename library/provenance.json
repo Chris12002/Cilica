@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Boolean.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Boolean.cs",
+      "sha256": "02d2ef825fed7a781213d8c840a96723a20727ae2966ee7377a9b42528996a99"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Cast.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Cast.cs",
       "sha256": "42972428d3cc80521d701ab42c09915e893639dfc9309867820ab7be0234b9e5"
@@ -644,7 +649,7 @@
       "changes": [
         "Replace runtime-private Unicode lookup tables with the exact bounded whitespace ranges; verify all 65,536 UTF-16 code units against pinned .NET."
       ],
-      "scope": "Managed String.IsNullOrWhiteSpace only; no general Unicode classification API."
+      "scope": "Managed String.IsNullOrWhiteSpace; its classifier is shared with Guid and Boolean parsing in UnicodeWhitespace.cs. No public general Unicode classification API."
     },
     {
       "path": "library/Cilica.Core/ArrayEnumerator.cs",
@@ -1241,6 +1246,15 @@
         "Separate general yield-state cleanup and ICollection iterator/terminal behavior, using existing managed operations."
       ],
       "scope": "Admitted reference, scalar, nullable and reference-bearing value casts only. Count/Any, ToArray/ToList, First and Contains collection shortcuts preserve source callbacks; existing query interfaces retain Select composition. Source enumerators and element casts must already be supported."
+    },
+    {
+      "path": "library/Cilica.Core/BooleanParsing.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Boolean.cs",
+      "contracts": [
+        "AC5a.7 Boolean.TryParse(String,out Boolean): case-insensitive true/false, surrounding Unicode White_Space and NUL, false/reset on failure.",
+        "Ordinary managed IL uses width-preserving frame borrows and the shared UnicodeWhitespace classifier."
+      ],
+      "scope": "String overload and local/parameter output locations only. Boolean.Parse, spans and field/array output locations remain unsupported. No parser intrinsic or native host parsing."
     }
   ]
 }

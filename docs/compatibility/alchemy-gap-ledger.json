@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v73",
-    "nativeProfileEvidence": "Public baseline revalidated at AC8.51 on native v73/layout v26; 46 native controls and 1 diagnostic gap.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC5a.7 on native v73/layout v26; 46 native controls and 1 diagnostic gap.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 46,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "4c66b4b5a958d2d4ff7262f4305d62361e8da7ee1ac14d147cfe10b6d7358063",
-    "latestSlice": "AC8.51",
+    "fixtureSha256": "517a1c9935b763257ecb8a9d1a623423a20b621b0c1cbd98cb4d47e7fdbb3783",
+    "latestSlice": "AC5a.7",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -342,8 +342,13 @@
     "AC5a": {
       "prerequisites": ["AC0"],
       "status": "in-progress",
-      "completedSubslices": ["AC5a.1", "AC5a.2", "AC5a.3", "AC5a.4", "AC5a.5", "AC5a.6"],
+      "completedSubslices": ["AC5a.1", "AC5a.2", "AC5a.3", "AC5a.4", "AC5a.5", "AC5a.6", "AC5a.7"],
       "remaining": "Remaining number helpers, comparer/sorting behavior and unchanged real helper validation; Guid(String) and Parse(String) are native validated."
+    },
+    "AC5a.7": {
+      "prerequisites": ["AC8.51", "AC7b.2"],
+      "status": "complete-bounded-boolean-string-parsing",
+      "decision": "docs/decisions/AC0167-boolean-string-parsing.md"
     },
     "AC5a.6": {
       "prerequisites": ["AC5b.8", "AC3.25"],
