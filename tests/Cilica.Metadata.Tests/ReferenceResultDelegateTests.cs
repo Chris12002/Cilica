@@ -32,7 +32,7 @@ public sealed class ReferenceResultDelegateTests
         using var lifetime = resolver;
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(ReferenceResultDelegateProbe).Assembly.Location).Value!;
-        foreach (string suffix in new[] { "Covariance", "Wide", "ByRef", "Recursive" })
+        foreach (string suffix in new[] { "Covariance", "Unsigned", "ByRef", "Recursive" })
         {
             var method = typeof(ReferenceResultDelegateProbe).GetMethod("Unsupported" + suffix)!;
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, (MethodDefinitionHandle)MetadataTokens.EntityHandle(method.MetadataToken), implementation);
@@ -42,13 +42,13 @@ public sealed class ReferenceResultDelegateTests
         }
     }
     [Theory]
-    [InlineData("wide")] [InlineData("unknown")] [InlineData("null")] [InlineData("location")]
+    [InlineData("unknown")] [InlineData("null")] [InlineData("location")]
     public async Task Detached_return_types_are_validated(string mutation)
     {
         var program = (await Programs.Value)[0]; var catalog = program.Flow.Flow.Flow.Types.References;
         var declaration = Assert.Single(catalog.Delegates);
         var result = mutation switch {
-            "wide" => IrType.Int64, "unknown" => IrType.Reference(catalog.ObjectBase with { Token = 0x0200ffff }),
+            "unknown" => IrType.Reference(catalog.ObjectBase with { Token = 0x0200ffff }),
             "location" => IrType.Location(IrType.Int32), _ => IrType.NullReference };
         Assert.Throws<ArgumentException>(() => ObjectModelValidator.Validate(catalog with { Delegates = catalog.Delegates.Replace(declaration, declaration with { ReturnType = result }) }));
     }

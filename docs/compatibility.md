@@ -3302,3 +3302,15 @@ Integer CIL v36, value-array IR v3, scalar-location IR v4, object IR v36 and nat
 v63 record the change. Layout, library and production bounds are unchanged.
 Primitive array borrows and full engine/replay remain unfinished.
 See [ADR AC0110](decisions/AC0110-reference-array-borrows.md).
+
+### Int64 delegates (AC2.6)
+
+The integer-object profile admits exact Int64 delegate parameters and results.
+Signed scalar target identity is authenticated before lowering, and native dispatch
+uses a dedicated typed 64-bit function pointer with exact bit preservation. Existing
+receiver roots, packets and fault cleanup compose unchanged. Eight probes provide
+2,352 new O0/O2 native/.NET comparisons; all 89 selected checks pass under forced
+GC and ASan/UBSan. Integer CIL v37, delegate IR v8, scalar delegate IR v6, object IR
+v37, layout v24 and native v64 record the extension. Unsigned/narrow/enum delegate
+signatures and general byrefs remain diagnostic. No library or capacity change;
+full engine/replay remains unfinished. See [ADR AC0111](decisions/AC0111-int64-delegates.md).

@@ -59,6 +59,7 @@ struct DelegateTarget {
     const Descriptor* type;
     ReferencePredicate receiver;
     std::int32_t (*integer)(Context&, const LocationArgument*) noexcept;
+    std::int64_t (*wide_integer)(Context&, const LocationArgument*) noexcept;
     void (*action)(Context&, const LocationArgument*) noexcept;
     Object* (*reference)(Context&, const LocationArgument*) noexcept;
 };
@@ -71,6 +72,7 @@ struct DelegateTarget {
             text.Append("    {&").Append(symbol(type)).Append("_descriptor, ")
                 .Append(binding.Kind == ObjectMethodKind.Static ? "nullptr" : predicate(binding.Owner)).Append(", ")
                 .Append(result == IrTypeKind.Int32 ? body : "nullptr").Append(", ")
+                .Append(result == IrTypeKind.Int64 ? body : "nullptr").Append(", ")
                 .Append(result == IrTypeKind.Void ? body : "nullptr").Append(", ")
                 .Append(result == IrTypeKind.Reference ? body : "nullptr").Append("},\n");
         }

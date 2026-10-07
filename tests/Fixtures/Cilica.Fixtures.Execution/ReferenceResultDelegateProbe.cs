@@ -6,7 +6,7 @@ public delegate DelegateBox BoxFactory(int value);
 public delegate T ResultFactory<T>(int value);
 public delegate object ObjectFactory(int value);
 public delegate DelegateBox ReferenceResult(DelegateBox box, int mode);
-public delegate long WideFactory(int value);
+public delegate ulong WideFactory(int value);
 public delegate DictionaryLeaf ValueFactory(int value);
 public delegate ref int ByRefFactory(DelegateBox value);
 public delegate RecursiveFactory RecursiveFactory(int value);
@@ -151,8 +151,8 @@ public static class ReferenceResultDelegateProbe
         var callback = new ObjectFactory(Make);
         return ((DelegateBox)callback(input)).Value;
     }
-    public static long Wide(int value) => value;
-    public static int UnsupportedWide(int input, int mode) => (int)new WideFactory(Wide)(input);
+    public static ulong Wide(int value) => (ulong)(uint)value;
+    public static int UnsupportedUnsigned(int input, int mode) => (int)new WideFactory(Wide)(input);
     public static DictionaryLeaf Value(int value) => default;
     public static int ValueResult(int input, int mode) => (int)new ValueFactory(Value)(input).Number;
     public static ref int ByRef(DelegateBox value) => ref value.Value;

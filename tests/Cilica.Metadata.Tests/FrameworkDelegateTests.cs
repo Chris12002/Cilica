@@ -61,12 +61,12 @@ public sealed class FrameworkDelegateTests
         using var lifetime = resolver;
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(FrameworkDelegateProbe).Assembly.Location).Value!;
-        foreach (string suffix in new[] { "Variance", "Wide", "NarrowResult", "BooleanArgument", "Multicast" })
+        foreach (string suffix in new[] { "Variance", "Unsigned", "NarrowResult", "BooleanArgument", "Multicast" })
         {
             var method = typeof(FrameworkDelegateProbe).GetMethod("Unsupported" + suffix)!;
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, (MethodDefinitionHandle)MetadataTokens.EntityHandle(method.MetadataToken), implementation);
             Assert.False(result.Success, suffix); Assert.Null(result.Program); Assert.NotEmpty(result.Diagnostics);
-            if (suffix is "Wide" or "NarrowResult" or "BooleanArgument")
+            if (suffix is "Unsigned" or "NarrowResult" or "BooleanArgument")
                 Assert.Contains(result.Diagnostics, d => d.Message.Contains("Delegate requires", StringComparison.Ordinal));
         }
     }
@@ -75,6 +75,8 @@ public sealed class FrameworkDelegateTests
     [InlineData(8, 2, 8, 8)] // int delegate / bool target result
     [InlineData(8, 8, 8, 2)] // int delegate / bool target parameter
     [InlineData(8, 9, 8, 8)] // int delegate / uint target result
+    [InlineData(10, 11, 8, 8)] // long delegate / ulong target result
+    [InlineData(8, 8, 10, 11)] // long delegate / ulong target parameter
     public async Task Same_carrier_scalar_mismatches_are_rejected_before_lowering(int declaredResult, int targetResult, int declaredParameter, int targetParameter)
     {
         using var files = new ResolverFiles();

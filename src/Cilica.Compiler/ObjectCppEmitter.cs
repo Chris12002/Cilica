@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v63";
+    public const string Profile = "object-frames-native-v64";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -455,7 +455,7 @@ public static class ObjectCppEmitter
                 }
                 Flush();
                 var result = declaration.ReturnType.Kind;
-                return "f->delegate_result.target->" + (result == IrTypeKind.Void ? "action" : result == IrTypeKind.Reference ? "reference" : "integer")
+                return "f->delegate_result.target->" + (result == IrTypeKind.Void ? "action" : result == IrTypeKind.Reference ? "reference" : result == IrTypeKind.Int64 ? "wide_integer" : "integer")
                     + "(context, f->arguments.data() + (f->delegate_result.target->receiver == nullptr ? 1 : 0))";
             }
             string DispatchPointer(IrTypeKind kind) => "f->dispatch_" + kind.ToString().ToLowerInvariant();
@@ -561,7 +561,8 @@ public static class ObjectCppEmitter
                                     expression = "f->delegate_result.value"; break;
                                 case IrExpression.CallDelegate call:
                                     expression = DelegateCall(call.Type, call.Delegate, call.Arguments, value.ILOffset);
-                                    if (value.Type == IrType.Int32) expression = "std::bit_cast<std::uint32_t>(" + expression + ")";
+                                    if (value.Type.Kind is IrTypeKind.Int32 or IrTypeKind.Int64)
+                                        expression = "std::bit_cast<" + (value.Type.Kind == IrTypeKind.Int64 ? "std::uint64_t" : "std::uint32_t") + ">(" + expression + ")";
                                     break;
                                 case IrExpression.BoxScalars boxed:
                                     for (int slot = 0; slot < boxed.Values.Length; ++slot)

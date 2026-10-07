@@ -67,12 +67,12 @@ namespace Cilica.Fixtures.Execution
             return mode;
         }
         public static void ReferenceTarget(string value, int input) { if (value == null) throw new ArgumentException(); }
-        public static int UnsupportedWide(int input, int mode)
+        public static int UnsupportedUnsigned(int input, int mode)
         {
-            var callable = new Action<long, int>(WideTarget);
-            callable(input, mode);
+            var callable = new Action<ulong, int>(WideTarget);
+            callable((ulong)(uint)input, mode);
             return mode;
         }
-        public static void WideTarget(long value, int input) { if (value == input) throw new ArgumentException(); }
+        public static void WideTarget(ulong value, int input) { if (value == (ulong)(uint)input) throw new ArgumentException(); }
     }
 }

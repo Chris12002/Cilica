@@ -82,12 +82,12 @@ public sealed class GenericDelegateTests
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
             await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(GenericDelegateProbe).Assembly.Location).Value!;
-        foreach (string name in new[] { "UnsupportedWide" })
+        foreach (string name in new[] { "UnsupportedUnsigned" })
         {
             var result = ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(GenericDelegateProbe).GetMethod(name)!.MetadataToken), implementation);
             Assert.False(result.Success); Assert.Null(result.Program);
-            Assert.Contains(result.Diagnostics, d => d.Message.Contains("direct wide/narrow parameters/results and byref signatures require later lowering.", StringComparison.Ordinal));
+            Assert.Contains(result.Diagnostics, d => d.Message.Contains("unsigned/narrow parameters/results and byref signatures require later lowering.", StringComparison.Ordinal));
         }
     }
 }

@@ -112,8 +112,8 @@ public static class FrameworkDelegateProbe
         Func<int, object> wider = specific;
         return ((DelegateBox)wider(input)).Value;
     }
-    public static void AcceptWide(long value) { }
-    public static int UnsupportedWide(int input, int mode) { new Action<long>(AcceptWide)(input); return mode; }
+    public static void AcceptWide(ulong value) { }
+    public static int UnsupportedUnsigned(int input, int mode) { new Action<ulong>(AcceptWide)((ulong)(uint)input); return mode; }
     public static short Small(int value) => (short)value;
     public static int UnsupportedNarrowResult(int input, int mode) => new Func<int, short>(Small)(input);
     public static int BoolArgument(bool value) => value ? 1 : 0;

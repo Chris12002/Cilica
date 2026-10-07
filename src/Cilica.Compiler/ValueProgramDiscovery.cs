@@ -311,11 +311,11 @@ public static partial class ValueProgramDiscovery
                                 {
                                     var signature = _methods[captured].Input.Signature;
                                     bool scalarResult = facts.Signature.ReturnType is TypeSignature.Primitive {
-                                        Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Boolean or PrimitiveTypeCode.Void };
+                                        Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.Boolean or PrimitiveTypeCode.Void };
                                     if (scalarResult && signature.ReturnType != facts.Signature.ReturnType
                                         || signature.Parameters.Count != facts.Signature.Parameters.Count
                                         || facts.Signature.Parameters.Zip(signature.Parameters).Any(pair =>
-                                            pair.First is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } && pair.First != pair.Second))
+                                            pair.First is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Int64 } && pair.First != pair.Second))
                                         Fail(work, "Delegate scalar target signature must match exact declared parameter and return types before lowering.", offset);
                                 }
                                 _arguments += instruction.OpCode == "newobj" ? 1 : declaration.ParameterCount + 1;

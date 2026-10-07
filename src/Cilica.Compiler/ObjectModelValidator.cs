@@ -57,6 +57,7 @@ public static class ObjectModelValidator
                     || !inlineFields && p is { Kind: IrTypeKind.ManagedLocation, Class: null, ReadOnly: false, Element: { Element: null, ReadOnly: false } slot }
                         && (slot == IrType.Int32 || slot == IrType.Int64 || slot.Kind == IrTypeKind.Reference && ReferenceIdentity(slot.Class, model.ObjectBase))))
                 && (declaration.ReturnType == IrType.Void || declaration.ReturnType == IrType.Int32
+                    || model.Integer64 && declaration.ReturnType == IrType.Int64
                     || model.Integer64 && declaration.ReturnType is { Kind: IrTypeKind.Reference, Element: null, ReadOnly: false } result
                     && ReferenceIdentity(result.Class, model.ObjectBase)
                     || inlineFields && model.Integer64 && declaration.ReturnType is { Kind: IrTypeKind.Value, Element: null, ReadOnly: false } returned

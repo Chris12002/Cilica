@@ -66,15 +66,15 @@ public static partial class ValueProgramDiscovery
                 || constructor.Signature.Parameters[1] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.IntPtr }
                 || invoke is null || invoke.Attributes != invokeFlags
                 || invoke.Signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }
-                    && (!integers64 || p is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
+                    && (!integers64 || p is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.Int64 or PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
                         or TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.ValueType }
                         or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class or SignatureTypeKind.ValueType } or TypeSignature.Vector)))
                 || invoke.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Void }
                     && !(integers64 && invoke.Signature.ReturnType is TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean })
-                    && (!integers64 || invoke.Signature.ReturnType is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
+                    && (!integers64 || invoke.Signature.ReturnType is not (TypeSignature.Primitive { Code: PrimitiveTypeCode.Int64 or PrimitiveTypeCode.String or PrimitiveTypeCode.Object }
                         or TypeSignature.Named { Kind: SignatureTypeKind.Class or SignatureTypeKind.ValueType }
                         or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class or SignatureTypeKind.ValueType } or TypeSignature.Vector)))
-                Fail(work, "Delegate requires .ctor(Object, native int) and exact Int32/reference/inline-value parameters with Invoke returning Int32, Boolean, reference, inline value or void; direct wide/narrow parameters/results and byref signatures require later lowering.", offset);
+                Fail(work, "Delegate requires .ctor(Object, native int) and exact Int32/Int64/reference/inline-value parameters with Invoke returning Int32, Int64, Boolean, reference, inline value or void; unsigned/narrow parameters/results and byref signatures require later lowering.", offset);
             _readingDelegateSignatures.Add(id);
             var parameterTypes = invoke!.Signature.Parameters.Select(p => Storage(p, work, offset)).ToImmutableArray();
             if (invoke.Signature.Parameters.Zip(parameterTypes).Any(pair =>
