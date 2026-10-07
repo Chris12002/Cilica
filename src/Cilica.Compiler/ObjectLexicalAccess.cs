@@ -55,16 +55,19 @@ internal static class ObjectLexicalAccess
 
     // Private member scope extends into nested type declarations, not sibling or
     // enclosing declarations. Closed generic owner ancestry needs separate evidence.
-    internal static bool WithinDeclaringType(ObjectMethodBinding caller, ObjectMethodBinding target)
+    internal static bool WithinDeclaringType(ObjectMethodBinding caller, ObjectMethodBinding target) =>
+        WithinDeclaringType(caller, target.Owner, target.LexicalOwners);
+
+    internal static bool WithinDeclaringType(ObjectMethodBinding caller, ObjectTypeId owner, ImmutableArray<LexicalTypeOwner> chain)
     {
-        if (caller.Owner.ContentHash != target.Owner.ContentHash
-            || caller.Owner.Specialization.Length != 0 || target.Owner.Specialization.Length != 0
-            || caller.LexicalOwners.IsDefaultOrEmpty || target.LexicalOwners.IsDefaultOrEmpty
-            || !Valid(caller.Owner, caller.LexicalOwners) || !Valid(target.Owner, target.LexicalOwners)
-            || caller.LexicalOwners.Any(o => o.GenericArity != 0) || target.LexicalOwners.Any(o => o.GenericArity != 0)) return false;
+        if (caller.Owner.ContentHash != owner.ContentHash
+            || caller.Owner.Specialization.Length != 0 || owner.Specialization.Length != 0
+            || caller.LexicalOwners.IsDefaultOrEmpty || chain.IsDefaultOrEmpty
+            || !Valid(caller.Owner, caller.LexicalOwners) || !Valid(owner, chain)
+            || caller.LexicalOwners.Any(o => o.GenericArity != 0) || chain.Any(o => o.GenericArity != 0)) return false;
         for (int i = 1; i < caller.LexicalOwners.Length; ++i)
-            if (caller.LexicalOwners[i].Token == target.Owner.Token)
-                return Same(caller.LexicalOwners[i..], target.LexicalOwners);
+            if (caller.LexicalOwners[i].Token == owner.Token)
+                return Same(caller.LexicalOwners[i..], chain);
         return false;
     }
 

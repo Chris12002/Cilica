@@ -3149,3 +3149,17 @@ reaches a static-field access rejection at AlchemyResolutionAdapter.Prepare IL_0
 Production limits are unchanged, as are all other diagnostic bounds and the
 60-second command cap. This is discovery evidence, not native engine execution.
 See ADR AC0159. Full saved-game replay remains unfinished.
+
+### Nested private static fields (AC8.48)
+
+The integer-object profile admits private static reads/writes from nongeneric
+nested declarations when the existing validated lexical chain proves directional
+containment in the declaring type. Discovery and both IR stages share the same
+rule already used for private method access. Sibling, enclosing, unrelated, foreign,
+generic-owner and legacy-profile access remain diagnostic; readonly writes retain
+the owning-initializer restriction. Static addresses remain unsupported.
+Six probes add 1,764 repeated O0/O2 native/.NET comparisons with forced collection,
+ASan/UBSan, retained-root accounting and initializer-fault checks. All 107 distinct
+focused/adjacent checks pass across the recorded final runs. CIL v71, object IR v45
+and native v71 record admission; layout v26, interface plan v16 and limits remain
+unchanged. See ADR AC0160. Full engine and saved-game replay remain unverified.

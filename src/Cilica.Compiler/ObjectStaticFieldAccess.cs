@@ -11,6 +11,8 @@ internal static class ObjectStaticFieldAccess
         var access = attributes & FieldAttributes.FieldAccessMask;
         if (access == FieldAttributes.PrivateScope) return false;
         if (caller.Owner == owner) return true;
+        if (access == FieldAttributes.Private)
+            return sameAssembly && ObjectLexicalAccess.WithinDeclaringType(caller, owner, chain);
         if (access == FieldAttributes.Public)
             return externallyVisible || sameAssembly && ObjectLexicalAccess.Visible(caller, owner, chain);
         if (!sameAssembly || caller.Owner.ContentHash != owner.ContentHash

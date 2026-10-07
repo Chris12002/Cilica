@@ -20,7 +20,7 @@ public static partial class ValueProgramDiscovery
             var id = new ObjectFieldId(ClosedId(field.DeclaringType, work, offset), MetadataTokens.GetToken(field.Handle));
             if (!ObjectStaticFieldAccess.Allowed(work.Binding, id.Owner, declaration.Attributes,
                 owner.ExternallyVisible, owner.LexicalOwners, integers64))
-                Fail(work, "Static field access requires the declaring owner, visible public access or proven same-assembly internal access.", offset);
+                Fail(work, "Static field access requires the declaring owner, visible public access, proven same-assembly internal access or validated nongeneric nested containment.", offset);
             if (_staticFields.TryGetValue(id, out var known)) return known;
             if (_staticFields.Count >= ObjectModelLimits.MaximumFields)
                 Fail(work, "Static field storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
