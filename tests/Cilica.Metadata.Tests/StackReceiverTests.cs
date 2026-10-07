@@ -24,7 +24,7 @@ public sealed class StackReceiverTests
             (name, programs[i], typeof(StackReceiverProbe).GetMethod(name)!.CreateDelegate<Func<int,int,int>>())).Skip(group*2).Take(2).ToArray());
     }
     [Theory]
-    [InlineData("wrong-slot")] [InlineData("branch-entry")] [InlineData("scan-limit")]
+    [InlineData("wrong-slot")] [InlineData("branch-entry")] [InlineData("scan-limit")] [InlineData("invalid-indirection")]
     public async Task Stack_candidates_cannot_cross_identity_control_flow_or_scan_bounds(string mode)
     {
         using var files = new ResolverFiles(); var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files); using var lifetime = resolver;
@@ -43,6 +43,7 @@ public sealed class StackReceiverTests
             il.OpCode(ILOpCode.Newobj); il.Token(builderConstructor);
             il.OpCode(ILOpCode.Dup); il.Call(consume);
             if (mode == "wrong-slot") il.OpCode(ILOpCode.Pop);
+            if (mode == "invalid-indirection") il.OpCode(ILOpCode.Ldind_ref);
             if (mode == "scan-limit") for (int i = 0; i < 260; ++i) il.OpCode(ILOpCode.Nop);
             if (mode == "branch-entry") { var join = il.DefineLabel(); il.Branch(ILOpCode.Br, join); il.MarkLabel(join); }
             il.OpCode(ILOpCode.Callvirt); il.Token(toString); il.OpCode(ILOpCode.Pop); il.LoadConstantI4(0); il.OpCode(ILOpCode.Ret);

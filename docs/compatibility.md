@@ -4066,3 +4066,15 @@ hashing through TypeKeyOperations.Hash (1,159,620 charged units). Its exact IL c
 Object.GetHashCode on a loaded Type&; investigate over-broad virtual reachability
 before treating this as a required hash API. StateLookup remains 15 methods/11,529
 units; full replay is unfinished. See ADR AC0171.
+
+### Known class receiver discovery (AC8.53)
+
+Public zero-argument virtual discovery now uses a proven ordinary static class,
+including abstract/closed generic bases and a reference loaded from a validated
+managed location. Canonical slot selection, subclass overrides, null checks,
+visibility and bounded same-block proof remain intact. This removes unrelated
+comparer reachability from Type-key hashing. Seven new native probes provide
+2,058 repeated O0/O2 comparisons with forced GC and sanitizers; all 47 selected
+checks pass. Integer CIL v74 records the change; IR v47/native v73 and limits stay
+unchanged. See ADR AC0172. Frozen discovery next reaches the actual ordinal string
+hash in UnitId.GetHashCode at 1,182,823 metadata units; full replay is unfinished.

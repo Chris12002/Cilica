@@ -18,7 +18,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class RuntimeTypeIdentityTests
 {
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
-        CoreLibraryBuildTests.TranslateFixtures(typeof(RuntimeTypeProbe), "Identity", "HandlesAndArrays", "Dictionary", "LiteralOnly", "ScalarTokens"));
+        CoreLibraryBuildTests.TranslateFixtures(typeof(RuntimeTypeProbe), "Identity", "HandlesAndArrays", "Dictionary", "LiteralOnly", "ScalarTokens", "ObjectHash"));
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
@@ -29,7 +29,8 @@ public sealed class RuntimeTypeIdentityTests
             [("Identity", programs[0], RuntimeTypeProbe.Identity),
              ("HandlesAndArrays", programs[1], RuntimeTypeProbe.HandlesAndArrays),
              ("Dictionary", programs[2], RuntimeTypeProbe.Dictionary),
-             ("LiteralOnly", programs[3], RuntimeTypeProbe.LiteralOnly), ("ScalarTokens", programs[4], RuntimeTypeProbe.ScalarTokens)]);
+             ("LiteralOnly", programs[3], RuntimeTypeProbe.LiteralOnly), ("ScalarTokens", programs[4], RuntimeTypeProbe.ScalarTokens),
+             ("ObjectHash", programs[5], RuntimeTypeProbe.ObjectHash)]);
     }
 
     [Fact]
@@ -51,8 +52,10 @@ public sealed class RuntimeTypeIdentityTests
             var narrowed = manifest with { Artifacts = [artifact with { Grants = [.. artifact.Grants.Where(g => g.Capability != capability)] }] };
             var deniedBytes = AssemblyResolver.SerializeLibraryBuildManifest(narrowed);
             using var denied = resolver.CreateTrustedLibraryCompilationScope(plan, deniedBytes, Convert.ToHexStringLower(SHA256.HashData(deniedBytes))).Value!;
-            var result = ValueTranslator.TranslateIntegerObjects(denied, input, Method("Identity"), implementation);
-            Assert.False(result.Success);
+            var result = ValueTranslator.TranslateIntegerObjects(denied, input, Method(capability == LibraryIntrinsicCapability.ObjectIdentityHash ? "ObjectHash" : "Identity"), implementation);
+            Assert.False(result.Success, capability.ToString());
+            if (capability == LibraryIntrinsicCapability.ObjectIdentityHash)
+                Assert.True(ValueTranslator.TranslateIntegerObjects(denied, input, Method("Identity"), implementation).Success);
             Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         }
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;

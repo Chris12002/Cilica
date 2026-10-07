@@ -81,6 +81,12 @@ public static class RuntimeTypeProbe
         return result;
     }
 
+    public static int ObjectHash(int a, int b)
+    {
+        TypeAlpha value = new TypeAlpha();
+        return value.GetHashCode() == value.GetHashCode() ? a : b;
+    }
+
     public static int UnsupportedStringHash(int a, int b) => "text".GetHashCode();
     public static int UnsupportedArrayHash(int a, int b) => new int[1].GetHashCode();
     public static int UnsupportedObjectAliasEquality(int a, int b)

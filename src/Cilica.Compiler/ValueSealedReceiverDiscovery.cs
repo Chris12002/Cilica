@@ -13,9 +13,9 @@ public static partial class ValueProgramDiscovery
     {
         private readonly Dictionary<IrMethodId, bool> _publicVirtualDeclarations = [];
         private readonly Dictionary<IrMethodId, Dictionary<int, MethodInstruction>> _receiverProducers = [];
-        // Narrow only a statically sealed reference proven within one bounded block on a
-        // zero-argument callvirt. Normal typed stack validation still checks the
-        // receiver, and ordinary virtual dispatch retains its null check and slot.
+        // Narrow the declaration from a static class reference proven within one bounded
+        // block on a zero-argument callvirt. This is not devirtualization: derived
+        // overrides remain reachable, and typed validation checks the receiver.
         private ResolvedMethod NarrowVirtualReceiver(Work work, MethodInstruction instruction, ResolvedMethod target)
         {
             if (!integers64 || instruction.OpCode != "callvirt" || target.Signature.Parameters.Count != 0
@@ -37,18 +37,18 @@ public static partial class ValueProgramDiscovery
                 }
                 _receiverProducers.Add(work.Binding.Method, producers);
             }
-            var storage = SealedReceiverStorage(work, instruction.Offset, producers);
+            var storage = KnownReceiverStorage(work, instruction.Offset, producers);
             if (storage is not { Kind: IrTypeKind.Reference, Class: { ArrayElement: null } receiver }
                 || !_references.TryGetValue(receiver, out var type)
-                || (SnapshotClosed(type, work, instruction.Offset).Attributes & (TypeAttributes.Sealed | TypeAttributes.Interface)) != TypeAttributes.Sealed)
+                || (SnapshotClosed(type, work, instruction.Offset).Attributes & TypeAttributes.Interface) != 0)
                 return target;
             var id = MethodId(target);
             if (!_publicVirtualDeclarations.TryGetValue(id, out bool isVirtual))
             {
-                if (_metadata.Remaining == 0) Fail(work, "Sealed receiver declaration metadata budget exhausted.", instruction.Offset, Cilica.Metadata.DiagnosticIds.TranslationLimit);
+                if (_metadata.Remaining == 0) Fail(work, "Known receiver declaration metadata budget exhausted.", instruction.Offset, Cilica.Metadata.DiagnosticIds.TranslationLimit);
                 var declaration = Require(resolver.ReadMethodDeclarationInput(target.DeclaringType.Definition.Assembly,
                     target.Handle, new(MaximumMembers: _metadata.Remaining)), work, instruction.Offset);
-                if (!_metadata.TryConsume(declaration.MetadataMembersRead)) Fail(work, "Sealed receiver declaration metadata budget exceeded.", instruction.Offset, Cilica.Metadata.DiagnosticIds.TranslationLimit);
+                if (!_metadata.TryConsume(declaration.MetadataMembersRead)) Fail(work, "Known receiver declaration metadata budget exceeded.", instruction.Offset, Cilica.Metadata.DiagnosticIds.TranslationLimit);
                 isVirtual = declaration.OwnerExternallyVisible
                     && (declaration.Attributes & (MethodAttributes.Virtual | MethodAttributes.MemberAccessMask))
                         == (MethodAttributes.Virtual | MethodAttributes.Public);
@@ -60,9 +60,10 @@ public static partial class ValueProgramDiscovery
         // preserving the original below their arguments. This is a candidate
         // identity only: ordinary translation independently checks the real SSA
         // receiver and retains null checks, dispatch and fault ordering.
-        private IrType? SealedReceiverStorage(Work work, int offset, Dictionary<int, MethodInstruction> producers)
+        private IrType? KnownReceiverStorage(Work work, int offset, Dictionary<int, MethodInstruction> producers)
         {
             int depth = 0;
+            bool dereference = false;
             for (int remaining = 256; remaining > 0 && producers.TryGetValue(offset, out var instruction); --remaining)
             {
                 offset = instruction.Offset;
@@ -75,6 +76,16 @@ public static partial class ValueProgramDiscovery
                         if (depth > 0) --depth;
                         continue;
                     case "nop": continue;
+                    case "ldind.ref":
+                        // The pointed-to reference has the invariant element type
+                        // of a validated managed location. Do not infer through
+                        // nested indirection or an unknown pointer origin.
+                        if (depth == 0)
+                        {
+                            if (dereference) return null;
+                            dereference = true;
+                        }
+                        continue;
                     case "pop": pops = 1; break;
                     case "ldloc.0" or "ldloc.1" or "ldloc.2" or "ldloc.3" or "ldloc.s" or "ldloc":
                         pushes = 1;
@@ -110,7 +121,10 @@ public static partial class ValueProgramDiscovery
                         else return null;
                         break;
                 }
-                if (depth < pushes) return storage;
+                if (depth < pushes)
+                    return !dereference ? storage
+                        : storage is { Kind: IrTypeKind.ManagedLocation, Element.Kind: IrTypeKind.Reference }
+                            ? storage.Element : null;
                 depth = depth - pushes + pops;
                 if (depth > 256) return null;
             }
