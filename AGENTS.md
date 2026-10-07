@@ -829,3 +829,13 @@ is 39 native controls and 8 diagnostic gaps. No compiler/runtime profiles, grant
 or limits change. Static parsing APIs and byte/span constructors remain unsupported.
 Frozen engine/state still reach type limits; full saved-game replay is unfinished.
 See [ADR AC0084](docs/decisions/AC0084-guid-text-construction.md).
+
+### Isolated engine capacity probe (AC8.23)
+
+A disposable compiler copy with a 1,024-type diagnostic bound advances frozen
+EngineStep to missing List.Sort(Comparison<T>) in GameState construction.
+StateLookup translates to eight methods with 36 value layouts, 92 reference
+layouts, 166 interfaces and two reference arrays. This is metadata/IR evidence
+only: no C++ emission or native execution. Production limits remain unchanged;
+full engine size and saved-game replay remain unverified.
+See [ADR AC0085](docs/decisions/AC0085-capacity-only-engine-probe.md).

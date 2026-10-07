@@ -558,6 +558,11 @@
       "status": "complete-bounded-protected-base-constructors",
       "decision": "docs/decisions/AC0049-protected-base-constructors.md"
     },
+    "AC8.23": {
+      "prerequisites": ["AC8.10"],
+      "status": "diagnostic-only-capacity-evidence",
+      "decision": "docs/decisions/AC0085-capacity-only-engine-probe.md"
+    },
     "AC8.22": {
       "prerequisites": ["AC8.21"],
       "status": "complete-bounded-nested-cast-names",
@@ -904,7 +909,7 @@
   "unresolved": [
     {"id": "DiscoveryClosure", "slice": "AC8", "status": "unresolved", "reason": "Node/dispatch caps and deferred edges prevent a complete executable-closure claim."},
     {"id": "NullableAdditionalMembers", "slice": "AC7b", "status": "confirmed-blocker", "reason": "Nullable.ToString now binds but deliberately rejects an unimplemented body; NullableProbe.UnsupportedText is the reduced regression."},
-    {"id": "EngineCapacity", "slice": "AC8", "status": "unmeasured", "reason": "Measure actual translated type/method/instruction counts before planning limit changes."},
+    {"id": "EngineCapacity", "slice": "AC8", "status": "partially-measured-diagnostic-copy", "reason": "AC8.23 isolated 1024-type copy: StateLookup translates 8 methods, 36 value/92 reference layouts, 166 interfaces and 2 reference arrays; no emission/execution. EngineStep advances to List.Sort(Comparison<T>), so its full capacity is still unknown. Production bounds remain unchanged."},
     {"id": "ReplayEventPayloads", "slice": "AC9", "status": "planned", "reason": "Replace event-text-only observations with canonical event payload comparison."},
     {"id": "NullableBoxingAndConversions", "slice": "AC1b", "status": "partially-implemented", "reason": "AC1b.1–AC1b.3 admit named-struct and selected integer/Boolean/Char/public Int32-enum nullable box/unbox.any, direct operators, representative lifted/checked expressions and exact boxed type tests including nullable targets. AC1b.4 permits proven confined scalar boxes alongside independent interface operations (13 further native probes). Raw scalar/nullable unbox, direct scalar interface views/dispatch and unproven box escapes in those compositions remain unsupported. There are 31 nullable, 18 scalar and 29 boxed type-test native probes plus allocation-budget checks; private replay roots were not rerun."},
     {"id": "NullableKeyOperations", "slice": "AC3", "status": "confirmed-blocker", "reason": "Nullable null/equality/hash selection must not use ordinary nonnull value-key semantics; an isolated owned-core IsNull regression verifies the diagnostic."},
