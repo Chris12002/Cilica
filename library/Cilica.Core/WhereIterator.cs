@@ -152,6 +152,80 @@ namespace Cilica.Runtime
             return false;
         }
     }
+    // Indexed Where follows the pinned yield iterator, not the optimized
+    // non-indexed iterator: enumerate the source, dispose on faults and retain
+    // the last Current after completion/disposal. Do not fuse predicates or
+    // advertise optimized query traversal contracts here.
+    public sealed class IndexedWhereIterator<T> : IEnumerable<T>, IEnumerator<T>
+    {
+        private readonly IEnumerable<T> source;
+        private readonly Func<T, int, bool> predicate;
+        private readonly int threadId;
+        private IEnumerator<T> enumerator;
+        private int state;
+        private int index;
+        private T current;
+        internal IndexedWhereIterator(IEnumerable<T> source, Func<T, int, bool> predicate)
+        {
+            this.source = source; this.predicate = predicate;
+            threadId = Environment.CurrentManagedThreadId; state = -2;
+        }
+        internal static IEnumerable<T> FromArray(T[] source, Func<T, int, bool> predicate, int length)
+        {
+            if (length == 0) return Array.Empty<T>();
+            return new IndexedWhereIterator<T>(source, predicate);
+        }
+        public IEnumerator<T> GetEnumerator()
+        {
+            var result = state == -2 && threadId == Environment.CurrentManagedThreadId
+                ? this : new IndexedWhereIterator<T>(source, predicate);
+            result.state = 0; return result;
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public T Current => current;
+        object IEnumerator.Current => current;
+        public void Reset() { throw new NotSupportedException(); }
+        private void Finish()
+        {
+            // Terminate before user disposal so a throwing Dispose is not retried.
+            state = -1;
+            if (enumerator != null) enumerator.Dispose();
+        }
+        public void Dispose()
+        {
+            if (state == -3 || state == 1) Finish();
+            enumerator = null; state = -2;
+        }
+        public bool MoveNext()
+        {
+            bool completed = false;
+            try
+            {
+                bool result = Step(); completed = true; return result;
+            }
+            // Match the generated fault handler: cleanup happens during unwind,
+            // after outer filters, and a disposal fault replaces the original.
+            finally { if (!completed) Dispose(); }
+        }
+        private bool Step()
+        {
+            if (state == 0)
+            {
+                state = -1; index = -1;
+                enumerator = source.GetEnumerator(); state = -3;
+            }
+            else if (state == 1) state = -3;
+            else return false;
+            while (enumerator.MoveNext())
+            {
+                T item = enumerator.Current;
+                index = checked(index + 1);
+                if (predicate(item, index)) { current = item; state = 1; return true; }
+            }
+            Finish(); enumerator = null; return false;
+        }
+    }
+
     public sealed class CombinedPredicate<T>
     {
         private readonly Func<T, bool> first;

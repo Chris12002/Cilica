@@ -152,6 +152,13 @@ namespace System.Linq
             if (source is TSource[] array) return Cilica.Runtime.WhereIterator<TSource>.FromArray(array, predicate, array.Length);
             return new Cilica.Runtime.WhereIterator<TSource>(source, null, predicate, 0);
         }
+        public static IEnumerable<TSource> Where<TSource>(IEnumerable<TSource> source, Func<TSource, int, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (source is TSource[] array) return Cilica.Runtime.IndexedWhereIterator<TSource>.FromArray(array, predicate, array.Length);
+            return new Cilica.Runtime.IndexedWhereIterator<TSource>(source, predicate);
+        }
         public static bool Any<TSource>(IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException("source");

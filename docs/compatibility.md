@@ -3472,3 +3472,14 @@ GC/sanitizers. Comparer exposure/copy constructors remain diagnostic and require
 separate identity semantics. Integer CIL v50; object IR v38/native v65/layout v24
 and production limits unchanged. Full engine execution/replay remains unfinished.
 See ADR AC0127 and artifacts/alchemy-ordinal-dictionary.
+
+### AC6.16: Indexed Where (2026-10-07)
+
+The indexed Where overload now uses deferred source enumeration and checked
+input indices, preserving .NET 10 fault cleanup, explicit-disposal reuse and
+retained Current. Nine probes provide 2,970 repeated native/.NET comparisons;
+two exact GC checks verify source-cursor release and retained payload lifetime.
+All 62 selected checks pass with forced GC and sanitizers. Nonindexed query
+optimizations, grants, profiles and production limits are unchanged. Full engine
+execution/replay remains unfinished. See ADR AC0128 and
+artifacts/alchemy-indexed-where.

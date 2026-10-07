@@ -685,7 +685,7 @@
         "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
-        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
+        "Historical AC6.3 left nongeneric Current, indexed overloads, List specialization and remaining operators outside that slice. AC6.16 adds indexed Where using a separate owned state machine for the pinned yield algorithm, checked indices, fault-finally cleanup, retained Current, and the .NET 10 explicit-disposal reuse/reset behavior. No indexed Select or optimized query traversal is added.",
         "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
         "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
@@ -703,7 +703,7 @@
         "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
-        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
+        "Historical AC6.3 left nongeneric Current, indexed overloads, List specialization and remaining operators outside that slice. AC6.16 adds indexed Where using a separate owned state machine for the pinned yield algorithm, checked indices, fault-finally cleanup, retained Current, and the .NET 10 explicit-disposal reuse/reset behavior. No indexed Select or optimized query traversal is added.",
         "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
         "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
@@ -721,7 +721,7 @@
         "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
-        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
+        "Historical AC6.3 left nongeneric Current, indexed overloads, List specialization and remaining operators outside that slice. AC6.16 adds indexed Where using a separate owned state machine for the pinned yield algorithm, checked indices, fault-finally cleanup, retained Current, and the .NET 10 explicit-disposal reuse/reset behavior. No indexed Select or optimized query traversal is added.",
         "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
         "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
