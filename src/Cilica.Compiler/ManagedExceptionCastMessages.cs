@@ -24,7 +24,7 @@ internal static class ManagedExceptionCastMessages
         if (targets.Length == 0) return [];
         string Name(TypeSource source)
         {
-            string name = source.RuntimeName ?? source.Name.Replace('/', '+');
+            string name = source.CastName ?? source.RuntimeName ?? source.Name[(source.Name.LastIndexOf('/') + 1)..];
             if (name.Length > 4096 || name.Any(ch => !char.IsLetterOrDigit(ch) && ch is not ('.' or '_' or '`' or '+' or '[' or ']' or ',' or '<' or '>')))
                 throw new ArgumentException("Cast exception names require bounded nominal or generated type names: " + name[..Math.Min(name.Length, 160)] + ".");
             if (source.Specialization.Length != 0 && source.RuntimeName is null)

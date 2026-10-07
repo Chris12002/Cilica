@@ -134,7 +134,7 @@ public sealed partial class AssemblyResolver
             TypeSignature Sub(TypeSignature signature) => Substitute(signature, type.Arguments, SignatureList<TypeSignature>.Empty);
             return value with
             {
-                Source = value.Source with { Specialization = key, RuntimeName = RuntimeTypeName(type) },
+                Source = value.Source with { Specialization = key, RuntimeName = RuntimeTypeName(type), CastName = RuntimeTypeName(type, cast: true) },
                 BaseType = value.BaseType is null ? null : Sub(value.BaseType),
                 Fields = [.. value.Fields.Select(field => field with { Signature = Sub(field.Signature) })],
                 Interfaces = [.. value.Interfaces.Select(Sub)],
@@ -144,26 +144,26 @@ public sealed partial class AssemblyResolver
         });
     }
 
-    private static string RuntimeTypeName(ConstructedType type)
+    private static string RuntimeTypeName(ConstructedType type, bool cast = false)
     {
         int nodes = 0;
-        string Named(ResolvedType definition) => new Cilica.Metadata.Formatting.NameFormatter(definition.Assembly.Image.Reader)
-            .TypeDefinitionName(definition.Handle).Replace('/', '+');
+        string Named(ResolvedType definition, bool root) => cast && root ? CastTypeName(definition.Assembly.Image.Reader, definition.Handle)
+            : new Cilica.Metadata.Formatting.NameFormatter(definition.Assembly.Image.Reader).TypeDefinitionName(definition.Handle).Replace('/', '+');
         string Format(TypeSignature signature, int depth)
         {
             if (++nodes > 4096 || depth > 64) throw new UnsupportedBindingException("Runtime type display-name budget exceeded.");
             string result = signature switch
             {
                 TypeSignature.Primitive primitive => "System." + primitive.Code,
-                TypeSignature.Named named => Named(named.Definition),
-                TypeSignature.Generic generic => Named(generic.Definition.Definition) + "[" + string.Join(",", generic.Arguments.Select(a => Format(a, depth + 1))) + "]",
+                TypeSignature.Named named => Named(named.Definition, depth == 0),
+                TypeSignature.Generic generic => Named(generic.Definition.Definition, depth == 0) + "[" + string.Join(",", generic.Arguments.Select(a => Format(a, depth + 1))) + "]",
                 TypeSignature.Vector vector => Format(vector.Element, depth + 1) + "[]",
                 _ => throw new UnsupportedBindingException("Unsupported runtime type display signature."),
             };
             if (result.Length > 4096) throw new UnsupportedBindingException("Runtime type display-name length exceeded.");
             return result;
         }
-        return type.Arguments.Count == 0 ? Named(type.Definition) : Format(new TypeSignature.Generic(new(type.Definition, SignatureTypeKind.Class), type.Arguments), 0);
+        return type.Arguments.Count == 0 ? Named(type.Definition, true) : Format(new TypeSignature.Generic(new(type.Definition, SignatureTypeKind.Class), type.Arguments), 0);
     }
 
     /// <summary>Read closed method input after bounded special-constraint validation. Bodies are snapshots, not permission to execute.</summary>

@@ -11,6 +11,15 @@ namespace Cilica.Metadata.Resolution;
 
 public sealed partial class AssemblyResolver
 {
+    // CLR cast diagnostics display the declared namespace/name, without enclosing types.
+    // Runtime identity names keep the full declaring chain separately.
+    private static string CastTypeName(MetadataReader reader, TypeDefinitionHandle handle)
+    {
+        var type = reader.GetTypeDefinition(handle);
+        string ns = reader.GetString(type.Namespace), name = reader.GetString(type.Name);
+        return ns.Length == 0 ? name : ns + "." + name;
+    }
+
     /// <summary>Reads one owned TypeDef row and charges the caller's metadata work ledger.</summary>
     public ResolutionResult<TypeDefinitionFlags> ReadTypeFlags(ResolvedType type, MemberResolutionBudget budget)
     {
@@ -49,7 +58,8 @@ public sealed partial class AssemblyResolver
         {
             var owners = ReadTypeOwners(type.Assembly.Image.Reader, type.Handle, maximumOwnerDepth, () => InspectMember(budget));
             var source = new TypeSource(type.Assembly.Identity.DisplayName, type.Assembly.ContentHash,
-                MetadataTokens.GetToken(type.Handle), new NameFormatter(type.Assembly.Image.Reader).TypeDefinitionName(type.Handle));
+                MetadataTokens.GetToken(type.Handle), new NameFormatter(type.Assembly.Image.Reader).TypeDefinitionName(type.Handle))
+                { CastName = CastTypeName(type.Assembly.Image.Reader, type.Handle) };
             return new TypeAccessInput(source, owners.Arity, owners.Visible, owners.Lexical);
         });
     }
@@ -183,7 +193,7 @@ public sealed partial class AssemblyResolver
             }
             var layout = type.GetLayout();
             var source = new TypeSource(assembly.Identity.DisplayName, assembly.ContentHash, MetadataTokens.GetToken(handle),
-                new NameFormatter(reader).TypeDefinitionName(handle));
+                new NameFormatter(reader).TypeDefinitionName(handle)) { CastName = CastTypeName(reader, handle) };
             // The field signatures share a node budget; resolving the base must
             // not consume a slot from the exact 4096-field boundary.
             TypeSignature? baseType = type.BaseType.IsNil ? null : new SignatureDecoder(this, assembly).Type(type.BaseType);

@@ -7,6 +7,7 @@ public sealed record TypeSource(string AssemblyIdentity, string ContentHash, int
 {
     public string Specialization { get; init; } = "";
     public string? RuntimeName { get; init; }
+    public string? CastName { get; init; }
 }
 
 /// <summary>A single TypeDef row's flags, without decoding fields or method bodies.</summary>

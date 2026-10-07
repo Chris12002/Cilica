@@ -2855,3 +2855,14 @@ admission; native v56, object layout v22 and object IR v30 are unchanged. The pu
 baseline advances to 36 native controls and 11 gaps. Section/pointer constructors
 and full saved-game replay remain unsupported; frozen engine/state type limits
 still apply. See [ADR AC0080](decisions/AC0080-character-string-construction.md).
+
+### Nested-type cast diagnostics (AC8.22)
+
+Cast errors now use a separate bounded declared-type display name: enclosing
+names are omitted at the outer level, while generic arguments keep full runtime
+names. Runtime type identity and Enum.IsDefined text retain their prior names.
+Six nested class/generic/array/box reductions add 1,764 native/.NET comparisons;
+all 77 selected metadata, cast and enum checks pass. Native v57 records the
+diagnostic correction. No layout, admission or resource limits change. UTF-8
+work exposed this defect; its library slice and full replay remain unfinished.
+See [ADR AC0081](decisions/AC0081-nested-cast-names.md).
