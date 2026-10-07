@@ -3764,3 +3764,21 @@ unchanged. See [ADR AC0149](decisions/AC0149-variant-interface-dispatch.md).
 The frozen engine previously reached an OfTypeIterator<RoundStartedEvent> through
 IEnumerable<DomainEvent> after 466,593 metadata units. Full engine/fingerprint
 execution and saved-game replay remain open.
+
+
+### AC8.43: Reuse type relationships within interface planning (2026-10-07)
+
+Frozen closure discovery cleared variance and exhausted 524,288 metadata units.
+Two copied 786,432-unit probes hit their unchanged 60-second cap. A 600,000-unit
+phase audit isolated repeated assignment-graph construction inside interface
+planning: the first 2,997 method reads took 1.3 seconds, followed by about 40
+seconds in the planner before the budget diagnostic.
+
+Reuse assignment rules within one immutable planning/validation pass, with fresh
+rules for each new catalog. All 152 focused interface checks pass. The same frozen
+600,000-unit probe drops from 41,913 ms to 2,607 ms with identical diagnostics and
+all metadata-work buckets. This is one measured compiler probe, not runtime or
+whole-application throughput. Production limits, profiles and managed semantics
+are unchanged. See [ADR AC0150](decisions/AC0150-interface-planning-reuse.md).
+The 786,432-unit copied diagnostic budget remains subject to the 60-second cap;
+full engine/fingerprint execution and saved-game replay remain unverified.

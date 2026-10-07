@@ -110,7 +110,10 @@ public static class ObjectInterfacePlanBuilder
 
         private ObjectInterfaceDispatchPlan Prepare(ObjectTypeCatalog catalog, ImmutableArray<ResolvedMethod> declarations)
         {
-            var types = new IrTypeRules(catalog); var variance = new ObjectInterfaceVarianceRules(catalog, types); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
+            var types = new IrTypeRules(catalog, _values, locations: catalog.Integer64); var variance = new ObjectInterfaceVarianceRules(catalog, types); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
+            // The catalog is immutable for this pass. Rebuilding its transitive
+            // assignment graph for every mapped method scales with the whole closure.
+            BoxedTypeRelations? boxes = null; IrTypeRules? boxedTypes = null;
             foreach (var resolved in declarations)
             {
                 var id = Id(resolved); var declaration = _declarations[id]; var targets = new List<ObjectInterfaceTarget>();
@@ -158,14 +161,14 @@ public static class ObjectInterfacePlanBuilder
                     if (exact.Slot is { } introduction)
                     {
                         slot = new(Id(introduction), ObjectModelBuilder.Id(introduction.DeclaringType));
-                        Method(introduction, slot, catalog);
+                        Method(introduction, slot, catalog, types);
                     }
-                    Method(exact.Mapping, slot, catalog); Method(exact.Implementation, slot, catalog);
+                    Method(exact.Mapping, slot, catalog, types); Method(exact.Implementation, slot, catalog, types);
                     targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit) { VariantDeclaration = _variants.GetValueOrDefault((id, receiver)) });
                 }
                 if (_values is not null)
                 {
-                    var boxes = new BoxedTypeRelations(_values);
+                    boxes ??= new BoxedTypeRelations(_values);
                     foreach (var value in _values.Types.Where(v => v.ScalarBox is null))
                     {
                         var receiver = ObjectTypeId.From(value.Source);
@@ -181,7 +184,7 @@ public static class ObjectInterfacePlanBuilder
                             || exact.Implementation.MethodArguments.Count != 0)
                             throw new PlanFailure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error,
                                 "Boxed interface dispatch requires a declared nongeneric instance body on the exact named value receiver.", declaration.Source.Name), id);
-                        BoxedMethod(exact.Implementation, catalog);
+                        BoxedMethod(exact.Implementation, boxedTypes ??= new IrTypeRules(catalog, _values, locations: true));
                         targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit));
                     }
                 }
@@ -262,7 +265,7 @@ public static class ObjectInterfacePlanBuilder
                 Fail("Interface dispatch preparation requires exact admitted instance owners with closed method arguments and without strict type or module initialization.", input.Source.Name);
             _inputs.Add(id, input); _resolved.Add(id, method); return input;
         }
-        private void Method(ResolvedMethod method, ObjectVirtualSlot? slot, ObjectTypeCatalog catalog)
+        private void Method(ResolvedMethod method, ObjectVirtualSlot? slot, ObjectTypeCatalog catalog, IrTypeRules types)
         {
             var input = Read(method); var id = Id(method); var owner = ObjectModelBuilder.Id(method.DeclaringType);
             bool abstractMethod = (input.Attributes & MethodAttributes.Abstract) != 0;
@@ -277,7 +280,6 @@ public static class ObjectInterfacePlanBuilder
                 return;
             }
             var parameters = Parameters(input, owner); var returned = Type(input.Signature.ReturnType, true);
-            var types = new IrTypeRules(catalog, _values, locations: catalog.Integer64);
             if (parameters.Any(t => !types.Valid(t, true)) || returned != IrType.Void && !types.Valid(returned, true))
                 Fail("Mapped method signature introduced a type outside the prepared catalog.", input.Source.Name);
             Count(parameters.Length);
@@ -285,7 +287,7 @@ public static class ObjectInterfacePlanBuilder
                 { LexicalOwners = catalog.Integer64 ? input.LexicalOwners : [], VirtualSlot = slot, VirtualName = slot is null ? null : input.DeclaredName,
                     OwnerAssemblyVisible = closed && input.OwnerAssemblyVisible, GenericInterfaceMethod = Evidence(method) }, input.DeclaredName, parameters, returned));
         }
-        private void BoxedMethod(ResolvedMethod method, ObjectTypeCatalog catalog)
+        private void BoxedMethod(ResolvedMethod method, IrTypeRules rules)
         {
             var input = Read(method); var id = Id(method); var owner = ObjectModelBuilder.Id(method.DeclaringType);
             if (!input.HasBody || (input.Attributes & (MethodAttributes.Static | MethodAttributes.Abstract | MethodAttributes.RTSpecialName)) != 0
@@ -295,7 +297,6 @@ public static class ObjectInterfacePlanBuilder
             if (_methods.ContainsKey(id)) return;
             var parameters = Parameters(input, owner).SetItem(0, IrType.Location(IrType.Value(owner)));
             var returned = Type(input.Signature.ReturnType, true);
-            var rules = new IrTypeRules(catalog, _values, locations: true);
             if (parameters.Any(t => !rules.Valid(t, true)) || returned != IrType.Void && !rules.Valid(returned, true))
                 Fail("Boxed interface signature introduced a type outside the prepared catalog.", input.Source.Name);
             Count(parameters.Length);

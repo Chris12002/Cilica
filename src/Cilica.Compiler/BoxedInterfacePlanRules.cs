@@ -13,6 +13,7 @@ internal sealed class BoxedInterfacePlanRules
     private readonly Dictionary<ObjectTypeId, ValueTypeLayout> _values;
     private readonly Dictionary<ObjectTypeId, ValueTypePlan> _layouts;
     private readonly BoxedTypeRelations? _relations;
+    private IrTypeRules? _signatureRules;
     internal BoxedInterfacePlanRules(ObjectInterfaceDispatchPlan plan)
     {
         _plan = plan;
@@ -62,7 +63,7 @@ internal sealed class BoxedInterfacePlanRules
         var expected = _plan.BoxedValues is null ? original : ValueScalarLowering.LowerBindings([original])[0];
         Require(ObjectLexicalAccess.SameBinding(method.Binding, expected), "boxed dispatch lowered binding mismatch.");
         var receiver = Receiver(original.Owner);
-        var rules = new IrTypeRules(_plan.Types, _plan.Values, locations: true);
+        var rules = _signatureRules ??= new IrTypeRules(_plan.Types, _plan.Values, locations: true);
         Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
             && method.Parameters.Length >= receiver.Length && method.Parameters.Take(receiver.Length).SequenceEqual(receiver)
             && method.Parameters.All(p => rules.Valid(p, true)) && method.ReturnType.Kind != IrTypeKind.ManagedLocation
