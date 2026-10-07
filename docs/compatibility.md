@@ -3677,3 +3677,15 @@ SemanticFingerprint.Create IL_000c after 368,197 metadata units. StateLookup
 remains eight methods/9,927 units. Production limits and all other diagnostic
 limits are unchanged; no engine emission/execution. See
 [ADR AC0143](decisions/AC0143-engine-type-capacity.md).
+
+### AC8.39: Retained-stack sealed receiver proof (2026-10-07)
+
+Zero-argument public virtual calls can now prove a sealed reference receiver
+retained below intervening call arguments or duplicated on the same block's
+stack. A backwards scan tracks one stack slot for at most 256 instructions;
+branch and exception boundaries, unknown operations and unproven types stop it.
+Normal translation independently validates the actual typed receiver, selected
+slot, null check and exception ordering. No call is reordered or executed while
+compiling. Integer CIL v61; other IR/native profiles and budgets are unchanged.
+See [ADR AC0144](decisions/AC0144-retained-stack-receiver-proof.md).
+This admits the frozen fingerprint writer's stack pattern, not yet its execution.
