@@ -3426,3 +3426,14 @@ provide 1,176 repeated native/.NET comparisons; all 48 selected checks pass with
 forced GC/sanitizers. Integer CIL v46; native v65/layout v24 and production limits
 unchanged. General comparers, full engine execution and saved-game replay remain
 unverified. See ADR AC0121 and artifacts/alchemy-ordinal-set.
+
+### AC7b.15: Parameterless integer text (2026-10-07)
+
+Int32/UInt32/Int64/UInt64.ToString() now use existing managed decimal formatting
+and the shared small-integer cache under exact overload grants. Default text
+uses the core's existing fixed-invariant contract; ambient culture changes are
+unsupported. Seven probes provide 9,630 repeated native/.NET comparisons with
+forced GC/sanitizers. All 30 selected checks and eight strengthened focused
+checks pass. Integer CIL v47; native v65/layout v24 and resource limits unchanged.
+Full engine execution/replay remains unfinished. See ADR AC0122 and
+artifacts/alchemy-default-integer-text.

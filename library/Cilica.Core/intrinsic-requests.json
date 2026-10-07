@@ -943,5 +943,33 @@
     "Member": "CreateOrdinal",
     "ParameterCount": 1,
     "Capability": "HashSetOrdinalConstruction"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Int32",
+    "Member": "ToString",
+    "ParameterCount": 0,
+    "Capability": "InvariantIntegerFormatting"
+  },
+  {
+    "Namespace": "System",
+    "Type": "UInt32",
+    "Member": "ToString",
+    "ParameterCount": 0,
+    "Capability": "InvariantIntegerFormatting"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Int64",
+    "Member": "ToString",
+    "ParameterCount": 0,
+    "Capability": "InvariantIntegerFormatting"
+  },
+  {
+    "Namespace": "System",
+    "Type": "UInt64",
+    "Member": "ToString",
+    "ParameterCount": 0,
+    "Capability": "InvariantIntegerFormatting"
   }
 ]

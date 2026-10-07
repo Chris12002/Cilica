@@ -54,6 +54,7 @@ namespace System
     {
         public int CompareTo(int value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => this;
+        public override string ToString() => Cilica.Runtime.IntegerText.Int32(this);
         public string ToString(IFormatProvider provider)
         {
             if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
@@ -64,6 +65,7 @@ namespace System
     {
         public int CompareTo(uint value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this);
+        public override string ToString() => Cilica.Runtime.IntegerText.UInt32(this);
         public string ToString(IFormatProvider provider)
         {
             if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
@@ -74,6 +76,7 @@ namespace System
     {
         public int CompareTo(long value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
+        public override string ToString() => Cilica.Runtime.IntegerText.Int64(this);
         public string ToString(IFormatProvider provider)
         {
             if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
@@ -84,6 +87,7 @@ namespace System
     {
         public int CompareTo(ulong value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
+        public override string ToString() => Cilica.Runtime.IntegerText.UInt64(this);
         public string ToString(IFormatProvider provider)
         {
             if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");

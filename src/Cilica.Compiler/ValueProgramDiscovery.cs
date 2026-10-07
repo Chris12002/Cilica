@@ -709,12 +709,14 @@ public static partial class ValueProgramDiscovery
             }
             if (primitive is not null && input.DeclaredName == "ToString")
             {
+                bool defaultText = input.Signature.Parameters.Count == 0;
                 if (input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
-                    || input.Signature.Parameters.Count != 1 || input.Signature.Parameters[0] is not TypeSignature.Named provider
-                    || provider.Definition != Require(resolver.ResolveType(library, "System", "IFormatProvider"), parent, offset))
-                    Fail(parent, "Integer formatting requires the supported ToString(IFormatProvider) declaration.", offset);
+                    || defaultText && input.Attributes != (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual)
+                    || !defaultText && (input.Signature.Parameters.Count != 1 || input.Signature.Parameters[0] is not TypeSignature.Named provider
+                        || provider.Definition != Require(resolver.ResolveType(library, "System", "IFormatProvider"), parent, offset)))
+                    Fail(parent, "Integer formatting requires the supported fixed-invariant ToString() or ToString(IFormatProvider) declaration.", offset);
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(library, resolved.Handle, LibraryIntrinsicCapability.InvariantIntegerFormatting), parent, offset);
-                binding = binding with { InvariantProviderOnly = true };
+                binding = binding with { InvariantProviderOnly = !defaultText };
             }
             if (fact is null && primitive is null && !inlineInstance && (input.Attributes & MethodAttributes.Virtual) != 0)
             {
