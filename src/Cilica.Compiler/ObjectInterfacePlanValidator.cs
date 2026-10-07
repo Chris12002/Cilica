@@ -174,6 +174,9 @@ public static class ObjectInterfacePlanValidator
                 if (target.Receiver.ArrayElement is not null)
                 {
                     Require(target.VariantDeclaration is null, "array interface targets do not admit variant declarations.");
+                    Require(!target.Receiver.ArrayElement.Narrow || ObjectArrayInterfaceRecipes.ElementIndependent(mapping.Name)
+                        && ObjectArrayInterfaceRecipes.ExactNarrowContract(target.Receiver, contracts[declaration.Owner]),
+                        "Narrow array targets require an element-independent helper and an exact Byte/Char contract.");
                     Require(mapping.Name != "EnumerateObjects" || mapping.Parameters[0].Class == target.Receiver,
                         "Nongeneric enumeration must retain the actual array element boxing identity.");
                     var requestedEnum = contracts[declaration.Owner].Arguments.FirstOrDefault()?.Enum32;

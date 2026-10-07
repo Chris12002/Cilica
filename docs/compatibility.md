@@ -3811,3 +3811,18 @@ focused checks pass. Integer CIL v68 records admission; IR/native profiles and
 budgets are unchanged. See [ADR AC0152](decisions/AC0152-delegate-vector-metadata.md).
 The frozen engine previously reached a CommandHandler[] array helper after
 780,053 metadata units. Full engine/fingerprint execution and replay remain open.
+
+
+### AC7a.7: Byte/character array interface metadata (2026-10-07)
+
+Byte and character arrays now support interface Count, collection flags and
+SyncRoot using their exact existing array identity. Selected Count/False/True/
+Identity helpers never read or write elements. Indexed operations, copies,
+enumeration, clearing and signed generic views remain diagnostic. Detached plans
+check the same exact widths and operation boundary. Five probes provide 1,470
+repeated O0/O2 native/.NET comparisons with forced GC and ASan/UBSan; all 113
+focused checks pass. Integer CIL v69, object IR v44, interface plan v16 and native
+v70 record the extension; core and budgets are unchanged. See
+[ADR AC0153](decisions/AC0153-narrow-array-interface-metadata.md).
+The frozen engine previously reached narrow array Count after 782,813 metadata
+units. Full engine/fingerprint execution and saved-game replay remain open.
