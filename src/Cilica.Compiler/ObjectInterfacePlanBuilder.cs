@@ -296,6 +296,8 @@ public static class ObjectInterfacePlanBuilder
             // Element-taking generic helpers use the interface view to match its packet.
             // Set retains the actual receiver's covariance check after bounds checks;
             // Add/Insert throw fixed-size faults without trying a store.
+            if (receiver.ArrayElement!.Kind == ObjectArrayElementKind.Enum32)
+                Fail("Enum array interface dispatch requires typed enumeration and boxing lowering.", declaration.Source.Name);
             var view = receiver;
             if (recipe is "Enumerate" or "CopyTo")
             {

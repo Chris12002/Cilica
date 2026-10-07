@@ -11,12 +11,14 @@ internal static class ObjectSignatureTypes
 
     internal static IrType? Convert(TypeSignature signature, ObjectTypeId objectBase,
         Func<ResolvedType, ObjectTypeId> include, Func<ObjectTypeId, ObjectTypeId> array, bool allowVoid = false,
-        Func<ObjectTypeId>? text = null, bool integers64 = false, Func<TypeSignature.Generic, ObjectTypeId>? closedReference = null, Func<ConstructedType, ObjectTypeId>? inline = null)
+        Func<ObjectTypeId>? text = null, bool integers64 = false, Func<TypeSignature.Generic, ObjectTypeId>? closedReference = null, Func<ConstructedType, ObjectTypeId>? inline = null, Func<TypeSignature, ObjectTypeId?>? enumArray = null)
     {
         if (signature is TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } closed && closedReference is not null)
             return IrType.Reference(closedReference(closed));
         if (signature is TypeSignature.Vector vector)
         {
+            if (integers64 && enumArray?.Invoke(vector.Element) is { } enumeration)
+                return IrType.Reference(array(ObjectTypeId.Vector(objectBase, ObjectArrayElement.Enum32(enumeration))));
             if (integers64 && vector.Element is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char or PrimitiveTypeCode.Int64 } narrow)
                 return IrType.Reference(array(ObjectTypeId.Vector(objectBase,
                     narrow.Code == PrimitiveTypeCode.Int64 ? ObjectArrayElement.Int64 : narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char)));

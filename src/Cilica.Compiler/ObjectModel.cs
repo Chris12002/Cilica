@@ -19,19 +19,23 @@ public sealed record ObjectTypeId(string ContentHash, int Token, ObjectArrayElem
     }
 }
 
-public enum ObjectArrayElementKind { Int32, Reference, Value, Byte, Char, Int64 }
-/// <summary>One-dimensional zero-based Int32/Byte/Char/Int64, reference or closed-value arrays; numeric storage uses exact UInt32/UInt64 carriers.</summary>
+public enum ObjectArrayElementKind { Int32, Reference, Value, Byte, Char, Int64, Enum32 }
+/// <summary>One-dimensional zero-based Int32/Byte/Char/Int64/Int32-enum, reference or closed-value arrays; numeric storage uses exact UInt32/UInt64 carriers.</summary>
 public sealed record ObjectArrayElement(ObjectArrayElementKind Kind, ObjectTypeId? Type = null)
 {
     public static ObjectArrayElement Int32 { get; } = new(ObjectArrayElementKind.Int32);
     public static ObjectArrayElement Int64 { get; } = new(ObjectArrayElementKind.Int64);
     public static ObjectArrayElement Byte { get; } = new(ObjectArrayElementKind.Byte);
     public static ObjectArrayElement Char { get; } = new(ObjectArrayElementKind.Char);
-    public bool Integer32 => Kind is ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char;
+    public bool Integer32 => Kind is ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32;
     public bool Narrow => Kind is ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char;
+    public static ObjectArrayElement Enum32(ObjectTypeId type) => new(ObjectArrayElementKind.Enum32, type);
     public static ObjectArrayElement Value(ObjectTypeId type) => new(ObjectArrayElementKind.Value, type);
     public static ObjectArrayElement Reference(ObjectTypeId type) => new(ObjectArrayElementKind.Reference, type);
 }
+
+/// <summary>Validated Int32 enum identity retained by nominal vector descriptors.</summary>
+public sealed record ObjectEnumArrayType(TypeSource Source, TypeAttributes Attributes, ImmutableArray<LexicalTypeOwner> LexicalOwners);
 
 /// <summary>Ordered scalar leaves of a closed value-array element, including private empty-value storage.</summary>
 public sealed record ObjectValueArrayLayout(ObjectTypeId Type, ImmutableArray<ObjectStorage> Slots)
@@ -109,10 +113,11 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 {
     public bool Integer64 { get; init; }
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
-    public const string Profile = "object-layout-v24";
+    public const string Profile = "object-layout-v25";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];
+    public ImmutableArray<ObjectEnumArrayType> EnumArrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];
     // Selected runtime identity, represented intrinsically rather than by mutable fields.
     public ObjectTypeId? String { get; init; }
@@ -128,6 +133,7 @@ public sealed record ObjectTypeCatalog(ImmutableArray<ObjectTypeId> Roots, Objec
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];
+    public ImmutableArray<ObjectEnumArrayType> EnumArrays { get; init; } = [];
     public ImmutableArray<ObjectDelegateType> Delegates { get; init; } = [];
     // Selected runtime identity, represented intrinsically rather than by mutable fields.
     public ObjectTypeId? String { get; init; }

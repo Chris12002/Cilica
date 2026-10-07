@@ -510,7 +510,7 @@ public static partial class ValueProgramDiscovery
                     } : null, integers64, [.. _vectors], (type, input) => {
                         var id = ObjectModelBuilder.Id(type); _knownTypes.TryAdd(id, type);
                         if (_snapshots.TryAdd(id, input)) _snapshotFields += input.Fields.Length;
-                    }, _scalarBoxes, _enumMetadataRequired ? type => EnumConstants(type, root) : null) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
+                    }, _scalarBoxes, _enumMetadataRequired ? type => EnumConstants(type, root) : null, _enumArrays) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                     [.. _references.Values.Select(t => t.Definition)], _snapshots);
                 catalog = built.Catalog ?? throw new Failure(built.Diagnostics[0]);
                 catalog = catalog with { References = catalog.References with { Statics = [.. _staticFields.Values.OrderBy(f => f.Id.Owner.ContentHash).ThenBy(f => f.Id.Owner.Token).ThenBy(f => f.Id.Owner.Specialization).ThenBy(f => f.Id.Token)] } };
@@ -810,8 +810,25 @@ public static partial class ValueProgramDiscovery
                 + ", modifiers, byref locals/returns and generics require later lowering." + Path(caller), Location(caller, offset))),
         };
 
+        private readonly Dictionary<ObjectTypeId, ObjectEnumArrayType> _enumArrays = [];
+
         private ObjectTypeId Vector(TypeSignature signature, Work? caller, int offset)
         {
+            if (EnumScalar(signature, caller, offset))
+            {
+                var definition = ((TypeSignature.Named)signature).Definition;
+                var id = ObjectModelBuilder.Id(definition);
+                if (!_enumArrays.ContainsKey(id))
+                {
+                    var input = ReadEnumInput(definition, caller, offset);
+                    _enumArrays.Add(id, new(input.Source, input.Attributes, input.LexicalOwners));
+                }
+                var enumeration = ObjectTypeId.Vector(ObjectBase(), ObjectArrayElement.Enum32(id));
+                _vectors.Add(enumeration);
+                if (_vectors.Count + _values.Count + _references.Count + _enumArrays.Count > ObjectModelLimits.MaximumTypes)
+                    Fail(caller, "Combined enum/vector/value/reference type limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                return enumeration;
+            }
             if (signature is TypeSignature.Named named)
             {
                 var definition = named.Definition;

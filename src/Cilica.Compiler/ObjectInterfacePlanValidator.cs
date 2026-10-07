@@ -171,6 +171,8 @@ public static class ObjectInterfacePlanValidator
                 Require(mapping.BoxedDeclaration is null && implementation.BoxedDeclaration is null, "reference mappings cannot use boxed receiver methods.");
                 if (target.Receiver.ArrayElement is not null)
                 {
+                    Require(target.Receiver.ArrayElement.Kind != ObjectArrayElementKind.Enum32,
+                        "Enum array interface dispatch requires typed enumeration and boxing lowering.");
                     var kind = contracts[declaration.Owner].ArrayContract;
                     Require(mapping.ArrayHelper && target.Mapping == target.Implementation && !target.IsExplicit
                         && types.Assignable(IrType.Reference(target.Receiver), mapping.Parameters[0])

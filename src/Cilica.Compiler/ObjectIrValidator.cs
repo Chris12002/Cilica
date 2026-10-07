@@ -410,7 +410,7 @@ internal sealed partial class ObjectIrRules
 
     internal IrType? ArrayElement(ObjectTypeId? array) => array is not null && _types.Valid(IrType.Reference(array), true) && _arrays.Contains(array)
         ? array.ArrayElement!.Kind switch {
-            ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char => IrType.Int32,
+            ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32 => IrType.Int32,
             ObjectArrayElementKind.Int64 => IrType.Int64,
             ObjectArrayElementKind.Reference => IrType.Reference(array.ArrayElement.Type!),
             ObjectArrayElementKind.Value when _valueLayouts?.ContainsKey(array.ArrayElement.Type!) == true => IrType.Value(array.ArrayElement.Type!),
@@ -419,6 +419,9 @@ internal sealed partial class ObjectIrRules
     internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array, int offset = -1) => array is not null && _arrays.Contains(array)
         && (array.ArrayElement!.Kind != ObjectArrayElementKind.Reference || TypeTest(caller, array.ArrayElement.Type!)
             || _genericArrays.TryGetValue((IrMethodId.From(caller.Source), offset), out var authorized) && authorized == array)
+        && (array.ArrayElement.Kind != ObjectArrayElementKind.Enum32
+            || _program.Flow.Types.EnumArrays.Any(e => ObjectTypeId.From(e.Source) == array.ArrayElement.Type
+                && ObjectLexicalAccess.Visible(Binding(IrMethodId.From(caller.Source)), array.ArrayElement.Type!, e.LexicalOwners)))
         && (array.ArrayElement.Kind != ObjectArrayElementKind.Value || _valueLayouts is null
             || _valueLayouts.TryGetValue(array.ArrayElement.Type!, out var layout)
                 && (layout.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == array.ArrayElement.Type));

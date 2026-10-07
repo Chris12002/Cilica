@@ -31,7 +31,8 @@ public static class ValueLayoutPlanner
         Require(ObjectModelValidator.Identity(catalog.ValueBase, 0x02) && !references.Contains(catalog.ValueBase),
             "selected ValueType needs a distinct canonical nominal identity.");
         Require(!catalog.Types.IsDefault && catalog.Types.Length <= ObjectModelLimits.MaximumTypes
-            && catalog.Types.Length + references.Count + 1 <= ObjectModelLimits.MaximumTypes,
+            && catalog.Types.Length + references.Count + 1
+                + catalog.References.EnumArrays.Count(e => !catalog.Types.Any(t => ObjectTypeId.From(t.Source) == ObjectTypeId.From(e.Source))) <= ObjectModelLimits.MaximumTypes,
             "combined type limit exceeded or value types missing.");
         Require(!catalog.Roots.IsDefault && catalog.Roots.Length <= ObjectModelLimits.MaximumTypes
             && catalog.Roots.All(id => ObjectModelValidator.Identity(id, 0x02))
@@ -64,6 +65,10 @@ public static class ValueLayoutPlanner
                 && type.Fields.IsEmpty && id.Specialization.Length == 0, "scalar box descriptors need one runtime-owned supported carrier and no managed fields/specialization.");
             Require(!type.ScalarEnum || type.ScalarBox == PrimitiveTypeCode.Int32 && id.Specialization.Length == 0
                 && (type.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.AutoLayout, "enum metadata requires a nominal Int32 enum scalar plan.");
+            if (catalog.References.EnumArrays.SingleOrDefault(e => ObjectTypeId.From(e.Source) == id) is { } enumeration)
+                Require(type.ScalarEnum && type.Source == enumeration.Source && type.Attributes == enumeration.Attributes
+                    && type.ExternallyVisible == ObjectLexicalAccess.Public(enumeration.LexicalOwners),
+                    "enum array and scalar-box declarations disagree.");
             if (!type.EnumConstants.IsDefault)
             {
                 Require(type.ScalarEnum && type.EnumConstants.Length <= ObjectModelLimits.MaximumFields - enumConstants,

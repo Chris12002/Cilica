@@ -57,6 +57,9 @@ internal sealed class ObjectTypeRelations
                 foreach (var target in catalog.Arrays)
                     if (target.ArrayElement is { Kind: ObjectArrayElementKind.Reference, Type: { } targetElement } && Ancestors[element].Contains(targetElement))
                         ancestors.Add(target);
+            if (array.ArrayElement!.Kind is ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32)
+                foreach (var target in catalog.Arrays)
+                    if (target.ArrayElement!.Kind is ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32) ancestors.Add(target);
             Ancestors.Add(array, ancestors);
         }
         if (catalog.Interfaces.IsEmpty) return;
@@ -123,7 +126,7 @@ internal sealed class ObjectTypeRelations
                             ? argument.Reference is { } reference && Ancestors[element].Contains(reference)
                             : array.ArrayElement is { Kind: ObjectArrayElementKind.Value, Type: { } value } ? argument.Value == value
                             : array.ArrayElement!.Kind switch {
-                                ObjectArrayElementKind.Int32 => argument.Identity == integerArgument || argument.Identity == unsignedArgument,
+                                ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32 => argument.Identity == integerArgument || argument.Identity == unsignedArgument,
                                 ObjectArrayElementKind.Int64 => argument.Identity == wideArgument || argument.Identity == unsignedWideArgument,
                                 ObjectArrayElementKind.Byte => argument.Identity == byteArgument || argument.Identity == signedByteArgument,
                                 ObjectArrayElementKind.Char => argument.Identity == charArgument,

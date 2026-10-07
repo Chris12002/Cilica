@@ -3467,3 +3467,20 @@ algorithm and public-baseline checks pass. The baseline advances to 44 controls
 and three gaps. No new intrinsic grants, native algorithms or production limits.
 Full frozen fingerprint execution and engine/replay remain open. See ADR AC0132
 and artifacts/alchemy-sha256-provider (core/manifest/fixture pins included).
+
+### AC7a.5: Nominal Int32 enum vectors (2026-10-07)
+
+Int32 enum arrays now retain nominal runtime/empty-cache identity while sharing
+the existing four-byte scalar storage. Compatible Int32/enum array views share
+mutations, and constant data preserves exact bits. Eleven probes plus the advanced
+public control supply 3,528 repeated O0/O2 native/.NET comparisons with forced GC
+and sanitizers. Exact static roots, cast fault text and six malformed catalog
+mutations pass; an additional forged interface plan is rejected. All 76 selected
+checks pass, including surrounding wide-array, constant-data, empty-array,
+interface and public-baseline regressions. The baseline is 45 controls/two gaps.
+
+Generic enum contracts, actual enum-array interface dispatch, element borrows,
+non-Int32 enums and UInt32 vectors remain diagnostic. Integer CIL v53, object IR
+v40, layout v25 and native v67 record the new nominal descriptor/facts. Production
+limits and grants remain unchanged. See ADR AC0133 and
+artifacts/alchemy-enum-array-audit. Full engine execution/replay is still open.

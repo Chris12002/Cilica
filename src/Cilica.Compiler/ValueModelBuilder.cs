@@ -33,9 +33,9 @@ public static class ValueModelBuilder
 
     internal static ValueCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null, Func<ResolvedType, ImmutableArray<EnumConstantInput>>? enumConstants = null)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null, Func<ResolvedType, ImmutableArray<EnumConstantInput>>? enumConstants = null, IReadOnlyDictionary<ObjectTypeId, ObjectEnumArrayType>? enumArrayRoots = null)
     {
-        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots, observe, scalarBoxes, enumConstants); }
+        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots, observe, scalarBoxes, enumConstants, enumArrayRoots); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
         catch (ArgumentException error) { return new(null, [new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, error.Message)]); }
@@ -45,7 +45,7 @@ public static class ValueModelBuilder
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null, Func<ResolvedType, ImmutableArray<EnumConstantInput>>? enumConstants = null)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null, Func<ResolvedType, ImmutableArray<EnumConstantInput>>? enumConstants = null, IReadOnlyDictionary<ObjectTypeId, ObjectEnumArrayType>? enumArrayRoots = null)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -121,6 +121,18 @@ public static class ValueModelBuilder
                 return scalar;
             }
             catch (ArgumentException error) { Fail(error.Message); return false; }
+        }
+        var enumArrays = enumArrayRoots is null ? new Dictionary<ObjectTypeId, ObjectEnumArrayType>() : new Dictionary<ObjectTypeId, ObjectEnumArrayType>(enumArrayRoots);
+        ObjectTypeId? EnumArray(TypeSignature signature)
+        {
+            if (!EnumScalar(signature)) return null;
+            var definition = ((TypeSignature.Named)signature).Definition; var id = Id(definition);
+            if (!enumArrays.ContainsKey(id))
+            {
+                var input = ReadClosed(new(definition, SignatureList<TypeSignature>.Empty), new(), layout: false);
+                enumArrays.Add(id, new(input.Source, input.Attributes, input.LexicalOwners));
+            }
+            return id;
         }
         void IncludeValue(ConstructedType type, string path)
         {
@@ -247,7 +259,7 @@ public static class ValueModelBuilder
                 try { return new(ReadClosed(type, limits), []); }
                 catch (Failure failure) { return new(null, failure.Diagnostics); }
             }
-            referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings, delegates, integers64, integers64 ? type => { IncludeValue(type, "heap field: " + Label(type)); return ClosedId(type); } : null, EnumScalar)
+            referenceResult = generics ? ObjectModelBuilder.BuildClosedCatalog(resolver, [.. references.Values], library, ReadClosedReference, [.. arrays], strings, delegates, integers64, integers64 ? type => { IncludeValue(type, "heap field: " + Label(type)); return ClosedId(type); } : null, EnumScalar, EnumArray, enumArrays)
                 : ObjectModelBuilder.BuildCatalog(resolver, [.. references.Values.Select(t => t.Definition)], library, Read, [.. arrays], strings);
             if (referenceResult.Catalog is null) return new(null, referenceResult.Diagnostics);
         } while (pending.Count != 0);

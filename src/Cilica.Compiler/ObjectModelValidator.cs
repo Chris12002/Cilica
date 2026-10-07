@@ -15,7 +15,7 @@ public static class ObjectModelValidator
     public static void Validate(ObjectModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Statics = model.Statics, Integer64 = model.Integer64, Interfaces = model.Interfaces, Arrays = model.Arrays, ValueArrays = model.ValueArrays, String = model.String, Delegates = model.Delegates });
+        Validate(new ObjectTypeCatalog([model.Entry], model.ObjectBase, model.Types) { Statics = model.Statics, Integer64 = model.Integer64, Interfaces = model.Interfaces, Arrays = model.Arrays, ValueArrays = model.ValueArrays, EnumArrays = model.EnumArrays, String = model.String, Delegates = model.Delegates });
     }
 
     public static void Validate(ObjectTypeCatalog model) => Validate(model, inlineFields: false);
@@ -71,9 +71,27 @@ public static class ObjectModelValidator
             delegateParameters += declaration.ParameterCount;
             Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
         }
-        Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase) && (model.Integer64 || !a.ArrayElement!.Narrow && a.ArrayElement.Kind != ObjectArrayElementKind.Int64)) && model.Arrays.Distinct().Count() == model.Arrays.Length,
+        Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase) && (model.Integer64 || !a.ArrayElement!.Narrow && a.ArrayElement.Kind is not (ObjectArrayElementKind.Int64 or ObjectArrayElementKind.Enum32))) && model.Arrays.Distinct().Count() == model.Arrays.Length,
             "array identities require a unique selected-Object anchor, supported elements and the integer-object profile for Byte/Char/Int64.");
         var arrays = model.Arrays.ToHashSet();
+        Require(!model.EnumArrays.IsDefault && model.EnumArrays.Length <= ObjectModelLimits.MaximumTypes
+            && (model.Integer64 || model.EnumArrays.IsEmpty)
+            && model.Types.Length + model.Interfaces.Length + model.Arrays.Length + model.Delegates.Length + stringCount + model.EnumArrays.Length <= ObjectModelLimits.MaximumTypes, "enum vector facts require the integer profile and bounded storage.");
+        var enumElements = arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Enum32).Select(a => a.ArrayElement!.Type!).ToHashSet();
+        var enumIdentities = new HashSet<ObjectTypeId>();
+        foreach (var item in model.EnumArrays)
+        {
+            Require(item?.Source is not null && !string.IsNullOrEmpty(item.Source.Name) && item.Source.AssemblyIdentity is not null,
+                "enum vector facts require an exact source.");
+            var id = ObjectTypeId.From(item.Source);
+            Require(Identity(id, 0x02) && id.Specialization.Length == 0 && enumIdentities.Add(id)
+                && ValueLayoutPlanner.AttributesSupported(item.Attributes)
+                && (item.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.AutoLayout
+                && ObjectLexicalAccess.Valid(id, item.LexicalOwners) && !item.LexicalOwners.IsEmpty
+                && item.LexicalOwners[0].Visibility == (item.Attributes & TypeAttributes.VisibilityMask)
+                && item.LexicalOwners.All(o => o.GenericArity == 0), "invalid or duplicate Int32 enum vector declaration facts.");
+        }
+        Require(enumElements.SetEquals(enumIdentities), "enum vector identities and declaration facts disagree.");
         var types = new Dictionary<ObjectTypeId, ObjectTypeLayout>();
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
         var interfaceParameters = new Dictionary<(string Hash, int Token), GenericParameterAttributes[]>();
@@ -170,6 +188,7 @@ public static class ObjectModelValidator
         Require(delegates.All(id => !types.ContainsKey(id) && !interfaces.ContainsKey(id) && id != model.String),
             "delegate identity collides with another storage kind.");
         bool Known(ObjectTypeId id) => delegates.Contains(id) || types.ContainsKey(id) || interfaces.ContainsKey(id) || arrays.Contains(id) || id == model.String;
+        Require(enumIdentities.All(id => !Known(id)), "enum vector declarations cannot collide with reference identities.");
         foreach (var declaration in model.Delegates)
             Require(declaration.Parameters.Append(declaration.ReturnType).Select(p => p.Kind == IrTypeKind.ManagedLocation ? p.Element! : p).All(p => p.Class is null || (p.Kind == IrTypeKind.Value ? inlineFields && !Known(p.Class) : Known(p.Class))), "delegate signature type is outside the catalog.");
         Require(!model.Statics.IsDefault && model.Statics.Length <= ObjectModelLimits.MaximumFields - fieldIdentities.Count && (model.Integer64 || model.Statics.IsEmpty), "invalid static field count/profile.");
@@ -199,6 +218,7 @@ public static class ObjectModelValidator
             staticDeclarations[key] = field;
         }
         ObjectLexicalAccess.Consistent(model.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners))
+            .Concat(model.EnumArrays.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
             .Concat(model.Statics.Select(f => (f.Id.Owner, f.LexicalOwners)))
             .Concat(model.Delegates.Select(d => (ObjectTypeId.From(d.Source), d.LexicalOwners))));
         Require(!model.ValueArrays.IsDefault && model.ValueArrays.Length <= ObjectModelLimits.MaximumTypes
@@ -304,7 +324,8 @@ public static class ObjectModelValidator
     internal static bool ReferenceIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => Identity(id, 0x02) || ArrayIdentity(id, objectBase);
     private static bool ArrayIdentity(ObjectTypeId? id, ObjectTypeId objectBase) => id?.ArrayElement is { } element
         && id.Specialization == "" && id.ContentHash == objectBase.ContentHash && id.Token == objectBase.Token
-        && (element.Integer32 || element.Kind == ObjectArrayElementKind.Int64 ? element.Type is null
+        && (element.Kind == ObjectArrayElementKind.Enum32 ? Identity(element.Type, 0x02) && element.Type!.Specialization.Length == 0
+            : element.Integer32 || element.Kind == ObjectArrayElementKind.Int64 ? element.Type is null
             : element.Kind is ObjectArrayElementKind.Reference or ObjectArrayElementKind.Value && Identity(element.Type, 0x02));
     internal static bool Identity(ObjectTypeId? id, uint table) => id is not null && id.ArrayElement is null && Hash(id.ContentHash)
         && id.ContentHash == id.ContentHash.ToLowerInvariant() && Specialization(id.Specialization) && DefinitionToken(id.Token, table)

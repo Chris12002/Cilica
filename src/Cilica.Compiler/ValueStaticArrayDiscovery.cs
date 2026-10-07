@@ -47,7 +47,7 @@ public static partial class ValueProgramDiscovery
                 var vector = Vector(element, work, offset);
                 int width = vector.ArrayElement!.Kind switch {
                     ObjectArrayElementKind.Byte => 1, ObjectArrayElementKind.Char => 2,
-                    ObjectArrayElementKind.Int32 => 4, ObjectArrayElementKind.Int64 => 8, _ => 0 };
+                    ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32 => 4, ObjectArrayElementKind.Int64 => 8, _ => 0 };
                 if (width == 0) Fail(work, "Static array initialization requires Byte, Char, Int32 or Int64 elements.", offset);
                 CheckOperandTypeUses(work, token);
                 var call = instructions[index + 1]; CheckOperandTypeUses(work, call);

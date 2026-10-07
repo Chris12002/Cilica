@@ -20,7 +20,7 @@ public static class ObjectModelBuilder
         ArgumentNullException.ThrowIfNull(root);
         var result = BuildCatalog(resolver, [root], runtimeLibrary);
         return new(result.Catalog is null ? null : new ObjectModel(Id(root), result.Catalog.ObjectBase, result.Catalog.Types)
-            { Statics = result.Catalog.Statics, Interfaces = result.Catalog.Interfaces, Arrays = result.Catalog.Arrays, ValueArrays = result.Catalog.ValueArrays, String = result.Catalog.String, Delegates = result.Catalog.Delegates }, result.Diagnostics);
+            { Statics = result.Catalog.Statics, Interfaces = result.Catalog.Interfaces, Arrays = result.Catalog.Arrays, ValueArrays = result.Catalog.ValueArrays, EnumArrays = result.Catalog.EnumArrays, String = result.Catalog.String, Delegates = result.Catalog.Delegates }, result.Diagnostics);
     }
 
     public static ObjectCatalogResult BuildCatalog(AssemblyResolver resolver, ImmutableArray<ResolvedType> roots,
@@ -40,12 +40,12 @@ public static class ObjectModelBuilder
 
     internal static ObjectCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, Func<ConstructedType, TypeReadLimits, TypeSnapshot> readType,
-        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null, Func<TypeSignature, bool>? enumScalar = null) =>
-        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates, integers64, inline, enumScalar);
+        ImmutableArray<ObjectTypeId> arrays, ObjectStringType strings, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null, Func<TypeSignature, bool>? enumScalar = null, Func<TypeSignature, ObjectTypeId?>? enumArray = null, IReadOnlyDictionary<ObjectTypeId, ObjectEnumArrayType>? enumArrays = null) =>
+        BuildCatalogCore(resolver, roots, library, readType, arrays, strings, generics: true, delegates, integers64, inline, enumScalar, enumArray, enumArrays);
 
     private static ObjectCatalogResult BuildCatalogCore(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly runtimeLibrary, Func<ConstructedType, TypeReadLimits, TypeSnapshot>? readType, ImmutableArray<ObjectTypeId> arrayRoots,
-        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null, Func<TypeSignature, bool>? enumScalar = null)
+        ObjectStringType? strings, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, Func<ConstructedType, ObjectTypeId>? inline = null, Func<TypeSignature, bool>? enumScalar = null, Func<TypeSignature, ObjectTypeId?>? enumArray = null, IReadOnlyDictionary<ObjectTypeId, ObjectEnumArrayType>? enumArrays = null)
     {
         strings ??= new(resolver, runtimeLibrary, new(ObjectModelLimits.MaximumMetadataMembers));
         ObjectTypeId? stringType = null;
@@ -176,7 +176,7 @@ public static class ObjectModelBuilder
                         if (!arrays.Contains(vector) && parents.Count + arrays.Count >= ObjectModelLimits.MaximumTypes) exceeded = true;
                         else arrays.Add(vector); return vector;
                     }, text: () => Reference(Plain(strings.Require(ObjectModelLimits.MaximumMetadataMembers - members))),
-                        closedReference: generic => Reference(new(generic.Definition.Definition, generic.Arguments)), integers64: integers64, inline: inline);
+                        closedReference: generic => Reference(new(generic.Definition.Definition, generic.Arguments)), integers64: integers64, inline: inline, enumArray: enumArray);
                     if (argument is TypeSignature.Vector && storage is null)
                         return Failed(id, DiagnosticIds.ExecutionUnsupported, "Interface array arguments require an admitted vector element type.", input.Source.Name);
                     var valueArgument = argument switch {
@@ -252,7 +252,7 @@ public static class ObjectModelBuilder
                     var text = strings.Require(ObjectModelLimits.MaximumMetadataMembers - members);
                     if (!Include(Plain(text), id, field.Token)) exceeded = true;
                     return Id(text);
-                }, integers64: integers64, closedReference: integers64 ? generic => GenericReference(generic).Class! : null, inline: inline);
+                }, integers64: integers64, closedReference: integers64 ? generic => GenericReference(generic).Class! : null, inline: inline, enumArray: enumArray);
                 IrType GenericReference(TypeSignature.Generic generic)
                 {
                     var closed = new ConstructedType(generic.Definition.Definition, generic.Arguments);
@@ -275,6 +275,7 @@ public static class ObjectModelBuilder
         var model = new ObjectTypeCatalog([.. roots.Select(ClosedId).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)])
         { Integer64 = integers64, Delegates = [.. delegateTypes], String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
+            EnumArrays = [.. arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Enum32).Select(a => enumArrays![a.ArrayElement!.Type!]).Distinct().OrderBy(e => e.Source.ContentHash, StringComparer.Ordinal).ThenBy(e => e.Source.Token)],
             Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
         // Metadata can form cycles or extend sealed classes. Surface those as
         // input diagnostics rather than leaking the detached API's exception.

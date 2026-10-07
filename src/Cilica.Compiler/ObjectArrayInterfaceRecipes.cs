@@ -56,7 +56,7 @@ internal static class ObjectArrayInterfaceRecipes
         "EnumerateObjects" => ObjectEnumeratorResult(catalog),
         "Count" or "False" or "True" or "IndexOf" or "Contains" or "Remove" => IrType.Int32,
         "CopyTo" or "Add" or "Set" or "Insert" or "InsertObject" or "RemoveAt" or "ClearReadOnly" or "Clear" => IrType.Void,
-        "Get" => vector.ArrayElement!.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : vector.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? IrType.Int64 : IrType.Int32,
+        "Get" => vector.ArrayElement!.Kind == ObjectArrayElementKind.Enum32 ? IrType.Int32 : vector.ArrayElement.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : vector.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? IrType.Int64 : IrType.Int32,
         "Identity" => IrType.Reference(vector), _ => null };
     private static IrType? ObjectEnumeratorResult(ObjectTypeCatalog? catalog)
     {
