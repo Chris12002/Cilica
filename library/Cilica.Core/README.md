@@ -100,8 +100,9 @@ additional delegate arities remain outside this bound. No new intrinsic grants.
 `Guid.cs` supplies numeric constructors, Empty, typed equality/hash/comparison
 and D/N/B/P/X formatting, adapted from the pinned source with four Int32 words.
 The local suite covers 14,400 repeated native comparisons, including every output
-code unit and null/default/empty exception messages. Parsing, random/byte/span
-APIs remain unsupported (ADR 0138). Boxed Guid type tests are admitted by AC1b.3
+code unit and null/default/empty exception messages. Guid(String) and Parse(String)
+share managed D/N/B/P/X parsing (AC5a.3/AC5a.5); TryParse/ParseExact and random/byte/span
+APIs remain unsupported. Boxed Guid type tests are admitted by AC1b.3
 ([ADR AC0005](../../docs/decisions/AC0005-boxed-type-tests.md)).
 
 `Dictionary.cs` maps the bounded public Dictionary constructor, Count, TryAdd,
@@ -931,3 +932,16 @@ non-string owners remain diagnostic. Seven probes provide 2,058 O0/O2 native/.NE
 comparisons with forced GC and sanitizers, and existing set construction/cursor/
 operation tests pass. Integer CIL v70; IR/native profiles and budgets are unchanged.
 See docs/decisions/AC0155-ordinal-set-source-construction.md for evidence and limits.
+
+### GUID static parsing (AC5a.5)
+
+Guid.Parse(String) shares the owned managed D/N/B/P/X parser with Guid(String).
+It preserves the static API's input parameter name and FormatException for
+UInt32 overflow; the constructor retains g and OverflowException. Parsed words
+are copied into the existing Guid representation only after success. No compiler
+profile, intrinsic grant, native operation or resource bound changes.
+Six static probes and the promoted Parse control provide 7,266 repeated O0/O2
+native/.NET comparisons with ASan/UBSan, forced collection and exact cleanup.
+Constructor and static tests share malformed-input, whitespace and mutation corpora.
+All 24 focused GUID checks pass. See ADR AC0156. TryParse/ParseExact and span/byte
+inputs remain unmapped. Full engine and saved-game replay remain unverified.

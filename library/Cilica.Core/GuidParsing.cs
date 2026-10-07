@@ -1,13 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// Bounded adaptation of pinned Guid.cs constructor parsing; see provenance.
+// Bounded adaptation of pinned Guid.cs constructor and static parsing; see provenance.
 namespace Cilica.Runtime
 {
     internal static class GuidParsing
     {
-        internal static int[] Parse(string text)
+        internal static int[] Parse(string text, bool constructor)
         {
-            if (text == null) throw new System.ArgumentNullException("g");
+            if (text == null) throw new System.ArgumentNullException(constructor ? "g" : "input");
             int start = 0, end = text.Length;
             while (start < end && UnicodeWhitespace.Contains(text[start])) start++;
             while (end > start && UnicodeWhitespace.Contains(text[end - 1])) end--;
@@ -21,7 +21,7 @@ namespace Cilica.Runtime
             }
             if (first == '{')
             {
-                if (text[start + 9] != '-') return Expanded(Compact(text, start, length));
+                if (text[start + 9] != '-') return Expanded(Compact(text, start, length), constructor);
                 if (length != 38 || text[end - 1] != '}') throw Invalid(8);
                 return Standard(text, start + 1, 36, true);
             }
@@ -105,13 +105,13 @@ namespace Cilica.Runtime
             return new string(characters);
         }
 
-        private static int[] Expanded(string text)
+        private static int[] Expanded(string text, bool constructor)
         {
             if (text.Length == 0 || text[0] != '{') throw Invalid(2);
             int index = 1;
-            uint a = Component(text, ref index, ',', false);
-            uint b = Component(text, ref index, ',', false);
-            uint c = Component(text, ref index, ',', false);
+            uint a = Component(text, ref index, ',', false, constructor);
+            uint b = Component(text, ref index, ',', false, constructor);
+            uint c = Component(text, ref index, ',', false, constructor);
             if (index >= text.Length || text[index] != '{') throw Invalid(2);
             index++;
             var words = new int[4];
@@ -120,7 +120,7 @@ namespace Cilica.Runtime
             for (int i = 0; i < 8; i++)
             {
                 char delimiter = i == 7 ? '}' : ',';
-                uint octet = Component(text, ref index, delimiter, true);
+                uint octet = Component(text, ref index, delimiter, true, constructor);
                 int word = i < 4 ? 2 : 3;
                 words[word] = words[word] | unchecked((int)(octet << ((i & 3) * 8)));
             }
@@ -129,7 +129,7 @@ namespace Cilica.Runtime
             return words;
         }
 
-        private static uint Component(string text, ref int index, char delimiter, bool octet)
+        private static uint Component(string text, ref int index, char delimiter, bool octet, bool constructor)
         {
             if (index >= text.Length - 1 || text[index] != '0' || (text[index + 1] | 0x20) != 'x') throw Invalid(6);
             int start = index + 2, end = start;
@@ -138,7 +138,11 @@ namespace Cilica.Runtime
             int overflow = 0;
             uint value;
             bool success = Hex(text, start, end - start, true, out value, ref overflow);
-            if (overflow != 0) throw new System.OverflowException("Value was either too large or too small for a UInt32.");
+            if (overflow != 0)
+            {
+                if (constructor) throw new System.OverflowException("Value was either too large or too small for a UInt32.");
+                throw Invalid(9);
+            }
             if (octet && value > 255) throw Invalid(9);
             if (!success) throw Invalid(7);
             index = end + 1;

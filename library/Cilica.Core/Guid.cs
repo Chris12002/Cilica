@@ -26,9 +26,13 @@ namespace System
 
         public Guid(string g)
         {
-            var words = Cilica.Runtime.GuidParsing.Parse(g);
+            var words = Cilica.Runtime.GuidParsing.Parse(g, true);
             a = words[0]; bc = words[1]; defg = words[2]; hijk = words[3];
         }
+
+        public static Guid Parse(string input) => new Guid(Cilica.Runtime.GuidParsing.Parse(input, false));
+        private Guid(int[] words)
+        { a = words[0]; bc = words[1]; defg = words[2]; hijk = words[3]; }
 
         public Guid(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
         {

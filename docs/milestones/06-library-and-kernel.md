@@ -3101,3 +3101,16 @@ records admission; native v70/layout v26 and production budgets are unchanged.
 See [ADR AC0155](../decisions/AC0155-ordinal-set-source-construction.md).
 The frozen engine previously reached this constructor in HandLimitHandler.Resolve
 after 820,241 metadata units. Full engine/fingerprint execution and replay remain open.
+
+### GUID static parsing (AC5a.5)
+
+Guid.Parse(String) shares the owned managed D/N/B/P/X parser with Guid(String).
+It preserves the static API's input parameter name and FormatException for
+UInt32 overflow; the constructor retains g and OverflowException. Parsed words
+are copied into the existing Guid representation only after success. No compiler
+profile, intrinsic grant, native operation or resource bound changes.
+Six static probes and the promoted Parse control provide 7,266 repeated O0/O2
+native/.NET comparisons with ASan/UBSan, forced collection and exact cleanup.
+Constructor and static tests share malformed-input, whitespace and mutation corpora.
+All 24 focused GUID checks pass. See ADR AC0156. TryParse/ParseExact and span/byte
+inputs remain unmapped. Full engine and saved-game replay remain unverified.

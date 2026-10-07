@@ -87,20 +87,11 @@ public sealed class GuidLibraryTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, [("Boxed", programs[0], GuidProbe.Boxed)]);
     }
 
-    [Fact]
-    public async Task Unimplemented_Guid_apis_stay_diagnostic()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Previously_unmapped_static_parse_executes(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var resolverLifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
-            await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = scope.OpenInput(typeof(GuidProbe).Assembly.Location).Value!;
-        foreach (string name in new[] { "Parse" })
-        {
-            var result = ValueTranslator.TranslateIntegerObjects(scope, input,
-                (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(GuidProbe).GetMethod(name)!.MetadataToken), implementation);
-            Assert.False(result.Success); Assert.Null(result.Program); Assert.NotEmpty(result.Diagnostics);
-        }
+        var programs = await CoreLibraryBuildTests.TranslateFixtures(typeof(GuidProbe), ["Parse"]);
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized, [("Parse", programs[0], GuidProbe.Parse)]);
     }
 }

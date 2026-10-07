@@ -4,10 +4,10 @@ namespace Cilica.Fixtures.Execution
     public sealed class GuidTextHolder { public Guid Value; }
     public static class GuidTextProbe
     {
-        private static Guid Value(int a,int b) => new Guid(a,(short)b,(short)(b>>16),(byte)a,(byte)(a>>8),(byte)(a>>16),(byte)(a>>24),(byte)b,(byte)(b>>8),(byte)(b>>16),(byte)(b>>24));
-        private static string Format(int value)
+        internal static Guid Value(int a,int b) => new Guid(a,(short)b,(short)(b>>16),(byte)a,(byte)(a>>8),(byte)(a>>16),(byte)(a>>24),(byte)b,(byte)(b>>8),(byte)(b>>16),(byte)(b>>24));
+        internal static string Format(int value)
         { switch((uint)value%5) {case 0:return "D";case 1:return "N";case 2:return "B";case 3:return "P";default:return "X";} }
-        private static int Hash(string text,int seed)
+        internal static int Hash(string text,int seed)
         { for(int i=0;i<text.Length;i++) seed=unchecked(seed*31+text[i]);return seed; }
         private static int Outcome(string text,int seed)
         {
@@ -40,7 +40,7 @@ namespace Cilica.Fixtures.Execution
             return Outcome(new string(chars),a);
         }
         public static int Corpus(int a,int b) => Outcome(Pick(a),b);
-        private static string Pick(int a)
+        internal static string Pick(int a)
         {
             switch(a)
             {
