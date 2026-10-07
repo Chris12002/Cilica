@@ -855,3 +855,12 @@ baseline stays 39 controls/8 gaps because parameterless Sort is still unsupporte
 An isolated larger-type diagnostic copy advances the engine to a metadata-work
 limit in ApplyFallingUnconscious. Full replay remains unfinished.
 See [ADR AC0086](docs/decisions/AC0086-comparison-list-sort.md).
+
+### Diagnostic metadata-work audit (AC8.24)
+
+An isolated 1,024-type/262,144-work copy reaches missing Enumerable.ToList in
+AdvanceSlots after 67,822 charged metadata units; the next call is List.FindIndex.
+StateLookup translates eight methods with 9,917 units. These partial measurements
+leave full engine capacity unknown. Production limits remain unchanged, and this
+audit neither emits nor executes native code. Full replay remains unfinished.
+See [ADR AC0087](docs/decisions/AC0087-metadata-work-audit.md).
