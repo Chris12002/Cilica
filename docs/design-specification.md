@@ -3043,3 +3043,14 @@ initializer remain rejected. CIL v29, object IR v32 and native v59 record the
 admission change; layout v22, runtime algorithms and production bounds are unchanged.
 Eight probes pass 2,352 native/.NET comparisons and all 111 selected checks pass.
 Full engine/replay remains unfinished. See [ADR AC0095](decisions/AC0095-assembly-static-access.md).
+
+### Engine method-capacity diagnostic (AC8.27)
+
+After AC8.26, the existing 1,024-type/262,144-metadata diagnostic copy reaches its
+unchanged 512-method limit in ResolutionKernel.StepReady. A separate copy raises
+only its method bound to 1,024 and reaches boxed Int32-enum String.Format in
+VictoryEvaluators.Resolve IL_001a after 91,112 metadata-work units. StateLookup
+still translates eight methods with 9,917 charged units. Neither copy emits or
+executes native code. Production bounds stay at 256 types, 512 methods and 65,536
+metadata units; full closure capacity and saved-game replay remain unverified.
+See [ADR AC0096](decisions/AC0096-engine-method-capacity.md).

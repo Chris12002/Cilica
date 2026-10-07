@@ -3171,3 +3171,14 @@ compiler/library/runtime implementation changes were needed. These focused cases
 do not establish every list-specific terminal mutation behavior.
 Evidence: artifacts/alchemy-list-query-admission/admission-b-tests.log (47.236s).
 The initial mixed class/method selection matched zero tests and provides no evidence.
+
+### Engine method-capacity diagnostic (AC8.27)
+
+After AC8.26, the existing 1,024-type/262,144-metadata diagnostic copy reaches its
+unchanged 512-method limit in ResolutionKernel.StepReady. A separate copy raises
+only its method bound to 1,024 and reaches boxed Int32-enum String.Format in
+VictoryEvaluators.Resolve IL_001a after 91,112 metadata-work units. StateLookup
+still translates eight methods with 9,917 charged units. Neither copy emits or
+executes native code. Production bounds stay at 256 types, 512 methods and 65,536
+metadata units; full closure capacity and saved-game replay remain unverified.
+See [ADR AC0096](decisions/AC0096-engine-method-capacity.md).

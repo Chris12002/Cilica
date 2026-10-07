@@ -595,6 +595,11 @@
       "status": "complete-bounded-protected-base-constructors",
       "decision": "docs/decisions/AC0049-protected-base-constructors.md"
     },
+    "AC8.27": {
+      "prerequisites": ["AC8.26", "AC8.24"],
+      "status": "diagnostic-only-method-capacity-evidence",
+      "decision": "docs/decisions/AC0096-engine-method-capacity.md"
+    },
     "AC8.26": {
       "prerequisites": ["AC8.20", "AC5b.5", "AC6.14", "AC3.13"],
       "status": "complete-bounded-same-assembly-static-access",
@@ -961,7 +966,7 @@
   "unresolved": [
     {"id": "DiscoveryClosure", "slice": "AC8", "status": "unresolved", "reason": "Node/dispatch caps and deferred edges prevent a complete executable-closure claim."},
     {"id": "NullableAdditionalMembers", "slice": "AC7b", "status": "confirmed-blocker", "reason": "Nullable.ToString now binds but deliberately rejects an unimplemented body; NullableProbe.UnsupportedText is the reduced regression."},
-    {"id": "EngineCapacity", "slice": "AC8", "status": "partially-measured-diagnostic-copy", "reason": "AC8.23 isolated 1024-type copy: StateLookup translates 8 methods, 36 value/92 reference layouts, 166 interfaces and 2 reference arrays; no emission/execution. AC8.24 extends only the diagnostic copy to 262144 metadata units; EngineStep reaches ToList in AdvanceSlots after 67822 units. StateLookup charges 9917 units. Full engine capacity is still unknown. Production bounds remain unchanged."},
+    {"id": "EngineCapacity", "slice": "AC8", "status": "partially-measured-diagnostic-copy", "reason": "AC8.23 isolated 1024-type copy: StateLookup translates 8 methods, 36 value/92 reference layouts, 166 interfaces and 2 reference arrays; no emission/execution. AC8.24 extends only the diagnostic copy to 262144 metadata units; EngineStep reaches ToList in AdvanceSlots after 67822 units. StateLookup charges 9917 units. After AC8.26, the same copy reaches 512 methods in ResolutionKernel.StepReady. AC8.27 raises only the diagnostic method bound to 1024 and reaches boxed enum formatting in VictoryEvaluators.Resolve IL_001a after 91112 work units. Full engine capacity remains unknown; production bounds are unchanged."},
     {"id": "ReplayEventPayloads", "slice": "AC9", "status": "planned", "reason": "Replace event-text-only observations with canonical event payload comparison."},
     {"id": "NullableBoxingAndConversions", "slice": "AC1b", "status": "partially-implemented", "reason": "AC1b.1–AC1b.3 admit named-struct and selected integer/Boolean/Char/public Int32-enum nullable box/unbox.any, direct operators, representative lifted/checked expressions and exact boxed type tests including nullable targets. AC1b.4 permits proven confined scalar boxes alongside independent interface operations (13 further native probes). Raw scalar/nullable unbox, direct scalar interface views/dispatch and unproven box escapes in those compositions remain unsupported. There are 31 nullable, 18 scalar and 29 boxed type-test native probes plus allocation-budget checks; private replay roots were not rerun."},
     {"id": "NullableKeyOperations", "slice": "AC3", "status": "confirmed-blocker", "reason": "Nullable null/equality/hash selection must not use ordinary nonnull value-key semantics; an isolated owned-core IsNull regression verifies the diagnostic."},
