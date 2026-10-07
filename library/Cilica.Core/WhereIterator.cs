@@ -27,37 +27,43 @@ namespace Cilica.Runtime
     {
         private readonly IEnumerable<T> source;
         private readonly T[] array;
+        private readonly int length;
         private readonly Func<T, bool> predicate;
         private readonly int threadId;
         private IEnumerator<T> enumerator;
         private int state;
         private T current;
-        internal WhereIterator(IEnumerable<T> source, T[] array, Func<T, bool> predicate)
+        internal WhereIterator(IEnumerable<T> source, T[] array, Func<T, bool> predicate, int length)
         {
-            this.source = source; this.array = array; this.predicate = predicate;
+            this.source = source; this.array = array; this.predicate = predicate; this.length = length;
             threadId = Environment.CurrentManagedThreadId;
         }
         internal static IEnumerable<T> FromArray(T[] array, Func<T, bool> predicate, int length)
         {
             if (length == 0) return Array.Empty<T>();
-            return new WhereIterator<T>(array, array, predicate);
+            return new WhereIterator<T>(array, array, predicate, length);
         }
         internal IEnumerable<T> Filter(Func<T, bool> next)
         {
             var combined = new CombinedPredicate<T>(predicate, next);
-            return new WhereIterator<T>(source, array, combined.Match);
+            return new WhereIterator<T>(source, array, combined.Match, length);
         }
         public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)
         {
             count = -1;
-            return new WhereIterator<T>(source, array, predicate).GetEnumerator();
+            if (terminal == 3 && array == null && source is List<T> list)
+            {
+                var captured = list.QueryStorage(out int capturedCount);
+                return new WhereIterator<T>(captured, captured, predicate, capturedCount).GetEnumerator();
+            }
+            return new WhereIterator<T>(source, array, predicate, length).GetEnumerator();
         }
         public IEnumerator<T> GetContainsEnumerator() => GetQueryEnumerator(0, out _);
         public bool Contains(T value)
         { using (IEnumerator<T> e = GetContainsEnumerator()) return QueryContains<T>.Read(e, value); }
         public IEnumerator<T> GetEnumerator()
         {
-            var result = state == 0 && threadId == Environment.CurrentManagedThreadId ? this : new WhereIterator<T>(source, array, predicate);
+            var result = state == 0 && threadId == Environment.CurrentManagedThreadId ? this : new WhereIterator<T>(source, array, predicate, length);
             result.state = 1; return result;
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -74,7 +80,7 @@ namespace Cilica.Runtime
             if (array != null)
             {
                 int index = unchecked(state - 1);
-                while ((uint)index < (uint)array.Length)
+                while ((uint)index < (uint)length)
                 {
                     T item = array[index]; index = state; state = unchecked(state + 1);
                     if (predicate(item)) { current = item; return true; }
@@ -96,17 +102,8 @@ namespace Cilica.Runtime
         public T[] ToArray()
         {
             var builder = new MaterializationBuffer<T>();
-            if (array != null)
-            {
-                for (int index = 0; index < array.Length; index++)
-                {
-                    T item = array[index]; if (predicate(item)) builder.Add(item);
-                }
-            }
-            else
-            {
-                foreach (T item in source) if (predicate(item)) builder.Add(item);
-            }
+            using (var cursor = GetQueryEnumerator(3, out _))
+                while (cursor.MoveNext()) builder.Add(cursor.Current);
             return builder.ToArray();
         }
         public int Count()

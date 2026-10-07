@@ -330,7 +330,8 @@
         "AC6.9",
         "AC6.10",
         "AC6.11",
-        "AC6.12"
+        "AC6.12",
+        "AC6.13"
       ],
       "remaining": "Remaining deferred/terminal operators, indexed overloads, List specializations, boxed collection factories and full replay closure."
     },
@@ -373,6 +374,11 @@
       "prerequisites": ["AC4.7", "AC6.7"],
       "status": "complete-bounded-oftype",
       "decision": "docs/decisions/AC0054-nongeneric-cursors-and-oftype.md"
+    },
+    "AC6.13": {
+      "prerequisites": ["AC6.6", "AC3.12"],
+      "status": "complete-bounded-captured-list-materialization",
+      "decision": "docs/decisions/AC0092-captured-list-materialization.md"
     },
     "AC6.12": {
       "prerequisites": ["AC6.11", "AC8.17"],

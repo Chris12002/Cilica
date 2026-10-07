@@ -121,7 +121,7 @@ namespace Cilica.Runtime
         public int Count() => System.Linq.Enumerable.Count(source);
         public bool Any() { int count = GetCheapCount(); if (count >= 0) return count != 0; TryFirst(out int found); return found != 0; }
         public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)
-        { count = -1; if (terminal == 1) count = GetCheapCount(); if (count == 0) return null; return GetEnumerator(); }
+        { count = -1; if (terminal == 1 || terminal == 3) count = GetCheapCount(); if (count == 0) return null; return GetEnumerator(); }
         public T TryFirst(out int found)
         {
             if (parent == null)

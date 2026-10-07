@@ -177,6 +177,17 @@ namespace System.Collections.Generic
         // Use ordinary same-assembly accessors until generic lexical private
         // field access has its own closed-owner proof.
         internal int EnumerationVersion => version;
+        // Owned query materializers use the pinned AsSpan snapshot semantics.
+        // This remains managed array storage; no public Span API is introduced.
+        internal T[] QueryStorage(out int count)
+        {
+            count = size;
+            var captured = items;
+            int length = captured.Length;
+            if ((uint)count > (uint)length)
+                throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
+            return captured;
+        }
         public Enumerator GetEnumerator() => new Enumerator(this);
         public struct Enumerator : IEnumerator<T>, Collections.IEnumerator
         {

@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Runtime/InteropServices/CollectionsMarshal.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Runtime/InteropServices/CollectionsMarshal.cs",
+      "sha256": "7b4fa6a94e3125470d88854a58e3618332cebef0c5418c8cf63ef854ab21482c"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Contains.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Contains.cs",
       "sha256": "0d39f3edb134eb5db2070a4a216faf815cbf5c113e9f2d3628998a9648ef7ffc"
@@ -493,7 +498,8 @@
         "AC3.6 direct generic CopyTo with complete bounds validation, unchanged version and per-element reference downcasts.",
         "AC3.8/AC3.11 IEnumerable construction: dynamic collection Count snapshot, zero count, exact capacity and CopyTo before size publication; other sources enumerate with Add growth and finally-disposal.",
         "AC3.10 Comparison<T> sorting with captured backing storage, callback faults and version semantics.",
-        "AC3.12 AddRange with collection Count/CopyTo, checked growth, post-copy size/version updates and per-item enumerable fallback."
+        "AC3.12 AddRange with collection Count/CopyTo, checked growth, post-copy size/version updates and per-item enumerable fallback.",
+        "AC6.13 capture list count and backing array with the pinned CollectionsMarshal.AsSpan corruption check for owned query materialization."
       ],
       "changes": [
         "Replace Array.Copy with typed managed loops; retain allocation-before-publication and exception ordering.",
@@ -657,7 +663,8 @@
         "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
-        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice."
+        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
       ],
       "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
     },
@@ -673,7 +680,8 @@
         "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
-        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice."
+        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
       ],
       "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
     },
@@ -689,7 +697,8 @@
         "Use existing single-managed-thread Environment identity and direct array indexing instead of spans.",
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
-        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice."
+        "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
       ],
       "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
     },
@@ -705,7 +714,8 @@
         "Replace generic virtual Select fusion with owned fresh/terminal traversal interfaces; retain callback ordering and original query state.",
         "Use traced arrays and the existing managed MaterializationBuffer instead of span/pool scratch storage.",
         "Use existing Int32 length helpers and explicit managed value-copy calls for inline results.",
-        "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched."
+        "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched.",
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
       ],
       "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
     },
@@ -721,7 +731,8 @@
         "Replace generic virtual Select fusion with owned fresh/terminal traversal interfaces; retain callback ordering and original query state.",
         "Use traced arrays and the existing managed MaterializationBuffer instead of span/pool scratch storage.",
         "Use existing Int32 length helpers and explicit managed value-copy calls for inline results.",
-        "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched."
+        "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched.",
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
       ],
       "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
     },
@@ -928,6 +939,17 @@
         "Nongeneric comparison and comparer-object equality/hash remain explicitly unsupported."
       ],
       "scope": "Bounded integer defaults and abstract comparer subclass dispatch. Culture, nullable, enum, small integer, reference and arbitrary value defaults, delegate factories and serialization remain planned."
+    },
+    {
+      "path": "library/Cilica.Core/List.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Runtime/InteropServices/CollectionsMarshal.cs",
+      "algorithms": [
+        "AsSpan list size/backing-array capture and unsigned bounds corruption guard."
+      ],
+      "changes": [
+        "Return managed array plus Int32 count to owned query cursors; no Span or unsafe API."
+      ],
+      "scope": "AC6.13 List-backed Where/Select materialization only."
     }
   ],
   "ownedAdapters": [

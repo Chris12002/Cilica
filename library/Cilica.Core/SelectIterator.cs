@@ -10,7 +10,8 @@ namespace Cilica.Runtime
     // traversal additionally preserves indexed IList behavior through Select chains.
     // These owned helpers avoid generic virtual methods and are not framework APIs.
     // Terminal 1 may request a cheap materialization count; terminal 2 counts by
-    // evaluating selectors and must not add a count-getter callback.
+    // evaluating selectors and must not add a count-getter callback. Terminal 3
+    // materializes through captured List storage, including composed selectors.
     public interface IQueryTraversal<T>
     {
         IEnumerator<T> GetQueryEnumerator(int terminal, out int count);
@@ -110,6 +111,11 @@ namespace Cilica.Runtime
                 {
                     result.enumerator = query.GetQueryEnumerator(terminal, out count); result.state = 2;
                 }
+                else if (terminal == 3 && source is List<TSource> capturedList)
+                {
+                    var captured = capturedList.QueryStorage(out count);
+                    result.enumerator = new PrefixQueryEnumerator<TSource>(captured, count); result.state = 2;
+                }
                 else if (source is IList<TSource> list)
                 {
                     count = list.Count;
@@ -145,7 +151,7 @@ namespace Cilica.Runtime
         }
         public TResult[] ToArray()
         {
-            using (var e = GetQueryEnumerator(1, out int count))
+            using (var e = GetQueryEnumerator(3, out int count))
             {
                 if (count == 0) return Array.Empty<TResult>();
                 if (count > 0)
@@ -159,6 +165,25 @@ namespace Cilica.Runtime
                 return builder.ToArray();
             }
         }
+    }
+    // A private materialization view holds the old array across callback growth.
+    public sealed class PrefixQueryEnumerator<T> : IEnumerator<T>
+    {
+        private readonly T[] array;
+        private readonly int count;
+        private int index;
+        private T current;
+        internal PrefixQueryEnumerator(T[] array, int count) { this.array = array; this.count = count; }
+        public bool MoveNext()
+        {
+            if (index < count) { SetCurrent(array[index++]); return true; }
+            return false;
+        }
+        private void SetCurrent(T value) { current = value; }
+        public T Current => current;
+        object IEnumerator.Current => current;
+        public void Dispose() { current = default(T); }
+        public void Reset() { throw new NotSupportedException(); }
     }
     public sealed class IndexedQueryEnumerator<T> : IEnumerator<T>
     {

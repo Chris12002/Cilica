@@ -12,8 +12,6 @@ public sealed class LinqWhereTests
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() => CoreLibraryBuildTests.TranslateFixtures(typeof(LinqWhereProbe), Names));
     [Theory]
     [InlineData(false, 0)] [InlineData(true, 0)]
-    [InlineData(false, 1)] [InlineData(true, 1)]
-    [InlineData(false, 2)] [InlineData(true, 2)]
     [InlineData(false, 3)] [InlineData(true, 3)]
     public async Task Deferred_where_identity_state_callbacks_and_faults_match_dotnet(bool optimized, int group)
     {
@@ -22,6 +20,24 @@ public sealed class LinqWhereTests
         var pairs = (from a in inputs from b in new[] { -4, -3, -2, -1, 0, 1, 2, 3 } select (a, b)).ToArray();
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Names.Select((name, i) =>
             (name, programs[i], typeof(LinqWhereProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray(), pairs, persistentRoots: true);
+    }
+
+    // Keep callback-heavy generated closures in separate compiler processes;
+    // all original inputs and the 30-second cap remain unchanged.
+    [Theory]
+    [InlineData(false, 3)] [InlineData(true, 3)]
+    [InlineData(false, 4)] [InlineData(true, 4)]
+    [InlineData(false, 5)] [InlineData(true, 5)]
+    [InlineData(false, 6)] [InlineData(true, 6)]
+    [InlineData(false, 7)] [InlineData(true, 7)]
+    [InlineData(false, 8)] [InlineData(true, 8)]
+    public async Task Callback_closures_match_dotnet_individually(bool optimized, int probe)
+    {
+        var p = (await Programs.Value)[probe];
+        var pairs = (from a in new[] { int.MinValue, -3, -1, 0, 1, 2, 3, 4, int.MaxValue }
+                     from b in new[] { -4, -3, -2, -1, 0, 1, 2, 3 } select (a, b)).ToArray();
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [(Names[probe], p, typeof(LinqWhereProbe).GetMethod(Names[probe])!.CreateDelegate<Func<int, int, int>>())], pairs, persistentRoots: true);
     }
 
     [Theory]

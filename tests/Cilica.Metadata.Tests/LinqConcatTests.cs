@@ -31,18 +31,11 @@ public sealed class LinqConcatTests
              from b in new[] { 0, 1, 2, 3, -1, int.MinValue, int.MaxValue } select (a, b))
             .Concat(from a in Enumerable.Range(0, 9) from b in Enumerable.Range(0, 9) select (a, b)).Distinct().ToArray());
     }
-    [Fact]
-    public async Task Boxed_list_cursor_factory_remains_diagnostic()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task List_concatenation_matches_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(LinqConcatProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LinqConcatProbe).GetMethod("UnsupportedList")!.MetadataToken);
-        var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Message.Contains("no implemented managed body", StringComparison.Ordinal) && d.Location!.Contains("GetEnumerator", StringComparison.Ordinal));
+        var p = (await CoreLibraryBuildTests.TranslateFixtures(typeof(LinqConcatProbe), ["ListConcat"]))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized, [("ListConcat", p, LinqConcatProbe.ListConcat)]);
     }
-
 }

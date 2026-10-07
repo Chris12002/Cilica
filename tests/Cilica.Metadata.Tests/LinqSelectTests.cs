@@ -24,7 +24,7 @@ public sealed class LinqSelectTests
             (name, programs[i], typeof(LinqSelectProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedIndexed")] [InlineData("UnsupportedList")]
+    [InlineData("UnsupportedIndexed")]
     public async Task Unimplemented_select_shapes_remain_diagnostic(string name)
     {
         using var files = new ResolverFiles();
@@ -35,6 +35,14 @@ public sealed class LinqSelectTests
         var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LinqSelectProbe).GetMethod(name)!.MetadataToken);
         var translated = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
         Assert.False(translated.Success);
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Empty_list_selection_matches_dotnet(bool optimized)
+    {
+        var p = (await CoreLibraryBuildTests.TranslateFixtures(typeof(LinqSelectProbe), ["ListSelection"]))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized, [("ListSelection", p, LinqSelectProbe.ListSelection)]);
     }
 
 }

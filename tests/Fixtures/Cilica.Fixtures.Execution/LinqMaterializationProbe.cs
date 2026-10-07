@@ -84,7 +84,7 @@ namespace Cilica.Fixtures.Execution
             source[0] = null; item.Number = b;
             return unchecked(copy.Length + (copy[0] == item ? 7 : -100) + copy[0].Number + state.Calls);
         }
-        public static int UnsupportedListEnumerable(int a, int b) => Enumerable.ToArray(new List<int>()).Length;
+        public static int ListEnumerable(int a, int b) => Enumerable.ToArray(new List<int>()).Length;
         public static int UnsupportedUnsigned(int a, int b) => new uint[1].ToArray().Length;
     }
 }

@@ -2996,3 +2996,15 @@ All 44 selected checks pass across final runs. The public baseline advances to
 40 native controls and seven gaps; compiler/native profiles and quotas are
 unchanged. Frozen engine/state roots still hit production type bounds and full
 replay remains unfinished. See [ADR AC0091](decisions/AC0091-list-add-range.md).
+
+### Captured list query materialization (AC6.13)
+
+Where/Select ToArray now captures a List backing array and logical count once,
+including composed Where/Select chains. The private managed prefix cursor keeps
+old storage rooted across callback allocation, growth, clearing and replacement;
+ordinary enumeration retains version checks. The pinned AsSpan corruption guard
+rejects a count outside its captured storage. No Span API, compiler/native profile,
+grant or production-budget change is introduced. Five probes pass 798 repeated
+O0/O2 native/.NET comparisons with forced GC and sanitizers. Other list terminal
+specializations and ToList remain separate work; full saved-game replay remains
+unfinished. See [ADR AC0092](decisions/AC0092-captured-list-materialization.md).

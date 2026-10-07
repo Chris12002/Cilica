@@ -206,6 +206,6 @@ namespace Cilica.Fixtures.Execution
             for (int i = 0; i < result.Length; i++) sum = unchecked(sum * 7 + result[i].Number + result[i].Reference.Number);
             return unchecked(sum + trace.Value * 37);
         }
-        public static int UnsupportedList(int a, int b) => new List<int>().Concat(Items(1, b)).ToArray().Length;
+        public static int ListConcat(int a, int b) => new List<int>().Concat(Items(1, b)).ToArray().Length;
     }
 }

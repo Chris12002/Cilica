@@ -180,7 +180,7 @@ namespace Cilica.Fixtures.Execution
             return unchecked(result + state.Trace + predicate.Calls * 37 + (reused ? 53 : 71));
         }
         public static int UnsupportedIndexed(int a, int b) { return Three().Select((value, index) => value + index).Count(); }
-        public static int UnsupportedList(int a, int b) { return new List<int>().Select(new SelectorState(a, 0).Apply).Count(); }
+        public static int ListSelection(int a, int b) { return new List<int>().Select(new SelectorState(a, 0).Apply).Count(); }
         public static int UncountedCollection(int a, int b)
         {
             var state = new SelectorState(a, int.MinValue); var source = new PredicateCollection(); var query = source.Select(state.Apply);

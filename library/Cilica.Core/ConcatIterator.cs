@@ -49,7 +49,7 @@ namespace Cilica.Runtime
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)
-        { count = -1; if (terminal == 1) count = GetCheapCount(); if (count == 0) return null; return GetEnumerator(); }
+        { count = -1; if (terminal == 1 || terminal == 3) count = GetCheapCount(); if (count == 0) return null; return GetEnumerator(); }
         public T Current => current;
         object IEnumerator.Current => current;
         private void SetCurrent(T value) { current = value; }
