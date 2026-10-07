@@ -39,8 +39,7 @@ public sealed class DictionaryLibraryTests
         }
         var unsupported = Method("UnsupportedReferenceKey");
         var rejected = ValueTranslator.TranslateIntegerObjects(scope, input, unsupported, implementation);
-        Assert.False(rejected.Success); Assert.Null(rejected.Program);
-        Assert.Contains(rejected.Diagnostics, d => d.Message.Contains("reference fallbacks", StringComparison.Ordinal));
+        Assert.True(rejected.Success, string.Join("; ", rejected.Diagnostics));
         var bytes = await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken);
         var manifest = JsonSerializer.Deserialize<LibraryBuildManifest>(bytes, new JsonSerializerOptions {
             Converters = { new JsonStringEnumConverter<LibraryIntrinsicCapability>() }

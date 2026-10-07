@@ -43,3 +43,24 @@ namespace Cilica.Runtime
         }
     }
 }
+
+namespace Cilica.Runtime
+{
+    internal static class ReferenceKeyOperations<T> where T : class
+    {
+        internal static bool Equal(ref T left, T right)
+        {
+            if (left == null) return right == null;
+            return right != null && left.Equals(right);
+        }
+        internal static int Hash(ref T value) => value == null ? 0 : value.GetHashCode();
+    }
+    internal static class EquatableReferenceKeyOperations<T> where T : class, System.IEquatable<T>
+    {
+        internal static bool Equal(ref T left, T right)
+        {
+            if (left == null) return right == null;
+            return right != null && left.Equals(right);
+        }
+    }
+}

@@ -24,7 +24,7 @@ public sealed class DictionaryViewTests
             (name, programs[i], typeof(DictionaryViewProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 4).Take(4).ToArray());
     }
     [Fact]
-    public async Task Unknown_value_equality_remains_diagnostic()
+    public async Task Ordinary_reference_value_equality_is_admitted()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -33,8 +33,7 @@ public sealed class DictionaryViewTests
         var input = resolver.OpenInput(typeof(DictionaryViewProbe).Assembly.Location).Value!;
         var result = ValueTranslator.TranslateIntegerObjects(scope, input,
             (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(DictionaryViewProbe).GetMethod("UnsupportedValuesContains")!.MetadataToken), implementation);
-        Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.ExecutionUnsupported && d.Message.Contains("reference fallbacks", StringComparison.Ordinal));
+        Assert.True(result.Success, string.Join("; ", result.Diagnostics));
     }
     [Theory]
     [InlineData(false)] [InlineData(true)]

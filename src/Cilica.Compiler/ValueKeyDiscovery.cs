@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Generic;
 using System.Reflection.Metadata;
 using Cilica.Metadata;
 using Cilica.Metadata.IL;
@@ -88,6 +89,17 @@ public static partial class ValueProgramDiscovery
                 target = Require(resolver.ResolveClosedDeclaration(new(helperType, SignatureList<TypeSignature>.Empty), equal ? "Equal" : "Hash", equal ? 2 : 1, _metadata), work, offset);
                 return null;
             }
+            if (storage.Kind == IrTypeKind.Reference)
+            {
+                // Selection follows the closed static key type, as Default does;
+                // a derived-only IEquatable contract must not change a base key.
+                bool equatable = equal && ReferenceKeyEquatable(key, work, offset);
+                var selected = Require(resolver.ResolveType(library, "Cilica.Runtime",
+                    equatable ? "EquatableReferenceKeyOperations`1" : "ReferenceKeyOperations`1"), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(selected, new([key])),
+                    equal ? "Equal" : "Hash", equal ? 2 : 1, _metadata), work, offset);
+                return null;
+            }
             if (equal && storage.Kind is IrTypeKind.Int32 or IrTypeKind.Int64)
                 return new(ClosedKeyOperation.Equal, storage);
             if (hash && EnumScalar(key, work, offset))
@@ -106,7 +118,7 @@ public static partial class ValueProgramDiscovery
                 TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 } primitive
                     => new(Require(resolver.ResolveRuntimeType(library, primitive.Code), work, offset), SignatureList<TypeSignature>.Empty),
                 _ => null };
-            if (receiver is null) Fail(work, "Default key equality/hashing requires an admitted integer or exact inline IEquatable key; reference fallbacks require later lowering.", offset);
+            if (receiver is null) Fail(work, "Default key equality/hashing requires an admitted integer or exact inline IEquatable key; other value fallbacks require later lowering.", offset);
             if (key is TypeSignature.Primitive)
                 target = Require(resolver.ResolveClosedDeclaration(receiver!, "GetHashCode", 0, _metadata), work, offset);
             else
@@ -117,6 +129,28 @@ public static partial class ValueProgramDiscovery
                 target = Require(resolver.ResolveConstrainedValueTarget(declaration, receiver!, library, _metadata), work, offset).Implementation;
             }
             return null;
+        }
+        private bool ReferenceKeyEquatable(TypeSignature key, Work work, int offset)
+        {
+            var contract = Require(resolver.ResolveType(library, "System", "IEquatable`1"), work, offset);
+            var pending = new Queue<TypeSignature>(); pending.Enqueue(key);
+            var visited = new HashSet<ObjectTypeId>();
+            while (pending.TryDequeue(out var signature))
+            {
+                var type = OperandSignature(signature, work, offset) switch {
+                    TypeSignature.Named named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
+                    TypeSignature.Generic generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
+                    _ => null };
+                if (type is null) continue;
+                if (!visited.Add(ClosedId(type, work, offset))) continue;
+                if (visited.Count > ObjectModelLimits.MaximumTypes)
+                    Fail(work, "Reference key interface closure exceeds its limit.", offset, DiagnosticIds.TranslationLimit);
+                if (type.Definition == contract && type.Arguments.Count == 1 && type.Arguments[0] == key) return true;
+                var shape = SnapshotClosed(type, work, offset);
+                foreach (var item in shape.Interfaces) pending.Enqueue(item);
+                if (shape.BaseType is { } parent) pending.Enqueue(parent);
+            }
+            return false;
         }
     }
 }

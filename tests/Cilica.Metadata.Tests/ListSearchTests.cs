@@ -27,7 +27,7 @@ public sealed class ListSearchTests
             (name, programs[i], typeof(ListSearchProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Take(11).Skip(group * 4).Take(4).ToArray());
     }
     [Fact]
-    public async Task Helpers_require_exact_grants_and_unknown_reference_equality_stays_diagnostic()
+    public async Task Helpers_require_exact_grants_and_nullable_equality_stays_diagnostic()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -47,7 +47,7 @@ public sealed class ListSearchTests
         }
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
         var unsupported = ValueTranslator.TranslateIntegerObjects(scope, input, Method("UnsupportedReference"), implementation);
-        Assert.False(unsupported.Success); Assert.Contains(unsupported.Diagnostics, d => d.Message.Contains("reference fallbacks", StringComparison.Ordinal));
+        Assert.True(unsupported.Success, string.Join("; ", unsupported.Diagnostics));
         var nullable = ValueTranslator.TranslateIntegerObjects(scope, input, Method("UnsupportedNullable"), implementation);
         Assert.False(nullable.Success); Assert.Contains(nullable.Diagnostics, d => d.Message.Contains("Nullable array search", StringComparison.Ordinal));
         var hostile = new ResolutionAssemblyBuilder(new("SearchIntrinsicCaller", new Version(1, 0, 0, 0)));

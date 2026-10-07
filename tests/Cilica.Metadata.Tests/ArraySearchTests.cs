@@ -31,11 +31,10 @@ public sealed class ArraySearchTests
         using var files=new ResolverFiles();var (built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
         var input=scope.OpenInput(typeof(ArraySearchProbe).Assembly.Location).Value!;
-        foreach(string suffix in new[]{"Nullable","Reference","Start","Range","Characters","Bytes"}) {
+        foreach(string suffix in new[]{"Nullable","Start","Range","Characters","Bytes"}) {
             var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ArraySearchProbe).GetMethod("Unsupported"+suffix)!.MetadataToken),implementation);
             Assert.False(result.Success,suffix);
             Assert.Contains(result.Diagnostics,d=>suffix=="Nullable" ? d.Message.Contains("Nullable array search",StringComparison.Ordinal)
-                : suffix=="Reference" ? d.Message.Contains("reference fallbacks require later lowering",StringComparison.Ordinal)
                 : suffix is "Characters" or "Bytes" ? d.Message.Contains("Narrow local addresses require width-preserving borrow storage",StringComparison.Ordinal)
                 : d.Message.Contains("No implementation method matches",StringComparison.Ordinal));
         }

@@ -3569,3 +3569,19 @@ baseline. Roslyn receiver-replacement shapes that cross managed-location joins
 remain explicitly diagnostic. Integer CIL v58; object IR v41, native v67, layout
 v25 and limits unchanged. See ADR AC0140 and artifacts/alchemy-constrained-reference.
 Full engine/fingerprint execution and saved-game replay remain open.
+
+### AC3.25: Ordinary reference-key equality and hashing (2026-10-07)
+
+Closed ordinary class keys now select IEquatable<T> from the static key type's
+exact interface/base closure, or use virtual Object.Equals when that contract is
+absent. Hashing uses the existing virtual GetHashCode path. Ordinary managed
+helpers preserve null guards and reference identity; no native equality callback
+or identity-hash algorithm is added. Default object hash values remain opaque.
+
+The boxed-dispatch safety check uses actual, validated call-site receiver types:
+an unrelated boxed enumerator cannot enter an ordinary-class reference. Object
+aliases, vector keys and special runtime receivers retain existing diagnostics;
+nullable value search and reference-key error text are separate remaining work.
+Integer CIL v59 records admission; object IR v41, native v67, layout v25 and all
+production limits are unchanged. See [ADR AC0141](decisions/AC0141-reference-key-operations.md).
+Full-engine/fingerprint execution and saved-game replay remain unverified.

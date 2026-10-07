@@ -68,7 +68,32 @@ internal sealed class BoxedTypeRelations
         var proof = new BoxedUseProof(bodies);
         var byId = bodies.ToDictionary(m => IrMethodId.From(m.Source));
         if (!abstractMethods.IsDefault) foreach (var declaration in abstractMethods) byId.Add(IrMethodId.From(declaration.Source), declaration.Signature);
-        var classOwners = classes.IsDefaultOrEmpty ? [] : classes.Select(d => byId[d.Declaration].Parameters[0].Class!).ToHashSet();
+        // A class-slot declaration on Object does not mean a box can reach
+        // every call site. Use the checked static receiver type at each call;
+        // ordinary class references cannot contain boxes. Object aliases retain
+        // the conservative Object owner and the existing payload rejection.
+        var classDeclarations = classes.IsDefaultOrEmpty ? [] : classes.Select(d => d.Declaration).ToHashSet();
+        var classOwners = new HashSet<ObjectTypeId>();
+        foreach (var method in bodies)
+        foreach (var block in method.Blocks)
+        {
+            var types = block.Values.ToDictionary(v => v.Id, v => v.Type);
+            void Receiver(IrMethodId target, ImmutableArray<int> arguments, bool virtualDispatch)
+            {
+                if (!virtualDispatch || !classDeclarations.Contains(target)) return;
+                var owner = byId[target].Parameters[0].Class!;
+                if (!arguments.IsEmpty && types.TryGetValue(arguments[0], out var receiver))
+                {
+                    if (receiver.Kind == IrTypeKind.NullReference) return;
+                    if (receiver.Kind == IrTypeKind.Reference && receiver.Class is { } exact) owner = exact;
+                }
+                classOwners.Add(owner);
+            }
+            foreach (var value in block.Values)
+                if (value.Expression is IrExpression.Call call) Receiver(call.Target, call.Arguments, call.VirtualDispatch);
+            foreach (var statement in block.Statements)
+                if (statement is IrStatement.Invoke call) Receiver(call.Target, call.Arguments, call.VirtualDispatch);
+        }
         var owners = (dispatch?.Declarations.Select(d => d.Owner) ?? []).Concat(classOwners).Distinct().ToArray();
         int work = 0;
         foreach (var method in bodies)
