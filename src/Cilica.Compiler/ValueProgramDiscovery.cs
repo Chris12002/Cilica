@@ -372,8 +372,11 @@ public static partial class ValueProgramDiscovery
                             if (instruction.OpCode == "callvirt" && !integers64) Fail(work, "Only delegate Invoke is supported by this callvirt profile.", offset);
                             if (integers64 && instruction.OpCode == "callvirt" && !constrainedCalls.ContainsKey(offset) && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Interface) != 0)
                             {
+                                // These are bound metadata packets, including selected runtime
+                                // helpers. They are not lexical type uses by the entry method.
+                                // Actual source declarations/operands keep their caller checks.
                                 _interfaceSession ??= new(resolver, library, _metadata, closed: true,
-                                    signature: (type, allowVoid) => Storage(type, root, 0, borrow: !allowVoid, allowVoid: allowVoid));
+                                    signature: (type, allowVoid) => Storage(type, null, 0, borrow: !allowVoid, allowVoid: allowVoid));
                                 ObjectInterfaceDeclaration interfaceDeclaration;
                                 try { interfaceDeclaration = _interfaceSession.Declare(target); }
                                 catch (ObjectInterfacePlanBuilder.PlanFailure failure) { throw new Failure(failure.Diagnostic with { Location = Location(work, offset) }); }
@@ -766,11 +769,14 @@ public static partial class ValueProgramDiscovery
                 var exact = ResolveVirtual(resolved, resolved.DeclaringType, parent, offset);
                 binding = binding with { VirtualName = input.DeclaredName, VirtualSlot = new(MethodId(exact.Slot), ObjectModelBuilder.Id(exact.Slot.DeclaringType)) };
             }
-            var work = new Work(owner.Assembly, resolved, input, binding,
-                [.. (instance ? new[] { primitive is not null ? IrType.Location(primitive.Storage) : inlineInstance ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
-                    .. input.Signature.Parameters.Select(t => Storage(t, parent, offset, borrow: true))],
-                Storage(input.Signature.ReturnType, parent, offset, allowVoid: true),
-                [.. input.Locals.Select(t => Storage(t, parent, offset, borrow: integers64))], parent, offset);
+            // Declarations belong to this method, not the caller that discovered it.
+            // Establish its lexical/closed context before converting signature storage.
+            var work = new Work(owner.Assembly, resolved, input, binding, [], IrType.Void, [], parent, offset);
+            work = work with {
+                Parameters = [.. (instance ? new[] { primitive is not null ? IrType.Location(primitive.Storage) : inlineInstance ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
+                    .. input.Signature.Parameters.Select(t => Storage(t, work, 0, borrow: true))],
+                ReturnType = Storage(input.Signature.ReturnType, work, 0, allowVoid: true),
+                Locals = [.. input.Locals.Select(t => Storage(t, work, 0, borrow: integers64))] };
             if (work.Locals.Any(t => t.Kind == IrTypeKind.ManagedLocation) && (input.ExceptionRegionCount != 0
                 || work.Locals.Any(t => t.Kind == IrTypeKind.ManagedLocation && t.Element!.Kind == IrTypeKind.Value)))
                 Fail(parent, "Ref locals currently require scalar/reference storage in methods without exception regions.", offset);

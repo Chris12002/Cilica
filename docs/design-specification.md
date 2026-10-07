@@ -3716,3 +3716,18 @@ whole-application throughput. Production limits, profiles and managed semantics
 are unchanged. See [ADR AC0150](decisions/AC0150-interface-planning-reuse.md).
 The 786,432-unit copied diagnostic budget remains subject to the 60-second cap;
 full engine/fingerprint execution and saved-game replay remain unverified.
+
+
+### AC8.44: Interface and declaration signature context (2026-10-07)
+
+Bound interface packets no longer borrow the entry method's lexical access
+context. Method parameter/return/local storage uses the declaring method's own
+closed context. Original source declarations and operand tokens still enforce
+lexical visibility, and selected helpers still require exact intrinsic grants.
+Four two-assembly probes provide 1,176 repeated O0/O2 native/.NET comparisons
+with forced GC and ASan/UBSan; all 201 focused access/value/interface checks pass.
+Integer CIL v67 records admission; IR/native profiles and budgets are unchanged.
+See [ADR AC0151](decisions/AC0151-interface-signature-context.md).
+The frozen engine previously reached hidden WaveKind inside a generic array
+helper signature after 776,942 metadata units. Full engine/fingerprint execution
+and saved-game replay remain open.

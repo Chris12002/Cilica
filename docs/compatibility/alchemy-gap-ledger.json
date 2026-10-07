@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v69",
-    "nativeProfileEvidence": "Public baseline revalidated at AC8.42 on native v69/layout v26; 46 native controls and 1 diagnostic gap.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC8.44 on native v69/layout v26; 46 native controls and 1 diagnostic gap.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 46,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "bc94665776295f751e168dc76714255e7acbbd5b1b5f6f423ee15c3200af71c3",
-    "latestSlice": "AC8.42",
+    "fixtureSha256": "4d374805d437a0a36f4106de2f7da994ef6c8d801f912a80e79fc9a7a386b699",
+    "latestSlice": "AC8.44",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -615,6 +615,11 @@
       "status": "complete-format-range-transport",
       "decision": "docs/decisions/AC0097-format-range-transport.md"
     },
+    "AC8.44": {
+      "prerequisites": ["AC8.43"],
+      "status": "complete-bounded-interface-signature-context",
+      "decision": "docs/decisions/AC0151-interface-signature-context.md"
+    },
     "AC8.43": {
       "prerequisites": ["AC8.42"],
       "status": "complete-bounded-interface-planning-reuse",
@@ -704,7 +709,7 @@
     "AC8": {
       "prerequisites": ["required AC1-AC7 slices"],
       "status": "in-progress",
-      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12", "AC8.13", "AC8.14", "AC8.15", "AC8.16", "AC8.17", "AC8.18", "AC8.19", "AC8.20", "AC8.21", "AC8.22", "AC8.25", "AC8.26", "AC8.29", "AC8.30", "AC8.31", "AC8.32", "AC8.33", "AC8.34", "AC8.35", "AC8.37", "AC8.38", "AC8.39", "AC8.40", "AC8.41", "AC8.42", "AC8.43"],
+      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12", "AC8.13", "AC8.14", "AC8.15", "AC8.16", "AC8.17", "AC8.18", "AC8.19", "AC8.20", "AC8.21", "AC8.22", "AC8.25", "AC8.26", "AC8.29", "AC8.30", "AC8.31", "AC8.32", "AC8.33", "AC8.34", "AC8.35", "AC8.37", "AC8.38", "AC8.39", "AC8.40", "AC8.41", "AC8.42", "AC8.43", "AC8.44"],
       "remaining": "Generic type-test origin evidence, catalog budget audit and remaining real closure gaps; private generic arrays are validated in AC8.4."
     },
     "AC8.1": {
