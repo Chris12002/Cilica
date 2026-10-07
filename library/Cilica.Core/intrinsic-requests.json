@@ -922,5 +922,12 @@
     "Member": "SortOrdinal",
     "ParameterCount": 0,
     "Capability": "ListOrdinalSort"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Enum",
+    "Member": "CompareTo",
+    "ParameterCount": 1,
+    "Capability": "EnumCompareTo"
   }
 ]

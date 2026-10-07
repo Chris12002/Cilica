@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v38";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v39";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -209,7 +209,7 @@ public static class ValueTranslator
             var input = method.Input;
             var locals = method.Locals.ToBuilder();
             var constructorTemporaries = new Dictionary<int, int>();
-            var constrainedPrefixes = method.ConstrainedCalls.Values.Select(c => c.PrefixOffset).ToHashSet();
+            var constrainedPrefixes = method.ConstrainedCalls.Values.Concat(method.EnumCompareCalls.Values).Select(c => c.PrefixOffset).ToHashSet();
             // Re-reading a carried class receiver is valid only while its argument
             // slot cannot be changed through a managed address. Direct starg.0 is
             // separately rejected for every instance method.
@@ -294,6 +294,22 @@ public static class ValueTranslator
                         case "call" when exceptions is not null && method.Literals.ContainsKey(offset):
                         case "ldstr" when exceptions is not null:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
+                        case "callvirt" when method.EnumCompareCalls.TryGetValue(offset, out var enumComparison):
+                            int enumTarget = Pop(offset, IrType.Reference(objectBase));
+                            bool nullEnumTarget = valueExpressions[enumTarget] is IrExpression.Null;
+                            if (!nullEnumTarget && (valueExpressions[enumTarget] is not IrExpression.BoxValue enumBox || enumBox.Type != enumComparison.Receiver))
+                                Error(offset, "Enum.CompareTo currently requires a directly boxed matching Int32 enum or null in the same block; dynamic targets and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            int enumAddress = Pop(offset, IrType.Location(IrType.Int32));
+                            int enumLeft = Define(offset, IrType.Int32, new IrExpression.LoadLocation(enumAddress), true);
+                            if (nullEnumTarget) Push(offset, IrType.Int32, new IrExpression.Constant(1));
+                            else
+                            {
+                                int enumRight = Define(offset, IrType.Int32, new IrExpression.UnboxValue(enumComparison.Receiver, enumTarget), true);
+                                int greater = Define(offset, IrType.Int32, new IrExpression.Compare(Int32Comparison.GreaterSigned, enumLeft, enumRight));
+                                int less = Define(offset, IrType.Int32, new IrExpression.Compare(Int32Comparison.LessSigned, enumLeft, enumRight));
+                                Push(offset, IrType.Int32, new IrExpression.Binary(Int32Operation.SubtractWrapping, greater, less));
+                            }
+                            break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var tupleShape) && tupleShape.Kind == ValueIntrinsic.ClosedTupleShape:
                             Push(offset, IrType.Int32, new IrExpression.Constant(tupleShape.ConstantValue)); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var enumText) && enumText.Kind is ValueIntrinsic.EnumBits or ValueIntrinsic.EnumCount or ValueIntrinsic.EnumNameAt or ValueIntrinsic.EnumValueAt:

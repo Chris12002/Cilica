@@ -1197,6 +1197,12 @@
         "Exact private SortComparisonName grant emits the validated closed Comparison<T> display name as a budgeted string literal."
       ],
       "scope": "List.Sort(Comparison<T>) for admitted delegate element shapes, plus AC3.18 List<string>.Sort(IComparer<string>) with a directly proven selected StringComparer.Ordinal getter. The exact ListOrdinalSort grant selects a no-argument managed bridge and preserves the original getter evaluation. Null/custom/aliased comparer calls, default/section Sort and public Array.Sort remain outside this slice."
+    },
+    {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Enum.cs",
+      "contracts": ["AC5b.11 constrained Int32 Enum.CompareTo with directly proven matching enum boxes or null; exact interface method flags and EnumCompareTo grant."],
+      "scope": "Existing checked box/borrow and signed comparison IR preserves receiver read timing and -1/0/1 results. Dynamic targets, boxed receivers, other widths and general IComparable dispatch remain unsupported."
     }
   ]
 }

@@ -41,6 +41,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, ObjectTypeId> BoxedRenderCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ImmutableArray<ObjectTypeId>> BoxedFormatCalls { get; init; } = ImmutableDictionary<int, ImmutableArray<ObjectTypeId>>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> FactoryConstructorCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
+    public ImmutableDictionary<int, ConstrainedValueCall> EnumCompareCalls { get; init; } = ImmutableDictionary<int, ConstrainedValueCall>.Empty;
     public ImmutableDictionary<int, OrdinalListSortCall> OrdinalSortCalls { get; init; } = ImmutableDictionary<int, OrdinalListSortCall>.Empty;
     public ImmutableHashSet<int> OrdinalPrefixCalls { get; init; } = ImmutableHashSet<int>.Empty;
     public ImmutableDictionary<int, ConstrainedValueCall> ConstrainedCalls { get; init; } = ImmutableDictionary<int, ConstrainedValueCall>.Empty;
@@ -189,6 +190,7 @@ public static partial class ValueProgramDiscovery
                     var boxedRenderCalls = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                     var boxedFormatCalls = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ObjectTypeId>>();
                     var factoryConstructors = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
+                    var enumComparisons = ImmutableDictionary.CreateBuilder<int, ConstrainedValueCall>();
                     var ordinalSorts = ImmutableDictionary.CreateBuilder<int, OrdinalListSortCall>();
                     var ordinalPrefixes = ImmutableHashSet.CreateBuilder<int>();
                     var keyOperations = ImmutableDictionary.CreateBuilder<int, ClosedKeyIntrinsic>();
@@ -259,6 +261,12 @@ public static partial class ValueProgramDiscovery
                                     : resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
                             }
                             var target = _calls[key];
+                            if (EnumComparison(work, instruction, target, constrained) is { } enumComparison)
+                            {
+                                enumComparisons.Add(offset, enumComparison); _arguments += 2;
+                                if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate enum comparison argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
+                                continue;
+                            }
                             if (OrdinalListSort(work, instruction, ref target) is { } ordinalGetter) ordinalSorts.Add(offset, ordinalGetter);
                             if (OrdinalPrefix(work, instruction, ref target)) ordinalPrefixes.Add(offset);
                             if ((CollectionConstructor(work, instruction, ref target) ?? CharacterStringConstructor(work, instruction, ref target)) is { } constructedType) factoryConstructors.Add(offset, constructedType);
@@ -473,7 +481,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { OrdinalSortCalls = ordinalSorts.ToImmutable(), StaticArrays = staticArrays, OrdinalPrefixCalls = ordinalPrefixes.ToImmutable(), FactoryConstructorCalls = factoryConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { EnumCompareCalls = enumComparisons.ToImmutable(), OrdinalSortCalls = ordinalSorts.ToImmutable(), StaticArrays = staticArrays, OrdinalPrefixCalls = ordinalPrefixes.ToImmutable(), FactoryConstructorCalls = factoryConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {

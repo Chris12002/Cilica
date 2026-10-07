@@ -749,3 +749,8 @@ consumes the selected StringComparer.Ordinal getter in the same block. The exact
 ListOrdinalSort grant selects SortOrdinal; comparison and version behavior reuse
 the pinned managed sort. Other comparer/default/section overloads remain diagnostic.
 See docs/decisions/AC0112-proven-ordinal-list-sort.md for evidence and boundaries.
+
+AC5b.11 supplies a granted Enum.CompareTo(Object) declaration with exact interface
+implementation flags. The compiler admits constrained Int32 receivers and directly
+boxed matching-enum/null arguments only. General boxed/IComparable dispatch and
+dynamic mismatched targets remain unsupported; see ADR AC0113.

@@ -34,7 +34,11 @@ namespace System
         // relationships require separate admitted runtime implementations.
         public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }
     }
-    public abstract partial class Enum : ValueType { protected Enum() { } }
+    public abstract partial class Enum : ValueType, IComparable
+    {
+        protected Enum() { }
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern int CompareTo(object target);
+    }
     public abstract class Delegate { protected Delegate() { } }
     public abstract class MulticastDelegate : Delegate { protected MulticastDelegate() { } }
     public abstract class Attribute { protected Attribute() { } }

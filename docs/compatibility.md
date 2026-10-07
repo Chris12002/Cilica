@@ -3326,3 +3326,15 @@ diagnostic. Four probes provide 1,170 native/.NET comparisons; 37 distinct focus
 and regression checks pass. Integer CIL v38 records the extension; native v64,
 layout v24 and production bounds remain unchanged. Full engine/replay is unfinished.
 See [ADR AC0112](decisions/AC0112-proven-ordinal-list-sort.md).
+
+### Proven constrained enum comparison (AC5b.11)
+
+Enum.CompareTo(Object) accepts a constrained Int32 enum receiver with a directly
+boxed matching enum or literal null. The exact EnumCompareTo grant and declaration
+flags are authenticated. Receiver reading follows argument evaluation; matching
+boxes use checked unboxing and signed comparison, while null returns one.
+Dynamic targets, different types, aliases, boxed receivers, wide enums and Enum
+constraints remain diagnostic. Six probes provide 1,764 native/.NET comparisons;
+74 selected checks pass under forced GC and ASan/UBSan. Integer CIL v39 records
+the extension; native v64/layout v24 and production limits remain unchanged.
+Full engine/replay remains unfinished. See [ADR AC0113](decisions/AC0113-proven-enum-comparison.md).
