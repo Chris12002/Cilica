@@ -3666,3 +3666,14 @@ CIL v60 records admission and ReferenceKeyTypeName grants the private helper;
 object IR v41, native v67, layout v25 and all production limits are unchanged.
 See [ADR AC0142](decisions/AC0142-sealed-reference-key-text.md).
 Full-engine/fingerprint execution and saved-game replay remain unverified.
+
+### AC8.38: Measured diagnostic type capacity (2026-10-07)
+
+The frozen engine reaches 1,025 roots at the diagnostic 1,024-type cap. A
+counter-only copy records 74 vectors, 92 values, 859 references, 2,926 method
+declarations and 69,045 instructions. Raising only that copy to 2,048 types
+reaches Object.ToString on a duplicated StringBuilder receiver in unchanged
+SemanticFingerprint.Create IL_000c after 368,197 metadata units. StateLookup
+remains eight methods/9,927 units. Production limits and all other diagnostic
+limits are unchanged; no engine emission/execution. See
+[ADR AC0143](decisions/AC0143-engine-type-capacity.md).
