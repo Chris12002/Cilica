@@ -108,10 +108,13 @@ public static partial class ValueProgramDiscovery
             foreach (var definition in chain)
             {
                 var input = Snapshot(definition, work, offset);
-                if (type.Arguments.Count != 0 || input.OwnerGenericArity != 0 || !input.ExternallyVisible || input.Source.Name.Any(ch => !char.IsLetterOrDigit(ch) && ch is not ('.' or '_'))
+                if (type.Arguments.Count != 0 || input.OwnerGenericArity != 0
+                    // Register nominal shells before all caller bindings exist (for example catch clauses).
+                    // Each explicit type use and constructor call performs its own access check.
+                    || !(input.ExternallyVisible || integers64 && input.LexicalOwners.Length == 1) || input.Source.Name.Any(ch => !char.IsLetterOrDigit(ch) && ch is not ('.' or '_'))
                     || input.HasTypeInitializer || input.HasModuleInitializer || !input.Fields.IsEmpty || input.InterfaceCount != 0
                     || input.PackingSize != 0 || input.ClassSize != 0 || input.IsReferenceAssembly || !ObjectModelValidator.ClassAttributes(input.Attributes))
-                    Fail(work, "Custom exceptions require public top-level nongeneric fieldless classes without initialization, interfaces or native layout.", offset);
+                    Fail(work, "Custom exceptions require public or same-assembly internal top-level nongeneric fieldless classes without initialization, interfaces or native layout.", offset);
                 if (!_references.ContainsKey(ObjectModelBuilder.Id(definition)) && _references.Count + _values.Count >= ObjectModelLimits.MaximumTypes) Fail(work, "Exception type closure exceeds the type budget.", offset, DiagnosticIds.TranslationLimit);
                 var declarations = Require(resolver.ReadExceptionTypeDeclarations(definition, _metadata), work, offset);
                 if (declarations.HasVirtualMembers) Fail(work, "Custom exception virtual members and Message overrides require dispatch-aware lowering.", offset);
@@ -121,23 +124,29 @@ public static partial class ValueProgramDiscovery
         private MethodDeclarationInput ExceptionDeclaration(ResolvedMethod target, Work work, int offset)
         {
             var definition = target.DeclaringType.Definition; var id = new IrMethodId(definition.Assembly.ContentHash, MetadataTokens.GetToken(target.Handle));
-            if (_exceptionDeclarations.TryGetValue(id, out var cached)) return cached;
-            if (_metadata.Remaining == 0 || _exceptionDeclarations.Count + _methods.Count + _abstractMethods.Count >= ProgramLimits.MaximumMethods)
-                Fail(work, "Exception intrinsic metadata/method budget exhausted.", offset, DiagnosticIds.TranslationLimit);
-            var input = Require(resolver.ReadMethodDeclarationInput(definition.Assembly, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
-            if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Intrinsic metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);
+            if (!_exceptionDeclarations.TryGetValue(id, out var input))
+            {
+                if (_metadata.Remaining == 0 || _exceptionDeclarations.Count + _methods.Count + _abstractMethods.Count >= ProgramLimits.MaximumMethods)
+                    Fail(work, "Exception intrinsic metadata/method budget exhausted.", offset, DiagnosticIds.TranslationLimit);
+                input = Require(resolver.ReadMethodDeclarationInput(definition.Assembly, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
+                if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Intrinsic metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);
+            }
+            // Access is caller-specific even when declaration metadata is cached.
+            bool sameAssemblyException = integers64 && IsException(ObjectModelBuilder.Id(definition))
+                && input.LexicalOwners.Length == 1 && definition.Assembly.ContentHash == work.Binding.Owner.ContentHash;
             bool managedString = integers64 && definition == resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String).Value
                 && input.HasBody && input.Implementation == MethodImplAttributes.IL
                 && (input.Attributes & (MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final
                     | MethodAttributes.Abstract | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) == 0;
             if (target.DeclaringType.Arguments.Count != 0 || target.MethodArguments.Count != 0 || input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0
-                || !input.OwnerExternallyVisible || input.IsReferenceAssembly
-                || !managedString && (input.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public
+                || !(input.OwnerExternallyVisible || sameAssemblyException) || input.IsReferenceAssembly
+                || !managedString && !((input.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                    || sameAssemblyException && input.DeclaredName == ".ctor" && (input.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly)
                 || (input.Implementation & MethodImplAttributes.CodeTypeMask) is not (MethodImplAttributes.IL or MethodImplAttributes.Runtime)
                 || (input.Implementation & (MethodImplAttributes.ManagedMask | MethodImplAttributes.Synchronized)) != 0
                 || ((input.Attributes & MethodAttributes.Static) == 0) != ((input.Signature.Header & 0x20) != 0))
                 Fail(work, "Unsupported exception/string intrinsic declaration flags, visibility or generic signature.", offset);
-            _exceptionDeclarations.Add(id, input); return input;
+            _exceptionDeclarations.TryAdd(id, input); return input;
         }
         private ValueIntrinsicCall? ExceptionCall(Work work, MethodInstruction instruction, ResolvedMethod target)
         {
@@ -238,16 +247,17 @@ public static partial class ValueProgramDiscovery
         private void ValidateExceptionConstructor(ResolvedMethod target, Work work, int offset, int depth)
         {
             var owner = ClosedId(target.DeclaringType, work, offset); var id = new IrMethodId(owner.ContentHash, MetadataTokens.GetToken(target.Handle));
+            var input = ExceptionDeclaration(target, work, offset); var signature = input.Signature;
             if (_constructors.Contains(id)) return;
             if (depth >= ObjectModelLimits.MaximumOwnerDepth) Fail(work, "Exception forwarding constructor depth exceeded.", offset, DiagnosticIds.TranslationLimit);
-            var input = ExceptionDeclaration(target, work, offset); var signature = input.Signature;
             const MethodAttributes flags = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
             bool named = _exceptionResources.Any(r => r.Type == owner && r.Kind is ExceptionResourceKind.ArgumentNull or ExceptionResourceKind.ArgumentOutOfRange);
             int maximum = owner == _argumentBase || named ? 2 : 1;
-            if (input.DeclaredName != ".ctor" || input.Attributes != flags || signature.Header != 0x20
+            if (input.DeclaredName != ".ctor" || !(input.Attributes == flags
+                    || integers64 && input.Attributes == ((flags & ~MethodAttributes.MemberAccessMask) | MethodAttributes.Assembly)) || signature.Header != 0x20
                 || signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }
                 || input.Signature.GenericArity != 0 || signature.Parameters.Count > maximum || signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }))
-                Fail(work, "Exception construction requires an exact public supported string constructor; inner exceptions and actual values need later lowering.", offset);
+                Fail(work, "Exception construction requires an exact accessible supported string constructor; inner exceptions and actual values need later lowering.", offset);
             if (_frameworkExceptions.Contains(owner))
             {
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(target.DeclaringType.Definition.Assembly, target.Handle,

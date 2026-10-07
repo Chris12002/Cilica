@@ -768,3 +768,7 @@ See ADR AC0115 for native and access-boundary evidence.
 AC3.19 maps the granted private Int32-enum key hash to the existing Int32 hash
 body. Enum collection interfaces/array equivalence remain diagnostic, so this
 alone does not admit enum dictionaries or sets. See ADR AC0116.
+
+AC8.29 permits same-assembly internal fieldless exception shells and accessible
+forwarding constructors. Additional constructor behavior remains diagnostic;
+resource and message storage are unchanged. See ADR AC0117.

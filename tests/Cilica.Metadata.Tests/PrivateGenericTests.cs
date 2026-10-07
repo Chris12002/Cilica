@@ -32,7 +32,7 @@ public sealed class PrivateGenericTests
         var result = ForeignClosure(use);
         Assert.Equal(admitted, result.Success);
         if (admitted) ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
-        else Assert.Contains(result.Diagnostics, d => d.Message.Contains(use == "catch" ? "Custom exceptions require public top-level" : use == "array-and-cast" ? "Invalid reference IR" : "lexical declaring scope", StringComparison.Ordinal));
+        else Assert.Contains(result.Diagnostics, d => d.Message.Contains(use == "catch" ? "Custom exceptions require public or same-assembly internal top-level" : use == "array-and-cast" ? "Invalid reference IR" : "lexical declaring scope", StringComparison.Ordinal));
     }
 
     [Theory]

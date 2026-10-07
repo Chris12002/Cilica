@@ -3304,3 +3304,14 @@ Enum dictionary/set roots remain diagnostic at their separate enum-array interfa
 dependency; no collection-execution claim follows from hashing alone. Integer CIL
 v42 changes admission; native v64/layout v24 and production budgets stay unchanged.
 See [ADR AC0116](decisions/AC0116-int32-enum-key-hashing.md).
+
+### Internal exception access (AC8.29)
+
+Top-level internal fieldless nongeneric exceptions and their accessible public or
+internal forwarding constructors are admitted in the integer profile. Explicit
+type/constructor uses check the actual caller even when metadata is cached.
+Five probes provide 1,470 native/.NET comparisons; foreign access and extra
+constructor behavior remain diagnostic. Integer CIL v43 records admission;
+native v64/layout v24 and production bounds stay unchanged. The real engine's
+message-building custom constructor and full replay remain unfinished.
+See [ADR AC0117](decisions/AC0117-internal-exception-access.md).
