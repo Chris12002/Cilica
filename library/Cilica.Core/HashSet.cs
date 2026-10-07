@@ -30,12 +30,21 @@ namespace System.Collections.Generic
     public class HashSet<T> : ISet<T>, IReadOnlyCollection<T>, Runtime.Serialization.ISerializable, Runtime.Serialization.IDeserializationCallback
     {
         private readonly Cilica.Runtime.SetStorage<T> storage;
+        private readonly bool ordinalComparer;
         public HashSet() { storage = new Cilica.Runtime.SetStorage<T>(); }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public extern HashSet(IEqualityComparer<T> comparer);
+        // Selected only with a directly proven StringComparer.Ordinal argument.
+        public static HashSet<T> CreateOrdinal(IEqualityComparer<T> comparer) => new HashSet<T>(true);
+        private HashSet(bool ordinalComparer)
+        { storage = new Cilica.Runtime.SetStorage<T>(); this.ordinalComparer = ordinalComparer; }
         public HashSet(IEnumerable<T> collection) { storage = CopyEnumerable(collection); }
         private static Cilica.Runtime.SetStorage<T> CopyEnumerable(IEnumerable<T> collection)
         {
             if (collection == null) throw new ArgumentNullException("collection");
-            if (collection is HashSet<T> other) return Cilica.Runtime.SetStorage<T>.CopySet(other.storage);
+            // CopySet preserves slots only when comparer identity agrees. The default
+            // string comparer and explicit Ordinal have different comparer identities.
+            if (collection is HashSet<T> other && !other.ordinalComparer) return Cilica.Runtime.SetStorage<T>.CopySet(other.storage);
             int capacity = 0;
             if (collection is ICollection<T> counted) capacity = counted.Count;
             var result = Cilica.Runtime.SetStorage<T>.ForQuery(capacity);

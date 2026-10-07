@@ -936,5 +936,12 @@
     "Member": "Compare",
     "ParameterCount": 3,
     "Capability": "StringOrdinalCompare"
+  },
+  {
+    "Namespace": "System.Collections.Generic",
+    "Type": "HashSet`1",
+    "Member": "CreateOrdinal",
+    "ParameterCount": 1,
+    "Capability": "HashSetOrdinalConstruction"
   }
 ]

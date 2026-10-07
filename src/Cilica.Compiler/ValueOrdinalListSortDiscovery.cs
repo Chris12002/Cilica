@@ -42,17 +42,9 @@ public static partial class ValueProgramDiscovery
                 || body.Attributes != (MethodAttributes.Public | MethodAttributes.HideBySig) || body.Implementation != MethodImplAttributes.IL
                 || body.Signature.Parameters.Count != 0 || body.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void })
                 Fail(work, "Ordinal list sort requires the exact managed no-argument bridge.", offset);
-            var strings = Require(resolver.ResolveType(library, "System", "StringComparer"), work, offset);
-            var getter = Require(resolver.ResolveClosedDeclaration(new(strings, SignatureList<TypeSignature>.Empty), "get_Ordinal", 0, _metadata), work, offset);
-            var source = Read(getter);
-            if (source.IsReferenceAssembly || !source.HasBody || source.HasTypeInitializer || source.HasModuleInitializer
-                || source.OwnerGenericArity != 0 || source.Signature.Header != 0 || source.Signature.GenericArity != 0
-                || source.Attributes != (MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.SpecialName)
-                || source.Implementation != MethodImplAttributes.IL || source.Signature.Parameters.Count != 0
-                || source.Signature.ReturnType is not TypeSignature.Named { Kind: SignatureTypeKind.Class } returned || returned.Definition != strings)
-                Fail(work, "Ordinal list sort requires the exact selected comparer getter.", offset);
+            var getter = OrdinalComparerGetter(work, offset);
             target = helper;
-            return new(IrMethodId.From(source.Source), ClosedId(target.DeclaringType, work, offset));
+            return new(getter, ClosedId(target.DeclaringType, work, offset));
         }
     }
 }

@@ -3349,3 +3349,14 @@ All 33 selected checks pass, plus 15 checks after strengthening null fault order
 Forced GC, sanitizers and existing resource limits remain. No compiler/native
 profile or grant changes. Full engine execution/replay remains unfinished.
 See ADR AC0120 and artifacts/alchemy-list-find.
+
+### AC3.21: Explicit ordinal string-set construction (2026-10-07)
+
+HashSet<string>(StringComparer.Ordinal) now accepts the exact selected getter
+in the same block under a dedicated factory grant. Managed set storage preserves
+explicit comparer identity so default-comparer copies rebuild in the right order.
+A differential copy-after-removal failure supplied the regression. Four probes
+provide 1,176 repeated native/.NET comparisons; all 48 selected checks pass with
+forced GC/sanitizers. Integer CIL v46; native v65/layout v24 and production limits
+unchanged. General comparers, full engine execution and saved-game replay remain
+unverified. See ADR AC0121 and artifacts/alchemy-ordinal-set.
