@@ -109,7 +109,9 @@ namespace Cilica.Fixtures.Execution
         }
         public static int UnsupportedLegacyCurrent(int input, int mode)
         {
-            var e = new List<int>().GetEnumerator(); return ((System.Collections.IEnumerator)e).Current == null ? 1 : 0;
+            var e = new List<int>().GetEnumerator();
+            try { return ((System.Collections.IEnumerator)e).Current == null ? 1 : 0; }
+            catch (InvalidOperationException error) { return error.Message == "Enumeration has either not started or has already finished." ? 17 : -100; }
         }
     }
 }

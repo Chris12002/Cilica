@@ -178,7 +178,14 @@ namespace System.Collections.Generic
                 return false;
             }
             public T Current => current;
-            object Collections.IEnumerator.Current => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
+            object Collections.IEnumerator.Current
+            {
+                get
+                {
+                    if (index <= 0) throw new InvalidOperationException("Enumeration has either not started or has already finished.");
+                    return current;
+                }
+            }
             void Collections.IEnumerator.Reset()
             {
                 if (version != list.EnumerationVersion)
@@ -187,8 +194,9 @@ namespace System.Collections.Generic
                 current = default;
             }
         }
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<T>>.Invoke();
-        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => size == 0
+            ? System.SZGenericArrayEnumerator<T>.Create(null, 0) : GetEnumerator();
+        Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
         object Collections.IList.this[int index] { get => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke(); set { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); } }
         int Collections.IList.Add(object value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
         bool Collections.IList.Contains(object value) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();

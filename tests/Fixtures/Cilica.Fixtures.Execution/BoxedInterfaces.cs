@@ -118,6 +118,26 @@ namespace Cilica.Fixtures.Execution
             try { box.Touch(mode); } catch (System.InvalidOperationException) { result = unchecked(result + 33); }
             return unchecked(result + box.Read(mode));
         }
+        private static object BoxInteger(int value) => value;
+        public static int NamedWithScalar(int input, int mode)
+        {
+            var value = new BoxedCallValue(); value.Number = input;
+            IBoxCall box = value;
+            object scalar = BoxInteger(mode);
+            return unchecked(box.Read() + (int)scalar);
+        }
+        public static int ClassWithScalar(int input, int mode)
+        {
+            var value = new BoxedCallClass(input);
+            IBoxCall box = (IBoxCall)value;
+            object scalar = BoxInteger(mode);
+            return unchecked(box.Read() + (int)scalar);
+        }
+        public static int UnknownWithScalar(int input, int mode)
+        {
+            object scalar = BoxInteger(mode);
+            return unchecked(Escape(scalar).Read() + input);
+        }
         public static int ReadConfined(object value) => ((BoxedCallValue)value).Number;
         private static IBoxCall Escape(object value) => (IBoxCall)value;
         public static int ConfinedWithDispatch(int input, int mode)

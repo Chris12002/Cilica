@@ -22,18 +22,11 @@ public sealed class ListEnumerationTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Names.Select((name, i) =>
             (name, programs[i], typeof(ListEnumerationProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 4).Take(4).ToArray());
     }
-    [Fact]
-    public async Task Legacy_current_remains_a_specific_build_error()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Legacy_current_on_a_boxed_concrete_cursor_matches_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(ListEnumerationProbe).Assembly.Location).Value!;
-        var result = ValueTranslator.TranslateIntegerObjects(scope, input,
-            (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ListEnumerationProbe).GetMethod("UnsupportedLegacyCurrent")!.MetadataToken), implementation);
-        Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.ExecutionUnsupported && d.Message.Contains("This library member has no implemented managed body", StringComparison.Ordinal)
-            && d.Location!.Contains("System.Collections.IEnumerator.get_Current", StringComparison.Ordinal));
+        var program = (await CoreLibraryBuildTests.TranslateFixtures(typeof(ListEnumerationProbe), ["UnsupportedLegacyCurrent"]))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized, [("LegacyCurrent", program, ListEnumerationProbe.UnsupportedLegacyCurrent)]);
     }
 }

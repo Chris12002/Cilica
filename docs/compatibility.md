@@ -3073,3 +3073,18 @@ Scalar/enum and inherited class dispatch, generic methods on boxes and variance
 adapters remain unsupported. Collection interface factories are the next library
 slice. Production quotas and the frozen engine's type-limit stop are unchanged;
 full replay remains unfinished. See [ADR AC0088](decisions/AC0088-boxed-interface-receivers.md).
+
+### List interface enumeration (AC4.8)
+
+Nonempty List interface factories now return independent boxed value cursors;
+empty generic/nongeneric factories share the existing generic array cursor cache.
+Legacy Current preserves exact state faults and element boxing identity. Nine
+cursor probes, the advanced legacy probe and two scalar-origin regressions pass
+3,528 native/.NET comparisons; six live-graph checks prove cursor retention and
+cleanup. All 68 selected checks pass across focused runs, including the unchanged
+39-control/8-gap public baseline. A validated named-box/nominal-reference origin
+now avoids imposing scalar confinement on unrelated scalar boxes; unknown Object
+casts remain checked at both IR stages. Integer CIL v27, boxed IR v9 and scalar
+boxed IR v13 record this refinement; native v58 and quotas are unchanged.
+Constructor fallback and ToList remain next; full replay remains unfinished.
+See [ADR AC0089](decisions/AC0089-list-interface-enumeration.md).

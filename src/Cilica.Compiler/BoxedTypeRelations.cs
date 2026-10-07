@@ -12,9 +12,11 @@ internal sealed class BoxedTypeRelations
     private readonly Dictionary<ObjectTypeId, HashSet<ObjectTypeId>> _ancestors = [];
     private readonly HashSet<ObjectTypeId> _interfaces;
     private readonly HashSet<ObjectTypeId> _scalarBoxes;
+    private readonly ObjectTypeId _object;
     internal BoxedTypeRelations(ValueTypeCatalog values) : this(values.References, values.Types) { }
     internal BoxedTypeRelations(ObjectTypeCatalog catalog, IEnumerable<ValueTypeLayout> values)
     {
+        _object = catalog.ObjectBase;
         var layouts = values.ToArray();
         _interfaces = catalog.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _scalarBoxes = layouts.Where(t => t.ScalarBox is not null).Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
@@ -45,12 +47,21 @@ internal sealed class BoxedTypeRelations
         // an earlier object-to-interface conversion, which is checked here too.
         bool NeedsScalarFacts(IrBlock block)
         {
-            var types = block.Values.ToDictionary(v => v.Id, v => v.Type);
-            bool InterfaceReceiver(int operand) => types.TryGetValue(operand, out var type)
-                && type.Kind == IrTypeKind.Reference && type.Class is not null && _interfaces.Contains(type.Class);
+            var values = block.Values.ToDictionary(v => v.Id);
+            bool ExcludesUnknownScalar(int operand)
+            {
+                if (!values.TryGetValue(operand, out var value)) return false;
+                // Checked nominal references cannot contain scalar boxes, whose
+                // only class ancestor in this profile is Object. Interface views
+                // already passed the assignment/cast checks at their origin.
+                if (value.Type.Kind == IrTypeKind.Reference && value.Type.Class != _object) return true;
+                var boxed = value.Expression switch { IrExpression.BoxValue box => box.Type,
+                    IrExpression.BoxScalars box => box.Type, _ => null };
+                return boxed is not null && _ancestors.ContainsKey(boxed) && !_scalarBoxes.Contains(boxed);
+            }
             return block.Values.Any(v => v.Expression switch {
-                IrExpression.CastClass cast => _interfaces.Contains(cast.Target) && !InterfaceReceiver(cast.Operand),
-                IrExpression.IsInstance test => _interfaces.Contains(test.Target) && !InterfaceReceiver(test.Operand), _ => false });
+                IrExpression.CastClass cast => _interfaces.Contains(cast.Target) && !ExcludesUnknownScalar(cast.Operand),
+                IrExpression.IsInstance test => _interfaces.Contains(test.Target) && !ExcludesUnknownScalar(test.Operand), _ => false });
         }
         bool scalarInterfaceProof = _scalarBoxes.Count != 0 && bodies.SelectMany(m => m.Blocks).Any(NeedsScalarFacts);
         if (!scalarInterfaceProof && dispatch is null && classes.IsDefaultOrEmpty) return;

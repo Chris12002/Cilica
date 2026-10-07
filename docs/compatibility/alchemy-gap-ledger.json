@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v58",
-    "nativeProfileEvidence": "Public baseline revalidated at AC8.25 on native v58/layout v22; 39 native controls and 8 diagnostic gaps.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC4.8 on native v58/layout v22; 39 native controls and 8 diagnostic gaps.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 39,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "6e74ba743b7b31e3f637550b5d4fbfc08c519c7c6bf80df6a5c9e3c09a7a7ec7",
-    "latestSlice": "AC8.25",
+    "fixtureSha256": "7aa6ba476b36be40af7049da7437e49ff2ba1e597d668c813386f50657104c53",
+    "latestSlice": "AC4.8",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -191,8 +191,8 @@
     "AC4": {
       "prerequisites": ["AC3"],
       "status": "in-progress",
-      "completedSubslices": ["AC4.1", "AC4.2", "AC4.3", "AC4.4", "AC4.5", "AC4.6", "AC4.7"],
-      "remaining": "Boxed list/dictionary/view interface enumeration, variant class dispatch, nongeneric Current on boxed collection structs and required disposal/closure coverage."
+      "completedSubslices": ["AC4.1", "AC4.2", "AC4.3", "AC4.4", "AC4.5", "AC4.6", "AC4.7", "AC4.8"],
+      "remaining": "Dictionary/view interface enumeration, signature-changing variant dispatch, nongeneric Current on remaining boxed collection structs and required disposal/closure coverage. AC4.8 covers list factories and cursors."
     },
     "AC4.1": {
       "prerequisites": ["AC3.4"],
@@ -223,6 +223,11 @@
       "prerequisites": ["AC4.5"],
       "status": "complete-bounded",
       "decision": "docs/decisions/AC0024-single-thread-yield-iterators.md"
+    },
+    "AC4.8": {
+      "prerequisites": ["AC4.1", "AC4.5", "AC8.25"],
+      "status": "complete-bounded-list-interface-cursors",
+      "decision": "docs/decisions/AC0089-list-interface-enumeration.md"
     },
     "AC4.7": {
       "prerequisites": ["AC4.5", "AC1b.5"],

@@ -28,6 +28,18 @@ public sealed class BoxedInterfaceTests
              ("Empty", BoxedInterfaces.Empty)], typeof(BoxedInterfaces));
     [Theory]
     [InlineData(false)] [InlineData(true)]
+    public Task Known_named_receivers_coexist_with_returned_scalar_boxes(bool optimized) =>
+        IntegerObjectTranslationTests.Verify(optimized,
+            [("NamedWithScalar", BoxedInterfaces.NamedWithScalar), ("ClassWithScalar", BoxedInterfaces.ClassWithScalar)], typeof(BoxedInterfaces));
+    [Fact]
+    public void Unknown_object_casts_still_require_scalar_confinement()
+    {
+        var result = IntegerObjectTranslationTests.Translate("UnknownWithScalar", fixture: typeof(BoxedInterfaces));
+        Assert.False(result.Success);
+        Assert.Contains(result.Diagnostics, d => d.Message.Contains("Scalar box interface casts and dispatch require", StringComparison.Ordinal));
+    }
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
     public void Detached_maps_reject_forged_payloads_and_bindings(bool lowered)
     {
         var result = IntegerObjectTranslationTests.Translate("PayloadReturn", fixture: typeof(BoxedInterfaces));
