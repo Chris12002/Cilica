@@ -3831,3 +3831,13 @@ diagnostic: unsupported array hashing/equality now fails before layout validatio
 Nullable/array components, other arities and the mutable builder remain unsupported.
 Existing grants and compiler/native profiles are unchanged. See ADR AC0158.
 Full engine, fingerprint execution and saved-game replay remain unverified.
+
+### Further diagnostic metadata capacity (AC8.47)
+
+After committed HashCode.Combine support, the frozen engine exhausts the copied
+1,048,576-unit metadata budget. Raising only that diagnostic copy to 1,572,864
+reaches a static-field access rejection at AlchemyResolutionAdapter.Prepare IL_02ed
+(1,100,871 charged audit units; 3,695 ms). StateLookup remains 15 methods/11,517 units.
+Production limits are unchanged, as are all other diagnostic bounds and the
+60-second command cap. This is discovery evidence, not native engine execution.
+See ADR AC0159. Full saved-game replay remains unfinished.
