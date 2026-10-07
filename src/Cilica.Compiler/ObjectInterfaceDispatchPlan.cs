@@ -30,7 +30,7 @@ public sealed record ObjectInterfaceDispatchPlan(ObjectTypeCatalog Types,
     ImmutableArray<ObjectInterfaceDeclaration> Declarations, ImmutableArray<ObjectDispatchMethod> Methods,
     ImmutableArray<ObjectInterfaceDispatch> Dispatch)
 {
-    public const string Profile = "interface-dispatch-plan-v12";
+    public const string Profile = "interface-dispatch-plan-v13";
     public ValueTypeCatalog? Values { get; init; }
     // Original value catalog authenticates scalar receiver packets after lowering.
     public ValueTypeCatalog? BoxedValues { get; init; }

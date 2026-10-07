@@ -41,7 +41,7 @@ struct Descriptor {
     std::size_t field_count;
     const FieldAccessor* accessors;
     void* (*field_address)(Object*, std::size_t) noexcept;
-    // 0 nominal, 1 Int32 vector, 2 reference vector, 3 scalarized value vector. Dynamic slots complement
+    // 0 nominal, 1 Int32 vector, 2 reference vector, 3 scalarized value vector, 4 Int64 vector. Dynamic slots complement
     // fixed reference-field offsets; neither is a collector implementation.
     unsigned array_kind = 0;
     bool (*accepts_element)(const Descriptor*) noexcept = nullptr;
@@ -538,6 +538,12 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
 }
 [[maybe_unused, gnu::noinline]] static std::uint32_t load_integer_element(Object* value, std::uint32_t index) noexcept {
     return reinterpret_cast<ArrayObject*>(value)->integers[index];
+}
+[[maybe_unused, gnu::noinline]] static std::uint64_t load_wide_element(Object* value, std::uint32_t index) noexcept {
+    return reinterpret_cast<ArrayObject*>(value)->wide_integers[index];
+}
+[[maybe_unused, gnu::noinline]] static void store_wide_element(Object* value, std::uint32_t index, std::uint64_t element) noexcept {
+    reinterpret_cast<ArrayObject*>(value)->wide_integers[index] = element;
 }
 [[maybe_unused, gnu::noinline]] static Object* load_reference_element(Object* value, std::uint32_t index) noexcept {
     return reinterpret_cast<ArrayObject*>(value)->references[index];

@@ -1,10 +1,6 @@
 using System;
 using System.Linq;
-using System.IO;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
-using Cilica.Compiler;
 using Cilica.Fixtures.Execution;
 using Xunit;
 namespace Cilica.Metadata.Tests;
@@ -29,18 +25,5 @@ public sealed class HashSetConstructionTests
             await IntegerObjectTranslationTests.VerifyTranslated(optimized, [probes[1]], pairs, expectedStaticRoots: 1);
         }
         else await IntegerObjectTranslationTests.VerifyTranslated(optimized, probes, pairs);
-    }
-    [Fact]
-    public async Task Int64_enumerable_still_requires_wide_vector_support()
-    {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(HashSetConstructionProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(HashSetConstructionProbe).GetMethod("Wide")!.MetadataToken);
-        var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Id == "CIL2001" && d.Message.Contains("other integer and enum arrays require later lowering", StringComparison.Ordinal));
     }
 }

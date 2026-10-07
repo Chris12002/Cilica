@@ -233,6 +233,7 @@ public static partial class ValueProgramDiscovery
                             vectors.Add(offset, IntegerArray());
                         }
                         else if (arrays && (instruction.OpCode is ("ldelem.i4" or "stelem.i4") || !integers64 && instruction.OpCode == "ldlen")) _ = IntegerArray();
+                        else if (integers64 && instruction.OpCode is ("ldelem.i8" or "stelem.i8")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Int64), work, offset);
                         else if (integers64 && instruction.OpCode is ("ldelem.u1" or "stelem.i1")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Byte), work, offset);
                         else if (integers64 && instruction.OpCode is ("ldelem.u2" or "stelem.i2")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Char), work, offset);
                         else if (integers64 && instruction.OpCode is ("ldelem.ref" or "stelem.ref")) _ = Vector(new TypeSignature.Primitive(PrimitiveTypeCode.Object), work, offset);
@@ -781,10 +782,10 @@ public static partial class ValueProgramDiscovery
             {
                 var definition = named.Definition;
                 if (definition == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), caller, offset)) return IntegerArray();
-                foreach (var narrowCode in new[] { PrimitiveTypeCode.Byte, PrimitiveTypeCode.Char })
+                foreach (var narrowCode in new[] { PrimitiveTypeCode.Byte, PrimitiveTypeCode.Char, PrimitiveTypeCode.Int64 })
                     if (definition == Require(resolver.ResolveRuntimeType(library, narrowCode), caller, offset))
                         return Vector(new TypeSignature.Primitive(narrowCode), caller, offset);
-                foreach (var code in new[] { PrimitiveTypeCode.UInt32, PrimitiveTypeCode.Int64, PrimitiveTypeCode.UInt64,
+                foreach (var code in new[] { PrimitiveTypeCode.UInt32, PrimitiveTypeCode.UInt64,
                     PrimitiveTypeCode.Boolean, PrimitiveTypeCode.Char, PrimitiveTypeCode.SByte, PrimitiveTypeCode.Byte, PrimitiveTypeCode.Int16, PrimitiveTypeCode.UInt16 })
                     if (definition == Require(resolver.ResolveRuntimeType(library, code), caller, offset))
                         Fail(caller, "Composed vector elements require Int32, an admitted nominal reference or a closed inline value; primitive-width-specific arrays require later lowering.", offset);
@@ -794,9 +795,9 @@ public static partial class ValueProgramDiscovery
                     signature = named with { Kind = Inline(definition, caller, offset) ? SignatureTypeKind.ValueType : SignatureTypeKind.Class };
             }
             if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }) return IntegerArray();
-            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char } narrow)
+            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char or PrimitiveTypeCode.Int64 } narrow)
             {
-                var numericVector = ObjectTypeId.Vector(ObjectBase(), narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char);
+                var numericVector = ObjectTypeId.Vector(ObjectBase(), narrow.Code == PrimitiveTypeCode.Int64 ? ObjectArrayElement.Int64 : narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char);
                 _vectors.Add(numericVector);
                 if (_vectors.Count + _values.Count + _references.Count > ObjectModelLimits.MaximumTypes)
                     Fail(caller, "Combined vector/value/reference type limit exceeded.", offset, DiagnosticIds.TranslationLimit);

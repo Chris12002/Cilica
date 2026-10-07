@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v60";
+    public const string Profile = "object-frames-native-v61";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -210,7 +210,7 @@ public static class ObjectCppEmitter
                 + ", " + N(slots.Count(s => s is ObjectStorage.Reference)) + ", " + TypeSymbol(array) + "_components.data(), " + N(slots.Length);
             text.Append("[[maybe_unused]] static constexpr Descriptor ").Append(TypeSymbol(array)).Append("_descriptor = { sizeof(ArrayObject), alignof(ArrayObject), nullptr, 0, destroy_array, &")
                 .Append(TypeSymbol(program.Flow.Types.ObjectBase)).Append("_descriptor, nullptr, 0, nullptr, nullptr, ")
-                .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : array.ArrayElement.Kind == ObjectArrayElementKind.Value ? valueStorage : "1, nullptr, nullptr, nullptr").Append(" };\n");
+                .Append(reference ? "2, " + Predicate(array.ArrayElement.Type!) + ", array_reference_count, array_references" : array.ArrayElement.Kind == ObjectArrayElementKind.Value ? valueStorage : array.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? "4, nullptr, nullptr, nullptr, nullptr, 0, 1" : "1, nullptr, nullptr, nullptr").Append(" };\n");
         }
         if (delegates is not null) ObjectCppDelegates.AppendStorage(text, delegateDeclarations, TypeSymbol, program.Flow.Types.ObjectBase);
         // Interface identities are only cast-message keys, never concrete heap
@@ -681,7 +681,7 @@ public static class ObjectCppEmitter
                                     expression = "array_length(" + Value(length.Array) + ")"; break;
                                 case IrExpression.LoadElement element:
                                     ArrayCheck(element.Array, element.ArrayType, element.Index, value.ILOffset);
-                                    expression = (value.Type.Kind == IrTypeKind.Int32 ? "load_integer_element(" : "load_reference_element(")
+                                    expression = (value.Type.Kind == IrTypeKind.Int32 ? "load_integer_element(" : value.Type.Kind == IrTypeKind.Int64 ? "load_wide_element(" : "load_reference_element(")
                                         + Value(element.Array) + ", " + Value(element.Index) + ")"; break;
                                 case IrExpression.LoadField field:
                                     Check(Value(field.Receiver), field.Field.Owner, true, value.ILOffset);
@@ -756,6 +756,8 @@ public static class ObjectCppEmitter
                                 code.Append("    store_integer_element(").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ")
                                     .Append(Value(store.Value)).Append(store.ArrayType.ArrayElement.Kind == ObjectArrayElementKind.Byte ? " & 255u"
                                         : store.ArrayType.ArrayElement.Kind == ObjectArrayElementKind.Char ? " & 65535u" : "").Append(");\n");
+                            else if (store.ArrayType.ArrayElement.Kind == ObjectArrayElementKind.Int64)
+                                code.Append("    store_wide_element(").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ").Append(Value(store.Value)).Append(");\n");
                             else if (store.CopyCast)
                             {
                                 code.Append("    if (!store_reference_element(context, ").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ").Append(Value(store.Value)).Append(")) {\n");
@@ -873,6 +875,7 @@ public static class ObjectCppEmitter
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture)
         + (type.Specialization.Length == 0 ? "" : "_g_" + type.Specialization)
         + (type.ArrayElement is null ? "" : type.ArrayElement.Kind == ObjectArrayElementKind.Int32 ? "_vector_i4"
+            : type.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? "_vector_i8"
             : type.ArrayElement.Kind == ObjectArrayElementKind.Byte ? "_vector_u1"
             : type.ArrayElement.Kind == ObjectArrayElementKind.Char ? "_vector_char"
             : (type.ArrayElement.Kind == ObjectArrayElementKind.Value ? "_vector_value_" : "_vector_ref_") + TypeSymbol(type.ArrayElement.Type!));

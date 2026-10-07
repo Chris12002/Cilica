@@ -363,7 +363,7 @@
         "Cilica default string hashing retains its bounded deterministic profile; randomized collision hardening is not implemented.",
         "AC6.7 shares fields and algorithms in non-enumerable SetStorage<T>; public HashSet owns one storage object and delegates implemented members. Query helpers prepare capacities and copy stored values without rehashing."
       ],
-      "scope": "Default/enumerable construction and listed key/mutation/cursor operations for admitted payloads. Int64 vector-dependent cursors remain diagnostic. Custom comparers, capacity constructors, public copying, set algebra and serialization remain unsupported."
+      "scope": "Default/enumerable construction and listed key/mutation/cursor operations for admitted payloads. AC7a.2 supplies native Int64-vector/cursor evidence without changing these owned bodies. Custom comparers, capacity constructors, public copying, set algebra and serialization remain unsupported."
     },
     {
       "path": "library/Cilica.Core/Enumerable.cs",

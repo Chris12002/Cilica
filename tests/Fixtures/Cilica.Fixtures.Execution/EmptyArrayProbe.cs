@@ -34,7 +34,6 @@ public static class EmptyArrayProbe
         catch (ArgumentOutOfRangeException) { return first == Array.Empty<int>() ? 7 : -2; }
     }
     public static int UnsupportedUnsigned(int input, int mode) => Array.Empty<uint>().Length;
-    public static int UnsupportedWide(int input, int mode) => Array.Empty<long>().Length;
     public static int ValueIdentity(int input, int mode)
     {
         var first = Array.Empty<EmptyArrayValue>(); var again = Empty<EmptyArrayValue>();

@@ -56,7 +56,7 @@ internal static class ObjectArrayInterfaceRecipes
         "EnumerateObjects" => ObjectEnumeratorResult(catalog),
         "Count" or "False" or "True" or "IndexOf" or "Contains" or "Remove" => IrType.Int32,
         "CopyTo" or "Add" or "Set" or "Insert" or "InsertObject" or "RemoveAt" or "ClearReadOnly" or "Clear" => IrType.Void,
-        "Get" => vector.ArrayElement!.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : IrType.Int32,
+        "Get" => vector.ArrayElement!.Type is { } element ? vector.ArrayElement.Kind == ObjectArrayElementKind.Value ? IrType.Value(element) : IrType.Reference(element) : vector.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? IrType.Int64 : IrType.Int32,
         "Identity" => IrType.Reference(vector), _ => null };
     private static IrType? ObjectEnumeratorResult(ObjectTypeCatalog? catalog)
     {
@@ -69,9 +69,11 @@ internal static class ObjectArrayInterfaceRecipes
     {
         if (catalog is null) return null;
         string integer = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int32)]), SignatureList<TypeSignature>.Empty);
+        string wide = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int64)]), SignatureList<TypeSignature>.Empty);
         var matches = catalog.Interfaces.Where(i => i.Source.ContentHash == catalog.ObjectBase.ContentHash
             && i.Source.Name == "System.Collections.Generic.IEnumerator`1" && i.Arguments.Length == 1
             && (vector.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? i.Arguments[0].Identity == integer
+                : vector.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? i.Arguments[0].Identity == wide
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Reference ? i.Arguments[0].Reference == vector.ArrayElement.Type
                 : i.Arguments[0].Value == vector.ArrayElement.Type)).ToArray();
         return matches.Length == 1 ? IrType.Reference(ObjectTypeId.From(matches[0].Source)) : null;

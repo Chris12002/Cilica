@@ -2872,3 +2872,21 @@ comparers, capacity constructors, public copying, set algebra and serialization
 remain unimplemented. Compiler/native profiles, runtime layout and resource limits
 are unchanged; full engine/replay remains unfinished. See [ADR AC0102](../decisions/AC0102-set-enumeration.md)
 and [ADR AC0103](../decisions/AC0103-enumerable-set-construction.md).
+
+### Int64 vectors and array helpers (AC7a.2)
+
+Int64 vectors now have a distinct type identity and use the existing UInt64 array
+buffer, with one 64-bit slot per element. Discovery, signatures, generic CIL,
+logical/scalar IR and native loads/stores preserve all bits and checked fault order.
+Exact array helpers support indexed access, search/mutation faults, copying and
+enumeration; runtime type/cast text and empty caches distinguish System.Int64[].
+List<long> and enumerable HashSet<long> now have native differential evidence.
+
+Thirteen probes supply 4,326 O0/O2 native/.NET comparisons. All 105 selected checks
+pass, including malformed IR at both stages, descriptor/quota/recovery tests,
+existing array suites and the 42-control/five-gap baseline. Scalar unsigned views
+preserve bits; explicit UInt64 vectors and unsigned enumeration/copy recipes remain
+diagnostic, as do primitive element borrows. Integer CIL v33, object layout v23,
+object IR v34, interface plan v13 and native v61 record this extension. Resource
+limits and owned library bodies are unchanged. Full engine/replay remains
+unfinished. See [ADR AC0104](../decisions/AC0104-int64-vectors.md).

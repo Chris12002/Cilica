@@ -300,21 +300,22 @@ public static class ObjectInterfacePlanBuilder
             if (recipe is "Enumerate" or "CopyTo")
             {
                 var argument = _resolved[IrMethodId.From(declaration.Source)].DeclaringType.Arguments[0];
-                if (argument is TypeSignature.Primitive primitive && primitive.Code is not (PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Object or PrimitiveTypeCode.String))
-                    Fail("Generic array helpers require exact Int32, reference or inline-value elements; scalar aliases require later lowering.", declaration.Source.Name);
+                if (argument is TypeSignature.Primitive primitive && primitive.Code is not (PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.Object or PrimitiveTypeCode.String))
+                    Fail("Generic array helpers require exact Int32/Int64, reference or inline-value elements; scalar aliases require later lowering.", declaration.Source.Name);
                 var item = Type(argument);
-                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int32 ? ObjectArrayElement.Int32
+                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int64 ? ObjectArrayElement.Int64 : item == IrType.Int32 ? ObjectArrayElement.Int32
                     : item.Kind == IrTypeKind.Value ? ObjectArrayElement.Value(item.Class!) : ObjectArrayElement.Reference(item.Class!));
             }
             if (recipe is "Add" or "Set" or "Insert" or "IndexOf" or "Contains" or "Remove")
             {
                 var item = declaration.Parameters[^1];
-                if (item != IrType.Int32 && item.Kind is not (IrTypeKind.Reference or IrTypeKind.Value))
-                    Fail("Array interface mutation requires Int32, reference or inline value elements.", declaration.Source.Name);
-                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int32 ? ObjectArrayElement.Int32 : item.Kind == IrTypeKind.Value ? ObjectArrayElement.Value(item.Class!) : ObjectArrayElement.Reference(item.Class!));
+                if (item != IrType.Int32 && item != IrType.Int64 && item.Kind is not (IrTypeKind.Reference or IrTypeKind.Value))
+                    Fail("Array interface mutation requires Int32/Int64, reference or inline value elements.", declaration.Source.Name);
+                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int64 ? ObjectArrayElement.Int64 : item == IrType.Int32 ? ObjectArrayElement.Int32 : item.Kind == IrTypeKind.Value ? ObjectArrayElement.Value(item.Class!) : ObjectArrayElement.Reference(item.Class!));
             }
             TypeSignature element;
             if (view.ArrayElement!.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
+            else if (view.ArrayElement.Kind == ObjectArrayElementKind.Int64) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int64);
             else if (view.ArrayElement.Type == catalog.ObjectBase) element = new TypeSignature.Primitive(PrimitiveTypeCode.Object);
             else if (view.ArrayElement.Type == catalog.String) element = new TypeSignature.Primitive(PrimitiveTypeCode.String);
             else
