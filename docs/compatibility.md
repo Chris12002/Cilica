@@ -4046,3 +4046,13 @@ helpers retain the compiler's generic access boundaries; profiles and limits sta
 unchanged. Frozen discovery next reaches HashSet.CopyTo through List.AddRange in
 EffectTags.Combine (1,149,539 charged units); StateLookup remains 15 methods at
 11,529 units. Full replay is unfinished. See ADR AC0169.
+
+### Generic HashSet copies (AC3.30)
+
+All three HashSet.CopyTo overloads now preserve validation order, negative actual
+values, active-slot order, requested-count behavior and partial covariant writes.
+Fifteen C#/raw-IL probes plus capacity cases provide 4,842 repeated native comparisons;
+all 35 selected checks pass. No profiles, grants or production/native limits change.
+Frozen engine discovery next exhausts the diagnostic parameter budget at 8,193/8,192
+(4,504/6,144 locals; 1,159,312 charged units). StateLookup remains 15 methods/11,529
+units. Full replay remains unfinished. See ADR AC0170.

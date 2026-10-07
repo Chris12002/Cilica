@@ -65,7 +65,22 @@ namespace System.Collections.Generic
         void ICollection<T>.Add(T item) { storage.Add(item); }
         public bool Remove(T item) => storage.Remove(item);
         public void Clear() { storage.Clear(); }
-        public void CopyTo(T[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void CopyTo(T[] array) => CopyTo(array, 0, Count);
+        public void CopyTo(T[] array, int arrayIndex) => CopyTo(array, arrayIndex, Count);
+        public void CopyTo(T[] array, int arrayIndex, int count)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+            if (arrayIndex < 0) ThrowNegativeCopy("arrayIndex", arrayIndex);
+            if (count < 0) ThrowNegativeCopy("count", count);
+            if (arrayIndex > array.Length || count > array.Length - arrayIndex)
+                throw new ArgumentException("Destination array is not long enough to copy all the items in the collection. Check array index and length.");
+            storage.CopyTo(array, arrayIndex, count);
+        }
+        private static void ThrowNegativeCopy(string parameter, int value)
+        {
+            throw new ArgumentOutOfRangeException(parameter, value,
+                string.Concat(parameter, " ('", Cilica.Runtime.IntegerText.Int32(value), "') must be a non-negative value."));
+        }
         internal int EnumerationVersion => storage.EnumerationVersion;
         internal int EnumerationCount => storage.EnumerationCount;
         internal int EntryNext(int index) => storage.EntryNext(index);
@@ -302,6 +317,16 @@ namespace Cilica.Runtime
                 output++;
             }
             count = output; freeCount = 0;
+        }
+        // Public HashSet wrappers preserve validation before accessing this storage.
+        internal void CopyTo(T[] array, int arrayIndex, int requested)
+        {
+            var captured = entries;
+            for (int i = 0; i < count && requested != 0; i++)
+            {
+                var entry = captured[i];
+                if (entry.Next >= -1) { array[arrayIndex++] = entry.Value; requested--; }
+            }
         }
         internal T[] QueryArray()
         {

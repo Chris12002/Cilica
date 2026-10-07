@@ -1062,3 +1062,10 @@ before capturing entries/count and copying active slots. Removed slots are skipp
 no key hash/equality callbacks occur. Reference covariance preserves earlier writes
 before a failing store. Assembly-visible owned helpers serve nested generic views;
 nongeneric copies remain unsupported. See ADR AC0169.
+
+HashSet<T> now implements CopyTo(T[]), CopyTo(T[],Int32) and the count-limited
+overload. Validation preserves pinned parameter names, negative actual values and
+capacity ordering; active slots copy without hashing or changing the set version.
+Counts exceeding the set size are allowed when the destination has room. Public
+validation precedes storage access in the three-argument overload, preserving raw
+null-receiver timing. See ADR AC0170.
