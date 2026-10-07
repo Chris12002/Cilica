@@ -1,5 +1,12 @@
 [
   {
+    "Namespace": "Cilica.Runtime",
+    "Type": "TupleShape`1",
+    "Member": "IsTuple",
+    "ParameterCount": 0,
+    "Capability": "ClosedTupleShape"
+  },
+  {
     "Namespace": "System",
     "Type": "String",
     "Member": null,

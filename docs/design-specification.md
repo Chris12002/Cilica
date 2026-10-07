@@ -3081,3 +3081,21 @@ on native v60/object IR v33/integer CIL v30; runtime layout and production limit
 are unchanged. Flags attributes, aliases, other carriers, providers and general
 IFormattable dispatch remain diagnostic. Decimal fallback retains the existing
 invariant culture contract. See [ADR AC0098](decisions/AC0098-int32-enum-formatting.md).
+
+### One-field and long tuples (AC5b.9)
+
+The frozen engine uses ValueTuple<T1,...,T7,ValueTuple<T8>> in EndParticipation.
+The committed AC7b.13 diagnostic refresh reached that dependency after 103,353
+metadata units. Add the one-field and eight-parameter declarations, constructors,
+storage and typed equality. Long tuples retain a struct Rest; an authenticated
+private closed-type predicate checks its exact admitted tuple identity before field
+assignment. Public ITuple implementations do not qualify, while a default nested
+long tuple qualifies regardless of its own Rest contents. Generic value lowering
+supplies copies, return, heap/vector, boxed and nullable storage.
+
+Twelve probes provide 5,040 O0/O2 native/.NET comparisons with forced GC and
+sanitizers. All 31 selected distinct checks pass, including nominal reference
+contracts, ordinary tuple regressions and the 40-control/seven-gap public baseline.
+Integer CIL advances to v31; no native IR, layout or resource-bound changes.
+Other tuple arities and non-pair hashing/comparison/text/object equality remain
+diagnostic. See [ADR AC0099](decisions/AC0099-one-and-long-tuples.md).
