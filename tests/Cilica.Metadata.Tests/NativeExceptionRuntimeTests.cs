@@ -99,6 +99,35 @@ public sealed class NativeExceptionRuntimeTests
                 c.exception = nullptr; c.pending = 0; heap.limit = sizeof(ExceptionObject) * 2;
                 c.pending = 2; assert(materialize_exception(c) == 2 && c.exception != heap.emergency_exception);
             }
+            [[gnu::noinline]] static void message_initialization_is_owned_bounded_and_once() {
+                Instance heap, foreign; heap.collect_before_allocation = true; heap.object_limit = 1;
+                Context c(heap), other(foreign); Object* roots[2]{}; Frame frame; RootScope scope(c, frame, roots, 2);
+                roots[0] = make_exception(c, &{{customDescriptor}}, nullptr, 1).value; assert(roots[0]);
+                const std::uint16_t units[] = {65, 0, 0xd800};
+                assert(allocate_string(c, {{stringDescriptor}}, units, 3, nullptr, 0) == nullptr && c.pending == 0 && heap.count == 1);
+                assert(reinterpret_cast<ExceptionObject*>(roots[0])->message_kind == 1);
+                heap.object_limit = 2; c.pending = 0;
+                roots[1] = allocate_string(c, {{stringDescriptor}}, units, 3, nullptr, 0); assert(roots[1]);
+                auto* outsider = make_exception(other, &{{customDescriptor}}, nullptr, 1).value;
+                auto* foreign_text = allocate_string(other, {{stringDescriptor}}, units, 3, nullptr, 0);
+                c.pending = 2; c.image = "origin"; c.method = 37; c.il = 53;
+                assert(initialize_exception_message(c, nullptr, roots[1]).status == 6);
+                assert(initialize_exception_message(c, outsider, roots[1]).status == 6);
+                assert(initialize_exception_message(c, roots[0], foreign_text).status == 6);
+                assert(initialize_exception_message(c, roots[0], roots[0]).status == 6);
+                assert(initialize_exception_message(c, roots[0], nullptr).status == 6);
+                heap.marking = true; assert(initialize_exception_message(c, roots[0], roots[1]).status == 6); heap.marking = false;
+                assert(c.pending == 2 && c.method == 37 && c.il == 53 && heap.count == 2);
+                auto initialized = initialize_exception_message(c, roots[0], roots[1]);
+                assert(initialized.status == 0 && initialized.value == roots[0] && heap.count == 2 && c.pending == 2);
+                assert(initialize_exception_message(c, roots[0], roots[1]).status == 6);
+                auto* message = roots[1]; roots[1] = nullptr;
+                assert(collect(c).status == MarkStatus::complete && heap.count == 2);
+                assert(exception_message(c, roots[0]).value == message);
+                auto* stale = roots[0]; roots[0] = nullptr;
+                assert(collect(c).status == MarkStatus::complete && heap.count == 0);
+                assert(initialize_exception_message(c, stale, message).status == 6);
+            }
             [[gnu::noinline]] static void invalid_state_is_failure_atomic() {
                 Instance heap, foreign; Context c(heap), other(foreign);
                 assert(prepare_exceptions(c) == 0 && prepare_exceptions(other) == 0);
@@ -178,7 +207,7 @@ public sealed class NativeExceptionRuntimeTests
             [[gnu::noinline]] static void default_messages() {
                 {{checks}}
             }
-            int main() { shared_resources_survive_and_reject_corruption(); default_messages(); roots_and_identity(); runtime_faults_and_emergency_capacity(); invalid_state_is_failure_atomic(); bootstrap_failure_is_bounded(); }
+            int main() { message_initialization_is_owned_bounded_and_once(); shared_resources_survive_and_reject_corruption(); default_messages(); roots_and_identity(); runtime_faults_and_emergency_capacity(); invalid_state_is_failure_atomic(); bootstrap_failure_is_bounded(); }
             """);
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("native-exceptions");
         string input = Path.Combine(directory, "exceptions.cpp"), executable = Path.Combine(directory, "exceptions");

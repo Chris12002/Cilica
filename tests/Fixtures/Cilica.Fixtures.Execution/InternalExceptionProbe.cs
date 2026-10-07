@@ -36,6 +36,6 @@ namespace Cilica.Fixtures.Execution
             try { try { throw value; } catch (InternalFault) { throw; } }
             catch (Exception error) { return object.ReferenceEquals(error, value) && error is InternalFault ? b : a; }
         }
-        public static int UnsupportedMessage(int a, int b) { throw new InternalMessageFault(Text(a)); }
+        public static int ConstructedMessage(int a, int b) { try { throw new InternalMessageFault(Text(a)); } catch (InvalidOperationException error) { return unchecked(Hash(error.Message) + b); } }
     }
 }

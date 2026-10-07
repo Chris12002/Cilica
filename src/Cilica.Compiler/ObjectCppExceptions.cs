@@ -169,6 +169,16 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
     reinterpret_cast<ExceptionObject*>(value)->actual_value = actual_value;
     return {0, value};
 }
+// Complete only a freshly allocated shell. This store cannot allocate or collect.
+[[maybe_unused, gnu::noinline]] static ExceptionResult initialize_exception_message(Context& c, Object* value, Object* message) noexcept {
+    if (c.instance.marking || !valid_exception(c, value) || message == nullptr
+        || !traceable_reference(c.instance, message) || !string_type(message->type)) return {6};
+    auto* payload = reinterpret_cast<ExceptionObject*>(value);
+    if (payload->message_kind != 1 || payload->message != nullptr || payload->parameter_name != nullptr
+        || payload->inner != nullptr || payload->type_name != nullptr || payload->actual_value != nullptr) return {6};
+    payload->message = message; payload->message_kind = 0;
+    return {0, value};
+}
 [[maybe_unused, gnu::noinline]] static std::uint32_t prepare_exceptions(Context& c) noexcept {
     if (c.instance.marking) return 6;
     if (c.instance.emergency_exception != nullptr)

@@ -477,6 +477,7 @@ public static class ValueScalarLowering
                                 IrExpression.ExceptionInnerException e => e with { Operand = One(e.Operand) },
                                 IrExpression.ExceptionTypeName e => e with { Operand = One(e.Operand) },
                                 IrExpression.ExceptionParameterName e => e with { Operand = One(e.Operand) },
+                                IrExpression.InitializeExceptionMessage e => e with { Operand = One(e.Operand), Message = One(e.Message) },
                                 IrExpression.ExceptionMessage e => e with { Operand = One(e.Operand) },
                                 IrExpression.IsInstance e => e with { Operand = One(e.Operand) },
                                 IrExpression.CastClass e => e with { Operand = One(e.Operand) },

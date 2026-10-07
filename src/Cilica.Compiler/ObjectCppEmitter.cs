@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v64";
+    public const string Profile = "object-frames-native-v65";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -509,7 +509,7 @@ public static class ObjectCppEmitter
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
                         or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
-                            or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
+                            or IrExpression.NewException or IrExpression.InitializeExceptionMessage or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.InitializeType or IrStatement.StoreStatic or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
@@ -548,6 +548,10 @@ public static class ObjectCppEmitter
                                     expression = "f->exception_result.value"; break;
                                 case IrExpression.ExceptionParameterName parameter:
                                     code.Append("    f->exception_result = exception_parameter_name(context, ").Append(Value(parameter.Operand)).Append(");\n");
+                                    Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
+                                    expression = "f->exception_result.value"; break;
+                                case IrExpression.InitializeExceptionMessage initialize:
+                                    code.Append("    f->exception_result = initialize_exception_message(context, ").Append(Value(initialize.Operand)).Append(", ").Append(Value(initialize.Message)).Append(");\n");
                                     Guard("f->exception_result.status != 0u", "f->exception_result.status", value.ILOffset);
                                     expression = "f->exception_result.value"; break;
                                 case IrExpression.ExceptionMessage message:

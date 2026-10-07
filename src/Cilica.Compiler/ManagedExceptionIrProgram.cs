@@ -25,7 +25,7 @@ public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<Obj
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "managed-exceptions-ir-v6";
+    public const string Profile = "managed-exceptions-ir-v7";
 }
 
 public static class ManagedExceptionIrValidator
@@ -147,6 +147,11 @@ internal sealed class ManagedExceptionRules
     internal bool TypeName(IrExpression.ExceptionTypeName read, IrType result, IReadOnlyList<IrType> values) =>
         Types.TypeInitialization is not null && _catalog.String is not null && result == IrType.Reference(_catalog.String)
         && read.Operand >= 0 && read.Operand < values.Count && (values[read.Operand] == IrType.NullReference || values[read.Operand] == IrType.Reference(Types.TypeInitialization));
+    internal bool InitializeMessage(IrExpression.InitializeExceptionMessage initialize, IrType result, IReadOnlyList<IrType> values, IrBlock block) =>
+        _catalog.Integer64 && _catalog.String is not null && initialize.Operand >= 0 && initialize.Operand < values.Count
+        && result == values[initialize.Operand] && Throwable(result)
+        && initialize.Message >= 0 && initialize.Message < values.Count && values[initialize.Message] == IrType.Reference(_catalog.String)
+        && block.Values[initialize.Operand].Expression is IrExpression.NewException { Message: null, ParameterName: null, Inner: null, TypeName: null, ActualValue: null };
     internal bool Message(IrExpression.ExceptionMessage message, IrType result, IReadOnlyList<IrType> values) =>
         _catalog.String is not null && result == IrType.Reference(_catalog.String)
         && message.Operand >= 0 && message.Operand < values.Count && Throwable(values[message.Operand]);

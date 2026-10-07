@@ -22,19 +22,6 @@ public sealed class InternalExceptionTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Names.Select((name, i) =>
             (name, programs[i], typeof(InternalExceptionProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
-    [Fact]
-    public async Task Message_building_is_not_skipped()
-    {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
-            await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = scope.OpenInput(typeof(InternalExceptionProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(InternalExceptionProbe).GetMethod("UnsupportedMessage")!.MetadataToken);
-        var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("unchanged arguments", StringComparison.Ordinal));
-    }
     [Theory]
     [InlineData(false, false)] [InlineData(true, false)] [InlineData(false, true)] [InlineData(true, true)]
     public void Foreign_constructor_calls_stay_rejected_after_local_cache_population(bool warm, bool publicOwner)

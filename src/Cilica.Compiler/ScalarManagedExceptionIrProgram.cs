@@ -5,7 +5,7 @@ namespace Cilica.Compiler;
 
 public sealed record ScalarManagedExceptionIrProgram(ScalarDelegateIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "scalar-managed-exceptions-ir-v6";
+    public const string Profile = "scalar-managed-exceptions-ir-v7";
 }
 public static class ScalarManagedExceptionIrValidator
 {

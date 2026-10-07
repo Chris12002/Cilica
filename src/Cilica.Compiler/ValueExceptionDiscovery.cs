@@ -21,6 +21,7 @@ public static partial class ValueProgramDiscovery
         private readonly List<RuntimeExceptionBinding> _runtimeFaults = [];
         private readonly Dictionary<IrMethodId, MethodDeclarationInput> _exceptionDeclarations = [];
         private readonly HashSet<IrMethodId> _constructors = [];
+        private readonly Dictionary<IrMethodId, ExceptionMessageConstruction> _exceptionMessages = [];
         private int _literalUnits;
         private bool IsException(ObjectTypeId type) => _exceptionTypes.Contains(type);
 
@@ -202,7 +203,8 @@ public static partial class ValueProgramDiscovery
                     int count = signature.Parameters.Count;
                     return new(ValueIntrinsic.NewException, owner, count,
                         named ? count == 2 ? 1 : -1 : count == 0 ? -1 : 0,
-                        named ? count == 0 ? -1 : 0 : owner == _argumentBase && count == 2 ? 1 : -1);
+                        named ? count == 0 ? -1 : 0 : owner == _argumentBase && count == 2 ? 1 : -1)
+                        { ExceptionMessage = _exceptionMessages.GetValueOrDefault(new(owner.ContentHash, MetadataTokens.GetToken(target.Handle))) };
                 }
                 if (instruction.OpCode == "callvirt" && (owner == _exceptionBase || owner == _argumentBase || _exceptionResources.Any(r => r.Type == owner && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)) && input.DeclaredName == "get_Message"
                     && signature.Header == 0x20 && signature.Parameters.Count == 0 && Primitive(signature.ReturnType, PrimitiveTypeCode.String))
@@ -275,6 +277,12 @@ public static partial class ValueProgramDiscovery
             _bytes += body.CodeSize; _instructions += body.Instructions.Length;
             if (!_metadata.TryConsume(body.MetadataMembersRead)) Fail(work, "Exception constructor metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);
             var instructions = body.Instructions.Where(i => i.OpCode != "nop").ToArray(); int count = signature.Parameters.Count;
+            if (integers64 && count == 1 && body.ExceptionRegionCount == 0 && body.Locals.IsEmpty
+                && !body.HasTypeInitializer && !body.HasModuleInitializer && body.Implementation == MethodImplAttributes.IL
+                && TryExceptionMessageConstruction(target, work, offset, instructions) is { } messageConstruction)
+            {
+                _exceptionMessages.Add(id, messageConstruction); _constructors.Add(id); return;
+            }
             if (body.ExceptionRegionCount != 0 || !body.Locals.IsEmpty || body.HasTypeInitializer || body.HasModuleInitializer
                 || body.Implementation != MethodImplAttributes.IL || instructions.Length != count + 3
                 || instructions[0].OpCode != "ldarg.0" || count == 1 && instructions[1].OpCode != "ldarg.1"
@@ -287,7 +295,10 @@ public static partial class ValueProgramDiscovery
             if (_exceptionResources.Any(r => r.Type == ClosedId(called.DeclaringType, work, offset)
                 && !(r.Kind == ExceptionResourceKind.System && count == 1)))
                 Fail(work, "Custom forwarding to additional runtime exception constructors requires preserved constructor semantics.", offset);
-            ValidateExceptionConstructor(called, work, offset, depth + 1); _constructors.Add(id);
+            ValidateExceptionConstructor(called, work, offset, depth + 1);
+            if (_exceptionMessages.TryGetValue(new(ClosedId(called.DeclaringType, work, offset).ContentHash, MetadataTokens.GetToken(called.Handle)), out var inheritedMessage))
+                _exceptionMessages.Add(id, inheritedMessage);
+            _constructors.Add(id);
         }
     }
 }

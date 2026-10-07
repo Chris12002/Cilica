@@ -3315,3 +3315,16 @@ constructor behavior remain diagnostic. Integer CIL v43 records admission;
 native v64/layout v24 and production bounds stay unchanged. The real engine's
 message-building custom constructor and full replay remain unfinished.
 See [ADR AC0117](decisions/AC0117-internal-exception-access.md).
+
+### Bounded exception message construction (AC8.30)
+
+Verified one-string custom constructors can concatenate a constant prefix, their
+argument and a constant suffix before calling the direct selected Exception or
+InvalidOperationException string constructor. The exception is allocated/rooted
+first; a checked one-time message initialization preserves its identity afterward.
+Forwarding children inherit the proof. Other bodies/bases remain diagnostic.
+Six native probes give 1,764 comparisons; all 86 selected checks pass, including
+both IR stages and native ownership/quota/GC rejection. Integer CIL v44,
+managed/scalar exception IR v7 and native v65 record the change; layout v24 and
+production bounds remain unchanged. Full engine/replay remains unfinished.
+See [ADR AC0118](decisions/AC0118-bounded-exception-message-construction.md).

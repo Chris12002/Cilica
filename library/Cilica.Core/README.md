@@ -772,3 +772,9 @@ alone does not admit enum dictionaries or sets. See ADR AC0116.
 AC8.29 permits same-assembly internal fieldless exception shells and accessible
 forwarding constructors. Additional constructor behavior remains diagnostic;
 resource and message storage are unchanged. See ADR AC0117.
+
+AC8.30 supports the verified constant-prefix/string-argument/constant-suffix custom
+exception constructor pattern using the existing managed String.Concat helper and
+selected Exception/InvalidOperationException base grant. Allocation precedes
+message building; checked initialization completes the same rooted shell.
+Other constructor behavior remains diagnostic. See ADR AC0118.

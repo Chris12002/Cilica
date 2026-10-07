@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v43";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v44";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -387,9 +387,18 @@ public static class ValueTranslator
                         case "newobj" when method.Intrinsics.TryGetValue(offset, out var constructorIntrinsic) && constructorIntrinsic.Kind == ValueIntrinsic.NewException:
                             var constructorArguments = new int[constructorIntrinsic.Parameters];
                             for (int i = constructorArguments.Length - 1; i >= 0; --i) constructorArguments[i] = Pop(offset, IrType.Reference(stringType!));
-                            Push(offset, IrType.Reference(constructorIntrinsic.Type), new IrExpression.NewException(constructorIntrinsic.Type,
-                                constructorIntrinsic.MessageArgument < 0 ? null : constructorArguments[constructorIntrinsic.MessageArgument],
-                                constructorIntrinsic.ParameterArgument < 0 ? null : constructorArguments[constructorIntrinsic.ParameterArgument]), true);
+                            if (constructorIntrinsic.ExceptionMessage is { } exceptionConstruction)
+                            {
+                                int shell = Define(offset, IrType.Reference(constructorIntrinsic.Type), new IrExpression.NewException(constructorIntrinsic.Type), true);
+                                int prefix = Define(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(exceptionConstruction.Prefix), true);
+                                int suffix = Define(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(exceptionConstruction.Suffix), true);
+                                int message = Define(offset, IrType.Reference(stringType!), new IrExpression.Call(exceptionConstruction.Concat, [prefix, constructorArguments[0], suffix]), true);
+                                Push(offset, IrType.Reference(constructorIntrinsic.Type), new IrExpression.InitializeExceptionMessage(shell, message), true);
+                            }
+                            else
+                                Push(offset, IrType.Reference(constructorIntrinsic.Type), new IrExpression.NewException(constructorIntrinsic.Type,
+                                    constructorIntrinsic.MessageArgument < 0 ? null : constructorArguments[constructorIntrinsic.MessageArgument],
+                                    constructorIntrinsic.ParameterArgument < 0 ? null : constructorArguments[constructorIntrinsic.ParameterArgument]), true);
                             break;
                         case "newobj" when method.Intrinsics.TryGetValue(offset, out var actualFault) && actualFault.Kind == ValueIntrinsic.NewArgumentOutOfRangeActual:
                             int actualMessage = Pop(offset, IrType.Reference(stringType!));

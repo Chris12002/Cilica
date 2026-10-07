@@ -63,6 +63,7 @@ public abstract record IrExpression
     public sealed record Call(IrMethodId Target, ImmutableArray<int> Arguments, bool NullCheckReceiver = false,
         bool VirtualDispatch = false) : IrExpression;
     public sealed record NewException(ObjectTypeId Type, int? Message = null, int? ParameterName = null, int? Inner = null, int? TypeName = null, int? ActualValue = null) : IrExpression;
+    public sealed record InitializeExceptionMessage(int Operand, int Message) : IrExpression;
     public sealed record ExceptionMessage(int Operand) : IrExpression;
     public sealed record ExceptionParameterName(int Operand) : IrExpression;
     public sealed record ExceptionInnerException(int Operand) : IrExpression;

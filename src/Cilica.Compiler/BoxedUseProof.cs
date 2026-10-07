@@ -118,6 +118,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
         IrExpression.EnumEntry e => [e.Index],
         IrExpression.EnumQuery e => [e.Type, e.Value],
         IrExpression.ObjectGetType e => [e.Operand], IrExpression.RuntimeTypeHash e => [e.Operand],
+        IrExpression.InitializeExceptionMessage e => [e.Operand, e.Message],
         IrExpression.ExceptionMessage e => [e.Operand], IrExpression.ExceptionParameterName e => [e.Operand],
         IrExpression.ExceptionInnerException e => [e.Operand], IrExpression.ExceptionTypeName e => [e.Operand],
         IrExpression.NewDelegate d => [d.Receiver], IrExpression.CallDelegate d => d.Arguments.Prepend(d.Delegate),
