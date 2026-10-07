@@ -20,7 +20,7 @@ namespace Cilica.Fixtures.Execution
         public static int Defined(int a, int b) => System.Enum.IsDefined(typeof(Phase), (Phase)a) ? b : unchecked(b + 7);
         public static int TypeTests(int a, int b) { object value = (Phase)b; return value is Phase ? (int)(Phase)value : a; }
         public static int Compare(int a, int b) => ((Phase)a).CompareTo((Phase)b);
-        public static int UnsupportedGeneric(int a, int b) { var value = new EnumHolder<Phase>(); value.Value = (Phase)a; return (int)value.Value; }
+        public static int Generic(int a, int b) { var value = new EnumHolder<Phase>(); value.Value = (Phase)a; return (int)value.Value; }
     }
     public static class NestedEnumProbe
     {

@@ -3394,3 +3394,14 @@ both IR stages and native ownership/quota/GC rejection. Integer CIL v44,
 managed/scalar exception IR v7 and native v65 record the change; layout v24 and
 production bounds remain unchanged. Full engine/replay remains unfinished.
 See [ADR AC0118](decisions/AC0118-bounded-exception-message-construction.md).
+
+### Authorized hidden Int32 enum generic arguments (AC5b.13)
+
+Internal/private Int32 enums can be generic arguments when the original caller has
+lexical access. Generic bodies may carry their already-bound enum opaquely through
+copies, boxes and Nullable helpers, but cannot name hidden declarations in foreign
+IL. Six probes provide 1,764 native comparisons; all 87 selected checks pass.
+Hidden structs, other enum widths and enum-array interfaces retain their separate
+boundaries. Integer CIL v45 changes admission; native v65/layout v24 and production
+limits stay unchanged. Full engine/replay remains unfinished.
+See [ADR AC0119](decisions/AC0119-hidden-enum-generic-arguments.md).

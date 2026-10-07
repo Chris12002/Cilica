@@ -778,3 +778,8 @@ exception constructor pattern using the existing managed String.Concat helper an
 selected Exception/InvalidOperationException base grant. Allocation precedes
 message building; checked initialization completes the same rooted shell.
 Other constructor behavior remains diagnostic. See ADR AC0118.
+
+AC5b.13 permits authorized hidden Int32 enum arguments in existing generic and
+Nullable helpers. An opaque T can carry its enum identity; foreign code cannot
+name that hidden enum explicitly. Enum collection/array equivalence remains
+unsupported. See ADR AC0119.

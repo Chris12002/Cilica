@@ -24,13 +24,6 @@ public sealed class NestedEnumTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Names.Select((name, i) =>
             (name, programs[i], typeof(NestedEnumProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).ToArray());
     }
-    [Theory]
-    [InlineData("UnsupportedGeneric")]
-    public void Nested_enum_storage_does_not_admit_nonpublic_generic_arguments(string name)
-    {
-        var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(NestedEnumOwner));
-        Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("externally visible", StringComparison.Ordinal));
-    }
     [Fact]
     public void Nested_private_enum_borrows_use_containing_type_method_access()
     {

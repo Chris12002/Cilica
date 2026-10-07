@@ -61,8 +61,8 @@ public sealed class EnumKeyTests
     [InlineData("Set", "enum element equivalence")]
     [InlineData("Views", "enum element equivalence")]
     [InlineData("UnsupportedAliasFormatting", "duplicate-value aliases")]
-    [InlineData("UnsupportedWide", "Int32 enum")] [InlineData("UnsupportedHidden", "externally visible")]
-    public async Task Collection_dependencies_other_widths_and_hidden_arguments_remain_diagnostic(string name, string diagnostic)
+    [InlineData("UnsupportedWide", "Int32 enum")] [InlineData("UnsupportedHidden", "enum element equivalence")]
+    public async Task Collection_dependencies_and_other_widths_remain_diagnostic(string name, string diagnostic)
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);

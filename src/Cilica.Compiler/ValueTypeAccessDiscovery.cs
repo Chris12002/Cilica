@@ -109,13 +109,13 @@ public static partial class ValueProgramDiscovery
                             var declaration = TypeAccess(named.Definition, work, offset);
                             if (declaration.ExternallyVisible || declaration.Source.ContentHash == work.Binding.Owner.ContentHash
                                 && declaration.Source.Token == work.Binding.Owner.Token) break;
-                            if (item.Argument && named.Kind == SignatureTypeKind.ValueType)
-                                Fail(work, "Generic arguments require the same declaring owner or externally visible types. Type: " + declaration.Source.Name + ".", offset);
                             if (EnumScalar(named, work, offset))
                             {
-                                _ = OperandSignature(named, work, offset); // Existing enum lexical rules.
+                                CheckEnumDeclarationAccess(named.Definition, work, offset); // An explicit name cannot borrow opaque argument authority.
                                 break;
                             }
+                            if (item.Argument && named.Kind == SignatureTypeKind.ValueType)
+                                Fail(work, "Generic arguments require the same declaring owner or externally visible types. Type: " + declaration.Source.Name + ".", offset);
                             if (!SourceTypeVisible(work.Binding, ObjectTypeId.From(declaration.Source), declaration.LexicalOwners))
                                 Fail(work, "Explicit type use requires lexical declaring scope or an externally visible type. Type: "
                                     + declaration.Source.Name + ".", offset);

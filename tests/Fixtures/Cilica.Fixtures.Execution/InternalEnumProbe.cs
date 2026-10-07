@@ -54,6 +54,6 @@ namespace Cilica.Fixtures.Execution
             return value is PreparationFlags ? (int)(PreparationFlags)value : a;
         }
         public static int Compare(int a, int b) => ((PreparationFlags)a).CompareTo((PreparationFlags)b);
-        public static int UnsupportedGeneric(int a, int b) { var box = new EnumHolder<PreparationFlags>(); box.Value = (PreparationFlags)a; return (int)box.Value; }
+        public static int Generic(int a, int b) { var box = new EnumHolder<PreparationFlags>(); box.Value = (PreparationFlags)a; return (int)box.Value; }
     }
 }
