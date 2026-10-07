@@ -125,9 +125,12 @@ namespace System.Collections.Generic
         public Dictionary() { freeList = -1; }
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         public extern Dictionary(IEqualityComparer<TKey> comparer);
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public extern Dictionary(int capacity, IEqualityComparer<TKey> comparer);
         // Selected only for string keys and a directly proven Ordinal getter.
         // Comparer exposure and copy construction require separate identity handling.
         public static Dictionary<TKey, TValue> CreateOrdinal(IEqualityComparer<TKey> comparer) => new Dictionary<TKey, TValue>();
+        public static Dictionary<TKey, TValue> CreateOrdinal(int capacity, IEqualityComparer<TKey> comparer) => new Dictionary<TKey, TValue>(capacity);
         public Dictionary(int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("capacity");

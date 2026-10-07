@@ -987,6 +987,13 @@
     "Capability": "DictionaryOrdinalConstruction"
   },
   {
+    "Namespace": "System.Collections.Generic",
+    "Type": "Dictionary`2",
+    "Member": "CreateOrdinal",
+    "ParameterCount": 2,
+    "Capability": "DictionaryOrdinalConstruction"
+  },
+  {
     "Namespace": "System",
     "Type": "ObjectDisposedException",
     "Member": null,

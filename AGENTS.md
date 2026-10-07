@@ -864,3 +864,16 @@ StateLookup translates eight methods with 9,917 units. These partial measurement
 leave full engine capacity unknown. Production limits remain unchanged, and this
 audit neither emits nor executes native code. Full replay remains unfinished.
 See [ADR AC0087](docs/decisions/AC0087-metadata-work-audit.md).
+
+### AC3.23: Capacity plus ordinal dictionary construction (2026-10-07)
+
+The exact Dictionary<string,TValue>(Int32, StringComparer.Ordinal) overload now
+uses the checked ordinal factory and existing managed capacity constructor.
+Separate exact grants, direct comparer proof, capacity-before-getter evaluation
+and negative-capacity faults remain enforced. Six probes supply 1,764 repeated
+O0/O2 native/.NET comparisons with forced GC and ASan/UBSan; exact root counts
+also verify the skipped getter on argument failure. All 37 distinct selected
+checks pass, including ordinal dictionary/set, allocation recovery and the
+45-control/two-gap public baseline. Integer CIL v55; object IR v41, native v67,
+layout v25 and production limits unchanged. See ADR AC0135 and
+artifacts/alchemy-ordinal-dictionary-capacity. Full engine/replay remains open.

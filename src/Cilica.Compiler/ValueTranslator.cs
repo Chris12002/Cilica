@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v54";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v55";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -647,8 +647,9 @@ public static class ValueTranslator
                             }
                             bool factoryConstructor = method.FactoryConstructorCalls.TryGetValue(offset, out var factoryOwner);
                             if (factoryConstructor && (opcode != "newobj" || target.Binding.Kind != ObjectMethodKind.Static
-                                || target.Binding.Owner != factoryOwner || target.ReturnType != IrType.Reference(factoryOwner!) || target.Parameters.Length != 1))
-                                Error(offset, "Constructor factory requires its exact static single-argument copy signature.");
+                                || target.Binding.Owner != factoryOwner || target.ReturnType != IrType.Reference(factoryOwner!)
+                                || (target.Parameters.Length != 1 && !(method.OrdinalCollectionGetters.ContainsKey(offset) && target.Parameters.Length == 2 && target.Parameters[0] == IrType.Int32))))
+                                Error(offset, "Constructor factory requires its exact checked static signature.");
                             int skip = opcode == "newobj" && !factoryConstructor ? 1 : 0;
                             bool constrained = method.ConstrainedCalls.TryGetValue(offset, out var constrainedCall);
                             if (constrained && (target.Binding.Kind != ObjectMethodKind.ValueInstance || target.Binding.Owner != constrainedCall!.Receiver))
@@ -675,9 +676,9 @@ public static class ValueTranslator
                                 else if (factoryConstructor)
                                 {
                                     int source = Pop(offset);
-                                    if (!types.Assignable(values[source], target.Parameters[0]))
+                                    if (!types.Assignable(values[source], target.Parameters[i]))
                                         Error(offset, factoryOwner == stringType ? "Character-string constructor requires the exact Char[] source or null."
-                                            : "List(IEnumerable<T>) requires a source assignable to the exact selected enumerable contract or null.", DiagnosticIds.ExecutionUnsupported);
+                                            : "Collection constructor requires arguments assignable to its exact selected factory signature.", DiagnosticIds.ExecutionUnsupported);
                                     arguments[i] = source;
                                 }
                                 else arguments[i] = Pop(offset, target.Parameters[i + skip]);

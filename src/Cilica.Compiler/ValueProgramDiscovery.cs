@@ -381,8 +381,9 @@ public static partial class ValueProgramDiscovery
                                 _virtualCalls.TryAdd(callee.Binding.Method, (work, offset));
                             bool factoryConstructor = factoryConstructors.ContainsKey(offset);
                             if (factoryConstructor && (callee.Binding.Kind != ObjectMethodKind.Static || callee.Binding.Owner != factoryConstructors[offset]
-                                || callee.Parameters.Length != 1 || callee.ReturnType != IrType.Reference(factoryConstructors[offset])))
-                                Fail(work, "Constructor factory requires its exact static single-argument copy signature.", offset);
+                                || (callee.Parameters.Length != 1 && !(ordinalCollections.ContainsKey(offset) && callee.Parameters.Length == 2 && callee.Parameters[0] == IrType.Int32))
+                                || callee.ReturnType != IrType.Reference(factoryConstructors[offset])))
+                                Fail(work, "Constructor factory requires its exact checked static signature.", offset);
                             if (instruction.OpCode == "newobj" && !factoryConstructor && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Abstract) != 0)
                                 Fail(work, "Cannot allocate an abstract class.", offset);
                             if (instruction.OpCode == "newobj" && !factoryConstructor && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))

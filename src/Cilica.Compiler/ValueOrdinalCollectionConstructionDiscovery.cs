@@ -11,11 +11,12 @@ public static partial class ValueProgramDiscovery
     {
         private (IrMethodId Getter, ObjectTypeId Owner)? OrdinalCollectionConstruction(Work work, MethodInstruction instruction, ref ResolvedMethod target)
         {
-            if (!integers64 || target.DeclaringType.Definition.Assembly != library || target.Signature.Parameters.Count != 1
-                || target.Signature.Parameters[0] is not TypeSignature.Generic) return null;
+            if (!integers64 || target.DeclaringType.Definition.Assembly != library || target.Signature.Parameters.Count is not (1 or 2)
+                || target.Signature.Parameters[^1] is not TypeSignature.Generic) return null;
             bool dictionary = target.DeclaringType.Definition == resolver.ResolveType(library, "System.Collections.Generic", "Dictionary`2").Value;
             if (!dictionary && target.DeclaringType.Definition != resolver.ResolveType(library, "System.Collections.Generic", "HashSet`1").Value) return null;
             int arity = dictionary ? 2 : 1;
+            int parameterCount = target.Signature.Parameters.Count;
             int offset = instruction.Offset;
             MethodDeclarationInput Read(ResolvedMethod method)
             {
@@ -33,17 +34,20 @@ public static partial class ValueProgramDiscovery
                 || input.Signature.Header != 0x20 || input.Signature.GenericArity != 0
                 || input.Attributes != (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName) || input.Implementation != MethodImplAttributes.InternalCall
                 || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }
-                || input.Signature.Parameters.Count != 1 || input.Signature.Parameters[0] is not TypeSignature.Generic contract
+                || input.Signature.Parameters.Count != parameterCount
+                || parameterCount == 2 && (!dictionary || input.Signature.Parameters[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 })
+                || input.Signature.Parameters[^1] is not TypeSignature.Generic contract
                 || contract.Definition.Kind != SignatureTypeKind.Class || contract.Definition.Definition != comparer
                 || contract.Arguments.Count != 1 || contract.Arguments[0] is not TypeSignature.Variable { IsMethod: false, Index: 0 })
                 Fail(work, "Ordinal collection construction requires an exact HashSet<string> or Dictionary<string, TValue> newobj contract and a directly proven StringComparer.Ordinal getter.", offset);
-            var helper = Require(resolver.ResolveClosedDeclaration(target.DeclaringType, "CreateOrdinal", 1, _metadata), work, offset);
+            var helper = Require(resolver.ResolveClosedDeclaration(target.DeclaringType, "CreateOrdinal", parameterCount, _metadata), work, offset);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, helper.Handle, dictionary ? LibraryIntrinsicCapability.DictionaryOrdinalConstruction : LibraryIntrinsicCapability.HashSetOrdinalConstruction), work, offset);
             var body = Read(helper);
             if (body.IsReferenceAssembly || !body.HasBody || body.HasTypeInitializer || body.HasModuleInitializer
                 || body.OwnerGenericArity != arity || body.Signature.Header != 0 || body.Signature.GenericArity != 0
                 || body.Attributes != (MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig) || body.Implementation != MethodImplAttributes.IL
-                || body.Signature.Parameters.Count != 1 || !body.Signature.Parameters[0].Equals(input.Signature.Parameters[0])
+                || body.Signature.Parameters.Count != parameterCount
+                || !body.Signature.Parameters.SequenceEqual(input.Signature.Parameters)
                 || body.Signature.ReturnType is not TypeSignature.Generic result || result.Definition.Kind != SignatureTypeKind.Class
                 || result.Definition.Definition != target.DeclaringType.Definition || result.Arguments.Count != arity
                 || result.Arguments.Where((argument, index) => argument is not TypeSignature.Variable { IsMethod: false } variable || variable.Index != index).Any())

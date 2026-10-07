@@ -3496,3 +3496,16 @@ and flags formatting stay diagnostic. All 43 selected checks pass, including
 baseline remains 45 controls/two gaps. Integer CIL v54/object IR v41; layout v25,
 native v67 and production limits unchanged. See ADR AC0134 and
 artifacts/alchemy-invariant-int32-parse. Full engine/replay remains open.
+
+### AC3.23: Capacity plus ordinal dictionary construction (2026-10-07)
+
+The exact Dictionary<string,TValue>(Int32, StringComparer.Ordinal) overload now
+uses the checked ordinal factory and existing managed capacity constructor.
+Separate exact grants, direct comparer proof, capacity-before-getter evaluation
+and negative-capacity faults remain enforced. Six probes supply 1,764 repeated
+O0/O2 native/.NET comparisons with forced GC and ASan/UBSan; exact root counts
+also verify the skipped getter on argument failure. All 37 distinct selected
+checks pass, including ordinal dictionary/set, allocation recovery and the
+45-control/two-gap public baseline. Integer CIL v55; object IR v41, native v67,
+layout v25 and production limits unchanged. See ADR AC0135 and
+artifacts/alchemy-ordinal-dictionary-capacity. Full engine/replay remains open.
