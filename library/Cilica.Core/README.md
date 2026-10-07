@@ -22,6 +22,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/CollectionContracts.cs \
   --source library/Cilica.Core/DelegateContracts.cs \
   --source library/Cilica.Core/Guid.cs \
+  --source library/Cilica.Core/GuidParsing.cs \
   --source library/Cilica.Core/KeyOperations.cs \
   --source library/Cilica.Core/Dictionary.cs \
   --source library/Cilica.Core/HashSet.cs \

@@ -396,15 +396,16 @@
       "algorithms": [
         "Four-word equality and XOR hash",
         "Unsigned field-order comparison",
-        "D/N/B/P/X hexadecimal formatting and format validation"
+        "D/N/B/P/X hexadecimal formatting and format validation",
+        "String constructor delegates to the owned GuidParsing adapter and copies four validated words only after successful parsing."
       ],
       "changes": [
         "Pack narrow fields into four managed Int32 words; no unsafe aliases, vectors, spans, serialization layout or native ABI claim.",
         "Use bounded managed string composition and hexadecimal digits in place of pointer/span writes.",
         "Retain the pinned English Guid error resources from src/libraries/System.Private.CoreLib/src/Resources/Strings.resx.",
-        "Omit parsing, byte/span APIs, random generation and other unimplemented members."
+        "Omit static Parse/TryParse, byte/span APIs, random generation and other unimplemented members; string construction is recorded in GuidParsing.cs."
       ],
-      "scope": "Owned-core managed numeric constructors, Empty, typed equality/hash/comparison and standard formatting. Boxed object overloads remain blocked by value type-test lowering; hash evidence is the pinned local little-endian oracle."
+      "scope": "Owned-core numeric and string constructors, Empty, typed equality/hash/comparison and standard formatting. Boxed overload admission follows the compiler profile; hash evidence is the pinned local little-endian oracle."
     },
     {
       "path": "library/Cilica.Core/Dictionary.cs",
@@ -1114,6 +1115,16 @@
         "Exact UTF-16 prefix checks preserve callvirt null order and proven non-null literal call receivers, null parameter value, identity and empty shortcuts."
       ],
       "scope": "Ordinal constant only. Other comparison modes, aliases and the default-culture overload remain diagnostic. Uses existing String indexing and managed instance-call lowering without new native operations. Direct calls require a proven literal receiver; other raw calls/function pointers remain diagnostic because .NET JIT expansion changes null-receiver behavior for literal prefixes."
+    },
+    {
+      "path": "library/Cilica.Core/GuidParsing.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Guid.cs",
+      "contracts": [
+        "Guid(String) D/N/B/P/X parsing, Unicode whitespace trimming, all-whitespace removal inside X and pinned legacy +/0x spellings.",
+        "Exact null/format/overflow exception order and resources, including constructor-specific UInt32 versus byte overflow behavior.",
+        "Four-word copy after complete parsing; shared UnicodeWhitespace classification with String.IsNullOrWhiteSpace."
+      ],
+      "scope": "String constructor only; spans, static parsing APIs, byte constructors and random generation remain unmapped. Bounded Int32 result buffer and optional character/string whitespace copy replace explicit layouts and spans. Private overflow state uses Int32 borrowing, delimiter selection precedes borrowing, and scalar array words use explicit loads/stores."
     }
   ]
 }

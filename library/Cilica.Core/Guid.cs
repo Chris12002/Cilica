@@ -24,6 +24,12 @@ namespace System
         private readonly int defg;
         private readonly int hijk;
 
+        public Guid(string g)
+        {
+            var words = Cilica.Runtime.GuidParsing.Parse(g);
+            a = words[0]; bc = words[1]; defg = words[2]; hijk = words[3];
+        }
+
         public Guid(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
         {
             this.a = a;

@@ -2893,3 +2893,16 @@ pass across final focused runs. Integer CIL v24 records admission; native v57,
 layouts and quotas are unchanged. The public baseline is 38 controls/9 gaps.
 Frozen engine/state remain at type limits; full saved-game replay is unfinished.
 See [ADR AC0083](decisions/AC0083-ordinal-string-prefix.md).
+
+### GUID text construction (AC5a.3)
+
+The owned Guid(String) constructor parses D/N/B/P/X forms, Unicode whitespace and
+pinned legacy prefixes using managed IL. Four words are copied into the receiver
+only after successful parsing; exact null/format/overflow behavior follows the
+pinned constructor contract. Shared whitespace classification covers all UTF-16
+units. Six probes add 6,972 repeated O0/O2 native/.NET comparisons; all 29 selected
+checks pass across final runs with forced GC and sanitizers. The public baseline
+is 39 native controls and 8 diagnostic gaps. No compiler/runtime profiles, grants
+or limits change. Static parsing APIs and byte/span constructors remain unsupported.
+Frozen engine/state still reach type limits; full saved-game replay is unfinished.
+See [ADR AC0084](decisions/AC0084-guid-text-construction.md).
