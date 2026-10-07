@@ -3233,3 +3233,18 @@ diagnostic, as do primitive element borrows. Integer CIL v33, object layout v23,
 object IR v34, interface plan v13 and native v61 record this extension. Resource
 limits and owned library bodies are unchanged. Full engine/replay remains
 unfinished. See [ADR AC0104](decisions/AC0104-int64-vectors.md).
+
+### Constant array data (AC7a.3)
+
+The integer CIL v34 profile accepts the uninterrupted constant/newarr/dup/field-token/
+InitializeArray pattern for Byte, Char, Int32 and Int64 vectors: 1–256 elements,
+at most 2,048 file-backed data bytes. The exact selected helper requires a manifest
+grant; the metadata reader checks readonly RVA storage, size, visibility and layout.
+Little-endian data becomes existing checked array stores. General runtime field
+handles, other patterns and other element types remain diagnostic.
+
+Eight probes supply 2,352 repeated O0/O2 native/.NET comparisons with forced GC and
+ASan/UBSan. Metadata/control-flow/grant negatives and adjacent core/type-identity
+checks pass. The public baseline advances to 43 native controls/four gaps. Native
+v61, object layout v23 and production resource limits are unchanged. Full engine
+execution and saved-game replay remain unfinished. See [ADR AC0106](decisions/AC0106-constant-array-data.md).

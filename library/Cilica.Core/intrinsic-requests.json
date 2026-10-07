@@ -1,5 +1,12 @@
 [
   {
+    "Namespace": "System.Runtime.CompilerServices",
+    "Type": "RuntimeHelpers",
+    "Member": "InitializeArray",
+    "ParameterCount": 2,
+    "Capability": "StaticArrayInitialization"
+  },
+  {
     "Namespace": "Cilica.Runtime",
     "Type": "DictionaryKeyText`1",
     "Member": "Render",

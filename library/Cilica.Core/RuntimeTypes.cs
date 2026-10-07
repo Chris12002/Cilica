@@ -50,3 +50,17 @@ namespace Cilica.Runtime
         internal static int Hash(ref System.Type value) => value.GetHashCode();
     }
 }
+
+namespace System
+{
+    // Only a metadata operand in the admitted constant-array construction pattern.
+    public struct RuntimeFieldHandle { }
+}
+namespace System.Runtime.CompilerServices
+{
+    public static class RuntimeHelpers
+    {
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern void InitializeArray(System.Array array, System.RuntimeFieldHandle fieldHandle);
+    }
+}

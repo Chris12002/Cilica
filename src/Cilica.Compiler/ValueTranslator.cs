@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v33";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v34";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -277,6 +277,18 @@ public static class ValueTranslator
                     else switch (opcode)
                     {
                         case "nop": break;
+                        case "ldtoken" when method.StaticArrays.Values.Any(a => a.TokenOffset == offset): break;
+                        case "call" when method.StaticArrays.TryGetValue(offset, out var staticArray):
+                            int initializedArray = Pop(offset, IrType.Reference(staticArray.ArrayType));
+                            for (int element = 0; element < staticArray.Values.Length; ++element)
+                            {
+                                int constantIndex = Define(offset, IrType.Int32, new IrExpression.Constant(element));
+                                bool wide = staticArray.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Int64;
+                                int constantValue = Define(offset, wide ? IrType.Int64 : IrType.Int32,
+                                    wide ? new IrExpression.Constant64(staticArray.Values[element]) : new IrExpression.Constant(unchecked((int)staticArray.Values[element])));
+                                Add(new IrStatement.StoreElement(offset, staticArray.ArrayType, initializedArray, constantIndex, constantValue), offset);
+                            }
+                            break;
                         case "constrained." when types.IntegerCasts && constrainedPrefixes.Contains(offset): break;
                         case "ldsfld" when exceptions is not null && method.Literals.ContainsKey(offset):
                         case "call" when exceptions is not null && method.Literals.ContainsKey(offset):
