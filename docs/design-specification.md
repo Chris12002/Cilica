@@ -3455,3 +3455,15 @@ dispatch checks pass, including removal of final evidence at both IR stages.
 Review covered argument/null order, fixed target identity, interface separation,
 rooting and unchanged native emission. Full engine/replay remains unfinished.
 See ADR AC0131.
+
+### AC7c.2: Whole-array SHA-256 provider (2026-10-07)
+
+SHA256.Create, HashAlgorithm.ComputeHash(byte[]) and disposal now bind to the
+owned portable managed implementation. Independent providers/results, repeated
+hashing, exact disposed-before-null ordering and UTF-8 composition pass 4,536
+repeated O0/O2 native/.NET comparisons with forced GC and sanitizers. Five
+streaming/state/custom-provider probes remain diagnostic. All 21 selected provider,
+algorithm and public-baseline checks pass. The baseline advances to 44 controls
+and three gaps. No new intrinsic grants, native algorithms or production limits.
+Full frozen fingerprint execution and engine/replay remain open. See ADR AC0132
+and artifacts/alchemy-sha256-provider (core/manifest/fixture pins included).

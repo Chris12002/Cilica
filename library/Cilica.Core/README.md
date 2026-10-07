@@ -44,6 +44,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/StringSubstring.cs \
   --source library/Cilica.Core/StringCharacters.cs \
   --source library/Cilica.Core/Utf8Encoding.cs \
+  --source library/Cilica.Core/Sha256.cs \
   --source library/Cilica.Core/List.cs \
   --source library/Cilica.Core/ReadOnlyCollection.cs \
   --source library/Cilica.Core/ValueTuple.cs \
@@ -56,6 +57,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/StringWhitespace.cs \
   --source library/Cilica.Core/Math.cs \
   --source library/Cilica.Library/IntegerFormatting.cs \
+  --source library/Cilica.Library/ManagedSha256.cs \
   --intrinsic-requests library/Cilica.Core/intrinsic-requests.json \
   --output-directory artifacts/library-build/core
 ```
@@ -873,3 +875,15 @@ GC and allocation-failure recovery. Integer CIL v51, exception IR v8/native v66;
 layout v24 and discovery limits unchanged. SHA256 lifecycle binding and full engine
 execution/replay remain unfinished. See ADR AC0130 and
 artifacts/alchemy-disposed-exception.
+
+### AC7c.2: Whole-array SHA-256 provider (2026-10-07)
+
+SHA256.Create, HashAlgorithm.ComputeHash(byte[]) and disposal now bind to the
+owned portable managed implementation. Independent providers/results, repeated
+hashing, exact disposed-before-null ordering and UTF-8 composition pass 4,536
+repeated O0/O2 native/.NET comparisons with forced GC and sanitizers. Five
+streaming/state/custom-provider probes remain diagnostic. All 21 selected provider,
+algorithm and public-baseline checks pass. The baseline advances to 44 controls
+and three gaps. No new intrinsic grants, native algorithms or production limits.
+Full frozen fingerprint execution and engine/replay remain open. See ADR AC0132
+and artifacts/alchemy-sha256-provider (core/manifest/fixture pins included).
