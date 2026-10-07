@@ -35,7 +35,7 @@ public static partial class ValueProgramDiscovery
 
         private (ObjectTypeId Type, PrimitiveTypeCode Code)? ScalarBoxOperand(TypeSignature signature, Work work, int offset)
         {
-            CheckArgumentAccess(signature, work, offset);
+            CheckScalarOperandAccess(signature, work, offset);
             var normalized = OperandSignature(signature, work, offset);
             ResolvedType definition;
             PrimitiveTypeCode code;

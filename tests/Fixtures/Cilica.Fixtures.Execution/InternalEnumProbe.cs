@@ -46,7 +46,14 @@ namespace Cilica.Fixtures.Execution
             saved = (PreparationFlags)a; var previous = saved; saved |= (PreparationFlags)b;
             return unchecked((int)previous + (int)saved);
         }
-        public static int UnsupportedBox(int a, int b) { object value = (PreparationFlags)a; return (int)(PreparationFlags)value; }
+        public static int Box(int a, int b) { object value = (PreparationFlags)a; return (int)(PreparationFlags)value; }
+        public static int Defined(int a, int b) => Enum.IsDefined(typeof(PreparationFlags), (PreparationFlags)a) ? b : unchecked(b + 7);
+        public static int TypeTests(int a, int b)
+        {
+            object value = a < 0 ? (object)(PreparationFlags)b : b;
+            return value is PreparationFlags ? (int)(PreparationFlags)value : a;
+        }
+        public static int Compare(int a, int b) => ((PreparationFlags)a).CompareTo((PreparationFlags)b);
         public static int UnsupportedGeneric(int a, int b) { var box = new EnumHolder<PreparationFlags>(); box.Value = (PreparationFlags)a; return (int)box.Value; }
     }
 }

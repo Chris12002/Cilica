@@ -24,8 +24,8 @@ public sealed class InternalEnumTests
             (name, programs[i], typeof(InternalEnumProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedGeneric")] [InlineData("UnsupportedBox")]
-    public async Task Internal_enum_generic_arguments_and_boxes_keep_existing_visibility_rules(string name)
+    [InlineData("UnsupportedGeneric")]
+    public async Task Internal_enum_generic_arguments_keep_existing_visibility_rules(string name)
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -38,8 +38,9 @@ public sealed class InternalEnumTests
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("externally visible", StringComparison.Ordinal));
     }
     [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public void Direct_internal_enum_operands_are_checked_per_calling_assembly(bool foreign)
+    [InlineData(false, false)] [InlineData(true, false)]
+    [InlineData(false, true)] [InlineData(true, true)]
+    public void Direct_internal_enum_operands_are_checked_per_calling_assembly(bool foreign, bool box)
     {
         using var files = new ResolverFiles();
         using var bootstrap = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
@@ -59,7 +60,9 @@ public sealed class InternalEnumTests
         caller.Type("Test", "Caller");
         byte coded = checked((byte)((MetadataTokens.GetRowNumber(operand) << 2) | (operand.Kind == HandleKind.TypeReference ? 1 : 0)));
         var root = caller.Method("Run", [0, 0, 8], locals: [0x07, 1, 0x11, coded], emit: il => {
-            il.LoadLocalAddress(0); il.OpCode(ILOpCode.Initobj); il.Token(operand); il.LoadLocal(0); il.OpCode(ILOpCode.Ret);
+            if (box) { il.LoadConstantI4(7); il.OpCode(ILOpCode.Box); il.Token(operand); il.OpCode(ILOpCode.Pop); il.LoadConstantI4(7); }
+            else { il.LoadLocalAddress(0); il.OpCode(ILOpCode.Initobj); il.Token(operand); il.LoadLocal(0); }
+            il.OpCode(ILOpCode.Ret);
         });
         var path = files.Write(foreign ? "Caller.dll" : "HiddenEnum.dll", caller.Build());
         using var resolver = AssemblyResolver.Create([files.DirectoryPath("refs"), Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;

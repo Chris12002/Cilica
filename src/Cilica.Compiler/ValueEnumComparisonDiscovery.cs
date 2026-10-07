@@ -34,7 +34,7 @@ public static partial class ValueProgramDiscovery
                 MetadataTokens.EntityHandle(Token(work, prefix!, 0x01, 0x02, 0x1b))), work, prefix!.Offset);
             if (!EnumScalar(signature, work, offset) || signature is not TypeSignature.Named)
                 Fail(work, "Enum.CompareTo requires a directly constrained Int32 enum receiver; other widths require later lowering.", offset);
-            CheckArgumentAccess(signature, work, offset);
+            CheckScalarOperandAccess(signature, work, offset);
             // The original box instruction registers a payload layout when needed.
             // A literal-null comparison needs only the validated scalar identity.
             return new(prefix.Offset, ObjectModelBuilder.Id(((TypeSignature.Named)signature).Definition));

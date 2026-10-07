@@ -590,7 +590,9 @@ public static partial class ValueProgramDiscovery
                 {
                     if (generics && _values.TryGetValue(type, out var constructed))
                         foreach (var argument in constructed.Arguments) CheckArgumentAccess(argument, work, offset);
-                    if (type != method.Binding.Owner && !layouts[type].ExternallyVisible)
+                    if (type != method.Binding.Owner && !layouts[type].ExternallyVisible
+                        && !(integers64 && layouts[type].ScalarEnum
+                            && ObjectLexicalAccess.Visible(method.Binding, type, TypeAccess(_values[type].Definition, work, offset).LexicalOwners)))
                         Fail(work, "Value type use requires the same declaring owner or a fully externally visible type; other visibility rules require later lowering.", offset);
                 }
             }
@@ -842,6 +844,14 @@ public static partial class ValueProgramDiscovery
             if (_vectors.Count + _values.Count + _references.Count > ObjectModelLimits.MaximumTypes)
                 Fail(caller, "Combined vector/value/reference type limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             return vector;
+        }
+
+        private void CheckScalarOperandAccess(TypeSignature signature, Work work, int offset)
+        {
+            // A direct enum operand is a lexical type use, not a generic argument.
+            // Reuse the same assembly/nesting proof as direct enum memory operands.
+            if (integers64 && EnumScalar(signature, work, offset)) _ = OperandSignature(signature, work, offset);
+            else CheckArgumentAccess(signature, work, offset);
         }
 
         private void CheckArgumentAccess(TypeSignature signature, Work work, int offset)

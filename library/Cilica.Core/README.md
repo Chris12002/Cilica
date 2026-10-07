@@ -759,3 +759,8 @@ AC7b.14 maps String.Compare(String,String,StringComparison) under the exact
 StringOrdinalCompare grant and a directly proven Ordinal constant. It reuses
 CompareOrdinal and the shared StartsWith bridge validation; other modes/aliases
 remain diagnostic. See ADR AC0114 for exact-return-value differential evidence.
+
+AC5b.12 admits direct metadata and boxed operations for lexically visible internal
+and private nested Int32 enums. Existing Enum.IsDefined and comparison behavior
+is unchanged; hidden generic arguments remain outside the bounded profile.
+See ADR AC0115 for native and access-boundary evidence.

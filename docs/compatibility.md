@@ -3349,3 +3349,14 @@ remain diagnostic. Four probes provide 4,338 new native/.NET comparisons; all 47
 selected checks pass. Integer CIL v40 records the extension; native v64/layout v24
 and production limits remain unchanged. Full engine/replay remains unfinished.
 See [ADR AC0114](decisions/AC0114-proven-ordinal-string-compare.md).
+
+### Lexically visible nonpublic enum operations (AC5b.12)
+
+Direct typeof, boxing/unboxing, boxed type tests and constrained comparison now
+accept admitted internal/private nested Int32 enums under the existing assembly
+and lexical-scope checks. Hidden generic arguments, protected/closed generic
+nesting and foreign hidden declarations remain diagnostic. Eight new probes give
+2,352 O0/O2 native/.NET comparisons with forced GC and ASan/UBSan. Integer CIL v41
+records admission; native v64/layout v24 and production limits are unchanged.
+Full engine/replay remains unfinished. See
+[ADR AC0115](decisions/AC0115-nonpublic-enum-operands.md).

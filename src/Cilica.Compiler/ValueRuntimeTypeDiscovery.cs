@@ -50,7 +50,7 @@ public static partial class ValueProgramDiscovery
             int offset = instruction.Offset;
             var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
                 MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
-            CheckArgumentAccess(signature, work, offset);
+            CheckScalarOperandAccess(signature, work, offset);
             // Scalar metadata identity uses its validated nominal boxed plan, never
             // the shared evaluation-stack carrier. Other value tokens stay bounded out.
             ObjectTypeId target;

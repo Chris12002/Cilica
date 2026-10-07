@@ -25,8 +25,8 @@ public sealed class NestedEnumTests
             (name, programs[i], typeof(NestedEnumProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedBox")] [InlineData("UnsupportedGeneric")]
-    public void Nested_enum_storage_does_not_admit_nonpublic_box_or_generic_arguments(string name)
+    [InlineData("UnsupportedGeneric")]
+    public void Nested_enum_storage_does_not_admit_nonpublic_generic_arguments(string name)
     {
         var result = IntegerObjectTranslationTests.Translate(name, fixture: typeof(NestedEnumOwner));
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("externally visible", StringComparison.Ordinal));
@@ -39,9 +39,12 @@ public sealed class NestedEnumTests
         ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
     }
     [Theory]
-    [InlineData("owner", true)] [InlineData("nested-helper", true)]
-    [InlineData("unrelated", false)] [InlineData("foreign", false)] [InlineData("protected", false)]
-    public void Direct_enum_memory_operands_require_lexical_access(string callerKind, bool admitted)
+    [InlineData("owner", true, "memory")] [InlineData("nested-helper", true, "memory")]
+    [InlineData("unrelated", false, "memory")] [InlineData("foreign", false, "memory")] [InlineData("protected", false, "memory")]
+    [InlineData("owner", true, "box")] [InlineData("nested-helper", true, "box")]
+    [InlineData("unrelated", false, "box")] [InlineData("foreign", false, "box")] [InlineData("protected", false, "box")]
+    [InlineData("unrelated", false, "token")] [InlineData("foreign", false, "token")] [InlineData("protected", false, "token")]
+    public void Direct_enum_operands_require_lexical_access(string callerKind, bool admitted, string operation)
     {
         using var files = new ResolverFiles();
         using var bootstrap = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
@@ -54,7 +57,14 @@ public sealed class NestedEnumTests
         {
             byte coded = checked((byte)((MetadataTokens.GetRowNumber(operand) << 2) | (operand.Kind == HandleKind.TypeReference ? 1 : 0)));
             return target.Method("Run", [0, 0, 8], locals: [7, 1, 0x11, coded], emit: il => {
-                il.LoadLocalAddress(0); il.OpCode(ILOpCode.Initobj); il.Token(operand); il.LoadLocal(0); il.OpCode(ILOpCode.Ret);
+                if (operation == "memory") { il.LoadLocalAddress(0); il.OpCode(ILOpCode.Initobj); il.Token(operand); il.LoadLocal(0); }
+                else
+                {
+                    if (operation == "box") il.LoadConstantI4(7);
+                    il.OpCode(operation == "box" ? ILOpCode.Box : ILOpCode.Ldtoken); il.Token(operand);
+                    il.OpCode(ILOpCode.Pop); il.LoadConstantI4(7);
+                }
+                il.OpCode(ILOpCode.Ret);
             });
         }
         MethodDefinitionHandle root = default;
