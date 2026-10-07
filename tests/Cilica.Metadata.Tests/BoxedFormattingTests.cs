@@ -75,10 +75,10 @@ public sealed class BoxedFormattingTests
         var value = hostile.TypeReference("Cilica.Fixtures.Execution", "FormattingValue", hostile.Reference(input.Identity));
         var owner = hostile.Specification(0x15, 0x12, checked((byte)((MetadataTokens.GetRowNumber(helper) << 2) | 1)), 1,
             0x11, checked((byte)((MetadataTokens.GetRowNumber(value) << 2) | 1)));
-        var call = hostile.Member(owner, "Render", 0, 1, 0x0e, 0x1c);
+        var call = hostile.Member(owner, "Render", 0, 4, 0x0e, 0x1c, 0x0e, 8, 8);
         hostile.Type("Test", "Caller");
         var root = hostile.Method("Run", [0,0,8], emit: il => {
-            il.OpCode(ILOpCode.Ldnull); il.Call(call); il.OpCode(ILOpCode.Pop); il.LoadConstantI4(0); il.OpCode(ILOpCode.Ret);
+            il.OpCode(ILOpCode.Ldnull); il.OpCode(ILOpCode.Ldnull); il.LoadConstantI4(0); il.LoadConstantI4(0); il.Call(call); il.OpCode(ILOpCode.Pop); il.LoadConstantI4(0); il.OpCode(ILOpCode.Ret);
         });
         var caller = scope.OpenInput(files.Write("hostile.dll", hostile.Build())).Value!;
         var rejected = ValueTranslator.TranslateIntegerObjects(scope, caller, root, implementation);

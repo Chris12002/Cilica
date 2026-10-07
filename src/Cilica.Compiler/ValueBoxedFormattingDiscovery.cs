@@ -77,8 +77,11 @@ public static partial class ValueProgramDiscovery
                 || input.Attributes != ((render ? MethodAttributes.Assembly : MethodAttributes.Public) | MethodAttributes.Static | MethodAttributes.HideBySig)
                 || input.Implementation != MethodImplAttributes.InternalCall
                 || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
-                || (render ? input.Signature.Parameters.Count != 1 : input.Signature.Parameters.Count is not (2 or 3))
-                || input.Signature.Parameters.Skip(render ? 0 : 1).Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Object })
+                || (render ? input.Signature.Parameters.Count != 4 : input.Signature.Parameters.Count is not (2 or 3))
+                || (render ? !input.Signature.Parameters.SequenceEqual(new TypeSignature[] {
+                    new TypeSignature.Primitive(PrimitiveTypeCode.Object), new TypeSignature.Primitive(PrimitiveTypeCode.String),
+                    new TypeSignature.Primitive(PrimitiveTypeCode.Int32), new TypeSignature.Primitive(PrimitiveTypeCode.Int32) })
+                    : input.Signature.Parameters.Skip(1).Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Object }))
                 || !render && input.Signature.Parameters[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String })
                 Fail(work, "Invalid selected boxed formatting declaration.", offset);
             return input;

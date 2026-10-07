@@ -3054,3 +3054,12 @@ still translates eight methods with 9,917 charged units. Neither copy emits or
 executes native code. Production bounds stay at 256 types, 512 methods and 65,536
 metadata units; full closure capacity and saved-game replay remain unverified.
 See [ADR AC0096](decisions/AC0096-engine-method-capacity.md).
+
+### Composite-format suffix transport (AC7b.12)
+
+The shared parser passes the original format string and its suffix range to the
+exact private renderer. Ordinary non-IFormattable values ignore that range before
+the existing payload borrow/ToString call. No substring allocation or new native
+operation is added. Eight focused checks pass, including 2,940 O0/O2 native/.NET
+comparisons with forced collection and sanitizers. Enum rendering is still
+diagnostic; this is its parser prerequisite. See [ADR AC0097](decisions/AC0097-format-range-transport.md).

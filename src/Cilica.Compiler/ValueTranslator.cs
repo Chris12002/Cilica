@@ -583,6 +583,10 @@ public static class ValueTranslator
                             if (constrained && (target.Binding.Kind != ObjectMethodKind.ValueInstance || target.Binding.Owner != constrainedCall!.Receiver))
                                 Error(offset, "Constrained call does not match its exact checked value receiver.");
                             bool nullCheck = opcode == "callvirt" && !constrained;
+                            // The authenticated ordinary renderer ignores format text. Consume its
+                            // original call operands before adapting the exact payload receiver.
+                            if (method.BoxedRenderCalls.ContainsKey(offset))
+                            { Pop(offset, IrType.Int32); Pop(offset, IrType.Int32); Pop(offset, IrType.Reference(stringType!)); }
                             var arguments = new int[target.Parameters.Length - skip];
                             for (int i = arguments.Length - 1; i >= 0; i--)
                             {

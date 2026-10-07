@@ -7,7 +7,7 @@ namespace Cilica.Runtime
     internal static class BoxedText<T>
     {
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
-        internal static extern string Render(object value);
+        internal static extern string Render(object value, string format, int start, int length);
     }
     internal static class CompositeFormatting
     {
@@ -36,7 +36,7 @@ namespace Cilica.Runtime
                 current = Next(format, ref position);
                 if (current == brace) { output.Append(current); position++; continue; }
                 if (brace != '{') Invalid(position, "Unexpected closing brace without a corresponding opening brace.");
-                int index = current - '0', width = 0;
+                int index = current - '0', width = 0, formatStart = 0, formatLength = 0;
                 bool left = false;
                 if ((uint)index >= 10u) Invalid(position, "Expected an ASCII digit.");
                 current = Next(format, ref position);
@@ -57,18 +57,22 @@ namespace Cilica.Runtime
                     if (current != '}')
                     {
                         if (current != ':') Invalid(position, "Format item ends prematurely.");
+                        formatStart = position + 1;
                         while (true)
                         {
                             current = Next(format, ref position);
                             if (current == '}') break;
                             if (current == '{') Invalid(position, "Format item ends prematurely.");
                         }
+                        formatLength = position - formatStart;
                     }
                 }
                 position++;
                 if ((uint)index >= (uint)count) throw new System.FormatException("Index (zero based) must be greater than or equal to zero and less than the size of the argument list.");
-                // Admission excludes IFormattable. Such ordinary objects ignore format text.
-                string text = index == 0 ? BoxedText<TFirst>.Render(first) : BoxedText<TSecond>.Render(second);
+                // Pass the original UTF-16 range without allocating a substring.
+                // Ordinary non-IFormattable renderers ignore this range.
+                string text = index == 0 ? BoxedText<TFirst>.Render(first, format, formatStart, formatLength)
+                    : BoxedText<TSecond>.Render(second, format, formatStart, formatLength);
                 if (text == null) text = "";
                 int padding = width - text.Length;
                 if (!left) for (int i = 0; i < padding; i++) output.Append(' ');

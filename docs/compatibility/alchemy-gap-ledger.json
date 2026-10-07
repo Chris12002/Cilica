@@ -425,7 +425,7 @@
     "AC7b": {
       "prerequisites": ["AC7a"],
       "status": "in-progress",
-      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3", "AC7b.4", "AC7b.5", "AC7b.6", "AC7b.7", "AC7b.8", "AC7b.9", "AC7b.10", "AC7b.11"],
+      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3", "AC7b.4", "AC7b.5", "AC7b.6", "AC7b.7", "AC7b.8", "AC7b.9", "AC7b.10", "AC7b.11", "AC7b.12"],
       "remaining": "Additional comparison modes, broader formatting, decoding and remaining text APIs. AC7b.1 uses existing UTF-16 string storage independently of the remaining AC7a array work."
     },
     "AC7b.1": {
@@ -467,6 +467,11 @@
       "prerequisites": ["AC7b.8"],
       "status": "complete-bounded-ordinal-prefix",
       "decision": "docs/decisions/AC0083-ordinal-string-prefix.md"
+    },
+    "AC7b.12": {
+      "prerequisites": ["AC7b.4"],
+      "status": "complete-format-range-transport",
+      "decision": "docs/decisions/AC0097-format-range-transport.md"
     },
     "AC7c": {
       "prerequisites": [

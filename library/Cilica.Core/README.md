@@ -157,7 +157,9 @@ BoxedFormatting.cs supplies one- and two-object String.Format overloads for dire
 boxed named values with ordinary ToString overrides and no IFormattable contract.
 Each actual argument must match its same-block box witness. Separate exact overload
 grants and the render grant retain each box and borrow its payload per callback.
-Both entry shapes share managed alignment, escape, ignored-format and error parsing.
+Both entry shapes share managed alignment, escape, format-suffix and error parsing.
+The private renderer receives the original string plus a UTF-16 range without a
+substring allocation; ordinary non-IFormattable receivers ignore that range.
 Other overloads, providers, primitive/reference arguments and aliases are diagnostic.
 
 StringComparison.cs preserves the pinned enum declaration. The exact granted

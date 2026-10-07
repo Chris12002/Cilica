@@ -668,7 +668,7 @@
     "Namespace": "Cilica.Runtime",
     "Type": "BoxedText`1",
     "Member": "Render",
-    "ParameterCount": 1,
+    "ParameterCount": 4,
     "Capability": "BoxedTextRender"
   },
   {
