@@ -3030,3 +3030,16 @@ version checks. Five probes pass 2,148 repeated native/.NET comparisons at O0/O2
 with forced collection, sanitizers and exact quota cleanup. No compiler/native
 profile, grant or budget changes are introduced. Full engine/replay remains open.
 See [ADR AC0094](decisions/AC0094-list-find-index.md).
+
+### Same-assembly internal static fields (AC8.26)
+
+Discovery and logical/scalar validation now share a static-field access rule.
+Assembly and FamORAssem fields require the same content image and validated,
+nonempty declaring-type facts for caller and target. The target must be visible
+within that assembly or its proven lexical scope. Closed generic owners preserve
+exact storage identities. Private/protected-only cross-owner access, foreign
+assembly access, static addresses and readonly writes outside the declaring
+initializer remain rejected. CIL v29, object IR v32 and native v59 record the
+admission change; layout v22, runtime algorithms and production bounds are unchanged.
+Eight probes pass 2,352 native/.NET comparisons and all 111 selected checks pass.
+Full engine/replay remains unfinished. See [ADR AC0095](decisions/AC0095-assembly-static-access.md).

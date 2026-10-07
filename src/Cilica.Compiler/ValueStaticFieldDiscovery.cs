@@ -18,9 +18,9 @@ public static partial class ValueProgramDiscovery
                 && (work.Binding.TypeInitializerName is null || work.Binding.Owner != ClosedId(field.DeclaringType, work, offset)))
                 Fail(work, "Readonly static fields cannot be assigned outside their type initializer.", offset);
             var id = new ObjectFieldId(ClosedId(field.DeclaringType, work, offset), MetadataTokens.GetToken(field.Handle));
-            var access = declaration.Attributes & FieldAttributes.FieldAccessMask;
-            if (access == FieldAttributes.PrivateScope || work.Binding.Owner != id.Owner && (access != FieldAttributes.Public || !owner.ExternallyVisible && !ObjectLexicalAccess.Visible(work.Binding, id.Owner, owner.LexicalOwners)))
-                Fail(work, "Static fields require the same owner or a public member on an externally visible type.", offset);
+            if (!ObjectStaticFieldAccess.Allowed(work.Binding, id.Owner, declaration.Attributes,
+                owner.ExternallyVisible, owner.LexicalOwners, integers64))
+                Fail(work, "Static field access requires the declaring owner, visible public access or proven same-assembly internal access.", offset);
             if (_staticFields.TryGetValue(id, out var known)) return known;
             if (_staticFields.Count >= ObjectModelLimits.MaximumFields)
                 Fail(work, "Static field storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);

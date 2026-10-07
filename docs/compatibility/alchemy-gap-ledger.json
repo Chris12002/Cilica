@@ -19,8 +19,8 @@
   },
   "baseline": {
     "integrationCommit": "e317e93",
-    "nativeProfile": "object-frames-native-v58",
-    "nativeProfileEvidence": "Public baseline revalidated at AC3.12 on native v58/layout v22; 40 native controls and 7 diagnostic gaps.",
+    "nativeProfile": "object-frames-native-v59",
+    "nativeProfileEvidence": "Public baseline revalidated at AC8.26 on native v59/layout v22; 40 native controls and 7 diagnostic gaps.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 40,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "212f8cefb5f5978bbc38b2470aba9a37c2f78a64db61375bf5ba302d88fc3228",
-    "latestSlice": "AC3.12",
+    "fixtureSha256": "5b42dd23626a6a76045c2d3b42b9c9b98ea5b59674c9da6853d23b5f22aa26a3",
+    "latestSlice": "AC8.26",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -382,7 +382,7 @@
       "decision": "docs/decisions/AC0054-nongeneric-cursors-and-oftype.md"
     },
     "AC6.14": {
-      "prerequisites": ["AC6.13", "AC3.11", "AC3.12", "AC3.13"],
+      "prerequisites": ["AC6.13", "AC3.11", "AC3.12"],
       "status": "complete-bounded-list-materialization",
       "decision": "docs/decisions/AC0093-query-list-materialization.md"
     },
@@ -492,7 +492,7 @@
     "AC8": {
       "prerequisites": ["required AC1-AC7 slices"],
       "status": "in-progress",
-      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12", "AC8.13", "AC8.14", "AC8.15", "AC8.16", "AC8.17", "AC8.18", "AC8.19", "AC8.20", "AC8.21", "AC8.22"],
+      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12", "AC8.13", "AC8.14", "AC8.15", "AC8.16", "AC8.17", "AC8.18", "AC8.19", "AC8.20", "AC8.21", "AC8.22", "AC8.25", "AC8.26"],
       "remaining": "Generic type-test origin evidence, catalog budget audit and remaining real closure gaps; private generic arrays are validated in AC8.4."
     },
     "AC8.1": {
@@ -594,6 +594,11 @@
       "prerequisites": ["AC8.8"],
       "status": "complete-bounded-protected-base-constructors",
       "decision": "docs/decisions/AC0049-protected-base-constructors.md"
+    },
+    "AC8.26": {
+      "prerequisites": ["AC8.20", "AC5b.5", "AC6.14", "AC3.13"],
+      "status": "complete-bounded-same-assembly-static-access",
+      "decision": "docs/decisions/AC0095-assembly-static-access.md"
     },
     "AC8.25": {
       "prerequisites": ["AC4.1", "AC8.24"],

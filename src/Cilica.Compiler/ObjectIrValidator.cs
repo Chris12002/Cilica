@@ -483,10 +483,8 @@ internal sealed partial class ObjectIrRules
         if (id is null || !_statics.TryGetValue(id, out var field)) return false;
         var caller = Binding(IrMethodId.From(method.Source));
         if (write && (field.Attributes & FieldAttributes.InitOnly) != 0 && (caller.Owner != id.Owner || caller.TypeInitializerName is null)) return false;
-        var access = field.Attributes & FieldAttributes.FieldAccessMask;
-        if (access == FieldAttributes.PrivateScope || caller.Owner != id.Owner
-            && (access != FieldAttributes.Public || !field.OwnerExternallyVisible
-                && (!_program.Flow.Types.Integer64 || !ObjectLexicalAccess.Visible(caller, id.Owner, field.LexicalOwners)))) return false;
+        if (!ObjectStaticFieldAccess.Allowed(caller, id.Owner, field.Attributes,
+            field.OwnerExternallyVisible, field.LexicalOwners, _program.Flow.Types.Integer64)) return false;
         storage = field.Type; return true;
     }
     internal bool StaticStore(IrMethod method, IrStatement.StoreStatic store, IReadOnlyList<IrType> values) =>
