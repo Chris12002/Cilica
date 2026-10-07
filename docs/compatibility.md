@@ -3483,3 +3483,14 @@ All 62 selected checks pass with forced GC and sanitizers. Nonindexed query
 optimizations, grants, profiles and production limits are unchanged. Full engine
 execution/replay remains unfinished. See ADR AC0128 and
 artifacts/alchemy-indexed-where.
+
+### AC7c.1: Portable SHA-256 algorithm (2026-10-07)
+
+Cilica.Library now supplies an owned managed SHA-256 digest algorithm following
+FIPS 180-4. It uses fixed private working arrays, unsigned round arithmetic and
+wide padding lengths. Eight focused checks include 4,746 native/.NET comparisons;
+managed tests additionally cover a million-byte known answer and 128 random inputs.
+The framework factory, lifecycle/disposed exception, and unchanged engine
+fingerprint remain unimplemented. No compiler/core grants, profiles or limits
+change. Full engine execution/replay remains unfinished. See ADR AC0129 and
+artifacts/alchemy-sha256-algorithm.

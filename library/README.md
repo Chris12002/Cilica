@@ -1,6 +1,7 @@
 # Managed library trial
 
-`Cilica.Library` currently exposes four invariant decimal text helpers for
+`Cilica.Library` exposes a portable SHA-256 digest helper (AC7c.1) and four
+invariant decimal text helpers for
 Int32, UInt32, Int64 and UInt64. They compile as ordinary managed IL through
 Cilica's integer-object profile. This is not a replacement CoreLib or an
 implementation of the System numeric formatting APIs.
@@ -29,3 +30,13 @@ The core image also compiles this helper into four bounded System numeric
 ToString(IFormatProvider) implementations with directly proven InvariantCulture
 and tested cache identity. This leaves the standalone helper's text-only contract
 unchanged. General formatting and the real kernel comparison remain pending.
+
+### Portable SHA-256 helper (AC7c.1)
+
+ManagedSha256.Digest implements FIPS 180-4 with fixed per-call working storage,
+explicit big-endian bytes and existing managed integer operations. It has no
+platform dependency or mutable static state. Native byte-by-byte, padding-boundary
+and repeated-result tests supply 4,746 differential comparisons; managed tests
+also cover the million-a known answer and 128 seeded randomized inputs.
+Framework SHA256/HashAlgorithm binding and disposed-object behavior remain the
+next slice. See docs/decisions/AC0129-portable-sha256-algorithm.md.
