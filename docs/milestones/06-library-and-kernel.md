@@ -3278,3 +3278,13 @@ Profiles and limits stay unchanged; nongeneric copying remains unsupported. Froz
 engine discovery next reaches Dictionary.KeyCollection.CopyTo at 1,147,132 charged
 units. StateLookup remains 15 methods/11,527 units. Full replay remains unfinished.
 See ADR AC0168 and artifacts/alchemy-readonly-copy-engine.
+
+### Generic dictionary copies (AC3.29)
+
+Dictionary keys, values and generic key/value pairs now copy with pinned validation,
+active-slot order, reference identity and partial covariant-store behavior. Thirteen
+probes plus capacity cases supply 4,146 repeated native/.NET comparisons. Owned
+helpers retain the compiler's generic access boundaries; profiles and limits stay
+unchanged. Frozen discovery next reaches HashSet.CopyTo through List.AddRange in
+EffectTags.Combine (1,149,539 charged units); StateLookup remains 15 methods at
+11,529 units. Full replay is unfinished. See ADR AC0169.

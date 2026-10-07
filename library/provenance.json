@@ -439,22 +439,23 @@
         "AC3.3 Remove/Clear, free-list links and slot reuse",
         "AC3.16 capacity construction and Initialize publication order",
         "Prime capacities from System/Collections/HashHelpers.cs",
-        "AC4.2 cached KeyCollection/ValueCollection views and ContainsValue live-slot scanning"
+        "AC4.2 cached KeyCollection/ValueCollection views and ContainsValue live-slot scanning",
+        "AC3.29 generic key/value/pair CopyTo validates in pinned order, captures entries/count and copies active slots without equality/hash callbacks."
       ],
       "changes": [
         "Map the bounded public System.Collections.Generic.Dictionary member subset with exact nominal interfaces and method flags.",
-        "Replace inline entry arrays and unsafe/ref helpers with managed reference-entry vectors and checked indexing; entries remain private to collection operations.",
+        "Replace inline entry arrays and unsafe/ref helpers with managed reference-entry vectors and checked indexing; entries remain internal to collection operations. AC3.29 views capture them through an assembly-visible owned accessor, matching the existing cursor helper boundary.",
         "Use exact compiler-selected closed integer/value key operations instead of runtime reflection and EqualityComparer factory selection.",
         "Retain distinct value-key hash receiver semantics in FindValue and TryInsert.",
         "AC3.3 adds Remove with/without out value and Clear; clear key/value payloads and reuse private entry slots. Comparer constructors and further members remain unsupported; AC3.16 adds the capacity constructor.",
         "Preserve the public generic/nongeneric/serialization interface declarations; unimplemented members remain compile-time errors.",
-        "Preserve per-dictionary view identity and tracing cycles; constructors use ordinary validation helpers. ContainsValue captures the entries vector and compares copied value receivers through existing exact equality selection. Unknown equality/copy/enumerator paths remain diagnostic.",
+        "Preserve per-dictionary view identity and tracing cycles; constructors use ordinary validation helpers. ContainsValue captures the entries vector and compares copied value receivers through existing exact equality selection. Other unimplemented equality/copy/enumerator paths remain diagnostic.",
         "AC4.3 adds the concrete nested Enumerator. Walk active slots with ordinary accessors, materialize the pair before storing current, reset current/end index, and update version only after successful new-key insertion (including free-slot reuse). Boxed interface factories/legacy members remain diagnostic.",
         "AC4.4 adapts both concrete view enumerators separately to preserve distinct key/value current roots; each follows pinned version/slot/end-state behavior through ordinary dictionary accessors.",
         "AC3.14 adds checked Add/indexer reads. Pass the private insertion key byref so duplicate messages use hash mutations; retain the original lookup key for missing-key messages. Keep formatting outside the shared insert body so TryAdd/setters preserve their accepted key scope.",
         "Use exact private selected integer/string/ordinary-value key text and managed concatenation for pinned error resources; no general provider/IFormattable dispatch or allocation-count equivalence claim."
       ],
-      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types. AC4.3 supports concrete GetEnumerator/MoveNext/Current/Dispose; AC4.11 adds generic/nongeneric ordinary pair factories and checked boxed Current. AC4.4 supports concrete key/value view enumerators; AC4.11 adds their interface factories and boxed Current. Dictionary pairs use a distinct stateless empty singleton; views retain the array singleton. Legacy IDictionary entry factories/accessors remain diagnostic. AC3.14 adds Add/indexer reads for keys with admitted error formatting. AC3.16 adds default-comparer Int32 capacity construction with negative validation and atomic publication of allocated storage."
+      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types. AC4.3 supports concrete GetEnumerator/MoveNext/Current/Dispose; AC4.11 adds generic/nongeneric ordinary pair factories and checked boxed Current. AC4.4 supports concrete key/value view enumerators; AC4.11 adds their interface factories and boxed Current. Dictionary pairs use a distinct stateless empty singleton; views retain the array singleton. AC3.29 supplies generic CopyTo for keys, values and ICollection<KeyValuePair<TKey,TValue>>, retaining active-slot order and partial covariant stores. Nongeneric copies and legacy IDictionary entry factories/accessors remain diagnostic. AC3.14 adds Add/indexer reads for keys with admitted error formatting. AC3.16 adds default-comparer Int32 capacity construction with negative validation and atomic publication of allocated storage."
     },
     {
       "path": "library/Cilica.Core/ArrayInterface.cs",

@@ -1006,7 +1006,8 @@ and custom-list callback/fault order from the pinned .NET implementation.
 Nine probes provide 2,646 repeated O0/O2 native/.NET comparisons with ASan/UBSan,
 forced collection and exact static-root cleanup. All seven focused checks pass.
 No compiler profile, intrinsic grant, native layout or resource-bound changes.
-CopyTo and the remaining nongeneric search/index surface remain diagnostic. See
+At this checkpoint CopyTo remained diagnostic; AC3.28 below adds its generic overload.
+The remaining nongeneric search/index surface is still diagnostic. See
 ADR AC0162. Full engine, unchanged fingerprint execution and saved-game replay
 remain unverified.
 
@@ -1055,3 +1056,9 @@ outputs, Boolean.Parse and span APIs remain outside this slice (ADR AC0167).
 ReadOnlyCollection<T>.CopyTo(T[], Int32) forwards directly to its backing IList<T>
 without reading Count or prevalidating arguments. This preserves backing callbacks,
 copy faults and partial mutation; nongeneric CopyTo remains unsupported (ADR AC0168).
+
+Generic dictionary key/value/pair CopyTo validates null, index and remaining capacity
+before capturing entries/count and copying active slots. Removed slots are skipped;
+no key hash/equality callbacks occur. Reference covariance preserves earlier writes
+before a failing store. Assembly-visible owned helpers serve nested generic views;
+nongeneric copies remain unsupported. See ADR AC0169.

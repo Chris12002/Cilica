@@ -277,7 +277,24 @@ namespace System.Collections.Generic
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
-        void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        {
+            ValidateCopyArray(array, arrayIndex);
+            if (array.Length - arrayIndex < Count)
+                throw new ArgumentException("Destination array is not long enough to copy all the items in the collection. Check array index and length.");
+            int copyCount = count;
+            var copyEntries = entries;
+            for (int i = 0; i < copyCount; i++)
+            {
+                var entry = copyEntries[i];
+                if (entry.Next >= -1) array[arrayIndex++] = new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
+            }
+        }
+        internal static void ValidateCopyArray<TElement>(TElement[] array, int index)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+            if (index < 0 || index > array.Length) throw new ArgumentOutOfRangeException("index", "Non-negative number required.");
+        }
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => Count == 0
             ? System.GenericEmptyEnumerator<KeyValuePair<TKey, TValue>>.Create() : GetEnumerator();
         Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => ((IEnumerable<KeyValuePair<TKey, TValue>>)this).GetEnumerator();
@@ -298,6 +315,7 @@ namespace System.Collections.Generic
         void Collections.IDictionary.Remove(object key) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         internal int EnumerationVersion => version;
         internal int EnumerationCount => count;
+        internal Cilica.Runtime.DictionaryEntry<TKey, TValue>[] CopyEntries => entries;
         internal Cilica.Runtime.DictionaryEntry<TKey, TValue> EnumerationEntry(int index) => entries[index];
         public Enumerator GetEnumerator() => new Enumerator(this);
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, Collections.IDictionaryEnumerator
@@ -420,7 +438,19 @@ namespace System.Collections.Generic
             bool ICollection<TKey>.Remove(TKey item) { throw new NotSupportedException("Mutating a key collection derived from a dictionary is not allowed."); }
             void ICollection<TKey>.Clear() { throw new NotSupportedException("Mutating a key collection derived from a dictionary is not allowed."); }
             public bool Contains(TKey item) => dictionary.ContainsKey(item);
-            public void CopyTo(TKey[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+            public void CopyTo(TKey[] array, int index)
+            {
+                ValidateCopyArray(array, index);
+                if (array.Length - index < dictionary.Count)
+                    throw new ArgumentException("Destination array is not long enough to copy all the items in the collection. Check array index and length.");
+                int copyCount = dictionary.EnumerationCount;
+                var copyEntries = dictionary.CopyEntries;
+                for (int i = 0; i < copyCount; i++)
+                {
+                    var entry = copyEntries[i];
+                    if (entry.Next >= -1) array[index++] = entry.Key;
+                }
+            }
             void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
             IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator() => Count == 0
                 ? System.SZGenericArrayEnumerator<TKey>.Create(null, 0) : GetEnumerator();
@@ -493,7 +523,19 @@ namespace System.Collections.Generic
             bool ICollection<TValue>.Remove(TValue item) { throw new NotSupportedException("Mutating a value collection derived from a dictionary is not allowed."); }
             void ICollection<TValue>.Clear() { throw new NotSupportedException("Mutating a value collection derived from a dictionary is not allowed."); }
             bool ICollection<TValue>.Contains(TValue item) => dictionary.ContainsValue(item);
-            public void CopyTo(TValue[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+            public void CopyTo(TValue[] array, int index)
+            {
+                ValidateCopyArray(array, index);
+                if (array.Length - index < dictionary.Count)
+                    throw new ArgumentException("Destination array is not long enough to copy all the items in the collection. Check array index and length.");
+                int copyCount = dictionary.EnumerationCount;
+                var copyEntries = dictionary.CopyEntries;
+                for (int i = 0; i < copyCount; i++)
+                {
+                    var entry = copyEntries[i];
+                    if (entry.Next >= -1) array[index++] = entry.Value;
+                }
+            }
             void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
             IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => Count == 0
                 ? System.SZGenericArrayEnumerator<TValue>.Create(null, 0) : GetEnumerator();
