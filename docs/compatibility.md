@@ -3575,3 +3575,12 @@ checks pass, including ordinal dictionary/set, allocation recovery and the
 45-control/two-gap public baseline. Integer CIL v55; object IR v41, native v67,
 layout v25 and production limits unchanged. See ADR AC0135 and
 artifacts/alchemy-ordinal-dictionary-capacity. Full engine/replay remains open.
+
+### AC8.36: Measured diagnostic instruction capacity (2026-10-07)
+
+The frozen engine exhausts 65,536 aggregate instructions after 2,777 method
+declarations and 327,295 metadata units. Raising only the isolated diagnostic
+copy to 131,072 instructions reaches Array.IndexOf<string> after 327,656 units;
+StateLookup remains eight methods/9,925 units. All six frozen input hashes match.
+Production limits and public-baseline claims are unchanged. No engine emission or
+execution. See ADR AC0136 and artifacts/alchemy-engine-instructions131072.
