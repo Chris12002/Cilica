@@ -98,7 +98,7 @@ namespace Cilica.Fixtures.Execution
             try { missing.Count(); } catch (ArgumentNullException e) { result += e.Message == "Value cannot be null. (Parameter 'source')" ? 7 : -100; }
             return result;
         }
-        public static int UnsupportedList(int a, int b) { var values = new List<int>(); values.Add(a); return values.Count(); }
+        public static int ListCardinality(int a, int b) { var values = new List<int>(); values.Add(a); return values.Count(); }
         public static int UnsupportedIndexedWhere(int a, int b) { return new[] { a, b }.Where((value, index) => value > index).Count(); }
     }
 }

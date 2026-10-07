@@ -23,7 +23,7 @@ public sealed class LinqOfTypeTests
             (name, programs[i], typeof(LinqOfTypeProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedList")] [InlineData("ReferenceProjection")] [InlineData("NongenericProjection")]
+    [InlineData("ReferenceProjection")] [InlineData("NongenericProjection")]
     public async Task Unimplemented_oftype_shapes_remain_diagnostic(string name)
     {
         using var files = new ResolverFiles();
@@ -34,8 +34,7 @@ public sealed class LinqOfTypeTests
         var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LinqOfTypeProbe).GetMethod(name)!.MetadataToken);
         var translated = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
         Assert.False(translated.Success);
-        Assert.Contains(translated.Diagnostics, d => d.Message.Contains(name == "UnsupportedList"
-            ? "no implemented managed body" : "requested interface contract", StringComparison.Ordinal));
+        Assert.Contains(translated.Diagnostics, d => d.Message.Contains("requested interface contract", StringComparison.Ordinal));
     }
 
 }

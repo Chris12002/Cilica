@@ -167,6 +167,6 @@ namespace Cilica.Fixtures.Execution
             e.Dispose(); if (e.Current != null || e.MoveNext()) return -103; return result + value.Length;
         }
         public static int UnsupportedComparer(int a, int b) { return Values(a,b).Distinct((IEqualityComparer<int>)null).Count(); }
-        public static int UnsupportedList(int a, int b) { return new List<int>().Distinct().Count(); }
+        public static int ListDistinct(int a, int b) { return new List<int>().Distinct().Count(); }
     }
 }

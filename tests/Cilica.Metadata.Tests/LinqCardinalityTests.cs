@@ -25,7 +25,7 @@ public sealed class LinqCardinalityTests
             (name, programs[i], typeof(LinqCardinalityProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray(), pairs);
     }
     [Fact]
-    public async Task Unimplemented_overloads_and_boxed_collection_factories_remain_diagnostic()
+    public async Task Unimplemented_overloads_remain_diagnostic()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -33,7 +33,7 @@ public sealed class LinqCardinalityTests
         var bytes = await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken);
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
         var input = resolver.OpenInput(typeof(LinqCardinalityProbe).Assembly.Location).Value!;
-        foreach (var (name, message) in new[] { ("UnsupportedList", "no implemented managed body"), ("UnsupportedIndexedWhere", "No implementation method matches") })
+        foreach (var (name, message) in new[] { ("UnsupportedIndexedWhere", "No implementation method matches") })
         {
             var handle = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LinqCardinalityProbe).GetMethod(name)!.MetadataToken);
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, handle, implementation);

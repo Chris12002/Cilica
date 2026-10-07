@@ -24,7 +24,7 @@ public sealed class LinqDistinctTests
             (name, programs[i], typeof(LinqDistinctProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedComparer")] [InlineData("UnsupportedList")]
+    [InlineData("UnsupportedComparer")]
     public async Task Unimplemented_distinct_shapes_remain_diagnostic(string name)
     {
         using var files = new ResolverFiles();

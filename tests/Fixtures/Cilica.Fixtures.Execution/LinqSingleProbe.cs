@@ -174,6 +174,12 @@ namespace Cilica.Fixtures.Execution
         }
         public static int UnsupportedNoPredicate(int a, int b) => new[] { a, b }.Single();
         public static int UnsupportedNoPredicateDefault(int a, int b) => new[] { a, b }.SingleOrDefault();
-        public static int UnsupportedList(int a, int b) => new List<int>().Single(IsZero);
+        public static int ListSingle(int a, int b)
+        {
+            var source = new List<int>();
+            for (int i = 0; i < (a & 3); i++) source.Add(i == 0 ? 0 : b);
+            try { return source.Single(IsZero); }
+            catch (InvalidOperationException e) { return e.Message == "Sequence contains no matching element" ? 17 : e.Message == "Sequence contains more than one matching element" ? 19 : -100; }
+        }
     }
 }

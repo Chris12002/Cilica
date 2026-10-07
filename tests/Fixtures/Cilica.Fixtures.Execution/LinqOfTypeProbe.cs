@@ -153,7 +153,7 @@ namespace Cilica.Fixtures.Execution
             source.First = new TypeItem(b); if (e.Current != saved) return -100;
             e.Dispose(); if (e.Current != null) return -101; return unchecked(saved.Number + source.Trace * 37);
         }
-        public static int UnsupportedList(int a, int b) { return new List<TypeItem>().OfType<TypeItem>().Count(); }
+        public static int ListOfType(int a, int b) { return new List<TypeItem>().OfType<TypeItem>().Count(); }
         public static int ArraySource(int a, int b) { return new object[] { new TypeItem(a) }.OfType<TypeItem>().Count(); }
     }
 }

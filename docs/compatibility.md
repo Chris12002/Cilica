@@ -3159,3 +3159,15 @@ initializer remain rejected. CIL v29, object IR v32 and native v59 record the
 admission change; layout v22, runtime algorithms and production bounds are unchanged.
 Eight probes pass 2,352 native/.NET comparisons and all 111 selected checks pass.
 Full engine/replay remains unfinished. See [ADR AC0095](decisions/AC0095-assembly-static-access.md).
+
+### List query admission follow-up
+
+The older List Count/Distinct/OfType/predicate-Single rejection fixtures now have
+positive native coverage: 1,176 repeated O0/O2 comparisons, including exact empty
+cursor cache roots and empty/one/multiple-match Single behavior. All 14 selected
+positive and remaining negative checks pass. Indexed Where, comparer Distinct,
+non-predicate Single and signature-changing projections remain diagnostic. No
+compiler/library/runtime implementation changes were needed. These focused cases
+do not establish every list-specific terminal mutation behavior.
+Evidence: artifacts/alchemy-list-query-admission/admission-b-tests.log (47.236s).
+The initial mixed class/method selection matched zero tests and provides no evidence.
