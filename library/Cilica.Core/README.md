@@ -166,11 +166,13 @@ are implementation-specific. Object equality, comparison, structural APIs, tuple
 indexing and formatting remain diagnostic. Pinned sources and the hash combiner’s
 additional BSD notice are retained in the provenance record.
 
-BoxedFormatting.cs supplies one- and two-object String.Format overloads for directly
+BoxedFormatting.cs supplies one-, two- and three-object String.Format overloads for directly
 boxed named values with ordinary ToString overrides and no IFormattable contract.
 Each actual argument must match its same-block box witness. Separate exact overload
 grants and the render grant retain each box and borrow its payload per callback.
-Both entry shapes share managed alignment, escape, format-suffix and error parsing.
+All three entry shapes share managed alignment, escape, format-suffix and error parsing.
+AC7b.16 additionally permits proven String/null arguments, with exact typed flow
+checks and the selected string renderer; arbitrary object aliases remain rejected.
 The private renderer receives the original string plus a UTF-16 range without a
 substring allocation; ordinary non-IFormattable receivers ignore that range.
 The same bridge admits Int32 enums with unique values and no custom attributes.

@@ -23,7 +23,7 @@ namespace Cilica.Runtime
             return format[position];
         }
         internal static bool Digit(char value) => (uint)(value - '0') < 10;
-        internal static string Format<TFirst, TSecond>(string format, object first, object second, int count)
+        internal static string Format<TFirst, TSecond, TThird>(string format, object first, object second, object third, int count)
         {
             if (format == null) throw new System.ArgumentNullException("format");
             var output = new System.Text.StringBuilder();
@@ -72,7 +72,8 @@ namespace Cilica.Runtime
                 // Pass the original UTF-16 range without allocating a substring.
                 // Ordinary non-IFormattable renderers ignore this range.
                 string text = index == 0 ? BoxedText<TFirst>.Render(first, format, formatStart, formatLength)
-                    : BoxedText<TSecond>.Render(second, format, formatStart, formatLength);
+                    : index == 1 ? BoxedText<TSecond>.Render(second, format, formatStart, formatLength)
+                    : BoxedText<TThird>.Render(third, format, formatStart, formatLength);
                 if (text == null) text = "";
                 int padding = width - text.Length;
                 if (!left) for (int i = 0; i < padding; i++) output.Append(' ');
@@ -83,14 +84,22 @@ namespace Cilica.Runtime
         }
     }
     // Public metadata permits compiler-selected bridges across image boundaries.
-    // Both entry shapes share the parser; neither is a general formatting API.
+    // All three entry shapes share the parser; this is not general object formatting.
+    internal static class StringFormatText
+    {
+        internal static string Render(object value, string format, int start, int length) => (string)value;
+    }
+    public static class BoxedFormatting<TFirst, TSecond, TThird>
+    {
+        public static string Format(string format, object first, object second, object third) => CompositeFormatting.Format<TFirst,TSecond,TThird>(format, first, second, third, 3);
+    }
     public static class BoxedFormatting<T>
     {
-        public static string Format(string format, object argument) => CompositeFormatting.Format<T, T>(format, argument, null, 1);
+        public static string Format(string format, object argument) => CompositeFormatting.Format<T, T, T>(format, argument, null, null, 1);
     }
     public static class BoxedFormatting<TFirst, TSecond>
     {
-        public static string Format(string format, object first, object second) => CompositeFormatting.Format<TFirst, TSecond>(format, first, second, 2);
+        public static string Format(string format, object first, object second) => CompositeFormatting.Format<TFirst, TSecond, TSecond>(format, first, second, null, 2);
     }
 }
 

@@ -122,6 +122,7 @@ namespace System
         [MethodImpl(MethodImplOptions.InternalCall)] public extern bool StartsWith(string value, StringComparison comparisonType);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0, object arg1);
+        [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0, object arg1, object arg2);
         public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }
         [IndexerName("Chars")] public extern char this[int index] { [MethodImpl(MethodImplOptions.InternalCall)] get; }
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern bool Equals(string left, string right);

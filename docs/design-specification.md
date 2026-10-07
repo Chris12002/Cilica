@@ -3530,3 +3530,16 @@ public-baseline checks pass. Nullable/reference fallback equality, range overloa
 and narrow byte/char borrows remain diagnostic. No new grants, profiles, native
 operations or production limits. See ADR AC0137 and artifacts/alchemy-array-indexof.
 Full engine execution, fingerprint execution and saved-game replay remain open.
+
+### AC7b.16: Proven strings and three-position formatting (2026-10-07)
+
+Selected String.Format now supports typed String/null alongside directly boxed
+admitted enums and ordinary values across one, two or three positions. A bounded
+producer scan supplies candidates; translation independently checks actual typed
+strings and same-block boxes. The shared managed parser preserves alignment,
+UTF-16, repeated callbacks and exception order. All 43 selected formatting/enum
+and public-baseline checks pass, including 5,376 new O0/O2 native/.NET comparisons
+with forced GC and sanitizers. Arbitrary object aliases, joined boxes, numeric
+boxes, IFormattable and flags remain diagnostic. Integer CIL v56; object IR v41,
+native v67, layout v25 and limits unchanged. See ADR AC0138 and
+artifacts/alchemy-mixed-format. Full engine/fingerprint execution and replay remain open.

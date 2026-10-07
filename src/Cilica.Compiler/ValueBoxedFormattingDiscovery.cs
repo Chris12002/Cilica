@@ -16,13 +16,20 @@ public static partial class ValueProgramDiscovery
         {
             if (!integers64 || target.DeclaringType.Definition.Assembly != library) return null;
             var text = resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String).Value;
-            if (text is null || target.DeclaringType.Definition != text || target.Signature.Parameters.Count is not (2 or 3)
+            if (text is null || target.DeclaringType.Definition != text || target.Signature.Parameters.Count is not (2 or 3 or 4)
                 || target.Signature.Parameters[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
                 || target.Signature.Parameters.Skip(1).Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Object })) return null;
             int offset = instruction.Offset;
             _ = FormattingDeclaration(work, instruction, target, false);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.BoxedStringFormat), work, offset);
             int count = target.Signature.Parameters.Count - 1;
+            if (MixedFormatArguments(work, instructionIndex, count) is { } mixed)
+            {
+                var mixedHelper = Require(resolver.ResolveType(library, "Cilica.Runtime", "BoxedFormatting`" + count), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(mixedHelper, new(mixed.Select(p => p.Signature))), "Format", count + 1, _metadata), work, offset);
+                return [.. mixed.Select(p => p.Proof)];
+            }
+            if (count == 3) Fail(work, "String.Format requires directly boxed values or proven strings in one supported same control-flow block.", offset);
             if (instructionIndex == 0 || work.Input.Instructions[instructionIndex - 1].OpCode != "box")
                 Fail(work, "String.Format currently requires one or two directly boxed admitted enums or named values with ordinary ToString overrides and no IFormattable contracts.", offset);
             // These are candidate types, never access/flow proof. Translation must
@@ -58,6 +65,12 @@ public static partial class ValueProgramDiscovery
             if (work.Assembly != library) Fail(work, "Boxed text rendering is private to the selected core implementation.", offset);
             _ = FormattingDeclaration(work, instruction, target, true);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.BoxedTextRender), work, offset);
+            if (OperandSignature(target.DeclaringType.Arguments[0], work, offset) is TypeSignature.Primitive { Code: PrimitiveTypeCode.String })
+            {
+                var textHelper = Require(resolver.ResolveType(library, "Cilica.Runtime", "StringFormatText"), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(textHelper, SignatureList<TypeSignature>.Empty), "Render", 4, _metadata), work, offset);
+                return null;
+            }
             var receiver = FormattingReceiver(target.DeclaringType.Arguments[0], work, offset);
             if (EnumScalar(target.DeclaringType.Arguments[0], work, offset))
             {
@@ -83,7 +96,7 @@ public static partial class ValueProgramDiscovery
                 || input.Attributes != ((render ? MethodAttributes.Assembly : MethodAttributes.Public) | MethodAttributes.Static | MethodAttributes.HideBySig)
                 || input.Implementation != MethodImplAttributes.InternalCall
                 || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
-                || (render ? input.Signature.Parameters.Count != 4 : input.Signature.Parameters.Count is not (2 or 3))
+                || (render ? input.Signature.Parameters.Count != 4 : input.Signature.Parameters.Count is not (2 or 3 or 4))
                 || (render ? !input.Signature.Parameters.SequenceEqual(new TypeSignature[] {
                     new TypeSignature.Primitive(PrimitiveTypeCode.Object), new TypeSignature.Primitive(PrimitiveTypeCode.String),
                     new TypeSignature.Primitive(PrimitiveTypeCode.Int32), new TypeSignature.Primitive(PrimitiveTypeCode.Int32) })

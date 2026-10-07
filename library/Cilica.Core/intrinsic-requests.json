@@ -693,6 +693,13 @@
     "Capability": "BoxedStringFormat"
   },
   {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "Format",
+    "ParameterCount": 4,
+    "Capability": "BoxedStringFormat"
+  },
+  {
     "Namespace": "Cilica.Runtime",
     "Type": "EnumText`1",
     "Member": "Bits",

@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v55";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v56";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -686,9 +686,11 @@ public static class ValueTranslator
                             if (method.OrdinalPrefixCalls.Contains(offset) && opcode == "call" && valueExpressions[arguments[0]] is not IrExpression.StringLiteral)
                                 Error(offset, "Direct String.StartsWith calls require a proven non-null literal receiver; other direct calls have JIT-dependent null behavior and require later lowering.", DiagnosticIds.ExecutionUnsupported);
                             if (method.BoxedFormatCalls.TryGetValue(offset, out var formatBoxes)
-                                && (formatBoxes.Length is not (1 or 2) || arguments.Length != formatBoxes.Length + 1
-                                    || formatBoxes.Where((box, i) => valueExpressions[arguments[i + 1]] is not IrExpression.BoxValue proof || proof.Type != box).Any()))
-                                Error(offset, "String.Format requires each directly proven box in the same control-flow block.", DiagnosticIds.ExecutionUnsupported);
+                                && (formatBoxes.Length is not (1 or 2 or 3) || arguments.Length != formatBoxes.Length + 1
+                                    || formatBoxes.Where((box, i) => box == stringType
+                                        ? values[arguments[i + 1]] != IrType.Reference(stringType!) && values[arguments[i + 1]] != IrType.NullReference
+                                        : valueExpressions[arguments[i + 1]] is not IrExpression.BoxValue proof || proof.Type != box).Any()))
+                                Error(offset, "String.Format requires each directly proven box or typed string in the same control-flow block.", DiagnosticIds.ExecutionUnsupported);
                             if (target.Binding.IntegerParser is not null && (arguments.Length != 4
                                 || valueExpressions[arguments[1]] is not IrExpression.Constant { Value: 7 }
                                 || valueExpressions[arguments[2]] is not IrExpression.InvariantCulture))
