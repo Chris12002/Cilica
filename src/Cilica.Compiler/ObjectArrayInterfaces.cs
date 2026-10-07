@@ -26,8 +26,6 @@ internal static class ObjectArrayInterfaces
             if (result.Diagnostics.All(d => d.Id == DiagnosticIds.TypeNotFound)) return null;
             throw new ObjectStringType.Failure(result.Diagnostics[0]);
         }
-        var inspectedValues = new HashSet<ResolvedType>();
-        var enumBase = Optional(resolver.ResolveType(library, "System", "Enum"));
         var enumerable = Optional(resolver.ResolveType(library, "System.Collections", "IEnumerable"));
         var collection = Optional(resolver.ResolveType(library, "System.Collections", "ICollection"));
         var list = Optional(resolver.ResolveType(library, "System.Collections", "IList"));
@@ -39,23 +37,6 @@ internal static class ObjectArrayInterfaces
                     && contracts[index].Source.Token == System.Reflection.Metadata.Ecma335.MetadataTokens.GetToken(type.Handle))
                 {
                     if (!closed) throw Unsupported();
-                    var arguments = types[ObjectTypeId.From(contracts[index].Source)].Arguments;
-                    if (arguments.Count == 1)
-                    {
-                        var definition = arguments[0] switch {
-                            TypeSignature.Named { Kind: SignatureTypeKind.ValueType } named => named.Definition,
-                            TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => generic.Definition.Definition,
-                            _ => null };
-                        if (definition is not null && inspectedValues.Add(definition))
-                        {
-                            if (budget.Remaining == 0) throw Error(DiagnosticIds.TranslationLimit, "Array argument metadata budget exhausted.");
-                            var read = resolver.ReadTypeInput(definition.Assembly, definition.Handle, new(MaximumMembers: budget.Remaining));
-                            if (read.Value is not { } input) throw new ObjectStringType.Failure(read.Diagnostics[0]);
-                            if (!budget.TryConsume(input.MetadataMembersRead)) throw Error(DiagnosticIds.TranslationLimit, "Array argument metadata budget exhausted.");
-                            if (input.BaseType is TypeSignature.Named parent && parent.Definition == enumBase)
-                                throw Error(DiagnosticIds.ExecutionUnsupported, "Array interface enum element equivalence requires explicit underlying storage lowering.");
-                        }
-                    }
                     contracts[index] = contracts[index] with { ArrayContract = kind };
                 }
         }

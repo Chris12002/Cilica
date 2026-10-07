@@ -3652,3 +3652,20 @@ ASan/UBSan, plus runtime isolation/root-release checks. All 88 selected
 struct/static/layout checks pass. See [ADR AC0146](decisions/AC0146-beforefieldinit-structs.md).
 The frozen engine previously reached EffectTarget layout after 372,047 metadata
 units; complete engine/fingerprint execution and saved-game replay remain open.
+
+
+### AC7a.6: Int32 enum array interfaces (2026-10-07)
+
+Validated enum identities now survive closed array-interface metadata. Generic
+helpers retain the requested element type; nongeneric enumeration retains the
+actual array element type when boxing. Compatible integer/enum views share
+four-byte storage, including CopyTo, while runtime type identity remains distinct.
+Unused vector pruning also removes corresponding dispatch facts. Strict catalog,
+grants, rooting and scalar-box confinement checks remain in force.
+Twelve new probes and three formerly negative controls provide 4,410 repeated
+O0/O2 native/.NET comparisons with ASan/UBSan and forced collection. The 100
+selected array/copy/enumeration/confinement checks pass. Integer CIL v64, object
+IR v42, layout v26, interface plan v14 and native v68 record the extension;
+core and budgets are unchanged. See [ADR AC0147](decisions/AC0147-int32-enum-array-interfaces.md).
+The frozen engine previously reached IEnumerable<PriorityWindowTiming> after
+386,000 metadata units; full engine/fingerprint execution and replay remain open.

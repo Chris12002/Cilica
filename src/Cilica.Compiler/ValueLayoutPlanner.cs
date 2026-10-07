@@ -66,7 +66,9 @@ public static class ValueLayoutPlanner
             Require(!type.ScalarEnum || type.ScalarBox == PrimitiveTypeCode.Int32 && id.Specialization.Length == 0
                 && (type.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.AutoLayout, "enum metadata requires a nominal Int32 enum scalar plan.");
             if (catalog.References.EnumArrays.SingleOrDefault(e => ObjectTypeId.From(e.Source) == id) is { } enumeration)
-                Require(type.ScalarEnum && type.Source == enumeration.Source && type.Attributes == enumeration.Attributes
+                Require(type.ScalarEnum && (type.Source with { RuntimeName = type.Source.RuntimeName ?? type.Source.Name.Replace('/', '+') })
+                        == (enumeration.Source with { RuntimeName = enumeration.Source.RuntimeName ?? enumeration.Source.Name.Replace('/', '+') })
+                    && type.Attributes == enumeration.Attributes
                     && type.ExternallyVisible == ObjectLexicalAccess.Public(enumeration.LexicalOwners),
                     "enum array and scalar-box declarations disagree.");
             if (!type.EnumConstants.IsDefault)

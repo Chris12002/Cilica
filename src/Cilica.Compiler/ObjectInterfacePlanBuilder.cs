@@ -293,27 +293,19 @@ public static class ObjectInterfacePlanBuilder
             var recipe = ObjectArrayInterfaceRecipes.Select(declaration, contract.ArrayContract, catalog.ObjectBase);
             if (!closed || !catalog.Integer64 || recipe is null)
                 Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, IndexOf/Contains, fixed-size Add/Insert/Remove/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags, SyncRoot, generic/nongeneric GetEnumerator and generic CopyTo are admitted.", declaration.Source.Name);
-            // Element-taking generic helpers use the interface view to match its packet.
-            // Set retains the actual receiver's covariance check after bounds checks;
-            // Add/Insert throw fixed-size faults without trying a store.
-            if (receiver.ArrayElement!.Kind == ObjectArrayElementKind.Enum32)
-                Fail("Enum array interface dispatch requires typed enumeration and boxing lowering.", declaration.Source.Name);
+            // Generic helpers preserve the requested element identity, including its
+            // boxing contract. Nongeneric enumeration uses the actual receiver type.
             var view = receiver;
-            if (recipe is "Enumerate" or "CopyTo")
+            if (contract.Arguments.Length == 1)
             {
                 var argument = _resolved[IrMethodId.From(declaration.Source)].DeclaringType.Arguments[0];
-                if (argument is TypeSignature.Primitive primitive && primitive.Code is not (PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.Object or PrimitiveTypeCode.String))
+                if (argument is TypeSignature.Primitive primitive && primitive.Code is not (PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.Object or PrimitiveTypeCode.String)
+                    && recipe is "Enumerate" or "CopyTo")
                     Fail("Generic array helpers require exact Int32/Int64, reference or inline-value elements; scalar aliases require later lowering.", declaration.Source.Name);
                 var item = Type(argument);
-                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int64 ? ObjectArrayElement.Int64 : item == IrType.Int32 ? ObjectArrayElement.Int32
+                view = ObjectTypeId.Vector(catalog.ObjectBase, contract.Arguments[0].Enum32 is { } enumeration ? ObjectArrayElement.Enum32(enumeration)
+                    : item == IrType.Int64 ? ObjectArrayElement.Int64 : item == IrType.Int32 ? ObjectArrayElement.Int32
                     : item.Kind == IrTypeKind.Value ? ObjectArrayElement.Value(item.Class!) : ObjectArrayElement.Reference(item.Class!));
-            }
-            if (recipe is "Add" or "Set" or "Insert" or "IndexOf" or "Contains" or "Remove")
-            {
-                var item = declaration.Parameters[^1];
-                if (item != IrType.Int32 && item != IrType.Int64 && item.Kind is not (IrTypeKind.Reference or IrTypeKind.Value))
-                    Fail("Array interface mutation requires Int32/Int64, reference or inline value elements.", declaration.Source.Name);
-                view = ObjectTypeId.Vector(catalog.ObjectBase, item == IrType.Int64 ? ObjectArrayElement.Int64 : item == IrType.Int32 ? ObjectArrayElement.Int32 : item.Kind == IrTypeKind.Value ? ObjectArrayElement.Value(item.Class!) : ObjectArrayElement.Reference(item.Class!));
             }
             TypeSignature element;
             if (view.ArrayElement!.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
@@ -324,7 +316,7 @@ public static class ObjectInterfacePlanBuilder
             {
                 if (!_knownTypes.TryGetValue(view.ArrayElement.Type!, out var type))
                     throw new PlanFailure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error, "Missing closed vector element metadata."));
-                var named = new TypeSignature.Named(type.Definition, view.ArrayElement.Kind == ObjectArrayElementKind.Value ? SignatureTypeKind.ValueType : SignatureTypeKind.Class);
+                var named = new TypeSignature.Named(type.Definition, view.ArrayElement.Kind is ObjectArrayElementKind.Value or ObjectArrayElementKind.Enum32 ? SignatureTypeKind.ValueType : SignatureTypeKind.Class);
                 element = type.Arguments.Count == 0 ? named : new TypeSignature.Generic(named, type.Arguments);
             }
             var owner = Value(resolver.ResolveType(runtimeLibrary, "Cilica.Runtime", "ArrayInterface`1"));

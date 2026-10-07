@@ -59,6 +59,7 @@ public sealed record ObjectInterface(TypeSource Source, TypeAttributes Attribute
 public sealed record ObjectInterfaceArgument(string Identity, ObjectTypeId? Reference, GenericParameterAttributes Variance)
 {
     public ObjectTypeId? Value { get; init; }
+    public ObjectTypeId? Enum32 { get; init; }
 }
 
 /// <summary>Intrinsic single-target delegate shape; the receiver is private traced runtime storage.</summary>
@@ -113,7 +114,7 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 {
     public bool Integer64 { get; init; }
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
-    public const string Profile = "object-layout-v25";
+    public const string Profile = "object-layout-v26";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];

@@ -74,6 +74,7 @@ internal static class ObjectArrayInterfaceRecipes
             && i.Source.Name == "System.Collections.Generic.IEnumerator`1" && i.Arguments.Length == 1
             && (vector.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? i.Arguments[0].Identity == integer
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? i.Arguments[0].Identity == wide
+                : vector.ArrayElement.Kind == ObjectArrayElementKind.Enum32 ? i.Arguments[0].Enum32 == vector.ArrayElement.Type
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Reference ? i.Arguments[0].Reference == vector.ArrayElement.Type
                 : i.Arguments[0].Value == vector.ArrayElement.Type)).ToArray();
         return matches.Length == 1 ? IrType.Reference(ObjectTypeId.From(matches[0].Source)) : null;

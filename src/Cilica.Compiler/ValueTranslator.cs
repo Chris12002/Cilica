@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v63";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v64";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -141,6 +141,15 @@ public static class ValueTranslator
             var program = new ManagedLocationIrProgram(new(input.Entry, [.. translated], input.Types));
             if (integers64) program = RetainUsedVectors(program);
             var interfacePlan = input.InterfaceDispatch is null ? null : input.InterfaceDispatch with { Types = program.Flow.Types.References, Values = input.InterfaceDispatch.Values is null ? null : program.Flow.Types };
+            if (interfacePlan is not null)
+            {
+                var arraysKept = program.Flow.Types.References.Arrays.ToHashSet();
+                var maps = interfacePlan.Dispatch.Select(map => map with {
+                    Targets = [.. map.Targets.Where(t => t.Receiver.ArrayElement is null || arraysKept.Contains(t.Receiver))] }).ToImmutableArray();
+                var retainedHelpers = maps.SelectMany(m => m.Targets).Select(t => t.Implementation).ToHashSet();
+                interfacePlan = interfacePlan with { Dispatch = maps,
+                    Methods = [.. interfacePlan.Methods.Where(m => !m.ArrayHelper || retainedHelpers.Contains(m.Binding.Method))] };
+            }
             ImmutableArray<ObjectMethodBinding> bindings = [.. input.Methods.Select(m => m.Binding), .. input.AbstractBindings];
             try
             {

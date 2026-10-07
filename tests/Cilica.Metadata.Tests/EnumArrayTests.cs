@@ -42,25 +42,21 @@ public sealed class EnumArrayTests
         Assert.Throws<ArgumentException>(()=>ManagedExceptionIrValidator.Validate(program with {Flow=program.Flow with {Flow=program.Flow.Flow with {Flow=program.Flow.Flow.Flow with {Types=program.Flow.Flow.Flow.Types with {References=changed}}}}}));
         Assert.Throws<ArgumentException>(()=>ScalarManagedExceptionIrValidator.Validate(scalar with {Flow=scalar.Flow with {Flow=scalar.Flow.Flow with {Flow=scalar.Flow.Flow.Flow with {Flow=objects with {Flow=objects.Flow with {Types=changed}}}}}}));
     }
-    [Fact]
-    public async Task Detached_interface_plan_cannot_forge_enum_array_dispatch()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Former_enum_interface_boundaries_match_dotnet(bool optimized)
     {
-        var source=(await CoreLibraryBuildTests.TranslateFixtures(typeof(ArrayInterfaceProbe), ["Integers"]))[0];
-        var plan=ValueScalarLowering.LowerExceptions(source).Flow.Flow.Flow.Flow.InterfaceDispatch!;
-        var fact=(await Programs.Value)[0].Flow.Flow.Flow.Types.References.EnumArrays.Single();
-        var vector=ObjectTypeId.Vector(plan.Types.ObjectBase,ObjectArrayElement.Enum32(ObjectTypeId.From(fact.Source)));
-        plan=plan with {Types=plan.Types with {Arrays=plan.Types.Arrays.Add(vector),EnumArrays=[fact],Roots=plan.Types.Roots.Add(vector)},
-            Dispatch=[..plan.Dispatch.Select(map=>map with {Targets=map.Targets.AddRange(map.Targets.Where(t=>t.Receiver.ArrayElement?.Kind==ObjectArrayElementKind.Int32).Select(t=>t with {Receiver=vector}))})]};
-        var error=Assert.Throws<ArgumentException>(()=>ObjectInterfacePlanValidator.Validate(plan));
-        Assert.Contains("Enum array interface dispatch requires",error.Message,StringComparison.Ordinal);
+        var programs = await CoreLibraryBuildTests.TranslateFixtures(typeof(EnumArrayProbe), "UnsupportedInterface", "UnsupportedIntegerView");
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("EnumView", programs[0], EnumArrayProbe.UnsupportedInterface), ("IntegerView", programs[1], EnumArrayProbe.UnsupportedIntegerView)]);
     }
     [Fact]
-    public async Task Unimplemented_enum_interfaces_and_unsigned_vectors_fail_closed()
+    public async Task Unimplemented_widths_and_unsigned_vectors_fail_closed()
     {
         using var files=new ResolverFiles();var (built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
         var input=resolver.OpenInput(typeof(EnumArrayProbe).Assembly.Location).Value!;
-        foreach(var name in new[]{"UnsupportedInterface","UnsupportedIntegerView","UnsupportedUnsigned","UnsupportedWidth"}) {
+        foreach(var name in new[]{"UnsupportedUnsigned","UnsupportedWidth"}) {
             var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(EnumArrayProbe).GetMethod(name)!.MetadataToken),implementation);
             Assert.False(result.Success,name);Assert.NotEmpty(result.Diagnostics);
         }

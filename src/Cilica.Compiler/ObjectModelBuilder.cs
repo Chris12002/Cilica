@@ -57,6 +57,7 @@ public static class ObjectModelBuilder
         if (selected.Value is not ResolvedType objectBase) return new(null, selected.Diagnostics);
         var parents = new Dictionary<ObjectTypeId, (ObjectTypeId? Parent, int Field, bool BaseEdge, bool InterfaceEdge)>();
         var arrays = arrayRoots.IsDefault ? new HashSet<ObjectTypeId>() : new HashSet<ObjectTypeId>(arrayRoots);
+        var helperViews = new HashSet<ObjectTypeId>();
         var pending = new Queue<ConstructedType>();
         ObjectTypeId ClosedId(ConstructedType type) => Id(type);
         ConstructedType Plain(ResolvedType type) => new(type, SignatureList<TypeSignature>.Empty);
@@ -183,10 +184,12 @@ public static class ObjectModelBuilder
                         TypeSignature.Named { Kind: SignatureTypeKind.ValueType } named => Plain(named.Definition),
                         TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
                         _ => null };
+                    var enumArgument = enumArray?.Invoke(argument);
                     arguments.Add(new(ClosedGenericKey.Create(new([argument]), SignatureList<TypeSignature>.Empty),
                         storage?.Kind == IrTypeKind.Reference ? storage.Class : null,
                         input.ClosedParameterAttributes[index] & System.Reflection.GenericParameterAttributes.VarianceMask) {
-                            Value = valueArgument is not null && inline is not null && enumScalar?.Invoke(argument) != true ? inline(valueArgument) : null });
+                            Value = valueArgument is not null && inline is not null && enumScalar?.Invoke(argument) != true ? inline(valueArgument) : null,
+                            Enum32 = enumArgument });
                 }
                 if (exceeded) return Failed(id, DiagnosticIds.TranslationLimit, "Interface argument type closure exceeds the catalog limit.", input.Source.Name);
                 interfaceTypes.Add(id, type);
@@ -271,11 +274,34 @@ public static class ObjectModelBuilder
         if (stringType is not null && interfaces.Count != 0)
             members += strings.CheckInterfaces([.. interfaces], ObjectModelLimits.MaximumMetadataMembers - members);
         if (arrays.Count != 0 && interfaces.Count != 0)
+        {
             members += ObjectArrayInterfaces.Check(resolver, runtimeLibrary, interfaces, interfaceTypes, ObjectModelLimits.MaximumMetadataMembers - members, strings.MetadataBudget, integers64);
-        var model = new ObjectTypeCatalog([.. roots.Select(ClosedId).Distinct(), .. arrayRoots.IsDefault ? [] : arrayRoots.Distinct()], Id(objectBase),
+            // After authenticating the selected contracts, prepare their exact helper
+            // packet views. These are catalog roots until post-translation pruning.
+            string Key(PrimitiveTypeCode code) => ClosedGenericKey.Create(new([new TypeSignature.Primitive(code)]), SignatureList<TypeSignature>.Empty);
+            string integer = Key(PrimitiveTypeCode.Int32), unsigned = Key(PrimitiveTypeCode.UInt32);
+            string wide = Key(PrimitiveTypeCode.Int64), unsignedWide = Key(PrimitiveTypeCode.UInt64);
+            foreach (var contract in interfaces.Where(i => i.ArrayContract != ObjectArrayInterfaceKind.None && i.Arguments.Length == 1))
+            {
+                var argument = contract.Arguments[0];
+                ObjectArrayElement? element = argument.Enum32 is { } enumeration ? ObjectArrayElement.Enum32(enumeration)
+                    : argument.Reference is { } reference ? ObjectArrayElement.Reference(reference)
+                    : argument.Value is { } value ? ObjectArrayElement.Value(value)
+                    : argument.Identity == integer || argument.Identity == unsigned ? ObjectArrayElement.Int32
+                    : argument.Identity == wide || argument.Identity == unsignedWide ? ObjectArrayElement.Int64 : null;
+                if (element is null) continue;
+                var view = ObjectTypeId.Vector(Id(objectBase), element);
+                arrays.Add(view); helperViews.Add(view);
+                if (parents.Count + arrays.Count > ObjectModelLimits.MaximumTypes)
+                    return Failed(ClosedId(roots[0]), DiagnosticIds.TranslationLimit, "Interface helper vector views exceed the catalog limit.");
+            }
+        }
+        var model = new ObjectTypeCatalog([.. roots.Select(ClosedId).Concat(arrayRoots.IsDefault ? [] : arrayRoots).Concat(helperViews).Distinct()], Id(objectBase),
             [.. layouts.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token).ThenBy(t => t.Source.Specialization, StringComparer.Ordinal)])
         { Integer64 = integers64, Delegates = [.. delegateTypes], String = stringType, Arrays = [.. arrays.OrderBy(a => a.ArrayElement!.Kind).ThenBy(a => a.ArrayElement!.Type?.ContentHash, StringComparer.Ordinal).ThenBy(a => a.ArrayElement!.Type?.Token)],
-            EnumArrays = [.. arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Enum32).Select(a => enumArrays![a.ArrayElement!.Type!]).Distinct().OrderBy(e => e.Source.ContentHash, StringComparer.Ordinal).ThenBy(e => e.Source.Token)],
+            EnumArrays = [.. arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Enum32).Select(a => a.ArrayElement!.Type!)
+                .Concat(interfaces.SelectMany(i => i.Arguments).Where(a => a.Enum32 is not null).Select(a => a.Enum32!))
+                .Distinct().Select(id => enumArrays![id]).OrderBy(e => e.Source.ContentHash, StringComparer.Ordinal).ThenBy(e => e.Source.Token)],
             Interfaces = [.. interfaces.OrderBy(t => t.Source.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Source.Token)] };
         // Metadata can form cycles or extend sealed classes. Surface those as
         // input diagnostics rather than leaking the detached API's exception.

@@ -77,7 +77,12 @@ public static class ObjectModelValidator
         Require(!model.EnumArrays.IsDefault && model.EnumArrays.Length <= ObjectModelLimits.MaximumTypes
             && (model.Integer64 || model.EnumArrays.IsEmpty)
             && model.Types.Length + model.Interfaces.Length + model.Arrays.Length + model.Delegates.Length + stringCount + model.EnumArrays.Length <= ObjectModelLimits.MaximumTypes, "enum vector facts require the integer profile and bounded storage.");
-        var enumElements = arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Enum32).Select(a => a.ArrayElement!.Type!).ToHashSet();
+        Require(model.Interfaces.All(i => i is not null && !i.Arguments.IsDefault
+                && i.Arguments.Length <= ObjectModelLimits.MaximumInterfaceArguments && i.Arguments.All(a => a is not null))
+            && model.Interfaces.Sum(i => i.Arguments.Length) <= ObjectModelLimits.MaximumInterfaceArguments,
+            "interface arguments require bounded non-null facts before enum classification.");
+        var enumElements = arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Enum32).Select(a => a.ArrayElement!.Type!)
+            .Concat(model.Interfaces.SelectMany(i => i.Arguments).Where(a => a.Enum32 is not null).Select(a => a.Enum32!)).ToHashSet();
         var enumIdentities = new HashSet<ObjectTypeId>();
         foreach (var item in model.EnumArrays)
         {
@@ -96,7 +101,8 @@ public static class ObjectModelValidator
         var interfaces = new Dictionary<ObjectTypeId, ObjectInterface>();
         var interfaceParameters = new Dictionary<(string Hash, int Token), GenericParameterAttributes[]>();
         var arrayContracts = new Dictionary<(string Hash, int Token), ObjectArrayInterfaceKind>();
-        var argumentReferences = new Dictionary<string, (ObjectTypeId? Reference, ObjectTypeId? Value)>();
+        var enumArguments = enumIdentities.ToDictionary(ObjectEnumArgument.Key);
+        var argumentReferences = new Dictionary<string, (ObjectTypeId? Reference, ObjectTypeId? Value, ObjectTypeId? Enum32)>();
         int argumentCount = 0;
         var fieldIdentities = new HashSet<(string Hash, string Specialization, int Token, int Component)>();
         int fieldCount = 0;
@@ -173,9 +179,14 @@ public static class ObjectModelValidator
                     && argument.Variance is GenericParameterAttributes.None or GenericParameterAttributes.Covariant or GenericParameterAttributes.Contravariant
                     && (argument.Reference is null || ReferenceIdentity(argument.Reference, model.ObjectBase))
                     && (argument.Value is null || model.Integer64 && argument.Reference is null && Identity(argument.Value, 0x02)), "invalid interface argument identity/variance.");
+                Require(argument.Enum32 is null || model.Integer64 && argument.Reference is null && argument.Value is null
+                    && enumIdentities.Contains(argument.Enum32) && enumArguments.TryGetValue(argument.Identity, out var exactEnum) && exactEnum == argument.Enum32,
+                    "enum interface arguments require exact Int32 enum identity and declaration facts.");
+                Require(!enumArguments.TryGetValue(argument.Identity, out var knownEnum) || argument.Enum32 == knownEnum,
+                    "known enum interface arguments cannot lose nominal evidence.");
                 if (argumentReferences.TryGetValue(argument.Identity, out var prior))
-                    Require(prior == (argument.Reference, argument.Value), "one argument identity cannot describe different argument types.");
-                else argumentReferences.Add(argument.Identity, (argument.Reference, argument.Value));
+                    Require(prior == (argument.Reference, argument.Value, argument.Enum32), "one argument identity cannot describe different argument types.");
+                else argumentReferences.Add(argument.Identity, (argument.Reference, argument.Value, argument.Enum32));
             }
             var parameterKey = (id.ContentHash, id.Token);
             var variance = contract.Arguments.Select(a => a.Variance).ToArray();

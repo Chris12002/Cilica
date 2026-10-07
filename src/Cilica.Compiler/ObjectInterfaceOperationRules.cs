@@ -80,6 +80,17 @@ internal sealed class ObjectInterfaceOperationRules
 
     internal static bool CatalogMatches(ObjectTypeCatalog left, ObjectTypeCatalog right)
     {
+        bool InterfaceFacts(ObjectTypeCatalog catalog) => !catalog.Interfaces.IsDefault
+            && catalog.Interfaces.Length <= ObjectModelLimits.MaximumTypes
+            && catalog.Interfaces.All(i => i?.Source?.ContentHash is not null && !i.Arguments.IsDefault
+                && i.Arguments.Length <= ObjectModelLimits.MaximumInterfaceArguments && i.Arguments.All(a => a is not null));
+        bool EnumFacts(ObjectTypeCatalog catalog) => !catalog.EnumArrays.IsDefault
+            && catalog.EnumArrays.Length <= ObjectModelLimits.MaximumTypes
+            && catalog.EnumArrays.All(e => e?.Source?.ContentHash is not null);
+        if (!InterfaceFacts(left) || !InterfaceFacts(right) || !EnumFacts(left) || !EnumFacts(right)
+            || left.EnumArrays.Length != right.EnumArrays.Length
+            || !left.EnumArrays.All(e => right.EnumArrays.Any(other => e.Source == other.Source
+                && e.Attributes == other.Attributes && ObjectLexicalAccess.Same(e.LexicalOwners, other.LexicalOwners)))) return false;
         if (left.Statics.Length != right.Statics.Length || !left.Statics.Zip(right.Statics).All(p => ObjectLexicalAccess.SameStatic(p.First, p.Second)) || left.Integer64 != right.Integer64 || left.Delegates.Length != right.Delegates.Length
             || !left.Delegates.Zip(right.Delegates).All(pair => pair.First.Source == pair.Second.Source
                 && pair.First.ParameterCount == pair.Second.ParameterCount && pair.First.ReturnType == pair.Second.ReturnType

@@ -34,7 +34,11 @@ public static partial class ValueProgramDiscovery
                 bool scalar = Int32EnumStorage.Matches(signature, enumBase, type => ReadEnumInput(type, caller, offset));
                 // Scalar aliases need validated facts, not retained layouts. Cache a
                 // bounded number; later declarations are rechecked against the work ledger.
-                if (scalar && _enumScalars.Count < ObjectModelLimits.MaximumTypes) _enumScalars.Add(named.Definition, true);
+                if (scalar && _enumScalars.Count < ObjectModelLimits.MaximumTypes)
+                {
+                    _enumScalars.Add(named.Definition, true);
+                    _knownTypes.TryAdd(ObjectModelBuilder.Id(named.Definition), new(named.Definition, SignatureList<TypeSignature>.Empty));
+                }
                 return scalar;
             }
             catch (ArgumentException error) { Fail(caller,error.Message,offset); return false; }

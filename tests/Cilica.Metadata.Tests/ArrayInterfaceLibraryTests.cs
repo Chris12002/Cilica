@@ -18,7 +18,7 @@ public sealed class ArrayInterfaceLibraryTests
 {
     private static readonly (string Name, Func<int, int, int> Oracle)[] Probes = [
         ("Casts", ArrayInterfaceProbe.Casts), ("Integers", ArrayInterfaceProbe.Integers),
-        ("Covariance", ArrayInterfaceProbe.Covariance), ("Faults", ArrayInterfaceProbe.Faults), ("Mixed", ArrayInterfaceProbe.Mixed), ("SignedReads", ArrayInterfaceProbe.SignedReads), ("Flags", ArrayInterfaceProbe.Flags)];
+        ("Covariance", ArrayInterfaceProbe.Covariance), ("Faults", ArrayInterfaceProbe.Faults), ("Mixed", ArrayInterfaceProbe.Mixed), ("SignedReads", ArrayInterfaceProbe.SignedReads), ("Flags", ArrayInterfaceProbe.Flags), ("UnsupportedEnum", ArrayInterfaceProbe.UnsupportedEnum)];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
         CoreLibraryBuildTests.TranslateFixtures(typeof(ArrayInterfaceProbe), Probes.Select(p => p.Name).ToArray()));
 
@@ -55,8 +55,7 @@ public sealed class ArrayInterfaceLibraryTests
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
         var unsupported = ValueTranslator.TranslateIntegerObjects(scope, input, Method("UnsupportedEnumeration"), implementation);
         var enumArgument = ValueTranslator.TranslateIntegerObjects(scope, input, Method("UnsupportedEnum"), implementation);
-        Assert.False(enumArgument.Success);
-        Assert.Contains(enumArgument.Diagnostics, d => d.Message.Contains("enum element equivalence", StringComparison.Ordinal));
+        Assert.True(enumArgument.Success, string.Join("; ", enumArgument.Diagnostics));
         Assert.True(unsupported.Success, string.Join("; ", unsupported.Diagnostics));
     }
 
