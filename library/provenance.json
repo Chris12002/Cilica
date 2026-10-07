@@ -543,12 +543,12 @@
         "Live IList-backed Count/index view, identity, flags and unconditional readonly mutation exceptions"
       ],
       "changes": [
-        "Preserve exact nominal interfaces; copying remains diagnostic. AC4.10 forwards generic/nongeneric enumeration using existing cursors and the pinned generic empty shortcut.",
+        "Preserve exact nominal interfaces; AC3.28 forwards generic CopyTo directly to the backing IList, while nongeneric copying remains diagnostic. AC4.10 forwards generic/nongeneric enumeration using existing cursors and the pinned generic empty shortcut.",
         "AC3.5 Array.AsReadOnly uses a private lazy per-closed-type empty cache backed by existing instance static roots; the newer public Empty API is absent from netstandard2.1.",
         "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile.",
         "Use a typed length helper to retain explicit ldlen/conv.i4; no general native-integer branch flow is introduced."
       ],
-      "scope": "Bounded live Count/index views, flags, mutation faults and AC3.4 Contains/IndexOf forwarding for admitted equality types; copying remains diagnostic. AC3.5 adds live Array.AsReadOnly and cached empty views. AC4.10 reads Count before generic enumeration, returns the existing shared empty cursor at zero, otherwise forwards; nongeneric enumeration directly forwards without reading Count."
+      "scope": "Bounded live Count/index views, flags, mutation faults and AC3.4 Contains/IndexOf forwarding for admitted equality types; AC3.28 adds generic CopyTo forwarding, retaining backing validation and partial-copy behavior. Nongeneric copying remains diagnostic. AC3.5 adds live Array.AsReadOnly and cached empty views. AC4.10 reads Count before generic enumeration, returns the existing shared empty cursor at zero, otherwise forwards; nongeneric enumeration directly forwards without reading Count."
     },
     {
       "path": "library/Cilica.Core/ValueTuple.cs",

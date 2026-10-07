@@ -1051,3 +1051,7 @@ helper and shared whitespace classifier. Case-insensitive true/false accept lead
 and trailing Unicode whitespace/NUL. Failed parsing clears the output. Local and
 parameter outputs use width-preserving Boolean borrows (ADR AC0166); heap/array
 outputs, Boolean.Parse and span APIs remain outside this slice (ADR AC0167).
+
+ReadOnlyCollection<T>.CopyTo(T[], Int32) forwards directly to its backing IList<T>
+without reading Count or prevalidating arguments. This preserves backing callbacks,
+copy faults and partial mutation; nongeneric CopyTo remains unsupported (ADR AC0168).

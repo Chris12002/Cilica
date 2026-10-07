@@ -46,7 +46,7 @@ namespace System.Collections.ObjectModel
         void IList.RemoveAt(int index) { throw new NotSupportedException("Collection is read-only."); }
         public bool Contains(T value) => list.Contains(value);
         public int IndexOf(T value) => list.IndexOf(value);
-        public void CopyTo(T[] array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void CopyTo(T[] array, int index) => list.CopyTo(array, index);
         public IEnumerator<T> GetEnumerator() => list.Count == 0
             ? System.SZGenericArrayEnumerator<T>.Create(null, 0) : list.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)list).GetEnumerator();

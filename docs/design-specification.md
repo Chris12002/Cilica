@@ -3960,3 +3960,13 @@ Profiles, grants and limits are unchanged. The frozen engine now reaches generic
 ReadOnlyCollection<T>.CopyTo after 1,124,897 charged diagnostic units; StateLookup
 remains 15 methods/11,527 units. Full engine/fingerprint/replay execution remains
 unfinished. See ADR AC0167 and artifacts/alchemy-boolean-tryparse-engine.
+
+### Generic read-only collection copying (AC3.28)
+
+ReadOnlyCollection<T>.CopyTo now forwards to the backing list without prevalidation
+or extra callbacks. Eight probes provide 2,352 repeated native/.NET comparisons,
+including live views, values/references, faults, partial copies and List snapshots.
+Profiles and limits stay unchanged; nongeneric copying remains unsupported. Frozen
+engine discovery next reaches Dictionary.KeyCollection.CopyTo at 1,147,132 charged
+units. StateLookup remains 15 methods/11,527 units. Full replay remains unfinished.
+See ADR AC0168 and artifacts/alchemy-readonly-copy-engine.
