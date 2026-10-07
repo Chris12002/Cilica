@@ -17,6 +17,7 @@ namespace Cilica.Runtime
     public interface IQueryMaterialization<T>
     {
         T[] ToArray();
+        List<T> ToList();
     }
 
     // One owned class carries the two selected source shapes. Private upstream
@@ -51,7 +52,7 @@ namespace Cilica.Runtime
         public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)
         {
             count = -1;
-            if (terminal == 3 && array == null && source is List<T> list)
+            if ((terminal == 3 || terminal == 4) && array == null && source is List<T> list)
             {
                 var captured = list.QueryStorage(out int capturedCount);
                 return new WhereIterator<T>(captured, captured, predicate, capturedCount).GetEnumerator();
@@ -99,6 +100,7 @@ namespace Cilica.Runtime
             }
             return false;
         }
+        public List<T> ToList() => List<T>.CopyEnumerable(ToArray());
         public T[] ToArray()
         {
             var builder = new MaterializationBuffer<T>();

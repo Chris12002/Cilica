@@ -76,6 +76,7 @@ namespace Cilica.Runtime
         public bool Any() { TryFirst(out int found); return found != 0; }
         public bool Contains(T value) => System.Linq.Enumerable.Contains(source, value);
         public int Count() => BuildSet().Count;
+        public List<T> ToList() => List<T>.CopyEnumerable(ToArray());
         public T[] ToArray() => BuildSet().QueryArray();
         private SetStorage<T> BuildSet()
         {

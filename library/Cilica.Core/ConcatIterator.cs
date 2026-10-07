@@ -49,7 +49,7 @@ namespace Cilica.Runtime
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)
-        { count = -1; if (terminal == 1 || terminal == 3) count = GetCheapCount(); if (count == 0) return null; return GetEnumerator(); }
+        { count = -1; if (terminal == 1 || terminal == 3 || terminal == 4) count = GetCheapCount(); if (count == 0) return null; return GetEnumerator(); }
         public T Current => current;
         object IEnumerator.Current => current;
         private void SetCurrent(T value) { current = value; }
@@ -124,6 +124,17 @@ namespace Cilica.Runtime
         }
         private static void Copy(T[] source, T[] target, int index)
         { for (int i = 0; i < source.Length; i++) target[index + i] = source[i]; }
+        public List<T> ToList()
+        {
+            int count = GetCheapCount();
+            var result = count == -1 ? new List<T>() : new List<T>(count);
+            for (int i = 0; ; i++)
+            {
+                var source = Source(i); if (source == null) break;
+                result.AddRange(source);
+            }
+            return result;
+        }
         public T[] ToArray()
         {
             if (tail != null) return onlyCollections ? Preallocated() : Buffered();

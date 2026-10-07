@@ -332,7 +332,8 @@
         "Predicate First and FirstOrDefault null validation, loaded-element return, early stop and fallback enumerator disposal."
       ],
       "changes": [
-        "Use indexed admitted arrays instead of runtime-private spans. Use a private Int32 found flag because narrow by-reference carriers remain unsupported."
+        "Use indexed admitted arrays instead of runtime-private spans. Use a private Int32 found flag because narrow by-reference carriers remain unsupported.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "Int32/reference predicate parameters only. Nonpredicate overloads, List specializations and value-payload delegates remain unsupported."
     },
@@ -377,7 +378,8 @@
       ],
       "changes": [
         "Managed MaterializationBuffer<T> replaces pooled/stack scratch storage with traced arrays, checked counts and bounded doubling. It has no enumeration contracts.",
-        "Exact owned IQueryMaterialization<T> avoids introducing predicate closures into plain value-array copies."
+        "Exact owned IQueryMaterialization<T> avoids introducing predicate closures into plain value-array copies.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "Admitted arrays/collections and reference enumerators. List boxed interface factories, unsigned aliases and value-payload predicates remain unsupported; private allocation strategy differs."
     },
@@ -633,7 +635,8 @@
       ],
       "changes": [
         "Omit private Iterator optimizations because owned LINQ iterator types are not implemented.",
-        "Use direct managed array indexing instead of spans; reference-array covariance also uses this loop (same callbacks, reads and no-op disposal). Static metadata methods omit source-language extension markers."
+        "Use direct managed array indexing instead of spans; reference-array covariance also uses this loop (same callbacks, reads and no-op disposal). Static metadata methods omit source-language extension markers.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.1 parameterless Any/Count and AC6.2 predicate Any/All/Count for Int32/reference callbacks, arrays and admitted reference enumerators. Boxed collection factories and value-payload delegates remain diagnostic. No private Iterator fast paths or span/CollectionsMarshal List support. AC6.3 adds exact Where with owned query Any/Count paths; earlier omitted private fast paths are now represented for these owned queries."
     },
@@ -647,7 +650,8 @@
       ],
       "changes": [
         "Omit private Iterator optimizations because owned LINQ iterator types are not implemented.",
-        "Use direct managed array indexing instead of spans; reference-array covariance also uses this loop (same callbacks, reads and no-op disposal). Static metadata methods omit source-language extension markers."
+        "Use direct managed array indexing instead of spans; reference-array covariance also uses this loop (same callbacks, reads and no-op disposal). Static metadata methods omit source-language extension markers.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.1 parameterless Any/Count and AC6.2 predicate Any/All/Count for Int32/reference callbacks, arrays and admitted reference enumerators. Boxed collection factories and value-payload delegates remain diagnostic. No private Iterator fast paths or span/CollectionsMarshal List support. AC6.3 adds exact Where with owned query Any/Count paths; earlier omitted private fast paths are now represented for these owned queries."
     },
@@ -664,7 +668,8 @@
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
         "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
-        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
     },
@@ -681,7 +686,8 @@
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
         "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
-        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
     },
@@ -698,7 +704,8 @@
         "Use nongeneric owned IQueryCardinality to prevent unrelated value-array Any/Count closures from introducing unsupported Func<T,bool>.",
         "Expose helper metadata publicly for existing cross-owner generic visibility; helpers are not mapped framework contracts.",
         "Leave nongeneric Current, indexed overloads, List specialization and remaining operators outside this slice.",
-        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.3 Int32/reference predicates over admitted arrays/reference enumerables. No private runtime layout, general value delegates, boxed collection factories or other platform evidence."
     },
@@ -715,7 +722,8 @@
         "Use traced arrays and the existing managed MaterializationBuffer instead of span/pool scratch storage.",
         "Use existing Int32 length helpers and explicit managed value-copy calls for inline results.",
         "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched.",
-        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
     },
@@ -732,7 +740,8 @@
         "Use traced arrays and the existing managed MaterializationBuffer instead of span/pool scratch storage.",
         "Use existing Int32 length helpers and explicit managed value-copy calls for inline results.",
         "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched.",
-        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged."
+        "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
     },
@@ -747,7 +756,8 @@
       "changes": [
         "Share a managed SetStorage<T> without enumerable interfaces with the public HashSet wrapper so internal query storage adds no irrelevant interface candidates.",
         "Use owned IQueryFirst<T> and an Int32 found flag instead of private virtual Iterator helpers.",
-        "Retain capacity selection and initial seven-slot enumeration set; omit private final capacity trimming of the temporary terminal set."
+        "Retain capacity selection and initial seven-slot enumeration set; omit private final capacity trimming of the temporary terminal set.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.7 default-comparer non-indexed Distinct only. Explicit comparer overloads, DistinctBy, public HashSet enumeration and boxed collection factories remain unsupported."
     },
@@ -762,7 +772,8 @@
       "changes": [
         "Share a managed SetStorage<T> without enumerable interfaces with the public HashSet wrapper so internal query storage adds no irrelevant interface candidates.",
         "Use owned IQueryFirst<T> and an Int32 found flag instead of private virtual Iterator helpers.",
-        "Retain capacity selection and initial seven-slot enumeration set; omit private final capacity trimming of the temporary terminal set."
+        "Retain capacity selection and initial seven-slot enumeration set; omit private final capacity trimming of the temporary terminal set.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.7 default-comparer non-indexed Distinct only. Explicit comparer overloads, DistinctBy, public HashSet enumeration and boxed collection factories remain unsupported."
     },
@@ -777,7 +788,8 @@
       "changes": [
         "Use owned query interfaces and managed buffers instead of generic virtual helpers and pooled/span scratch storage.",
         "Use the exact private ClosedTypeIsValueType grant to distinguish reference from nullable/value result projection behavior.",
-        "Reference-result OfType.Select currently fails closed on the existing variance-only interface-dispatch boundary; value/nullable projection has native evidence."
+        "Reference-result OfType.Select currently fails closed on the existing variance-only interface-dispatch boundary; value/nullable projection has native evidence.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.8 direct OfType over admitted nongeneric reference enumerators and bounded vectors; reference, Int32, nullable and named-value results tested. Full boxed collection factories, reference-result projection composition, general variance and remaining LINQ methods are not added."
     },
@@ -792,7 +804,8 @@
       "changes": [
         "Use owned query interfaces and managed buffers instead of generic virtual helpers and pooled/span scratch storage.",
         "Use the exact private ClosedTypeIsValueType grant to distinguish reference from nullable/value result projection behavior.",
-        "Reference-result OfType.Select currently fails closed on the existing variance-only interface-dispatch boundary; value/nullable projection has native evidence."
+        "Reference-result OfType.Select currently fails closed on the existing variance-only interface-dispatch boundary; value/nullable projection has native evidence.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "AC6.8 direct OfType over admitted nongeneric reference enumerators and bounded vectors; reference, Int32, nullable and named-value results tested. Full boxed collection factories, reference-result projection composition, general variance and remaining LINQ methods are not added."
     },
@@ -805,7 +818,8 @@
       ],
       "changes": [
         "Use direct array indexing in place of the array span; List span access is not admitted.",
-        "Use a private Int32 found flag within admitted by-reference carriers."
+        "Use a private Int32 found flag within admitted by-reference carriers.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ]
     },
     {
@@ -859,7 +873,8 @@
       "changes": [
         "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
         "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
-        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
     },
@@ -872,7 +887,8 @@
       "changes": [
         "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
         "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
-        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
     },
@@ -885,7 +901,8 @@
       "changes": [
         "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
         "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
-        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
     },
@@ -898,7 +915,8 @@
       "changes": [
         "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
         "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
-        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
     },
@@ -911,7 +929,8 @@
       "changes": [
         "Combine private Concat2/ConcatN layouts in one closed managed helper; retain callback order and state transitions.",
         "Use traced managed segments with an eight-element scratch threshold and sixteen-based capacity buckets instead of spans, pools and inline arrays.",
-        "Keep boxed collection enumerator factories unsupported; no List span path is admitted."
+        "Keep boxed collection enumerator factories unsupported; no List span path is admitted.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "Arrays and admitted reference-class enumerable cursors; ToArray, Count, Any and existing projection integration. No new general framework iterator, array-pool or span API."
     },
@@ -922,7 +941,8 @@
         "Eager first/second null validation, empty-array identity shortcuts and left-chain concatenation."
       ],
       "changes": [
-        "Use the owned closed ConcatIterator helper and explicit Int32 array-length adapter."
+        "Use the owned closed ConcatIterator helper and explicit Int32 array-length adapter.",
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
       "scope": "The two-source Concat overload for admitted enumerable shapes."
     },

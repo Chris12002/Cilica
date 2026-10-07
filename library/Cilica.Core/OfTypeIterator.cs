@@ -58,6 +58,7 @@ namespace Cilica.Runtime
             foreach (object item in source) if (item is T) count = checked(count + 1);
             return count;
         }
+        public List<T> ToList() => List<T>.CopyEnumerable(ToArray());
         public T[] ToArray()
         {
             var builder = new MaterializationBuffer<T>();

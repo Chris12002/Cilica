@@ -11,7 +11,8 @@ namespace Cilica.Runtime
     // These owned helpers avoid generic virtual methods and are not framework APIs.
     // Terminal 1 may request a cheap materialization count; terminal 2 counts by
     // evaluating selectors and must not add a count-getter callback. Terminal 3
-    // materializes through captured List storage, including composed selectors.
+    // materializes to an array; terminal 4 materializes to a list. Both capture
+    // List storage and guard preallocated destinations before invoking selectors.
     public interface IQueryTraversal<T>
     {
         IEnumerator<T> GetQueryEnumerator(int terminal, out int count);
@@ -27,6 +28,8 @@ namespace Cilica.Runtime
         private readonly int threadId;
         private IEnumerator<TSource> enumerator;
         private int state;
+        private int materializationLimit = -1;
+        private int materialized;
         private TResult current;
         internal SelectIterator(IEnumerable<TSource> source, TSource[] array, Func<TSource, TResult> selector)
         {
@@ -71,7 +74,16 @@ namespace Cilica.Runtime
             }
             if (state == 2)
             {
-                if (enumerator.MoveNext()) { SetCurrent(selector(enumerator.Current)); return true; }
+                if (enumerator.MoveNext())
+                {
+                    TSource item = enumerator.Current;
+                    if (materializationLimit >= 0)
+                    {
+                        if (materialized >= materializationLimit) throw new IndexOutOfRangeException();
+                        materialized++;
+                    }
+                    SetCurrent(selector(item)); return true;
+                }
                 Dispose();
             }
             return false;
@@ -111,7 +123,7 @@ namespace Cilica.Runtime
                 {
                     result.enumerator = query.GetQueryEnumerator(terminal, out count); result.state = 2;
                 }
-                else if (terminal == 3 && source is List<TSource> capturedList)
+                else if ((terminal == 3 || terminal == 4) && source is List<TSource> capturedList)
                 {
                     var captured = capturedList.QueryStorage(out count);
                     result.enumerator = new PrefixQueryEnumerator<TSource>(captured, count); result.state = 2;
@@ -119,9 +131,12 @@ namespace Cilica.Runtime
                 else if (source is IList<TSource> list)
                 {
                     count = list.Count;
+                    if (count < 0 && terminal == 3) throw new OverflowException();
+                    if (count < 0 && terminal == 4) throw new ArgumentOutOfRangeException("capacity", "Non-negative number required.");
                     result.enumerator = new IndexedQueryEnumerator<TSource>(list, count); result.state = 2;
                 }
             }
+            if (terminal == 3 || terminal == 4) result.materializationLimit = count;
             return result;
         }
         public TResult TryFirst(out int found)
@@ -149,13 +164,16 @@ namespace Cilica.Runtime
             using (var e = GetQueryEnumerator(2, out _)) while (e.MoveNext()) count = checked(count + 1);
             return count;
         }
-        public TResult[] ToArray()
+        public TResult[] ToArray() => Materialize(false);
+        public List<TResult> ToList() => List<TResult>.CopyEnumerable(Materialize(true));
+        private TResult[] Materialize(bool list)
         {
-            using (var e = GetQueryEnumerator(3, out int count))
+            using (var e = GetQueryEnumerator(list ? 4 : 3, out int count))
             {
                 if (count == 0) return Array.Empty<TResult>();
-                if (count > 0)
+                if (count != -1)
                 {
+                    if (list && count < 0) throw new ArgumentOutOfRangeException("capacity", "Non-negative number required.");
                     var result = new TResult[count]; int index = 0;
                     while (e.MoveNext()) result[index++] = e.Current;
                     return result;

@@ -102,6 +102,7 @@ namespace Cilica.Runtime
             }
             Dispose(); return false;
         }
+        public List<T> ToList() => List<T>.CopyEnumerable(ToArray());
         public T[] ToArray()
         {
             T[] items = System.Linq.Enumerable.ToArray(source);
@@ -121,7 +122,7 @@ namespace Cilica.Runtime
         public int Count() => System.Linq.Enumerable.Count(source);
         public bool Any() { int count = GetCheapCount(); if (count >= 0) return count != 0; TryFirst(out int found); return found != 0; }
         public IEnumerator<T> GetQueryEnumerator(int terminal, out int count)
-        { count = -1; if (terminal == 1 || terminal == 3) count = GetCheapCount(); if (count == 0) return null; return GetEnumerator(); }
+        { count = -1; if (terminal == 1 || terminal == 3 || terminal == 4) count = GetCheapCount(); if (count == 0) return null; return GetEnumerator(); }
         public T TryFirst(out int found)
         {
             if (parent == null)

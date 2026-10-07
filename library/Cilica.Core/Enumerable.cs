@@ -107,6 +107,12 @@ namespace System.Linq
             }
             found = 0; return default;
         }
+        public static List<TSource> ToList<TSource>(IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (source is Cilica.Runtime.IQueryMaterialization<TSource> query) return query.ToList();
+            return List<TSource>.CopyEnumerable(source);
+        }
         public static TSource[] ToArray<TSource>(IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException("source");

@@ -3124,3 +3124,15 @@ grant or production-budget change is introduced. Five probes pass 798 repeated
 O0/O2 native/.NET comparisons with forced GC and sanitizers. Other list terminal
 specializations and ToList remain separate work; full saved-game replay remains
 unfinished. See [ADR AC0092](decisions/AC0092-captured-list-materialization.md).
+
+### Query list materialization (AC6.14)
+
+Enumerable.ToList validates source and selects the owned query materializer or
+existing collection/enumerable list factory. Where, Select, Distinct, OfType and
+ordered queries copy private materialized arrays into exact-capacity lists;
+Concat requests its cheap count and appends each source in order. These managed
+temporaries use existing traced storage and quotas. Select now distinguishes
+negative IList counts for ToArray versus ToList and checks fixed destinations
+before invoking selectors, including composed projections. No compiler/native
+profile, helper grant or budget changes are required. Full engine/saved-game replay
+remains unfinished. See [ADR AC0093](decisions/AC0093-query-list-materialization.md).
