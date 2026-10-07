@@ -915,5 +915,12 @@
     "Member": "ComparisonName",
     "ParameterCount": 0,
     "Capability": "SortComparisonName"
+  },
+  {
+    "Namespace": "System.Collections.Generic",
+    "Type": "List`1",
+    "Member": "SortOrdinal",
+    "ParameterCount": 0,
+    "Capability": "ListOrdinalSort"
   }
 ]

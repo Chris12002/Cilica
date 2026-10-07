@@ -141,6 +141,14 @@ namespace System.Collections.Generic
                 if (match(items[i])) return i;
             return -1;
         }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        public extern void Sort(IComparer<T> comparer);
+        // Selected only for List<string>.Sort with a directly proven Ordinal getter.
+        public void SortOrdinal()
+        {
+            if (size > 1) Cilica.Runtime.ComparisonSort<T>.Sort(items, size, new Comparison<T>(Cilica.Runtime.ComparisonSort<T>.CompareOrdinal));
+            version++;
+        }
         public void Sort(Comparison<T> comparison)
         {
             if (comparison == null) throw new ArgumentNullException("comparison");

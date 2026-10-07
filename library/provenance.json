@@ -1196,7 +1196,7 @@
         "Captured T[] prefix with explicit partition bounds replaces Span<T>; by-value locals retain normal copy and rooting semantics.",
         "Exact private SortComparisonName grant emits the validated closed Comparison<T> display name as a budgeted string literal."
       ],
-      "scope": "List.Sort(Comparison<T>) for admitted delegate element shapes only. General Type.ToString, default/comparer/section Sort and public Array.Sort remain outside this slice."
+      "scope": "List.Sort(Comparison<T>) for admitted delegate element shapes, plus AC3.18 List<string>.Sort(IComparer<string>) with a directly proven selected StringComparer.Ordinal getter. The exact ListOrdinalSort grant selects a no-argument managed bridge and preserves the original getter evaluation. Null/custom/aliased comparer calls, default/section Sort and public Array.Sort remain outside this slice."
     }
   ]
 }

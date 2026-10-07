@@ -743,3 +743,9 @@ reference-bearing value lists. All 25 selected checks pass, including FindIndex
 regressions and the unchanged 43-control/four-gap public baseline. Forced GC and
 sanitizers remain enabled. Profiles and resource limits are unchanged; full engine
 and saved-game replay remain unfinished. See [ADR AC0108](../../docs/decisions/AC0108-list-exists.md).
+
+AC3.18 admits List<string>.Sort(IComparer<string>) only when the call directly
+consumes the selected StringComparer.Ordinal getter in the same block. The exact
+ListOrdinalSort grant selects SortOrdinal; comparison and version behavior reuse
+the pinned managed sort. Other comparer/default/section overloads remain diagnostic.
+See docs/decisions/AC0112-proven-ordinal-list-sort.md for evidence and boundaries.

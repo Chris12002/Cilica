@@ -3314,3 +3314,15 @@ GC and ASan/UBSan. Integer CIL v37, delegate IR v8, scalar delegate IR v6, objec
 v37, layout v24 and native v64 record the extension. Unsigned/narrow/enum delegate
 signatures and general byrefs remain diagnostic. No library or capacity change;
 full engine/replay remains unfinished. See [ADR AC0111](decisions/AC0111-int64-delegates.md).
+
+### Proven ordinal string list sorting (AC3.18)
+
+List<string>.Sort(IComparer<string>) accepts a directly proven selected
+StringComparer.Ordinal getter in the same block. An exact ListOrdinalSort grant
+selects the managed bridge; original getter evaluation, null-receiver order,
+version changes, captured storage, UTF-16 order and identity are preserved.
+Null/custom/aliased comparers, lookalike getters, joins and nonstring lists remain
+diagnostic. Four probes provide 1,170 native/.NET comparisons; 37 distinct focused
+and regression checks pass. Integer CIL v38 records the extension; native v64,
+layout v24 and production bounds remain unchanged. Full engine/replay is unfinished.
+See [ADR AC0112](decisions/AC0112-proven-ordinal-list-sort.md).

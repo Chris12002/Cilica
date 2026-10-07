@@ -8,6 +8,7 @@ namespace Cilica.Runtime
     {
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         private static extern string ComparisonName();
+        internal static int CompareOrdinal(T first, T second) => String.CompareOrdinal((string)(object)first, (string)(object)second);
         internal static void Sort(T[] map, int count, Comparison<T> comparer)
         {
             try

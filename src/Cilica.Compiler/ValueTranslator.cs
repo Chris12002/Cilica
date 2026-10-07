@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v37";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v38";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -585,6 +585,16 @@ public static class ValueTranslator
                         case "call":
                         case "box" or "unbox.any" when boxing && method.Calls.ContainsKey(offset):
                             var target = methods[method.Calls[offset]];
+                            if (method.OrdinalSortCalls.TryGetValue(offset, out var ordinalSort))
+                            {
+                                if (opcode != "callvirt" || target.Binding.Kind != ObjectMethodKind.Instance
+                                    || target.Binding.Owner != ordinalSort.Owner || target.ReturnType != IrType.Void
+                                    || target.Parameters.Length != 1 || target.Parameters[0] != IrType.Reference(ordinalSort.Owner))
+                                    Error(offset, "Ordinal list sort requires its exact managed instance bridge.");
+                                int comparer = Pop(offset);
+                                if (valueExpressions[comparer] is not IrExpression.Call { Arguments.IsEmpty: true } proof || proof.Target != ordinalSort.Getter)
+                                    Error(offset, "List.Sort(IComparer<T>) currently requires List<string> and a directly proven StringComparer.Ordinal getter in the same block; null, custom comparers and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            }
                             if (method.OrdinalPrefixCalls.Contains(offset))
                             {
                                 if (opcode is not ("call" or "callvirt") || target.Binding.Kind != ObjectMethodKind.Instance
