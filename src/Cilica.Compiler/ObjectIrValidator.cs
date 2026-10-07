@@ -287,8 +287,18 @@ internal sealed partial class ObjectIrRules
         IrStatement.Invoke c when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         IrStatement.Define { Value.Expression: IrExpression.Call c } when _abstractMethods.Contains(c.Target) => AbstractSignatureTypes(c.Target),
         IrStatement.Invoke c when _abstractMethods.Contains(c.Target) => AbstractSignatureTypes(c.Target),
+        IrStatement.Define { Value.Expression: IrExpression.Call c } => ProtectedStaticTypes(method, c.Target),
+        IrStatement.Invoke c => ProtectedStaticTypes(method, c.Target),
         _ => Array.Empty<ObjectTypeId>(),
     });
+
+    private IEnumerable<ObjectTypeId> ProtectedStaticTypes(IrMethod method, IrMethodId target)
+    {
+        var caller = Binding(IrMethodId.From(method.Source));
+        return _bindings.TryGetValue(target, out var callee)
+            && !ObjectMethodAccess.Allowed(caller, callee, _program.Flow.Types.Integer64)
+            && ProtectedStaticAccess(caller, callee) ? new[] { caller.Owner } : Array.Empty<ObjectTypeId>();
+    }
 
     private IEnumerable<ObjectTypeId> AbstractSignatureTypes(IrMethodId id) => _methods[id].Parameters.Append(_methods[id].ReturnType)
         .Where(t => t.Kind == IrTypeKind.Reference).Select(t => t.Class!);
@@ -634,7 +644,11 @@ internal sealed partial class ObjectIrRules
 
     private static bool Constructor(ObjectMethodBinding b) => b.Kind is ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor;
     private bool Access(ObjectMethodBinding caller, ObjectMethodBinding target) =>
-        ObjectMethodAccess.Allowed(caller, target, _program.Flow.Types.Integer64);
+        ObjectMethodAccess.Allowed(caller, target, _program.Flow.Types.Integer64)
+        || ProtectedStaticAccess(caller, target);
+    private bool ProtectedStaticAccess(ObjectMethodBinding caller, ObjectMethodBinding target) =>
+        ObjectMethodAccess.ProtectedStatic(caller, target, _layouts.ContainsKey(caller.Owner) && _layouts.ContainsKey(target.Owner)
+            && _types.Assignable(IrType.Reference(caller.Owner), IrType.Reference(target.Owner)), _program.Flow.Types.Integer64);
     private static bool CanonicalHash(string? hash) => hash is { Length: 64 } && hash.All(char.IsAsciiHexDigit) && hash == hash.ToLowerInvariant();
     private static void Require([DoesNotReturnIf(false)] bool condition, string message)
     {

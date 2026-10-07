@@ -15,6 +15,17 @@ internal static class ObjectMethodAccess
             && access is MethodAttributes.Public or MethodAttributes.Assembly or MethodAttributes.FamORAssem
             && (target.OwnerAssemblyVisible || ObjectLexicalAccess.Visible(caller, target.Owner, target.LexicalOwners));
     }
+    internal static bool ProtectedStatic(ObjectMethodBinding caller, ObjectMethodBinding target, bool inherited, bool enabled)
+    {
+        if (!enabled || !inherited || target.Kind != ObjectMethodKind.Static || target.TypeInitializerName is not null
+            || (target.Attributes & MethodAttributes.Static) == 0) return false;
+        var access = target.Attributes & MethodAttributes.MemberAccessMask;
+        bool sameImage = caller.Owner.ContentHash == target.Owner.ContentHash;
+        return (access is MethodAttributes.Family or MethodAttributes.FamORAssem || access == MethodAttributes.FamANDAssem && sameImage)
+            && (target.OwnerExternallyVisible || sameImage
+                && (target.OwnerAssemblyVisible || ObjectLexicalAccess.Visible(caller, target.Owner, target.LexicalOwners)));
+    }
+
     // The caller separately proves a direct call on its original this receiver.
     internal static bool ProtectedBaseConstructor(ObjectMethodBinding caller, ObjectMethodBinding target, ObjectTypeId? directBase, bool enabled)
     {

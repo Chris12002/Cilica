@@ -3437,3 +3437,15 @@ forced GC/sanitizers. All 30 selected checks and eight strengthened focused
 checks pass. Integer CIL v47; native v65/layout v24 and resource limits unchanged.
 Full engine execution/replay remains unfinished. See ADR AC0122 and
 artifacts/alchemy-default-integer-text.
+
+### AC8.32: Protected static base helpers (2026-10-07)
+
+Direct protected static calls now require a proven closed base-class chain and
+matching class visibility; private-protected additionally requires the same
+assembly. IR independently retains and checks ancestry metadata even for static
+callers with no allocated object. Six fixtures and one foreign probe provide
+2,058 repeated native/.NET comparisons. All 158 selected checks pass, including
+detached proof corruption and catalog/access regressions. Integer CIL v48/object
+IR v38; native v65/layout v24, core/grants and production limits remain unchanged.
+Full engine execution/replay is unfinished. See ADR AC0124 and
+artifacts/alchemy-protected-static.
