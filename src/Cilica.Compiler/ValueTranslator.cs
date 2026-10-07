@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v19";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v20";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -281,6 +281,11 @@ public static class ValueTranslator
                         case "ldsfld" when exceptions is not null && method.Literals.ContainsKey(offset):
                         case "ldstr" when exceptions is not null:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var enumQuery) && enumQuery.Kind is ValueIntrinsic.EnumQuery or ValueIntrinsic.EnumErrorMessage:
+                            int enumValue = Pop(offset, IrType.Reference(objectBase)), enumType = Pop(offset, IrType.Reference(enumQuery.RuntimeTypeBase!));
+                            bool enumMessage = enumQuery.Kind == ValueIntrinsic.EnumErrorMessage;
+                            Push(offset, enumMessage ? IrType.Reference(stringType!) : IrType.Int32,
+                                new IrExpression.EnumQuery(enumType, enumValue, enumQuery.Type, enumMessage), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var objectHash) && objectHash.Kind == ValueIntrinsic.ObjectIdentityHash:
                             Push(offset, IrType.Int32, new IrExpression.ObjectIdentityHash(Pop(offset, IrType.Reference(objectBase))), true); break;
                         case "ldtoken" when method.RuntimeTypeTokens.TryGetValue(offset, out var tokenType):

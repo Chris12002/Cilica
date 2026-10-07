@@ -8,7 +8,7 @@ namespace Cilica.Compiler;
 /// <summary>Scalar boxing operations with exact logical payload plans; not a public struct ABI.</summary>
 public sealed record ScalarBoxedIrProgram(ScalarLocationIrProgram Flow, ValueTypeCatalog Values)
 {
-    public const string Profile = "scalar-boxed-ir-v10";
+    public const string Profile = "scalar-boxed-ir-v11";
 }
 
 public static class ScalarBoxedIrValidator
@@ -31,6 +31,7 @@ public static class ScalarBoxedIrValidator
 
 internal sealed class ScalarBoxingRules
 {
+    internal ValueTypeCatalog Catalog { get; }
     internal ImmutableArray<ValueTypePlan> Plans { get; }
     internal ImmutableArray<ObjectTypeId> InterfaceTypes { get; }
     private readonly Dictionary<ObjectTypeId, ValueTypePlan> _plans;
@@ -39,6 +40,7 @@ internal sealed class ScalarBoxingRules
     private readonly bool _integers64;
     internal ScalarBoxingRules(ValueTypeCatalog values)
     {
+        Catalog = values;
         Plans = ValueLayoutPlanner.Build(values);
         _plans = Plans.ToDictionary(p => p.Type);
         InterfaceTypes = [.. values.Types.SelectMany(t => t.Interfaces).Distinct()];

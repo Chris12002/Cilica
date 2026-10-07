@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v53";
+    public const string Profile = "object-frames-native-v54";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -115,7 +115,7 @@ public static class ObjectCppEmitter
         var runtimeOperations = methods.Values.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression).ToArray();
         var runtimeImplementation = runtimeOperations.Select(e => e switch {
             IrExpression.RuntimeTypeLiteral t => t.Implementation, IrExpression.ObjectGetType t => t.Implementation,
-            IrExpression.RuntimeTypeHash t => t.Implementation, _ => null }).FirstOrDefault(t => t is not null);
+            IrExpression.RuntimeTypeHash t => t.Implementation, IrExpression.EnumQuery q => q.Implementation, _ => null }).FirstOrDefault(t => t is not null);
         var runtimeIdentities = (runtimeImplementation is null ? Array.Empty<ObjectTypeId>()
             : referenceTypes.Concat(boxedPayloads.Select(p => p.Type)).Distinct().ToArray())
             .Select((type, index) => (type, index)).ToDictionary(p => p.type, p => p.index);
@@ -252,6 +252,7 @@ public static class ObjectCppEmitter
                 text.Append("    if (type == &").Append(ObjectCppBoxing.Symbol(type.Type)).Append("_descriptor) return ").Append(N(runtimeIdentities[type.Type])).Append("u;\n");
             text.Append("    return runtime_type_count;\n}\n");
         }
+        if (runtimeOperations.Any(e => e is IrExpression.EnumQuery)) ObjectCppEnums.Append(text, valueLayouts, runtimeIdentities);
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
             var layout = layouts[IrMethodId.From(method.Source)];
@@ -483,7 +484,7 @@ public static class ObjectCppEmitter
                         or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.InitializeType or IrStatement.StoreStatic or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
                     // Array/field access, type tests and virtual calls include ownership/type checks.
@@ -596,6 +597,11 @@ public static class ObjectCppEmitter
                                     Check(Value(objectType.Operand), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
                                     string objectImplementation = TypeSymbol(objectType.Implementation);
                                     expression = "runtime_type<" + objectImplementation + ">(context, " + objectImplementation + "_descriptor, runtime_type_index(" + Value(objectType.Operand) + "->type))"; break;
+                                case IrExpression.EnumQuery query:
+                                    Check(Value(query.Type), query.Implementation, true, value.ILOffset); Flush();
+                                    Check(Value(query.Value), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
+                                    expression = query.Message ? "enum_error_message(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + Value(query.Type) + ", " + Value(query.Value) + ")"
+                                        : "enum_query(context, " + Value(query.Type) + ", " + Value(query.Value) + ")"; break;
                                 case IrExpression.ObjectIdentityHash identityHash:
                                     Check(Value(identityHash.Operand), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
                                     expression = "static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(" + Value(identityHash.Operand) + ") / alignof(Object))"; break;
@@ -685,13 +691,13 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
-                            else if (value.Expression is IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat)
+                            else if (value.Expression is IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.EnumQuery { Message: true })
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
                             else if (value.Expression is (IrExpression.LoadElement or IrExpression.LoadStatic) && value.Type.Kind == IrTypeKind.Reference)
                             {
                                 Flush(); Check(Value(value.Id), value.Type.Class!, false, value.ILOffset);
                             }
-                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate or IrExpression.IntegerTextFind or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash) Pending();
+                            else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate or IrExpression.IntegerTextFind or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.EnumQuery) Pending();
                             break;
                         }
                         case IrStatement.StoreLocal store:

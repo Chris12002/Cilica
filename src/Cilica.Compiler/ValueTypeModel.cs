@@ -11,6 +11,8 @@ public sealed record ValueTypeLayout(TypeSource Source, TypeAttributes Attribute
 {
     // Box-only runtime-owned scalar slot; never a managed inline/FieldDef layout.
     public PrimitiveTypeCode? ScalarBox { get; init; }
+    public bool ScalarEnum { get; init; }
+    public ImmutableArray<EnumConstantInput> EnumConstants { get; init; }
     public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;
     public ImmutableArray<ObjectTypeId> Interfaces { get; init; } = [];
 }
@@ -19,7 +21,7 @@ public sealed record ValueTypeLayout(TypeSource Source, TypeAttributes Attribute
 public sealed record ValueTypeCatalog(ImmutableArray<ObjectTypeId> Roots, ObjectTypeId ValueBase,
     ImmutableArray<ValueTypeLayout> Types, ObjectTypeCatalog References)
 {
-    public const string Profile = "value-layout-v3";
+    public const string Profile = "value-layout-v4";
 }
 
 /// <summary>One scalar copy slot. Managed paths preserve FieldDefs; a runtime-owned scalar box has an empty path.</summary>

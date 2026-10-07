@@ -77,7 +77,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
                         // success. Follow that alias; never exempt interface tests.
                         case IrExpression.IsInstance { BoxedTarget: true } test when aliases.Contains(test.Operand): aliases.Add(value.Id); break;
                         case IrExpression.CastClass { BoxedTarget: true } cast when aliases.Contains(cast.Operand): aliases.Add(value.Id); break;
-                        case IrExpression.UnboxValue or IrExpression.UnboxLocation or IrExpression.AddressBoxSlot or IrExpression.Compare or IrExpression.ObjectGetType or IrExpression.ObjectIdentityHash:
+                        case IrExpression.UnboxValue or IrExpression.UnboxLocation or IrExpression.AddressBoxSlot or IrExpression.Compare or IrExpression.ObjectGetType or IrExpression.ObjectIdentityHash or IrExpression.EnumQuery:
                             break;
                         default:
                             if (Used(Operands(value.Expression))) return false;
@@ -115,6 +115,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
         IrExpression.ConvertInteger c => [c.Operand], IrExpression.IntegerCast c => [c.Operand],
         IrExpression.NewException e => new[] {e.Message, e.ParameterName, e.Inner, e.TypeName, e.ActualValue}.Where(v => v.HasValue).Select(v => v!.Value),
         IrExpression.ObjectIdentityHash e => [e.Operand],
+        IrExpression.EnumQuery e => [e.Type, e.Value],
         IrExpression.ObjectGetType e => [e.Operand], IrExpression.RuntimeTypeHash e => [e.Operand],
         IrExpression.ExceptionMessage e => [e.Operand], IrExpression.ExceptionParameterName e => [e.Operand],
         IrExpression.ExceptionInnerException e => [e.Operand], IrExpression.ExceptionTypeName e => [e.Operand],

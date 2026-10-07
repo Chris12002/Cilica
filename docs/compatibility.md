@@ -2895,3 +2895,18 @@ IR stages, cache ownership/quotas and the public baseline. General value, Nullab
 floating and open tokens remain diagnostic. Integer-object CIL v19, object IR v27,
 scalar boxed IR v10 and native v53; no new grants, payloads or bounds. Enum.IsDefined
 and full engine/replay remain unfinished. See [ADR AC0075](decisions/AC0075-scalar-runtime-type-tokens.md).
+
+### Bounded enum membership (AC5b.7)
+
+The selected `Enum.IsDefined(Type,Object)` accepts admitted Int32 enum values,
+exact boxed Int32 values and exact ordinal UTF-16 constant names. Aliases, empty
+enums, negative values and flags preserve .NET membership rules. Argument order,
+exception types, parameter names and mismatch text are differential-tested.
+Validated constant tables and exact private query/message grants preserve nominal
+identity and native instance ownership; allocation uses compiler-owned text spans.
+Integer-object CIL v20, object IR v28, scalar boxed IR v11, value-layout v4 and
+native v54 record the new operation and metadata. Existing runtime limits remain.
+The public baseline advances to 32 native controls and 15 diagnostic gaps. Frozen
+engine admission passes this call, then reaches a later snapshot bound in
+UnitRoster.WithViews. State lookup and full saved-game replay remain unfinished.
+See [ADR AC0076](decisions/AC0076-enum-defined.md).

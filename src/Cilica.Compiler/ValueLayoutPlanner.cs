@@ -4,6 +4,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
+using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
@@ -35,6 +37,7 @@ public static class ValueLayoutPlanner
             && catalog.Roots.All(id => ObjectModelValidator.Identity(id, 0x02))
             && catalog.Roots.Distinct().Count() == catalog.Roots.Length, "invalid or duplicate roots.");
         var types = new Dictionary<ObjectTypeId, ValueTypeLayout>();
+        int enumConstants = 0, enumNameUnits = 0;
         var fieldIds = catalog.References.Types.SelectMany(t => t.Fields)
             .Select(f => (f.Id.Owner.ContentHash, f.Id.Owner.Specialization, f.Id.Token))
             .Concat(catalog.References.Statics.Select(f => (f.Id.Owner.ContentHash, f.Id.Owner.Specialization, f.Id.Token))).ToHashSet();
@@ -59,7 +62,26 @@ public static class ValueLayoutPlanner
                 "combined field limit exceeded or fields missing.");
             Require(type.ScalarBox is null || catalog.References.Integer64 && ScalarBoxing.Supported(type.ScalarBox.Value)
                 && type.Fields.IsEmpty && id.Specialization.Length == 0, "scalar box descriptors need one runtime-owned supported carrier and no managed fields/specialization.");
+            Require(!type.ScalarEnum || type.ScalarBox == PrimitiveTypeCode.Int32 && id.Specialization.Length == 0
+                && (type.Attributes & TypeAttributes.LayoutMask) == TypeAttributes.AutoLayout, "enum metadata requires a nominal Int32 enum scalar plan.");
+            if (!type.EnumConstants.IsDefault)
+            {
+                Require(type.ScalarEnum && type.EnumConstants.Length <= ObjectModelLimits.MaximumFields - enumConstants,
+                    "enum constants require scalar enum identity and bounded fields.");
+                enumConstants += type.EnumConstants.Length;
+                int prior = 0; var names = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var constant in type.EnumConstants)
+                {
+                    Require(constant is not null && (uint)constant.Token >> 24 == 4 && (constant.Token & 0xffffff) != 0
+                        && constant.Token > prior && constant.Name is { Length: > 0 and <= EnumConstantsInput.MaximumNameCodeUnits }
+                        && names.Add(constant.Name)
+                        && fieldIds.Add((id.ContentHash, id.Specialization, constant.Token)), "enum constants require ordered FieldDef identities and unique names.");
+                    prior = constant.Token; enumNameUnits += constant.Name.Length;
+                    Require(enumNameUnits <= EnumConstantsInput.MaximumTotalNameCodeUnits, "aggregate enum name limit exceeded.");
+                }
+            }
             fields += type.Fields.Length;
+            Require(fields + enumConstants <= ObjectModelLimits.MaximumFields, "combined field and enum constant limit exceeded.");
             int previous = 0;
             foreach (var field in type.Fields)
             {

@@ -45,7 +45,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
 public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receiver);
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
-public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, NewArgumentOutOfRangeActual, ArrayCopyStore, ArrayCopyCompatible, StringOrdinalEqual, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash, NewInvalidOperationInner }
+public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, NewArgumentOutOfRangeActual, ArrayCopyStore, ArrayCopyCompatible, StringOrdinalEqual, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash, NewInvalidOperationInner, EnumQuery, EnumErrorMessage }
 public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, int Parameters,
     int MessageArgument = -1, int ParameterArgument = -1)
 {
@@ -277,7 +277,7 @@ public static partial class ValueProgramDiscovery
                                 foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
                                     CheckArgumentAccess(argument, work, offset);
                             }
-                            if (exceptions && (ArrayCopyStoreCall(work, instruction, target) ?? RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
+                            if (exceptions && (ArrayCopyStoreCall(work, instruction, target) ?? EnumQueryCall(work, instruction, target) ?? RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
                             {
                                 _arguments += intrinsic.Parameters;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
@@ -471,7 +471,7 @@ public static partial class ValueProgramDiscovery
                     } : null, integers64, [.. _vectors], (type, input) => {
                         var id = ObjectModelBuilder.Id(type); _knownTypes.TryAdd(id, type);
                         if (_snapshots.TryAdd(id, input)) _snapshotFields += input.Fields.Length;
-                    }, _scalarBoxes) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
+                    }, _scalarBoxes, _enumMetadataRequired ? type => EnumConstants(type, root) : null) : ValueModelBuilder.BuildCatalog(resolver, [.. _values.Values.Select(t => t.Definition)], library, _metadata, _integerArray is not null,
                     [.. _references.Values.Select(t => t.Definition)], _snapshots);
                 catalog = built.Catalog ?? throw new Failure(built.Diagnostics[0]);
                 catalog = catalog with { References = catalog.References with { Statics = [.. _staticFields.Values.OrderBy(f => f.Id.Owner.ContentHash).ThenBy(f => f.Id.Owner.Token).ThenBy(f => f.Id.Owner.Specialization).ThenBy(f => f.Id.Token)] } };

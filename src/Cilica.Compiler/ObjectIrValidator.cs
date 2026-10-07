@@ -39,6 +39,7 @@ internal sealed partial class ObjectIrRules
     private readonly HashSet<ObjectTypeId> _arrays;
     private readonly Dictionary<ObjectTypeId, ValueTypeLayout>? _valueLayouts;
     private readonly HashSet<ObjectTypeId> _scalarTypeTargets;
+    private readonly bool _enumQueryReady;
     private readonly IrTypeRules _types;
     private readonly ObjectDispatchRules _dispatch;
     private readonly ObjectInterfaceOperationRules _interfaces;
@@ -64,6 +65,14 @@ internal sealed partial class ObjectIrRules
         _scalarTypeTargets = values is not null
             ? values.Types.Where(t => t.ScalarBox is not null).Select(t => ObjectTypeId.From(t.Source)).ToHashSet()
             : boxes is not null ? boxes.Plans.Where(p => p.ScalarBox is not null).Select(p => p.Type).ToHashSet() : [];
+        var enumCatalog = values ?? boxes?.Catalog;
+        _enumQueryReady = enumCatalog is not null && enumCatalog.Types.All(t => !t.ScalarEnum || !t.EnumConstants.IsDefault);
+        if (!flow.Methods.IsDefault && flow.Methods.Any(m => m is not null && !m.Blocks.IsDefault
+            && m.Blocks.Any(b => b is not null && !b.Statements.IsDefault && b.Values.Any(v => v.Expression is IrExpression.EnumQuery))))
+        {
+            Require(flow.Types.Integer64 && _enumQueryReady && flow.Types.String is not null, "enum queries require complete bounded enum metadata and String storage.");
+            EnumQueryMetadata.Validate(enumCatalog!);
+        }
         _fields = flow.Types.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         Require(!flow.Methods.IsDefault && flow.Methods.Length is > 0 and <= ProgramLimits.MaximumMethods
             && !program.AbstractMethods.IsDefault && flow.Methods.Length + program.AbstractMethods.Length <= ProgramLimits.MaximumMethods
@@ -254,6 +263,7 @@ internal sealed partial class ObjectIrRules
         IrStatement.InvokeDelegate d => new[] { d.Type },
         IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeLiteral t } => _scalarTypeTargets.Contains(t.Target)
             ? new[] { t.Implementation } : new[] { t.Target, t.Implementation },
+        IrStatement.Define { Value.Expression: IrExpression.EnumQuery t } => new[] { t.Implementation, _program.Flow.Types.String! },
         IrStatement.Define { Value.Expression: IrExpression.ObjectGetType t } => new[] { t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeHash t } => new[] { t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.InvariantCulture c } => new[] { c.Type },
@@ -333,6 +343,13 @@ internal sealed partial class ObjectIrRules
         && (_layouts.ContainsKey(target) || _contracts.Contains(target) || _arrays.Contains(target)
             || _delegates.ContainsKey(target) || _program.Flow.Types.String == target
             || _program.Flow.Types.Integer64 && _scalarTypeTargets.Contains(target));
+
+    internal bool EnumQuery(IrExpression.EnumQuery query, IReadOnlyList<IrType> values, IrType result) =>
+        _program.Flow.Types.Integer64 && _enumQueryReady && RuntimeTypeBase(query.Implementation) is { } type
+        && query.Type >= 0 && query.Type < values.Count && query.Value >= 0 && query.Value < values.Count
+        && _types.Assignable(values[query.Type], IrType.Reference(type))
+        && values[query.Value].Kind is IrTypeKind.Reference or IrTypeKind.NullReference
+        && result == (query.Message ? StringType : IrType.Int32);
 
     internal bool RuntimeTypeOperand(int operand, IReadOnlyList<IrType> values, ObjectTypeId? implementation, IrType result, bool hash) =>
         RuntimeTypeBase(implementation) is { } type && operand >= 0 && operand < values.Count

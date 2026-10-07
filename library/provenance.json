@@ -292,6 +292,16 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ArgumentOutOfRangeException.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/ArgumentOutOfRangeException.cs",
       "sha256": "c391bf2fc83e6f08fd94350b045de99252a7915b37fa0adc045be0abe3dfbc97"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Enum.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Enum.cs",
+      "sha256": "b0c19c6191e7ae2b5208fc00d609949be6392d5291f6f9e194b8432d49cd1736"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/RuntimeType.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/RuntimeType.cs",
+      "sha256": "df4e3b58c02c162fb9263d7de6e6065a3b0dd6488a1ae53f6a7f202151713a55"
     }
   ],
   "adaptations": [
@@ -1040,6 +1050,15 @@
         "Owned Contains interfaces preserve pinned query shortcuts: Ordered/Distinct search their source, ConcatN searches heads before its two-source tail, Where/OfType scan fresh sources, and selected fused projections preserve the original query cursor. General/iterator Select retains ordinary cursor consumption."
       ],
       "scope": "Default two-argument Contains over already admitted equality/source shapes. Comparer overload, nullable equality, general reference equality, reference OfType.Select variance compositions and boxed collection factories remain diagnostic."
+    },
+    {
+      "path": "library/Cilica.Core/EnumQueries.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/RuntimeType.cs",
+      "contracts": [
+        "IsDefined(Type,Object) checks type null, value null, enum type, exact enum identity, exact ordinal name and exact Int32 underlying value in pinned order.",
+        "Unknown value kinds throw InvalidOperationException; enum/integer mismatches preserve exact pinned type-name messages. Metadata queries and message copying each require an exact private intrinsic grant."
+      ],
+      "scope": "Admitted Int32 enums only, including aliases and empty enums; no parsing, generic overload, wide enum storage or general reflection."
     }
   ]
 }

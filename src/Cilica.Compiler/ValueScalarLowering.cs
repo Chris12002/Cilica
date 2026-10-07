@@ -462,6 +462,7 @@ public static class ValueScalarLowering
                             IrExpression expression = value.Expression switch
                             {
                                 IrExpression.Constant or IrExpression.Constant64 or IrExpression.Null or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral => value.Expression,
+                                IrExpression.EnumQuery query => query with { Type = One(query.Type), Value = One(query.Value) },
                                 IrExpression.Binary binary => binary with { Left = One(binary.Left), Right = One(binary.Right) },
                                 IrExpression.Binary64 binary => binary with { Left = One(binary.Left), Right = One(binary.Right) },
                                 IrExpression.Not64 unary => unary with { Operand = One(unary.Operand) },

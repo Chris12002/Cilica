@@ -15,6 +15,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --profile core --assembly-name Cilica.Core \
   --source library/Cilica.Core/CoreTypes.cs \
   --source library/Cilica.Core/RuntimeTypes.cs \
+  --source library/Cilica.Core/EnumQueries.cs \
   --source library/Cilica.Core/Environment.cs \
   --source library/Cilica.Core/Nullable.cs \
   --source library/Cilica.Core/IntegerText.cs \
@@ -613,3 +614,10 @@ repeated native/.NET comparisons, plus exact two-instance root checks and grant 
 unsupported-scope tests; all 59 selected local checks pass. Culture/string, nullable,
 enum and other defaults remain diagnostic. Compiler/native/layout profiles and
 resource limits are unchanged. See [ADR AC0064](../../docs/decisions/AC0064-integer-default-comparers.md).
+
+`EnumQueries.cs` adapts pinned Enum/RuntimeType membership rules for admitted
+Int32 enums. It preserves null/type/value checks, exact ordinal names, aliases,
+empty enums and mismatch messages. Two separately granted private metadata helpers
+read validated constants or copy an error message in one native allocation.
+Generic IsDefined, wide enum payloads, parsing and general reflection remain outside
+this bounded contract. See ADR AC0076 and library/provenance.json.

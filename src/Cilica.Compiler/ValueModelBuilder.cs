@@ -33,9 +33,9 @@ public static class ValueModelBuilder
 
     internal static ValueCatalogResult BuildClosedCatalog(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput> snapshots, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null, Func<ResolvedType, ImmutableArray<EnumConstantInput>>? enumConstants = null)
     {
-        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots, observe, scalarBoxes); }
+        try { return Build(resolver, roots, library, work, includeInt32Vector, referenceRoots, snapshots, generics: true, delegates, integers64, vectorRoots, observe, scalarBoxes, enumConstants); }
         catch (Failure failure) { return new(null, failure.Diagnostics); }
         catch (ObjectStringType.Failure failure) { return new(null, [failure.Diagnostic]); }
         catch (ArgumentException error) { return new(null, [new(DiagnosticIds.TranslationLimit, DiagnosticSeverity.Error, error.Message)]); }
@@ -45,7 +45,7 @@ public static class ValueModelBuilder
 
     private static ValueCatalogResult Build(AssemblyResolver resolver, ImmutableArray<ConstructedType> roots,
         ResolvedAssembly library, MemberResolutionBudget work, bool includeInt32Vector,
-        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null)
+        ImmutableArray<ConstructedType> referenceRoots, IReadOnlyDictionary<ObjectTypeId, TypeInput>? snapshots, bool generics, Func<ConstructedType, ObjectDelegateType?>? delegates = null, bool integers64 = false, ImmutableArray<ObjectTypeId> vectorRoots = default, Action<ConstructedType, TypeInput>? observe = null, IReadOnlyDictionary<ObjectTypeId, PrimitiveTypeCode>? scalarBoxes = null, Func<ResolvedType, ImmutableArray<EnumConstantInput>>? enumConstants = null)
     {
         var strings = new ObjectStringType(resolver, library, work);
         var inputs = new Dictionary<ObjectTypeId, TypeInput>();
@@ -237,7 +237,10 @@ public static class ValueModelBuilder
                     }
                     declared.Add(new(new(id, field.Token), field.Name, field.Attributes, storage));
                 }
-                values.Add(new(input.Source, input.Attributes, [.. declared]) { ExternallyVisible = input.ExternallyVisible, Interfaces = [.. contracts], ScalarBox = scalarBox });
+                bool scalarEnum = scalarBox == PrimitiveTypeCode.Int32 && EnumScalar(new TypeSignature.Named(type.Definition, SignatureTypeKind.ValueType));
+                values.Add(new(input.Source, input.Attributes, [.. declared]) {
+                    ExternallyVisible = input.ExternallyVisible, Interfaces = [.. contracts], ScalarBox = scalarBox,
+                    ScalarEnum = scalarEnum, EnumConstants = scalarEnum && enumConstants is not null ? enumConstants(type.Definition) : default });
             }
             ObjectModelBuilder.TypeSnapshot ReadClosedReference(ConstructedType type, TypeReadLimits limits)
             {

@@ -19,19 +19,19 @@
   },
   "baseline": {
     "integrationCommit": "e317e93",
-    "nativeProfile": "object-frames-native-v53",
-    "nativeProfileEvidence": "Public baseline revalidated at AC5b.6 on native v53/layout v21; 31 native controls and 16 diagnostic gaps.",
+    "nativeProfile": "object-frames-native-v54",
+    "nativeProfileEvidence": "Public baseline revalidated at AC5b.7 on native v54/layout v21; 32 native controls and 15 diagnostic gaps.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
     "updatePolicy": "When a gap advances, update its diagnostic and owning slice; claim native validation only after an oracle/native comparison. No silent blanket baseline regeneration.",
     "publicProbeCount": 47,
-    "knownGapCount": 16,
-    "positiveControlCount": 31,
+    "knownGapCount": 15,
+    "positiveControlCount": 32,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "bb138e70b9c6e26c997b00c89a82f306ae2ed24cfe6e81f694687b6e586ad0df",
-    "latestSlice": "AC5b.6",
+    "fixtureSha256": "c123f3376f3f28f21558d86aabadeb5dbd821412309b71d6a728e1e95bbddd85",
+    "latestSlice": "AC5b.7",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -243,7 +243,7 @@
     "AC5b": {
       "prerequisites": ["AC0"],
       "status": "in-progress",
-      "completedSubslices": ["AC5b.1", "AC5b.2", "AC5b.3", "AC5b.4", "AC5b.5", "AC5b.6"],
+      "completedSubslices": ["AC5b.1", "AC5b.2", "AC5b.3", "AC5b.4", "AC5b.5", "AC5b.6", "AC5b.7"],
       "remaining": "Enum arrays and operations, tuples, static array data and remaining real-closure storage gaps."
     },
     "AC5b.1": {
@@ -275,6 +275,11 @@
       "prerequisites": ["AC5b.5", "AC8.21"],
       "status": "complete-bounded-scalar-type-tokens",
       "decision": "docs/decisions/AC0075-scalar-runtime-type-tokens.md"
+    },
+    "AC5b.7": {
+      "prerequisites": ["AC5b.6"],
+      "status": "complete-bounded-enum-defined",
+      "decision": "docs/decisions/AC0076-enum-defined.md"
     },
     "AC6": {
       "prerequisites": [
@@ -834,15 +839,15 @@
     {"id": "ByteArray", "slice": "AC7a", "publicFixture": "Probe_ByteArray", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL2001", "contains": "Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering."}, "privateWitness": "probes.json; Probe_ByteArray", "auditDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200002f in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "baselineNote": "The public fixture retains an array local; storage validation rejects before the original audit fixture's newarr operand. Both IL bodies were inspected. No implementation support changed."},
     {"id": "Utf8", "slice": "AC7b", "publicFixture": "Probe_Utf8", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020002c2 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_Utf8"},
     {"id": "Sha256", "slice": "AC7c", "publicFixture": "Probe_Sha256", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x0200034c in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_Sha256"},
-    {"id": "EngineStep", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_EngineStep", "currentDiagnostic": "CIL3010", "currentEvidence": "artifacts/alchemy-scalar-type-identity/engine-and-state.json", "currentStatus": "Scalar enum facts clear the snapshot blocker; PlayerState::.ctor IL_0017 via PrepareForfeit/Forfeit requires missing Enum.IsDefined. Full engine execution remains unverified.", "nextSlice": "AC5b"},
-    {"id": "StateLookup", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_StateLookup", "currentDiagnostic": "CIL2003", "currentEvidence": "artifacts/alchemy-scalar-type-identity/engine-and-state.json", "currentStatus": "Scalar enum aliases no longer count as runtime layouts. A later catalog inclusion still reaches 257/256 identities: 133 nominal declarations, 139 closed identities, 224 snapshots. State execution remains unverified.", "nextSlice": "AC8"},
+    {"id": "EngineStep", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_EngineStep", "currentDiagnostic": "CIL2003", "currentEvidence": "artifacts/alchemy-enum-defined/engine-and-state.json", "currentStatus": "Enum.IsDefined admission passes. UnitRoster.WithViews IL_000d via PrepareForfeit now reaches 256 cached snapshots, 185 nominal declarations, 96 closed snapshots and 5544 metadata work units remaining; 29 value/226 reference/8 vector roots. Full engine execution remains unverified.", "nextSlice": "AC8"},
+    {"id": "StateLookup", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_StateLookup", "currentDiagnostic": "CIL2003", "currentEvidence": "artifacts/alchemy-enum-defined/engine-and-state.json", "currentStatus": "Scalar enum aliases no longer count as runtime layouts. A later catalog inclusion still reaches 257/256 identities: 133 nominal declarations, 139 closed identities, 224 snapshots. State execution remains unverified.", "nextSlice": "AC8"},
     {"id": "CanonicalHash", "slice": "AC8", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020000af in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_CanonicalHash", "currentDiagnostic": "CIL3015", "currentEvidence": "artifacts/alchemy-nullable/Probe_CanonicalHash.json", "currentStatus": "nullable-mapping-passed; next blocker remains", "nextSlice": "AC7c"},
     {"id": "RealRandom", "slice": "AC0", "publicFixture": null, "status": "native-validated-at-audit", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_RealRandom"},
     {"id": "RealGridDistance", "slice": "AC5a", "publicFixture": null, "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x02000099 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_RealGridDistance"},
     {"id": "EnumField", "slice": "AC0", "publicFixture": "Probe_EnumField", "status": "native-validated-at-audit", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_EnumField"},
     {"id": "ReferenceArgument", "slice": "AC0", "publicFixture": "Probe_ReferenceArgument", "status": "native-validated-at-audit", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ReferenceArgument"},
     {"id": "ListEnumerableConstructor", "slice": "AC3.8", "publicFixture": "Probe_ListEnumerableConstructor", "status": "native-validated-bounded-collection-construction", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_ListEnumerableConstructor", "currentEvidence": "Statically proven ICollection<T> construction only; IEnumerable aliases and general iterator sources remain diagnostic."},
-    {"id": "EnumIsDefined", "slice": "AC5b", "publicFixture": "Probe_EnumIsDefined", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: IsDefined"}, "privateWitness": "probes.json; Probe_EnumIsDefined"},
+    {"id": "EnumIsDefined", "slice": "AC5b", "publicFixture": "Probe_EnumIsDefined", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_EnumIsDefined", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: IsDefined"}, "currentEvidence": "AC5b.7: admitted Int32 enums, exact boxed Int32 values and ordinal names; managed exception order/messages checked against .NET at O0/O2 with forced GC and sanitizers."},
     {"id": "IntCompareTo", "slice": "AC5a", "publicFixture": "Probe_IntCompareTo", "status": "native-validated", "expectedDiagnostic": null, "privateWitness": "probes.json; Probe_IntCompareTo", "auditDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: CompareTo"}, "currentEvidence": "AC5a.1 exact integer Math/CompareTo managed bodies, tested at O0/O2 on macOS ARM64 with sanitizers and forced GC."},
     {"id": "GuidTextConstructor", "slice": "AC5a", "publicFixture": "Probe_GuidTextConstructor", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3010", "contains": "No implementation method matches the mapped owner and declaration signature: .ctor"}, "privateWitness": "probes.json; Probe_GuidTextConstructor"},
     {"id": "StaticArrayData", "slice": "AC5b", "publicFixture": "Probe_StaticArrayData", "status": "confirmed-blocker", "expectedDiagnostic": {"id": "CIL3015", "contains": "Contract type 0x020004d0 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping."}, "privateWitness": "probes.json; Probe_StaticArrayData"},

@@ -831,5 +831,19 @@
     "Member": ".ctor",
     "ParameterCount": 2,
     "Capability": "InvalidOperationInnerConstructor"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "EnumMetadata",
+    "Member": "Query",
+    "ParameterCount": 2,
+    "Capability": "EnumIsDefinedQuery"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "EnumMetadata",
+    "Member": "ErrorMessage",
+    "ParameterCount": 2,
+    "Capability": "EnumIsDefinedErrorMessage"
   }
 ]
