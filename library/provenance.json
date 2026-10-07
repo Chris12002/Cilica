@@ -1071,6 +1071,15 @@
         "Managed nonvirtual String bodies use normal call/callvirt receiver, lexical access and fault lowering; runtime-owned storage remains accessed by existing helpers."
       ],
       "scope": "Bounded strings and existing allocation quotas; temporary Int32 copy buffer uses the existing exact FromCodeUnits grant. Ambient-culture numeric error formatting remains unsupported."
+    },
+    {
+      "path": "library/Cilica.Core/StringCharacters.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/String.cs",
+      "contracts": [
+        "Exact granted Char[] constructor maps to an ordinary managed String factory using the shared constructor-factory path.",
+        "Null and zero-length inputs return canonical Empty; other arrays copy exact UTF-16 code units into an independent immutable string."
+      ],
+      "scope": "Single Char[] constructor only; rooted temporary Int32 buffer and existing FromCodeUnits helper retain allocation quotas. Section, repetition and pointer constructors remain unsupported."
     }
   ]
 }

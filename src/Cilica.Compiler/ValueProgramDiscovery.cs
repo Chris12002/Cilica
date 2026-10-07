@@ -39,7 +39,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, ClosedKeyIntrinsic> KeyOperations { get; init; } = ImmutableDictionary<int, ClosedKeyIntrinsic>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> BoxedRenderCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ImmutableArray<ObjectTypeId>> BoxedFormatCalls { get; init; } = ImmutableDictionary<int, ImmutableArray<ObjectTypeId>>.Empty;
-    public ImmutableDictionary<int, ObjectTypeId> CollectionConstructorCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
+    public ImmutableDictionary<int, ObjectTypeId> FactoryConstructorCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ConstrainedValueCall> ConstrainedCalls { get; init; } = ImmutableDictionary<int, ConstrainedValueCall>.Empty;
 }
 public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receiver);
@@ -182,7 +182,7 @@ public static partial class ValueProgramDiscovery
                     var constrainedCalls = ImmutableDictionary.CreateBuilder<int, ConstrainedValueCall>();
                     var boxedRenderCalls = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                     var boxedFormatCalls = ImmutableDictionary.CreateBuilder<int, ImmutableArray<ObjectTypeId>>();
-                    var collectionConstructors = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
+                    var factoryConstructors = ImmutableDictionary.CreateBuilder<int, ObjectTypeId>();
                     var keyOperations = ImmutableDictionary.CreateBuilder<int, ClosedKeyIntrinsic>();
                     for (int instructionIndex = 0; instructionIndex < work.Input.Instructions.Length; ++instructionIndex)
                     {
@@ -249,7 +249,7 @@ public static partial class ValueProgramDiscovery
                                     : resolver.ResolveDeclaredMethod(work.Assembly, MetadataTokens.EntityHandle(token), _metadata), work, offset);
                             }
                             var target = _calls[key];
-                            if (CollectionConstructor(work, instruction, ref target) is { } constructedList) collectionConstructors.Add(offset, constructedList);
+                            if ((CollectionConstructor(work, instruction, ref target) ?? CharacterStringConstructor(work, instruction, ref target)) is { } constructedType) factoryConstructors.Add(offset, constructedType);
                             if (BoxedFormat(work, instruction, instructionIndex, ref target) is { } formatBox) boxedFormatCalls.Add(offset, formatBox);
                             if (BoxedRender(work, instruction, ref target) is { } renderBox) boxedRenderCalls.Add(offset, renderBox);
                             ComparerOperation(work, instruction, ref target);
@@ -279,7 +279,7 @@ public static partial class ValueProgramDiscovery
                                 foreach (var argument in target.DeclaringType.Arguments.Concat(target.MethodArguments))
                                     CheckArgumentAccess(argument, work, offset);
                             }
-                            if (exceptions && (ArrayCopyStoreCall(work, instruction, target) ?? EnumQueryCall(work, instruction, target) ?? RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
+                            if (exceptions && !factoryConstructors.ContainsKey(offset) && (ArrayCopyStoreCall(work, instruction, target) ?? EnumQueryCall(work, instruction, target) ?? RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
                             {
                                 _arguments += intrinsic.Parameters;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
@@ -342,18 +342,18 @@ public static partial class ValueProgramDiscovery
                                 Fail(work, "callvirt requires a class instance method.", offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null)
                                 _virtualCalls.TryAdd(callee.Binding.Method, (work, offset));
-                            bool collectionConstructor = collectionConstructors.ContainsKey(offset);
-                            if (collectionConstructor && (callee.Binding.Kind != ObjectMethodKind.Static || callee.Binding.Owner != collectionConstructors[offset]
-                                || callee.Parameters.Length != 1 || callee.ReturnType != IrType.Reference(collectionConstructors[offset])))
-                                Fail(work, "List collection bridge requires its exact static copy signature.", offset);
-                            if (instruction.OpCode == "newobj" && !collectionConstructor && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Abstract) != 0)
+                            bool factoryConstructor = factoryConstructors.ContainsKey(offset);
+                            if (factoryConstructor && (callee.Binding.Kind != ObjectMethodKind.Static || callee.Binding.Owner != factoryConstructors[offset]
+                                || callee.Parameters.Length != 1 || callee.ReturnType != IrType.Reference(factoryConstructors[offset])))
+                                Fail(work, "Constructor factory requires its exact static single-argument copy signature.", offset);
+                            if (instruction.OpCode == "newobj" && !factoryConstructor && (SnapshotClosed(target.DeclaringType, work, offset).Attributes & TypeAttributes.Abstract) != 0)
                                 Fail(work, "Cannot allocate an abstract class.", offset);
-                            if (instruction.OpCode == "newobj" && !collectionConstructor && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
+                            if (instruction.OpCode == "newobj" && !factoryConstructor && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
                                 Fail(work, "newobj requires an exact supported constructor declaration.", offset);
                             if (!ObjectMethodAccess.Allowed(work.Binding, callee.Binding, integers64)
                                 && !(instruction.OpCode == "call" && ProtectedBaseConstructor(work, callee, offset)))
                                 Fail(work, "Calls require the same declaring owner, an accessible public/assembly target, or a private target in a proven nongeneric containing type under the integer-object profile.", offset);
-                            _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" && !collectionConstructor ? 1 : 0);
+                            _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" && !factoryConstructor ? 1 : 0);
                             if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                             calls.Add(offset, callee.Binding.Method);
                         }
@@ -458,7 +458,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { CollectionConstructorCalls = collectionConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { FactoryConstructorCalls = factoryConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {

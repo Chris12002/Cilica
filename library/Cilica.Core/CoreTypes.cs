@@ -98,6 +98,7 @@ namespace System
         // Runtime-owned canonical empty string; requires its exact field grant.
         public static readonly string Empty;
         private String() { }
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern String(char[] value);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0);
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern string Format(string format, object arg0, object arg1);
         public extern int Length { [MethodImpl(MethodImplOptions.InternalCall)] get; }

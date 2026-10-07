@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v22";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v23";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -563,11 +563,11 @@ public static class ValueTranslator
                         case "call":
                         case "box" or "unbox.any" when boxing && method.Calls.ContainsKey(offset):
                             var target = methods[method.Calls[offset]];
-                            bool collectionConstructor = method.CollectionConstructorCalls.TryGetValue(offset, out var listOwner);
-                            if (collectionConstructor && (opcode != "newobj" || target.Binding.Kind != ObjectMethodKind.Static
-                                || target.Binding.Owner != listOwner || target.ReturnType != IrType.Reference(listOwner!) || target.Parameters.Length != 1))
-                                Error(offset, "List collection bridge requires its exact static copy signature.");
-                            int skip = opcode == "newobj" && !collectionConstructor ? 1 : 0;
+                            bool factoryConstructor = method.FactoryConstructorCalls.TryGetValue(offset, out var factoryOwner);
+                            if (factoryConstructor && (opcode != "newobj" || target.Binding.Kind != ObjectMethodKind.Static
+                                || target.Binding.Owner != factoryOwner || target.ReturnType != IrType.Reference(factoryOwner!) || target.Parameters.Length != 1))
+                                Error(offset, "Constructor factory requires its exact static single-argument copy signature.");
+                            int skip = opcode == "newobj" && !factoryConstructor ? 1 : 0;
                             bool constrained = method.ConstrainedCalls.TryGetValue(offset, out var constrainedCall);
                             if (constrained && (target.Binding.Kind != ObjectMethodKind.ValueInstance || target.Binding.Owner != constrainedCall!.Receiver))
                                 Error(offset, "Constrained call does not match its exact checked value receiver.");
@@ -583,11 +583,12 @@ public static class ValueTranslator
                                     int box = Pop(offset, IrType.Reference(objectBase));
                                     arguments[0] = Define(offset, IrType.Location(IrType.Value(boxedReceiver)), new IrExpression.UnboxLocation(boxedReceiver, box), true);
                                 }
-                                else if (collectionConstructor)
+                                else if (factoryConstructor)
                                 {
                                     int source = Pop(offset);
                                     if (!types.Assignable(values[source], target.Parameters[0]))
-                                        Error(offset, "List(IEnumerable<T>) currently requires a statically proven ICollection<T> source; general enumeration and widened enumerable aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                                        Error(offset, factoryOwner == stringType ? "Character-string constructor requires the exact Char[] source or null."
+                                            : "List(IEnumerable<T>) currently requires a statically proven ICollection<T> source; general enumeration and widened enumerable aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
                                     arguments[i] = source;
                                 }
                                 else arguments[i] = Pop(offset, target.Parameters[i + skip]);

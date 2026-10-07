@@ -21,7 +21,7 @@ public enum LibraryIntrinsicCapability
     ArrayInterfaceCount, ArrayInterfaceGet, ArrayInterfaceFalse, ArrayInterfaceTrue, ArrayInterfaceIdentity, StringFromCodeUnits, ArrayEmpty, ArrayInterfaceAdd, ArrayInterfaceSet, TypeInitializationExceptionConstructor, ExceptionTypeName, ExceptionInnerException, BoxedStringFormat, BoxedTextRender, StringOrdinalEqual, StringEmpty,
     RuntimeTypeLayout, RuntimeTypeHandleLayout, RuntimeTypeObjectLayout, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash,
     ArrayInterfaceInsert, ArrayInterfaceInsertObject, ArrayInterfaceRemoveAt, ArrayInterfaceClearReadOnly, ArrayInterfaceClear,
-    ArrayInterfaceIndexOf, ArrayInterfaceContains, ArrayInterfaceRemove, ClosedArraySearch, ArrayInterfaceEnumerate, ArgumentOutOfRangeActualConstructor, ArrayCopyStore, ArrayCopyCompatible, ArrayInterfaceCopyTo, ListCollectionConstruction, ClosedTypeContainsReferences, ClosedTypeIsValueType, ArrayInterfaceEnumerateObjects, IntegerComparerCreate, IntegerComparerCompare, InvalidOperationInnerConstructor, EnumIsDefinedQuery, EnumIsDefinedErrorMessage,
+    ArrayInterfaceIndexOf, ArrayInterfaceContains, ArrayInterfaceRemove, ClosedArraySearch, ArrayInterfaceEnumerate, ArgumentOutOfRangeActualConstructor, ArrayCopyStore, ArrayCopyCompatible, ArrayInterfaceCopyTo, ListCollectionConstruction, ClosedTypeContainsReferences, ClosedTypeIsValueType, ArrayInterfaceEnumerateObjects, IntegerComparerCreate, IntegerComparerCompare, InvalidOperationInnerConstructor, EnumIsDefinedQuery, EnumIsDefinedErrorMessage, StringCharacterConstruction,
 }
 
 public sealed record LibraryBuildInput(string Role, string Path, string Sha256);

@@ -845,5 +845,12 @@
     "Member": "ErrorMessage",
     "ParameterCount": 2,
     "Capability": "EnumIsDefinedErrorMessage"
+  },
+  {
+    "Namespace": "System",
+    "Type": "String",
+    "Member": "CopyCharacters",
+    "ParameterCount": 1,
+    "Capability": "StringCharacterConstruction"
   }
 ]

@@ -2840,3 +2840,18 @@ All 142 selected checks pass; the public baseline is 35 native controls/12 gaps.
 Integer CIL v22, object layout v22, object IR v30 and native v56 record the new
 array identities and store narrowing. Frozen engine/state type limits remain;
 full saved-game replay is unfinished. See [ADR AC0079](decisions/AC0079-byte-char-vectors.md).
+
+### Character-array String construction (AC7b.9)
+
+The exact selected String(Char[]) constructor uses a granted managed copy factory
+through the existing constructor-factory path. Null/empty inputs return canonical
+Empty; nonempty inputs preserve every UTF-16 code unit in an independent snapshot.
+Existing Int32-buffer string construction retains rooting and allocation quotas.
+Six probes pass 1,980 repeated native/.NET comparisons; 54 selected checks pass,
+including List construction, array/string regressions and the public baseline.
+A metadata-read filter received seven further focused checks. Grant removal, wrong
+call/source forms and altered IR remain diagnostic. Integer CIL v23 records the
+admission; native v56, object layout v22 and object IR v30 are unchanged. The public
+baseline advances to 36 native controls and 11 gaps. Section/pointer constructors
+and full saved-game replay remain unsupported; frozen engine/state type limits
+still apply. See [ADR AC0080](decisions/AC0080-character-string-construction.md).
