@@ -98,12 +98,12 @@ public static partial class ValueProgramDiscovery
         {
             foreach (var signature in signatures)
             {
-                var pending = new Stack<(TypeSignature Type, bool Argument)>();
-                pending.Push((signature, false)); int count = 0;
+                var pending = new Stack<TypeSignature>();
+                pending.Push(signature); int count = 0;
                 while (pending.TryPop(out var item))
                 {
                     if (++count > 4096) Fail(work, "Source type access exceeds the signature-node limit.", offset, DiagnosticIds.TranslationLimit);
-                    switch (item.Type)
+                    switch (item)
                     {
                         case TypeSignature.Named named:
                             var declaration = TypeAccess(named.Definition, work, offset);
@@ -114,18 +114,16 @@ public static partial class ValueProgramDiscovery
                                 CheckEnumDeclarationAccess(named.Definition, work, offset); // An explicit name cannot borrow opaque argument authority.
                                 break;
                             }
-                            if (item.Argument && named.Kind == SignatureTypeKind.ValueType)
-                                Fail(work, "Generic arguments require the same declaring owner or externally visible types. Type: " + declaration.Source.Name + ".", offset);
                             if (!SourceTypeVisible(work.Binding, ObjectTypeId.From(declaration.Source), declaration.LexicalOwners))
                                 Fail(work, "Explicit type use requires lexical declaring scope or an externally visible type. Type: "
                                     + declaration.Source.Name + ".", offset);
                             break;
                         case TypeSignature.Generic generic:
-                            pending.Push((generic.Definition, false));
-                            foreach (var argument in generic.Arguments) pending.Push((argument, true));
+                            pending.Push(generic.Definition);
+                            foreach (var argument in generic.Arguments) pending.Push(argument);
                             break;
-                        case TypeSignature.Vector vector: pending.Push((vector.Element, item.Argument)); break;
-                        case TypeSignature.ByReference reference: pending.Push((reference.Element, item.Argument)); break;
+                        case TypeSignature.Vector vector: pending.Push(vector.Element); break;
+                        case TypeSignature.ByReference reference: pending.Push(reference.Element); break;
                         // Variables carry their already-bound argument; they do not spell its
                         // private name in this image. Closed binding still checks indices/constraints.
                         case TypeSignature.Variable or TypeSignature.Primitive: break;

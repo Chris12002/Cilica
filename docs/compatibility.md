@@ -3449,3 +3449,15 @@ detached proof corruption and catalog/access regressions. Integer CIL v48/object
 IR v38; native v65/layout v24, core/grants and production limits remain unchanged.
 Full engine execution/replay is unfinished. See ADR AC0124 and
 artifacts/alchemy-protected-static.
+
+### AC5b.14: Hidden inline generic arguments (2026-10-07)
+
+Lexically accessible hidden structs can now be generic arguments, including
+readonly reference-bearing payloads in mixed Func signatures. Generic helpers
+may copy/box their already-bound T; explicit foreign hidden-type names and
+private members remain inaccessible. Eight native probes provide 2,352 repeated
+comparisons; all 82 selected checks and 23 strengthened focused/baseline checks
+pass with forced GC/sanitizers. Hidden-value generic arrays retain their separate
+diagnostic. Integer CIL v49; object IR v38/native v65/layout v24 and production
+limits unchanged. Full engine execution/replay remains unfinished. See ADR AC0126
+and artifacts/alchemy-hidden-value-generics.

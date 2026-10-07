@@ -566,7 +566,9 @@ public static partial class ValueProgramDiscovery
                 foreach (var access in method.Fields)
                 {
                     var field = declarations[access.Value];
-                    bool visible = layouts.TryGetValue(field.Id.Owner, out var inlineOwner) ? inlineOwner.ExternallyVisible : _snapshots[field.Id.Owner].ExternallyVisible
+                    bool visible = layouts.TryGetValue(field.Id.Owner, out var inlineOwner)
+                        ? inlineOwner.ExternallyVisible || integers64 && SourceTypeVisible(method.Binding, field.Id.Owner, _snapshots[field.Id.Owner].LexicalOwners)
+                        : _snapshots[field.Id.Owner].ExternallyVisible
                         || integers64 && ObjectLexicalAccess.Visible(method.Binding, field.Id.Owner, _snapshots[field.Id.Owner].LexicalOwners);
                     if ((field.Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.PrivateScope
                         || method.Binding.Owner != field.Id.Owner
@@ -604,8 +606,9 @@ public static partial class ValueProgramDiscovery
                         if (integers64 && layouts[type].ScalarEnum)
                         {
                             var definition = _values[type].Definition;
-                            if (!OpaqueEnumArgument(definition, work, offset)) CheckEnumDeclarationAccess(definition, work, offset);
+                            if (!OpaqueValueArgument(definition, work, offset)) CheckEnumDeclarationAccess(definition, work, offset);
                         }
+                        else if (integers64) CheckValueDeclarationAccess(_values[type].Definition, work, offset);
                         else Fail(work, "Value type use requires the same declaring owner or a fully externally visible type; other visibility rules require later lowering.", offset);
                     }
                 }
@@ -764,7 +767,7 @@ public static partial class ValueProgramDiscovery
             if (signature is not TypeSignature.Named named) return signature;
             if (EnumScalar(signature, work, offset))
             {
-                if (!OpaqueEnumArgument(named.Definition, work, offset)) CheckEnumDeclarationAccess(named.Definition, work, offset);
+                if (!OpaqueValueArgument(named.Definition, work, offset)) CheckEnumDeclarationAccess(named.Definition, work, offset);
                 return named with { Kind = SignatureTypeKind.ValueType };
             }
             // A TypeDef/TypeRef operand encodes selected primitives as named types.
@@ -879,6 +882,11 @@ public static partial class ValueProgramDiscovery
                         if (integers64 && EnumScalar(named, work, offset))
                         {
                             _ = OperandSignature(named, work, offset);
+                            break;
+                        }
+                        if (integers64)
+                        {
+                            CheckValueDeclarationAccess(named.Definition, work, offset);
                             break;
                         }
                         var input = TypeAccess(named.Definition, work, offset);

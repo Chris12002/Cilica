@@ -11,7 +11,7 @@ namespace Cilica.Fixtures.Execution
     public static class HiddenEnumGenericProbe
     {
         private enum Phase { None = 0, First = 1, Second = 2 }
-        public static int UnsupportedStruct(int a, int b) => EnumGenericTransport<HiddenGenericCell>.Copy(new HiddenGenericCell { Value = a }).Value;
+        public static int StructCopy(int a, int b) => EnumGenericTransport<HiddenGenericCell>.Copy(new HiddenGenericCell { Value = a }).Value;
         public static int InternalHolder(int a, int b) => InternalEnumProbe.Generic(a, b);
         public static int NestedHolder(int a, int b) => NestedEnumOwner.Generic(a, b);
         public static int Nullable(int a, int b)

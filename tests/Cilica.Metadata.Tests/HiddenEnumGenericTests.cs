@@ -22,12 +22,6 @@ public sealed class HiddenEnumGenericTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Names.Select((name, i) =>
             (name, programs[i], typeof(HiddenEnumGenericProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
-    [Fact]
-    public void Hidden_struct_arguments_keep_their_existing_boundary()
-    {
-        var result = IntegerObjectTranslationTests.Translate("UnsupportedStruct", fixture: typeof(HiddenEnumGenericProbe));
-        Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("externally visible", StringComparison.Ordinal));
-    }
     [Theory]
     [InlineData("opaque", true)] [InlineData("box", false)] [InlineData("token", false)] [InlineData("local", false)]
     public void Foreign_generic_code_carries_T_but_cannot_name_hidden_enum(string use, bool admitted)

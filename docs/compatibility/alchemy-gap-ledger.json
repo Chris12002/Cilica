@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v65",
-    "nativeProfileEvidence": "Public baseline revalidated at AC8.32 on native v65/layout v24; 43 native controls and 4 diagnostic gaps.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC5b.14 on native v65/layout v24; 43 native controls and 4 diagnostic gaps.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 43,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "9dabc2e33b231e3f64bc13e0f44517d205f0d671e01fc1c33293f953f7f57c68",
-    "latestSlice": "AC8.32",
+    "fixtureSha256": "47aab463eb6ad77334ba499b028df91a61e7b2d39d8da033b1968d272fa4dfbc",
+    "latestSlice": "AC5b.14",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -323,7 +323,7 @@
     "AC5b": {
       "prerequisites": ["AC0"],
       "status": "in-progress",
-      "completedSubslices": ["AC5b.1", "AC5b.2", "AC5b.3", "AC5b.4", "AC5b.5", "AC5b.6", "AC5b.7", "AC5b.8", "AC5b.9", "AC5b.10", "AC5b.11", "AC5b.12", "AC5b.13"],
+      "completedSubslices": ["AC5b.1", "AC5b.2", "AC5b.3", "AC5b.4", "AC5b.5", "AC5b.6", "AC5b.7", "AC5b.8", "AC5b.9", "AC5b.10", "AC5b.11", "AC5b.12", "AC5b.13", "AC5b.14"],
       "remaining": "Enum arrays and operations, remaining tuple/static-data forms, reference-array borrows and broader local/return borrow lifetimes."
     },
     "AC5b.1": {
@@ -365,6 +365,11 @@
       "prerequisites": ["AC0"],
       "status": "complete-bounded-five-tuple-storage-equality",
       "decision": "docs/decisions/AC0078-five-component-tuples.md"
+    },
+    "AC5b.14": {
+      "prerequisites": ["AC5b.13", "AC8.33"],
+      "status": "complete-bounded-hidden-value-generic-arguments",
+      "decision": "docs/decisions/AC0126-hidden-value-generic-arguments.md"
     },
     "AC5b.13": {
       "prerequisites": ["AC5b.12", "AC1b.2"],
