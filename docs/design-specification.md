@@ -2794,3 +2794,19 @@ The public baseline advances to 32 native controls and 15 diagnostic gaps. Froze
 engine admission passes this call, then reaches a later snapshot bound in
 UnitRoster.WithViews. State lookup and full saved-game replay remain unfinished.
 See [ADR AC0076](decisions/AC0076-enum-defined.md).
+
+### Managed String instance bodies and Substring (AC7b.8)
+
+The integer-object profile admits ordinary nonvirtual managed String methods
+through the existing call/access/fault path. String constructors, virtual slots,
+initializers and direct storage access remain outside this admission. Both
+Substring overloads preserve exact UTF-16, identity shortcuts, overflow-safe
+range checks and parameter/fault order. Negative-value messages use the existing
+invariant numeric-text policy. Copies use the existing rooted Int32 buffer and
+FromCodeUnits helper; there are no new grants or allocation limits.
+Six probes plus a raw direct-call/null shortcut pass 4,650 repeated native/.NET
+comparisons. Both validators reject virtual/constructor/initializer alterations.
+Integer CIL v21, object IR v29 and native v55 record admission; physical layout
+remains v21. The public baseline is 33 native controls and 14 diagnostic gaps.
+Frozen engine/state still stop at their type limits; saved-game replay is unfinished.
+See [ADR AC0077](decisions/AC0077-string-substring.md).

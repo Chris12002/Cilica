@@ -39,6 +39,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/OfTypeIterator.cs \
   --source library/Cilica.Core/StringBuilder.cs \
   --source library/Cilica.Core/StringConcatenation.cs \
+  --source library/Cilica.Core/StringSubstring.cs \
   --source library/Cilica.Core/List.cs \
   --source library/Cilica.Core/ReadOnlyCollection.cs \
   --source library/Cilica.Core/ValueTuple.cs \
@@ -621,3 +622,9 @@ empty enums and mismatch messages. Two separately granted private metadata helpe
 read validated constants or copy an error message in one native allocation.
 Generic IsDefined, wide enum payloads, parsing and general reflection remain outside
 this bounded contract. See ADR AC0076 and library/provenance.json.
+
+`StringSubstring.cs` provides both integer-index overloads using managed nonvirtual
+String bodies, exact UTF-16 copying and identity-preserving empty/full shortcuts.
+Negative actual-value messages follow the core's invariant numeric formatting
+policy. Copies allocate an Int32 buffer and the resulting string within existing
+quotas; no new helper capability is required. See ADR AC0077.

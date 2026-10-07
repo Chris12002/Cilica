@@ -1059,6 +1059,16 @@
         "Unknown value kinds throw InvalidOperationException; enum/integer mismatches preserve exact pinned type-name messages. Metadata queries and message copying each require an exact private intrinsic grant."
       ],
       "scope": "Admitted Int32 enums only, including aliases and empty enums; no parsing, generic overload, wide enum storage or general reflection."
+    },
+    {
+      "path": "library/Cilica.Core/StringSubstring.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs",
+      "contracts": [
+        "Both Substring overloads preserve exact UTF-16 code units, same-object/full-range and canonical-empty shortcuts.",
+        "Overflow-safe range checks preserve start-before-length fault order, exact parameter/message text and boxed Int32 actual values, using the existing invariant numeric-text policy.",
+        "Managed nonvirtual String bodies use normal call/callvirt receiver, lexical access and fault lowering; runtime-owned storage remains accessed by existing helpers."
+      ],
+      "scope": "Bounded strings and existing allocation quotas; temporary Int32 copy buffer uses the existing exact FromCodeUnits grant. Ambient-culture numeric error formatting remains unsupported."
     }
   ]
 }

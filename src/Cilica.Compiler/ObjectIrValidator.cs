@@ -110,9 +110,12 @@ internal sealed partial class ObjectIrRules
                 && (uint)binding.Owner.Token >> 24 == 0x02 && (binding.Owner.Token & 0xffffff) > 1
                 && binding.Owner.ContentHash == binding.Method.ContentHash
                 && _methods.ContainsKey(binding.Method) && _bindings.TryAdd(binding.Method, binding), "invalid or duplicate method binding identity.");
-            Require((binding.Owner != flow.Types.String || flow.Types.Integer64 && binding.Kind == ObjectMethodKind.Static
-                    && binding.TypeInitializerName is null)
-                && !_delegates.ContainsKey(binding.Owner), "selected String instance and delegate methods require explicit intrinsic operations.");
+            Require((binding.Owner != flow.Types.String || flow.Types.Integer64
+                    && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
+                    && binding.TypeInitializerName is null && binding.VirtualSlot is null
+                    && (binding.Attributes & (MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final
+                        | MethodAttributes.Abstract | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) == 0)
+                && !_delegates.ContainsKey(binding.Owner), "selected String bodies require ordinary nonvirtual methods; delegates require explicit operations.");
             Require(ObjectLexicalAccess.Valid(binding.Owner, binding.LexicalOwners)
                 && (binding.LexicalOwners.IsEmpty || ObjectLexicalAccess.Public(binding.LexicalOwners) == binding.OwnerExternallyVisible
                     && ObjectLexicalAccess.AssemblyVisible(binding.LexicalOwners) == binding.OwnerAssemblyVisible),
@@ -195,7 +198,7 @@ internal sealed partial class ObjectIrRules
                 primitiveCodes[binding.Primitive!.Code] = binding.Owner;
             }
             else if (!isStatic)
-                Require(_layouts.ContainsKey(binding.Owner) && method.Parameters.Length > 0
+                Require((_layouts.ContainsKey(binding.Owner) || flow.Types.Integer64 && binding.Owner == flow.Types.String) && method.Parameters.Length > 0
                     && method.Parameters[0] == IrType.Reference(binding.Owner), "instance receiver must have the exact declaring class type.");
             if (Constructor(binding))
             {

@@ -126,9 +126,13 @@ public static partial class ValueProgramDiscovery
                 Fail(work, "Exception intrinsic metadata/method budget exhausted.", offset, DiagnosticIds.TranslationLimit);
             var input = Require(resolver.ReadMethodDeclarationInput(definition.Assembly, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "Intrinsic metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);
+            bool managedString = integers64 && definition == resolver.ResolveRuntimeType(library, PrimitiveTypeCode.String).Value
+                && input.HasBody && input.Implementation == MethodImplAttributes.IL
+                && (input.Attributes & (MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final
+                    | MethodAttributes.Abstract | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) == 0;
             if (target.DeclaringType.Arguments.Count != 0 || target.MethodArguments.Count != 0 || input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0
                 || !input.OwnerExternallyVisible || input.IsReferenceAssembly
-                || (input.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public
+                || !managedString && (input.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public
                 || (input.Implementation & MethodImplAttributes.CodeTypeMask) is not (MethodImplAttributes.IL or MethodImplAttributes.Runtime)
                 || (input.Implementation & (MethodImplAttributes.ManagedMask | MethodImplAttributes.Synchronized)) != 0
                 || ((input.Attributes & MethodAttributes.Static) == 0) != ((input.Signature.Header & 0x20) != 0))
@@ -217,12 +221,13 @@ public static partial class ValueProgramDiscovery
                 if (input.DeclaredName == "op_Inequality" && Primitive(signature.ReturnType, PrimitiveTypeCode.Boolean))
                 { Authorize(LibraryIntrinsicCapability.StringNotEqual); return new(ValueIntrinsic.StringNotEqual, text, 2); }
             }
-            // Ordinary selected-library static bodies have no intrinsic behavior
-            // to replace. Discover and validate their IL through the normal path.
-            if (integers64 && instruction.OpCode == "call" && signature.Header == 0
-                && (input.Attributes & MethodAttributes.Static) != 0
-                && (input.Implementation & (MethodImplAttributes.CodeTypeMask | MethodImplAttributes.ManagedMask
-                    | MethodImplAttributes.InternalCall)) == MethodImplAttributes.IL)
+            // Ordinary selected-library bodies use normal access, receiver, fault
+            // and IL validation. Runtime storage remains accessible only via helpers.
+            if (integers64 && input.HasBody && input.Implementation == MethodImplAttributes.IL
+                && (input.Attributes & (MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final
+                    | MethodAttributes.Abstract | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) == 0
+                && (instruction.OpCode == "call" && signature.Header == 0 && (input.Attributes & MethodAttributes.Static) != 0
+                    || instruction.OpCode is ("call" or "callvirt") && signature.Header == 0x20 && (input.Attributes & MethodAttributes.Static) == 0))
                 return null;
             Fail(work, integers64
                 ? "Supported String calls are Length/Chars, static equality/inequality and Concat(string,string)."
