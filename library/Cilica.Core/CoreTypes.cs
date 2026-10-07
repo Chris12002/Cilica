@@ -8,6 +8,7 @@ namespace System
     public class Object
     {
         public Object() { }
+        [MethodImpl(MethodImplOptions.InternalCall)] protected extern object MemberwiseClone();
         [MethodImpl(MethodImplOptions.InternalCall)] public extern Type GetType();
         public virtual bool Equals(object value) => this == value;
         public virtual int GetHashCode() => Cilica.Runtime.TypeIdentity.ObjectHash(this);

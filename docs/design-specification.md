@@ -3855,3 +3855,22 @@ ASan/UBSan, retained-root accounting and initializer-fault checks. All 107 disti
 focused/adjacent checks pass across the recorded final runs. CIL v71, object IR v45
 and native v71 record admission; layout v26, interface plan v16 and limits remain
 unchanged. See ADR AC0160. Full engine and saved-game replay remain unverified.
+
+
+### Sealed application-class shallow cloning (AC8.49)
+
+Object.MemberwiseClone now has an exact owned-core intrinsic grant for calls from
+sealed application classes in the integer-object profile. The compiler validates
+the complete ordinary application base chain and emits typed field copies into a
+fresh allocation. Inherited fields, embedded value leaves and references are copied;
+constructors and runtime ownership, identity and collector headers are not copied.
+The source remains rooted across allocation, and allocation failure uses the existing
+managed fault path. Nonsealed classes, special runtime hierarchies, invalid caller
+receivers and pre-base constructor use remain diagnostic.
+Eight probes provide 2,352 repeated O0/O2 native/.NET comparisons with ASan/UBSan,
+forced collection and exact cleanup. Quota/header checks cover object and byte limits,
+managed allocation faults and recovery. All 42 focused clone, constructor, identity,
+collection and boxed-value checks pass. CIL v72, object IR v46 and native v72 record
+the operation; layout v26, interface plan v16 and resource limits are unchanged.
+See ADR AC0161. Full engine, unchanged fingerprint execution and saved-game replay
+remain unverified.

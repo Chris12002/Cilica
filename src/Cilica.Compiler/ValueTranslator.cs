@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v71";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v72";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -346,6 +346,8 @@ public static class ValueTranslator
                             bool enumMessage = enumQuery.Kind == ValueIntrinsic.EnumErrorMessage;
                             Push(offset, enumMessage ? IrType.Reference(stringType!) : IrType.Int32,
                                 new IrExpression.EnumQuery(enumType, enumValue, enumQuery.Type, enumMessage), true); break;
+                        case "call" or "callvirt" when method.Intrinsics.TryGetValue(offset, out var clone) && clone.Kind == ValueIntrinsic.ObjectClone:
+                            Push(offset, IrType.Reference(objectBase), new IrExpression.ObjectClone(clone.Type, Pop(offset, IrType.Reference(clone.Type))), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var objectHash) && objectHash.Kind == ValueIntrinsic.ObjectIdentityHash:
                             Push(offset, IrType.Int32, new IrExpression.ObjectIdentityHash(Pop(offset, IrType.Reference(objectBase))), true); break;
                         case "ldtoken" when method.RuntimeTypeTokens.TryGetValue(offset, out var tokenType):

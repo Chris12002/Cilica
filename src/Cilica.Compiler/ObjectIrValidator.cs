@@ -281,6 +281,7 @@ internal sealed partial class ObjectIrRules
             ? new[] { t.Implementation } : new[] { t.Target, t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.EnumEntry } => new[] { _program.Flow.Types.String! },
         IrStatement.Define { Value.Expression: IrExpression.EnumQuery t } => new[] { t.Implementation, _program.Flow.Types.String! },
+        IrStatement.Define { Value.Expression: IrExpression.ObjectClone c } => new[] { c.Type },
         IrStatement.Define { Value.Expression: IrExpression.ObjectGetType t } => new[] { t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.RuntimeTypeHash t } => new[] { t.Implementation },
         IrStatement.Define { Value.Expression: IrExpression.InvariantCulture c } => new[] { c.Type },
@@ -508,6 +509,22 @@ internal sealed partial class ObjectIrRules
             && _types.Assignable(values[argument], signature[index])).All(valid => valid);
     }
 
+    internal bool Clone(IrMethod method, ObjectTypeId? type, int operand, IReadOnlyList<IrType> values, IrType result)
+    {
+        if (!_program.Flow.Types.Integer64 || type is null || Binding(IrMethodId.From(method.Source)).Owner != type
+            || operand < 0 || operand >= values.Count || !_types.Assignable(values[operand], IrType.Reference(type))
+            || result != IrType.Reference(_program.Flow.Types.ObjectBase) || !_layouts.TryGetValue(type, out var layout)
+            || (layout.Attributes & (TypeAttributes.Sealed | TypeAttributes.Abstract | TypeAttributes.Interface)) != TypeAttributes.Sealed) return false;
+        var seen = new HashSet<ObjectTypeId>();
+        while (type != _program.Flow.Types.ObjectBase)
+        {
+            if (type is null || type.ContentHash == _program.Flow.Types.ObjectBase.ContentHash || !seen.Add(type)
+                || seen.Count > ObjectModelLimits.MaximumOwnerDepth || !_layouts.TryGetValue(type, out layout)) return false;
+            type = layout.BaseType;
+        }
+        return true;
+    }
+
     internal IrType? AllocationType(IrMethodId? constructor) => constructor is not null && _bindings.TryGetValue(constructor, out var target)
         && Constructor(target) ? IrType.Reference(target.Owner) : null;
 
@@ -624,6 +641,7 @@ internal sealed partial class ObjectIrRules
                             IrExpression.ObjectGetType t => !This(t.Operand),
                             IrExpression.RuntimeTypeHash t => !This(t.Operand),
                             IrExpression.ObjectIdentityHash t => !This(t.Operand),
+                            IrExpression.ObjectClone t => !This(t.Operand),
                             IrExpression.IntegerTextFind s => !This(s.Index),
                             IrExpression.IntegerTextPublish s => !This(s.Index) && !This(s.Text),
                             IrExpression.StringLength s => !This(s.Operand),

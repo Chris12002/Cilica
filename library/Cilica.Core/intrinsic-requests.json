@@ -1,6 +1,13 @@
 [
   {
     "Namespace": "System",
+    "Type": "Object",
+    "Member": "MemberwiseClone",
+    "ParameterCount": 0,
+    "Capability": "ObjectMemberwiseClone"
+  },
+  {
+    "Namespace": "System",
     "Type": "Int32",
     "Member": "TryParse",
     "ParameterCount": 4,

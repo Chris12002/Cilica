@@ -93,6 +93,7 @@ public abstract record IrExpression
     public sealed record RuntimeTypeLiteral(ObjectTypeId Target, ObjectTypeId Implementation) : IrExpression;
     public sealed record ObjectGetType(int Operand, ObjectTypeId Implementation) : IrExpression;
     public sealed record ObjectIdentityHash(int Operand) : IrExpression;
+    public sealed record ObjectClone(ObjectTypeId Type, int Operand) : IrExpression;
     public sealed record RuntimeTypeHash(int Operand, ObjectTypeId Implementation) : IrExpression;
     public sealed record InvariantCulture(ObjectTypeId Type) : IrExpression;
     public sealed record StringLength(int Operand) : IrExpression;

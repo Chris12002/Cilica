@@ -485,6 +485,7 @@ public static class ValueScalarLowering
                                 IrExpression.StringLength e => e with { Operand = One(e.Operand) },
                                 IrExpression.StringCodeUnit e => e with { Operand = One(e.Operand), Index = One(e.Index) },
                                 IrExpression.ObjectGetType e => e with { Operand = One(e.Operand) },
+                                IrExpression.ObjectClone e => e with { Operand = One(e.Operand) },
                                 IrExpression.ObjectIdentityHash e => e with { Operand = One(e.Operand) },
                                 IrExpression.RuntimeTypeHash e => e with { Operand = One(e.Operand) },
                                 IrExpression.IntegerTextFind e => e with { Index = One(e.Index) },

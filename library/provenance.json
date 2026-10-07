@@ -1212,6 +1212,15 @@
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Enum.cs",
       "contracts": ["AC5b.11 constrained Int32 Enum.CompareTo with directly proven matching enum boxes or null; exact interface method flags and EnumCompareTo grant."],
       "scope": "Existing checked box/borrow and signed comparison IR preserves receiver read timing and -1/0/1 results. Dynamic targets, boxed receivers, other widths and general IComparable dispatch remain unsupported."
+    },
+    {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "behavioralSource": "System.Object.MemberwiseClone contract; independent Cilica native implementation",
+      "contracts": [
+        "AC8.49 exact protected InternalCall declaration and ObjectMemberwiseClone grant for sealed application classes.",
+        "Fresh exact-type object, shallow inherited/embedded field copies, no constructor invocation or runtime-header copy."
+      ],
+      "scope": "Integer-object profile only. Caller-bound sealed ordinary application hierarchy; nonsealed classes and special runtime objects remain diagnostic. Existing allocator, roots and managed allocation faults are reused."
     }
   ]
 }

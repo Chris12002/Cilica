@@ -114,6 +114,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
         IrExpression.Unary u => [u.Operand], IrExpression.Not64 u => [u.Operand],
         IrExpression.ConvertInteger c => [c.Operand], IrExpression.IntegerCast c => [c.Operand],
         IrExpression.NewException e => new[] {e.Message, e.ParameterName, e.Inner, e.TypeName, e.ActualValue, e.ObjectName}.Where(v => v.HasValue).Select(v => v!.Value),
+        IrExpression.ObjectClone e => [e.Operand],
         IrExpression.ObjectIdentityHash e => [e.Operand],
         IrExpression.EnumEntry e => [e.Index],
         IrExpression.EnumQuery e => [e.Type, e.Value],
