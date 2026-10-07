@@ -81,6 +81,26 @@ namespace System.Collections.Generic
             size = oldSize + 1;
             items[oldSize] = item;
         }
+        public void AddRange(IEnumerable<T> collection)
+        {
+            if (collection == null) throw new ArgumentNullException("collection");
+            if (collection is ICollection<T> source)
+            {
+                int count = source.Count;
+                if (count > 0)
+                {
+                    if (Capacity - size < count) Grow(checked(size + count));
+                    source.CopyTo(items, size);
+                    size = unchecked(size + count);
+                    version++;
+                }
+            }
+            else
+            {
+                using (IEnumerator<T> cursor = collection.GetEnumerator())
+                    while (cursor.MoveNext()) Add(cursor.Current);
+            }
+        }
         private void Grow(int capacity)
         {
             int length = Capacity;

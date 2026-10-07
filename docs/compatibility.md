@@ -3101,3 +3101,14 @@ mode. Integer CIL v28 records admission; native v58 and quotas are unchanged.
 The public baseline remains 39 controls/8 gaps and frozen roots still hit production
 type limits. Full replay remains unfinished.
 See [ADR AC0090](decisions/AC0090-enumerable-list-construction.md).
+
+### List AddRange (AC3.12)
+
+AddRange now preserves the pinned collection Count/CopyTo path, checked growth,
+post-copy live size/version updates, self-copy and per-item enumerable fallback.
+Nine probes pass 2,382 repeated native/.NET comparisons, including reentrant
+callbacks, captured partial stores and every enumerator failure/disposal stage.
+All 44 selected checks pass across final runs. The public baseline advances to
+40 native controls and seven gaps; compiler/native profiles and quotas are
+unchanged. Frozen engine/state roots still hit production type bounds and full
+replay remains unfinished. See [ADR AC0091](decisions/AC0091-list-add-range.md).
