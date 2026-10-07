@@ -430,13 +430,15 @@
         "Replace inline entry arrays and unsafe/ref helpers with managed reference-entry vectors and checked indexing; entries remain private to collection operations.",
         "Use exact compiler-selected closed integer/value key operations instead of runtime reflection and EqualityComparer factory selection.",
         "Retain distinct value-key hash receiver semantics in FindValue and TryInsert.",
-        "AC3.3 adds Remove with/without out value and Clear; clear key/value payloads and reuse private entry slots. Enumeration, comparer/capacity constructors, read indexers and further members remain unsupported.",
+        "AC3.3 adds Remove with/without out value and Clear; clear key/value payloads and reuse private entry slots. Comparer/capacity constructors and further members remain unsupported.",
         "Preserve the public generic/nongeneric/serialization interface declarations; unimplemented members remain compile-time errors.",
         "Preserve per-dictionary view identity and tracing cycles; constructors use ordinary validation helpers. ContainsValue captures the entries vector and compares copied value receivers through existing exact equality selection. Unknown equality/copy/enumerator paths remain diagnostic.",
         "AC4.3 adds the concrete nested Enumerator. Walk active slots with ordinary accessors, materialize the pair before storing current, reset current/end index, and update version only after successful new-key insertion (including free-slot reuse). Boxed interface factories/legacy members remain diagnostic.",
-        "AC4.4 adapts both concrete view enumerators separately to preserve distinct key/value current roots; each follows pinned version/slot/end-state behavior through ordinary dictionary accessors."
+        "AC4.4 adapts both concrete view enumerators separately to preserve distinct key/value current roots; each follows pinned version/slot/end-state behavior through ordinary dictionary accessors.",
+        "AC3.14 adds checked Add/indexer reads. Pass the private insertion key byref so duplicate messages use hash mutations; retain the original lookup key for missing-key messages. Keep formatting outside the shared insert body so TryAdd/setters preserve their accepted key scope.",
+        "Use exact private selected integer/string/ordinary-value key text and managed concatenation for pinned error resources; no general provider/IFormattable dispatch or allocation-count equivalence claim."
       ],
-      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no enumeration/indexer-read or serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types. AC4.3 supports concrete GetEnumerator/MoveNext/Current/Dispose; generic/nongeneric interface factories are not yet executable. AC4.4 also supports concrete key/value view enumerators; their interface factories remain diagnostic."
+      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types. AC4.3 supports concrete GetEnumerator/MoveNext/Current/Dispose; generic/nongeneric interface factories are not yet executable. AC4.4 also supports concrete key/value view enumerators; their interface factories remain diagnostic. AC3.14 adds Add/indexer reads for keys with admitted error formatting."
     },
     {
       "path": "library/Cilica.Core/ArrayInterface.cs",

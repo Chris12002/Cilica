@@ -102,8 +102,13 @@ APIs remain unsupported (ADR 0138). Boxed Guid type tests are admitted by AC1b.3
 
 `Dictionary.cs` maps the bounded public Dictionary constructor, Count, TryAdd,
 TryGetValue, ContainsKey and indexer setter, plus AC3.3 Remove (with/without out
-value), Clear and free-slot reuse, using the previously tested storage
-algorithms. DictionaryContracts.cs preserves generic, nongeneric and serialization
+value), Clear and free-slot reuse. AC3.14 adds Add and indexer reads, including
+exact duplicate/missing-key messages. Their private granted key-text bridge admits
+Int32/UInt32/Int64/UInt64, strings and supported named values with ordinary ToString
+overrides. Numeric error text uses the invariant contract. General IFormattable
+and reference-key text require later support. Insert passes its private key byref
+so Add formats hash mutations; Find preserves the original lookup key. TryAdd
+and setters do not acquire a text-formatting dependency. DictionaryContracts.cs preserves generic, nongeneric and serialization
 interface declarations. Unimplemented members reach UnsupportedLibraryMember and
 fail compilation; no default-valued or throwing runtime substitute is provided.
 ArrayInterface.cs supplies separately granted managed Count/index readers, collection flags and SyncRoot.

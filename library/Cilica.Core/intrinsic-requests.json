@@ -1,6 +1,13 @@
 [
   {
     "Namespace": "Cilica.Runtime",
+    "Type": "DictionaryKeyText`1",
+    "Member": "Render",
+    "ParameterCount": 1,
+    "Capability": "DictionaryKeyText"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
     "Type": "TupleShape`1",
     "Member": "IsTuple",
     "ParameterCount": 0,

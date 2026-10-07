@@ -155,3 +155,20 @@ namespace Cilica.Runtime
         }
     }
 }
+
+namespace Cilica.Runtime
+{
+    internal static class DictionaryKeyText<T>
+    {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern string Render(T value);
+    }
+    internal static class BoxedKeyText<T>
+    {
+        internal static string Render(T value) => BoxedText<T>.Render((object)value, "", 0, 0);
+    }
+    internal static class StringKeyText
+    {
+        internal static string Render(string value) => value;
+    }
+}

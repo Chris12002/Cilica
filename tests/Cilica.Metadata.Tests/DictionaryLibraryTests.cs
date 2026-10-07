@@ -67,7 +67,7 @@ public sealed class DictionaryLibraryTests
         var caller = scope.OpenInput(files.Write("key-caller.dll", hostile.Build())).Value!;
         var deniedCaller = ValueTranslator.TranslateIntegerObjects(scope, caller, root, implementation);
         Assert.False(deniedCaller.Success);
-        Assert.Contains(deniedCaller.Diagnostics, d => d.Message.Contains("private to the selected core", StringComparison.Ordinal));
+        Assert.Contains(deniedCaller.Diagnostics, d => d.Message.Contains("lexical declaring scope", StringComparison.Ordinal));
         return programs.ToArray();
     }
 
@@ -89,7 +89,7 @@ public sealed class DictionaryLibraryTests
         var actual = targetReader.GetTypeDefinition(target.Handle).GetInterfaceImplementations().Select(h =>
             resolver.ResolveSignatureType(implementation, targetReader.GetInterfaceImplementation(h).Interface).Value).ToHashSet();
         Assert.DoesNotContain(null, expected); Assert.True(expected.SetEquals(actual));
-        foreach (var (name, count) in new[] { (".ctor", 0), ("get_Count", 0), ("TryAdd", 2), ("TryGetValue", 2), ("ContainsKey", 1), ("ContainsValue", 1), ("get_Keys", 0), ("get_Values", 0), ("GetEnumerator", 0), ("set_Item", 2), ("Remove", 1), ("Remove", 2), ("Clear", 0) })
+        foreach (var (name, count) in new[] { (".ctor", 0), ("get_Count", 0), ("TryAdd", 2), ("Add", 2), ("get_Item", 1), ("TryGetValue", 2), ("ContainsKey", 1), ("ContainsValue", 1), ("get_Keys", 0), ("get_Values", 0), ("GetEnumerator", 0), ("set_Item", 2), ("Remove", 1), ("Remove", 2), ("Clear", 0) })
         {
             var method = Assert.Single(sourceReader.GetTypeDefinition(source.Handle).GetMethods(), h => {
                 var definition = sourceReader.GetMethodDefinition(h);

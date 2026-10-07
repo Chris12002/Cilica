@@ -254,6 +254,7 @@ public static partial class ValueProgramDiscovery
                             var target = _calls[key];
                             if (OrdinalPrefix(work, instruction, ref target)) ordinalPrefixes.Add(offset);
                             if ((CollectionConstructor(work, instruction, ref target) ?? CharacterStringConstructor(work, instruction, ref target)) is { } constructedType) factoryConstructors.Add(offset, constructedType);
+                            DictionaryKeyText(work, instruction, ref target);
                             if (BoxedFormat(work, instruction, instructionIndex, ref target) is { } formatBox) boxedFormatCalls.Add(offset, formatBox);
                             if (BoxedRender(work, instruction, ref target) is { } renderBox) boxedRenderCalls.Add(offset, renderBox);
                             ComparerOperation(work, instruction, ref target);

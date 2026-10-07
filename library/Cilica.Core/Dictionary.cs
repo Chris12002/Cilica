@@ -164,10 +164,15 @@ namespace System.Collections.Generic
             if (entry != null) { value = entry.Value; return true; }
             value = default; return false;
         }
-        public bool TryAdd(TKey key, TValue value) => Insert(key, value, false);
+        public bool TryAdd(TKey key, TValue value) => Insert(ref key, value, false);
         public TValue this[TKey key] {
-            get => Cilica.Runtime.UnsupportedLibraryMember<TValue>.Invoke();
-            set { Insert(key, value, true); }
+            get
+            {
+                var entry = Find(key);
+                if (entry != null) return entry.Value;
+                throw new KeyNotFoundException(string.Concat("The given key '", string.Concat(Cilica.Runtime.DictionaryKeyText<TKey>.Render(key), "' was not present in the dictionary.")));
+            }
+            set { Insert(ref key, value, true); }
         }
         public bool ContainsKey(TKey key) => Find(key) != null;
         private static bool ValueEqual(TValue left, TValue right) => Cilica.Runtime.KeyOperations<TValue>.Equal(ref left, right);
@@ -187,7 +192,13 @@ namespace System.Collections.Generic
             return false;
         }
 
-        public void Add(TKey key, TValue value) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void Add(TKey key, TValue value)
+        {
+            // Keep the key mutated by TryInsert's constrained hash callback for
+            // duplicate formatting, without adding formatting to TryAdd/setter.
+            if (!Insert(ref key, value, false))
+                throw new ArgumentException(string.Concat("An item with the same key has already been added. Key: ", Cilica.Runtime.DictionaryKeyText<TKey>.Render(key)));
+        }
         public bool Remove(TKey key) => Remove(key, out _);
         public bool Remove(TKey key, out TValue value)
         {
@@ -439,7 +450,7 @@ namespace System.Collections.Generic
             IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<IEnumerator<TValue>>.Invoke();
             Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => Cilica.Runtime.UnsupportedLibraryMember<Collections.IEnumerator>.Invoke();
         }
-        private bool Insert(TKey key, TValue value, bool overwrite)
+        private bool Insert(ref TKey key, TValue value, bool overwrite)
         {
             CheckKey(key);
             if (buckets == null)

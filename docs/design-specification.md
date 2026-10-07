@@ -3099,3 +3099,20 @@ contracts, ordinary tuple regressions and the 40-control/seven-gap public baseli
 Integer CIL advances to v31; no native IR, layout or resource-bound changes.
 Other tuple arities and non-pair hashing/comparison/text/object equality remain
 diagnostic. See [ADR AC0099](decisions/AC0099-one-and-long-tuples.md).
+
+### Dictionary checked insertion and indexed reads (AC3.14)
+
+Add and indexer reads use existing insertion/lookup storage and preserve exact
+duplicate/missing-key error text. A private granted text bridge selects managed
+invariant integer, string or supported ordinary named-value rendering. The private
+insertion key is passed byref so duplicate errors observe hash callback mutations;
+lookup errors retain the original key. Formatting remains outside shared insertion,
+preserving TryAdd/setter scope for keys without text support. General IFormattable
+and remaining reference-key formatting still fail compilation.
+
+Eleven probes provide 5,544 O0/O2 native/.NET comparisons with forced collection
+and sanitizers, including reentrant ToString mutation of the same dictionary.
+All 52 selected distinct checks pass, including dictionary state/ownership
+regressions; the public baseline advances to 42 native controls and five gaps.
+Integer CIL v32; native IR/layout/resource bounds unchanged. See
+[ADR AC0100](decisions/AC0100-dictionary-add-read.md).
