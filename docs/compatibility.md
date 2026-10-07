@@ -3689,3 +3689,17 @@ slot, null check and exception ordering. No call is reordered or executed while
 compiling. Integer CIL v61; other IR/native profiles and budgets are unchanged.
 See [ADR AC0144](decisions/AC0144-retained-stack-receiver-proof.md).
 This admits the frozen fingerprint writer's stack pattern, not yet its execution.
+
+### AC7b.18: Pair tuple formatting (2026-10-07)
+
+ValueTuple<T1,T2>.ToString now renders its fields by reference in left-to-right
+order, preserving mutable value callbacks and null strings. Exact private
+TupleElementText grants select invariant signed/unsigned 32/64-bit integer
+formatting, string identity or an implemented ordinary value ToString override.
+Nested pairs reuse that path; dictionary error messages and directly boxed pair
+formatting compose with it. IFormattable components use their ordinary ToString,
+as tuple formatting requires. Non-string reference, enum, nullable and narrow
+components, and other tuple arities, remain diagnostic. No allocation-count or
+interning equivalence is claimed. Integer CIL v62; existing IR/native profiles
+and budgets remain unchanged. See [ADR AC0145](decisions/AC0145-pair-tuple-text.md).
+Full engine/fingerprint execution and saved-game replay remain open.

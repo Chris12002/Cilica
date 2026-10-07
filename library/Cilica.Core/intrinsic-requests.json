@@ -1041,5 +1041,12 @@
     "Member": "Name",
     "ParameterCount": 0,
     "Capability": "ReferenceKeyTypeName"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "TupleElementText`1",
+    "Member": "Render",
+    "ParameterCount": 1,
+    "Capability": "TupleElementText"
   }
 ]

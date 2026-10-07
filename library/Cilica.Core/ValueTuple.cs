@@ -42,7 +42,12 @@ namespace System
         int Collections.IStructuralComparable.CompareTo(object other, Collections.IComparer comparer) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
         int IComparable.CompareTo(object other) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
         public int CompareTo(ValueTuple<T1, T2> other) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
-        public override string ToString() => Cilica.Runtime.UnsupportedLibraryMember<string>.Invoke();
+        public override string ToString()
+        {
+            string first = Cilica.Runtime.TupleElementText<T1>.Render(ref Item1);
+            string second = Cilica.Runtime.TupleElementText<T2>.Render(ref Item2);
+            return string.Concat("(", string.Concat(first, string.Concat(", ", string.Concat(second, ")"))));
+        }
         int Runtime.CompilerServices.ITuple.Length => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
         object Runtime.CompilerServices.ITuple.this[int index] => Cilica.Runtime.UnsupportedLibraryMember<object>.Invoke();
     }
@@ -179,5 +184,22 @@ namespace Cilica.Runtime
     {
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         internal static extern bool IsTuple();
+    }
+}
+
+namespace Cilica.Runtime
+{
+    internal static class TupleElementText<T>
+    {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern string Render(ref T value);
+    }
+    internal static class TuplePrimitiveText
+    {
+        internal static string String(ref string value) => value;
+        internal static string Int32(ref int value) => Library.IntegerFormatting.Int32Invariant(value);
+        internal static string UInt32(ref uint value) => Library.IntegerFormatting.UInt32Invariant(value);
+        internal static string Int64(ref long value) => Library.IntegerFormatting.Int64Invariant(value);
+        internal static string UInt64(ref ulong value) => Library.IntegerFormatting.UInt64Invariant(value);
     }
 }

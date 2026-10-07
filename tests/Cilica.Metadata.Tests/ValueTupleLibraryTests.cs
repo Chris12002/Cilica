@@ -17,7 +17,7 @@ namespace Cilica.Metadata.Tests;
 public sealed class ValueTupleLibraryTests
 {
     private static readonly (string Name, Func<int, int, int> Oracle)[] Probes = [
-        ("Values", ValueTupleProbe.Values), ("Dictionary", ValueTupleProbe.Dictionary), ("CopyAndHash", ValueTupleProbe.CopyAndHash), ("Strings", ValueTupleProbe.Strings)];
+        ("Values", ValueTupleProbe.Values), ("Dictionary", ValueTupleProbe.Dictionary), ("CopyAndHash", ValueTupleProbe.CopyAndHash), ("Strings", ValueTupleProbe.Strings), ("UnsupportedText", ValueTupleProbe.UnsupportedText)];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
         CoreLibraryBuildTests.TranslateFixtures(typeof(ValueTupleProbe), Probes.Select(p => p.Name).ToArray()));
     [Theory]
@@ -69,7 +69,7 @@ public sealed class ValueTupleLibraryTests
         var input = resolver.OpenInput(typeof(ValueTupleProbe).Assembly.Location).Value!;
         MethodDefinitionHandle Method(string name) => (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ValueTupleProbe).GetMethod(name)!.MetadataToken);
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        foreach (string name in new[] { "UnsupportedCompare", "UnsupportedObjectEquals", "UnsupportedText" })
+        foreach (string name in new[] { "UnsupportedCompare", "UnsupportedObjectEquals" })
         {
             var result = ValueTranslator.TranslateIntegerObjects(scope, input, Method(name), implementation);
             Assert.False(result.Success); Assert.Null(result.Program);

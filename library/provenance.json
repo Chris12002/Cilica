@@ -541,16 +541,18 @@
       "algorithms": [
         "Two-field tuple construction, typed equality and component hashing",
         "One-, five- and long-tuple construction, value storage and left-to-right typed equality",
-        "Long-tuple nominal Rest validation before field assignment"
+        "Long-tuple nominal Rest validation before field assignment",
+        "Pair ToString field callback order and null-to-empty components"
       ],
       "changes": [
         "Copy equality receivers, but hash original fields in left-to-right order, preserving mutable value callbacks.",
+        "Pair text renders each field by reference, then concatenates the fixed punctuation; exact private TupleElementText grants select invariant 32/64-bit integer helpers, string identity or ordinary value ToString bodies.",
         "Use exact private granted key selection in place of comparer factories; retain six public nominal interfaces and diagnostic stubs for unimplemented members.",
         "Use managed sequential inline storage; no external native layout compatibility claim.",
         "Equality copies each component receiver before its callback; storage reuses existing generic values, vectors, boxes and nullable support.",
         "An exact private closed-type predicate replaces the nonescaping Rest marker-interface test; admitted owned tuple identities are 1, 2, 5 and 8. A default long tuple is recognized without recursively validating its Rest."
       ],
-      "scope": "Bounded pair fields, constructor, typed equality and hashing for admitted integer, string and exact inline keys. No object equality, comparison, structural APIs, tuple indexing or formatting. AC5b.8 adds five-component storage/equality; AC5b.9 adds one-field and long-tuple storage/equality with constructor Rest checking. Non-pair hashing and remaining tuple arities stay diagnostic."
+      "scope": "Bounded pair fields, constructor, typed equality and hashing for admitted integer, string and exact inline keys. No object equality, comparison, structural APIs or tuple indexing. AC7b.18 adds bounded pair formatting for 32/64-bit integers, strings and implemented named value overrides, including nested pairs; other component categories and tuple arities remain diagnostic. AC5b.8 adds five-component storage/equality; AC5b.9 adds one-field and long-tuple storage/equality with constructor Rest checking. Non-pair hashing and remaining tuple arities stay diagnostic."
     },
     {
       "path": "library/Cilica.Core/StringKeyOperations.cs",
