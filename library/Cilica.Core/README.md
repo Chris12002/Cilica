@@ -141,7 +141,9 @@ serialization, HResult and other exception constructor overloads remain separate
 work (ADR 0150).
 
 ValueTuple.cs supplies bounded two-field tuple construction, typed equality and
-hashing. Equality copies component receivers; hashing targets the fields directly.
+hashing, plus five-field construction/storage and typed equality. Equality copies
+component receivers; pair hashing targets the fields directly. Five-field hashing
+remains diagnostic.
 String keys use private managed ordinal equality and UTF-16 hashing. Hash values
 are implementation-specific. Object equality, comparison, structural APIs, tuple
 indexing and formatting remain diagnostic. Pinned sources and the hash combiner’s

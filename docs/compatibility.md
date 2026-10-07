@@ -2926,3 +2926,18 @@ Integer CIL v21, object IR v29 and native v55 record admission; physical layout
 remains v21. The public baseline is 33 native controls and 14 diagnostic gaps.
 Frozen engine/state still stop at their type limits; saved-game replay is unfinished.
 See [ADR AC0077](decisions/AC0077-string-substring.md).
+
+### Five-component tuple storage and equality (AC5b.8)
+
+The owned core maps ValueTuple<T1,T2,T3,T4,T5> with all five public fields,
+construction and left-to-right typed equality through existing closed values.
+Component equality receives a fresh copy before each callback, preserving mutation,
+short-circuit and exception order. Ten probes cover scalar/wide/reference storage,
+copies, returns, heap fields, arrays, boxing, nullable values and typed equality.
+Five-component hashing, comparison, formatting and boxed/object tuple APIs remain
+explicit diagnostic bodies. Constructor receiver borrows across branch joins retain
+the existing diagnostic; computing arguments before construction remains supported.
+No compiler/runtime profile, intrinsic grant or resource bound changes. The public
+baseline advances to 34 native controls and 13 diagnostic gaps. Frozen engine/state
+remain at their type limits; full saved-game replay is not yet executable.
+See [ADR AC0078](decisions/AC0078-five-component-tuples.md).

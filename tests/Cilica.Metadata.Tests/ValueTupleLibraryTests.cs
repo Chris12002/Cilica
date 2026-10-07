@@ -27,8 +27,9 @@ public sealed class ValueTupleLibraryTests
         var programs = await Programs.Value;
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, Probes.Select((p, i) => (p.Name, programs[i], p.Oracle)).ToArray());
     }
-    [Fact]
-    public async Task Tuple_nominal_contract_and_fields_match_reference_metadata()
+    [Theory]
+    [InlineData(2)] [InlineData(5)]
+    public async Task Tuple_nominal_contract_and_fields_match_reference_metadata(int arity)
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -38,8 +39,8 @@ public sealed class ValueTupleLibraryTests
         using var targetStream = File.OpenRead(built.AssemblyPath);
         using var sourceImage = new PEReader(sourceStream); using var targetImage = new PEReader(targetStream);
         var sourceReader = sourceImage.GetMetadataReader(); var targetReader = targetImage.GetMetadataReader();
-        var source = resolver.ResolveType(contract, "System", "ValueTuple`2").Value!;
-        var target = resolver.ResolveType(implementation, "System", "ValueTuple`2").Value!;
+        var source = resolver.ResolveType(contract, "System", "ValueTuple`" + arity).Value!;
+        var target = resolver.ResolveType(implementation, "System", "ValueTuple`" + arity).Value!;
         var expected = sourceReader.GetTypeDefinition(source.Handle).GetInterfaceImplementations().Select(h =>
             resolver.ResolveLibrarySignatureType(plan, contract, sourceReader.GetInterfaceImplementation(h).Interface).Value).ToHashSet();
         var actual = targetReader.GetTypeDefinition(target.Handle).GetInterfaceImplementations().Select(h =>

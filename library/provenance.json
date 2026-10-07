@@ -509,14 +509,16 @@
       "path": "library/Cilica.Core/ValueTuple.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ValueTuple.cs",
       "algorithms": [
-        "Two-field tuple construction, typed equality and component hashing"
+        "Two-field tuple construction, typed equality and component hashing",
+        "Five-field tuple construction, value storage and left-to-right typed equality"
       ],
       "changes": [
         "Copy equality receivers, but hash original fields in left-to-right order, preserving mutable value callbacks.",
         "Use exact private granted key selection in place of comparer factories; retain six public nominal interfaces and diagnostic stubs for unimplemented members.",
-        "Use managed sequential inline storage; no external native layout compatibility claim."
+        "Use managed sequential inline storage; no external native layout compatibility claim.",
+        "Five-component equality copies each component receiver before its callback; storage reuses existing generic values, vectors, boxes and nullable support."
       ],
-      "scope": "Bounded pair fields, constructor, typed equality and hashing for admitted integer, string and exact inline keys. No object equality, comparison, structural APIs, tuple indexing, formatting or boxing support."
+      "scope": "Bounded pair fields, constructor, typed equality and hashing for admitted integer, string and exact inline keys. No object equality, comparison, structural APIs, tuple indexing, formatting or boxing support. AC5b.8 additionally admits five-component storage and typed equality; five-component hashing, comparison, formatting and object/interface tuple APIs remain diagnostic."
     },
     {
       "path": "library/Cilica.Core/StringKeyOperations.cs",
