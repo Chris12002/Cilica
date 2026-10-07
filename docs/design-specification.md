@@ -3182,3 +3182,17 @@ ASan/UBSan. Metadata/control-flow/grant negatives and adjacent core/type-identit
 checks pass. The public baseline advances to 43 native controls/four gaps. Native
 v61, object layout v23 and production resource limits are unchanged. Full engine
 execution and saved-game replay remain unfinished. See [ADR AC0106](decisions/AC0106-constant-array-data.md).
+
+### Dictionary capacity construction (AC3.16)
+
+Dictionary(int capacity) now validates negative input, leaves zero capacity lazy,
+and allocates positive capacities using the existing prime table. Constructor and
+first insertion share initialization that publishes fields after both arrays are
+allocated. Default equality/hash and other dictionary behavior are unchanged.
+
+Six probes supply 3,276 repeated O0/O2 native/.NET comparisons. Ten native quota
+failure/recovery cycles check released roots and reusable runtime state. All 39
+selected checks pass, including dictionary/view/error-message regressions and the
+43-control/four-gap public baseline. Compiler/native profiles and production limits
+are unchanged. Comparer and other constructors remain diagnostic; full engine and
+saved-game replay remain unfinished. See [ADR AC0107](decisions/AC0107-dictionary-capacity.md).

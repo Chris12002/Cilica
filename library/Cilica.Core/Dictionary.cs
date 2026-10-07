@@ -123,6 +123,20 @@ namespace System.Collections.Generic
         private int freeCount;
         private int version;
         public Dictionary() { freeList = -1; }
+        public Dictionary(int capacity)
+        {
+            if (capacity < 0) throw new ArgumentOutOfRangeException("capacity");
+            freeList = -1;
+            if (capacity > 0) Initialize(capacity);
+        }
+        private void Initialize(int capacity)
+        {
+            int size = Cilica.Runtime.DictionaryPrimes.GetPrime(capacity);
+            var newBuckets = new int[size];
+            var newEntries = new Cilica.Runtime.DictionaryEntry<TKey, TValue>[size];
+            // Publish together after both allocations, including the lazy first insert.
+            freeList = -1; buckets = newBuckets; entries = newEntries;
+        }
         public int Count => count - freeCount;
         private KeyCollection keys;
         private ValueCollection values;
@@ -453,12 +467,7 @@ namespace System.Collections.Generic
         private bool Insert(ref TKey key, TValue value, bool overwrite)
         {
             CheckKey(key);
-            if (buckets == null)
-            {
-                var newBuckets = new int[3];
-                var newEntries = new Cilica.Runtime.DictionaryEntry<TKey, TValue>[3];
-                buckets = newBuckets; entries = newEntries;
-            }
+            if (buckets == null) Initialize(0);
             uint hash = unchecked((uint)Cilica.Runtime.KeyOperations<TKey>.Hash(ref key));
             int bucket = (int)(hash % (uint)buckets.Length);
             int index = buckets[bucket] - 1;
