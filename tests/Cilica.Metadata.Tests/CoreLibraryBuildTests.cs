@@ -88,7 +88,7 @@ public sealed class CoreLibraryBuildTests
         return names.Select(name => {
             var translated = ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(fixture.GetMethod(name)!.MetadataToken), implementation);
-            Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
+            Assert.True(translated.Success, name + ": " + string.Join("; ", translated.Diagnostics));
             return translated.Program!;
         }).ToArray();
     }

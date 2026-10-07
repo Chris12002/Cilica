@@ -764,3 +764,7 @@ AC5b.12 admits direct metadata and boxed operations for lexically visible intern
 and private nested Int32 enums. Existing Enum.IsDefined and comparison behavior
 is unchanged; hidden generic arguments remain outside the bounded profile.
 See ADR AC0115 for native and access-boundary evidence.
+
+AC3.19 maps the granted private Int32-enum key hash to the existing Int32 hash
+body. Enum collection interfaces/array equivalence remain diagnostic, so this
+alone does not admit enum dictionaries or sets. See ADR AC0116.

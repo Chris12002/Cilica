@@ -90,6 +90,16 @@ public static partial class ValueProgramDiscovery
             }
             if (equal && storage.Kind is IrTypeKind.Int32 or IrTypeKind.Int64)
                 return new(ClosedKeyOperation.Equal, storage);
+            if (hash && EnumScalar(key, work, offset))
+            {
+                // The enum's exact nominal shape and access were checked above.
+                // Enum.GetHashCode uses the underlying Int32 hash; reuse the selected
+                // managed body and its byref scalar ABI rather than inventing a box.
+                var integer = Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), work, offset);
+                target = Require(resolver.ResolveClosedDeclaration(new(integer, SignatureList<TypeSignature>.Empty),
+                    "GetHashCode", 0, _metadata), work, offset);
+                return null;
+            }
             ConstructedType? receiver = key switch {
                 TypeSignature.Named { Kind: SignatureTypeKind.ValueType } named => new(named.Definition, SignatureList<TypeSignature>.Empty),
                 TypeSignature.Generic { Definition.Kind: SignatureTypeKind.ValueType } generic => new(generic.Definition.Definition, generic.Arguments),

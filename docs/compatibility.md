@@ -3360,3 +3360,13 @@ nesting and foreign hidden declarations remain diagnostic. Eight new probes give
 records admission; native v64/layout v24 and production limits are unchanged.
 Full engine/replay remains unfinished. See
 [ADR AC0115](decisions/AC0115-nonpublic-enum-operands.md).
+
+### Int32 enum default key hashing (AC3.19)
+
+The core-private ClosedKeyHash operation selects the existing Int32.GetHashCode
+body for validated public nongeneric Int32 enums. One direct hash witness supplies
+294 native/.NET comparisons, with exact grant denial and unsupported boundaries.
+Enum dictionary/set roots remain diagnostic at their separate enum-array interface
+dependency; no collection-execution claim follows from hashing alone. Integer CIL
+v42 changes admission; native v64/layout v24 and production budgets stay unchanged.
+See [ADR AC0116](decisions/AC0116-int32-enum-key-hashing.md).
