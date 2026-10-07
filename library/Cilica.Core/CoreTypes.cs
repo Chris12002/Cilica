@@ -25,6 +25,11 @@ namespace System
     {
         protected Array() { }
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern T[] Empty<T>();
+        public static int IndexOf<T>(T[] array, T value)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+            return Cilica.Runtime.KeyOperations<T>.IndexOf(array, value, array.Length);
+        }
         public static Collections.ObjectModel.ReadOnlyCollection<T> AsReadOnly<T>(T[] array)
         {
             if (array == null) throw new ArgumentNullException("array");

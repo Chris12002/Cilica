@@ -3584,3 +3584,15 @@ copy to 131,072 instructions reaches Array.IndexOf<string> after 327,656 units;
 StateLookup remains eight methods/9,925 units. All six frozen input hashes match.
 Production limits and public-baseline claims are unchanged. No engine emission or
 execution. See ADR AC0136 and artifacts/alchemy-engine-instructions131072.
+
+### AC3.24: Whole-vector Array.IndexOf (2026-10-07)
+
+The exact two-argument generic Array.IndexOf now reuses existing granted search
+and equality helpers after its null check. Strings, Int32/Int64, Int32 enums and
+admitted IEquatable values preserve first-match results, live value mutation,
+allocating/throwing equality and argument order. Eight probes supply 2,352 repeated
+O0/O2 native/.NET comparisons with forced GC and sanitizers. All 28 search and
+public-baseline checks pass. Nullable/reference fallback equality, range overloads
+and narrow byte/char borrows remain diagnostic. No new grants, profiles, native
+operations or production limits. See ADR AC0137 and artifacts/alchemy-array-indexof.
+Full engine execution, fingerprint execution and saved-game replay remain open.

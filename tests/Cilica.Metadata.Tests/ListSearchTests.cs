@@ -61,7 +61,7 @@ public sealed class ListSearchTests
         var caller = scope.OpenInput(files.Write("search-caller.dll", hostile.Build())).Value!;
         var deniedCaller = ValueTranslator.TranslateIntegerObjects(scope, caller, root, implementation);
         Assert.False(deniedCaller.Success);
-        Assert.Contains(deniedCaller.Diagnostics, d => d.Message.Contains("private to the selected core", StringComparison.Ordinal));
+        Assert.Contains(deniedCaller.Diagnostics, d => d.Message.Contains("Explicit type use requires lexical declaring scope", StringComparison.Ordinal));
     }
     [Fact]
     public async Task Detached_search_packets_preserve_scalar_results_and_value_leaves()
