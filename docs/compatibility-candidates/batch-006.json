@@ -145,9 +145,9 @@
         }
       ],
       "screened_before_download": true,
-      "external_execution": "not-run; source-only mapping, no upstream MSBuild/generators/tests/binaries executed",
+      "external_execution": "2026-10-08 approved offline selected-source restore/build and explicit translation test; no upstream build/test scripts; oracle/native not reached",
       "semantic_failures": [],
-      "semantic_failure_note": "No candidate execution performed; absence of observed failures is not a pass.",
+      "semantic_failure_note": "No semantic comparison ran: CIL3003 exact reference identity failure precedes oracle invocation. Zero of 64 scenarios executed.",
       "license": "Apache-2.0; License.txt at pinned commit",
       "target_frameworks": [
         "net45",
@@ -191,14 +191,15 @@
         "LOG conditional calls excluded when LOG undefined; no claim if enabled"
       ],
       "upstream_tests_inspected": "DifferFacts null parameter names, empty/identical inputs, insertion/deletion/block positions and mixed line endings; not executed.",
-      "mapped_status": "Selected character/line diff source closure fully mapped with all previously recorded feature gaps covered by independent regressions. Actual selected-candidate compilation/native semantic execution and full upstream project execution remain unverified.",
+      "mapped_status": "Previously screened source requirements mapped. Actual selected-source netstandard2.0 build passes; integration blocked by exact netstandard 2.0 versus 2.1 contract resolution in approved baseline 268024e.",
       "status": "mapped-blocked",
       "evidence": [
         "94 main and 9 boundary checks pass; two managed Unicode sweeps and complete changed-mapping native checks included.",
         "Original and conditional ignore-case dictionary reductions now execute and match .NET.",
-        "No actual DiffPlex code or build script executed; an explicit opt-in selected-source recipe and full transcript comparator are prepared but unrun."
+        "No actual DiffPlex code or build script executed; an explicit opt-in selected-source recipe and full transcript comparator are prepared but unrun.",
+        "2026-10-08 isolated execution: selected assembly compiles; exact netstandard2.0 reference unresolved by approved harness; 1 explicit test fails before all 64 semantic scenarios. See diffplex-execution-20261008.md."
       ],
-      "next_action": "Obtain approval for the credential-free isolated selected-root run in diffplex-execution-plan.md; verify 24 source pins, build 14 reviewed sources using the owned recipe (no upstream MSBuild), and run explicit differential transcript tests. Record integration diagnostics before claiming compatibility. Broader full-project source/build/test execution remains separate.",
+      "next_action": "Reduce exact netstandard2.0 contract resolution/mapping into an independent regression; design explicit earlier-contract binding while preserving identity checks. Then select an updated approved baseline/harness and rerun the unchanged 14-source recipe offline. Do not retarget candidate to conceal this gap.",
       "implemented_requirements": [
         {
           "feature": "String.Trim()",
@@ -254,7 +255,25 @@
         "semantics": "ignoreCase selects OrdinalIgnoreCase versus Ordinal. BuildPieceHashes requires equality/hash through Dictionary, Count, TryGetValue and indexer assignment. No culture-sensitive factory or direct comparer Compare call. Three-argument wrappers pass false but no whole-program branch pruning is assumed."
       },
       "reduced_semantic_failures": [],
-      "validation_blocker": "Approval and credential-free isolated environment required for actual external compilation/execution. This status is a validation block, not a known unsupported feature."
+      "validation_blocker": "CIL3003: candidate references netstandard Version=2.0.0.0; approved BuildAndMap supplies only Version=2.1.0.0. No version/key substitution. Earlier-contract integration is unverified; not a semantic mismatch.",
+      "integration_execution": {
+        "report": "diffplex-execution-20261008.md",
+        "cilica_commit": "268024e94879acdb004228afa360e1222e2068b8",
+        "selected_source_count": 14,
+        "candidate_build": "passed; 0 warnings, 0 errors",
+        "cilica_build": "passed; 0 warnings, 0 errors",
+        "explicit_tests": {
+          "total": 1,
+          "failed": 1,
+          "passed": 0
+        },
+        "diagnostic": "CIL3003",
+        "oracle_scenarios": 0,
+        "native_scenarios": 0,
+        "target_scenarios": 64,
+        "semantic_comparisons": 0,
+        "cleanup": "See execution report; candidate copies removed after evidence retention."
+      }
     },
     {
       "id": "crc32-net",

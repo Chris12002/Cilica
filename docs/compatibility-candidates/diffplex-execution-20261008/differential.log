@@ -1,0 +1,13 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+[37m  Discovering: Cilica.Metadata.Tests
+[0m[37m  Discovered:  Cilica.Metadata.Tests
+[0m[37m  Starting:    Cilica.Metadata.Tests
+[0m[91m    Cilica.Metadata.Tests.ApprovedDiffPlexExecutionTests.Selected_roots_match_every_transcript_observation [FAIL]
+[0m[37m      Diagnostic { Id = CIL3003, Severity = Error, Message = Cannot resolve 'netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' from the explicit reference directories. Available identities: netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51. No version or key substitution is applied., Location = type reference System.Collections.Generic.List`1 in DiffPlex.SelectedRoots, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x06000055 in DiffPlex.SelectedRoots, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null }
+[0m[90m      Stack Trace:
+[0m[37m        tests/Cilica.Metadata.Tests/ApprovedDiffPlexExecutionTests.cs(30,0): at Cilica.Metadata.Tests.ApprovedDiffPlexExecutionTests.Selected_roots_match_every_transcript_observation()
+[0m[37m        --- End of stack trace from previous location ---
+[0m[37m  Finished:    Cilica.Metadata.Tests (ID = '92b1b746cadc27469c0360fb411ead04964cf462d83d33972b487c3a91c07b8a')
+[0m[37m=== TEST EXECUTION SUMMARY ===
+[0m[37m   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0.733s
+[0m[0m

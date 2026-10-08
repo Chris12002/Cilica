@@ -1,5 +1,7 @@
 # Approved DiffPlex execution: isolation feasibility
 
+> **Setup and execution update (2026-10-08):** The user subsequently approved Docker/tooling setup. The offline image and both builds succeeded; the explicit test stopped at CIL3003 (exact netstandard 2.0 contract absent). Zero of 64 scenarios ran. See [retained execution report](diffplex-execution-20261008.md). The account below describes the earlier state.
+
 Checked read-only on 2026-10-08. The user approved the pinned selected-source test
 at 07:17:49 UTC: “Yes, sounds good for a real test of Cilica”. Approval covers
 commit f500e73f28e28813f942f1f16dec5a34b40e48e3, the 14-source recipe and authored

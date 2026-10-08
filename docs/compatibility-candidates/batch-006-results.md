@@ -1,5 +1,7 @@
 # Compatibility batch 006 results
 
+> **Later integration run (2026-10-08):** The user subsequently approved Docker/tooling setup. The offline image and both builds succeeded; the explicit test stopped at CIL3003 (exact netstandard 2.0 contract absent). Zero of 64 scenarios ran. See [retained execution report](diffplex-execution-20261008.md). The account below describes the earlier state.
+
 Implemented StringComparer.OrdinalIgnoreCase typed comparison, equality and
 consistent deterministic hashing using pinned Unicode 16 data. Local work stays in
 `codex/alchemy-replay-baseline`; Review milestone 6's Skip/range-search changes are

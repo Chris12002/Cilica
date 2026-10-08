@@ -1,0 +1,35 @@
+{
+  "removed": [
+    {
+      "command": [
+        "rm",
+        "f8582faf3663"
+      ],
+      "output": "f8582faf3663\n"
+    },
+    {
+      "command": [
+        "image",
+        "rm",
+        "cilica-diffplex-input:20261008"
+      ],
+      "output": "Untagged: cilica-diffplex-input:20261008\nDeleted: sha256:fb64eb500174d52cfc7951283ccb016e8fbae4762bd65e72b1b5bc85ab36a5ed\nDeleted: sha256:eda77b0f9b86a7df4575f9cf39b8b855fadfa4c951211e1d74270071bb1672b8\nDeleted: sha256:bcb7eba74f7a10e53c5a69c853ba6f5c291bc5970eaa2fdb8940673d6d7644ff\nDeleted: sha256:a88e54f3797838a6a24f52df4e1321df8da8a079481750b5e320cd565fa68324\nDeleted: sha256:bd4162c359068843d748aa97b4830c70f5a52ad603bf629de4257d6e01aa02f1\nDeleted: sha256:9a6ed69b7a0c4caf3515aa929827a167d9dcf8d09da1577db9b36f7c232d3436\nDeleted: sha256:29c9e3765a3f56bcf0a636835cb98521e735825a061456c25e8457a7a2b2732e\n"
+    },
+    {
+      "command": [
+        "image",
+        "rm",
+        "cilica-diffplex-tools:20261008"
+      ],
+      "output": "Untagged: cilica-diffplex-tools:20261008\nDeleted: sha256:5ff0c1d8bdc20e9f4975dc02ed4a98f9bfa7dc3babb080bceb827e9540c709f8\nDeleted: sha256:73874d90977b1ccbaf280b01138adb1f655fa51c2806e1e0b7cab9af3697025c\nDeleted: sha256:cb4fa98f34ba8826ccc4799c8696f60e9433f4f5edafb3e8d1a5e903614c2b97\nDeleted: sha256:2fd20c403ab132923f851f6a7df990b8c507bf22f62f3cc979d8ab3edd0077a5\n"
+    }
+  ],
+  "deleted_task_paths": [
+    "inputs/",
+    "tooling-context/",
+    "approved-cilica.tar"
+  ],
+  "retained": "Logs, recipes, licence and hashes in artifacts/diffplex-approved-20261008; selected execution evidence also committed under docs/compatibility-candidates/diffplex-execution-20261008",
+  "official_sdk_image": "Retained downloaded official SDK cache; contains no candidate input",
+  "unrelated_resources": "Existing postgres container and live worktree unchanged; Docker Desktop left running as authorized"
+}
