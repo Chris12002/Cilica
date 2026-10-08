@@ -1,0 +1,37 @@
+
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+using namespace BENCH_NAMESPACE;
+static std::int32_t call(Context& c, int work, int iterations) {
+    LocationArgument args[2]; args[0].bits=std::bit_cast<std::uint32_t>(work); args[1].bits=std::bit_cast<std::uint32_t>(iterations);
+    auto result=BENCH_SYMBOL(c,args);
+    if(c.pending!=0 || c.exception!=nullptr || c.used!=0 || c.top!=nullptr || c.borrows!=nullptr) {
+        std::fprintf(stderr,"Cilica status=%u used=%zu depth=%zu\n",c.pending,c.used,c.depth);std::exit(2);
+    }
+    return result;
+}
+int main(int argc,char** argv) {
+    if(argc<3)return 1;
+    Instance heap;Context c(heap);int work=std::atoi(argv[2]);using clock=std::chrono::steady_clock;
+    if(std::strcmp(argv[1],"verify")==0) {
+        int length=call(c,work,-1);std::printf("{\"values\":[");
+        for(int i=0;i<length;++i)std::printf("%s%d",i==0?"":",",call(c,work,-i-2));
+        std::printf("],\"checksum\":%d}\n",call(c,work,1));return 0;
+    }
+    if(std::strcmp(argv[1],"cold")==0) {
+        auto start=clock::now();auto checksum=call(c,work,1);
+        auto ns=std::chrono::duration_cast<std::chrono::nanoseconds>(clock::now()-start).count();
+        std::printf("{\"ns\":%lld,\"checksum\":%d}\n",(long long)ns,checksum);return 0;
+    }
+    if(argc<4)return 1;int iterations=std::atoi(argv[3]);int warmed=0;auto warmStart=clock::now();
+    do { (void)call(c,work,8);warmed+=8; } while(clock::now()-warmStart<std::chrono::milliseconds(300));
+    double warm_ms=std::chrono::duration<double,std::milli>(clock::now()-warmStart).count();
+    std::printf("{\"warmIterations\":%d,\"warm_ms\":%.3f}\n",warmed,warm_ms);
+    for(int sample=0;sample<7;++sample) {
+        auto start=clock::now();auto checksum=call(c,work,iterations);
+        auto ns=std::chrono::duration_cast<std::chrono::nanoseconds>(clock::now()-start).count();
+        std::printf("{\"sample\":%d,\"iterations\":%d,\"ns\":%lld,\"checksum\":%d,\"managed_heap_bytes_after\":%zu,\"managed_objects_after\":%zu,\"frame_peak_bytes\":%zu}\n",sample,iterations,(long long)ns,checksum,heap.bytes,heap.count,c.peak);
+    }
+}
