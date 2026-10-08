@@ -4599,3 +4599,14 @@ array. No compiler/runtime profile, grant or quota changes: CIL98/IR60/native79.
 Batch012 passes 48 focused checks, 2,940 new repeated native/.NET comparisons and 4 GC
 lifetime variants. The actual CircularBuffer trial remains blocked at same-owner
 constructor chaining before oracle/native execution; full replay is unverified.
+
+### Interface-body discovery audit allowances (AC8.69)
+
+After AC8.68, raise only the isolated diagnostic method allowance from 8,192 to
+12,288 after measuring 10,797 distinct declarations/mappings. Loading the selected
+interface bodies then reaches 16,385/16,384 aggregate parameter slots; a diagnostic
+32,768-parameter allowance advances to unmapped System.Decimal in frozen spell-route
+selection. Frozen IL requires Int32 conversion/construction, decimal multiplication,
+division and invariant-provider text. Production limits remain unchanged. This is
+partial closure discovery, without full engine emission/execution, fingerprint parity
+or saved-game replay. See ADR AC0213.

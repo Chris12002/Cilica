@@ -48,7 +48,7 @@ committed changes and subsequent documentation-only proposal are preserved.
 
 At the existing 2,097,152 metadata allowance the enumeration fix advances interface
 planning until another metadata exhaustion (2,097,270 aggregate instrumented units,
-including 118 setup units across separate ledgers; engine7,259ms/StateLookup457ms).
+including 118 setup units across separate ledgers; engine 7,259ms/StateLookup 457ms).
 Increase only copied diagnostic metadata ceilings/defaults to 4,194,304, retaining
 262,144 instructions and all other previous diagnostic allowances. This reveals a
 semantic interface mismatch: boxed List<T>.Enumerator is accepted by variance but
@@ -58,12 +58,12 @@ construction -> List<PhysicalDamage>.CopyEnumerable from environmental damage en
 A diagnostic-only receiver annotation confirms the boxed cursor and get_Current.
 No claim is made that all later interface/dispatch passes are complete.
 
-The earlier pre-Array.Copy probe charges 2,187,872 aggregate metadata units in7,547ms;
-StateLookup15methods/11,616units/444ms. The final combined probe charges 2,189,364 in
-7,532ms; StateLookup15methods/11,616units/459ms. Core
+The earlier pre-Array.Copy probe charges 2,187,872 aggregate metadata units in 7,547ms;
+StateLookup 15 methods/11,616 units/444ms. The final combined probe charges 2,189,364 in
+7,532ms; StateLookup 15 methods/11,616 units/459ms. Core
 bb90c5bc200ea0868b736424616921d033d190079dc444933d369f4b5acd3409;
 manifest e03539fef6a9f0d2f2fbf4fd5d8079d890dd336498a880ee4d2a4571d9266b1f.
 Evidence: artifacts/alchemy-narrow-enumeration{,-final}-refresh,
 artifacts/alchemy-narrow-enumeration{,-final}-engine and artifacts/alchemy-metadata-4194304.
-Production instruction/metadata limits remain65,536, with other production limits
+Production instruction/metadata limits remain 65,536, with other production limits
 unchanged. No full-engine native emission/execution, fingerprint parity or replay.
