@@ -4376,3 +4376,14 @@ selected checks pass across the integrated run and targeted fixture repairs, inc
 4,410 new repeated native/.NET comparisons. See ADR AC0199. Frozen discovery advances
 to missing IGrouping<TKey,TElement> in forced movement. Full engine, unchanged fingerprint
 and saved-game replay remain unfinished.
+
+### Bounded Int32 array element locations (compatibility batch 006)
+
+Int32 vector receivers and synchronous reborrows now retain their array owner and
+index through argument evaluation, preserving later mutation, value copies and GC
+roots. Exact Int32 views also preserve existing UInt32/Int32-enum array aliases;
+other declared scalar views and escaping/native borrows remain diagnostic. Both
+IR stages and native carriers validate the new path. All 31 new checks pass,
+including 2,352 repeated O0/O2 native/.NET comparisons. CIL92/IR59/native79; see
+[the decision](decisions/compatibility-011-int32-array-locations.md). Full candidate
+compatibility still requires the unchanged pinned DiffPlex transcript trial.

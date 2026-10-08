@@ -4,6 +4,8 @@ namespace Cilica.Compiler;
 internal static class ObjectCppLocations
 {
     internal const string Text = """
+// Exact registered Int32 views and their reduced Int32/UInt32/enum array owners.
+[[maybe_unused]] static bool integer_array_location_type(const Descriptor* actual, const Descriptor* view) noexcept;
 enum class LocationStatus { complete, invalid, read_only, limit, busy, null_reference, index_bounds, array_type_mismatch };
 enum class LocationNarrow { none, Int8, UInt8, Int16, UInt16 };
 enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field, frame_wide_integer, array_slot };
@@ -148,11 +150,17 @@ struct LocationStorage {
 }
 [[gnu::noinline]] static LocationStorage array_location_storage(Context& context, const Location& location) noexcept {
     if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)
-        || !known_type(location.declaring) || location.owner->type != location.declaring
-        || (location.declaring->array_kind != 2 && location.declaring->array_kind != 3) || !valid_array_storage(location.owner)) return {LocationStatus::invalid};
+        || !known_type(location.declaring) || !valid_array_storage(location.owner)) return {LocationStatus::invalid};
+    const bool integer = integer_array_location_type(location.owner->type, location.declaring);
+    if (!integer && (location.owner->type != location.declaring
+        || (location.declaring->array_kind != 2 && location.declaring->array_kind != 3))) return {LocationStatus::invalid};
     auto* array = reinterpret_cast<ArrayObject*>(location.owner);
     const auto& type = *location.declaring;
     if (location.element >= array->length) return {LocationStatus::invalid};
+    if (integer) {
+        if (location.slot != 0) return {LocationStatus::invalid};
+        return {LocationStatus::complete, StorageKind::integer, &array->integers[location.element]};
+    }
     if (type.array_kind == 2) {
         if (location.slot != 0 || type.accepts_element == nullptr) return {LocationStatus::invalid};
         return {LocationStatus::complete, StorageKind::reference, &array->references[location.element], type.accepts_element};
@@ -186,13 +194,14 @@ struct LocationStorage {
     const Descriptor* declaring, std::uint32_t index, std::size_t slot, bool read_only = false) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
     if (owner == nullptr) return {LocationStatus::null_reference};
-    if (!traceable_reference(context.instance, owner) || !known_type(declaring)
-        || (declaring->array_kind != 2 && declaring->array_kind != 3)
-        || owner->type->array_kind != declaring->array_kind || !valid_array_storage(owner)) return {LocationStatus::invalid};
+    if (!traceable_reference(context.instance, owner) || !known_type(declaring) || !valid_array_storage(owner)) return {LocationStatus::invalid};
+    const bool integer = integer_array_location_type(owner->type, declaring);
+    if (!integer && ((declaring->array_kind != 2 && declaring->array_kind != 3)
+        || owner->type->array_kind != declaring->array_kind)) return {LocationStatus::invalid};
     if (declaring->array_kind == 3 && owner->type != declaring) return {LocationStatus::invalid};
     if (index >= reinterpret_cast<ArrayObject*>(owner)->length) return {LocationStatus::index_bounds};
     // A writable reference slot is invariant even when its array view is covariant.
-    if (owner->type != declaring) return {declaring->array_kind == 2 ? LocationStatus::array_type_mismatch : LocationStatus::invalid};
+    if (!integer && owner->type != declaring) return {declaring->array_kind == 2 ? LocationStatus::array_type_mismatch : LocationStatus::invalid};
     Location value{owner, 0, slot, declaring, LocationOrigin::array_slot, read_only, index};
     const auto storage = location_storage(context, value, false);
     return storage.status == LocationStatus::complete ? LocationResult{storage.status, value} : LocationResult{storage.status};

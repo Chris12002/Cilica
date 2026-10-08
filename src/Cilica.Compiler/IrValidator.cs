@@ -240,7 +240,8 @@ internal static class IrValidator
                             IrExpression.AddressElement a => valueRules?.Locations is not null && objectRules is not null
                                 && objectRules.Element(a.ArrayType, a.Array, a.Index, valueTypes)
                                 && objectRules.ArrayElement(a.ArrayType) is { } arrayValue
-                                && (arrayValue.Kind == IrTypeKind.Value || types.IntegerCasts && arrayValue.Kind == IrTypeKind.Reference)
+                                && (arrayValue.Kind == IrTypeKind.Value || types.IntegerCasts && (arrayValue.Kind == IrTypeKind.Reference
+                                    || a.ArrayType.ArrayElement!.Kind == ObjectArrayElementKind.Int32 && arrayValue == IrType.Int32))
                                 && ManagedLocationRules.Address(arrayValue, value.Type),
                             IrExpression.AddressArraySlot a => locations is not null && valueRules is null && locations.ArraySlot(a, value.Type, valueTypes),
                             IrExpression.AddressField f => locations is not null && Earlier(f.Receiver)

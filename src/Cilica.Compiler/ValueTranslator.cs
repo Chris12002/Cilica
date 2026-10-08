@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v91";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v92";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -550,8 +550,8 @@ public static class ValueTranslator
                         case "ldelema" when types.IntegerCasts:
                             int addressIndex = Pop(offset, IrType.Int32, arrayIndex: true), addressArray = PopArray(offset);
                             var addressView = ArrayView(addressArray, opcode, offset);
-                            if (addressView.ArrayElement!.Kind is not (ObjectArrayElementKind.Value or ObjectArrayElementKind.Reference))
-                                Error(offset, "Element addresses currently require a closed inline value or reference array.", DiagnosticIds.ExecutionUnsupported);
+                            if (addressView.ArrayElement!.Kind is not (ObjectArrayElementKind.Value or ObjectArrayElementKind.Reference or ObjectArrayElementKind.Int32))
+                                Error(offset, "Element addresses currently require a closed inline value, reference or Int32 array.", DiagnosticIds.ExecutionUnsupported);
                             Push(offset, IrType.Location(ElementType(addressView)), new IrExpression.AddressElement(addressView, addressArray, addressIndex), true); break;
                         case "ldelem.u4" or "ldelem.i8" or "ldelem.ref" or "ldelem" or "ldelem.u1" or "ldelem.u2" when types.IntegerCasts:
                         case "ldelem.i4" when arrays:

@@ -27,6 +27,7 @@ internal sealed class ManagedLocationRules
     private readonly Dictionary<ObjectFieldId, ObjectField> _heapFields;
     private readonly Dictionary<ObjectTypeId, ObjectValueArrayLayout> _arrays;
     private readonly HashSet<ObjectTypeId> _referenceArrays;
+    private readonly HashSet<ObjectTypeId> _integerArrays;
     private readonly IrTypeRules _types;
     private readonly ValueIrRules? _values;
 
@@ -36,6 +37,8 @@ internal sealed class ManagedLocationRules
         _arrays = catalog is not null ? [] : references.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Value).ToDictionary(a => a, a => references.ValueArrays.Single(v => v.Type == a.ArrayElement!.Type));
         _referenceArrays = catalog is null && references.Integer64
             ? references.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Reference).ToHashSet() : [];
+        _integerArrays = catalog is null && references.Integer64
+            ? references.Arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32).ToHashSet() : [];
         _heapFields = references.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         _types = new(references, catalog, locations: true); _values = values;
     }
@@ -53,7 +56,8 @@ internal sealed class ManagedLocationRules
         slot.ArrayType is not null && slot.Array >= 0 && slot.Array < values.Count
         && slot.Index >= 0 && slot.Index < values.Count && values[slot.Index] == IrType.Int32
         && _types.Assignable(values[slot.Array], IrType.Reference(slot.ArrayType))
-        && (_referenceArrays.Contains(slot.ArrayType) ? slot.Slot == 0 && Address(IrType.Reference(slot.ArrayType.ArrayElement!.Type!), result)
+        && (_integerArrays.Contains(slot.ArrayType) ? slot.Slot == 0 && Address(IrType.Int32, result)
+            : _referenceArrays.Contains(slot.ArrayType) ? slot.Slot == 0 && Address(IrType.Reference(slot.ArrayType.ArrayElement!.Type!), result)
             : _arrays.TryGetValue(slot.ArrayType, out var layout) && slot.Slot >= 0 && slot.Slot < layout.Slots.Length
                 && Storage(layout.Slots[slot.Slot]) is { } scalar && Address(scalar, result));
 

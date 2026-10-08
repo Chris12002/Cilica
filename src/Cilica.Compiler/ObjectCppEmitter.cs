@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v78";
+    public const string Profile = "object-frames-native-v79";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -249,6 +249,12 @@ public static class ObjectCppEmitter
                 .Append("[[maybe_unused, gnu::noinline]] static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n")
                 .Append("    for (const auto* receiver : ").Append(name).Append("_types) if (receiver == type) return true;\n    return false;\n}\n");
         }
+        // Use the same reduced-type relation as array casts, but admit only Int32 borrow views.
+        text.Append("[[maybe_unused]] static bool integer_array_location_type(const Descriptor* actual, const Descriptor* view) noexcept {\n");
+        if (program.Flow.Types.Integer64)
+            foreach (var array in arrays.Where(a => a.ArrayElement!.Kind == ObjectArrayElementKind.Int32))
+                text.Append("    if (view == &").Append(TypeSymbol(array)).Append("_descriptor) return ").Append(Predicate(array)).Append("(actual);\n");
+        text.Append("    (void)actual; (void)view; return false;\n}\n");
         text.Append("[[maybe_unused]] static bool known_type(const Descriptor* type) noexcept { return ")
             .Append(Predicate(program.Flow.Types.ObjectBase)).Append("(type); }\n")
             .Append("[[maybe_unused, gnu::noinline]] static bool array_type(const Descriptor* type) noexcept {\n");
