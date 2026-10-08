@@ -1,0 +1,32 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.CandidateCharacterArrayTests.Minimal_decoder_compositions_match_dotnet(name: "CharacterPredicate", optimized: False) [FAIL]
+      CharacterPredicate: Diagnostic { Id = CIL2001, Severity = Error, Message = Delegate requires .ctor(Object, native int) and exact Int32/Int64/reference/inline-value parameters with Invoke returning Int32, Int64, Boolean, reference, inline value or void; unsigned/narrow parameters/results and byref signatures require later lowering., Location = Cilica.Fixtures.Execution.CandidateCharacterArrayProbe::CharacterPredicate token 0x060001f0 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateCharacterArrayTests.cs(39,0): at Cilica.Metadata.Tests.CandidateCharacterArrayTests.Minimal_decoder_compositions_match_dotnet(String name, Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterArrayTests.Minimal_decoder_compositions_match_dotnet(name: "CharacterPredicate", optimized: True) [FAIL]
+      CharacterPredicate: Diagnostic { Id = CIL2001, Severity = Error, Message = Delegate requires .ctor(Object, native int) and exact Int32/Int64/reference/inline-value parameters with Invoke returning Int32, Int64, Boolean, reference, inline value or void; unsigned/narrow parameters/results and byref signatures require later lowering., Location = Cilica.Fixtures.Execution.CandidateCharacterArrayProbe::CharacterPredicate token 0x060001f0 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateCharacterArrayTests.cs(39,0): at Cilica.Metadata.Tests.CandidateCharacterArrayTests.Minimal_decoder_compositions_match_dotnet(String name, Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.EmptyArrayLibraryTests.Exact_grant_is_required_and_unsupported_element_identity_is_not_collapsed [FAIL]
+      Assert.False() Failure
+      Expected: False
+      Actual:   True
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/EmptyArrayLibraryTests.cs(51,0): at Cilica.Metadata.Tests.EmptyArrayLibraryTests.Exact_grant_is_required_and_unsupported_element_identity_is_not_collapsed()
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '27ab7e333c377d1e7e697cb14224ec1b83e58c70fb887891ec2eda291282c0e5')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 28, Errors: 0, Failed: 3, Skipped: 0, Not Run: 0, Time: 54.689s

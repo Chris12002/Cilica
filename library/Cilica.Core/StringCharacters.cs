@@ -3,6 +3,17 @@ namespace System
 {
     public sealed partial class String
     {
+        // Preserve the pinned String.cs copy/cache contract using ordinary
+        // managed UTF-16 reads and stores; no native pointer or copy intrinsic.
+        public char[] ToCharArray()
+        {
+            int length = Length;
+            if (length == 0) return Array.Empty<char>();
+            var result = new char[length];
+            for (int i = 0; i < length; ++i) result[i] = this[i];
+            return result;
+        }
+
         // The compiler's exact granted constructor bridge targets this owned body.
         public static string CopyCharacters(char[] value)
         {

@@ -1,0 +1,40 @@
+  Determining projects to restore...
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/library/Cilica.Library/Cilica.Library.csproj (in 47 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Fixtures/Cilica.Fixtures.ControlFlow/Cilica.Fixtures.ControlFlow.csproj (in 47 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/examples/Primitive/Kernel/Kernel.csproj (in 47 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Fixtures/Cilica.Fixtures.Forwarding/Cilica.Fixtures.Forwarding.csproj (in 49 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj (in 50 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Fixtures/Cilica.Fixtures.Basic/Cilica.Fixtures.Basic.csproj (in 47 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/examples/Objects/Kernel/Kernel.csproj (in 47 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/examples/Objects/Prepare/Prepare.csproj (in 50 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tools/Cilica.LibraryBuild/Cilica.LibraryBuild.csproj (in 50 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/examples/Primitive/Prepare/Prepare.csproj (in 50 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/examples/Objects/Emit/Emit.csproj (in 50 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/src/Cilica.Metadata/Cilica.Metadata.csproj (in 33 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/src/Cilica.Compiler/Cilica.Compiler.csproj (in 95 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/src/Cilica.Cli/Cilica.Cli.csproj (in 95 ms).
+  Restored /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj (in 168 ms).
+  Cilica.Metadata -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_src_Cilica.Metadata/debug/Cilica.Metadata.dll
+  Cilica.LibraryBuild -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tools_Cilica.LibraryBuild/debug/Cilica.LibraryBuild.dll
+  Cilica.Compiler -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_src_Cilica.Compiler/debug/Cilica.Compiler.dll
+  Cilica.Cli -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_src_Cilica.Cli/debug/cilica.dll
+  Cilica.Fixtures.Basic -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Fixtures_Cilica.Fixtures.Basic/debug/Cilica.Fixtures.Basic.dll
+  Cilica.Fixtures.Forwarding -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Fixtures_Cilica.Fixtures.Forwarding/debug/Cilica.Fixtures.Forwarding.dll
+  Cilica.Fixtures.ControlFlow -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Fixtures_Cilica.Fixtures.ControlFlow/debug/Cilica.Fixtures.ControlFlow.dll
+  Cilica.Library -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_library_Cilica.Library/debug/Cilica.Library.dll
+/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+  Cilica.Fixtures.Execution -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Fixtures_Cilica.Fixtures.Execution/debug/Cilica.Fixtures.Execution.dll
+  Kernel -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Primitive_Kernel/debug/Cilica.Examples.Primitive.Kernel.dll
+  Prepare -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Primitive_Prepare/debug/Cilica.Examples.Primitive.Prepare.dll
+  Kernel -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Objects_Kernel/debug/Cilica.Examples.Objects.Kernel.dll
+  Emit -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Objects_Emit/debug/Cilica.Examples.Objects.Emit.dll
+  Prepare -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Objects_Prepare/debug/Cilica.Examples.Objects.Prepare.dll
+  Cilica.Metadata.Tests -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll
+
+Build succeeded.
+
+/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:15.00

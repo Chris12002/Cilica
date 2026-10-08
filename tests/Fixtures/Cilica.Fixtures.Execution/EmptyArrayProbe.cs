@@ -33,7 +33,17 @@ public static class EmptyArrayProbe
         try { return ((IReadOnlyList<int>)first)[input]; }
         catch (ArgumentOutOfRangeException) { return first == Array.Empty<int>() ? 7 : -2; }
     }
-    public static int UnsupportedUnsigned(int input, int mode) => Array.Empty<uint>().Length;
+    public static int UnsupportedWideUnsigned(int input, int mode) => Array.Empty<ulong>().Length;
+    public static int UnsignedIdentity(int input, int mode)
+    {
+        var first = Array.Empty<uint>(); var again = Empty<uint>();
+        var fresh = new uint[0]; var other = Array.Empty<int>();
+        int result = (first == again ? 1 : 0) + (first != fresh ? 2 : 0) + ((object)first != other ? 4 : 0);
+        try { first[input] = unchecked((uint)mode); return -1; }
+        catch (IndexOutOfRangeException) { }
+        try { return unchecked((int)first[mode]); }
+        catch (IndexOutOfRangeException) { return result; }
+    }
     public static int ValueIdentity(int input, int mode)
     {
         var first = Array.Empty<EmptyArrayValue>(); var again = Empty<EmptyArrayValue>();

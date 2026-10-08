@@ -1,0 +1,345 @@
+{
+  "schema_version": 1,
+  "batch": "batch-015",
+  "date": "2026-10-08",
+  "limit": 4,
+  "previous_batch": "batch-014.json",
+  "active_checkout": {
+    "path": "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica",
+    "branch": "codex/alchemy-replay-baseline",
+    "initial_head": "3c9a12acef3c48247cf39f5cb818675d275e2959",
+    "concurrent_changes": "Peer Decimal/SequenceEqual baseline preserved; Stack6408fc2 landed after final tests and is preserved. No compiler/runtime/source-list edits by this lane.",
+    "validation_head": "3c9a12acef3c48247cf39f5cb818675d275e2959",
+    "recording_head": "6408fc250943256d952251e5982676a39c431203"
+  },
+  "coordination": {
+    "selected_gap": "Parameterless String.ToCharArray; minimal Char-predicate delegate and readonly-in-string composition mapping.",
+    "reason": "Next independently useful decoder requirement following verified trimming; ordinary managed UTF-16 array copy.",
+    "performance": "Unity lane asked to flag clean timing; bounded owned builds announced. No candidate or timing run."
+  },
+  "candidates": [
+    {
+      "id": "albireo-base32",
+      "repository": "kappa7194/base32",
+      "url": "https://github.com/kappa7194/base32",
+      "commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+      "license": "MIT; Copyright 2014 Albireo",
+      "target_frameworks": [
+        "netstandard2.0",
+        "net472",
+        "net46",
+        "net45",
+        "net40"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "Earlier netstandard2.0 passes initial2.1 filter; no compatibility inference.",
+      "files": [
+        {
+          "path": "Albireo.Base32.Tests/Albireo.Base32.Tests.csproj",
+          "git_blob_sha1": "4a498fd7cef5bab6ae55d6583d4c5c8c2cb54ac5",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/Albireo.Base32.Tests.csproj"
+        },
+        {
+          "path": "Albireo.Base32.Tests/Base32Tests.cs",
+          "git_blob_sha1": "9b6283202674dcb37109bb716230024b124171c5",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/Base32Tests.cs"
+        },
+        {
+          "path": "Albireo.Base32.Tests/DecodeTests.cs",
+          "git_blob_sha1": "3259ebb5e58405997e9974a80fd16f4f508e1171",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/DecodeTests.cs"
+        },
+        {
+          "path": "Albireo.Base32.Tests/EncodeTests.cs",
+          "git_blob_sha1": "a7f4324318566f458269b3cc148ca6a84b3583ff",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/EncodeTests.cs"
+        },
+        {
+          "path": "Albireo.Base32/Albireo.Base32.csproj",
+          "git_blob_sha1": "46be76a6b66b56899b1b6f027a59647977f78cd5",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32/Albireo.Base32.csproj"
+        },
+        {
+          "path": "Albireo.Base32/Base32.cs",
+          "git_blob_sha1": "bd6584e246151e3e493ed1eb9f17de269cb1ddc1",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32/Base32.cs"
+        },
+        {
+          "path": "LICENSE.txt",
+          "git_blob_sha1": "1b3da92904fd9e9c1f4f327fafa5c7e0c771b150",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/LICENSE.txt"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "Not run; connector text-only inspection, no checkout, source staging, restore or build.",
+      "dependencies": {
+        "inspection": "No runtime package/project references in library; SDK imports, package-on-build and checked overflow enabled. Tests netcoreapp2.1 -> library + Microsoft.NET.Test.Sdk15.7.0/MSTest.TestAdapter1.2.1/MSTest.TestFramework1.2.1. Full ten-file tree has no inherited props/targets."
+      },
+      "roots": [
+        "Base32.Decode(in string)"
+      ],
+      "reachable_requirements": [
+        "String.TrimEnd(char[]) selected by netstandard2.0 params binding",
+        "ToUpperInvariant, ToCharArray and Char predicate Enumerable.Any",
+        "String.IndexOf(Char), byte/char vectors, checked arithmetic and conversions",
+        "Readonly input byref and capture-free predicate; exact ArgumentException/ArgumentNullException"
+      ],
+      "unsupported_features": [
+        "Func<Char,Boolean> rejected with exact CIL2001 unsigned/narrow delegate parameter diagnostic.",
+        "String.ToCharArray(Int32,Int32) remains outside selected slice."
+      ],
+      "semantic_failures": [],
+      "semantic_failure_note": "No upstream execution or candidate semantic failure observed. Owned copies/byref composition match .NET; Char delegate remains exact CIL2001 profile gap.",
+      "mapped_status": "mapped-blocked",
+      "status": "mapped-blocked",
+      "next_action": "Review a bounded Char delegate-parameter lowering slice with independent numeric identity/truncation/callback/GC tests before any candidate recipe. Do not execute upstream candidate without exact approval.",
+      "upstream_tests_inspected": "All three test sources inspected: RFC4648 encode/decode vectors including lowercase; test helper uses strict ASCII Encoding. Not executed.",
+      "excluded_scope": [
+        "Encode uses Decimal.Ceiling and division; recent bounded peer Decimal support does not cover this complete encoder.",
+        "Upstream builds/tests, ASCII test helper and all candidate execution unapproved."
+      ],
+      "implemented_requirements": [
+        "String.Trim/TrimStart/TrimEnd Char and Char[] plus directional whitespace;19 checks/15042 new comparisons.",
+        "Parameterless ToCharArray preserves exact UTF16 payloads/fresh nonempty results/shared empty cache. Minimal readonly in-string -> TrimEnd(Char[]) -> ToCharArray executes O0/O2. All27 focused/adjacent checks pass."
+      ],
+      "evidence": "batch-015-results.md"
+    },
+    {
+      "id": "wiry-base32",
+      "repository": "wiry-net/Wiry.Base32",
+      "url": "https://github.com/wiry-net/Wiry.Base32",
+      "commit": "c5dbffea9731324231407decbf3b4a66de2030c0",
+      "license": "MIT; Copyright 2016-2018 Dmitry Razumikhin",
+      "target_frameworks": [
+        "netstandard2.0",
+        "net45"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "Earlier netstandard2.0 passes initial2.1 filter; no compatibility inference.",
+      "files": [
+        {
+          "path": ".travis.yml",
+          "git_blob_sha1": "1543f2b5a46e116adb8a083d55ce8b7113b42dcb",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/.travis.yml"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "009037520cc3a07e742b452505fb59e6f36a1d47",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/LICENSE"
+        },
+        {
+          "path": "appveyor.yml",
+          "git_blob_sha1": "9ce064de6dd338c4af5fcb78c85e1d2f535a03b5",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/appveyor.yml"
+        },
+        {
+          "path": "build.cmd",
+          "git_blob_sha1": "0ed048bc471576fb371e37712bd136d94291ddac",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/build.cmd"
+        },
+        {
+          "path": "build.sh",
+          "git_blob_sha1": "5f8cd40d893857f269a1b6beee9bfbe83a2c79b8",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/build.sh"
+        },
+        {
+          "path": "src/Wiry.Base32/Base32Encoding.cs",
+          "git_blob_sha1": "8fbb645a5a7277c2221fca6236f4fe1fc4362db0",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/src/Wiry.Base32/Base32Encoding.cs"
+        },
+        {
+          "path": "src/Wiry.Base32/CustomBase32Encoding.cs",
+          "git_blob_sha1": "4e639000de255e22275537f9bc4aa3eed6c09ee4",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/src/Wiry.Base32/CustomBase32Encoding.cs"
+        },
+        {
+          "path": "src/Wiry.Base32/IBase32Encoding.cs",
+          "git_blob_sha1": "3279ac0900c1a82143c53915c2814640154b70ea",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/src/Wiry.Base32/IBase32Encoding.cs"
+        },
+        {
+          "path": "src/Wiry.Base32/LookupTable.cs",
+          "git_blob_sha1": "2e41f54164a9fe656f35a8815fb5a2397ba46c3e",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/src/Wiry.Base32/LookupTable.cs"
+        },
+        {
+          "path": "src/Wiry.Base32/StandardBase32Encoding.cs",
+          "git_blob_sha1": "93d7f2f1b1411e6a8b8dfd14461b62303ddbcaf4",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/src/Wiry.Base32/StandardBase32Encoding.cs"
+        },
+        {
+          "path": "src/Wiry.Base32/ValidationResult.cs",
+          "git_blob_sha1": "60bda7eb4411d731b436e5d7c7fa243ee54f6b24",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/src/Wiry.Base32/ValidationResult.cs"
+        },
+        {
+          "path": "src/Wiry.Base32/Wiry.Base32.csproj",
+          "git_blob_sha1": "3028e955db38c7964d814cdb36ff8eed08337e6f",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/src/Wiry.Base32/Wiry.Base32.csproj"
+        },
+        {
+          "path": "src/Wiry.Base32/ZBase32Encoding.cs",
+          "git_blob_sha1": "aabf728d53deaee50964008590023949e5a5c88d",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/src/Wiry.Base32/ZBase32Encoding.cs"
+        },
+        {
+          "path": "tests/UnitTests/Rfc4648Tests.cs",
+          "git_blob_sha1": "e99bc90d8ba13ccfb3906487ad83d5ecb607f91f",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/tests/UnitTests/Rfc4648Tests.cs"
+        },
+        {
+          "path": "tests/UnitTests/UnitTests.csproj",
+          "git_blob_sha1": "bb1a62dc8a9a01036d76404a377daa8f603141c1",
+          "url": "https://github.com/wiry-net/Wiry.Base32/blob/c5dbffea9731324231407decbf3b4a66de2030c0/tests/UnitTests/UnitTests.csproj"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "Not run; connector text-only inspection, no checkout, source staging, restore or build.",
+      "dependencies": {
+        "inspection": "No runtime packages; SDK imports/package-on-build/AllowUnsafeBlocks. Tests netcoreapp2.0 -> library + Microsoft.NET.Test.Sdk15.5.0/xunit2.3.1/xunit.runner.visualstudio2.3.1/dotnet-xunit2.3.1 tool. Build/CI scripts restore/build/test/package/publish, inspected only."
+      },
+      "roots": [
+        "Base32Encoding.Standard.GetString / ToBytes"
+      ],
+      "reachable_requirements": [
+        "Unsafe fixed Byte/Char/Int32 pointers and pointer arithmetic",
+        "Volatile singleton/lookup fields",
+        "Nullable<Char>, virtual methods, LINQ Select/ToArray/Min/Max and string IndexOf"
+      ],
+      "unsupported_features": [
+        "Unsafe pointer/pinning kernel is outside current supported profile; do not bypass by rewriting candidate"
+      ],
+      "semantic_failures": [],
+      "semantic_failure_note": "No candidate execution; no semantic pass claimed.",
+      "mapped_status": "mapped-skip",
+      "status": "mapped-skip",
+      "next_action": "Skip encoding/decoding roots while unsafe pointer capability is outside scope. Validation-only roots could be mapped separately later.",
+      "upstream_tests_inspected": "Rfc4648Tests inspected: known vectors, offsets, padding and invalid characters, validation/exception parity; not executed.",
+      "excluded_scope": [
+        "No unsafe implementation or volatility/threading expansion authorized.",
+        "Remaining test variants not exhaustively mapped after kernel exclusion."
+      ]
+    },
+    {
+      "id": "lrucachenet",
+      "repository": "mwdavis84/LruCacheNet",
+      "url": "https://github.com/mwdavis84/LruCacheNet",
+      "commit": "31697942ea41c002359119766789e26b73dccbab",
+      "license": "MIT; Copyright 2018 Mark Davis",
+      "target_frameworks": [
+        "netstandard2.0"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "Earlier netstandard2.0 passes initial2.1 filter; no compatibility inference.",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "9cbd4910bbdc357de2aaa6a3630a32c81309758f",
+          "url": "https://github.com/mwdavis84/LruCacheNet/blob/31697942ea41c002359119766789e26b73dccbab/LICENSE"
+        },
+        {
+          "path": "LruCacheNet/CacheEnumerator.cs",
+          "git_blob_sha1": "852bf75b0e3bc98dabfdc6264e1a7bd1a2d8a0cf",
+          "url": "https://github.com/mwdavis84/LruCacheNet/blob/31697942ea41c002359119766789e26b73dccbab/LruCacheNet/CacheEnumerator.cs"
+        },
+        {
+          "path": "LruCacheNet/LruCache.cs",
+          "git_blob_sha1": "53960833df0fccff9823350342df0dec1ea86f6b",
+          "url": "https://github.com/mwdavis84/LruCacheNet/blob/31697942ea41c002359119766789e26b73dccbab/LruCacheNet/LruCache.cs"
+        },
+        {
+          "path": "LruCacheNet/LruCacheNet.csproj",
+          "git_blob_sha1": "2b7b76609a93620fa62f67337c320cafcf90b39a",
+          "url": "https://github.com/mwdavis84/LruCacheNet/blob/31697942ea41c002359119766789e26b73dccbab/LruCacheNet/LruCacheNet.csproj"
+        },
+        {
+          "path": "LruCacheNet/Node.cs",
+          "git_blob_sha1": "ab95815ad952c8fc73c34d325f1b9658d92d1a73",
+          "url": "https://github.com/mwdavis84/LruCacheNet/blob/31697942ea41c002359119766789e26b73dccbab/LruCacheNet/Node.cs"
+        },
+        {
+          "path": "UnitTests/CacheTests.cs",
+          "git_blob_sha1": "bc5eb19b66fd2cac95f70ea5a1777efa8259a6d0",
+          "url": "https://github.com/mwdavis84/LruCacheNet/blob/31697942ea41c002359119766789e26b73dccbab/UnitTests/CacheTests.cs"
+        },
+        {
+          "path": "UnitTests/UnitTests.csproj",
+          "git_blob_sha1": "94d1e33fb85f0e73d291093edc848d5c071eabde",
+          "url": "https://github.com/mwdavis84/LruCacheNet/blob/31697942ea41c002359119766789e26b73dccbab/UnitTests/UnitTests.csproj"
+        },
+        {
+          "path": "UnitTests/packages.config",
+          "git_blob_sha1": "d57d1574b97ea1efc62ba00fe42f92516d8ad190",
+          "url": "https://github.com/mwdavis84/LruCacheNet/blob/31697942ea41c002359119766789e26b73dccbab/UnitTests/packages.config"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "Not run; connector text-only inspection, no checkout, source staging, restore or build.",
+      "dependencies": {
+        "inspection": "No runtime package references, SDK library with package-on-build. Legacy net462 tests reference library and MSTest1.2.0 adapter/framework with explicit test/MSBuild imports. Full tree has no Directory.Build props/targets."
+      },
+      "roots": [
+        "LruCache.AddOrUpdate/Get/Count/Clear"
+      ],
+      "reachable_requirements": [
+        "Monitor locking on all useful cache paths",
+        "CollectionChanged event/multicast subscription and delegate callbacks",
+        "Dictionary<TKey,Node>, linked generic objects, ref out and enumerators"
+      ],
+      "unsupported_features": [
+        "Monitor/event composition outside bounded current scope; not a candidate semantic defect"
+      ],
+      "semantic_failures": [],
+      "semantic_failure_note": "No candidate execution; no semantic pass claimed.",
+      "mapped_status": "mapped-skip",
+      "status": "mapped-skip",
+      "next_action": "Skip this thread-safe cache; do not remove locks/events to make it fit.",
+      "upstream_tests_inspected": "CacheTests assertion/method survey inspected for eviction/reorder/copy/update/null faults; complete enumerator/IDictionary test mapping deferred after scope rejection. No tests executed.",
+      "excluded_scope": [
+        "Concurrency and multicast event support not authorized.",
+        "This is a preflight rejection, not full candidate compatibility mapping."
+      ]
+    },
+    {
+      "id": "simplebase-current",
+      "repository": "ssg/SimpleBase",
+      "url": "https://github.com/ssg/SimpleBase",
+      "commit": "d71d50ad413eaa3f9de0cf515c5af61f32c4bed3",
+      "license": "Apache-2.0 declared in project; full licence not inspected after framework rejection",
+      "target_frameworks": [
+        "net8.0",
+        "net9.0",
+        "net10.0"
+      ],
+      "selected_target": null,
+      "framework_filter": "Rejected at current pin.",
+      "files": [
+        {
+          "path": "src/SimpleBase.csproj",
+          "git_blob_sha1": "f27b56e1d0408c69a0f2c5e7e4ec7f7c04a276e4",
+          "url": "https://github.com/ssg/SimpleBase/blob/d71d50ad413eaa3f9de0cf515c5af61f32c4bed3/src/SimpleBase.csproj"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "Not run; connector text-only inspection, no checkout, source staging, restore or build.",
+      "dependencies": {
+        "inspection": "Library project declares build-only BannedApiAnalyzers5.6.0/PublicApiAnalyzers5.6.0/IDisposableAnalyzers4.0.8/Roslynator.Analyzers4.16.0; signing enabled. No build executed."
+      },
+      "roots": [],
+      "reachable_requirements": [],
+      "unsupported_features": [
+        "No .NET Standard-compatible asset at selected current pin"
+      ],
+      "semantic_failures": [],
+      "semantic_failure_note": "No candidate execution; no semantic pass claimed.",
+      "mapped_status": "mapped-skip",
+      "status": "mapped-skip",
+      "next_action": "Skip current pin under initial netstandard2.1 filter; older releases not selected.",
+      "upstream_tests_inspected": "Not inspected after framework rejection.",
+      "excluded_scope": [
+        "Early framework rejection only; dependency/source/test graph not fully mapped."
+      ]
+    }
+  ],
+  "cleanup": "No candidate copies created. Owned semantic tests retain native hashes before normal harness cleanup."
+}

@@ -2,8 +2,8 @@
 
 This workflow turns pinned public projects into independently testable Cilica
 requirements. It is a source-screening and regression workflow, not an automatic
-third-party build farm. The current batch is [batch-014.json](batch-014.json);
-[results](batch-014-results.md) distinguish implemented support, diagnostics and
+third-party build farm. The current batch is [batch-015.json](batch-015.json);
+[results](batch-015-results.md) distinguish implemented support, diagnostics and
 tested and excluded candidate roots.
 
 Latest execution follow-ups: [CircularBuffer selected roots verified](circularbuffer-retry-20261008.md)
@@ -25,7 +25,7 @@ Correctness trial durations are not performance results.
    applicable local skills. Ask the owning thread about overlapping work before
    selecting a gap. The primary checkout and the active Alchemy compatibility
    worktree differ substantially; never infer freshness from their directory names.
-2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-014`.
+2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-015`.
    The CLI default remains the historical batch 001; use explicit `--batch batch-NNN`
    for current or later batches. Existing immutable screening can be reused at the
    same pin. Start with two candidates and one independently useful feature. Reopen a mapped entry only for a new pin,
@@ -155,3 +155,11 @@ eight missing trimming overloads with19 passing checks/15,042 new comparisons.
 No new candidate executed. Albireo.Base32 remains blocked at independently diagnosed
 ToCharArray and other not-yet-reduced compositions; unsafe/locking candidates and
 current SimpleBase targets were excluded with explicit reasons.
+
+
+## Character-array copy and decoder blocker
+
+[Batch015](batch-015-results.md) implements parameterless ToCharArray and verifies
+its minimal readonly-reference composition. All27 checks pass with16,068 new repeated
+native/.NET comparisons. Func<Char,Boolean> remains an exact diagnosed narrow-delegate
+gate. No new upstream candidate executed; full decoder compatibility is not claimed.

@@ -1,0 +1,25 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.CandidateCharacterArrayTests.Copies_payload_independence_empty_identity_and_faults_match_dotnet(optimized: False) [FAIL]
+      Payload: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToCharArray, Location = Cilica.Fixtures.Execution.CandidateCharacterArrayProbe::Payload token 0x060001e8 IL_0008; token 0x0a00010d in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060001e8 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateCharacterArrayTests.cs(19,0): at Cilica.Metadata.Tests.CandidateCharacterArrayTests.Copies_payload_independence_empty_identity_and_faults_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterArrayTests.Copies_payload_independence_empty_identity_and_faults_match_dotnet(optimized: True) [FAIL]
+      Payload: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToCharArray, Location = Cilica.Fixtures.Execution.CandidateCharacterArrayProbe::Payload token 0x060001e8 IL_0008; token 0x0a00010d in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060001e8 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateCharacterArrayTests.cs(19,0): at Cilica.Metadata.Tests.CandidateCharacterArrayTests.Copies_payload_independence_empty_identity_and_faults_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '27ab7e333c377d1e7e697cb14224ec1b83e58c70fb887891ec2eda291282c0e5')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 2, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 0.950s

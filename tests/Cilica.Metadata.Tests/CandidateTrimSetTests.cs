@@ -30,18 +30,11 @@ public sealed class CandidateTrimSetTests
     }
 
     [Theory]
-    [InlineData("MissingCharacters")]
-    public async Task Unimplemented_adjacent_surfaces_remain_diagnostic(string name)
+    [InlineData(false)] [InlineData(true)]
+    public async Task Previously_missing_character_array_reduction_matches_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
-            await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(CandidateTrimSetProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CandidateTrimSetProbe).GetMethod(name)!.MetadataToken);
-        var translated = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(translated.Success);
-        Assert.Contains(translated.Diagnostics, d => d.Id == "CIL3010" && d.Message.Contains("ToCharArray", StringComparison.Ordinal));
+        var programs = await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateTrimSetProbe), "MissingCharacters");
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("FormerCharacterArrayGap", programs[0], CandidateTrimSetProbe.MissingCharacters)]);
     }
 }

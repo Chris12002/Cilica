@@ -4687,3 +4687,16 @@ existing lifetime tests and two new quota/cursor recovery checks. Compiler profi
 runtime, emitter and production quotas are unchanged. The frozen engine advances to
 its diagnostic 3,072 cached-type allowance; full admission/execution/replay remain
 unfinished. See ADR AC0216.
+
+
+### Parameterless string character arrays (compatibility017)
+
+String.ToCharArray now returns a fresh exact UTF-16 Char vector for nonempty strings
+and the existing per-instance empty Char array for empty strings. Normal null-receiver
+faults, copy independence and roots across allocation remain intact through managed
+operations. All27 focused/adjacent checks pass, including16,068 new repeated O0/O2
+native/.NET comparisons and every UTF-16 code unit, forced GC, sanitizers and frame/root
+boundaries. Minimal readonly in-string composition passes; Func<Char,Boolean> remains
+a diagnosed narrow delegate-parameter gap. Range ToCharArray and actual candidate
+execution remain unverified. No profiles, grants, runtime/compiler operations or
+quotas change. See compatibility batch015 and ADR compatibility-017-string-character-arrays.

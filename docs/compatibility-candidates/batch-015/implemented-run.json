@@ -1,0 +1,41 @@
+{
+  "steps": [
+    {
+      "name": "implemented-build",
+      "argv": [
+        "dotnet",
+        "build",
+        "tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj",
+        "--artifacts-path",
+        "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build",
+        "-p:CustomBeforeDirectoryBuildProps=/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/tools/CompatibilityCandidates/isolated-build.props",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false",
+        "-m:1"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "implemented-tests",
+      "argv": [
+        "dotnet",
+        "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-015/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-class",
+        "Cilica.Metadata.Tests.CandidateCharacterArrayTests",
+        "-class",
+        "Cilica.Metadata.Tests.CandidateTrimSetTests",
+        "-class",
+        "Cilica.Metadata.Tests.CharacterStringTests",
+        "-class",
+        "Cilica.Metadata.Tests.EmptyArrayLibraryTests",
+        "-parallel",
+        "none",
+        "-culture",
+        "invariant",
+        "-noColor"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "elapsed_seconds": 59.448877333
+}
