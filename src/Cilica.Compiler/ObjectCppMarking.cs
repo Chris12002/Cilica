@@ -102,6 +102,7 @@ struct MarkState {
         heap.bytes -= value->allocation_bytes; --heap.count;
         value->type->destroy(value);
     }
+    heap.release_ownership_scratch();
     return report;
 }
 [[gnu::noinline]] static bool collect_for_allocation(Context& context, bool& attempted) noexcept {

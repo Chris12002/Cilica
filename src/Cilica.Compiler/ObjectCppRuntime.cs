@@ -169,9 +169,66 @@ struct Instance {
     Object* head = nullptr;
     std::size_t bytes = 0, count = 0;
     std::size_t limit = 1048576, object_limit = 4096;
+    // Bounded ownership lookup scratch. It is scoped to one
+    // valid_roots call; no membership result survives an allocation, sweep,
+    // callback, frame change or runtime instance. Managed limits are unchanged.
+    static constexpr std::size_t ownership_slot_cap = 8192;
+    static constexpr std::size_t ownership_byte_cap = 65536;
+    const Object** ownership_scratch = nullptr;
+    std::size_t ownership_capacity = 0, ownership_bytes = 0, ownership_peak = 0;
+    std::size_t ownership_limit = ownership_byte_cap, total_memory_peak = 0;
+    bool ownership_active = false;
+#ifdef CILICA_PREFIX_TEST
+    bool ownership_fail_allocation = false;
+    void (*ownership_allocate_hook)(Instance&) noexcept = nullptr;
+#endif
     Instance() noexcept = default;
     Instance(const Instance&) = delete;
     Instance& operator=(const Instance&) = delete;
+    std::size_t total_memory() const noexcept {
+        const auto max = std::numeric_limits<std::size_t>::max();
+        return bytes > max - ownership_bytes ? max : bytes + ownership_bytes;
+    }
+    void note_memory() noexcept {
+        if (total_memory() > total_memory_peak) total_memory_peak = total_memory();
+    }
+    void release_ownership_scratch() noexcept {
+        delete[] ownership_scratch;
+        ownership_scratch = nullptr; ownership_capacity = 0; ownership_bytes = 0;
+    }
+    std::size_t desired_ownership_capacity() const noexcept {
+        auto slots = ownership_limit / sizeof(const Object*);
+        if (slots > ownership_slot_cap) slots = ownership_slot_cap;
+        if (slots > ownership_byte_cap / sizeof(const Object*)) slots = ownership_byte_cap / sizeof(const Object*);
+        std::size_t cap = 1;
+        while (cap <= slots / 2) cap *= 2;
+        if (slots == 0 || head == nullptr) cap = 0;
+        std::size_t desired = 1;
+        while (desired < cap && desired / 2 < count) desired *= 2;
+        if (desired < cap) cap = desired;
+        return cap;
+    }
+    void prepare_ownership_scratch() noexcept {
+        auto cap = desired_ownership_capacity();
+        if (ownership_capacity != cap) {
+            release_ownership_scratch();
+            if (cap != 0) {
+#ifdef CILICA_PREFIX_TEST
+                if (ownership_allocate_hook != nullptr) ownership_allocate_hook(*this);
+                if (ownership_fail_allocation) return;
+                cap = desired_ownership_capacity();
+                if (cap == 0) return;
+#endif
+                ownership_scratch = new (std::nothrow) const Object*[cap];
+                if (ownership_scratch != nullptr) {
+                    ownership_capacity = cap; ownership_bytes = cap * sizeof(const Object*);
+                    if (ownership_bytes > ownership_peak) ownership_peak = ownership_bytes;
+                    note_memory();
+                }
+            }
+        }
+        for (std::size_t i = 0; i < ownership_capacity; ++i) ownership_scratch[i] = nullptr;
+    }
     bool owns(const Object* value) const noexcept {
         if (value == nullptr) return true;
         // Compare addresses before reading a pointer supplied at a native boundary.
@@ -179,6 +236,7 @@ struct Instance {
         return false;
     }
     ~Instance() noexcept {
+        release_ownership_scratch();
         delete[] runtime_types;
         delete[] initializers;
         delete[] statics;
@@ -277,15 +335,87 @@ struct RootScope {
         context.top = frame.previous; --context.depth;
     }
 };
+// No membership result escapes one synchronous root-validation call. The
+// inventory is immutable during this scope; every later validation starts with
+// an empty prefix. The linked inventory remains the ownership authority.
+struct OwnershipBatch {
+    Instance& heap;
+    const bool exclusive;
+    const Object* paused = nullptr;
+    bool begun = false, complete = false, fallback = false;
+    explicit OwnershipBatch(Instance& value) noexcept
+        : heap(value), exclusive(!value.ownership_active) {
+        if (exclusive) {
+            heap.ownership_active = true;
+            heap.prepare_ownership_scratch();
+        }
+        fallback = !exclusive || heap.ownership_capacity == 0;
+    }
+    OwnershipBatch(const OwnershipBatch&) = delete;
+    OwnershipBatch& operator=(const OwnershipBatch&) = delete;
+    ~OwnershipBatch() noexcept { if (exclusive) heap.ownership_active = false; }
+    static std::size_t hash(const Object* p) noexcept {
+        auto n = reinterpret_cast<std::uintptr_t>(p) >> 3;
+        n ^= n >> 11; n *= std::uintptr_t{2654435761u}; n ^= n >> 13;
+        return static_cast<std::size_t>(n);
+    }
+    std::size_t slot(const Object* p) const noexcept {
+        const auto cap = heap.ownership_capacity;
+        auto h = hash(p) & (cap - 1);
+        for (std::size_t n = 0; n < cap; ++n, h = (h + 1) & (cap - 1))
+            if (heap.ownership_scratch[h] == p || heap.ownership_scratch[h] == nullptr) return h;
+        return cap;
+    }
+    bool search(const Object* target) const noexcept {
+        const Object* p = heap.head;
+        const Object* anchor = p;
+        std::size_t length = 0, power = 1;
+        while (p != nullptr) {
+            if (p == target) return true;
+            if (length == power) {
+                anchor = p; length = 0;
+                if (power <= std::numeric_limits<std::size_t>::max() / 2) power *= 2;
+            }
+            p = p->next;
+            if (p == target && p != nullptr) return true;
+            if (p == anchor) return false;
+            if (length == std::numeric_limits<std::size_t>::max()) return false;
+            ++length;
+        }
+        return false;
+    }
+    bool contains(const Object* target) noexcept {
+        if (target == nullptr) return true;
+        if (fallback) return search(target);
+        auto query = slot(target);
+        if (query != heap.ownership_capacity && heap.ownership_scratch[query] == target) return true;
+        if (complete) return false;
+        if (query == heap.ownership_capacity) { fallback = true; return search(target); }
+        const Object* p = begun ? paused->next : heap.head;
+        begun = true;
+        while (p != nullptr) {
+            auto place = slot(p);
+            if (place == heap.ownership_capacity) { fallback = true; return search(target); }
+            if (heap.ownership_scratch[place] == p) return false;
+            heap.ownership_scratch[place] = p;
+            paused = p;
+            if (p == target) return true;
+            p = p->next;
+        }
+        complete = true;
+        return false;
+    }
+};
 [[maybe_unused]] static bool valid_roots(const Context& context) noexcept {
-    if (!context.instance.owns(context.exception) || !context.instance.owns(context.instance.emergency_exception)
-        || !context.instance.owns(context.instance.invariant_culture)
-        || !context.instance.owns(reinterpret_cast<Object*>(context.instance.integer_texts))) return false;
+    OwnershipBatch batch(context.instance);
+    if (!batch.contains(context.exception) || !batch.contains(context.instance.emergency_exception)
+        || !batch.contains(context.instance.invariant_culture)
+        || !batch.contains(reinterpret_cast<Object*>(context.instance.integer_texts))) return false;
     if (context.instance.runtime_types != nullptr) for (std::size_t i = 0; i < runtime_type_count; ++i)
-        if (!context.instance.owns(context.instance.runtime_types[i])) return false;
+        if (!batch.contains(context.instance.runtime_types[i])) return false;
     for (const Frame* f = context.top; f != nullptr; f = f->previous)
         for (std::size_t i = 0; i < f->count; ++i)
-            if (!context.instance.owns(f->slots[i])) return false;
+            if (!batch.contains(f->slots[i])) return false;
     return true;
 }
 [[maybe_unused]] static bool collect_for_allocation(Context&, bool&) noexcept;
@@ -317,7 +447,7 @@ struct RootScope {
         value->length = length; value->units = units;
         value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
         value->header.allocation_bytes = charged;
-        heap.head = &value->header; heap.bytes += charged; ++heap.count;
+        heap.head = &value->header; heap.bytes += charged; ++heap.count; heap.note_memory();
         return &value->header;
     }
 }
@@ -401,7 +531,7 @@ template<class T> static Object* allocate(Context& context, const Descriptor& de
         if (value == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
         value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
         value->header.allocation_bytes = sizeof(T);
-        heap.head = &value->header; heap.bytes += sizeof(T); ++heap.count;
+        heap.head = &value->header; heap.bytes += sizeof(T); ++heap.count; heap.note_memory();
         return &value->header;
     }
 }
@@ -416,7 +546,7 @@ template<class T> static Object* runtime_type(Context& context, const Descriptor
             if (!allocation_room(context, bytes, attempted)) return nullptr;
             auto** slots = new (std::nothrow) Object*[runtime_type_count]{};
             if (slots == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
-            context.instance.runtime_types = slots; context.instance.bytes += bytes; break;
+            context.instance.runtime_types = slots; context.instance.bytes += bytes; context.instance.note_memory(); break;
         }
     }
     auto*& slot = context.instance.runtime_types[identity];
@@ -479,7 +609,7 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
         value->length = length;
         value->header.type = &descriptor; value->header.owner = &heap; value->header.next = heap.head;
         value->header.allocation_bytes = charged;
-        heap.head = &value->header; heap.bytes += charged; ++heap.count;
+        heap.head = &value->header; heap.bytes += charged; ++heap.count; heap.note_memory();
         return &value->header;
     }
 }
@@ -495,7 +625,7 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
         if (!allocation_room(context, charged, attempted)) return false;
         auto* slots = new (std::nothrow) StaticSlot[static_field_count]{};
         if (slots == nullptr) { if (collect_for_allocation(context, attempted)) continue; return false; }
-        context.instance.statics = slots; context.instance.bytes += charged;
+        context.instance.statics = slots; context.instance.bytes += charged; context.instance.note_memory();
         return true;
     }
 }
@@ -510,7 +640,7 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
         if (!allocation_room(context, charged, attempted)) return false;
         auto* slots = new (std::nothrow) InitializationSlot[type_initializer_count]{};
         if (slots == nullptr) { if (collect_for_allocation(context, attempted)) continue; return false; }
-        context.instance.initializers = slots; context.instance.bytes += charged;
+        context.instance.initializers = slots; context.instance.bytes += charged; context.instance.note_memory();
         return true;
     }
 }
