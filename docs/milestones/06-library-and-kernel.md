@@ -4002,3 +4002,14 @@ in SortedDictionary.Add through DispelOperation. The collection value is a non-s
 reference type; its ToString dispatch is not yet admitted by DictionaryKeyText.
 Engine work is 3,387,734 units; StateLookup validates 15 methods. Both Emission fields
 are null. Full closure and saved-game replay remain incomplete. See ADR AC0224.
+
+### Alchemy reference: generic handler registry
+
+A reduced owned regression, based on the separately pinned Alchemy IL2CPP
+reference capture, now composes closed generic interface handlers, dictionary
+lookup, ordered events and state identity across allocations. Five focused checks
+pass, including 2,310 O0/O2 sanitized native/.NET comparisons and two native
+lifetime checks for removed handlers and retained events. Compiler/runtime
+behavior and production bounds are unchanged. This is supplementary regression
+evidence; full Alchemy closure and saved-game replay remain incomplete. See the
+[reference and validation record](../compatibility/alchemy-handler-registry-reference.md).
