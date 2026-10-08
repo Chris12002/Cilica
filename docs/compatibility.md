@@ -4353,3 +4353,12 @@ allocation-limit recovery cases at each optimization level. All 77 selected chec
 pass. See ADR AC0195. Flags, aliases, wide/boxed receivers and direct enum-array
 addresses remain diagnostic. Frozen discovery reaches 12,290/12,288 diagnostic
 parameters; full engine, unchanged fingerprint and saved-game replay are unfinished.
+
+### Diagnostic parameter and method allowances (AC8.62)
+
+After AC7b.23 reaches 12,290/12,288 parameters, increasing only the copied parameter
+allowance to 16,384 reaches exactly 6,144 method declarations. Increasing only that
+copied method allowance to 8,192 then reaches HashSet<T>.UnionWith through
+ResolveChain. Production remains 4,096 parameters/512 methods. See ADR AC0196.
+No engine code is emitted or executed; full engine, fingerprint and replay remain
+unfinished.
