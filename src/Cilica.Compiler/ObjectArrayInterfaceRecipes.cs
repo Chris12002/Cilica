@@ -69,10 +69,12 @@ internal static class ObjectArrayInterfaceRecipes
     {
         if (catalog is null) return null;
         string integer = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int32)]), SignatureList<TypeSignature>.Empty);
+        string unsigned = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.UInt32)]), SignatureList<TypeSignature>.Empty);
         string wide = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int64)]), SignatureList<TypeSignature>.Empty);
         var matches = catalog.Interfaces.Where(i => i.Source.ContentHash == catalog.ObjectBase.ContentHash
             && i.Source.Name == "System.Collections.Generic.IEnumerator`1" && i.Arguments.Length == 1
             && (vector.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? i.Arguments[0].Identity == integer
+                : vector.ArrayElement.Kind == ObjectArrayElementKind.UInt32 ? i.Arguments[0].Identity == unsigned
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? i.Arguments[0].Identity == wide
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Enum32 ? i.Arguments[0].Enum32 == vector.ArrayElement.Type
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Reference ? i.Arguments[0].Reference == vector.ArrayElement.Type

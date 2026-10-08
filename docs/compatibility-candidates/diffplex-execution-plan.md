@@ -29,7 +29,10 @@ step, hence the approval and isolation requirement.
 
 Use an already approved disposable VM/container with an unprivileged user, no
 network, no credentials/agent sockets/keychains, no home-directory or live-repository
-mount, and fixed CPU/memory/process/time quotas. A sanitized environment alone is
+mount. Proposed hard limits: 2 vCPUs, 8 GiB RAM, 256 processes, 10 GiB writable
+scratch, 1 GiB retained output and 30 minutes total wall time; stop on any limit.
+These limits must be enforced by the isolation supervisor before execution. They
+are a proposal for approval, not limits already provisioned. A sanitized environment alone is
 insufficient. Mount/export an approved Cilica revision as `/work/cilica`, reviewed
 pinned text as `/work/input/reviewed.json`, and known offline .NET SDK 10/compiler,
 Clang and package/reference cache. The offline feed must contain the existing

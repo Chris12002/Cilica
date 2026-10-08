@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v76";
+    public const string Profile = "object-frames-native-v77";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -904,6 +904,7 @@ public static class ObjectCppEmitter
     private static string TypeSymbol(ObjectTypeId type) => "t_" + type.ContentHash + "_" + type.Token.ToString("x8", CultureInfo.InvariantCulture)
         + (type.Specialization.Length == 0 ? "" : "_g_" + type.Specialization)
         + (type.ArrayElement is null ? "" : type.ArrayElement.Kind == ObjectArrayElementKind.Int32 ? "_vector_i4"
+            : type.ArrayElement.Kind == ObjectArrayElementKind.UInt32 ? "_vector_u4"
             : type.ArrayElement.Kind == ObjectArrayElementKind.Enum32 ? "_vector_enum_i4_" + TypeSymbol(type.ArrayElement.Type!)
             : type.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? "_vector_i8"
             : type.ArrayElement.Kind == ObjectArrayElementKind.Boolean ? "_vector_bool"

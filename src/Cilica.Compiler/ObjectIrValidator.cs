@@ -434,7 +434,7 @@ internal sealed partial class ObjectIrRules
 
     internal IrType? ArrayElement(ObjectTypeId? array) => array is not null && _types.Valid(IrType.Reference(array), true) && _arrays.Contains(array)
         ? array.ArrayElement!.Kind switch {
-            ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32 => IrType.Int32,
+            ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.UInt32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32 => IrType.Int32,
             ObjectArrayElementKind.Int64 => IrType.Int64,
             ObjectArrayElementKind.Reference => IrType.Reference(array.ArrayElement.Type!),
             ObjectArrayElementKind.Value when _valueLayouts?.ContainsKey(array.ArrayElement.Type!) == true => IrType.Value(array.ArrayElement.Type!),

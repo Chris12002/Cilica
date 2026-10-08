@@ -105,14 +105,14 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         {
             var relations = new ObjectTypeRelations(catalog);
             var interfaces = catalog.Interfaces.Select(i => ObjectTypeId.From(i.Source)).ToHashSet();
-            var arrays = catalog.Arrays.Where(a => a.ArrayElement!.Kind is ObjectArrayElementKind.Reference or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32).ToArray();
+            var arrays = catalog.Arrays.Where(a => a.ArrayElement!.Kind is ObjectArrayElementKind.Reference or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.UInt32 or ObjectArrayElementKind.Enum32).ToArray();
             var pairs = new System.Collections.Generic.List<(ObjectTypeId First, ObjectTypeId Second)>();
             // The checked catalog bounds this static table to 256*255/2 pairs.
             for (int i = 0; i < arrays.Length; i++)
             for (int j = i + 1; j < arrays.Length; j++)
             {
-                if (arrays[i].ArrayElement!.Kind is ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32
-                    && arrays[j].ArrayElement!.Kind is ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32)
+                if (arrays[i].ArrayElement!.Kind is ObjectArrayElementKind.Int32 or ObjectArrayElementKind.UInt32 or ObjectArrayElementKind.Enum32
+                    && arrays[j].ArrayElement!.Kind is ObjectArrayElementKind.Int32 or ObjectArrayElementKind.UInt32 or ObjectArrayElementKind.Enum32)
                 {
                     pairs.Add((arrays[i], arrays[j])); continue;
                 }

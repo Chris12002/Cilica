@@ -71,7 +71,7 @@ public static class ObjectModelValidator
             delegateParameters += declaration.ParameterCount;
             Require(delegateParameters <= IrLimits.MaximumParameters, "aggregate delegate signature limit exceeded.");
         }
-        Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase) && (model.Integer64 || !a.ArrayElement!.Narrow && a.ArrayElement.Kind is not (ObjectArrayElementKind.Int64 or ObjectArrayElementKind.Enum32))) && model.Arrays.Distinct().Count() == model.Arrays.Length,
+        Require(model.Arrays.All(a => ArrayIdentity(a, model.ObjectBase) && (model.Integer64 || !a.ArrayElement!.Narrow && a.ArrayElement.Kind is not (ObjectArrayElementKind.UInt32 or ObjectArrayElementKind.Int64 or ObjectArrayElementKind.Enum32))) && model.Arrays.Distinct().Count() == model.Arrays.Length,
             "array identities require a unique selected-Object anchor, supported elements and the integer-object profile for Byte/Char/Int64.");
         var arrays = model.Arrays.ToHashSet();
         Require(!model.EnumArrays.IsDefault && model.EnumArrays.Length <= ObjectModelLimits.MaximumTypes

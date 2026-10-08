@@ -4270,3 +4270,16 @@ pass. Optimized LINQ-source specializations remain explicit build diagnostics,
 including Where, Select and ordering. See ADR AC0191. No compiler/native profile,
 intrinsic grant or production-limit change is needed. Frozen discovery remains
 partial; full engine, unchanged fingerprint and saved-game replay are unfinished.
+
+### UInt32 vectors for compatibility batch 007
+
+UInt32 arrays now retain their own descriptors while using the existing 32-bit
+carrier and compatible Int32/enum array views. Exact requested generic helper
+identity preserves boxing/enumeration; nongeneric enumeration retains the actual
+array element. Typed/unsigned loads, static initialization, copy, search, faults,
+heap roots and malformed packets have independent differential regressions.
+CIL85, IR55, layout28, interface17 and native77; limits and grants are unchanged.
+See [decision](decisions/compatibility-007-uint32-vectors.md) and
+[results](compatibility-candidates/batch-007-results.md). Scalar element addresses
+and checked native-integer indices remain diagnosed. The latter is Crc32.NET's
+next mapped gate; full candidate execution has not occurred.

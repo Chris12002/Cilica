@@ -322,11 +322,12 @@ public static class ObjectInterfacePlanBuilder
                 var argument = _resolved[IrMethodId.From(declaration.Source)].DeclaringType.Arguments[0];
                 if (receiver.ArrayElement.Narrow && argument is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean or PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char })
                     Fail("Narrow vector interface helpers require exact Boolean, Byte or Char generic arguments; signed aliases require later lowering.", declaration.Source.Name);
-                if (argument is TypeSignature.Primitive primitive && primitive.Code is not (PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.Object or PrimitiveTypeCode.String)
+                if (argument is TypeSignature.Primitive primitive && primitive.Code is not (PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.Object or PrimitiveTypeCode.String)
                     && recipe is "Enumerate" or "CopyTo")
-                    Fail("Generic array helpers require exact Int32/Int64, reference or inline-value elements; scalar aliases require later lowering.", declaration.Source.Name);
+                    Fail("Generic array helpers require exact Int32/UInt32/Int64, reference or inline-value elements; scalar aliases require later lowering.", declaration.Source.Name);
                 var item = Type(argument);
                 view = ObjectTypeId.Vector(catalog.ObjectBase, argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean } ? ObjectArrayElement.Boolean
+                    : argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.UInt32 } ? ObjectArrayElement.UInt32
                     : argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte } ? ObjectArrayElement.Byte
                     : argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.Char } ? ObjectArrayElement.Char
                     : contract.Arguments[0].Enum32 is { } enumeration ? ObjectArrayElement.Enum32(enumeration)
@@ -337,6 +338,7 @@ public static class ObjectInterfacePlanBuilder
             if (view.ArrayElement!.Kind == ObjectArrayElementKind.Boolean) element = new TypeSignature.Primitive(PrimitiveTypeCode.Boolean);
             else if (view.ArrayElement.Kind == ObjectArrayElementKind.Byte) element = new TypeSignature.Primitive(PrimitiveTypeCode.Byte);
             else if (view.ArrayElement.Kind == ObjectArrayElementKind.Char) element = new TypeSignature.Primitive(PrimitiveTypeCode.Char);
+            else if (view.ArrayElement.Kind == ObjectArrayElementKind.UInt32) element = new TypeSignature.Primitive(PrimitiveTypeCode.UInt32);
             else if (view.ArrayElement.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
             else if (view.ArrayElement.Kind == ObjectArrayElementKind.Int64) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int64);
             else if (view.ArrayElement.Type == catalog.ObjectBase) element = new TypeSignature.Primitive(PrimitiveTypeCode.Object);

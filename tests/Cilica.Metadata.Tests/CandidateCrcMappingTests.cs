@@ -9,13 +9,14 @@ using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class CandidateCrcMappingTests
 {
-    [Fact]
-    public async Task Unsigned_crc_table_remains_an_explicit_vector_gap()
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Unsigned_crc_table_matches_dotnet(bool optimized)
     {
         using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
         var input=scope.OpenInput(typeof(CandidateCrcMappingProbe).Assembly.Location).Value!;
         var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CandidateCrcMappingProbe).GetMethod("UnsignedTable")!.MetadataToken),implementation);
-        Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Id=="CIL2001"&&d.Message.Contains("Composed vector elements",StringComparison.Ordinal));
+        Assert.True(result.Success,string.Join("; ",result.Diagnostics));
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("UnsignedTable",result.Program!,CandidateCrcMappingProbe.UnsignedTable)]);
     }
 }

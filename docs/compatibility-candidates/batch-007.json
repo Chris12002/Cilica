@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "batch": "batch-007",
+  "date": "2026-10-08",
+  "limit": 2,
+  "previous_batch": "batch-006.json",
+  "coordination": {
+    "thread": "Review milestone 6",
+    "thread_id": "01a10e1c-e033-7143-b502-e6fca188979c",
+    "ownership": "Successfully coordinated UInt32 array/compiler scope with Review milestone 6, including CIL85/IR55/layout28/interface17/native77; preserved Skip/range-search edits."
+  },
+  "active_checkout": {
+    "path": "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica",
+    "branch": "codex/alchemy-replay-baseline",
+    "initial_head": "220e157",
+    "validation_head": "220e157 (plus owned slice and preserved concurrent working sources; exact hashes in evidence)",
+    "concurrent_changes": "Review milestone 6 Skip/range-search changes are preserved and excluded from this commit. Validation used isolated artifacts against the shared working sources; actual compiler/library hashes are recorded."
+  },
+  "candidates": [
+    {
+      "id": "diffplex",
+      "repository": "mmanela/diffplex",
+      "url": "https://github.com/mmanela/diffplex",
+      "commit": "f500e73f28e28813f942f1f16dec5a34b40e48e3",
+      "files": [
+        {
+          "path": "License.txt",
+          "git_blob_sha1": "9aa0a58ae70544e0c0c17452016385db7aa06104",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/License.txt"
+        },
+        {
+          "path": "Directory.Build.props",
+          "git_blob_sha1": "4da8180104a8c1a57a9d2d7f05a7256bd96cd790",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Directory.Build.props"
+        },
+        {
+          "path": "Directory.Build.targets",
+          "git_blob_sha1": "341027f3c7a81b1a34a213aac99e0151c40e80c6",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Directory.Build.targets"
+        },
+        {
+          "path": "NuGet.props",
+          "git_blob_sha1": "17d49f86a2894f51e1af0d5c54bb2e57aa72a601",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/NuGet.props"
+        },
+        {
+          "path": "DiffPlex/DiffPlex.csproj",
+          "git_blob_sha1": "c6c9a599420cc74d9b168cca5e37f155ba8ed291",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/DiffPlex.csproj"
+        },
+        {
+          "path": "DiffPlex/Differ.cs",
+          "git_blob_sha1": "281ee96c405676ba6f61958939d5121bdcc8584c",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Differ.cs"
+        },
+        {
+          "path": "DiffPlex/IDiffer.cs",
+          "git_blob_sha1": "c860e04f7955a608579067eb7e577c152c82c8bd",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IDiffer.cs"
+        },
+        {
+          "path": "DiffPlex/IChunker.cs",
+          "git_blob_sha1": "9e9de1a2f64c5148b46745d059c7b5f432798266",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Log.cs",
+          "git_blob_sha1": "6163e9e8b6ef7c38f5de7b50856e746b877dbee4",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Log.cs"
+        },
+        {
+          "path": "DiffPlex/Model/ModificationData.cs",
+          "git_blob_sha1": "9a6e0774693b4276cf1040de10acad9b7183aadc",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/ModificationData.cs"
+        },
+        {
+          "path": "DiffPlex/Model/DiffResult.cs",
+          "git_blob_sha1": "8055eb1e444be7e93667bb420ba628e6cc6b4b92",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffResult.cs"
+        },
+        {
+          "path": "DiffPlex/Model/DiffBlock.cs",
+          "git_blob_sha1": "7fa5fe8a59dd92376252d2be519539c8d2ae3690",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffBlock.cs"
+        },
+        {
+          "path": "DiffPlex/Model/EditLengthResult.cs",
+          "git_blob_sha1": "859014fa0f6f04c4ba4bafc8714f8ec2086554e9",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/EditLengthResult.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/CharacterChunker.cs",
+          "git_blob_sha1": "8076c4fe8591973d26061a86ef702f94d82386a8",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/CharacterChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/LineChunker.cs",
+          "git_blob_sha1": "79c6b6ed5449d6873af6b294b44512d900cbe7ee",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/LineChunker.cs"
+        },
+        {
+          "path": "Facts.DiffPlex/Facts.DiffPlex.csproj",
+          "git_blob_sha1": "b80e27988503c058a2c5e4f7ab5e6eef32903227",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Facts.DiffPlex/Facts.DiffPlex.csproj"
+        },
+        {
+          "path": "Facts.DiffPlex/DifferFacts.cs",
+          "git_blob_sha1": "92ea76c1f8b060c107a873dc926c8bf3da88b804",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Facts.DiffPlex/DifferFacts.cs"
+        },
+        {
+          "path": "DiffPlex.ConsoleRunner/DiffPlex.ConsoleRunner.csproj",
+          "git_blob_sha1": "848691cdd8930063dbc2e755eeacf933c235139d",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex.ConsoleRunner/DiffPlex.ConsoleRunner.csproj"
+        },
+        {
+          "path": "global.json",
+          "git_blob_sha1": "c0357efa53999aafda2535cf0777c6259c46bb3b",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/global.json"
+        },
+        {
+          "path": "NuGet.config",
+          "git_blob_sha1": "a416b7dd412099c3deb215e774ca66379cff9845",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/NuGet.config"
+        },
+        {
+          "path": "DiffPlex/Chunkers/CustomFunctionChunker.cs",
+          "git_blob_sha1": "ac63c730a4031b58792d72123db429985298dd58",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/CustomFunctionChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/DelimiterChunker.cs",
+          "git_blob_sha1": "cdb3ebb0ab8d15b88f23766c2718d55887c9dc97",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/DelimiterChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/WordChunker.cs",
+          "git_blob_sha1": "66a9386f617eb357378796daef0fab886bbd9e7c",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/WordChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/LineEndingsPreservingChunker.cs",
+          "git_blob_sha1": "c61e39c3ff6f4c589a429f529de327915a835749",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/LineEndingsPreservingChunker.cs"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "not-run; source-only mapping, no upstream MSBuild/generators/tests/binaries executed",
+      "semantic_failures": [],
+      "semantic_failure_note": "No candidate execution performed; absence of observed failures is not a pass.",
+      "license": "Apache-2.0; License.txt at pinned commit",
+      "target_frameworks": [
+        "net45",
+        "netstandard2.0",
+        "net6.0"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "compatible with netstandard2.1 via netstandard2.0 asset; desktop/UI projects excluded",
+      "dependencies": {
+        "runtime_packages": [],
+        "build_packages": [
+          "Microsoft.SourceLink.GitHub 1.1.1 (PrivateAssets=All)"
+        ],
+        "tests": [
+          "Microsoft.NET.Test.Sdk 17.1.0",
+          "Moq 4.17.1",
+          "xunit 2.4.1",
+          "xunit.runner.visualstudio 2.4.3"
+        ],
+        "graph": "DiffPlex -> netstandard. DiffPlex imports NuGet.props (signing/package-on-build/SourceLink); Directory.Build.props sets latest C#; Directory.Build.targets empty. Facts -> DiffPlex + ConsoleRunner; ConsoleRunner -> DiffPlex and linked demo TestData; no extra runtime package in these projects.",
+        "inspection": "All named project/import files inspected as text; no restore/build or package signing performed."
+      },
+      "roots": [
+        "Differ.CreateCharacterDiffs(string,string,bool)",
+        "Differ.CreateLineDiffs(string,string,bool)"
+      ],
+      "reachable_requirements": [
+        "ArgumentNullException and ordinary properties/readonly fields",
+        "StringComparer.Ordinal/OrdinalIgnoreCase -> Dictionary<string,int>(IEqualityComparer<string>)",
+        "List<DiffBlock>, IReadOnlyList<string>, IDictionary<string,int> dispatch",
+        "Int32 and Boolean arrays; Array.Empty<bool>; enum locals",
+        "recursive edit-path algorithm, scalar Int32.Equals",
+        "String.IsNullOrEmpty in BuildPieceHashes",
+        "String.Trim even when wrapper passes false (no whole-program constant pruning assumed)",
+        "CharacterChunker: Char.ToString",
+        "LineChunker: String.Split(string[],StringSplitOptions)"
+      ],
+      "unsupported_features": [],
+      "excluded_scope": [
+        "UI/console/three-way diff/rendering surfaces not mapped by this selected-root screen",
+        "LOG conditional calls excluded when LOG undefined; no claim if enabled"
+      ],
+      "upstream_tests_inspected": "DifferFacts null parameter names, empty/identical inputs, insertion/deletion/block positions and mixed line endings; not executed.",
+      "mapped_status": "Selected character/line diff source closure fully mapped with all previously recorded feature gaps covered by independent regressions. Actual selected-candidate compilation/native semantic execution and full upstream project execution remain unverified.",
+      "status": "mapped-blocked",
+      "evidence": [
+        "94 main and 9 boundary checks pass; two managed Unicode sweeps and complete changed-mapping native checks included.",
+        "Original and conditional ignore-case dictionary reductions now execute and match .NET.",
+        "No actual DiffPlex code or build script executed; an explicit opt-in selected-source recipe and full transcript comparator are prepared but unrun."
+      ],
+      "next_action": "Parent to obtain approval for the exact selected-root execution plan in diffplex-execution-plan.md. Provisioning/installing an isolation image requires separate approval if no approved image is available. Do not repeat mapped source screening or claim full-project compatibility.",
+      "implemented_requirements": [
+        {
+          "feature": "String.Trim()",
+          "implementation": "library/Cilica.Core/StringWhitespace.cs",
+          "scope": "Parameterless UTF-16 whitespace trim via existing classifier/Substring; other Trim overloads remain diagnostic.",
+          "before": "CIL3010 Trim in independent reduction on active 08a2d75 baseline",
+          "tests": "CandidateTrimTests"
+        },
+        {
+          "feature": "String.Split(string[],StringSplitOptions)",
+          "implementation": "library/Cilica.Core/StringSplitting.cs",
+          "scope": "Ordered ordinal UTF-16 matching; null/empty-array whitespace fallback; ignored null/empty separator entries; options None/RemoveEmptyEntries and pinned numeric TrimEntries combinations. No count or single-string overload.",
+          "before": "CIL3010 Split in independent reduction",
+          "tests": "CandidateSeparatorTests and CandidateGapTests.String_separator_reduction_now_matches_dotnet"
+        },
+        {
+          "feature": "Char.ToString() and Char.ToString(char)",
+          "implementation": "library/Cilica.Core/CoreTypes.cs",
+          "scope": "One UTF-16 code unit in a fresh string. Instance receiver is an exact UInt16 frame borrow; provider overload, boxed dispatch and field/array receiver borrows remain diagnostic.",
+          "before": "CIL3010 ToString in retained independent reduction",
+          "tests": "CandidateCharacterTextTests and CandidateGapTests.Character_text_reduction_now_matches_dotnet"
+        },
+        {
+          "feature": "Boolean vectors and Array.Empty<bool>",
+          "implementation": "Existing compiler array pipeline with ObjectArrayElement.Boolean",
+          "scope": "One-dimensional Boolean allocation, low-byte stores, unsigned loads, generic element copies, heap fields, constant initializers, per-runtime Empty, exact nominal identity and element-independent interface metadata. Element borrows, interface element operations, signed-load and wider element opcodes remain diagnostic.",
+          "before": "CIL2001 Composed vector elements in independent reduction",
+          "tests": "CandidateBooleanVectorTests; CandidateGapTests.Boolean_vector_reduction_now_matches_dotnet"
+        },
+        {
+          "feature": "Dictionary<TKey,TValue>(IEqualityComparer<TKey>) and (Int32,IEqualityComparer<TKey>)",
+          "implementation": "library/Cilica.Core/Dictionary.cs; EqualityComparer.cs",
+          "scope": "Managed comparer storage/dispatch with null defaults, aliases and conditional selection, including exact owned default-value normalization and copied custom value-key callbacks; existing key/dispatch limits apply. No comparer factory implementation added.",
+          "before": "CIL2001 requires directly proven StringComparer.Ordinal in independent reductions; explicit default mutable value-key regression exposed a semantic mismatch during development.",
+          "tests": "CandidateDictionaryComparerTests; promoted OrdinalDictionaryTests and OrdinalDictionaryCapacityTests"
+        },
+        {
+          "feature": "StringComparer.OrdinalIgnoreCase typed comparer",
+          "implementation": "StringOrdinalIgnoreCase.cs; OrdinalIgnoreCaseText.cs; UnicodeOrdinalUpper.cs",
+          "scope": "Pinned Unicode 16 ordinal equality/ordering/hash; supplementary scalars and malformed UTF-16; no culture/nongeneric comparer or StringComparison overload expansion.",
+          "before": "CIL3010 get_OrdinalIgnoreCase in retained independent reductions",
+          "tests": "CandidateOrdinalIgnoreCaseTests and promoted CandidateGap/Dictionary comparer controls"
+        }
+      ],
+      "already_supported_requirements": [
+        "String.IsNullOrEmpty already implemented by Review milestone 6 (ADR AC0014).",
+        "Ordinal typed comparison/equality/hash already supported; its numeric hash need not equal randomized .NET hash."
+      ],
+      "source_reinspection": {
+        "path": "DiffPlex/Differ.cs",
+        "git_blob_sha1": "281ee96c405676ba6f61958939d5121bdcc8584c",
+        "method": "GitHub read-only fetch at original pin before editing; matched batch-001 blob",
+        "semantics": "ignoreCase selects OrdinalIgnoreCase versus Ordinal. BuildPieceHashes requires equality/hash through Dictionary, Count, TryGetValue and indexer assignment. No culture-sensitive factory or direct comparer Compare call. Three-argument wrappers pass false but no whole-program branch pruning is assumed."
+      },
+      "reduced_semantic_failures": [],
+      "validation_blocker": "Approval and credential-free isolated environment required for actual external compilation/execution. This status is a validation block, not a known unsupported feature."
+    },
+    {
+      "id": "crc32-net",
+      "repository": "force-net/Crc32.NET",
+      "url": "https://github.com/force-net/Crc32.NET",
+      "commit": "26c5a818a5c7a3d6a622c92d3cd08dba586c263c",
+      "license": "MIT; Copyright(c)2016 force; LICENSE pinned",
+      "target_frameworks": [
+        "netstandard1.3",
+        "netstandard2.0",
+        "net20"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "Compatible asset for .NET Standard2.1; net20 not treated as a Standard-compatible asset.",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "12cc4faf0db1fc00a6e0f5b2a8a6cad5cdde1a95",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/LICENSE"
+        },
+        {
+          "path": "Crc32.NET/Crc32.NET.Core.csproj",
+          "git_blob_sha1": "cec1661d45250144ddff09a83ce949e788075f22",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET/Crc32.NET.Core.csproj"
+        },
+        {
+          "path": "Crc32.NET/Crc32Algorithm.cs",
+          "git_blob_sha1": "ccacd0314260decfd7ef7f092b14f178c0dec2ff",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET/Crc32Algorithm.cs"
+        },
+        {
+          "path": "Crc32.NET/SafeProxy.cs",
+          "git_blob_sha1": "832c05aba1b2cdeab3e241e24bde87d14266b501",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET/SafeProxy.cs"
+        },
+        {
+          "path": "Crc32.NET.Tests/Crc32.NET.Tests.Core.csproj",
+          "git_blob_sha1": "abd665511d60a244641d28a935674ae34f1d8385",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET.Tests/Crc32.NET.Tests.Core.csproj"
+        },
+        {
+          "path": "Crc32.NET.Tests/BytePatternsTest.cs",
+          "git_blob_sha1": "02bb87487952a61b3194f087728b3fccd1890919",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET.Tests/BytePatternsTest.cs"
+        },
+        {
+          "path": "Crc32.NET.Tests/ImplementationTest.cs",
+          "git_blob_sha1": "7bfe6da9dae1c12115dade764e6c50b373659703",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET.Tests/ImplementationTest.cs"
+        },
+        {
+          "path": "pack.cmd",
+          "git_blob_sha1": "7696609fa401ee2597ecf23898c9cc11b91d515f",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/pack.cmd"
+        },
+        {
+          "path": "Crc32.NET.nuspec",
+          "git_blob_sha1": "824384c32ef6c957fea01a2a88d1dd395446dec8",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET.nuspec"
+        },
+        {
+          "path": "Crc32.NET/Properties/AssemblyInfo.cs",
+          "git_blob_sha1": "ca4acddb39e261e19f7c573313bdc0ff778ced78",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET/Properties/AssemblyInfo.cs"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "not-run; immutable online screen from batch006 reused at the same pinned commit",
+      "dependencies": {
+        "runtime_packages": [],
+        "framework": "NETStandard.Library2.0.0 implicit package version selected in SDK project",
+        "build": "SDK imports only for selected Core project; root tree has no Directory.Build.props/targets. BuildCore enables signing; pack.cmd invokes sn.exe and NuGet and is excluded. Legacy .nuget targets belong to older project, not selected SDK asset.",
+        "tests": [
+          "K4os.Hash.Crc1.1.0",
+          "Microsoft.NET.Test.Sdk15.0.0-preview-20170106-08",
+          "CRC32C.Standard1.0.0",
+          "NUnit3.10.1",
+          "NUnit3TestAdapter3.10.0",
+          "netcoreapp2.0 adds NETStandard.Library2.0.0; net461 adds additional CRC implementations listed in pinned test project"
+        ]
+      },
+      "roots": [
+        "Crc32Algorithm.Compute(byte[])",
+        "Crc32Algorithm.Append(uint,byte[],int,int)"
+      ],
+      "reachable_requirements": [
+        "Static SafeProxy singleton and constructor initialization",
+        "UInt32[4096] heap table, Byte vector reads and unsigned/Int64-derived indices",
+        "UInt32 XOR/logical shifts/truncation/return and nested loops",
+        "ArgumentNullException/ArgumentOutOfRangeException with existing offset+length arithmetic",
+        "HashAlgorithm owner metadata; instance HashAlgorithm execution outside selected static roots"
+      ],
+      "unsupported_features": [
+        {
+          "feature": "checked native-integer conversion on mixed int+uint array indices",
+          "kind": "admission-gap",
+          "status": "Independent CandidateUInt32VectorProbe.WideIndex yields CIL2001 for conv.ovf.i; no native-integer flow is admitted by this slice."
+        }
+      ],
+      "semantic_failures": [],
+      "semantic_failure_note": "No candidate execution. Initial own test failures were unsupported borrow syntax and incomplete helper admission/preparation, fixed or explicitly retained as diagnostics; no successful external execution is claimed.",
+      "upstream_tests_inspected": "ImplementationTest known byte results, split-buffer equivalence, big/little-endian output and appended-CRC validation. BytePatternsTest repeated/sliding bytes is excluded under NETCORE. Tests not executed.",
+      "mapped_status": "mapped-blocked",
+      "status": "mapped-blocked",
+      "next_action": "Reduce checked native-integer indexing with width/overflow/bounds/evaluation-order semantics in a separate bounded slice. Re-map HashAlgorithm owner metadata/static singleton closure after that; seek approval before actual candidate execution. Keep HashAlgorithm instances and CRC32C paths separate.",
+      "implemented_requirements": [
+        "UInt32 vectors with nominal runtime identity, same-width Int32/enum aliases, full-bit loads/stores, static data and precise generic helper identities.",
+        "Independent 4096-element table with unsigned right shift matches normal .NET through Cilica O0/O2."
+      ]
+    }
+  ],
+  "validation": {
+    "distinct_final_passed": 211,
+    "failed": 0,
+    "new_slice_checks": 51,
+    "new_repeated_native_comparisons": 4896,
+    "external_candidate_execution": "not-run",
+    "note": "156-check broad gate had one obsolete rejection; corrected enumeration gate passed18. Final focused/contract gate passed104 after null-load fix. Latest result per unchanged test plus renamed replacement gives211 distinct passes. Supporting logs/hashes in batch-007-evidence.json."
+  },
+  "cleanup": {
+    "diffplex": "No new snapshot; previous owned snapshot remains removed. Recipe contains only authored adapter and metadata.",
+    "crc32-net": "Online only; no copy created or cleanup needed."
+  }
+}

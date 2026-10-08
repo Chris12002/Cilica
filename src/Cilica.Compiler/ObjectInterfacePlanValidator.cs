@@ -179,7 +179,12 @@ public static class ObjectInterfacePlanValidator
                         "Narrow array targets require an element-independent helper and an exact Byte/Char contract.");
                     Require(mapping.Name != "EnumerateObjects" || mapping.Parameters[0].Class == target.Receiver,
                         "Nongeneric enumeration must retain the actual array element boxing identity.");
-                    var requestedEnum = contracts[declaration.Owner].Arguments.FirstOrDefault()?.Enum32;
+                    var requestedArgument = contracts[declaration.Owner].Arguments.FirstOrDefault();
+                    foreach (var (code, element) in new[] { (System.Reflection.Metadata.PrimitiveTypeCode.Int32, ObjectArrayElement.Int32), (System.Reflection.Metadata.PrimitiveTypeCode.UInt32, ObjectArrayElement.UInt32) })
+                        Require(requestedArgument?.Identity != ClosedGenericKey.Create(new([new TypeSignature.Primitive(code)]), SignatureList<TypeSignature>.Empty)
+                            || mapping.Parameters[0].Class?.ArrayElement == element,
+                            "Generic integer helpers must retain the requested signed/unsigned element identity.");
+                    var requestedEnum = requestedArgument?.Enum32;
                     Require(requestedEnum is null || mapping.Parameters[0].Class?.ArrayElement == ObjectArrayElement.Enum32(requestedEnum),
                         "Generic enum helpers must retain the requested enum element identity.");
                     var kind = contracts[declaration.Owner].ArrayContract;

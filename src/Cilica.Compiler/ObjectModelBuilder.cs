@@ -287,7 +287,8 @@ public static class ObjectModelBuilder
                 ObjectArrayElement? element = argument.Enum32 is { } enumeration ? ObjectArrayElement.Enum32(enumeration)
                     : argument.Reference is { } reference ? ObjectArrayElement.Reference(reference)
                     : argument.Value is { } value ? ObjectArrayElement.Value(value)
-                    : argument.Identity == integer || argument.Identity == unsigned ? ObjectArrayElement.Int32
+                    : argument.Identity == integer ? ObjectArrayElement.Int32
+                    : argument.Identity == unsigned ? ObjectArrayElement.UInt32
                     : argument.Identity == wide || argument.Identity == unsignedWide ? ObjectArrayElement.Int64 : null;
                 if (element is null) continue;
                 var view = ObjectTypeId.Vector(Id(objectBase), element);

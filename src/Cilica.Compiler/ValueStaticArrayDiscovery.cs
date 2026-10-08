@@ -47,8 +47,8 @@ public static partial class ValueProgramDiscovery
                 var vector = Vector(element, work, offset);
                 int width = vector.ArrayElement!.Kind switch {
                     ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Byte => 1, ObjectArrayElementKind.Char => 2,
-                    ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32 => 4, ObjectArrayElementKind.Int64 => 8, _ => 0 };
-                if (width == 0) Fail(work, "Static array initialization requires Boolean, Byte, Char, Int32 or Int64 elements.", offset);
+                    ObjectArrayElementKind.Int32 or ObjectArrayElementKind.UInt32 or ObjectArrayElementKind.Enum32 => 4, ObjectArrayElementKind.Int64 => 8, _ => 0 };
+                if (width == 0) Fail(work, "Static array initialization requires Boolean, Byte, Char, Int32, UInt32 or Int64 elements.", offset);
                 CheckOperandTypeUses(work, token);
                 var call = instructions[index + 1]; CheckOperandTypeUses(work, call);
                 var target = Require(resolver.ResolveClosedCall(work.Resolved,

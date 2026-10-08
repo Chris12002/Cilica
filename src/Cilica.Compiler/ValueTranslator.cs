@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v83";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v85";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -519,7 +519,7 @@ public static class ValueTranslator
                             if (addressView.ArrayElement!.Kind is not (ObjectArrayElementKind.Value or ObjectArrayElementKind.Reference))
                                 Error(offset, "Element addresses currently require a closed inline value or reference array.", DiagnosticIds.ExecutionUnsupported);
                             Push(offset, IrType.Location(ElementType(addressView)), new IrExpression.AddressElement(addressView, addressArray, addressIndex), true); break;
-                        case "ldelem.i8" or "ldelem.ref" or "ldelem" or "ldelem.u1" or "ldelem.u2" when types.IntegerCasts:
+                        case "ldelem.u4" or "ldelem.i8" or "ldelem.ref" or "ldelem" or "ldelem.u1" or "ldelem.u2" when types.IntegerCasts:
                         case "ldelem.i4" when arrays:
                             int loadIndex = Pop(offset, IrType.Int32), loadArray = PopArray(offset);
                             var loadView = ArrayView(loadArray, opcode, offset);
@@ -930,7 +930,7 @@ public static class ValueTranslator
                     return array;
                 }
                 static IrType ElementType(ObjectTypeId array) => array.ArrayElement!.Kind switch {
-                    ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32 => IrType.Int32,
+                    ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.UInt32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32 => IrType.Int32,
                     ObjectArrayElementKind.Int64 => IrType.Int64,
                     ObjectArrayElementKind.Value => IrType.Value(array.ArrayElement.Type!),
                     _ => IrType.Reference(array.ArrayElement.Type!) };
@@ -949,7 +949,7 @@ public static class ValueTranslator
                     var view = values[receiver] == IrType.NullReference
                         ? ObjectTypeId.Vector(objectBase, expected) : values[receiver].Class!;
                     if (view.ArrayElement!.Kind != expected.Kind
-                        && !(expected.Kind == ObjectArrayElementKind.Int32 && view.ArrayElement.Kind == ObjectArrayElementKind.Enum32)
+                        && !(expected.Kind == ObjectArrayElementKind.Int32 && view.ArrayElement.Kind is ObjectArrayElementKind.Enum32 or ObjectArrayElementKind.UInt32)
                         && !(expected.Kind == ObjectArrayElementKind.Byte && view.ArrayElement.Kind == ObjectArrayElementKind.Boolean))
                         Error(offset, "Array element opcode does not match its storage width/kind.");
                     return view;

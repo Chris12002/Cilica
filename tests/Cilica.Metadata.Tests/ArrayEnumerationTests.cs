@@ -14,7 +14,7 @@ using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class ArrayEnumerationTests
 {
-    private static readonly string[] Names = ["Integers", "States", "Empty", "Reference", "Value", "Covariance", "FreshAndNull", "VariantClosure"];
+    private static readonly string[] Names = ["Integers", "States", "Empty", "Reference", "Value", "Covariance", "FreshAndNull", "VariantClosure", "UInt32Alias"];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() => CoreLibraryBuildTests.TranslateFixtures(typeof(ArrayEnumerationProbe), Names));
     [Theory]
     [InlineData(false, 0)] [InlineData(true, 0)]
@@ -28,7 +28,7 @@ public sealed class ArrayEnumerationTests
     }
 
     [Fact]
-    public async Task Exact_grant_and_unsupported_boundaries_are_preserved()
+    public async Task Exact_grant_remains_required()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -43,13 +43,7 @@ public sealed class ArrayEnumerationTests
         using var denied = resolver.CreateTrustedLibraryCompilationScope(plan, deniedBytes, Convert.ToHexStringLower(SHA256.HashData(deniedBytes))).Value!;
         var result = ValueTranslator.TranslateIntegerObjects(denied, input, Method("Integers"), implementation);
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        foreach (var (name, message) in new[] { ("UnsupportedAlias", "scalar aliases") })
-        {
-            var unsupported = ValueTranslator.TranslateIntegerObjects(scope, input, Method(name), implementation);
-            Assert.False(unsupported.Success);
-            Assert.Contains(unsupported.Diagnostics, d => d.Message.Contains(message, StringComparison.OrdinalIgnoreCase));
-        }
+
     }
     [Fact]
     public async Task Detached_enumeration_packets_preserve_exact_result_and_receiver()

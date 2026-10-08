@@ -19,16 +19,17 @@ public sealed record ObjectTypeId(string ContentHash, int Token, ObjectArrayElem
     }
 }
 
-public enum ObjectArrayElementKind { Int32, Reference, Value, Byte, Char, Int64, Enum32, Boolean }
-/// <summary>One-dimensional zero-based Boolean/Int32/Byte/Char/Int64/Int32-enum, reference or closed-value arrays; numeric storage uses exact UInt32/UInt64 carriers.</summary>
+public enum ObjectArrayElementKind { Int32, Reference, Value, Byte, Char, Int64, Enum32, Boolean, UInt32 }
+/// <summary>One-dimensional zero-based Boolean/Int32/UInt32/Byte/Char/Int64/Int32-enum, reference or closed-value arrays; numeric storage uses exact UInt32/UInt64 carriers.</summary>
 public sealed record ObjectArrayElement(ObjectArrayElementKind Kind, ObjectTypeId? Type = null)
 {
     public static ObjectArrayElement Int32 { get; } = new(ObjectArrayElementKind.Int32);
+    public static ObjectArrayElement UInt32 { get; } = new(ObjectArrayElementKind.UInt32);
     public static ObjectArrayElement Int64 { get; } = new(ObjectArrayElementKind.Int64);
     public static ObjectArrayElement Boolean { get; } = new(ObjectArrayElementKind.Boolean);
     public static ObjectArrayElement Byte { get; } = new(ObjectArrayElementKind.Byte);
     public static ObjectArrayElement Char { get; } = new(ObjectArrayElementKind.Char);
-    public bool Integer32 => Kind is ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32;
+    public bool Integer32 => Kind is ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.UInt32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32;
     public bool Narrow => Kind is ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char;
     public static ObjectArrayElement Enum32(ObjectTypeId type) => new(ObjectArrayElementKind.Enum32, type);
     public static ObjectArrayElement Value(ObjectTypeId type) => new(ObjectArrayElementKind.Value, type);
@@ -115,7 +116,7 @@ public sealed record ObjectModel(ObjectTypeId Entry, ObjectTypeId ObjectBase, Im
 {
     public bool Integer64 { get; init; }
     public ImmutableArray<ObjectStaticField> Statics { get; init; } = [];
-    public const string Profile = "object-layout-v27";
+    public const string Profile = "object-layout-v28";
     public ImmutableArray<ObjectInterface> Interfaces { get; init; } = [];
     public ImmutableArray<ObjectTypeId> Arrays { get; init; } = [];
     public ImmutableArray<ObjectValueArrayLayout> ValueArrays { get; init; } = [];
