@@ -115,8 +115,8 @@ internal static class IrValidator
             {
                 if (call.Target is null || call.Arguments.IsDefault || call.Arguments.Length > IrLimits.MaximumParameters || !call.Arguments.All(Earlier)) return false;
                 if (objectRules is not null) return result == objectRules.ReturnType(call.Target)
-                    && objectRules.Call(method, call.Target, call.Arguments, call.NullCheckReceiver, valueTypes, virtualDispatch: call.VirtualDispatch, expressions: expressions);
-                return methods is not null && methods.TryGetValue(call.Target, out var target) && !target.Parameters.IsDefault
+                    && objectRules.Call(method, call.Target, call.Arguments, call.NullCheckReceiver, valueTypes, virtualDispatch: call.VirtualDispatch, expressions: expressions, valueKeyContract: call.ValueKeyContract);
+                return call.ValueKeyContract is null && methods is not null && methods.TryGetValue(call.Target, out var target) && !target.Parameters.IsDefault
                     && call.Arguments.Length == target.Parameters.Length && result == target.ReturnType && !call.NullCheckReceiver && !call.VirtualDispatch
                     && call.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(valid => valid);
             }

@@ -14,10 +14,13 @@ public static partial class ValueProgramDiscovery
 {
     private sealed partial class Session
     {
+        private sealed record ValueKeySelection(ObjectTypeId Contract, bool IsExplicit);
+
         // Intrinsic selection never substitutes an application body by name.
         // Both the helper identity and the selected value target are authenticated.
-        private ClosedKeyIntrinsic? KeyOperation(Work work, MethodInstruction instruction, ref ResolvedMethod target)
+        private ClosedKeyIntrinsic? KeyOperation(Work work, MethodInstruction instruction, ref ResolvedMethod target, out ValueKeySelection? callback)
         {
+            callback = null;
             if (!integers64 || target.DeclaringType.Definition.Assembly != library) return null;
             var helper = resolver.ResolveType(library, "Cilica.Runtime", "KeyOperations`1").Value;
             if (helper is null || target.DeclaringType.Definition != helper) return null;
@@ -128,7 +131,9 @@ public static partial class ValueProgramDiscovery
                 var owner = Require(resolver.ResolveType(library, "System", equal ? "IEquatable`1" : "Object"), work, offset);
                 var declaration = Require(resolver.ResolveClosedDeclaration(new(owner, equal ? new([key]) : SignatureList<TypeSignature>.Empty),
                     equal ? "Equals" : "GetHashCode", equal ? 1 : 0, _metadata), work, offset);
-                target = Require(resolver.ResolveConstrainedValueTarget(declaration, receiver!, library, _metadata), work, offset).Implementation;
+                var selected = Require(resolver.ResolveConstrainedValueTarget(declaration, receiver!, library, _metadata), work, offset);
+                target = selected.Implementation;
+                callback = new(ClosedId(declaration.DeclaringType, work, offset), selected.IsExplicit);
             }
             return null;
         }

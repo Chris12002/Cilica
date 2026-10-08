@@ -4520,3 +4520,17 @@ argument stacks remain diagnostic. CIL95; IR59/native79, layouts, quotas and
 collector unchanged. See [decision](decisions/compatibility-012-array-section-clear.md)
 and compatibility batch010. CircularBuffer still needs public Copy/ArraySegment;
 its upstream code and full Alchemy replay have not been executed by this slice.
+
+### Hidden value-key callbacks (AC8.65)
+
+Core collections can invoke the exact GetHashCode override and IEquatable<T>.Equals
+implementation of admitted internal/private value keys, including explicit interface
+implementations. Metadata-selected callback contracts survive scalar lowering and
+are rechecked at both IR stages; ordinary private calls stay restricted. Existing
+borrow/copy semantics preserve mutating keys, allocating callbacks and exception order.
+Sixty-five distinct selected checks pass, with 3,234 new native/.NET comparisons.
+See ADR AC0209. CIL97/IR60 adds checked call evidence; native79 and production limits
+are unchanged. Private nested generic construction and default value-key text retain
+independent diagnostics. Frozen discovery passes WaveGroupId hashing and next exhausts
+the existing diagnostic instruction allowance. Full engine execution, unchanged
+fingerprints and saved-game replay remain unfinished.

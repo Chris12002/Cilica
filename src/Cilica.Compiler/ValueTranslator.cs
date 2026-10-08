@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v95";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v97";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -797,7 +797,7 @@ public static class ValueTranslator
                             else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: virtualDispatch), offset);
                             else
                             {
-                                Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: virtualDispatch), true);
+                                Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: virtualDispatch) { ValueKeyContract = method.ValueKeyCalls.GetValueOrDefault(offset) }, true);
                                 // Only the exact metadata-validated CIL box gets this fact.
                                 // Locals, joins, arbitrary calls and direct helper calls do not.
                                 if (opcode == "box" && method.NullableBoxPayloads.TryGetValue(offset, out var payload))

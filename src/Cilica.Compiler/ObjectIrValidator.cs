@@ -66,6 +66,8 @@ internal sealed partial class ObjectIrRules
         _scalarTypeTargets = values is not null
             ? values.Types.Where(t => t.ScalarBox is not null).Select(t => ObjectTypeId.From(t.Source)).ToHashSet()
             : boxes is not null ? boxes.Plans.Where(p => p.ScalarBox is not null).Select(p => p.Type).ToHashSet() : [];
+        _valueKeyCatalog = values ?? boxes?.Catalog;
+        _valueKeyScalar = values is null && boxes is not null;
         var enumCatalog = values ?? boxes?.Catalog;
         _enumEntryTypes = enumCatalog is null ? [] : enumCatalog.Types.Where(t => t.ScalarEnum && !t.EnumConstants.IsDefault).Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _enumQueryReady = enumCatalog is not null && enumCatalog.Types.All(t => !t.ScalarEnum || !t.EnumConstants.IsDefault);
@@ -472,9 +474,10 @@ internal sealed partial class ObjectIrRules
         && _types.Assignable(values[store.Value], ArrayElement(store.ArrayType)) && store.Exceptional == IrExceptionTarget.MethodExit;
 
     internal bool Call(IrMethod caller, IrMethodId? target, System.Collections.Immutable.ImmutableArray<int> arguments,
-        bool nullCheck, IReadOnlyList<IrType> values, bool allocation = false, bool virtualDispatch = false, IReadOnlyList<IrExpression>? expressions = null)
+        bool nullCheck, IReadOnlyList<IrType> values, bool allocation = false, bool virtualDispatch = false, IReadOnlyList<IrExpression>? expressions = null, ValueKeyCallContract? valueKeyContract = null)
     {
         if (target is null || arguments.IsDefault) return false;
+        if (valueKeyContract is not null && (allocation || nullCheck || virtualDispatch || !ValueKeyCall(caller, target, valueKeyContract))) return false;
         if (_interfaces.Has(target))
         {
             var declaration = _interfaces.Declaration(target);
@@ -486,7 +489,7 @@ internal sealed partial class ObjectIrRules
         if (!_bindings.TryGetValue(target, out var callee) || _abstractMethods.Contains(target) && (allocation || !nullCheck || !virtualDispatch)) return false;
         var signature = _methods[target].Parameters;
         int skip = allocation ? 1 : 0;
-        if (signature.IsDefault || arguments.Length != signature.Length - skip || !Access(Binding(IrMethodId.From(caller.Source)), callee)) return false;
+        if (signature.IsDefault || arguments.Length != signature.Length - skip || valueKeyContract is null && !Access(Binding(IrMethodId.From(caller.Source)), callee)) return false;
         if (allocation ? !Constructor(callee) || (_layouts[callee.Owner].Attributes & TypeAttributes.Abstract) != 0 : Constructor(callee)) return false;
         if (nullCheck && callee.Kind != ObjectMethodKind.Instance) return false;
         if (virtualDispatch ? allocation || !nullCheck || callee.VirtualSlot is null || !_dispatch.Has(target)

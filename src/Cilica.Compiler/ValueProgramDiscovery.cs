@@ -39,6 +39,7 @@ public sealed record ValueMethodInput(MethodInput Input, ObjectMethodBinding Bin
     public ImmutableDictionary<int, IrType> DefaultStatics { get; init; } = ImmutableDictionary<int, IrType>.Empty;
     public ImmutableDictionary<int, IntegerCastTarget> NarrowFields { get; init; } = ImmutableDictionary<int, IntegerCastTarget>.Empty;
     public ImmutableDictionary<int, IrType> ReferenceBoxOperands { get; init; } = ImmutableDictionary<int, IrType>.Empty;
+    public ImmutableDictionary<int, ValueKeyCallContract> ValueKeyCalls { get; init; } = ImmutableDictionary<int, ValueKeyCallContract>.Empty;
     public ImmutableDictionary<int, ClosedKeyIntrinsic> KeyOperations { get; init; } = ImmutableDictionary<int, ClosedKeyIntrinsic>.Empty;
     public ImmutableDictionary<int, ObjectTypeId> BoxedRenderCalls { get; init; } = ImmutableDictionary<int, ObjectTypeId>.Empty;
     public ImmutableDictionary<int, ImmutableArray<ObjectTypeId>> BoxedFormatCalls { get; init; } = ImmutableDictionary<int, ImmutableArray<ObjectTypeId>>.Empty;
@@ -212,6 +213,7 @@ public static partial class ValueProgramDiscovery
                     var ordinalComparisons = ImmutableHashSet.CreateBuilder<int>();
                     var literalIntegerFormats = ImmutableHashSet.CreateBuilder<int>();
                     var ordinalPrefixes = ImmutableHashSet.CreateBuilder<int>();
+                    var valueKeyCalls = ImmutableDictionary.CreateBuilder<int, ValueKeyCallContract>();
                     var keyOperations = ImmutableDictionary.CreateBuilder<int, ClosedKeyIntrinsic>();
                     for (int instructionIndex = 0; instructionIndex < work.Input.Instructions.Length; ++instructionIndex)
                     {
@@ -318,7 +320,7 @@ public static partial class ValueProgramDiscovery
                             if (BoxedRender(work, instruction, ref target) is { } renderBox) boxedRenderCalls.Add(offset, renderBox);
                             ComparerOperation(work, instruction, ref target);
                             EqualityComparerOperation(work, instruction, ref target);
-                            if (KeyOperation(work, instruction, ref target) is { } keyOperation)
+                            if (KeyOperation(work, instruction, ref target, out var valueKeyCall) is { } keyOperation)
                             {
                                 _arguments += keyOperation.Operation == ClosedKeyOperation.Equal ? 2 : keyOperation.Operation == ClosedKeyOperation.ContainsReferences ? 0 : 1;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate key intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
@@ -437,7 +439,10 @@ public static partial class ValueProgramDiscovery
                                 Fail(work, "Cannot allocate an abstract class.", offset);
                             if (instruction.OpCode == "newobj" && !factoryConstructor && callee.Binding.Kind is not (ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor))
                                 Fail(work, "newobj requires an exact supported constructor declaration.", offset);
+                            if (valueKeyCall is not null && !ObjectMethodAccess.Allowed(work.Binding, callee.Binding, integers64))
+                                valueKeyCalls.Add(offset, new(valueKeyCall.Contract, callee.Binding, valueKeyCall.IsExplicit));
                             if (!ObjectMethodAccess.Allowed(work.Binding, callee.Binding, integers64)
+                                && !valueKeyCalls.ContainsKey(offset)
                                 && !(instruction.OpCode == "call" && (ProtectedBaseConstructor(work, callee, offset) || ProtectedStaticCall(work, callee, offset))))
                                 Fail(work, "Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile.", offset);
                             _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" && !factoryConstructor ? 1 : 0) + (ordinalPrefixes.Contains(offset) || ordinalComparisons.Contains(offset) || ordinalSorts.ContainsKey(offset) ? 1 : 0);
@@ -546,7 +551,7 @@ public static partial class ValueProgramDiscovery
                         }
                     }
                     methods.Add(new(work.Input, work.Binding, work.Parameters, work.ReturnType, work.Locals,
-                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { EnumValues = enumValues, LiteralIntegerFormats = literalIntegerFormats.ToImmutable(), OrdinalCollectionGetters = ordinalCollections.ToImmutable(), OrdinalCompareCalls = ordinalComparisons.ToImmutable(), EnumCompareCalls = enumComparisons.ToImmutable(), EnumTextCalls = enumTextCalls.ToImmutable(), OrdinalSortCalls = ordinalSorts.ToImmutable(), OrdinalOrderingGetters = ordinalOrdering.ToImmutable(), StaticArrays = staticArrays, OrdinalPrefixCalls = ordinalPrefixes.ToImmutable(), FactoryConstructorCalls = factoryConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), NullableBoxPayloads = nullableBoxPayloads.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedReferenceCalls = constrainedReferences.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
+                        calls.ToImmutable(), fields.ToImmutable(), types.ToImmutable()) { EnumValues = enumValues, LiteralIntegerFormats = literalIntegerFormats.ToImmutable(), OrdinalCollectionGetters = ordinalCollections.ToImmutable(), OrdinalCompareCalls = ordinalComparisons.ToImmutable(), EnumCompareCalls = enumComparisons.ToImmutable(), EnumTextCalls = enumTextCalls.ToImmutable(), OrdinalSortCalls = ordinalSorts.ToImmutable(), OrdinalOrderingGetters = ordinalOrdering.ToImmutable(), StaticArrays = staticArrays, OrdinalPrefixCalls = ordinalPrefixes.ToImmutable(), FactoryConstructorCalls = factoryConstructors.ToImmutable(), GenericArrays = GenericArrays(work), BoxedTypeTestOperands = boxedTypeTestOperands.ToImmutable(), ScalarBoxOperands = scalarBoxOperands.ToImmutable(), NullableUnboxOperands = nullableUnboxOperands.ToImmutable(), NullableBoxPayloads = nullableBoxPayloads.ToImmutable(), RuntimeTypeTokens = runtimeTokens.ToImmutable(), NarrowFields = narrowFields.ToImmutable(), BoxedRenderCalls = boxedRenderCalls.ToImmutable(), BoxedFormatCalls = boxedFormatCalls.ToImmutable(), Initializers = initializers.ToImmutable(), StaticFields = staticFields.ToImmutable(), KeyOperations = keyOperations.ToImmutable(), ValueKeyCalls = valueKeyCalls.ToImmutable(), DefaultStatics = defaultStatics.ToImmutable(), ConstrainedReferenceCalls = constrainedReferences.ToImmutable(), ConstrainedCalls = constrainedCalls.ToImmutable(), ReferenceBoxOperands = referenceBoxes.ToImmutable(), MemoryOperands = memory.ToImmutable(), InterfaceOperands = interfaceCalls.ToImmutable(), AbstractOperands = abstractCalls.ToImmutable(), ArrayOperands = vectors.ToImmutable(), DelegateOperands = callable.ToImmutable(), ExceptionRegions = work.Regions, Intrinsics = intrinsics.ToImmutable(), Literals = literals.ToImmutable() });
                 }
                 if (_interfaceSession is not null)
                 {

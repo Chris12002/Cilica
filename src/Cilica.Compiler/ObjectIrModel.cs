@@ -24,6 +24,9 @@ public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, 
     public bool OwnerAssemblyVisible { get; init; }
 }
 
+/// <summary>A metadata-selected public value contract, retained across scalar lowering.</summary>
+public sealed record ValueKeyCallContract(ObjectTypeId Contract, ObjectMethodBinding Declaration, bool IsExplicit);
+
 /// <summary>Exact selected primitive identity; its receiver is an existing scalar borrow, never an object layout.</summary>
 public sealed record PrimitiveReceiver(TypeSource Source, PrimitiveTypeCode Code)
 {
@@ -54,7 +57,7 @@ public static class ObjectDispatchLimits
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v59";
+    public const string Profile = "object-operations-ir-v60";
     public ImmutableArray<ObjectAbstractMethodDeclaration> AbstractMethods { get; init; } = [];
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }
