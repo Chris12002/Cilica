@@ -50,7 +50,7 @@ public sealed class NullableLibraryTests
         (nameof(NullableProbe.EnumBox), NullableProbe.EnumBox),
         ("DirectOperators", (a, b) => unchecked(a + b))];
 
-    private static readonly string[] MemberGaps = [nameof(NullableProbe.UnsupportedText), nameof(NullableProbe.UnsupportedHash), nameof(NullableProbe.UnsupportedEquality)];
+    private static readonly string[] MemberGaps = [ nameof(NullableProbe.UnsupportedHash), nameof(NullableProbe.UnsupportedEquality)];
     private static readonly Lazy<Task<Dictionary<string, ManagedExceptionTranslationResult>>> Results = new(Translate);
 
     private static async Task<Dictionary<string, ManagedExceptionTranslationResult>> Translate()
@@ -61,7 +61,7 @@ public sealed class NullableLibraryTests
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = resolver.OpenInput(typeof(NullableProbe).Assembly.Location).Value!;
         var results = Probes.Select(p => p.Name).Where(n => n != "DirectOperators").Concat(MemberGaps)
-            .Append(nameof(NullableProbe.UnsupportedHeapReturn))
+            .Append(nameof(NullableProbe.UnsupportedText)).Append(nameof(NullableProbe.UnsupportedHeapReturn))
             .Append(nameof(NullableProbe.UnsupportedEnumWidth)).Append(nameof(NullableProbe.UnsupportedEnumVisibility)).ToDictionary(name => name, name =>
             ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(NullableProbe).GetMethod(name)!.MetadataToken), implementation));
@@ -106,6 +106,9 @@ public sealed class NullableLibraryTests
     public async Task Nullable_boxing_and_unimplemented_members_never_fall_back_to_struct_semantics()
     {
         var results = await Results.Value;
+        var text = results[nameof(NullableProbe.UnsupportedText)];
+        Assert.False(text.Success);
+        Assert.Contains("primitive fallbacks", Assert.Single(text.Diagnostics).Message, StringComparison.Ordinal);
         var heapReturn = results[nameof(NullableProbe.UnsupportedHeapReturn)];
         Assert.False(heapReturn.Success);
         Assert.Contains("Direct struct-return calls stored into heap fields", Assert.Single(heapReturn.Diagnostics).Message, StringComparison.Ordinal);

@@ -16,6 +16,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Nullable.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Nullable.cs",
+      "sha256": "6728f66657329080f0f419df519283a455cdca7d2617a05b180553b02da502fa"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/CollectionExtensions.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/CollectionExtensions.cs",
       "sha256": "2bac0e17e0c1f2e361e2e350c680f3c2bb9614ed1b00f6cf9d565b474c730e15"
@@ -1422,13 +1427,13 @@
     },
     {
       "path": "library/Cilica.Core/Nullable.cs",
-      "behavioralSource": "src/libraries/System.Private.CoreLib/src/Resources/Strings.resx",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Nullable.cs; src/libraries/System.Private.CoreLib/src/Resources/Strings.resx",
       "contracts": [
-        "Cilica-owned ordinary managed nullable presence/payload storage and exact .NET Standard 2.1 member contracts; no upstream Nullable implementation code copied.",
+        "Cilica-owned ordinary managed nullable presence/payload storage and exact .NET Standard 2.1 member contracts; AC1a.2 adapts the pinned Nullable.cs ToString presence/payload call and permits mutable payload overrides.",
         "Empty Value uses the pinned InvalidOperation_NoValue resource: Nullable object must have a value.",
         "Managed nullable box/unbox.any helpers preserve null/present rules for already boxable named structs; conversion operators reuse construction and Value. AC1b.2 extends the compiler to selected integer/Boolean/Char and public Int32-enum boxes. AC1b.3 adds exact boxed isinst/castclass for these and admitted named-value/nullable targets; direct nullable castclass faults name T, unlike nullable unbox.any. Raw scalar/nullable unbox, scalar interface views, key selection and remaining members remain diagnostics."
       ],
-      "scope": "Bounded AC1a storage/accessors, AC1b.1 conversions and AC1b.2 scalar/enum boxes and AC1b.3 exact boxed type tests with native differential evidence; no new intrinsic grants."
+      "scope": "AC1a.2 ToString for admitted named payload overrides, preserving mutation, null results and empty absence; primitive constrained calls, narrow field addresses and nullable composite boxes remain diagnostic. Bounded AC1a storage/accessors, AC1b.1 conversions and AC1b.2 scalar/enum boxes and AC1b.3 exact boxed type tests with native differential evidence; no new intrinsic grants."
     },
     {
       "path": "library/Cilica.Core/Math.cs",

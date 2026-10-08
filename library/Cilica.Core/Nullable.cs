@@ -1,3 +1,5 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 // Cilica-owned bounded Nullable<T>. Storage and accessors use ordinary managed
 // value operations; nullable box/copy operations use the managed helper below.
 namespace System
@@ -5,7 +7,8 @@ namespace System
     public struct Nullable<T> where T : struct
     {
         private readonly bool hasValue;
-        private readonly T value;
+        // Pinned Nullable permits a mutable value override to update this payload.
+        private T value;
 
         public Nullable(T value) { this.value = value; hasValue = true; }
         public bool HasValue => hasValue;
@@ -21,10 +24,10 @@ namespace System
         public T GetValueOrDefault(T defaultValue) => hasValue ? value : defaultValue;
 
         // Keep inherited/default value semantics from masquerading as nullable
-        // semantics. These members advance with their own differential evidence.
+        // semantics. Equality/hash remain explicit gaps; text uses the pinned payload call.
         public override bool Equals(object other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         public override int GetHashCode() => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
-        public override string ToString() => Cilica.Runtime.UnsupportedLibraryMember<string>.Invoke();
+        public override string ToString() => hasValue ? value.ToString() : "";
         public static implicit operator Nullable<T>(T value) => new Nullable<T>(value);
         public static explicit operator T(Nullable<T> value) => value.Value;
     }

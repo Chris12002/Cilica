@@ -4448,3 +4448,13 @@ values. Eighteen checks pass with 2,352 native/.NET comparisons. See ADR AC0202.
 Frozen engine discovery advances to Nullable<T>.ToString in composite formatting;
 other CollectionExtensions members remain diagnostic. Full engine, unchanged
 fingerprint and saved-game replay remain unfinished.
+
+### Named nullable text (AC1a.2)
+
+Nullable<T>.ToString now returns empty text when absent and invokes an admitted named
+payload override when present. Payload mutation, null returns, exceptions and receiver
+storage follow pinned .NET behavior. Twenty-nine selected nullable checks pass, with
+2,058 new native/.NET comparisons. See ADR AC0203. Primitive constrained formatting,
+narrow field addresses and nullable composite boxes retain explicit diagnostics.
+Frozen discovery advances to Enumerable.Range; the independently observed nullable-box
+formatting gap also remains. Full engine, unchanged fingerprint and replay are unfinished.
