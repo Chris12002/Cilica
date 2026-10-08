@@ -30,7 +30,7 @@ public static partial class ValueProgramDiscovery
             bool hasString = false;
             for (int argument = count - 1; argument >= 0; --argument)
             {
-                if (cursor < 0) return null;
+                if (!SkipStores() || cursor < 0) return null;
                 var producer = work.Input.Instructions[cursor];
                 if (!Consume(out var storage)) return null;
                 candidates[argument] = producer;
@@ -49,7 +49,7 @@ public static partial class ValueProgramDiscovery
             if (!hasString && !hasInteger && count != 3) return null;
             if (hasInteger)
             {
-                if (cursor < 0 || work.Input.Instructions[cursor].OpCode != "ldstr")
+                if (!SkipStores() || cursor < 0 || work.Input.Instructions[cursor].OpCode != "ldstr")
                     Fail(work, "Integer composite formatting requires a directly proven literal without format suffixes.", work.Input.Instructions[callIndex].Offset);
                 var literal = Require(resolver.ReadUserString(work.Assembly, work.Input.Instructions[cursor].IntegerOperand ?? 0,
                     ObjectStringLimits.MaximumLiteralCodeUnits), work, work.Input.Instructions[cursor].Offset);
@@ -71,10 +71,24 @@ public static partial class ValueProgramDiscovery
             }
             return result.ToImmutable();
 
+            bool SkipStores()
+            {
+                // A value-type property receiver can spill to a temporary while
+                // the format and earlier arguments remain on the evaluation stack.
+                // Consume the stored expression, without treating it as an argument.
+                while (cursor >= 0 && work.Input.Instructions[cursor].OpCode is
+                    "stloc.0" or "stloc.1" or "stloc.2" or "stloc.3" or "stloc.s" or "stloc" or "starg.s" or "starg")
+                {
+                    if (--remaining < 0 || entries.Contains(work.Input.Instructions[cursor--].Offset)
+                        || !Consume(out _)) return false;
+                }
+                return true;
+            }
+
             bool Consume(out IrType? storage)
             {
                 storage = null;
-                if (cursor < 0 || --remaining < 0) return false;
+                if (!SkipStores() || cursor < 0 || --remaining < 0) return false;
                 var instruction = work.Input.Instructions[cursor--]; int pops;
                 switch (instruction.OpCode)
                 {
@@ -84,6 +98,12 @@ public static partial class ValueProgramDiscovery
                     case "ldloc.0" or "ldloc.1" or "ldloc.2" or "ldloc.3" or "ldloc.s" or "ldloc":
                         if (instruction.IntegerOperand is not { } local || (uint)local >= (uint)work.Locals.Length) return false;
                         storage = work.Locals[local]; pops = 0; break;
+                    case "ldloca.s" or "ldloca":
+                        if (instruction.IntegerOperand is not { } localAddress || (uint)localAddress >= (uint)work.Locals.Length) return false;
+                        storage = IrType.Location(work.Locals[localAddress]); pops = 0; break;
+                    case "ldarga.s" or "ldarga":
+                        if (instruction.IntegerOperand is not { } argumentAddress || (uint)argumentAddress >= (uint)work.Parameters.Length) return false;
+                        storage = IrType.Location(work.Parameters[argumentAddress]); pops = 0; break;
                     case "ldstr": storage = IrType.Reference(text); pops = 0; break;
                     case "ldnull": storage = IrType.NullReference; pops = 0; break;
                     case "box": pops = 1; break;

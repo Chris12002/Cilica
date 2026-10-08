@@ -4900,3 +4900,15 @@ Frozen discovery advances to scalar boxed formatting in BoardObjectState.WithHit
 null. Full engine execution/replay and milestone-7 completion remain unverified.
 See [compatibility 021](decisions/compatibility-021-polymorphic-key-text.md) and
 `docs/compatibility-candidates/batch-019-results.md` for exact receipts and limits.
+
+### Temporary formatting producers (AC8.81)
+
+A bounded argument scan now handles value-type property temporaries and local/
+parameter addresses while retaining independent same-block box/literal proof.
+The frozen WithHitPoints IL and converted Alchemy C++ both guide the regression.
+All 31 selected checks pass, including 1,764 new sanitized O0/O2 native/.NET
+comparisons. CIL108; IR64/interface20/native80, grants and production limits remain
+unchanged. The diagnostic engine scan passes that formatting gap and reaches the
+type-relation work limit at 3,590 identities; StateLookup validates 15 methods.
+Neither audit emits C++. Full closure and saved-game replay remain incomplete.
+See ADR AC0225 for reference hashes, exact tests and counter evidence.
