@@ -22,7 +22,7 @@ public sealed class StringComparerTests
             (name, programs[i], typeof(StringComparerProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray(), pairs, persistentRoots: true);
     }
     [Theory]
-    [InlineData("UnsupportedHash")] [InlineData("UnsupportedComparerHash")] [InlineData("UnsupportedObjectCompare")]
+    [InlineData("UnsupportedComparerHash")] [InlineData("UnsupportedObjectCompare")]
     [InlineData("UnsupportedIgnoreCase")] [InlineData("UnsupportedObjectEquality")]
     public async Task Unimplemented_comparer_shapes_remain_diagnostic(string name)
     {
@@ -35,6 +35,12 @@ public sealed class StringComparerTests
         var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
         Assert.False(result.Success);
         Assert.Contains(result.Diagnostics, d => d.Message.Contains(name == "UnsupportedIgnoreCase" ? "No implementation method matches" : "no implemented managed body", StringComparison.Ordinal));
+    }
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Typed_ordinal_hash_preserves_equal_text_and_null_faults(bool optimized)
+    {
+        var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(StringComparerProbe),["HashProperties"]))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("HashProperties",program,StringComparerProbe.HashProperties)],expectedStaticRoots:1);
     }
     [Theory]
     [InlineData(false)] [InlineData(true)]

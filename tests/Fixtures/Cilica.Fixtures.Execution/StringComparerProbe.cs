@@ -55,7 +55,15 @@ namespace Cilica.Fixtures.Execution
             try { return comparer.Compare(OrdinalTextProbe.Pick(a), OrdinalTextProbe.Pick(b)); }
             catch (NullReferenceException) { return -19; }
         }
-        public static int UnsupportedHash(int a, int b) => StringComparer.Ordinal.GetHashCode("a");
+        public static int HashProperties(int a, int b)
+        {
+            var text=new string(new char[]{(char)a,'\0',(char)b});
+            var copy=new string(new char[]{(char)a,'\0',(char)b});
+            int result=StringComparer.Ordinal.GetHashCode(text)==StringComparer.Ordinal.GetHashCode(copy)?1:0;
+            try { StringComparer.Ordinal.GetHashCode((string)null); }
+            catch(ArgumentNullException e) { result+=e.ParamName=="obj"?3:5; }
+            return result;
+        }
         public static int UnsupportedComparerHash(int a, int b) => StringComparer.Ordinal.GetHashCode();
         public static int UnsupportedObjectCompare(int a, int b) => StringComparer.Ordinal.Compare((object)"a", (object)"b");
         public static int UnsupportedIgnoreCase(int a, int b) => StringComparer.OrdinalIgnoreCase.Compare("a", "A");

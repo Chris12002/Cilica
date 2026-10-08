@@ -4276,3 +4276,15 @@ copy to 8,192 locals reaches Enumerable.Skip in ContinueAcquiredShieldChoice,
 with 1,075,533 metadata units/4,336 ms. Production limits remain unchanged; no
 engine code is emitted or executed. See ADR AC0190. Full engine, unchanged
 fingerprint and saved-game replay remain unfinished.
+
+
+### Managed dictionary comparers (compatibility batch 005)
+
+Both comparer constructors now retain and invoke supplied admitted comparers through
+ordinary managed dispatch. Aliases, runtime selection, null defaults and explicit
+value-default normalization preserve hashing, equality and mutable-key copies.
+The default comparer cache has private identity metadata; no compiler/native
+profile or limit changes. The two obsolete dictionary ordinal-factory grants are
+removed. See [decision](decisions/compatibility-005-dictionary-comparers.md) and
+[results](compatibility-candidates/batch-005-results.md). OrdinalIgnoreCase/culture
+factories remain explicit diagnostics; full DiffPlex execution is unverified.

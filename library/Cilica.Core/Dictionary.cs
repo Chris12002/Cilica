@@ -122,15 +122,22 @@ namespace System.Collections.Generic
         private int freeList;
         private int freeCount;
         private int version;
+        private IEqualityComparer<TKey> comparer;
         public Dictionary() { freeList = -1; }
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
-        public extern Dictionary(IEqualityComparer<TKey> comparer);
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
-        public extern Dictionary(int capacity, IEqualityComparer<TKey> comparer);
-        // Selected only for string keys and a directly proven Ordinal getter.
-        // Comparer exposure and copy construction require separate identity handling.
-        public static Dictionary<TKey, TValue> CreateOrdinal(IEqualityComparer<TKey> comparer) => new Dictionary<TKey, TValue>();
-        public static Dictionary<TKey, TValue> CreateOrdinal(int capacity, IEqualityComparer<TKey> comparer) => new Dictionary<TKey, TValue>(capacity);
+        public Dictionary(IEqualityComparer<TKey> comparer)
+        { freeList = -1; this.comparer = NormalizeComparer(comparer); }
+        public Dictionary(int capacity, IEqualityComparer<TKey> comparer)
+        {
+            if (capacity < 0) throw new ArgumentOutOfRangeException("capacity");
+            freeList = -1;
+            if (capacity > 0) Initialize(capacity);
+            this.comparer = NormalizeComparer(comparer);
+        }
+        private static IEqualityComparer<TKey> NormalizeComparer(IEqualityComparer<TKey> value)
+        {
+            var typed = value as EqualityComparer<TKey>;
+            return typed != null && typed.IsDefaultValueComparer ? null : value;
+        }
         public Dictionary(int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("capacity");
@@ -160,8 +167,19 @@ namespace System.Collections.Generic
         // FindValue and equality preserve EqualityComparer<T>'s by-value receiver
         // semantics. TryInsert deliberately hashes its own key parameter byref,
         // matching the pinned source even when a value key mutates its receiver.
-        private static bool Equal(TKey left, TKey right) => Cilica.Runtime.KeyOperations<TKey>.Equal(ref left, right);
-        private static uint Hash(TKey key) => unchecked((uint)Cilica.Runtime.KeyOperations<TKey>.Hash(ref key));
+        private bool Equal(TKey left, TKey right)
+        {
+            if (comparer != null) return comparer.Equals(left, right);
+            return Cilica.Runtime.KeyOperations<TKey>.Equal(ref left, right);
+        }
+        private uint Hash(TKey key) => HashKey(ref key);
+        private uint HashKey(ref TKey key)
+        {
+            // Custom comparer arguments receive copies; only the default path
+            // preserves the caller-specific mutable key receiver.
+            if (comparer != null) return unchecked((uint)comparer.GetHashCode(key));
+            return unchecked((uint)Cilica.Runtime.KeyOperations<TKey>.Hash(ref key));
+        }
         private static void CheckKey(TKey key)
         { if (Cilica.Runtime.KeyOperations<TKey>.IsNull(key)) throw new ArgumentNullException("key"); }
         private Cilica.Runtime.DictionaryEntry<TKey, TValue> Find(TKey key)
@@ -228,7 +246,7 @@ namespace System.Collections.Generic
             if (buckets != null)
             {
                 // Remove, like TryInsert, hashes its own key parameter before comparison.
-                uint hash = unchecked((uint)Cilica.Runtime.KeyOperations<TKey>.Hash(ref key));
+                uint hash = HashKey(ref key);
                 int bucket = (int)(hash % (uint)buckets.Length);
                 int previous = -1;
                 int index = buckets[bucket] - 1;
@@ -545,7 +563,7 @@ namespace System.Collections.Generic
         {
             CheckKey(key);
             if (buckets == null) Initialize(0);
-            uint hash = unchecked((uint)Cilica.Runtime.KeyOperations<TKey>.Hash(ref key));
+            uint hash = HashKey(ref key);
             int bucket = (int)(hash % (uint)buckets.Length);
             int index = buckets[bucket] - 1;
             int collisions = 0;

@@ -6,6 +6,12 @@ namespace System.Collections.Generic
     public abstract class EqualityComparer<T> : IEqualityComparer<T>, Collections.IEqualityComparer
     {
         protected EqualityComparer() { }
+        // Set only on the runtime-instance default singleton. Dictionary normalizes
+        // value defaults without constructing unsupported default comparers for
+        // unrelated reference keys or for custom comparer instances.
+        private bool defaultValueComparer;
+        internal bool IsDefaultValueComparer => defaultValueComparer;
+        internal void MarkDefault() { defaultValueComparer = Cilica.Runtime.KeyOperations<T>.IsValueType(); }
         public static EqualityComparer<T> Default => Cilica.Runtime.EqualityComparerCache<T>.Get();
         public abstract bool Equals(T first, T second);
         public abstract int GetHashCode(T value);
@@ -25,7 +31,13 @@ namespace Cilica.Runtime
 {
     internal static class EqualityComparerCache<T>
     {
-        private static readonly System.Collections.Generic.EqualityComparer<T> Instance = EqualityComparerOperations<T>.Create();
+        private static readonly System.Collections.Generic.EqualityComparer<T> Instance = Create();
+        private static System.Collections.Generic.EqualityComparer<T> Create()
+        {
+            var comparer = EqualityComparerOperations<T>.Create();
+            comparer.MarkDefault();
+            return comparer;
+        }
         internal static System.Collections.Generic.EqualityComparer<T> Get() => Instance;
     }
     internal static class EqualityComparerOperations<T>

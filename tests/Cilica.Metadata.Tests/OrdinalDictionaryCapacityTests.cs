@@ -1,16 +1,8 @@
 using System;
-using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Cryptography;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Cilica.Compiler;
 using Cilica.Fixtures.Execution;
-using Cilica.Metadata;
-using Cilica.Metadata.Resolution;
 using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class OrdinalDictionaryCapacityTests
@@ -36,16 +28,15 @@ public sealed class OrdinalDictionaryCapacityTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,
             [("Order",program,OrdinalDictionaryCapacityProbe.Order)],pairs,expectedStaticRoots:negative?0:1);
     }
-    [Fact]
-    public async Task Null_alias_custom_getter_join_and_nonstring_comparers_remain_diagnostic()
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Previously_rejected_comparer_construction_matches_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files); using var lifetime=resolver;
-        using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
-        var input=scope.OpenInput(typeof(OrdinalDictionaryCapacityProbe).Assembly.Location).Value!;
-        foreach (string suffix in new[]{"Null","Alias","Custom","Getter","Join","Integer"}) {
-            var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(OrdinalDictionaryCapacityProbe).GetMethod("Unsupported"+suffix)!.MetadataToken),implementation);
-            Assert.False(result.Success,suffix); Assert.Contains(result.Diagnostics,d=>d.Message.Contains("directly proven StringComparer.Ordinal",StringComparison.Ordinal));
-        }
+        string[] names=["UnsupportedNull","UnsupportedAlias","UnsupportedCustom","UnsupportedGetter","UnsupportedJoin","UnsupportedInteger"];
+        var programs=await CoreLibraryBuildTests.TranslateFixtures(typeof(OrdinalDictionaryCapacityProbe),names);
+        var pairs=(from a in new[]{1,7} from b in new[]{-1,0,1,7} select(a,b)).ToArray();
+        for(int i=0;i<names.Length;i++)
+            await IntegerObjectTranslationTests.VerifyTranslated(optimized,[(names[i],programs[i],
+                typeof(OrdinalDictionaryCapacityProbe).GetMethod(names[i])!.CreateDelegate<Func<int,int,int>>())],pairs,
+                expectedStaticRoots:i==1||i==3||i==4?1:0);
     }
 }
