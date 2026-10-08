@@ -509,6 +509,11 @@
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SequenceEqual.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/SequenceEqual.cs",
       "sha256": "1f3a8a5b8cd87d94679f0dc5ac1e94d1b9d100d4058d198f653d5471f3c107fb"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Collections/src/Resources/Strings.resx",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Collections/src/Resources/Strings.resx",
+      "sha256": "f519f3e98733e2349c0c1a662dd6c9ece9fe8b8794e51f88a596d6fa461fd441"
     }
   ],
   "adaptations": [
@@ -568,12 +573,13 @@
       "path": "library/Cilica.Core/Stack.cs",
       "upstreamPath": "src/libraries/System.Collections/src/System/Collections/Generic/Stack.cs",
       "algorithms": [
-        "AC3.34 parameterless Stack construction, Count, Push growth and Pop with exact empty exception."
+        "AC3.34 parameterless Stack construction, Count, Push growth and Pop with exact empty exception.",
+        "AC8.72 concrete/generic/nongeneric Stack enumerators, reverse traversal, copy/current/dispose/reset state and successful-mutation version checks."
       ],
       "changes": [
-        "Managed arrays and indexed copying replace Array.Resize. Pop clears scalar slots as well as reference-bearing slots; this is unobservable through the admitted API. Nominal collection/enumerable interfaces remain, with unsupported traversal/copy markers. Enumerator versioning is deferred with enumeration."
+        "Managed arrays and indexed copying replace Array.Resize. Pop clears scalar slots as well as reference-bearing slots; mutation checks protect future cursor reads, while Current retains its copied value. Version increments follow successful stores/growth only. Interface-empty cursors reuse the existing per-T array/list empty cursor; nonempty cursors are boxed values. Mutation text uses the separately pinned System.Collections resource. CopyTo remains unsupported."
       ],
-      "scope": "Parameterless construction, Count, Push, Pop and ICollection synchronization identity only; capacity/enumerable constructors, enumeration and other stack methods remain diagnostic."
+      "scope": "Parameterless construction, Count, Push, Pop, concrete/interface enumeration and ICollection synchronization identity; capacity/enumerable constructors, CopyTo and other stack methods remain diagnostic."
     },
     {
       "path": "library/Cilica.Core/Grouping.cs",

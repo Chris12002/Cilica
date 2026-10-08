@@ -4642,3 +4642,20 @@ collection, sanitizers and exact cleanup/frame-budget checks. No compiler profil
 intrinsic, runtime, emitter or production quota change. The frozen engine advances
 to Stack<T>'s unimplemented nongeneric enumerator via OfType.Count. Full engine
 execution and replay remain unfinished. See ADR AC0215.
+
+
+### Bounded Stack enumeration (AC8.72)
+
+Stack<T> now has the pinned concrete Enumerator plus generic/nongeneric factories.
+Version checks follow successful Push/Pop mutations; failed growth preserves active
+cursors. Nonempty interface factories box independent mutable cursors; empty factories
+share the existing per-T array/list cursor. Preserve reverse order, copied/current
+values, reset/dispose behavior and exact System.Collections mutation text. Concrete
+empty/default cursors retain their distinct behavior. Direct nested Enumerator use
+requires its exact reference-to-core mapping alongside Stack<T>.
+
+All 35 focused/adjacent checks pass, including 3,234 new O0/O2 native/.NET comparisons,
+existing lifetime tests and two new quota/cursor recovery checks. Compiler profiles,
+runtime, emitter and production quotas are unchanged. The frozen engine advances to
+its diagnostic 3,072 cached-type allowance; full admission/execution/replay remain
+unfinished. See ADR AC0216.
