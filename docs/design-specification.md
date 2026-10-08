@@ -4956,3 +4956,14 @@ borrowed aliases and finally mutation remain diagnostic. CIL110 identifies the
 new admission; IR65, native81, runtime and production resource limits are unchanged.
 The proof has its own 1,048,576-work cap per method. See ADR AC0230 for the caught
 exception-order regression, converted reference, review and frozen body inventory.
+
+
+### Array-length zero comparisons (AC8.87)
+
+CIL111 admits adjacent ldlen/ldc.i4.0/ceq or cgt.un as a Boolean observation of
+bounded vectors. The array null check stays in place; split consumers, nonzero
+comparisons and general native-integer flow remain diagnostic. Converted
+EffectOperationDescriptor.Supports guided this slice. All 27 selected checks pass,
+including 1,764 new sanitized O0/O2 native/.NET comparisons. IR65/native81, owned
+core, grants and budgets are unchanged. Full closure/replay remain incomplete;
+see ADR AC0231.

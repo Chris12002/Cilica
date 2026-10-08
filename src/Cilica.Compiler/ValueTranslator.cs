@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v110";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v111";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -550,8 +550,11 @@ public static class ValueTranslator
                             bool lengthConverted = index + 1 < end && input.Instructions[index + 1].OpCode == "conv.i4";
                             bool lengthTruth = types.IntegerCasts && index + 1 < end
                                 && input.Instructions[index + 1].OpCode is ("brtrue" or "brtrue.s" or "brfalse" or "brfalse.s");
-                            if (!lengthConverted && !lengthTruth)
-                                Error(offset, "Array length requires an adjacent conv.i4 or admitted truth branch in the same block; other native integer flow requires later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            bool lengthComparison = types.IntegerCasts && index + 2 < end
+                                && input.Instructions[index + 1].OpCode == "ldc.i4.0"
+                                && input.Instructions[index + 2].OpCode is ("ceq" or "cgt.un");
+                            if (!lengthConverted && !lengthTruth && !lengthComparison)
+                                Error(offset, "Array length requires an adjacent conv.i4, truth branch or zero comparison in the same block; other native integer flow requires later lowering.", DiagnosticIds.ExecutionUnsupported);
                             int lengthArray = PopArray(offset);
                             if (lengthConverted)
                             {
@@ -562,11 +565,14 @@ public static class ValueTranslator
                             {
                                 // Bounded vectors have nonnegative Int32 lengths. Their native-size
                                 // zero/nonzero observation is identical on 32/64-bit targets. Materialize
-                                // only that Boolean, consumed by the proven adjacent branch; never
-                                // admit a native numeric value to arithmetic, storage or block joins.
+                                // only that Boolean; never admit a native numeric value to
+                                // arithmetic, storage or block joins. Consume the whole comparison
+                                // so its constant/operator cannot become an independent entry point.
+                                bool equalsZero = lengthComparison && input.Instructions[index + 2].OpCode == "ceq";
+                                if (lengthComparison) index += 2;
                                 int observedLength = Define(offset, IrType.Int32, new IrExpression.ArrayLength(lengthArray), true);
                                 int emptyLength = Define(offset, IrType.Int32, new IrExpression.Constant(0));
-                                Push(offset, IrType.Int32, new IrExpression.Compare(Int32Comparison.NotEqual, observedLength, emptyLength));
+                                Push(offset, IrType.Int32, new IrExpression.Compare(equalsZero ? Int32Comparison.Equal : Int32Comparison.NotEqual, observedLength, emptyLength));
                             }
                             break;
                         case "ldelema" when types.IntegerCasts:

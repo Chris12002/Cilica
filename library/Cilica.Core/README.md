@@ -1482,3 +1482,14 @@ All 32 selected checks pass (3,948 new sanitized O0/O2 comparisons); nullable or
 unproven destinations remain diagnostic. Owned core, grants, IR65/native81 and
 runtime budgets are unchanged. Full engine closure/replay remain incomplete;
 see ADR AC0230.
+
+
+### Array-length zero comparisons (AC8.87)
+
+CIL111 admits adjacent ldlen/ldc.i4.0/ceq or cgt.un as a Boolean observation of
+bounded vectors. The array null check stays in place; split consumers, nonzero
+comparisons and general native-integer flow remain diagnostic. Converted
+EffectOperationDescriptor.Supports guided this slice. All 27 selected checks pass,
+including 1,764 new sanitized O0/O2 native/.NET comparisons. IR65/native81, owned
+core, grants and budgets are unchanged. Full closure/replay remain incomplete;
+see ADR AC0231.

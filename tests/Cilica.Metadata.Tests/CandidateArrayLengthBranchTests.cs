@@ -91,7 +91,7 @@ public sealed class CandidateArrayLengthBranchTests
                 case "pop": il.OpCode(ILOpCode.Pop); il.LoadConstantI4(0); break;
                 case "dup": il.OpCode(ILOpCode.Dup); il.OpCode(ILOpCode.Pop); break;
                 case "arithmetic": il.LoadConstantI4(1); il.OpCode(ILOpCode.Add); break;
-                case "comparison": il.LoadConstantI4(0); il.OpCode(ILOpCode.Ceq); break;
+                case "comparison": il.LoadConstantI4(1); il.OpCode(ILOpCode.Ceq); break;
                 case "wide-conversion": il.OpCode(ILOpCode.Conv_i8); il.OpCode(ILOpCode.Conv_i4); break;
                 case "local": il.StoreLocal(0); il.LoadLocal(0); break;
                 case "nop": il.OpCode(ILOpCode.Nop); break;
