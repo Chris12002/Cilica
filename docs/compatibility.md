@@ -4497,3 +4497,14 @@ carriers and more than 256 entries remain diagnostic. Sixty-eight distinct selec
 checks pass, including 3,234 new native/.NET comparisons. See ADR AC0207. CIL94;
 IR59/native79 unchanged. Frozen discovery advances to parameterless List<Int64>.Sort
 in GameStateHasher.AppendSpell. Full engine, unchanged fingerprint and replay are unfinished.
+
+### Default signed integer list sorting (AC3.36)
+
+Parameterless List<Int32>.Sort and List<Int64>.Sort reuse the managed introsort and
+existing granted numeric CompareTo bridge. Successful sorts invalidate cursors even
+for zero/one items; no comparer cache is created. Thirty-seven selected checks pass,
+including 1,764 new native/.NET comparisons. See ADR AC0208. No new compiler/runtime
+operation, profile or grant is introduced (validated snapshot CIL94/IR59/native79).
+Unsigned delegate/vector composition and other default comparer types remain diagnostic.
+Frozen engine discovery advances to an access check in HashSet<internal WaveGroupId>
+hashing. Full engine, unchanged fingerprint and saved-game replay remain unfinished.

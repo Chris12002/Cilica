@@ -488,6 +488,12 @@
   ],
   "adaptations": [
     {
+      "path": "library/Cilica.Core/List.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs and ArraySortHelper.cs",
+      "contracts": ["AC3.36 parameterless List.Sort for admitted Int32/Int64 values; the existing numeric CompareTo grant and managed introsort preserve ordering and version changes."],
+      "scope": "Reuses ComparisonSort with a copied-argument static numeric callback, without a comparer cache. Unsigned delegate/vector composition, other default-comparer types and section overloads remain diagnostic."
+    },
+    {
       "path": "library/Cilica.Core/EnumQueries.cs",
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Enum.cs and System/RuntimeType.cs",
       "contracts": ["AC5b.16 exact granted Enum.GetValues(typeof(Int32-enum)) creates a fresh nominal vector in unsigned constant order, retaining duplicate values."],

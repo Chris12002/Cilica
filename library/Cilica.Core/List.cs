@@ -157,6 +157,11 @@ namespace System.Collections.Generic
             if (size > 1) Cilica.Runtime.ComparisonSort<T>.Sort(items, size, new Comparison<T>(Cilica.Runtime.ComparisonSort<T>.CompareOrdinal));
             version++;
         }
+        public void Sort()
+        {
+            if (size > 1) Cilica.Runtime.ComparisonSort<T>.Sort(items, size, new Comparison<T>(Cilica.Runtime.ComparisonSort<T>.CompareDefault));
+            version++;
+        }
         public void Sort(Comparison<T> comparison)
         {
             if (comparison == null) throw new ArgumentNullException("comparison");

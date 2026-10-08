@@ -1121,3 +1121,11 @@ Fresh arrays preserve exact enum identity, unsigned ordering and duplicate value
 The exact granted typeof/GetValues sequence is specialized to ordinary array IR;
 dynamic Type arguments, other enum widths and general reflection remain diagnostic.
 See ADR AC0207.
+
+### Default signed integer list sorting
+
+AC3.36 adds parameterless List<Int32>.Sort and List<Int64>.Sort through the existing
+managed introsort and numeric CompareTo bridge, preserving cursor invalidation for
+empty/single-item lists. Unsigned delegate/vector composition, other default comparer
+types and section-sort overloads retain diagnostics. No new grant or runtime operation.
+See ADR AC0208.

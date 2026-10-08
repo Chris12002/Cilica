@@ -51,7 +51,7 @@ public sealed class ListSortTests
     public Task Reentrant_and_validation(bool optimized) => Comparison_sort_preserves_order_mutations_and_faults(optimized,2);
 
     [Fact]
-    public async Task Sort_display_name_requires_its_exact_grant_and_default_sort_stays_diagnostic()
+    public async Task Sort_display_name_requires_its_exact_grant_and_private_caller()
     {
         using var files=new ResolverFiles();
         var (built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);
@@ -67,8 +67,6 @@ public sealed class ListSortTests
         var result=ValueTranslator.TranslateIntegerObjects(denied,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ListSortProbe).GetMethod("Integers")!.MetadataToken),implementation);
         Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Id==DiagnosticIds.LibraryIntrinsicDenied);
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,bytes,built.ManifestSha256).Value!;
-        result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ListSortProbe).GetMethod("UnsupportedDefault")!.MetadataToken),implementation);
-        Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Message.Contains("No implementation method matches",StringComparison.Ordinal));
         var builder=new ResolutionAssemblyBuilder(new("ForeignSortName",new Version(1,0,0,0)));
         var helper=builder.TypeReference("Cilica.Runtime","ComparisonSort`1",builder.Reference(implementation.Identity));
         var closed=builder.Specification(0x15,0x12,(byte)((MetadataTokens.GetRowNumber(helper)<<2)|1),1,8);

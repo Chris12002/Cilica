@@ -8,6 +8,9 @@ namespace Cilica.Runtime
     {
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         private static extern string ComparisonName();
+        // The existing granted bridge admits exact integer carriers and calls their
+        // managed CompareTo bodies; no comparer object or cache is needed here.
+        internal static int CompareDefault(T first, T second) => ComparerOperations<T>.Compare(ref first, second);
         internal static int CompareOrdinal(T first, T second) => String.CompareOrdinal((string)(object)first, (string)(object)second);
         internal static void Sort(T[] map, int count, Comparison<T> comparer)
         {
