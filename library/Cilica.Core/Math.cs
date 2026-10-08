@@ -3,6 +3,8 @@ namespace System
 {
     public static class Math
     {
+        public static int Sign(int value) => value < 0 ? -1 : value > 0 ? 1 : 0;
+        public static int Sign(long value) => value < 0 ? -1 : value > 0 ? 1 : 0;
         public static int Abs(int value)
         {
             if (value == -2147483648) throw new OverflowException("Negating the minimum value of a twos complement number is invalid.");

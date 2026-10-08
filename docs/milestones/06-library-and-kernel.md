@@ -4056,3 +4056,14 @@ catalog uses a measured relation-work allowance of 4,194,304; production remains
 1,048,576. Frozen engine discovery now reaches Math.Sign in BarrierOperation.Span;
 StateLookup validates 15 methods. Both emission fields are null; full closure/replay
 remain incomplete. See ADR AC0226 for exact counts, provenance and audit evidence.
+
+### Signed integer Sign (AC8.83)
+
+Math.Sign(Int32/Int64) returns -1/0/1 through managed comparisons, including signed
+minimum values without negation. Converted barrier-span calls guide the regression.
+All 10 focused/adjacent checks pass, including 1,296 new sanitized O0/O2 native/.NET
+comparisons and exact overload admission. No profiles, grants or production limits
+change. Frozen discovery passes Sign and exhausts 8,192 diagnostic snapshot fields.
+A diagnostic-only increase to 16,384 reaches Guid.TryParseExact in shield-option
+parsing; StateLookup validates 15 methods. Both emission fields are null. Full
+closure/replay remain incomplete; see ADR AC0227.

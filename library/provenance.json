@@ -1605,9 +1605,10 @@
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/Resources/Strings.resx",
       "contracts": [
         "Cilica-owned managed integer Abs/Min/Max; signed minimum Abs throws OverflowException with pinned Overflow_NegateTwosCompNum text.",
+        "AC8.83 adds Int32/Int64 Math.Sign using managed comparisons; minimum values never require negation, and unsupported overloads retain mapping diagnostics.",
         "Typed Int32/UInt32/Int64/UInt64 CompareTo bodies in CoreTypes.cs use exact IComparable<T> method flags and existing primitive receiver lowering."
       ],
-      "scope": "Signed Int32/Int64 Abs, signed/unsigned 32/64-bit Min/Max and typed CompareTo. No floating, decimal, object comparison or general comparer-interface execution."
+      "scope": "Signed Int32/Int64 Abs and Sign, signed/unsigned 32/64-bit Min/Max and typed CompareTo. No floating, decimal, object comparison or general comparer-interface execution."
     },
     {
       "path": "library/Cilica.Core/CoreTypes.cs",
