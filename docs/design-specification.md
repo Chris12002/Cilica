@@ -4283,3 +4283,12 @@ See [decision](decisions/compatibility-007-uint32-vectors.md) and
 [results](compatibility-candidates/batch-007-results.md). Scalar element addresses
 and checked native-integer indices remain diagnosed. The latter is Crc32.NET's
 next mapped gate; full candidate execution has not occurred.
+
+### Diagnostic type-snapshot audit (AC8.61)
+
+AC6.21 fills the 2,048 cached type snapshots in the diagnostic copy. Raising only
+that archived copy to 3,072 reaches Guid.TryParse(String, out Guid) in
+TargetOptions.ParsePlayer at IL_0003. Discovery charges 1,117,323 metadata units
+in 4,288 ms; StateLookup remains 15 methods/11,613 units. Production's 256-type
+limit stays unchanged. See ADR AC0192. No engine emission or execution occurs;
+full engine, unchanged fingerprint and saved-game replay remain unfinished.

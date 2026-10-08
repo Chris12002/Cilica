@@ -3530,3 +3530,12 @@ pass. Optimized LINQ-source specializations remain explicit build diagnostics,
 including Where, Select and ordering. See ADR AC0191. No compiler/native profile,
 intrinsic grant or production-limit change is needed. Frozen discovery remains
 partial; full engine, unchanged fingerprint and saved-game replay are unfinished.
+
+### Diagnostic type-snapshot audit (AC8.61)
+
+AC6.21 fills the 2,048 cached type snapshots in the diagnostic copy. Raising only
+that archived copy to 3,072 reaches Guid.TryParse(String, out Guid) in
+TargetOptions.ParsePlayer at IL_0003. Discovery charges 1,117,323 metadata units
+in 4,288 ms; StateLookup remains 15 methods/11,613 units. Production's 256-type
+limit stays unchanged. See ADR AC0192. No engine emission or execution occurs;
+full engine, unchanged fingerprint and saved-game replay remain unfinished.
