@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v89";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v90";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -525,10 +525,28 @@ public static class ValueTranslator
                             var arrayType = method.ArrayOperands[offset];
                             Push(offset, IrType.Reference(arrayType), new IrExpression.NewArray(arrayType, Pop(offset, IrType.Int32)), true); break;
                         case "ldlen" when arrays:
-                            if (index + 1 >= end || input.Instructions[index + 1].OpCode != "conv.i4")
-                                Error(offset, "Array length requires an adjacent conv.i4 in the same block; native integer flow requires later lowering.", DiagnosticIds.ExecutionUnsupported);
-                            int lengthArray = PopArray(offset); ++index;
-                            Push(offset, IrType.Int32, new IrExpression.ArrayLength(lengthArray), true); break;
+                            bool lengthConverted = index + 1 < end && input.Instructions[index + 1].OpCode == "conv.i4";
+                            bool lengthTruth = types.IntegerCasts && index + 1 < end
+                                && input.Instructions[index + 1].OpCode is ("brtrue" or "brtrue.s" or "brfalse" or "brfalse.s");
+                            if (!lengthConverted && !lengthTruth)
+                                Error(offset, "Array length requires an adjacent conv.i4 or admitted truth branch in the same block; other native integer flow requires later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            int lengthArray = PopArray(offset);
+                            if (lengthConverted)
+                            {
+                                ++index;
+                                Push(offset, IrType.Int32, new IrExpression.ArrayLength(lengthArray), true);
+                            }
+                            else
+                            {
+                                // Bounded vectors have nonnegative Int32 lengths. Their native-size
+                                // zero/nonzero observation is identical on 32/64-bit targets. Materialize
+                                // only that Boolean, consumed by the proven adjacent branch; never
+                                // admit a native numeric value to arithmetic, storage or block joins.
+                                int observedLength = Define(offset, IrType.Int32, new IrExpression.ArrayLength(lengthArray), true);
+                                int emptyLength = Define(offset, IrType.Int32, new IrExpression.Constant(0));
+                                Push(offset, IrType.Int32, new IrExpression.Compare(Int32Comparison.NotEqual, observedLength, emptyLength));
+                            }
+                            break;
                         case "ldelema" when types.IntegerCasts:
                             int addressIndex = Pop(offset, IrType.Int32, arrayIndex: true), addressArray = PopArray(offset);
                             var addressView = ArrayView(addressArray, opcode, offset);

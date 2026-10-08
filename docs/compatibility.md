@@ -4381,3 +4381,14 @@ selected checks pass, including 3,024 new repeated native/.NET comparisons. See
 ADR AC0198. Frozen discovery passes WriteContext and reaches the default string
 comparer branch behind an explicit ordinal ThenBy. Full engine, unchanged
 fingerprint and saved-game replay remain unfinished.
+
+### Confined array-length truth branches (compatibility batch 010)
+
+The integer-object CIL v90 profile admits `ldlen` immediately consumed by a
+same-block `brtrue`/`brfalse` (long or short), using bounded length-to-Boolean
+lowering with the original null fault. Native-size arithmetic, storage, aliases,
+other comparisons and split consumers remain unsupported. Eight authored/raw IL
+roots pass 2,352 repeated O0/O2 native/.NET comparisons; all 20 new checks pass.
+No runtime/IR layout, grant or resource limit changes. See
+[the decision](decisions/compatibility-010-array-length-truth.md). Actual DiffPlex
+integration results remain separate from this feature's conformance evidence.

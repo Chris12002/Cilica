@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Cilica.Compiler;
 using Xunit;
 namespace Cilica.Metadata.Tests;
-public sealed class ApprovedDiffPlexExecutionTests
+public sealed class ApprovedDiffPlexExecutionTests(ITestOutputHelper output)
 {
     // This opt-in is not a sandbox. The documented isolated environment and human
     // execution approval are prerequisites, even if these variables are supplied.
@@ -26,8 +26,10 @@ public sealed class ApprovedDiffPlexExecutionTests
             using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMapContracts(files, includeNetStandard20:true);using var lifetime=resolver;
             using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
             var input=scope.OpenInput(path).Value!;
+            output.WriteLine("Stage: translating selected candidate root; no oracle invocation yet.");
             var translated=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(method.MetadataToken),implementation);
             Assert.True(translated.Success,string.Join("; ",translated.Diagnostics));
+            output.WriteLine("Stage: translation passed; collecting 64 complete .NET oracle transcripts.");
             var oracle=method.CreateDelegate<Func<int,int,int>>();
             var observations=new List<(int,int)>();
             for(int scenario=0;scenario<64;scenario++)
@@ -35,9 +37,18 @@ public sealed class ApprovedDiffPlexExecutionTests
                 int length=oracle(scenario,-1);Assert.InRange(length,1,2048);
                 observations.Add((scenario,-1));for(int index=0;index<length;index++)observations.Add((scenario,index));
             }
+            output.WriteLine($"Stage: all 64 oracle scenarios completed; {observations.Count} transcript observations including lengths.");
             foreach(bool optimized in new[]{false,true})
+            {
+                int completed=0;
                 foreach(var batch in System.Linq.Enumerable.Chunk(observations,128))
+                {
+                    output.WriteLine($"Stage: O{(optimized?2:0)} native batch starting after {completed}/{observations.Count} completed observations.");
                     await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("DiffPlex",translated.Program!,oracle)],batch,persistentRoots:true);
+                    completed+=batch.Length;
+                }
+                output.WriteLine($"Stage: O{(optimized?2:0)} completed all {completed} observations.");
+            }
         }
         finally {context.Unload();}
     }
