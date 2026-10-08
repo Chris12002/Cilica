@@ -846,7 +846,8 @@
         "SZArrayHelper Insert/RemoveAt fixed-size faults, generic Clear read-only faults and System.Array IList.Clear element resetting",
         "AC3.4 SZArrayHelper IndexOf/Contains and unconditional fixed-size Remove",
         "AC3.7 SZArrayHelper CopyTo and Array.Copy argument/whole-array compatibility order",
-        "Compatibility batch010: System.Array.Clear(Array,Int32,Int32) null/range order for zero-based vectors."
+        "Compatibility batch010: System.Array.Clear(Array,Int32,Int32) null/range order for zero-based vectors.",
+        "Compatibility batch011: System.Array.Copy Int32 whole/section overload validation order, overlapping move and covariant checked element stores."
       ],
       "changes": [
         "Replace unsafe receiver reinterpretation with a compiler-selected closed T[] argument.",
@@ -854,7 +855,8 @@
         "Require exact Count/Get/Set/Add/False/True/Identity and AC3.2 Insert/InsertObject/RemoveAt/ClearReadOnly/Clear grants. Generic element arguments use the interface view; nongeneric Insert retains object without an element cast.",
         "Implement nongeneric Clear as a typed managed default-value loop, preserving identity and releasing reference-bearing element roots; other members remain unsupported.",
         "Require separate IndexOf/Contains/Remove grants; search delegates to the exact private ClosedArraySearch selection.",
-        "ClearSection validates the entire section before typed default(T) stores; subtraction avoids signed overflow. Separate public-call and managed-bridge grants require a proven vector operand."
+        "ClearSection validates the entire section before typed default(T) stores; subtraction avoids signed overflow. Separate public-call and managed-bridge grants require a proven vector operand.",
+        "CopyWhole/CopySection require same-declared-element proven vectors; preserve complete range-before-type validation and reverse overlapping self-copy with existing CopyStore/CopyCompatible grants. No bulk memory operation, widening or boxing."
       ],
       "scope": "Int32, admitted reference and supported inline-value vectors; exact selected-runtime contracts, indexed reads/writes, fixed-size mutation faults and distinct generic/nongeneric Clear semantics.",
       "additionalUpstreamPaths": [

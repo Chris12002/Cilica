@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "batch": "batch-011",
+  "initial_source_baseline": "6d868aa",
+  "combined_source_baseline": "7b7e0bf6510106e0a01ddc3e49b2ee4481c8e0c4",
+  "recording_head": "6b804fef181538c0771d7b8fd746731f3b266a46",
+  "profiles": {
+    "CIL": 98,
+    "IR": 60,
+    "native": 79
+  },
+  "results": {
+    "combined": {
+      "checks": 57,
+      "passed": 57,
+      "seconds": 101.655,
+      "classes": [
+        "ArraySectionCopyTests",
+        "CandidateCircularBufferTests",
+        "ArraySectionClearTests",
+        "ValueKeyCallbackTests"
+      ]
+    },
+    "adjacent_before_peer_integration": {
+      "checks": 78,
+      "passed": 78,
+      "seconds": 99.206,
+      "classes": [
+        "ArrayCopyTests",
+        "ArrayMutationTests",
+        "CandidateUInt32VectorTests"
+      ],
+      "qualification": "Before callback-contract 7b7e0bf integration; final combined suite explicitly reruns Copy/Clear/ValueKey contracts."
+    },
+    "distinct_passing_checks": 135,
+    "new_repeated_native_dotnet_comparisons": 3822,
+    "comparison_breakdown": {
+      "copy_semantic": 2940,
+      "generic_constructor_fields": 294,
+      "candidate_independent_copy_reductions": 588
+    },
+    "new_gc_lifetime_checks": 4,
+    "external_circularbuffer": "not staged/compiled/executed; separate approval needed"
+  },
+  "initial_runs": {
+    "tests.log": "31/32 passed; inline initializer negative hit earlier producer diagnostic. Fixed independently authored negative with locals to reach intended same-element boundary. All semantics/GC passed.",
+    "empty-selection-tests.log": "0 selected; intersecting filter mistake, not a passing check.",
+    "repaired-tests.log": "3/3 passed, including corrected negative and both field-copy native variants."
+  },
+  "final_owned_source_sha256": {
+    "library/Cilica.Core/ArrayInterface.cs": "723f1dc748767ca365233213c32452120101d726498564770b5b081ce2872c7b",
+    "library/Cilica.Core/CoreTypes.cs": "903d82b8ca0d273426de4235a6ccfedbc98eaf749a46fb58b806096678ff4ebc",
+    "library/Cilica.Core/README.md": "f91a7e398ebb74929b8e2f20841deed13be4c325ff4a4bb0713494de74c3f5f8",
+    "library/Cilica.Core/intrinsic-requests.json": "ef706092b8bd425929b1f4aab713458aa976ea106ead525756072510342bf3ed",
+    "library/provenance.json": "59dbe12683378e1db947c80ff7c47b223bd22d44da6278402abb716b906a5903",
+    "src/Cilica.Compiler/ValueArrayClearDiscovery.cs": "73cfd2afc95d9daf62a48e75b1602dadec44145880d3cb42341ad0cd8dedab31",
+    "src/Cilica.Compiler/ValueProgramDiscovery.cs": "67112ecb0035c2b764766baad0c140c5d9471097abee2949201f139f5ac3f4f4",
+    "src/Cilica.Compiler/ValueTranslator.cs": "ea4eaeb14d746e972661fe373a11e18b75f0f6c9295a131af873bee6d4744754",
+    "src/Cilica.Metadata/Resolution/LibraryBuildAdmission.cs": "f88c5097e2cc50a3fd71f9a6172bffa40953f064f2b59ea2e3fceddfaf2d8956",
+    "tests/Cilica.Metadata.Tests/CandidateCircularBufferTests.cs": "c7a107a510bdc68ae51056083317bc8e8d0b6335850ac0ad1b52f1422381a46c",
+    "tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs": "2465445ccc08bc6986761bcec5efffaf4ebf72aca0f30a20eee06f0edc7293cb",
+    "src/Cilica.Compiler/ValueArrayCopyDiscovery.cs": "e120459d5947fe28b5c9bcac07a33d35c3716d4d39e62734bbf7a1463cf1e347",
+    "src/Cilica.Compiler/ValueVectorCallDiscovery.cs": "1392c25e8ac50c00301c9408591a8c77eb9e437f274f8db59c06de332b5412e4",
+    "tests/Cilica.Metadata.Tests/ArraySectionCopyTests.cs": "d888c4dc0790103bbd3d5b9ab9332ac057795d911de74e9ce498651ff229f29f",
+    "tests/Cilica.Metadata.Tests/NativeEvidence.cs": "800705a8ae32f26517bdc304e80374cecd9972d953a0887071135110a4c14fcc",
+    "tests/Fixtures/Cilica.Fixtures.Execution/ArraySectionCopyProbe.cs": "73a61993cca814d077fb3c748e2f4d9f68a0cbf725b3f02ef5db5d269750536a"
+  },
+  "combined_run_binaries_sha256": {
+    "Cilica.Compiler.dll": "9de12621d5205a7ef82413114a2471182ac970d86ddb37a3cd1490c7873e0587",
+    "Cilica.Fixtures.Basic.dll": "e0f157d02eacabdd2915b6de95c503fda40615e5d35fc50428cdd93574776dce",
+    "Cilica.Fixtures.ControlFlow.dll": "02392b49322c03d31bc2919b9ffade69635bb8f7837979c45cf9c35a80eca3e3",
+    "Cilica.Fixtures.Execution.dll": "d98b2f361cffaaf2c39353bb4a3cfbd08621ad8fc0aca64d46021f449f516bc1",
+    "Cilica.Fixtures.Forwarding.dll": "1ca9c30491ebbf68b4709e1104a47b57496d17fc4508d2a85723cefa4d7d5095",
+    "Cilica.Library.dll": "679dde8760489cde29484932df6424d7a49aacff82326c383be0a84d3365e35b",
+    "Cilica.LibraryBuild.dll": "fd4e512e5fb147f00c84b4719d947b483b51e73e3a5278046eedc9bcb0c40e0c",
+    "Cilica.Metadata.Tests.dll": "019c82f818f9ba4f8f69130608688018b538e8d190d6153479be6afa00b0bc85",
+    "Cilica.Metadata.dll": "06ffe479394568fa443baa467d46d54f96e9ba09b0a5bd1cc0741942f80a99d5"
+  },
+  "retained_logs_sha256": {
+    "adjacent-tests.log": "d0ea785921ef865b1536cfe6a43fbab9f48bcd09b5fe535b335bb94bd7f5187d",
+    "build.log": "e64ea3962f9748e61fbb2e981efdb2d8a2ecb74c7de129baca75699021e5dcc5",
+    "combined-build.log": "839951159983b43f67a03816ec1c0b008b564243e3f489f80b5e3ff9ce2733da",
+    "combined-tests.log": "900df8f4e053e0f0c48d80cda619c96dfcf02eabf90c955fe6538b55b764144c",
+    "empty-selection-tests.log": "5adcd69fd00c4e7a8839f9914a5fb733410a8d880527edcad0683bd00e611a8e",
+    "field-build.log": "a267a2bfe164dc9890ec6e3ed4e9633b47bf48e4ef4be2f0d645d14178df67f9",
+    "final-build.log": "a4d5949d53ac7bee470b82bc788017636e840f1243d140de8127752a46a21d26",
+    "repair-build.log": "86653d32b8fc994006b72c7effc8f5e055eaa72abdca63489c22f36c7aeee4d4",
+    "repaired-tests.log": "22fcd555119f0c32830aadead019c7c89286139c7f7251638949c92a81267899",
+    "tests.log": "aed72a5a8db25ec86024baf74b6ab893859ac8e581913a333f5ce2ac578c0818"
+  },
+  "native_hash_receipts": {
+    "native-evidence": {
+      "count": 24,
+      "sha256": "a7541d9c4a8d688046ab0577023bd9851aba6c974d8ccd55ebadfcf73f590bc5"
+    },
+    "native-evidence-adjacent": {
+      "count": 60,
+      "sha256": "cdaef9dde8d6a62a9f32809e1749d585c6d31315c378326d8355c0b86a7c13b0"
+    },
+    "native-evidence-combined": {
+      "count": 38,
+      "sha256": "6e2be0d21681ff15a07b8166f0f29b73358124522aad4298f19421920e7f3afa"
+    },
+    "native-evidence-field": {
+      "count": 2,
+      "sha256": "9ba2634c90dac1e25db4259bbd0e882f58b13d4dc1570e7d0613f84432b846ed"
+    }
+  },
+  "native_hash_scope": "Opt-in VerifyTranslated and new Copy lifetime harness capture source/executable hashes before disposal. Older Clear custom GC harness is not instrumented. Pre-feature CRC C++ hashes remain historically missing.",
+  "review": "Same-block proof is independently checked by ordinary lowering; exact declarations/grants/access preserved. Range subtraction bounds sums, directional copy preserves overlap, checked stores preserve covariance partial faults and roots; no runtime edits or quota changes.",
+  "concurrency": "Combined tests include peer 7b7e0bf. Documentation-only 6b804fe landed before recording; its additions preserved. Performance clean window released before combined build; no index adopted.",
+  "cleanup": "No candidate copies created. Own test artifacts and evidence retained; no peer or unique files deleted."
+}

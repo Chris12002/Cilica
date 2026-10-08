@@ -1,0 +1,16 @@
+{
+  "bd94e75b7fa8a298ea98233fc5b4985110f672ff9022e5f65f5a1ac36765fe22-O0.json": {
+    "source_sha256": "bd94e75b7fa8a298ea98233fc5b4985110f672ff9022e5f65f5a1ac36765fe22",
+    "executable_sha256": "f68f406d7070ed5f1b8549492e9354a08441aff72f0250b3264486b0331f73e3",
+    "optimization": "O0",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "bd94e75b7fa8a298ea98233fc5b4985110f672ff9022e5f65f5a1ac36765fe22-O2.json": {
+    "source_sha256": "bd94e75b7fa8a298ea98233fc5b4985110f672ff9022e5f65f5a1ac36765fe22",
+    "executable_sha256": "6e8363a92c85d4111d3e138cf26a10b75ed4cdd08aa94526bca24a5ad1895df6",
+    "optimization": "O2",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  }
+}

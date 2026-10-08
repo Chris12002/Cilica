@@ -3728,6 +3728,18 @@ independent diagnostics. Frozen discovery passes WaveGroupId hashing and next ex
 the existing diagnostic instruction allowance. Full engine execution, unchanged
 fingerprints and saved-game replay remain unfinished.
 
+### Bounded public vector copying (compatibility batch011)
+
+Array.Copy now supports the three/five-argument Int32 overloads for same-declared-
+element vectors proven in one block. Managed validation preserves null/range/type
+order; directional copying preserves overlap and existing checked stores preserve
+covariant partial faults and reference lifetimes. Scalar, reference, inline-value,
+constructor-field and mutation probes run against .NET at O0/O2 with sanitizers.
+General Array aliases, unsupported producer shapes, cross-element widening/boxing
+and Int64 overloads remain diagnostic. CIL98; IR60/native79, quotas and runtime
+unchanged. See [decision](../decisions/compatibility-013-array-section-copy.md).
+CircularBuffer itself is unexecuted; ArraySegment and full replay remain open.
+
 ### Initial interface-planning audit allowances (AC8.66)
 
 After AC8.65, the isolated frozen-engine scan reaches 196,602 decoded instructions;

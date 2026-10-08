@@ -105,10 +105,12 @@ public sealed class IntegerObjectTranslationTests
         source.Append("int main() {\n").Append(calls).Append("}\n");
         using var files = new ResolverFiles(); string dir = files.DirectoryPath("wide-cil"), cpp = Path.Combine(dir, "wide.cpp"), exe = Path.Combine(dir, "wide");
         File.WriteAllText(cpp, source.ToString());
+        NativeEvidence.Record(cpp, optimized);
         var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
             ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
                 "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", exe], dir);
         Assert.True(build.ExitCode == 0, build.Stderr);
+        NativeEvidence.Record(cpp, optimized, exe);
         var run = await NativeProcess.Run(exe, [], dir); Assert.True(run.ExitCode == 0, run.Stdout + run.Stderr); Assert.Empty(run.Stderr);
     }
 }

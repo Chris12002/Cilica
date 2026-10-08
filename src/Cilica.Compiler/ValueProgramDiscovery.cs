@@ -302,6 +302,7 @@ public static partial class ValueProgramDiscovery
                                 continue;
                             }
                             ArraySectionClear(work, instruction, instructionIndex, ref target);
+                            ArraySectionCopy(work, instruction, instructionIndex, ref target);
                             if (OrdinalOrdering(work, instruction, ref target) is { } orderingGetter) ordinalOrdering.Add(offset, orderingGetter);
                             if (OrdinalListSort(work, instruction, ref target) is { } ordinalGetter) ordinalSorts.Add(offset, ordinalGetter);
                             if (OrdinalCollectionConstruction(work, instruction, ref target) is { } ordinalCollection)

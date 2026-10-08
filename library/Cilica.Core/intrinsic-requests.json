@@ -1146,5 +1146,33 @@
     "Member": "ClearSection",
     "ParameterCount": 3,
     "Capability": "ArraySectionClearBridge"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Array",
+    "Member": "Copy",
+    "ParameterCount": 3,
+    "Capability": "ArraySectionCopy"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Array",
+    "Member": "Copy",
+    "ParameterCount": 5,
+    "Capability": "ArraySectionCopy"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArraySections`1",
+    "Member": "CopyWhole",
+    "ParameterCount": 3,
+    "Capability": "ArraySectionCopyBridge"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArraySections`1",
+    "Member": "CopySection",
+    "ParameterCount": 5,
+    "Capability": "ArraySectionCopyBridge"
   }
 ]

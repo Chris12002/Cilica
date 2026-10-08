@@ -2,8 +2,8 @@
 
 This workflow turns pinned public projects into independently testable Cilica
 requirements. It is a source-screening and regression workflow, not an automatic
-third-party build farm. The current batch is [batch-010.json](batch-010.json);
-[results](batch-010-results.md) distinguish implemented support, diagnostics and
+third-party build farm. The current batch is [batch-011.json](batch-011.json);
+[results](batch-011-results.md) distinguish implemented support, diagnostics and
 untested candidate execution.
 
 Latest execution follow-ups: [CRC32 selected roots verified](crc32-execution-20261008.md)
@@ -22,7 +22,7 @@ Correctness trial durations are not performance results.
    applicable local skills. Ask the owning thread about overlapping work before
    selecting a gap. The primary checkout and the active Alchemy compatibility
    worktree differ substantially; never infer freshness from their directory names.
-2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-010`.
+2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-011`.
    The CLI default remains the historical batch 001; use explicit `--batch batch-NNN`
    for current or later batches. Existing immutable screening can be reused at the
    same pin. Start with two candidates and one independently useful feature. Reopen a mapped entry only for a new pin,
@@ -118,3 +118,16 @@ directories, then removes only the verified snapshot. Never point a general-purp
 recursive delete at Cilica or another worktree. Do not delete tests, manifests,
 results or unique evidence. Downloaded licence files stay beside source until that
 source is removed. Batch 001 retains no candidate implementation or copied tests.
+
+## Native evidence before cleanup
+
+For future approved candidate drivers using VerifyTranslated, set
+`CILICA_NATIVE_EVIDENCE_DIRECTORY` to an absolute path inside the bounded evidence
+volume (for example `/evidence/native-hashes`). The helper records emitted C++
+SHA-256 before compilation and successful executable SHA-256 before running it,
+prior to ResolverFiles cleanup. Export these small JSON receipts with the logs and
+verify every successful compile has both hashes. New custom native harnesses must
+invoke NativeEvidence.Record at the same two points. Preserve failed source-only
+receipts and distinguish them from executed outputs. These receipts do not contain
+the generated source itself. This change does not recover the historical CRC32
+emitted-source hashes; that report's limitation remains explicit.

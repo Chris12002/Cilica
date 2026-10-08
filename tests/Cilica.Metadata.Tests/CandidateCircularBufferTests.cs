@@ -12,13 +12,13 @@ public sealed class CandidateCircularBufferTests(ITestOutputHelper output)
 {
     [Theory]
     [InlineData(false)] [InlineData(true)]
-    public async Task Reduced_section_clear_matches_dotnet(bool optimized)
+    public async Task Reduced_copy_and_clear_match_dotnet(bool optimized)
     {
-        var programs=await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateCircularBufferProbe),["SectionClear"]);
-        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("SectionClear",programs[0],CandidateCircularBufferProbe.SectionClear)]);
+        var programs=await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateCircularBufferProbe),["WholeCopy","OverlapCopy","SectionClear"]);
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("WholeCopy",programs[0],CandidateCircularBufferProbe.WholeCopy),("OverlapCopy",programs[1],CandidateCircularBufferProbe.OverlapCopy),("SectionClear",programs[2],CandidateCircularBufferProbe.SectionClear)]);
     }
     [Fact]
-    public async Task Public_array_copy_and_segment_requirements_remain_actionable_gaps()
+    public async Task Array_segment_requirement_remains_an_actionable_gap()
     {
         using var files=new ResolverFiles();
         var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);
@@ -29,7 +29,7 @@ public sealed class CandidateCircularBufferTests(ITestOutputHelper output)
         var segment=resolver.ResolveType(contract,"System","ArraySegment`1").Value!;
         string segmentToken=$"0x{MetadataTokens.GetToken(segment.Handle):x8}";
         var input=scope.OpenInput(typeof(CandidateCircularBufferProbe).Assembly.Location).Value!;
-        foreach(var(name,requirement)in new[]{("WholeCopy","Copy"),("OverlapCopy","Copy"),("SegmentView","ArraySegment")})
+        foreach(var(name,requirement)in new[]{("SegmentView","ArraySegment")})
         {
             var method=typeof(CandidateCircularBufferProbe).GetMethod(name)!;
             var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(method.MetadataToken),implementation);

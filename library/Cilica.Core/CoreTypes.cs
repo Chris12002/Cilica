@@ -27,6 +27,8 @@ namespace System
         protected Array() { }
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern T[] Empty<T>();
         [MethodImpl(MethodImplOptions.InternalCall)] public static extern void Clear(Array array, int index, int length);
+        [MethodImpl(MethodImplOptions.InternalCall)] public static extern void Copy(Array sourceArray, Array destinationArray, int length);
+        [MethodImpl(MethodImplOptions.InternalCall)] public static extern void Copy(Array sourceArray, int sourceIndex, Array destinationArray, int destinationIndex, int length);
         public static int IndexOf<T>(T[] array, T value)
         {
             if (array == null) throw new ArgumentNullException("array");

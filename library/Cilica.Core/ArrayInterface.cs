@@ -66,5 +66,31 @@ namespace Cilica.Runtime
                 throw new System.IndexOutOfRangeException();
             for (int i = 0; i < length; i++) array[index + i] = default(T);
         }
+        public static void CopyWhole(T[] sourceArray, T[] destinationArray, int length)
+            => CopySection(sourceArray, 0, destinationArray, 0, length);
+        public static void CopySection(T[] sourceArray, int sourceIndex, T[] destinationArray, int destinationIndex, int length)
+        {
+            if (sourceArray == null) throw new System.ArgumentNullException("sourceArray");
+            if (destinationArray == null) throw new System.ArgumentNullException("destinationArray");
+            if (length < 0)
+                throw new System.ArgumentOutOfRangeException("length", length,
+                    string.Concat(string.Concat("length ('", IntegerText.Int32(length)), "') must be a non-negative value."));
+            if (sourceIndex < 0)
+                throw new System.ArgumentOutOfRangeException("sourceIndex", sourceIndex,
+                    string.Concat(string.Concat("sourceIndex ('", IntegerText.Int32(sourceIndex)), "') must be greater than or equal to '0'."));
+            if (sourceIndex > sourceArray.Length || length > sourceArray.Length - sourceIndex)
+                throw new System.ArgumentException("Source array was not long enough. Check the source index, length, and the array's lower bounds.", "sourceArray");
+            if (destinationIndex < 0)
+                throw new System.ArgumentOutOfRangeException("destinationIndex", destinationIndex,
+                    string.Concat(string.Concat("destinationIndex ('", IntegerText.Int32(destinationIndex)), "') must be greater than or equal to '0'."));
+            if (destinationIndex > destinationArray.Length || length > destinationArray.Length - destinationIndex)
+                throw new System.ArgumentException("Destination array was not long enough. Check the destination index, length, and the array's lower bounds.", "destinationArray");
+            if (!ArrayInterface<T>.CopyCompatible(sourceArray, destinationArray))
+                throw new System.ArrayTypeMismatchException("Source array type cannot be assigned to destination array type.");
+            if (sourceArray == destinationArray && destinationIndex > sourceIndex && destinationIndex - sourceIndex < length)
+                for (int i = length - 1; i >= 0; --i) ArrayInterface<T>.CopyStore(destinationArray, destinationIndex + i, sourceArray[sourceIndex + i]);
+            else
+                for (int i = 0; i < length; ++i) ArrayInterface<T>.CopyStore(destinationArray, destinationIndex + i, sourceArray[sourceIndex + i]);
+        }
     }
 }

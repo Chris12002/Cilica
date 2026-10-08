@@ -1,0 +1,13 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ArraySectionCopyTests.Copy_requires_exact_grants_and_rejects_unproven_or_cross_element_views [FAIL]
+      Assert.Contains() Failure: Filter not matched in collection
+      Collection: [Diagnostic { Id = CIL2001, Severity = Error, Message = Array.Copy requires same-block typed vector producers; joined argument stacks require later lowering., Location = Cilica.Fixtures.Execution.ArraySectionCopyProbe::Widening token 0x06000106 IL_0015 }]
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ArraySectionCopyTests.cs(50,0): at Cilica.Metadata.Tests.ArraySectionCopyTests.Copy_requires_exact_grants_and_rejects_unproven_or_cross_element_views()
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '9528bfceb2bb1132031098dbe9e13d9958e04cfe3747dd22bd1d03ac1c563c91')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 32, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 62.731s
