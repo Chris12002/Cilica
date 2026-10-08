@@ -1,0 +1,264 @@
+{
+  "status": "passed",
+  "elapsed_seconds": 263.691296996,
+  "steps": [
+    {
+      "name": "transform-tests",
+      "argv": [
+        "python3",
+        "-B",
+        "/approved/prefix_diagnostics.py",
+        "/approved/native-bench.cpp",
+        "/work/tests.cpp",
+        "tests"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-tests-O0",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O0",
+        "-g",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/work/tests.cpp",
+        "-o",
+        "/work/tests-O0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "run-tests-O0",
+      "argv": [
+        "/work/tests-O0",
+        "tests",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "unreadable-miss-tests-O0",
+      "argv": [
+        "/work/tests-O0",
+        "bad-tail",
+        "0"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "compile-tests-O2",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-g",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/work/tests.cpp",
+        "-o",
+        "/work/tests-O2"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "run-tests-O2",
+      "argv": [
+        "/work/tests-O2",
+        "tests",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "unreadable-miss-tests-O2",
+      "argv": [
+        "/work/tests-O2",
+        "bad-tail",
+        "0"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "transform-forced",
+      "argv": [
+        "python3",
+        "-B",
+        "/approved/prefix_diagnostics.py",
+        "/approved/native-bench.cpp",
+        "/work/forced.cpp",
+        "forced"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-forced-O0",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O0",
+        "-g",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/work/forced.cpp",
+        "-o",
+        "/work/forced-O0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "verify-forced-O0",
+      "argv": [
+        "/work/forced-O0",
+        "verify",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-forced-O2",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-g",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/work/forced.cpp",
+        "-o",
+        "/work/forced-O2"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "verify-forced-O2",
+      "argv": [
+        "/work/forced-O2",
+        "verify",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "transform-baseline-tail",
+      "argv": [
+        "python3",
+        "-B",
+        "/approved/prefix_diagnostics.py",
+        "/approved/native-bench.cpp",
+        "/work/baseline-tail.cpp",
+        "baseline-tail"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-baseline-tail-O0",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O0",
+        "-g",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/work/baseline-tail.cpp",
+        "-o",
+        "/work/baseline-tail-O0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "run-baseline-tail-O0",
+      "argv": [
+        "/work/baseline-tail-O0",
+        "tail",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "unreadable-miss-baseline-tail-O0",
+      "argv": [
+        "/work/baseline-tail-O0",
+        "bad-tail",
+        "0"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "compile-baseline-tail-O2",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-g",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/work/baseline-tail.cpp",
+        "-o",
+        "/work/baseline-tail-O2"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "run-baseline-tail-O2",
+      "argv": [
+        "/work/baseline-tail-O2",
+        "tail",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "unreadable-miss-baseline-tail-O2",
+      "argv": [
+        "/work/baseline-tail-O2",
+        "bad-tail",
+        "0"
+      ],
+      "exit_code": 1
+    }
+  ]
+}

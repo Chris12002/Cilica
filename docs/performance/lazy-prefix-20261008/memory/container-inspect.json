@@ -1,0 +1,229 @@
+{
+  "Id": "3bfd831997c61006d09eae29856729166b24577b9b4bb494ef6a00c7aefbc8d9",
+  "Created": "2026-10-08T11:54:24.053866209Z",
+  "Path": "python3",
+  "Args": [
+    "-B",
+    "/approved/runner_prefix_memory.py"
+  ],
+  "State": {
+    "Status": "created",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "0001-01-01T00:00:00Z",
+    "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "Image": "sha256:c7639a940df4ed800de718bbd167b62c3ec5e462902e899e155c497d34f4557d",
+  "ResolvConfPath": "",
+  "HostnamePath": "",
+  "HostsPath": "",
+  "LogPath": "",
+  "Name": "/cilica-prefix-memory-20261008",
+  "RestartCount": 0,
+  "Driver": "overlayfs",
+  "Platform": "linux",
+  "MountLabel": "",
+  "ProcessLabel": "",
+  "AppArmorProfile": "",
+  "ExecIDs": null,
+  "HostConfig": {
+    "Binds": null,
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "Type": "none",
+      "Config": {}
+    },
+    "NetworkMode": "none",
+    "PortBindings": {},
+    "RestartPolicy": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "VolumeDriver": "",
+    "VolumesFrom": null,
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "CapAdd": null,
+    "CapDrop": [
+      "ALL"
+    ],
+    "CgroupnsMode": "private",
+    "Dns": null,
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": null,
+    "GroupAdd": null,
+    "IpcMode": "private",
+    "Cgroup": "",
+    "Links": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyRootfs": true,
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Tmpfs": {
+      "/evidence": "rw,noexec,nosuid,nodev,size=1g,uid=10001,gid=10001,mode=0700",
+      "/tmp": "rw,exec,nosuid,nodev,size=1g,uid=10001,gid=10001,mode=0700",
+      "/work": "rw,exec,nosuid,nodev,size=9g,uid=10001,gid=10001,mode=0700"
+    },
+    "UTSMode": "",
+    "UsernsMode": "",
+    "ShmSize": 67108864,
+    "Runtime": "runc",
+    "Isolation": "",
+    "CpuShares": 0,
+    "Memory": 8589934592,
+    "NanoCpus": 2000000000,
+    "CgroupParent": "",
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteIOps": [],
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "Devices": [],
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "MemoryReservation": 0,
+    "MemorySwap": 8589934592,
+    "MemorySwappiness": null,
+    "OomKillDisable": false,
+    "PidsLimit": 256,
+    "Ulimits": [],
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "IOMaximumIOps": 0,
+    "IOMaximumBandwidth": 0,
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ],
+    "Init": true
+  },
+  "Storage": {
+    "RootFS": {
+      "Snapshot": {
+        "Name": "overlayfs"
+      }
+    }
+  },
+  "Mounts": [],
+  "Config": {
+    "Hostname": "3bfd831997c6",
+    "Domainname": "",
+    "User": "10001:10001",
+    "AttachStdin": false,
+    "AttachStdout": true,
+    "AttachStderr": true,
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": [
+      "CILICA_CXX=clang++-18",
+      "CILICA_APPROVED_DIFFPLEX_PIN=f500e73f28e28813f942f1f16dec5a34b40e48e3",
+      "TMPDIR=/tmp",
+      "NUGET_CERT_REVOCATION_MODE=offline",
+      "CILICA_CSC_DIRECTORY=/usr/share/dotnet/sdk/10.0.401/Roslyn/bincore",
+      "CILICA_DIFFPLEX_ASSEMBLY=/work/out/DiffPlex.SelectedRoots.dll",
+      "HOME=/work/home",
+      "DOTNET_CLI_HOME=/work/home",
+      "NUGET_PACKAGES=/work/nuget",
+      "DOTNET_CLI_TELEMETRY_OPTOUT=1",
+      "DOTNET_PROCESSOR_COUNT=2",
+      "DOTNET_GENERATE_ASPNET_CERTIFICATE=false",
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "APP_UID=1654",
+      "ASPNETCORE_HTTP_PORTS=8080",
+      "DOTNET_RUNNING_IN_CONTAINER=true",
+      "DOTNET_VERSION=10.0.12",
+      "ASPNET_VERSION=10.0.12",
+      "DOTNET_NOLOGO=1",
+      "DOTNET_SDK_VERSION=10.0.401",
+      "DOTNET_USE_POLLING_FILE_WATCHER=true",
+      "NUGET_XMLDOC_MODE=skip",
+      "POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetSDK-Ubuntu-24.04-arm64",
+      "DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1"
+    ],
+    "Cmd": null,
+    "Image": "sha256:c7639a940df4ed800de718bbd167b62c3ec5e462902e899e155c497d34f4557d",
+    "Volumes": null,
+    "WorkingDir": "",
+    "Entrypoint": [
+      "python3",
+      "-B",
+      "/approved/runner_prefix_memory.py"
+    ],
+    "Labels": {
+      "org.opencontainers.image.version": "24.04"
+    },
+    "StopTimeout": 1
+  },
+  "NetworkSettings": {
+    "SandboxID": "",
+    "SandboxKey": "",
+    "Ports": {},
+    "Networks": {
+      "none": {
+        "IPAMConfig": null,
+        "Links": null,
+        "Aliases": null,
+        "DriverOpts": null,
+        "GwPriority": 0,
+        "NetworkID": "",
+        "EndpointID": "",
+        "Gateway": "",
+        "IPAddress": "",
+        "MacAddress": "",
+        "IPPrefixLen": 0,
+        "IPv6Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "DNSNames": null
+      }
+    }
+  },
+  "ImageManifestDescriptor": {
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "digest": "sha256:c7639a940df4ed800de718bbd167b62c3ec5e462902e899e155c497d34f4557d",
+    "size": 3656,
+    "platform": {
+      "architecture": "arm64",
+      "os": "linux"
+    }
+  }
+}

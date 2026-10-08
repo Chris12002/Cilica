@@ -1,0 +1,14 @@
+/work/baseline-tail.cpp:181:59: runtime error: member access within misaligned address 0x000000000001 for type 'const Object', which requires 8 byte alignment
+0x000000000001: note: pointer points here
+<memory cannot be printed>
+==325==WARNING: invalid path to external symbolizer!
+==325==WARNING: Failed to use and restart external symbolizer!
+    #0 0xaaaadf052ab4  (/work/baseline-tail-O0+0xdb2ab4) (BuildId: c224000cd36e05e59e1e642a524a7ca6b9c2644e)
+    #1 0xaaaade8057f4  (/work/baseline-tail-O0+0x5657f4) (BuildId: c224000cd36e05e59e1e642a524a7ca6b9c2644e)
+    #2 0xaaaade7f8e18  (/work/baseline-tail-O0+0x558e18) (BuildId: c224000cd36e05e59e1e642a524a7ca6b9c2644e)
+    #3 0xaaaade7f8790  (/work/baseline-tail-O0+0x558790) (BuildId: c224000cd36e05e59e1e642a524a7ca6b9c2644e)
+    #4 0xffff844f84c0  (/lib/aarch64-linux-gnu/libc.so.6+0x284c0) (BuildId: 27027b96e5b8c475fc327aa445bea1c71d37b4e2)
+    #5 0xffff844f8594  (/lib/aarch64-linux-gnu/libc.so.6+0x28594) (BuildId: 27027b96e5b8c475fc327aa445bea1c71d37b4e2)
+    #6 0xaaaade717e6c  (/work/baseline-tail-O0+0x477e6c) (BuildId: c224000cd36e05e59e1e642a524a7ca6b9c2644e)
+
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /work/baseline-tail.cpp:181:59 

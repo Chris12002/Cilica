@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "clang++-18",
+    "-std=c++20",
+    "-fsyntax-only",
+    "/work/size.cpp"
+  ],
+  "source": "#include \"prefix.cpp\"\nstatic_assert(sizeof(Instance)==200);\nstatic_assert(sizeof(OwnershipBatch)==32);\n",
+  "sha256": "4e24904640c621339f1b74ff773095726ab47af34866f04402443a783ab05bbd",
+  "exit_code": 0,
+  "stderr": ""
+}

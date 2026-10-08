@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "elapsed_seconds": 19.05627200999993,
+  "records": [
+    {
+      "runtime": "baseline",
+      "argv": [
+        "/work/baseline",
+        "measure",
+        "0",
+        "2"
+      ],
+      "parent_status": "Name:\tpython3\nUmask:\t0022\nState:\tR (running)\nTgid:\t7\nNgid:\t0\nPid:\t7\nPPid:\t1\nTracerPid:\t0\nUid:\t10001\t10001\t10001\t10001\nGid:\t10001\t10001\t10001\t10001\nFDSize:\t64\nGroups:\t10001 \nNStgid:\t7\nNSpid:\t7\nNSpgid:\t7\nNSsid:\t1\nKthread:\t0\nVmPeak:\t   45724 kB\nVmSize:\t   32172 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   38736 kB\nVmRSS:\t   25408 kB\nRssAnon:\t   16332 kB\nRssFile:\t    9076 kB\nRssShmem:\t       0 kB\nVmData:\t   17592 kB\nVmStk:\t     132 kB\nVmExe:\t    6200 kB\nVmLib:\t    6892 kB\nVmPTE:\t      96 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffff\nThreads:\t1\nSigQ:\t0/31319\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000000000002\nCapInh:\t0000000000000000\nCapPrm:\t0000000000000000\nCapEff:\t0000000000000000\nCapBnd:\t0000000000000000\nCapAmb:\t0000000000000000\nNoNewPrivs:\t1\nSeccomp:\t2\nSeccomp_filters:\t1\nSpeculation_Store_Bypass:\tvulnerable\nSpeculationIndirectBranch:\tunknown\nCpus_allowed:\t3fff\nCpus_allowed_list:\t0-13\nMems_allowed:\t1\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t246\nnonvoluntary_ctxt_switches:\t1\n",
+      "wait4_peak_rss_kib": 38736,
+      "sampled_post_exec_vmhwm_kib": 4412,
+      "samples": 1730,
+      "scope": "post-exec VmHWM sampled lower bound, separate diagnostic run"
+    },
+    {
+      "runtime": "prefix",
+      "argv": [
+        "/work/prefix",
+        "measure",
+        "0",
+        "2"
+      ],
+      "parent_status": "Name:\tpython3\nUmask:\t0022\nState:\tR (running)\nTgid:\t7\nNgid:\t0\nPid:\t7\nPPid:\t1\nTracerPid:\t0\nUid:\t10001\t10001\t10001\t10001\nGid:\t10001\t10001\t10001\t10001\nFDSize:\t64\nGroups:\t10001 \nNStgid:\t7\nNSpid:\t7\nNSpgid:\t7\nNSsid:\t1\nKthread:\t0\nVmPeak:\t   45724 kB\nVmSize:\t   32304 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   38736 kB\nVmRSS:\t   25608 kB\nRssAnon:\t   16392 kB\nRssFile:\t    9216 kB\nRssShmem:\t       0 kB\nVmData:\t   17596 kB\nVmStk:\t     132 kB\nVmExe:\t    6200 kB\nVmLib:\t    6904 kB\nVmPTE:\t      96 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffff\nThreads:\t1\nSigQ:\t0/31319\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000000000002\nCapInh:\t0000000000000000\nCapPrm:\t0000000000000000\nCapEff:\t0000000000000000\nCapBnd:\t0000000000000000\nCapAmb:\t0000000000000000\nNoNewPrivs:\t1\nSeccomp:\t2\nSeccomp_filters:\t1\nSpeculation_Store_Bypass:\tvulnerable\nSpeculationIndirectBranch:\tunknown\nCpus_allowed:\t3fff\nCpus_allowed_list:\t0-13\nMems_allowed:\t1\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1977\nnonvoluntary_ctxt_switches:\t1\n",
+      "wait4_peak_rss_kib": 38736,
+      "sampled_post_exec_vmhwm_kib": 4464,
+      "samples": 362,
+      "scope": "post-exec VmHWM sampled lower bound, separate diagnostic run"
+    }
+  ],
+  "steps": [
+    {
+      "name": "compile-baseline",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "/work/baseline.cpp",
+        "-o",
+        "/work/baseline"
+      ]
+    },
+    {
+      "name": "compile-prefix",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "/work/prefix.cpp",
+        "-o",
+        "/work/prefix"
+      ]
+    }
+  ]
+}

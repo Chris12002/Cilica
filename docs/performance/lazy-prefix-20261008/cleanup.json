@@ -1,0 +1,37 @@
+{
+  "status": "complete",
+  "runs": [
+    {
+      "mode": "correctness",
+      "container_absent": true,
+      "removed_input_images": [
+        "sha256:09c036d8ae02b108ab884e1713f629b7aad6dfdc9afd2c1aa353744684ce9ef5",
+        "sha256:89ae5a969039ea0dc43c6411dd01b0c0e2db90f78a3ca45f569b4d073ec325be",
+        "sha256:c564d68e873efbf1fb4c558bd7caaa9d52321178f283feff9ae52f1aa1d6c702"
+      ]
+    },
+    {
+      "mode": "regressions",
+      "container_absent": true,
+      "removed_input_images": [
+        "sha256:763b37e6398b6d507338020088cccfe9fc3a7984d2483f7ab0e6581bd96d299c"
+      ]
+    },
+    {
+      "mode": "timing",
+      "container_absent": true,
+      "removed_input_images": [
+        "sha256:77a0efce0f42f5bd1002de666cc57323ce907826b330b6fe6e815c6bcf0d0c5f"
+      ]
+    },
+    {
+      "mode": "memory",
+      "container_absent": true,
+      "removed_input_images": [
+        "sha256:c7639a940df4ed800de718bbd167b62c3ec5e462902e899e155c497d34f4557d"
+      ]
+    }
+  ],
+  "shared_tooling_retained": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "retained_original_source": "artifacts/performance-fingerprint-20261008/evidence/native-bench.cpp"
+}

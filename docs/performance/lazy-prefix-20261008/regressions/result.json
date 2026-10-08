@@ -1,0 +1,128 @@
+{
+  "status": "passed",
+  "elapsed_seconds": 99.88966496300003,
+  "steps": [
+    {
+      "name": "build",
+      "argv": [
+        "dotnet",
+        "build",
+        "tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj",
+        "--artifacts-path",
+        "artifacts/prefix/build",
+        "-p:CustomBeforeDirectoryBuildProps=/work/cilica/tools/CompatibilityCandidates/isolated-build.props",
+        "-p:RestoreSources=/approved/offline-feed",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false",
+        "-m:1"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "NativeTracingTests",
+      "argv": [
+        "dotnet",
+        "artifacts/prefix/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-noColor",
+        "-culture",
+        "invariant",
+        "-parallel",
+        "none",
+        "-class",
+        "Cilica.Metadata.Tests.NativeTracingTests"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "NativeObjectExecutionTests",
+      "argv": [
+        "dotnet",
+        "artifacts/prefix/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-noColor",
+        "-culture",
+        "invariant",
+        "-parallel",
+        "none",
+        "-class",
+        "Cilica.Metadata.Tests.NativeObjectExecutionTests"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "NativeCollectionTests",
+      "argv": [
+        "dotnet",
+        "artifacts/prefix/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-noColor",
+        "-culture",
+        "invariant",
+        "-parallel",
+        "none",
+        "-class",
+        "Cilica.Metadata.Tests.NativeCollectionTests"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "NativeFrameBudgetTests",
+      "argv": [
+        "dotnet",
+        "artifacts/prefix/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-noColor",
+        "-culture",
+        "invariant",
+        "-parallel",
+        "none",
+        "-class",
+        "Cilica.Metadata.Tests.NativeFrameBudgetTests"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "NativeExecutionFrameTests",
+      "argv": [
+        "dotnet",
+        "artifacts/prefix/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-noColor",
+        "-culture",
+        "invariant",
+        "-parallel",
+        "none",
+        "-class",
+        "Cilica.Metadata.Tests.NativeExecutionFrameTests"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "NativeExceptionRuntimeTests",
+      "argv": [
+        "dotnet",
+        "artifacts/prefix/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-noColor",
+        "-culture",
+        "invariant",
+        "-parallel",
+        "none",
+        "-class",
+        "Cilica.Metadata.Tests.NativeExceptionRuntimeTests"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "RuntimeTypeIdentityTests",
+      "argv": [
+        "dotnet",
+        "artifacts/prefix/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-noColor",
+        "-culture",
+        "invariant",
+        "-parallel",
+        "none",
+        "-class",
+        "Cilica.Metadata.Tests.RuntimeTypeIdentityTests"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

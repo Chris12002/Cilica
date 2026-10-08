@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "clang++-18",
+    "-std=c++20",
+    "-fsyntax-only",
+    "/work/size.cpp"
+  ],
+  "source": "#include \"prefix.cpp\"\nstatic_assert(sizeof(Instance)==192);\nstatic_assert(sizeof(OwnershipBatch)==32);\n",
+  "sha256": "23898ef2852d698bf3a90b5040d93f7589469e199c5016c6db8dfe1f05536a98",
+  "exit_code": 1,
+  "stderr": "/work/size.cpp:2:15: error: static assertion failed due to requirement 'sizeof(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Instance) == 192'\n    2 | static_assert(sizeof(Instance)==192);\n      |               ^~~~~~~~~~~~~~~~~~~~~\n/work/size.cpp:2:31: note: expression evaluates to '200 == 192'\n    2 | static_assert(sizeof(Instance)==192);\n      |               ~~~~~~~~~~~~~~~~^~~~~\n1 error generated.\n"
+}

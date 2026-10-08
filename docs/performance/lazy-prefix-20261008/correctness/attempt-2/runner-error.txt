@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/approved/runner_prefix.py", line 23, in <module>
+    run('compile-'+name,flags+[str(src),'-o',exe])
+  File "/approved/runner_prefix.py", line 14, in run
+    assert p.returncode==0,name
+           ^^^^^^^^^^^^^^^
+AssertionError: compile-tests-O0

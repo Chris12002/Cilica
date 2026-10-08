@@ -1,0 +1,15 @@
+/work/tests.cpp:415:20: runtime error: member access within misaligned address 0x000000000001 for type 'const Object', which requires 8 byte alignment
+0x000000000001: note: pointer points here
+<memory cannot be printed>
+==74==WARNING: invalid path to external symbolizer!
+==74==WARNING: Failed to use and restart external symbolizer!
+    #0 0xaaaadd974a48  (/work/tests-O2+0x7a4a48) (BuildId: baa417c086fd3b5f82903330117a464d52b812ba)
+    #1 0xaaaadd52c408  (/work/tests-O2+0x35c408) (BuildId: baa417c086fd3b5f82903330117a464d52b812ba)
+    #2 0xaaaadd96dc90  (/work/tests-O2+0x79dc90) (BuildId: baa417c086fd3b5f82903330117a464d52b812ba)
+    #3 0xaaaadd527540  (/work/tests-O2+0x357540) (BuildId: baa417c086fd3b5f82903330117a464d52b812ba)
+    #4 0xaaaadd526afc  (/work/tests-O2+0x356afc) (BuildId: baa417c086fd3b5f82903330117a464d52b812ba)
+    #5 0xffffac7b84c0  (/lib/aarch64-linux-gnu/libc.so.6+0x284c0) (BuildId: 27027b96e5b8c475fc327aa445bea1c71d37b4e2)
+    #6 0xffffac7b8594  (/lib/aarch64-linux-gnu/libc.so.6+0x28594) (BuildId: 27027b96e5b8c475fc327aa445bea1c71d37b4e2)
+    #7 0xaaaadd44746c  (/work/tests-O2+0x27746c) (BuildId: baa417c086fd3b5f82903330117a464d52b812ba)
+
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /work/tests.cpp:415:20 

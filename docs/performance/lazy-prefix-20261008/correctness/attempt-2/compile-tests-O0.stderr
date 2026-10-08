@@ -1,0 +1,4 @@
+/work/tests.cpp:63204:31: error: stack frame size (2144) exceeds limit (2048) in 'topology_cases()' [-Werror,-Wframe-larger-than]
+ 63204 | [[gnu::noinline]] static void topology_cases() {
+       |                               ^
+1 error generated.

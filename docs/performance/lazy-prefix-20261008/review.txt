@@ -1,0 +1,13 @@
+Independent reviewer: compatibility thread 01a1197b-2170-740a-9bfb-04c4a046c0d7.
+Scope: read-only review of lazy_prefix.py and prefix_cases.cpp after accounting correction.
+Result: no remaining concrete ownership/corruption or stack blocker for this bounded experiment;
+controlled experimental timing permitted after the coordination gate releases.
+Not production adoption approval.
+
+Review limitations retained:
+- Missing root in a readable cyclic list rejects instead of baseline nontermination.
+- Separate native scratch budget is an experimental resource-policy change.
+- Actual 32-bit execution remains unverified.
+- Callbacks/config mutation after prepare or during queries are excluded by the synchronous immutable-list contract.
+- Nested hook tests a nested OwnershipBatch, not arbitrary reentrant managed allocation and GC.
+- The other feature review thread has not supplied production adoption approval.

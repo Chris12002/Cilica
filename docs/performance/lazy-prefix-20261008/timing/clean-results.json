@@ -1,0 +1,972 @@
+{
+  "summary": {
+    "baseline": {
+      "compute_ns_per_op": [
+        261924265.6875,
+        264533882.9375,
+        239571997.5,
+        273599377.75,
+        213957901.125,
+        268480143.375,
+        256865731.875,
+        261225481.9375,
+        266164283.9375,
+        238654586.0,
+        276629744.875,
+        217947458.4375,
+        270078958.4375,
+        258020231.875,
+        260473468.875,
+        263685086.0625,
+        242504955.875,
+        270452711.0625,
+        216662698.0,
+        267102856.875,
+        254646849.0625
+      ],
+      "median_ns": 261225481.9375,
+      "min_ns": 213957901.125,
+      "max_ns": 276629744.875,
+      "noop_process_ns": [
+        6815875,
+        1069834,
+        755709
+      ],
+      "first_call_ns": [
+        51330458,
+        33935833,
+        34994583
+      ],
+      "cold_end_to_end_ns": [
+        52629750,
+        34925917,
+        35828041
+      ],
+      "measure_peak_rss_kib": [
+        42476,
+        42476,
+        42476
+      ]
+    },
+    "prefix": {
+      "compute_ns_per_op": [
+        39799781.25,
+        36997403.625,
+        39525500.0,
+        37859083.375,
+        37920737.0,
+        39164968.75,
+        35215054.6875,
+        40085237.0,
+        37775325.5625,
+        38838742.1875,
+        38040697.9375,
+        38951200.5625,
+        40989820.375,
+        36359276.0625,
+        39893570.3125,
+        37040786.4375,
+        39742182.3125,
+        37716549.5,
+        38019414.125,
+        39585447.9375,
+        35214229.1875
+      ],
+      "median_ns": 38040697.9375,
+      "min_ns": 35214229.1875,
+      "max_ns": 40989820.375,
+      "noop_process_ns": [
+        1036875,
+        1314708,
+        884458
+      ],
+      "first_call_ns": [
+        11155208,
+        11574458,
+        12152208
+      ],
+      "cold_end_to_end_ns": [
+        12006667,
+        12408167,
+        12932417
+      ],
+      "measure_peak_rss_kib": [
+        42476,
+        42476,
+        42476
+      ]
+    }
+  },
+  "runs": [
+    {
+      "name": "baseline-noop-0",
+      "runtime": "baseline",
+      "mode": "noop",
+      "argv": [
+        "/work/baseline",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 6815875,
+      "started_unix_ns": 1791460098775998012,
+      "user_seconds": 0.001174,
+      "system_seconds": 0.002349,
+      "peak_rss_kib": 42476,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "baseline-cold-0",
+      "runtime": "baseline",
+      "mode": "cold",
+      "argv": [
+        "/work/baseline",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 52629750,
+      "started_unix_ns": 1791460098783612554,
+      "user_seconds": 0.050349,
+      "system_seconds": 0.001974,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "ns": 51330458,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "baseline-measure-0",
+      "runtime": "baseline",
+      "mode": "measure",
+      "argv": [
+        "/work/baseline",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 29915124763,
+      "started_unix_ns": 1791460098836509846,
+      "user_seconds": 29.908336,
+      "system_seconds": 0.003999,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "warmIterations": 8,
+          "warm_ms": 1450.3
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 4190788251,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 164948,
+          "managed_objects_after": 1541,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 4232542127,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 370904,
+          "managed_objects_after": 3527,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 3833151960,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192048,
+          "managed_objects_after": 1809,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 4377590044,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 423332,
+          "managed_objects_after": 4019,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 3423326418,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 4295682294,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 4109851710,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 246076,
+          "managed_objects_after": 2317,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "prefix-noop-0",
+      "runtime": "prefix",
+      "mode": "noop",
+      "argv": [
+        "/work/prefix",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 1036875,
+      "started_unix_ns": 1791460128752856720,
+      "user_seconds": 0.000816,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "prefix-cold-0",
+      "runtime": "prefix",
+      "mode": "cold",
+      "argv": [
+        "/work/prefix",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 12006667,
+      "started_unix_ns": 1791460128754084429,
+      "user_seconds": 0.01181,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "ns": 11155208,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "prefix-measure-0",
+      "runtime": "prefix",
+      "mode": "measure",
+      "argv": [
+        "/work/prefix",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 4787737251,
+      "started_unix_ns": 1791460128766450762,
+      "user_seconds": 4.786043,
+      "system_seconds": 0.001,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "warmIterations": 16,
+          "warm_ms": 522.551
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 636796500,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 80620,
+          "managed_objects_after": 733,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 16384,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 97004,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 591958458,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 285376,
+          "managed_objects_after": 2707,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 350912,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 632408000,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 113920,
+          "managed_objects_after": 1063,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 146688,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 605745334,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 339604,
+          "managed_objects_after": 3217,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 405140,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 606731792,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 167748,
+          "managed_objects_after": 1569,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 200516,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 626639500,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 371704,
+          "managed_objects_after": 3535,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 437240,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 563440875,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192248,
+          "managed_objects_after": 1811,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 225016,
+          "managed_plus_scratch_peak": 513520
+        }
+      ]
+    },
+    {
+      "name": "prefix-noop-1",
+      "runtime": "prefix",
+      "mode": "noop",
+      "argv": [
+        "/work/prefix",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 1314708,
+      "started_unix_ns": 1791460133555239208,
+      "user_seconds": 0.001016,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "prefix-cold-1",
+      "runtime": "prefix",
+      "mode": "cold",
+      "argv": [
+        "/work/prefix",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 12408167,
+      "started_unix_ns": 1791460133556831417,
+      "user_seconds": 0.012241,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "ns": 11574458,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "prefix-measure-1",
+      "runtime": "prefix",
+      "mode": "measure",
+      "argv": [
+        "/work/prefix",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 4861161378,
+      "started_unix_ns": 1791460133570681792,
+      "user_seconds": 4.8603819999999995,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "warmIterations": 16,
+          "warm_ms": 523.301
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 641363792,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 80620,
+          "managed_objects_after": 733,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 16384,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 97004,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 604405209,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 285376,
+          "managed_objects_after": 2707,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 350912,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 621419875,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 113920,
+          "managed_objects_after": 1063,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 146688,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 608651167,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 339604,
+          "managed_objects_after": 3217,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 405140,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 623219209,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 167748,
+          "managed_objects_after": 1569,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 200516,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 655837126,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 371704,
+          "managed_objects_after": 3535,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 437240,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 581748417,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192248,
+          "managed_objects_after": 1811,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 225016,
+          "managed_plus_scratch_peak": 513520
+        }
+      ]
+    },
+    {
+      "name": "baseline-noop-1",
+      "runtime": "baseline",
+      "mode": "noop",
+      "argv": [
+        "/work/baseline",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 1069834,
+      "started_unix_ns": 1791460138432292544,
+      "user_seconds": 0.000834,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "baseline-cold-1",
+      "runtime": "baseline",
+      "mode": "cold",
+      "argv": [
+        "/work/baseline",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 34925917,
+      "started_unix_ns": 1791460138433679002,
+      "user_seconds": 0.034647,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "ns": 33935833,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "baseline-measure-1",
+      "runtime": "baseline",
+      "mode": "measure",
+      "argv": [
+        "/work/baseline",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 30075249514,
+      "started_unix_ns": 1791460138468941586,
+      "user_seconds": 30.068773,
+      "system_seconds": 0.003,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "warmIterations": 8,
+          "warm_ms": 1454.481
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 4179607711,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 164948,
+          "managed_objects_after": 1541,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 4258628543,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 370904,
+          "managed_objects_after": 3527,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 3818473376,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192048,
+          "managed_objects_after": 1809,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 4426075918,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 423332,
+          "managed_objects_after": 4019,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 3487159335,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 4321263335,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 4128323710,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 246076,
+          "managed_objects_after": 2317,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "baseline-noop-2",
+      "runtime": "baseline",
+      "mode": "noop",
+      "argv": [
+        "/work/baseline",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 755709,
+      "started_unix_ns": 1791460168544809711,
+      "user_seconds": 0.000602,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "baseline-cold-2",
+      "runtime": "baseline",
+      "mode": "cold",
+      "argv": [
+        "/work/baseline",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 35828041,
+      "started_unix_ns": 1791460168545854044,
+      "user_seconds": 0.03567,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "ns": 34994583,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "baseline-measure-2",
+      "runtime": "baseline",
+      "mode": "measure",
+      "argv": [
+        "/work/baseline",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 29844412639,
+      "started_unix_ns": 1791460168582047961,
+      "user_seconds": 29.836912,
+      "system_seconds": 0.004999,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "warmIterations": 8,
+          "warm_ms": 1434.721
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 4167575502,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 164948,
+          "managed_objects_after": 1541,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 4218961377,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 370904,
+          "managed_objects_after": 3527,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 3880079294,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192048,
+          "managed_objects_after": 1809,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 4327243377,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 423332,
+          "managed_objects_after": 4019,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 3466603168,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 4273645710,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 4074349585,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 246076,
+          "managed_objects_after": 2317,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "prefix-noop-2",
+      "runtime": "prefix",
+      "mode": "noop",
+      "argv": [
+        "/work/prefix",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 884458,
+      "started_unix_ns": 1791460198427212544,
+      "user_seconds": 0.000735,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "prefix-cold-2",
+      "runtime": "prefix",
+      "mode": "cold",
+      "argv": [
+        "/work/prefix",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 12932417,
+      "started_unix_ns": 1791460198428417169,
+      "user_seconds": 0.012691,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "ns": 12152208,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "prefix-measure-2",
+      "runtime": "prefix",
+      "mode": "measure",
+      "argv": [
+        "/work/prefix",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 4815518502,
+      "started_unix_ns": 1791460198441837419,
+      "user_seconds": 4.814941,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 42476,
+      "records": [
+        {
+          "warmIterations": 16,
+          "warm_ms": 538.826
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 638297125,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 80620,
+          "managed_objects_after": 733,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 16384,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 97004,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 592652583,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 285376,
+          "managed_objects_after": 2707,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 350912,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 635874917,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 113920,
+          "managed_objects_after": 1063,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 146688,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 603464792,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 339604,
+          "managed_objects_after": 3217,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 405140,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 608310626,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 167748,
+          "managed_objects_after": 1569,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 200516,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 633367167,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 371704,
+          "managed_objects_after": 3535,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 65536,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 437240,
+          "managed_plus_scratch_peak": 513520
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 563427667,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192248,
+          "managed_objects_after": 1811,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "scratch_bytes": 32768,
+          "scratch_peak": 65536,
+          "managed_plus_scratch_bytes": 225016,
+          "managed_plus_scratch_peak": 513520
+        }
+      ]
+    }
+  ]
+}

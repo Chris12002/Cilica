@@ -1,0 +1,65 @@
+{
+  "Architecture": "arm64",
+  "Config": {
+    "Entrypoint": [
+      "python3",
+      "-B",
+      "/approved/runner_prefix_timing.py"
+    ],
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "APP_UID=1654",
+      "ASPNETCORE_HTTP_PORTS=8080",
+      "DOTNET_RUNNING_IN_CONTAINER=true",
+      "DOTNET_VERSION=10.0.12",
+      "ASPNET_VERSION=10.0.12",
+      "DOTNET_GENERATE_ASPNET_CERTIFICATE=false",
+      "DOTNET_NOLOGO=1",
+      "DOTNET_SDK_VERSION=10.0.401",
+      "DOTNET_USE_POLLING_FILE_WATCHER=true",
+      "NUGET_XMLDOC_MODE=skip",
+      "POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetSDK-Ubuntu-24.04-arm64",
+      "DOTNET_CLI_TELEMETRY_OPTOUT=1",
+      "DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1"
+    ],
+    "Labels": {
+      "org.opencontainers.image.version": "24.04"
+    },
+    "User": "10001:10001"
+  },
+  "Created": "2026-10-08T11:37:46.400908886Z",
+  "Descriptor": {
+    "digest": "sha256:77a0efce0f42f5bd1002de666cc57323ce907826b330b6fe6e815c6bcf0d0c5f",
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "size": 3656
+  },
+  "Id": "sha256:77a0efce0f42f5bd1002de666cc57323ce907826b330b6fe6e815c6bcf0d0c5f",
+  "Metadata": {
+    "LastTagTime": "2026-10-08T11:37:46.413192969Z"
+  },
+  "Os": "linux",
+  "Parent": "sha256:125b2f07676000e5187a6e642239ad92c1cdbe96d18c49d466d6ffec9227b689",
+  "RepoDigests": [],
+  "RepoTags": [],
+  "RootFS": {
+    "Layers": [
+      "sha256:9a354992483c962fa69075527e7a2690fd9103f53d2c10af083fb31f24335256",
+      "sha256:64723c36a2e8a475d02fd4680daf184919724e7b0e518989587b29235da69024",
+      "sha256:3e5db5ab1ddf5ac38f0b727d4cb114c7d390a5a87c05f804b485070b3010b744",
+      "sha256:6863b65ce0227838e70dca139b45b609b10fcabcd4939737ca901077a01c469d",
+      "sha256:fa43c5a340a5b19a57b02f12ace314fe400432a0524b908b0ece9c100abb3cd8",
+      "sha256:0ad4db910ac08a621b175352b81eee71aa22a57b8c71f0293f54a33d6754f321",
+      "sha256:c726939dcf8619a5c3d62cd678e823f0918754ac91f1fc018ba4e40cc771cd46",
+      "sha256:54a5e2e72dfb0cc0e9b18cbfd6ef5880662a74a39f65c7052c96080d57776237",
+      "sha256:4f9774978fb1a760f7e74dd8ecadfa9884321299fb28279f9af8d6e85a681568",
+      "sha256:c007a25fddcdfee3e2e0defc24c25578a40b6d895dd2cdf408f5d74facdd99a5",
+      "sha256:ad861d06d364ff9a4d9f91789d6393e311ddaaf05c8dad7f0c2aa20f944b0e75",
+      "sha256:0c1b2eb54c67cf54755199d56fbfdff70d0e7cd45bac3270741158a59c79db0c",
+      "sha256:bbce940bfb13da2b9a55f9cbe31ccdeebd3d7295b35c41d8d464bf7242592b7d",
+      "sha256:02d5c15103f489193c853a05e5f247172cebb6e98e6adf814a9f7f8a567ee850",
+      "sha256:ea9a6872202349b0ad39acead28c4717c51622c57b2257f3438d2584fb75ea6f"
+    ],
+    "Type": "layers"
+  },
+  "Size": 471144730
+}

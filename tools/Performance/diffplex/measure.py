@@ -29,7 +29,8 @@ def run(runtime, mode, iterations=None, suffix='', timeout=120):
     records=[json.loads(s) for s in (OUT/(name+'.jsonl')).read_text().splitlines()]
     row=dict(name=name,runtime=runtime,mode=mode,argv=args,wall_ns=wall,started_unix_ns=started_unix_ns,
              user_seconds=usage.ru_utime,system_seconds=usage.ru_stime,
-             peak_rss_kib=usage.ru_maxrss,records=records)
+             peak_rss_kib=usage.ru_maxrss,
+             peak_rss_scope="wait4 child lifetime including fork/pre-exec; not isolated native runtime",records=records)
     if mode in ('cold','measure'):
         for r in records:
             if 'checksum' in r: assert r['checksum']==6146*r.get('iterations',1),(name,r)

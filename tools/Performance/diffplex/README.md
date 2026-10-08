@@ -109,3 +109,58 @@ Local transformer checks only read Cilica source strings and never run candidate
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/Performance/diffplex -p 'test_*.py'
 ```
+
+## Correctness-first lazy-prefix revision
+
+The rejected persistent index remains unchanged. `lazy_prefix.py` is a separate
+experimental transformation scoped to `valid_roots`; see
+[design, checks and limits](../../../docs/performance/lazy-prefix-20261008.md).
+`prefix_cases.cpp` supplies independent collision, corruption and budget reducers.
+The revised hash has width-safe arithmetic; no 32-bit execution claim follows.
+
+Stage each bounded run in a fresh directory, using the exact retained original
+native source (or regenerate it with the pinned original recipe):
+
+```sh
+python3 tools/Performance/diffplex/prepare_prefix.py correctness \
+  --output /tmp/cilica-prefix-check \
+  --source artifacts/performance-fingerprint-20261008/evidence/native-bench.cpp
+python3 tools/Performance/diffplex/prepare_prefix.py regressions \
+  --output /tmp/cilica-prefix-regressions \
+  --package-cache /tmp/cilica-diffplex-retry-20261008 \
+  --package-cache /Users/christian/.nuget/packages
+```
+
+For each directory use the same offline Docker build, `create.py`, and
+`supervise.py` sequence above. Each mode has its own fixed task container name;
+never overwrite an active run. `correctness` builds O0/O2 ASan/UBSan boundary and
+forced-GC transcript binaries and checks all native stack records against 2 KiB.
+It separately expects the baseline and revision's unreadable-tail misses to fail
+under sanitizers. `regressions` exports the old measured compiler commit, applies
+the transform only inside that disposable copy, and runs seven existing runtime
+test classes. Neither modifies production source or enables hosted CI.
+
+Only after both pass and independent review/CPU coordination completes, stage
+`timing` with `--source` and a fresh output directory. Its runner compiles clean
+O2 baseline/prefix binaries, verifies 523 output observations, then waits for
+`/work/run-clean` in container `cilica-prefix-timing-20261008`. Release that gate
+only during a reserved quiet window. It records three fresh-process repetitions
+of equal-output no-op startup, first call, steady 7×16 operations, command wall
+and CPU time, RSS, managed heap and separately budgeted scratch capacity/peak.
+No .NET process runs in this narrower revision comparison; any previous .NET
+number remains explicitly historical. Host process-load timestamps should bracket
+the released samples. No elapsed ratio gates correctness.
+
+`prepare_prefix.py` stages existing source/packages without downloads or execution.
+Keep raw evidence, executed tools, checksums and failed attempts before removing
+only the task's disposable image/input/archive. Preserve the shared tooling image.
+
+Analyze the revised clean receipts with `analyze_prefix.py <timing-evidence>`.
+`wait4.ru_maxrss` covers the child launch lifetime and can retain the Python
+launcher's pre-exec high-water floor. It is not an isolated native RSS metric.
+For the separate memory diagnostic, stage `memory` with `--source` and
+`--timing-evidence <previous-clean-evidence>`. Its source/binary hashes must match
+that timing run. It samples Linux `/proc/<pid>/status` only after the executable
+matches, retaining sampled post-exec VmHWM lower bounds and the conflicting wait4
+value. Do not use its polled execution times as clean timings. See the report's
+RSS methodology correction before comparing any historical RSS columns.

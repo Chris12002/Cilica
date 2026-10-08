@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "elapsed_seconds": 681.3794828939999,
+  "steps": [
+    {
+      "name": "compile-baseline",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "/work/baseline.cpp",
+        "-o",
+        "/work/baseline"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-prefix",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wframe-larger-than=2048",
+        "-fstack-usage",
+        "/work/prefix.cpp",
+        "-o",
+        "/work/prefix"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

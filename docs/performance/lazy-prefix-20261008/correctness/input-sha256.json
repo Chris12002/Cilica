@@ -1,0 +1,10 @@
+{
+  "prefix_diagnostics.py": "da1635162efa312c1db0069f5f98e209fcdda9f89605ec871034926322f85194",
+  "Dockerfile": "eb23fbe521e515d8f5435da10d9efcfb2d2cd6ff4a7f4a22e0d17d81577e96d7",
+  "lazy_prefix.py": "7278d79bad98d6f216b297288ba51b412aaa5770eb41469ca2453c9c162c08e1",
+  "transform.py": "e6259a6e1f1efabc7484f050bab6f3aa4a4f83909367a25246e79d7d6c76e2ce",
+  "runner_prefix.py": "8f22be33783a0c843d374a3d2b144be27f9ba6b8f14707bd585fc5f8a47e1ffe",
+  "native-bench.cpp": "51d73790b77e9bd83d330785bcc12f975153840a9e8d37aec9462719083d26d7",
+  "prefix_cases.cpp": "2e4a855d886ca665d71b5628f3679eeb6b627ae85abfbb22e11f182a763f5d04",
+  "expected-transcript.json": "e469d96b5323ac9c7d5bae395f45b6b8ff6af617dc5b88f896d1102a3700ef08"
+}

@@ -1,0 +1,9 @@
+{
+  "measure.py": "455c36f7551b546af928417425a5aaac7b547e7d57ad1a1ab02337da9e5f26d7",
+  "Dockerfile": "3c3fb1fc90c59448417a37b00de13f5075025a72c41c861323e8efa7cd1d25e1",
+  "lazy_prefix.py": "7278d79bad98d6f216b297288ba51b412aaa5770eb41469ca2453c9c162c08e1",
+  "transform.py": "e6259a6e1f1efabc7484f050bab6f3aa4a4f83909367a25246e79d7d6c76e2ce",
+  "runner_prefix_timing.py": "85fa204a36886aa22df92cb3b90b7a81e161bf1a03f0a85499ac7fbc557656ed",
+  "native-bench.cpp": "51d73790b77e9bd83d330785bcc12f975153840a9e8d37aec9462719083d26d7",
+  "expected-transcript.json": "e469d96b5323ac9c7d5bae395f45b6b8ff6af617dc5b88f896d1102a3700ef08"
+}
