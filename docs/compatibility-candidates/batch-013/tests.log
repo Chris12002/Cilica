@@ -1,0 +1,55 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ConstructorChainTests.Invalid_chains_fail_both_value_and_lowered_validation(lowered: False) [FAIL]
+      Assert.Contains() Failure: Sub-string not found
+      String:    "Invalid reference program IR: program contains met"···
+      Not found: "acyclic"
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ConstructorChainTests.cs(85,0): at Cilica.Metadata.Tests.ConstructorChainTests.Invalid_chains_fail_both_value_and_lowered_validation(Boolean lowered)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ConstructorChainTests.Invalid_chains_fail_both_value_and_lowered_validation(lowered: True) [FAIL]
+      Assert.Contains() Failure: Sub-string not found
+      String:    "Invalid reference program IR: program contains met"···
+      Not found: "acyclic"
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ConstructorChainTests.cs(85,0): at Cilica.Metadata.Tests.ConstructorChainTests.Invalid_chains_fail_both_value_and_lowered_validation(Boolean lowered)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ConstructorChainTests.Chains_arguments_initializers_faults_and_values_match_dotnet(optimized: False, group: 1) [FAIL]
+      System.ArgumentException : Invalid object operation IR: uninitialized constructor receiver cannot be read, aliased or passed before base initialization. Cilica.Fixtures.Execution.ChainBox`1::.ctor token 0x06000395
+      Stack Trace:
+        src/Cilica.Compiler/ObjectIrValidator.cs(722,0): at Cilica.Compiler.ObjectIrRules.Require(Boolean condition, String message)
+        src/Cilica.Compiler/ObjectIrValidator.cs(609,0): at Cilica.Compiler.ObjectIrRules.<>c__DisplayClass65_0.<Method>g__ConstructorRequire|0(Boolean condition, String message)
+        src/Cilica.Compiler/ObjectIrValidator.cs(702,0): at Cilica.Compiler.ObjectIrRules.Method(IrMethod method)
+        src/Cilica.Compiler/IrValidator.cs(379,0): at Cilica.Compiler.IrValidator.Validate(IrMethod method, IReadOnlyDictionary`2 methods, ObjectTypeCatalog catalog, ObjectIrRules objectRules, IrTypeRules sharedTypes, ValueIrRules valueRules, ManagedLocationRules locationRules, ScalarBoxingRules boxedRules, ManagedExceptionRules exceptions)
+        src/Cilica.Compiler/IrValidator.cs(32,0): at Cilica.Compiler.IrValidator.Validate(IrProgram program, ObjectTypeCatalog catalog, ObjectIrRules objectRules, ValueIrRules valueRules, ManagedLocationRules locationRules, ScalarBoxingRules boxedRules, ManagedExceptionRules exceptions, Boolean integers64)
+        src/Cilica.Compiler/ReferenceIrValidator.cs(15,0): at Cilica.Compiler.ReferenceIrValidator.Validate(ReferenceIrProgram program, ObjectIrRules objectRules, ManagedLocationRules locations, ScalarBoxingRules boxes, ManagedExceptionRules exceptions)
+        src/Cilica.Compiler/ObjectIrValidator.cs(21,0): at Cilica.Compiler.ObjectIrValidator.Validate(ObjectIrProgram program, Boolean locations, ScalarBoxingRules boxes, Boolean delegates, ManagedExceptionRules exceptions)
+        src/Cilica.Compiler/ScalarBoxedIrProgram.cs(26,0): at Cilica.Compiler.ScalarBoxedIrValidator.ValidateAndPlan(ScalarBoxedIrProgram program, Boolean delegates, ManagedExceptionRules exceptions)
+        src/Cilica.Compiler/ScalarManagedExceptionIrProgram.cs(20,0): at Cilica.Compiler.ScalarManagedExceptionIrValidator.Validate(ScalarManagedExceptionIrProgram program)
+        src/Cilica.Compiler/ObjectRootAssignment.cs(43,0): at Cilica.Compiler.ObjectRootAssignment.AssignExceptions(ScalarManagedExceptionIrProgram program)
+        src/Cilica.Compiler/ValueScalarLowering.cs(24,0): at Cilica.Compiler.ValueScalarLowering.LowerExceptions(ManagedExceptionIrProgram program)
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(68,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots)
+        tests/Cilica.Metadata.Tests/ConstructorChainTests.cs(21,0): at Cilica.Metadata.Tests.ConstructorChainTests.Chains_arguments_initializers_faults_and_values_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ConstructorChainTests.Chains_arguments_initializers_faults_and_values_match_dotnet(optimized: True, group: 1) [FAIL]
+      System.ArgumentException : Invalid object operation IR: uninitialized constructor receiver cannot be read, aliased or passed before base initialization. Cilica.Fixtures.Execution.ChainBox`1::.ctor token 0x06000395
+      Stack Trace:
+        src/Cilica.Compiler/ObjectIrValidator.cs(722,0): at Cilica.Compiler.ObjectIrRules.Require(Boolean condition, String message)
+        src/Cilica.Compiler/ObjectIrValidator.cs(609,0): at Cilica.Compiler.ObjectIrRules.<>c__DisplayClass65_0.<Method>g__ConstructorRequire|0(Boolean condition, String message)
+        src/Cilica.Compiler/ObjectIrValidator.cs(702,0): at Cilica.Compiler.ObjectIrRules.Method(IrMethod method)
+        src/Cilica.Compiler/IrValidator.cs(379,0): at Cilica.Compiler.IrValidator.Validate(IrMethod method, IReadOnlyDictionary`2 methods, ObjectTypeCatalog catalog, ObjectIrRules objectRules, IrTypeRules sharedTypes, ValueIrRules valueRules, ManagedLocationRules locationRules, ScalarBoxingRules boxedRules, ManagedExceptionRules exceptions)
+        src/Cilica.Compiler/IrValidator.cs(32,0): at Cilica.Compiler.IrValidator.Validate(IrProgram program, ObjectTypeCatalog catalog, ObjectIrRules objectRules, ValueIrRules valueRules, ManagedLocationRules locationRules, ScalarBoxingRules boxedRules, ManagedExceptionRules exceptions, Boolean integers64)
+        src/Cilica.Compiler/ReferenceIrValidator.cs(15,0): at Cilica.Compiler.ReferenceIrValidator.Validate(ReferenceIrProgram program, ObjectIrRules objectRules, ManagedLocationRules locations, ScalarBoxingRules boxes, ManagedExceptionRules exceptions)
+        src/Cilica.Compiler/ObjectIrValidator.cs(21,0): at Cilica.Compiler.ObjectIrValidator.Validate(ObjectIrProgram program, Boolean locations, ScalarBoxingRules boxes, Boolean delegates, ManagedExceptionRules exceptions)
+        src/Cilica.Compiler/ScalarBoxedIrProgram.cs(26,0): at Cilica.Compiler.ScalarBoxedIrValidator.ValidateAndPlan(ScalarBoxedIrProgram program, Boolean delegates, ManagedExceptionRules exceptions)
+        src/Cilica.Compiler/ScalarManagedExceptionIrProgram.cs(20,0): at Cilica.Compiler.ScalarManagedExceptionIrValidator.Validate(ScalarManagedExceptionIrProgram program)
+        src/Cilica.Compiler/ObjectRootAssignment.cs(43,0): at Cilica.Compiler.ObjectRootAssignment.AssignExceptions(ScalarManagedExceptionIrProgram program)
+        src/Cilica.Compiler/ValueScalarLowering.cs(24,0): at Cilica.Compiler.ValueScalarLowering.LowerExceptions(ManagedExceptionIrProgram program)
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(68,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots)
+        tests/Cilica.Metadata.Tests/ConstructorChainTests.cs(21,0): at Cilica.Metadata.Tests.ConstructorChainTests.Chains_arguments_initializers_faults_and_values_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '901f2ed7e13535fcf85dbc0d413eb0924cb39138f2497a75db35ae26d7a951c6')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 10, Errors: 0, Failed: 4, Skipped: 0, Not Run: 0, Time: 16.182s

@@ -305,7 +305,7 @@ internal static class IrValidator
                             && invoke.Target is not null
                             && !invoke.Arguments.IsDefault && invoke.Arguments.Length <= IrLimits.MaximumParameters
                             && (Call(new(invoke.Target, invoke.Arguments, invoke.NullCheckReceiver, invoke.VirtualDispatch), IrType.Void)
-                                || objectRules is not null && objectRules.BaseCall(method, invoke, valueTypes, expressions)), "invalid void call or base initialization.");
+                                || objectRules is not null && objectRules.ConstructorInitializationCall(method, invoke, valueTypes, expressions)), "invalid void call or base initialization.");
                         callArguments += invoke.Arguments.Length;
                         Require(callArguments <= ProgramLimits.MaximumCallArguments, "call-argument limit exceeded."); break;
                     case IrStatement.InvokeDelegate invoke:

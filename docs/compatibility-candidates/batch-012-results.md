@@ -4,7 +4,7 @@ Implemented ArraySegment<T> constructors, Array/Offset/Count, normal copied valu
 storage and the existing boxed Count path. Tests preserve null/range order, fault
 message/parameter hashes, default/empty distinctions, backing identity and scalar,
 reference/value, narrow/wide arrays. Other members remain explicit diagnostics.
-No compiler/runtime/grant/quota changes; CIL98/IR60/native79.
+No compiler/runtime/grant/quota changes; CIL99/IR60/native79.
 
 **Final 48/48 focused checks passed in 87.252s.** This includes the new segment tests,
 the original independent candidate reduction and adjacent Copy/Clear regressions.
@@ -38,3 +38,6 @@ returned thread-not-found. The actual human approval in this lane was “Ok use 
 buffer”, following the linked frozen proposal; no peer message was used as execution
 authority. Review lane was informed of the exact attempt and failure. No production
 performance changes were made, and no timing window was active during owned builds.
+
+Profile correction: the retained tested compiler binary embeds CIL99; the earlier
+CIL98 label missed the concurrent peer update. Original logs and hashes are unchanged.

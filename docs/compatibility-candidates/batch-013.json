@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "batch": "batch-013",
+  "date": "2026-10-08",
+  "limit": 2,
+  "previous_batch": "batch-012.json",
+  "active_checkout": {
+    "path": "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica",
+    "branch": "codex/alchemy-replay-baseline",
+    "initial_head": "49ee880f89a6e0a1c6aff03f185f8cc8a6fbcba5",
+    "validation_head": "890e14a1f5720dfc668ebc7c28aba9a36802cb44",
+    "concurrent_changes": "Peer boxed-interface CIL100 and documentation890e14a preserved. No performance timing gate active."
+  },
+  "coordination": {
+    "feature_peer": "Review milestone 6",
+    "performance_thread": "01a11b0d-1c65-75a9-9f2b-27e9cba9a0f7",
+    "ownership": "Same-owner constructor initialization validation, independent regressions and retry proposal; no external execution."
+  },
+  "candidates": [
+    {
+      "id": "circularbuffer",
+      "repository": "joaoportela/CircularBuffer-CSharp",
+      "url": "https://github.com/joaoportela/CircularBuffer-CSharp",
+      "commit": "9ebb911dfe27a62c2793d0b02c642f79bbbf524b",
+      "license": "Unlicense; LICENSE inspected at pinned commit",
+      "target_frameworks": [
+        "net461",
+        "netstandard2.0",
+        "net5.0",
+        "net6.0",
+        "net7.0",
+        "net8.0"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "netstandard2.0 asset compatible with initial netstandard2.1 filter; no Cilica compatibility inference.",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "fdddb29aa445bf3d6a5d843d6dd77e10a9f99657",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/LICENSE"
+        },
+        {
+          "path": "CircularBuffer/CircularBuffer.csproj",
+          "git_blob_sha1": "8a2d77e3e659eb4a335862ecdc267601a2b7cbbd",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.csproj"
+        },
+        {
+          "path": "CircularBuffer/CircularBuffer.cs",
+          "git_blob_sha1": "7aef4a0935c8b413fda8f360c803c4a12def2d15",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.cs"
+        },
+        {
+          "path": "CircularBuffer.Tests/CircularBuffer.Tests.csproj",
+          "git_blob_sha1": "11c1fe3b9b354b4812e9f59f7a6c8465b83f6ec3",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Tests/CircularBuffer.Tests.csproj"
+        },
+        {
+          "path": "CircularBuffer.Tests/CircularBufferTests.cs",
+          "git_blob_sha1": "0c0224028f73cecc4d95c5c7fff1c949a9fa0300",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Tests/CircularBufferTests.cs"
+        },
+        {
+          "path": "CircularBuffer.Example/CircularBuffer.Example.csproj",
+          "git_blob_sha1": "b450c08c2c6c4cf001b0a437feb6fc4c601bcdb0",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Example/CircularBuffer.Example.csproj"
+        },
+        {
+          "path": "nuget.config",
+          "git_blob_sha1": "765346e5343d46ac83654843869dc06b65b2bdc4",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/nuget.config"
+        },
+        {
+          "path": ".github/workflows/build.yml",
+          "git_blob_sha1": "af09416020c242e2d306d42c3bcbdbb1205e5536",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/.github/workflows/build.yml"
+        },
+        {
+          "path": ".github/workflows/publish.yml",
+          "git_blob_sha1": "b4358856aaf10231f12f682229e0ee9880471181",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/.github/workflows/publish.yml"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "Direct user approved frozen proposal3625157. Unchanged source built offline, translation failed CIL2001 before oracle/native execution; no semantic comparison or retry.",
+      "dependencies": {
+        "runtime_packages": [],
+        "library_graph": "CircularBuffer.cs only, framework System/Collections/Collections.Generic; SDK imports. Complete pinned tree contains no Directory.Build.props/targets or other library source.",
+        "tests": [
+          "NUnit 3.13.3",
+          "NUnit3TestAdapter 4.5.0",
+          "Microsoft.NET.Test.Sdk 17.9.0"
+        ],
+        "test_graph": "Tests -> CircularBuffer; six test TFMs. Tests use System.Linq for assertions. Example -> CircularBuffer on net8.0.",
+        "build": "nuget.config selects nuget.org. GitHub workflows restore/build/test and publish packages/releases; inspected only, excluded from execution."
+      },
+      "roots": [
+        "CircularBuffer<int>(int,T[]) and capacity-only constructor",
+        "PushBack/PushFront/PopBack/PopFront, Front/Back/indexer/Size/Capacity",
+        "Clear",
+        "ToArraySegments/ToArray and generic enumeration (separate follow-up surface)"
+      ],
+      "reachable_requirements": [
+        "Closed generic class fields and T[] storage",
+        "Array.Copy(Array,Array,Int32) in every constructor",
+        "Array.Clear(Array,Int32,Int32) in Clear",
+        "ArraySegment<T> constructors and Array/Offset/Count getters",
+        "Array.Copy(Array,Int32,Array,Int32,Int32) in ToArray",
+        "IList<ArraySegment<T>> and generic array enumeration; yield-generated reference iterator and disposal",
+        "Int32 field borrows and wraparound arithmetic; initobj/default generic slot reset",
+        "Exact ArgumentException/ArgumentNullException/InvalidOperationException/IndexOutOfRangeException; literal boxed Int32 formatting"
+      ],
+      "unsupported_features": [],
+      "semantic_failures": [],
+      "semantic_failure_note": "First actual candidate run stopped at constructor-chain validation, never reached oracle/native execution. Independent chain semantics now pass; actual candidate must be rerun under a new frozen proposal.",
+      "excluded_scope": [
+        "No broad System.Array support claim: multidimensional/non-zero-bound arrays, primitive widening and arbitrary object-array coercion remain outside proposed bounded follow-up.",
+        "Reference/inline-value candidate instantiations and full iterator closure require separate mapping and semantic checks.",
+        "Upstream project/test/CI/publish execution not approved.",
+        "Section Clear over narrow scalar generic locations, general Array aliases, joined operand stacks, nonvector and nonzero-bound arrays remains diagnostic.",
+        "Public Copy requires same declared element vectors; general Array aliases, joined/inline-initializer operand stacks, cross-element widening/boxing and Int64-length overloads are not admitted.",
+        "ArraySegment indexer, Empty, copy/slice/equality and enumeration bodies remain missing/diagnostic; boxed Count tested through existing dispatch only."
+      ],
+      "upstream_tests_inspected": "Entire CircularBufferTests.cs: constructor and capacity errors, front/back, wraparound overwrite, push/pop on both ends, logical ordering, segment pairs, enumeration, index writes, clear/reuse, regression where Size differs from Capacity. None executed.",
+      "mapped_status": "mapped-blocked",
+      "status": "mapped-blocked",
+      "next_action": "Review/approve same-source, same48-scenario retry on the new frozen compiler baseline. Do not infer candidate compatibility from independent tests. Stop at any new gate; ToArray/segments/iterator roots remain excluded.",
+      "implemented_requirements": [
+        "Array.Clear(Array,Int32,Int32) with same-block proven vector operands: Int32/UInt32/Int64/Int32 enums, supported references and inline values through ordinary managed stores. Independent SectionClear reduction now executes at O0/O2.",
+        "Public Array.Copy three/five-argument Int32 overloads for same-declared-element proven vectors; independent whole/overlap/constructor field reductions and exact fault, partial-write and GC tests.",
+        "ArraySegment<T> constructors and Array/Offset/Count with exact contract shape, default/live aliases and ordinary rooted value copies; original SegmentView native reduction passes.",
+        "Acyclic exact same-owner constructor chaining in the integer-object profile; original owned capacity-only generic constructor reduction now executes O0/O2."
+      ],
+      "evidence": "circularbuffer-execution-20261008.md",
+      "mapping_note": "Known selected-root gate fixed by owned regression; actual new closure remains unverified, so status is not verified."
+    },
+    {
+      "id": "crc32-net",
+      "repository": "force-net/Crc32.NET",
+      "url": "https://github.com/force-net/Crc32.NET",
+      "commit": "26c5a818a5c7a3d6a622c92d3cd08dba586c263c",
+      "license": "MIT; Copyright(c)2016 force; LICENSE pinned",
+      "target_frameworks": [
+        "netstandard1.3",
+        "netstandard2.0",
+        "net20"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "Compatible asset for .NET Standard2.1; net20 not treated as a Standard-compatible asset.",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "12cc4faf0db1fc00a6e0f5b2a8a6cad5cdde1a95",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/LICENSE"
+        },
+        {
+          "path": "Crc32.NET/Crc32.NET.Core.csproj",
+          "git_blob_sha1": "cec1661d45250144ddff09a83ce949e788075f22",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET/Crc32.NET.Core.csproj"
+        },
+        {
+          "path": "Crc32.NET/Crc32Algorithm.cs",
+          "git_blob_sha1": "ccacd0314260decfd7ef7f092b14f178c0dec2ff",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET/Crc32Algorithm.cs"
+        },
+        {
+          "path": "Crc32.NET/SafeProxy.cs",
+          "git_blob_sha1": "832c05aba1b2cdeab3e241e24bde87d14266b501",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET/SafeProxy.cs"
+        },
+        {
+          "path": "Crc32.NET.Tests/Crc32.NET.Tests.Core.csproj",
+          "git_blob_sha1": "abd665511d60a244641d28a935674ae34f1d8385",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET.Tests/Crc32.NET.Tests.Core.csproj"
+        },
+        {
+          "path": "Crc32.NET.Tests/BytePatternsTest.cs",
+          "git_blob_sha1": "02bb87487952a61b3194f087728b3fccd1890919",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET.Tests/BytePatternsTest.cs"
+        },
+        {
+          "path": "Crc32.NET.Tests/ImplementationTest.cs",
+          "git_blob_sha1": "7bfe6da9dae1c12115dade764e6c50b373659703",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET.Tests/ImplementationTest.cs"
+        },
+        {
+          "path": "pack.cmd",
+          "git_blob_sha1": "7696609fa401ee2597ecf23898c9cc11b91d515f",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/pack.cmd"
+        },
+        {
+          "path": "Crc32.NET.nuspec",
+          "git_blob_sha1": "824384c32ef6c957fea01a2a88d1dd395446dec8",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET.nuspec"
+        },
+        {
+          "path": "Crc32.NET/Properties/AssemblyInfo.cs",
+          "git_blob_sha1": "ca4acddb39e261e19f7c573313bdc0ff778ced78",
+          "url": "https://github.com/force-net/Crc32.NET/blob/26c5a818a5c7a3d6a622c92d3cd08dba586c263c/Crc32.NET/Properties/AssemblyInfo.cs"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "Separately approved isolated trial passed41scenarios/729observations/4374repeated O0/O2 comparisons; see crc32-execution-20261008.md",
+      "dependencies": {
+        "runtime_packages": [],
+        "framework": "NETStandard.Library2.0.0 implicit package version selected in SDK project",
+        "build": "SDK imports only for selected Core project; root tree has no Directory.Build.props/targets. BuildCore enables signing; pack.cmd invokes sn.exe and NuGet and is excluded. Legacy .nuget targets belong to older project, not selected SDK asset.",
+        "tests": [
+          "K4os.Hash.Crc1.1.0",
+          "Microsoft.NET.Test.Sdk15.0.0-preview-20170106-08",
+          "CRC32C.Standard1.0.0",
+          "NUnit3.10.1",
+          "NUnit3TestAdapter3.10.0",
+          "netcoreapp2.0 adds NETStandard.Library2.0.0; net461 adds additional CRC implementations listed in pinned test project"
+        ],
+        "execution_recipe": "Existing official NETStandard.Library2.0.3 offline references, NETCORE/NETCORE20; upstream build/test/signing excluded."
+      },
+      "roots": [
+        "Crc32Algorithm.Compute(byte[])",
+        "Crc32Algorithm.Append(uint,byte[],int,int)"
+      ],
+      "reachable_requirements": [
+        "Static SafeProxy singleton and constructor initialization",
+        "UInt32[4096] heap table, Byte vector reads and unsigned/Int64-derived checked native indices",
+        "UInt32 XOR/logical shifts/truncation/return and nested loops",
+        "ArgumentNullException/ArgumentOutOfRangeException with existing offset+length arithmetic",
+        "HashAlgorithm owner metadata; instance HashAlgorithm execution outside selected static roots"
+      ],
+      "unsupported_features": [],
+      "semantic_failures": [],
+      "semantic_failure_note": "All selected-root transcript observations matched normal .NET with forced GC and sanitizers.",
+      "upstream_tests_inspected": "ImplementationTest known byte results, split-buffer equivalence, big/little-endian output and appended-CRC validation. BytePatternsTest repeated/sliding bytes is excluded under NETCORE. Tests not executed.",
+      "mapped_status": "verified",
+      "status": "verified",
+      "next_action": "Skip these verified roots unless changed pin/profile or concrete semantic regression warrants another approved run. Retain C++ hash retention gap; add collection before temporary-file cleanup in future approved recipes.",
+      "implemented_requirements": [
+        "UInt32 vectors with nominal runtime identity, same-width Int32/enum aliases, full-bit loads/stores, static data and precise generic helper identities.",
+        "Independent 4096-element table with unsigned right shift matches normal .NET through Cilica O0/O2.",
+        "Checked conv.ovf.i/conv.ovf.i.un block-local array indices preserve target-width overflow and bounds/value fault order.",
+        "Independent HashAlgorithm-subclass static method with singleton and UInt32 array executes through selected core; framework subclass constructor/instance hashing not exercised."
+      ],
+      "mapping_note": "Actual unchanged candidate IL translated and executed on frozen c64312e plus exact proposal6068708 overlays; broader paths unverified.",
+      "evidence": "crc32-execution-20261008.md"
+    }
+  ],
+  "cleanup": "No candidate inputs created. Owned evidence and unsuccessful attempts retained."
+}

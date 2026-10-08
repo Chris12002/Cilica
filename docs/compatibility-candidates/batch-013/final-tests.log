@@ -1,0 +1,10 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ArraySegmentTests.Unimplemented_segment_members_remain_diagnosed [OUTPUT] IndexerGap: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: get_Item, Location = Cilica.Fixtures.Execution.ArraySegmentProbe::IndexerGap token 0x06000122 IL_0018; token 0x0a0000d2 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x06000122 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+    Cilica.Metadata.Tests.ArraySegmentTests.Unimplemented_segment_members_remain_diagnosed [OUTPUT] EqualityGap: Diagnostic { Id = CIL2001, Severity = Error, Message = This library member has no implemented managed body in the selected bounded core. Reachable via: Cilica.Fixtures.Execution.ArraySegmentProbe::EqualityGap token 0x06000123 IL_0023., Location = System.ArraySegment`1::Equals token 0x0600033e specialization 52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9 IL_0000 }
+    Cilica.Metadata.Tests.ArraySegmentTests.Unimplemented_segment_members_remain_diagnosed [OUTPUT] InterfaceGap: Diagnostic { Id = CIL2001, Severity = Error, Message = This library member has no implemented managed body in the selected bounded core. Reachable via: Cilica.Fixtures.Execution.ArraySegmentProbe::InterfaceGap token 0x06000124 IL_001b., Location = System.ArraySegment`1::System.Collections.Generic.ICollection<T>.Add token 0x06000337 specialization 52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9 IL_0000 }
+  Finished:    Cilica.Metadata.Tests (ID = '901f2ed7e13535fcf85dbc0d413eb0924cb39138f2497a75db35ae26d7a951c6')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 111, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 57.121s

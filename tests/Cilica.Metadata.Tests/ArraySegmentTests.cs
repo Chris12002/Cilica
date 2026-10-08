@@ -30,16 +30,15 @@ public sealed class ArraySegmentTests(ITestOutputHelper output)
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("InterfaceCounts",programs[0],ArraySegmentProbe.InterfaceCounts)]);
     }
     [Fact]
-    public async Task Unimplemented_segment_members_and_constructor_chain_remain_diagnosed()
+    public async Task Unimplemented_segment_members_remain_diagnosed()
     {
         using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
         var input=scope.OpenInput(typeof(ArraySegmentProbe).Assembly.Location).Value!;
-        foreach(string name in new[]{"IndexerGap","EqualityGap","InterfaceGap","ChainedConstructorGap"})
+        foreach(string name in new[]{"IndexerGap","EqualityGap","InterfaceGap"})
         {
             var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ArraySegmentProbe).GetMethod(name)!.MetadataToken),implementation);
             output.WriteLine(name+": "+string.Join("; ",result.Diagnostics));Assert.False(result.Success);Assert.NotEmpty(result.Diagnostics);
-            if(name=="ChainedConstructorGap")Assert.Contains(result.Diagnostics,d=>d.Id=="CIL2001"&&d.Message.Contains("invalid void call or base initialization",StringComparison.Ordinal));
         }
     }
     [Theory]

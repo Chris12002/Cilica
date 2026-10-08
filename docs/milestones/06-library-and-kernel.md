@@ -3788,7 +3788,7 @@ value fields. Null/negative/range ordering, default values, shared backing ident
 and copied segments preserve pinned behavior. Required interface metadata remains
 exact; existing boxed Count is tested, while other interface/indexer/equality/copy/
 enumerator bodies remain unsupported. Empty segments retain the complete backing
-array. No compiler/runtime profile, grant or quota changes: CIL98/IR60/native79.
+array. No compiler/runtime profile, grant or quota changes: CIL99/IR60/native79.
 Batch012 passes 48 focused checks, 2,940 new repeated native/.NET comparisons and 4 GC
 lifetime variants. The actual CircularBuffer trial remains blocked at same-owner
 constructor chaining before oracle/native execution; full replay is unverified.
@@ -3803,3 +3803,14 @@ selection. Frozen IL requires Int32 conversion/construction, decimal multiplicat
 division and invariant-provider text. Production limits remain unchanged. This is
 partial closure discovery, without full engine emission/execution, fingerprint parity
 or saved-game replay. See ADR AC0213.
+
+
+### Same-owner constructor chains
+
+The integer-object profile admits acyclic calls to another constructor on the exact
+same closed class, retaining direct receiver, access, single-prefix initialization
+and uninitialized-object safety checks. Both IR representations verify the chain
+graph. Typed value-array argument stores now retain those checks after lowering.
+CIL101/object IR61; native79, runtime and quotas unchanged. Batch013 passes 111 focused
+checks, 2,058 new native/.NET comparisons and allocation-failure recovery at O0/O2.
+CircularBuffer requires a new frozen selected-root trial; no external retry ran.

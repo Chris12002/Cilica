@@ -20,6 +20,7 @@ public static class ObjectIrValidator
         var rules = new ObjectIrRules(program, locations, delegates: delegates, boxes: boxes);
         ReferenceIrValidator.Validate(program.Flow, rules, locations ? new ManagedLocationRules(program.Flow.Types) : null, boxes, exceptions);
         rules.DispatchMaps();
+        rules.ConstructorChains();
         var entry = rules.Binding(program.Flow.Entry);
         var method = program.Flow.Methods.Single(m => IrMethodId.From(m.Source) == program.Flow.Entry);
         if (entry.Kind != ObjectMethodKind.Static || method.ReturnType != IrType.Int32 || method.Parameters.Any(p => p != IrType.Int32))
@@ -520,12 +521,13 @@ internal sealed partial class ObjectIrRules
         return true;
     }
 
-    internal bool BaseCall(IrMethod caller, IrStatement.Invoke call, IReadOnlyList<IrType> values, IReadOnlyList<IrExpression> expressions)
+    internal bool ConstructorInitializationCall(IrMethod caller, IrStatement.Invoke call, IReadOnlyList<IrType> values, IReadOnlyList<IrExpression> expressions)
     {
         if (call.Target is null || !_bindings.TryGetValue(call.Target, out var target)) return false;
         var owner = Binding(IrMethodId.From(caller.Source));
         if (owner.Kind != ObjectMethodKind.Constructor || !Constructor(target)
-            || target.Owner != _layouts[owner.Owner].BaseType || call.NullCheckReceiver || call.VirtualDispatch || call.Arguments.IsDefault
+            || !(target.Owner == _layouts[owner.Owner].BaseType
+                || _program.Flow.Types.Integer64 && target.Owner == owner.Owner) || call.NullCheckReceiver || call.VirtualDispatch || call.Arguments.IsDefault
             || call.Arguments.Length != _methods[target.Method].Parameters.Length || call.Arguments.IsEmpty
             || call.Arguments[0] < 0 || call.Arguments[0] >= values.Count
             || expressions[call.Arguments[0]] is not IrExpression.Parameter { Index: 0 }
@@ -622,7 +624,7 @@ internal sealed partial class ObjectIrRules
                 if (block.Id != 0)
                     ConstructorRequire(!block.Statements.OfType<IrStatement.Invoke>().Any(c =>
                         _bindings.TryGetValue(c.Target, out var target) && Constructor(target)),
-                        "constructor must initialize its base only in the entry prefix.");
+                        "constructor must initialize its receiver only in the entry prefix.");
             }
             var values = method.Blocks[0].Values;
             var types = values.Select(v => v.Type).ToArray();
@@ -633,9 +635,10 @@ internal sealed partial class ObjectIrRules
             {
                 if (statement is IrStatement.Invoke call && _bindings.TryGetValue(call.Target, out var callee) && Constructor(callee))
                 {
-                    ConstructorRequire(!initialized && BaseCall(method, call, types, expressions)
+                    ConstructorRequire(!initialized && ConstructorInitializationCall(method, call, types, expressions)
                         && call.Arguments.Skip(1).All(a => !This(a)),
-                        "constructor must call its immediate base once on its direct receiver.");
+                        "constructor must call its immediate base or same-owner constructor once on its direct receiver.");
+                    if (callee.Owner == binding.Owner) _constructorChains.Add(binding.Method, callee.Method);
                     initialized = true;
                 }
                 else if (!initialized)
@@ -660,6 +663,7 @@ internal sealed partial class ObjectIrRules
                             IrExpression.ReadOnlyLocation r when _program.Flow.Types.Integer64 => !This(r.Location),
                             IrExpression.LoadLocation l when _program.Flow.Types.Integer64 => !This(l.Location),
                             IrExpression.AddressField f when _program.Flow.Types.Integer64 => !This(f.Receiver),
+                            IrExpression.AddressArraySlot a when _program.Flow.Types.Integer64 => !This(a.Array) && !This(a.Index),
                             IrExpression.Binary b => !This(b.Left) && !This(b.Right),
                             IrExpression.Unary u => !This(u.Operand),
                             IrExpression.Compare c => !This(c.Left) && !This(c.Right),
@@ -696,10 +700,11 @@ internal sealed partial class ObjectIrRules
                         IrStatement.StoreElement s => !This(s.Array) && !This(s.Index) && !This(s.Value),
                         _ => false,
                     };
-                    ConstructorRequire(valid, "uninitialized constructor receiver cannot be read, aliased or passed before base initialization.");
+                    ConstructorRequire(valid, "uninitialized constructor receiver cannot be read, aliased or passed before base initialization: "
+                        + (statement is IrStatement.Define definition ? definition.Value.Expression.GetType().Name : statement.GetType().Name) + ".");
                 }
             }
-            ConstructorRequire(initialized, "constructor must initialize its direct receiver through its immediate base constructor.");
+            ConstructorRequire(initialized, "constructor must initialize its direct receiver through its immediate base or same-owner constructor.");
         }
         if (binding.Kind == ObjectMethodKind.ObjectBaseConstructor)
             Require(method.Blocks.Length == 1 && method.Blocks[0].Statements.IsEmpty && method.Locals.IsEmpty

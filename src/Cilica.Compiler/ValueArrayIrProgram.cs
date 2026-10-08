@@ -51,6 +51,7 @@ public static class ValueArrayIrValidator
                     .Any(p => p.Kind is IrTypeKind.Value or IrTypeKind.ManagedLocation))
                 throw new ArgumentException("Class constructor value/borrow flow needs later lowering; constructor bodies require scalar/reference operations.", nameof(program));
         objects.DispatchMaps();
+        objects.ConstructorChains();
         var entry = flow.Methods.Single(m => IrMethodId.From(m.Source) == flow.Entry);
         if (objects.Binding(flow.Entry).Kind != ObjectMethodKind.Static || entry.ReturnType != IrType.Int32 || entry.Parameters.Any(p => p != IrType.Int32))
             throw new ArgumentException("Value array entry requires an Int32 boundary.", nameof(program));

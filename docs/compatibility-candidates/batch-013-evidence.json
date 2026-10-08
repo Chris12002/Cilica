@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "batch": "batch-013",
+  "source_baseline": "49ee880f89a6e0a1c6aff03f185f8cc8a6fbcba5",
+  "recording_head": "890e14a1f5720dfc668ebc7c28aba9a36802cb44",
+  "profiles": {
+    "CIL": 101,
+    "object_IR": 61,
+    "native": 79
+  },
+  "results": {
+    "final": {
+      "checks": 111,
+      "passed": 111,
+      "seconds": 57.121,
+      "classes": [
+        "ConstructorChainTests",
+        "ConstructorJoinTests",
+        "ClassValueConstructorTests",
+        "ObjectHierarchyTranslationTests",
+        "ObjectArrayContractTests",
+        "ArraySegmentTests"
+      ]
+    },
+    "new_repeated_native_dotnet_comparisons": 2058,
+    "comparison_breakdown": {
+      "six_chain_roots": 1764,
+      "original_candidate_constructor_reduction": 294
+    },
+    "gc_quota_recovery_checks": 2,
+    "quota_scenarios": "O0/O2 each tests object limits1..6, failed-call cleanup, retry in same context, exact4 retained/1 released objects.",
+    "forged_packets": "9 mutations in each of value and lowered representations, including self/two-node cycles, missing/repeated init, receiver alias, null/virtual flags, later-body init, disabled integer profile."
+  },
+  "initial_runs": {
+    "tests.log": "6/10 passed. Two value-array argument cases expose lowered AddressArraySlot omission. Cycle mutations first hit independent unused-method rejection, so amended to keep original target reachable.",
+    "repaired-tests.log": "10/12 passed; allocator recovery and cycle guards pass; value-array slot failure remains.",
+    "diagnostic-tests.log": "4/6 passed; diagnostic identifies AddressArraySlot exactly.",
+    "final-tests.log": "111/111 passed after targeted typed-slot prefix rule."
+  },
+  "owned_source_sha256": {
+    "src/Cilica.Compiler/IrValidator.cs": "10f046338285e9cca5be7e898505c611b6f3446cb61bec1da3b9174100825d68",
+    "src/Cilica.Compiler/ObjectIrModel.cs": "85ce7a66f1030e70dd247f29c2f008fd4924b8d8aac66faa3bfbf23f7797691d",
+    "src/Cilica.Compiler/ObjectIrValidator.cs": "83841110aee63616641045e5d9096390fb0b685d8139c3ba17535751986c240f",
+    "src/Cilica.Compiler/ObjectConstructorChains.cs": "b013a617eee4239b0b93d4de5749f192508a4fdad9619ddb9c6eee616ed4d627",
+    "src/Cilica.Compiler/ValueArrayIrProgram.cs": "5f83cdf50cf069354bce8551b2534f9a1a21e8a54bd2285bcb05bbc42eac3a14",
+    "src/Cilica.Compiler/ValueTranslator.cs": "77ab01a7dfcc4a6db27dc222dccfccbe2579947aaea36738852620e7e29cdbf4",
+    "tests/Cilica.Metadata.Tests/ConstructorChainTests.cs": "0ad951561902fadb4ee1367bef3cfd0f3835d5d560b57b8c2a85280963f0ea21",
+    "tests/Cilica.Metadata.Tests/ArraySegmentTests.cs": "4518fc756e5e15d743b7b1e62b41cbe84277563de6a51b6caea60b1dad9e6973",
+    "tests/Fixtures/Cilica.Fixtures.Execution/ConstructorChainProbe.cs": "f05be2858249ca1949dbffcb0b9eeb67a98a4c8e624c3349aad794901ed4b9f4"
+  },
+  "run_binaries_sha256": {
+    "Cilica.Compiler.dll": "63746d4a0ce9cd61b6620717e8de068add79673d70ae491392fa0ce4483acf13",
+    "Cilica.Fixtures.Basic.dll": "277131454224def24d20b36502a1e7263d9f78616b0c8680e12e4ab2265ce291",
+    "Cilica.Fixtures.ControlFlow.dll": "165d238322b8cb0ae2905819e18583bc1e25af3f724415d9b8301a495825140d",
+    "Cilica.Fixtures.Execution.dll": "09464be352181dbdc34e6fef5e0d6627870a200b51ee5dffc863d4cd85467a76",
+    "Cilica.Fixtures.Forwarding.dll": "0ec501cc1c3c911a7b3b999ed2e7ba5559cc30bcb930c743625869e6c7728627",
+    "Cilica.Library.dll": "679dde8760489cde29484932df6424d7a49aacff82326c383be0a84d3365e35b",
+    "Cilica.LibraryBuild.dll": "7006c816607a20794b03a13329d6c8cfa4ca5d5b7421eab8d03d18f0ff445e9d",
+    "Cilica.Metadata.Tests.dll": "23e5a201aea913e87059386c1620716fafd7f87b32fca5d0d73670a7d07c012c",
+    "Cilica.Metadata.dll": "eab0dcb4c4153f868d6c52a513174e1ed5ba807c62ee4c9a4497d6f651c5741c"
+  },
+  "logs_sha256": {
+    "build.log": "579b87db350bce86d7cd366df1c56a1affc515cde215d7e660cda997718f8b5f",
+    "diagnostic-build.log": "76df729b4c8805ed023941242f9bfe7658115186ed58c04cfee2dcd2926df604",
+    "diagnostic-tests.log": "cd94982fdcf5c70a32a49d91346b89e532ffcdafde1e075e4172e1739204f2bf",
+    "final-build.log": "6cf16dda7d78dada32a484f585ae0f21984fc1a50c497c1073da4ce609d99475",
+    "final-tests.log": "ec97efb2ca6877246802fc60d90a9cf825cc5471f196a13d82ee98b5bf060288",
+    "repaired-build.log": "87e10007497b1d0cc67d0dfdb067c627d7e43d63818264b91cf3b11dfc002ed5",
+    "repaired-tests.log": "64929746918b19a4950511ce69231fa1b6fc537efbac6e411bb642168713036a",
+    "tests.log": "51ad3119a0047077996c3da950172bab53a070e5bdf1c99e1964421f8d189cf9"
+  },
+  "native_hash_receipts": {
+    "native-evidence": {
+      "count": 6,
+      "sha256": "cf466c14028a0f733353e4bd9712e1911adceefc78a13689fcb28f90c889ac2a"
+    },
+    "native-evidence-diagnostic": {
+      "count": 4,
+      "sha256": "86a8d2cc0c8fba38fb327dd117e7609ceb69f4808021d3dbdb04739c34bebabd"
+    },
+    "native-evidence-final": {
+      "count": 28,
+      "sha256": "e1f017e63e4812d538145eae2e9d263f5e75f339725582d8dd14abded1d68e56"
+    },
+    "native-evidence-repaired": {
+      "count": 8,
+      "sha256": "182a832d1632c8613c31fd6cdadcdf4314c93ace8fdb55748072ee664de8bf85"
+    }
+  },
+  "review": "Exact closed owner and direct parameter0; normal access/signature validation, prefix-only once, no recovery/reentry/alias/escape guards retained. Validated same-owner edges checked iteratively acyclic in both compositions. Lowered typed array-slot address cannot consume uninitialized this; stores still reject receiver escape. No runtime/emitter changes.",
+  "concurrency": "Peer boxed-interface CIL100 and documentation890e14a preserved. No performance timing gate active.",
+  "external_execution": "None in this batch; first approved CircularBuffer trial evidence1412c69 immutable. Retry proposal prepared separately after feature commit.",
+  "untested": [
+    "Revised CircularBuffer actual candidate run",
+    "Full repository suite",
+    "Alchemy replay"
+  ],
+  "cleanup": "No candidate inputs created. Owned evidence and unsuccessful attempts retained."
+}

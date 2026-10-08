@@ -4,7 +4,7 @@
   "source_baseline": "3625157",
   "recording_head": "3baf279037531aef6f9edfe3b7321cdbc28a0ca6",
   "profiles": {
-    "CIL": 98,
+    "CIL": 99,
     "IR": 60,
     "native": 79,
     "changed": false
@@ -81,5 +81,7 @@
     "Full repository suite",
     "Alchemy replay"
   ],
-  "cleanup": "External staging1880files verified before task-only deletion; container and input image removed. Shared tooling, own probes and all raw failure evidence retained."
+  "cleanup": "External staging1880files verified before task-only deletion; container and input image removed. Shared tooling, own probes and all raw failure evidence retained.",
+  "previously_recorded_CIL": 98,
+  "profile_correction": "Retained exact tested Cilica.Compiler.dll hash verified in batch013: embeds CIL99, not earlier reported98. Concurrent peer narrow-enumeration update was present. Logs and binary hashes unchanged."
 }

@@ -1,0 +1,44 @@
+{
+  "2624642f113e5b2a422b916fe327bfedbefc476c5bc04923948fb83a271dd642-O0.json": {
+    "source_sha256": "2624642f113e5b2a422b916fe327bfedbefc476c5bc04923948fb83a271dd642",
+    "executable_sha256": "8fcf776349a87398ae9538e4ff6e1ecb606e01943cc6d37b2b27fa4d837dbfda",
+    "optimization": "O0",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "2624642f113e5b2a422b916fe327bfedbefc476c5bc04923948fb83a271dd642-O2.json": {
+    "source_sha256": "2624642f113e5b2a422b916fe327bfedbefc476c5bc04923948fb83a271dd642",
+    "executable_sha256": "e73ea1abd87ee52cde84c6fb05cee9e429d34f4b33fc70add790ed4acc7b785a",
+    "optimization": "O2",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "8a1f9c207b753f9cbbab2d0a66412f8cc61492d02cb718b0dfbe295084b96d82-O0.json": {
+    "source_sha256": "8a1f9c207b753f9cbbab2d0a66412f8cc61492d02cb718b0dfbe295084b96d82",
+    "executable_sha256": "dc06ab7a502f47db1772c699da23da829d74db0a976183e6e7817b330fcaf2b9",
+    "optimization": "O0",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "8a1f9c207b753f9cbbab2d0a66412f8cc61492d02cb718b0dfbe295084b96d82-O2.json": {
+    "source_sha256": "8a1f9c207b753f9cbbab2d0a66412f8cc61492d02cb718b0dfbe295084b96d82",
+    "executable_sha256": "78f316c3071dbe005c3ac6607dedd0ec2b631e36ddf59895887f1e3c68a0738d",
+    "optimization": "O2",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "ca93e90b72362a658d1f9ed24fa11184068067dc4edf11be826ef979ad32b1cd-O0.json": {
+    "source_sha256": "ca93e90b72362a658d1f9ed24fa11184068067dc4edf11be826ef979ad32b1cd",
+    "executable_sha256": "fddfbf868082883cab89514014f24eba10f1e40dd65bd59ec909c6cb24955dc4",
+    "optimization": "O0",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "ca93e90b72362a658d1f9ed24fa11184068067dc4edf11be826ef979ad32b1cd-O2.json": {
+    "source_sha256": "ca93e90b72362a658d1f9ed24fa11184068067dc4edf11be826ef979ad32b1cd",
+    "executable_sha256": "8d8c801124e045a9efdcc8435090daeb07dadbdc6e88ad532fb622a5de6caa0d",
+    "optimization": "O2",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  }
+}

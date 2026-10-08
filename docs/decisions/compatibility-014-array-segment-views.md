@@ -17,7 +17,7 @@ Public indexer, Empty, Slice, CopyTo, equality, hash/text and enumeration remain
 unsupported. No new interface lowering or special ArraySegment intrinsic is added.
 
 The source list and System.ArraySegment`1 mapping are explicit in CoreLibraryBuildTests
-and documented for library consumers. CIL98/IR60/native79, grants, layout machinery,
+and documented for library consumers. CIL99/IR60/native79, grants, layout machinery,
 collector and limits remain unchanged. Existing value storage/copies/boxing trace the
 backing reference. Empty segments must keep the whole backing array and all payloads
 alive, even with offset at the end; GC tests require precisely that behavior across
@@ -36,3 +36,6 @@ base-owner initialization, not same-owner chains; keep that separate from segmen
 A future fix needs constructor-state and malformed-IR tests, followed by a newly frozen
 trial proposal. Full candidate compatibility, other segment APIs and Alchemy replay
 remain unverified. No runtime ownership optimization was adopted.
+
+Profile correction: the retained tested compiler binary embeds CIL99; the earlier
+CIL98 label missed the concurrent peer update. Original logs and hashes are unchanged.

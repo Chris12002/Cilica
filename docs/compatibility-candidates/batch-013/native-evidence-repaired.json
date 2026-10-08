@@ -1,0 +1,58 @@
+{
+  "55b0ca7288c823c200ab9f5f2f24aefe81689299fcf86d03676bdb13151d8574-O0.json": {
+    "source_sha256": "55b0ca7288c823c200ab9f5f2f24aefe81689299fcf86d03676bdb13151d8574",
+    "executable_sha256": "0a8650d1632c2bf587d9f653d6c6ece4464689c1f01c11d20c7a71d61710572d",
+    "optimization": "O0",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "55b0ca7288c823c200ab9f5f2f24aefe81689299fcf86d03676bdb13151d8574-O2.json": {
+    "source_sha256": "55b0ca7288c823c200ab9f5f2f24aefe81689299fcf86d03676bdb13151d8574",
+    "executable_sha256": "1649ab0ae9fcea06c62bb8292a3e595c4fc331d0ee99e4f51c87f8b59b0a2e4b",
+    "optimization": "O2",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "9d3a1732b8f58cb3ff9e24c7c5b2a1aaf7ba4c02a8403d2e00cd48741504d725-O0.json": {
+    "source_sha256": "9d3a1732b8f58cb3ff9e24c7c5b2a1aaf7ba4c02a8403d2e00cd48741504d725",
+    "executable_sha256": "4ed9339b7aac32f9fe16f7c5dd1594b614e2d65b97751bd16a95a12b2e0629ae",
+    "optimization": "O0",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "9d3a1732b8f58cb3ff9e24c7c5b2a1aaf7ba4c02a8403d2e00cd48741504d725-O2.json": {
+    "source_sha256": "9d3a1732b8f58cb3ff9e24c7c5b2a1aaf7ba4c02a8403d2e00cd48741504d725",
+    "executable_sha256": "458ba278e22edf63b9930dbfa90d519d4706a4a31e88d1db7cf1da727a154000",
+    "optimization": "O2",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "d34e268d656188ba4d576d655be3d85b570ca3adf5906f3fa60dbb0d2093bc67-O0.json": {
+    "source_sha256": "d34e268d656188ba4d576d655be3d85b570ca3adf5906f3fa60dbb0d2093bc67",
+    "executable_sha256": "447205999edc716ff6053c2aae6a8f8e76e4864f34c5f1f43f30c957a97a6038",
+    "optimization": "O0",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "d34e268d656188ba4d576d655be3d85b570ca3adf5906f3fa60dbb0d2093bc67-O2.json": {
+    "source_sha256": "d34e268d656188ba4d576d655be3d85b570ca3adf5906f3fa60dbb0d2093bc67",
+    "executable_sha256": "c0311523fafc839a64eb5438573ee5a98c104d833224c61e3247145465cfd977",
+    "optimization": "O2",
+    "sanitizers": "address,undefined",
+    "source_name": "wide.cpp"
+  },
+  "d5e43bcec533183b60f487320ff2ae41b36075702e32f7688fc916903b285532-O0.json": {
+    "source_sha256": "d5e43bcec533183b60f487320ff2ae41b36075702e32f7688fc916903b285532",
+    "executable_sha256": "46c6dffeb0915ed80e9a3b2939b53b57f6f75ba912563478aa687164a4dd8599",
+    "optimization": "O0",
+    "sanitizers": "address,undefined",
+    "source_name": "chain.cpp"
+  },
+  "d5e43bcec533183b60f487320ff2ae41b36075702e32f7688fc916903b285532-O2.json": {
+    "source_sha256": "d5e43bcec533183b60f487320ff2ae41b36075702e32f7688fc916903b285532",
+    "executable_sha256": "9174a35494ce3eb86d2790242d833495de23831a6e1d149647afdb6e9b2df3b4",
+    "optimization": "O2",
+    "sanitizers": "address,undefined",
+    "source_name": "chain.cpp"
+  }
+}

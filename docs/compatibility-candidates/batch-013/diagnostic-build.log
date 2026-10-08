@@ -1,0 +1,23 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Cilica.Metadata -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_src_Cilica.Metadata/debug/Cilica.Metadata.dll
+  Cilica.LibraryBuild -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tools_Cilica.LibraryBuild/debug/Cilica.LibraryBuild.dll
+  Cilica.Compiler -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_src_Cilica.Compiler/debug/Cilica.Compiler.dll
+  Cilica.Cli -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_src_Cilica.Cli/debug/cilica.dll
+  Cilica.Fixtures.Basic -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Fixtures_Cilica.Fixtures.Basic/debug/Cilica.Fixtures.Basic.dll
+  Cilica.Fixtures.Forwarding -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Fixtures_Cilica.Fixtures.Forwarding/debug/Cilica.Fixtures.Forwarding.dll
+  Cilica.Fixtures.ControlFlow -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Fixtures_Cilica.Fixtures.ControlFlow/debug/Cilica.Fixtures.ControlFlow.dll
+  Cilica.Library -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_library_Cilica.Library/debug/Cilica.Library.dll
+  Cilica.Fixtures.Execution -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Fixtures_Cilica.Fixtures.Execution/debug/Cilica.Fixtures.Execution.dll
+  Kernel -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Primitive_Kernel/debug/Cilica.Examples.Primitive.Kernel.dll
+  Prepare -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Primitive_Prepare/debug/Cilica.Examples.Primitive.Prepare.dll
+  Kernel -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Objects_Kernel/debug/Cilica.Examples.Objects.Kernel.dll
+  Emit -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Objects_Emit/debug/Cilica.Examples.Objects.Emit.dll
+  Prepare -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_examples_Objects_Prepare/debug/Cilica.Examples.Objects.Prepare.dll
+  Cilica.Metadata.Tests -> /Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-013/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.75

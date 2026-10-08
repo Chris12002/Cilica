@@ -1163,7 +1163,7 @@ value fields. Null/negative/range ordering, default values, shared backing ident
 and copied segments preserve pinned behavior. Required interface metadata remains
 exact; existing boxed Count is tested, while other interface/indexer/equality/copy/
 enumerator bodies remain unsupported. Empty segments retain the complete backing
-array. No compiler/runtime profile, grant or quota changes: CIL98/IR60/native79.
+array. No compiler/runtime profile, grant or quota changes: CIL99/IR60/native79.
 Batch012 passes 48 focused checks, 2,940 new repeated native/.NET comparisons and 4 GC
 lifetime variants. The actual CircularBuffer trial remains blocked at same-owner
 constructor chaining before oracle/native execution; full replay is unverified.
