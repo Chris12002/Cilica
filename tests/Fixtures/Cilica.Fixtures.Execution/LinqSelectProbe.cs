@@ -179,7 +179,7 @@ namespace Cilica.Fixtures.Execution
             var e = first.GetEnumerator(); bool reused = (object)e == first; e.Dispose();
             return unchecked(result + state.Trace + predicate.Calls * 37 + (reused ? 53 : 71));
         }
-        public static int UnsupportedIndexed(int a, int b) { return Three().Select((value, index) => value + index).Count(); }
+        public static int Indexed(int a, int b) { return Three().Select((value, index) => value + index).Count(); }
         public static int ListSelection(int a, int b) { return new List<int>().Select(new SelectorState(a, 0).Apply).Count(); }
         public static int UncountedCollection(int a, int b)
         {

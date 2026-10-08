@@ -817,7 +817,8 @@
       "algorithms": [
         "Deferred array and reference-enumerable projection, first same-thread iterator reuse and cloning, cached Current and disposal.",
         "Preserve per-item selector composition, non-consuming source-query cursors, cheap Any and effectful Count/ToArray.",
-        "IList ordinary iteration uses GetEnumerator; terminal Count/ToArray capture Count once and use the indexer."
+        "IList ordinary iteration uses GetEnumerator; terminal Count/ToArray capture Count once and use the indexer.",
+        "AC6.20 indexed Select validates source/selector, returns the canonical empty array, and enumerates with a checked index before each selector invocation."
       ],
       "changes": [
         "Replace generic virtual Select fusion with owned fresh/terminal traversal interfaces; retain callback ordering and original query state.",
@@ -825,9 +826,10 @@
         "Use existing Int32 length helpers and explicit managed value-copy calls for inline results.",
         "Distinguish effectful Count from cheap materialization counts; Concat first-result callbacks complete before projection, and zero-count materialization leaves its source cursor untouched.",
         "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
-        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
+        "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections.",
+        "Implement the pinned yield algorithm using a separate owned state machine matching indexed Where: finally-based fault disposal, retained Current, and explicit-disposal cursor reset/reuse. No optimized terminal interfaces or selector fusion are advertised."
       ],
-      "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
+      "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nonindexed nongeneric Current and other terminals remain diagnostic. Indexed Select is added in AC6.20 with the separate yield lifecycle; its nongeneric Current boxes normally."
     },
     {
       "path": "library/Cilica.Core/SelectIterator.cs",
@@ -845,7 +847,7 @@
         "AC6.13 materialization captures List backing array and logical count once, with an independently rooted prefix cursor. Ordinary list enumeration retains version checks; other terminal behavior is unchanged.",
         "AC6.14 ToList dispatches to owned query materialization or the general enumerable list factory. Queries preserve exact result capacity via private traced arrays; Concat uses cheap count followed by ordered AddRange. Select distinguishes negative-count faults and guards fixed destination bounds before selectors, including composed projections."
       ],
-      "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nongeneric Current, indexed overloads and other terminals remain diagnostic."
+      "scope": "AC6.6 non-indexed Select for admitted arrays, reference enumerators, custom IList and owned Where/Select chains; inline delegate values included. Boxed collection factories, nonindexed nongeneric Current and other terminals remain diagnostic. Indexed Select is added in AC6.20 with the separate yield lifecycle; its nongeneric Current boxes normally."
     },
     {
       "path": "library/Cilica.Core/DistinctIterator.cs",

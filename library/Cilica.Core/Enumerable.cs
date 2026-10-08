@@ -50,6 +50,14 @@ namespace System.Linq
                 return Cilica.Runtime.SelectIterator<TSource, TResult>.FromArray(array, selector, array.Length);
             return new Cilica.Runtime.SelectIterator<TSource, TResult>(source, null, selector);
         }
+        public static IEnumerable<TResult> Select<TSource, TResult>(IEnumerable<TSource> source, Func<TSource, int, TResult> selector)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (selector == null) throw new ArgumentNullException("selector");
+            if (source is TSource[] array)
+                return Cilica.Runtime.IndexedSelectIterator<TSource, TResult>.FromArray(array, selector, array.Length);
+            return new Cilica.Runtime.IndexedSelectIterator<TSource, TResult>(source, selector);
+        }
         public static TSource Single<TSource>(IEnumerable<TSource> source)
         {
             TSource value=TryGetSingle(source,out int found);

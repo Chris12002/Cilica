@@ -24,8 +24,8 @@ public sealed class LinqSelectTests
             (name, programs[i], typeof(LinqSelectProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedIndexed")]
-    public async Task Unimplemented_select_shapes_remain_diagnostic(string name)
+    [InlineData("Indexed")]
+    public async Task Indexed_select_declaration_now_binds(string name)
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -34,7 +34,8 @@ public sealed class LinqSelectTests
         var input = resolver.OpenInput(typeof(LinqSelectProbe).Assembly.Location).Value!;
         var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LinqSelectProbe).GetMethod(name)!.MetadataToken);
         var translated = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(translated.Success);
+        Assert.True(translated.Success, string.Join("\n", translated.Diagnostics));
+        Assert.NotNull(translated.Program);
     }
 
     [Theory]

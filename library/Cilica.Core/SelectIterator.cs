@@ -223,4 +223,76 @@ namespace Cilica.Runtime
         public void Reset() { throw new NotSupportedException(); }
         public void Dispose() { current = default(T); }
     }
+    // The indexed overload uses the pinned yield lifecycle, with no terminal
+    // shortcuts: selectors run in source order and faults unwind the cursor.
+    public sealed class IndexedSelectIterator<TSource, TResult> : IEnumerable<TResult>, IEnumerator<TResult>
+    {
+        private readonly IEnumerable<TSource> source;
+        private readonly Func<TSource, int, TResult> selector;
+        private readonly int threadId;
+        private IEnumerator<TSource> enumerator;
+        private int state;
+        private int index;
+        private TResult current;
+        internal IndexedSelectIterator(IEnumerable<TSource> source, Func<TSource, int, TResult> selector)
+        {
+            this.source = source; this.selector = selector;
+            threadId = Environment.CurrentManagedThreadId; state = -2;
+        }
+        internal static IEnumerable<TResult> FromArray(TSource[] source, Func<TSource, int, TResult> selector, int length)
+        {
+            if (length == 0) return Array.Empty<TResult>();
+            return new IndexedSelectIterator<TSource, TResult>(source, selector);
+        }
+        public IEnumerator<TResult> GetEnumerator()
+        {
+            var result = state == -2 && threadId == Environment.CurrentManagedThreadId
+                ? this : new IndexedSelectIterator<TSource, TResult>(source, selector);
+            result.state = 0; return result;
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public TResult Current => current;
+        object IEnumerator.Current => current;
+        public void Reset() { throw new NotSupportedException(); }
+        private void Finish()
+        {
+            // Terminate before user disposal so a throwing Dispose is not retried.
+            state = -1;
+            if (enumerator != null) enumerator.Dispose();
+        }
+        public void Dispose()
+        {
+            if (state == -3 || state == 1) Finish();
+            enumerator = null; state = -2;
+        }
+        public bool MoveNext()
+        {
+            bool completed = false;
+            try
+            {
+                bool result = Step(); completed = true; return result;
+            }
+            // Match the generated fault handler: cleanup happens during unwind,
+            // after outer filters, and a disposal fault replaces the original.
+            finally { if (!completed) Dispose(); }
+        }
+        private bool Step()
+        {
+            if (state == 0)
+            {
+                state = -1; index = -1;
+                enumerator = source.GetEnumerator(); state = -3;
+            }
+            else if (state == 1) state = -3;
+            else return false;
+            if (enumerator.MoveNext())
+            {
+                TSource item = enumerator.Current;
+                index = checked(index + 1);
+                current = selector(item, index); state = 1; return true;
+            }
+            Finish(); enumerator = null; return false;
+        }
+    }
+
 }

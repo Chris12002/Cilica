@@ -4056,3 +4056,13 @@ Explicit-default overloads remain unmapped. See ADR AC0176. Profiles, grants and
 limits are unchanged. Frozen discovery next reaches indexed Select in
 ContinueShieldContribution at 972,267 metadata units; full engine/fingerprint/replay
 execution remains unfinished.
+
+### Indexed Select (AC6.20)
+
+The indexed Select overload now follows the pinned yield lifecycle with checked
+indices, deferred source access, fault cleanup and retained Current. It uses no
+optimized terminal shortcuts. Eleven probes supply 3,630 repeated native
+comparisons plus two live-root checks; all 63 selected checks pass. See ADR AC0177.
+Profiles, grants and limits are unchanged. Frozen discovery next reaches List<T>.
+Reverse() in ContinueShieldWave at 964,532 metadata units. Full engine/fingerprint/
+replay execution remains unfinished.
