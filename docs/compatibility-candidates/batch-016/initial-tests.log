@@ -1,0 +1,97 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.CandidateCharacterArrayTests.Minimal_decoder_compositions_match_dotnet(name: "CharacterPredicate", optimized: False) [FAIL]
+      CharacterPredicate: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CandidateCharacterArrayProbe::CharacterPredicate token 0x060001f0 IL_0020., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateCharacterArrayTests.cs(39,0): at Cilica.Metadata.Tests.CandidateCharacterArrayTests.Minimal_decoder_compositions_match_dotnet(String name, Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterArrayTests.Minimal_decoder_compositions_match_dotnet(name: "CharacterPredicate", optimized: True) [FAIL]
+      CharacterPredicate: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CandidateCharacterArrayProbe::CharacterPredicate token 0x060001f0 IL_0020., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateCharacterArrayTests.cs(39,0): at Cilica.Metadata.Tests.CandidateCharacterArrayTests.Minimal_decoder_compositions_match_dotnet(String name, Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(optimized: False, group: 0) [FAIL]
+      LiveAny: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CharacterDelegateProbe::LiveAny token 0x0600028e IL_0049., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs(19,0): at Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(optimized: True, group: 0) [FAIL]
+      LiveAny: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CharacterDelegateProbe::LiveAny token 0x0600028e IL_0049., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs(19,0): at Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(optimized: False, group: 1) [FAIL]
+      LiveAny: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CharacterDelegateProbe::LiveAny token 0x0600028e IL_0049., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs(19,0): at Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(optimized: True, group: 1) [FAIL]
+      LiveAny: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CharacterDelegateProbe::LiveAny token 0x0600028e IL_0049., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs(19,0): at Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(optimized: False, group: 2) [FAIL]
+      LiveAny: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CharacterDelegateProbe::LiveAny token 0x0600028e IL_0049., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs(19,0): at Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(optimized: True, group: 2) [FAIL]
+      LiveAny: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CharacterDelegateProbe::LiveAny token 0x0600028e IL_0049., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs(19,0): at Cilica.Metadata.Tests.CharacterDelegateTests.Character_callbacks_preserve_roots_mutations_and_faults(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharacterDelegateTests.All_UTF16_units_survive_delegate_arguments(optimized: False) [FAIL]
+      LiveAny: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CharacterDelegateProbe::LiveAny token 0x0600028e IL_0049., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs(28,0): at Cilica.Metadata.Tests.CharacterDelegateTests.All_UTF16_units_survive_delegate_arguments(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharacterDelegateTests.All_UTF16_units_survive_delegate_arguments(optimized: True) [FAIL]
+      LiveAny: Diagnostic { Id = CIL2001, Severity = Error, Message = Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering. Reachable via: Cilica.Fixtures.Execution.CharacterDelegateProbe::LiveAny token 0x0600028e IL_0049., Location = System.Linq.Enumerable::Any token 0x0600040a specialization 63c58385039170768ee2e1a46ead6c097badfdb1f5e7338bef5a611fc704716a IL_0048 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs(28,0): at Cilica.Metadata.Tests.CharacterDelegateTests.All_UTF16_units_survive_delegate_arguments(Boolean optimized)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = 'd72fefe134316ceda7fdfba7a3a94b6ee9c99106e72b227124caaeb7a255c98a')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 51, Errors: 0, Failed: 10, Skipped: 0, Not Run: 0, Time: 48.363s

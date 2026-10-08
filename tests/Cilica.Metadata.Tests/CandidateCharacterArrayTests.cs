@@ -44,7 +44,7 @@ public sealed class CandidateCharacterArrayTests
     }
     [Theory]
     [InlineData("MissingSection", "CIL3010", "ToCharArray")]
-    [InlineData("CharacterPredicate", "CIL2001", "unsigned/narrow parameters/results")]
+    [InlineData("CharacterPredicate", "CIL2001", "Narrow vector interfaces admit")]
     public async Task Remaining_candidate_requirements_have_exact_diagnostics(string name, string id, string message)
     {
         using var files=new ResolverFiles();

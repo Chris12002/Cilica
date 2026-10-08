@@ -1,0 +1,9 @@
+{
+  "src/Cilica.Compiler/ValueDelegateDiscovery.cs": "7ceddb90aab18c1c3a6a079ea90ccbe6bf3779bf6dcb51ca3e235bc6faf1c0f6",
+  "src/Cilica.Compiler/ValueProgramDiscovery.cs": "e48b33df19b8e3b1859a2a074a2e60eaf8f995921cc3a79fd1d3f477d733a52d",
+  "src/Cilica.Compiler/ValueTranslator.cs": "f793e9ae27760e46cdfe65b2b287bbf0858ce8c45a63f87a33f2709858f70450",
+  "tests/Cilica.Metadata.Tests/CharacterDelegateTests.cs": "af9cfa5578a844f367e699c33824dca85d81a1808858edd445da0492b3705d62",
+  "tests/Cilica.Metadata.Tests/CandidateCharacterArrayTests.cs": "e525cb5fa196c4a93576bf79fbad18b2820ddb7957f14bb2ef6f1aa469577066",
+  "tests/Cilica.Metadata.Tests/FrameworkDelegateTests.cs": "1c0f2e996418e33b82af4189750a51528b17c0411879e04d90023b4ac110db89",
+  "tests/Fixtures/Cilica.Fixtures.Execution/CharacterDelegateProbe.cs": "734cf2f41ac77ef5c6ec132c3ac796ad50f91247e88109384aee2ea341d95157"
+}

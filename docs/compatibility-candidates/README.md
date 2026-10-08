@@ -163,3 +163,11 @@ current SimpleBase targets were excluded with explicit reasons.
 its minimal readonly-reference composition. All27 checks pass with16,068 new repeated
 native/.NET comparisons. Func<Char,Boolean> remains an exact diagnosed narrow-delegate
 gate. No new upstream candidate executed; full decoder compatibility is not claimed.
+
+
+## Char delegate follow-up
+
+[Batch016](batch-016-results.md) supports exact Char delegate parameters with 51
+passing checks and 14,808 new repeated native/.NET comparisons. The owned Any probe
+now reaches the separate narrow-vector interface gate, retained as an exact
+negative. No upstream candidate executed; earlier skip decisions remain unchanged.

@@ -4717,3 +4717,15 @@ ActivationCountDamage operation, using directly supplied InvariantCulture. Engin
 still fails before C++ emission; StateLookup retains its isolated 15-method C++ output.
 No probe output is compiled/executed natively. Full engine/fingerprint/replay work
 remains unfinished. See ADR AC0217.
+
+
+### Exact Char delegate parameters (compatibility batch 016)
+
+The integer-object profile admits exact Char parameters using its existing Int32
+carrier and UInt16 argument normalization. Target scalar identity is checked before
+lowering; other narrow parameters and Char results remain diagnostic. All 51 focused
+checks pass with 14,808 new O0/O2 native/.NET comparisons, forced GC and sanitizers.
+CIL v103 records admission; object IR 62/native 79, roots, quotas and grants are
+unchanged. Char-vector Enumerable.Any still reaches a separate interface gate;
+actual candidate execution and full replay remain unverified. See
+[decision](decisions/compatibility-018-character-delegate-parameters.md) and [results](compatibility-candidates/batch-016-results.md).

@@ -71,6 +71,11 @@ public sealed class FrameworkDelegateTests
         }
     }
     [Theory]
+    [InlineData(2, 2, 3, 8)] // Char delegate / Int32 target parameter
+    [InlineData(2, 2, 3, 7)] // Char delegate / UInt16 target parameter
+    [InlineData(2, 2, 3, 5)] // Char delegate / Byte target parameter
+    [InlineData(2, 2, 3, 2)] // Char delegate / Boolean target parameter
+    [InlineData(2, 2, 8, 3)] // Int32 delegate / Char target parameter
     [InlineData(2, 8, 8, 8)] // bool delegate / int target result
     [InlineData(8, 2, 8, 8)] // int delegate / bool target result
     [InlineData(8, 8, 8, 2)] // int delegate / bool target parameter
