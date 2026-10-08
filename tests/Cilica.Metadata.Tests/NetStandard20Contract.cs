@@ -28,10 +28,12 @@ internal static class NetStandard20Contract
             var originalImage = Require(resolver.ResolveAssembly(binding.Contract.Assembly));
             mappings.Add(new(Require(resolver.ResolveType(originalImage, MetadataTokens.EntityHandle(binding.Contract.Token))),
                 Require(resolver.ResolveType(implementation, MetadataTokens.EntityHandle(binding.Implementation.Token)))));
-            // HashCode and ITuple are absent from this pinned 2.0 contract. This is not a blanket ignore
+            // HashCode, ITuple and CollectionExtensions are absent from this pinned 2.0 contract.
+            // This is not a blanket ignore
             // for unresolved declarations, forwarders or other identity failures.
             if ((binding.Namespace == "System" && binding.Names.SequenceEqual(new[] { "HashCode" }))
-                || (binding.Namespace == "System.Runtime.CompilerServices" && binding.Names.SequenceEqual(new[] { "ITuple" })))
+                || (binding.Namespace == "System.Runtime.CompilerServices" && binding.Names.SequenceEqual(new[] { "ITuple" }))
+                || (binding.Namespace == "System.Collections.Generic" && binding.Names.SequenceEqual(new[] { "CollectionExtensions" })))
             {
                 var absent = resolver.ResolveType(contract, binding.Namespace, binding.Names.ToArray());
                 Assert.False(absent.Success);

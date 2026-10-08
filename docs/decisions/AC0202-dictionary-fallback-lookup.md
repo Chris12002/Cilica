@@ -30,3 +30,10 @@ IL_0072 and the owned CompositeFormatting path. Engine charges 1274044 metadata 
 Core 3bf763ec8fd8e3549aca326a005a94c69ed54f5ed7f969d5ed629c5d19c5f12f.
 Manifest 1e89b79d63792fd402b6584cc43d52e94f4ccd74e9df0008cfe0e53b1fb20a8c.
 Full engine, unchanged fingerprint and saved-game replay remain unfinished.
+
+Follow-up integration review: CollectionExtensions is absent from the exact pinned
+NETStandard.Library 2.0.3 contract. The test-only NetStandard20Contract helper now adds
+this exact name to its asserted TypeNotFound absence list alongside HashCode/ITuple.
+It retains the existing 2.1 mapping and does not redirect identities or ignore arbitrary
+resolution failures. All five NetStandard20ContractTests pass in 7.027s with the new
+mapping and named-nullable source snapshot. Evidence: alchemy-nullable-text/tests-contract.log.
