@@ -19,9 +19,9 @@ internal static class ObjectSignatureTypes
         {
             if (integers64 && enumArray?.Invoke(vector.Element) is { } enumeration)
                 return IrType.Reference(array(ObjectTypeId.Vector(objectBase, ObjectArrayElement.Enum32(enumeration))));
-            if (integers64 && vector.Element is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char or PrimitiveTypeCode.Int64 } narrow)
+            if (integers64 && vector.Element is TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean or PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char or PrimitiveTypeCode.Int64 } narrow)
                 return IrType.Reference(array(ObjectTypeId.Vector(objectBase,
-                    narrow.Code == PrimitiveTypeCode.Int64 ? ObjectArrayElement.Int64 : narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char)));
+                    narrow.Code == PrimitiveTypeCode.Boolean ? ObjectArrayElement.Boolean : narrow.Code == PrimitiveTypeCode.Int64 ? ObjectArrayElement.Int64 : narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char)));
             if (integers64 && inline is not null)
             {
                 ConstructedType? value = vector.Element switch {

@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v82";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v83";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -930,7 +930,7 @@ public static class ValueTranslator
                     return array;
                 }
                 static IrType ElementType(ObjectTypeId array) => array.ArrayElement!.Kind switch {
-                    ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32 => IrType.Int32,
+                    ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Byte or ObjectArrayElementKind.Char or ObjectArrayElementKind.Enum32 => IrType.Int32,
                     ObjectArrayElementKind.Int64 => IrType.Int64,
                     ObjectArrayElementKind.Value => IrType.Value(array.ArrayElement.Type!),
                     _ => IrType.Reference(array.ArrayElement.Type!) };
@@ -949,7 +949,8 @@ public static class ValueTranslator
                     var view = values[receiver] == IrType.NullReference
                         ? ObjectTypeId.Vector(objectBase, expected) : values[receiver].Class!;
                     if (view.ArrayElement!.Kind != expected.Kind
-                        && !(expected.Kind == ObjectArrayElementKind.Int32 && view.ArrayElement.Kind == ObjectArrayElementKind.Enum32))
+                        && !(expected.Kind == ObjectArrayElementKind.Int32 && view.ArrayElement.Kind == ObjectArrayElementKind.Enum32)
+                        && !(expected.Kind == ObjectArrayElementKind.Byte && view.ArrayElement.Kind == ObjectArrayElementKind.Boolean))
                         Error(offset, "Array element opcode does not match its storage width/kind.");
                     return view;
                 }

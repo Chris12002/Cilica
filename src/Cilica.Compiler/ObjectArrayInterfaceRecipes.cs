@@ -84,7 +84,7 @@ internal static class ObjectArrayInterfaceRecipes
     internal static bool ElementIndependent(string? name) => name is "Count" or "False" or "True" or "Identity";
     internal static bool ExactNarrowContract(ObjectTypeId vector, ObjectInterface contract) => contract.Arguments.IsEmpty
         || contract.Arguments.Length == 1 && contract.Arguments[0].Identity == ClosedGenericKey.Create(
-            new([new TypeSignature.Primitive(vector.ArrayElement!.Kind == ObjectArrayElementKind.Byte ? PrimitiveTypeCode.Byte : PrimitiveTypeCode.Char)]), SignatureList<TypeSignature>.Empty);
+            new([new TypeSignature.Primitive(vector.ArrayElement!.Kind == ObjectArrayElementKind.Boolean ? PrimitiveTypeCode.Boolean : vector.ArrayElement.Kind == ObjectArrayElementKind.Byte ? PrimitiveTypeCode.Byte : PrimitiveTypeCode.Char)]), SignatureList<TypeSignature>.Empty);
     internal static bool Signature(ObjectDispatchMethod method, ObjectInterfaceDispatchPlan plan)
     {
         if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector || vector.ArrayElement.Narrow && !ElementIndependent(method.Name))

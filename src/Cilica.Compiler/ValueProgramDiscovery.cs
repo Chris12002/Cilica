@@ -894,7 +894,7 @@ public static partial class ValueProgramDiscovery
             {
                 var definition = named.Definition;
                 if (definition == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), caller, offset)) return IntegerArray();
-                foreach (var narrowCode in new[] { PrimitiveTypeCode.Byte, PrimitiveTypeCode.Char, PrimitiveTypeCode.Int64 })
+                foreach (var narrowCode in new[] { PrimitiveTypeCode.Boolean, PrimitiveTypeCode.Byte, PrimitiveTypeCode.Char, PrimitiveTypeCode.Int64 })
                     if (definition == Require(resolver.ResolveRuntimeType(library, narrowCode), caller, offset))
                         return Vector(new TypeSignature.Primitive(narrowCode), caller, offset);
                 foreach (var code in new[] { PrimitiveTypeCode.UInt32, PrimitiveTypeCode.UInt64,
@@ -907,9 +907,9 @@ public static partial class ValueProgramDiscovery
                     signature = named with { Kind = Inline(definition, caller, offset) ? SignatureTypeKind.ValueType : SignatureTypeKind.Class };
             }
             if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 }) return IntegerArray();
-            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char or PrimitiveTypeCode.Int64 } narrow)
+            if (signature is TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean or PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char or PrimitiveTypeCode.Int64 } narrow)
             {
-                var numericVector = ObjectTypeId.Vector(ObjectBase(), narrow.Code == PrimitiveTypeCode.Int64 ? ObjectArrayElement.Int64 : narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char);
+                var numericVector = ObjectTypeId.Vector(ObjectBase(), narrow.Code == PrimitiveTypeCode.Boolean ? ObjectArrayElement.Boolean : narrow.Code == PrimitiveTypeCode.Int64 ? ObjectArrayElement.Int64 : narrow.Code == PrimitiveTypeCode.Byte ? ObjectArrayElement.Byte : ObjectArrayElement.Char);
                 _vectors.Add(numericVector);
                 if (_vectors.Count + _values.Count + _references.Count > ObjectModelLimits.MaximumTypes)
                     Fail(caller, "Combined vector/value/reference type limit exceeded.", offset, DiagnosticIds.TranslationLimit);

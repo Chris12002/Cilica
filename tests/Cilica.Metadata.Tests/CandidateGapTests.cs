@@ -29,7 +29,14 @@ public sealed class CandidateGapTests
     }
 
     [Theory]
-    [InlineData("BooleanVector", "CIL2001", "Composed vector elements")]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Boolean_vector_reduction_now_matches_dotnet(bool optimized)
+    {
+        var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateGapProbe),"BooleanVector"))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("BooleanVector",program,CandidateGapProbe.BooleanVector)]);
+    }
+
+    [Theory]
     [InlineData("IgnoreCaseComparer", "CIL3010", "get_OrdinalIgnoreCase")]
     public async Task Remaining_candidate_requirements_are_explicit_admission_gaps(string name, string diagnosticId, string requirement)
     {

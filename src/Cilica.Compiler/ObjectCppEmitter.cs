@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v75";
+    public const string Profile = "object-frames-native-v76";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -783,7 +783,7 @@ public static class ObjectCppEmitter
                             ArrayCheck(store.Array, store.ArrayType, store.Index, store.ILOffset);
                             if (store.ArrayType.ArrayElement!.Integer32)
                                 code.Append("    store_integer_element(").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ")
-                                    .Append(Value(store.Value)).Append(store.ArrayType.ArrayElement.Kind == ObjectArrayElementKind.Byte ? " & 255u"
+                                    .Append(Value(store.Value)).Append(store.ArrayType.ArrayElement.Kind is ObjectArrayElementKind.Boolean or ObjectArrayElementKind.Byte ? " & 255u"
                                         : store.ArrayType.ArrayElement.Kind == ObjectArrayElementKind.Char ? " & 65535u" : "").Append(");\n");
                             else if (store.ArrayType.ArrayElement.Kind == ObjectArrayElementKind.Int64)
                                 code.Append("    store_wide_element(").Append(Value(store.Array)).Append(", ").Append(Value(store.Index)).Append(", ").Append(Value(store.Value)).Append(");\n");
@@ -906,6 +906,7 @@ public static class ObjectCppEmitter
         + (type.ArrayElement is null ? "" : type.ArrayElement.Kind == ObjectArrayElementKind.Int32 ? "_vector_i4"
             : type.ArrayElement.Kind == ObjectArrayElementKind.Enum32 ? "_vector_enum_i4_" + TypeSymbol(type.ArrayElement.Type!)
             : type.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? "_vector_i8"
+            : type.ArrayElement.Kind == ObjectArrayElementKind.Boolean ? "_vector_bool"
             : type.ArrayElement.Kind == ObjectArrayElementKind.Byte ? "_vector_u1"
             : type.ArrayElement.Kind == ObjectArrayElementKind.Char ? "_vector_char"
             : (type.ArrayElement.Kind == ObjectArrayElementKind.Value ? "_vector_value_" : "_vector_ref_") + TypeSymbol(type.ArrayElement.Type!));

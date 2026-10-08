@@ -92,6 +92,7 @@ internal sealed class ObjectTypeRelations
         string unsignedArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.UInt32)]), SignatureList<TypeSignature>.Empty);
         string wideArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int64)]), SignatureList<TypeSignature>.Empty);
         string unsignedWideArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.UInt64)]), SignatureList<TypeSignature>.Empty);
+        string booleanArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Boolean)]), SignatureList<TypeSignature>.Empty);
         string byteArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Byte)]), SignatureList<TypeSignature>.Empty);
         string signedByteArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.SByte)]), SignatureList<TypeSignature>.Empty);
         string charArgument = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Char)]), SignatureList<TypeSignature>.Empty);
@@ -128,6 +129,7 @@ internal sealed class ObjectTypeRelations
                             : array.ArrayElement!.Kind switch {
                                 ObjectArrayElementKind.Int32 or ObjectArrayElementKind.Enum32 => argument.Enum32 is not null || argument.Identity == integerArgument || argument.Identity == unsignedArgument,
                                 ObjectArrayElementKind.Int64 => argument.Identity == wideArgument || argument.Identity == unsignedWideArgument,
+                                ObjectArrayElementKind.Boolean => argument.Identity == booleanArgument,
                                 ObjectArrayElementKind.Byte => argument.Identity == byteArgument || argument.Identity == signedByteArgument,
                                 ObjectArrayElementKind.Char => argument.Identity == charArgument,
                                 _ => false };

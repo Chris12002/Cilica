@@ -4190,3 +4190,15 @@ Integer CIL v82 and object IR v53 add the exact throwing-mode declaration contra
 native v75 and production limits remain unchanged. Frozen engine discovery now
 reaches the diagnostic instruction limit (1,049,093 metadata units). Full engine,
 unchanged fingerprint and saved-game replay execution remain unfinished.
+
+### Boolean vectors for compatibility batch 004
+
+Boolean arrays now have a distinct nominal identity and reuse existing narrow
+UInt32-carried storage, preserving raw low bytes rather than canonicalizing them.
+Allocation, generic element copies, Empty, heap fields, constant initialization and
+exact metadata helpers are covered by 21 focused and 62 adjacent checks. Integer
+CIL v83, object IR v54, layout v27 and native v76 record admission; quotas remain
+unchanged. Element borrows/interface element operations remain diagnostic. See the
+[Boolean-vector decision](decisions/compatibility-004-boolean-vectors.md) and
+[manifest](compatibility-candidates/batch-004.json). Full DiffPlex execution remains
+unverified pending ignore-case comparer admission and semantic integration testing.

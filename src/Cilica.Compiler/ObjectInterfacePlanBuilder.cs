@@ -320,20 +320,22 @@ public static class ObjectInterfacePlanBuilder
             if (contract.Arguments.Length == 1)
             {
                 var argument = _resolved[IrMethodId.From(declaration.Source)].DeclaringType.Arguments[0];
-                if (receiver.ArrayElement.Narrow && argument is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char })
-                    Fail("Narrow vector interface helpers require exact Byte or Char generic arguments; signed aliases require later lowering.", declaration.Source.Name);
+                if (receiver.ArrayElement.Narrow && argument is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean or PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char })
+                    Fail("Narrow vector interface helpers require exact Boolean, Byte or Char generic arguments; signed aliases require later lowering.", declaration.Source.Name);
                 if (argument is TypeSignature.Primitive primitive && primitive.Code is not (PrimitiveTypeCode.Int32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.Object or PrimitiveTypeCode.String)
                     && recipe is "Enumerate" or "CopyTo")
                     Fail("Generic array helpers require exact Int32/Int64, reference or inline-value elements; scalar aliases require later lowering.", declaration.Source.Name);
                 var item = Type(argument);
-                view = ObjectTypeId.Vector(catalog.ObjectBase, argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte } ? ObjectArrayElement.Byte
+                view = ObjectTypeId.Vector(catalog.ObjectBase, argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean } ? ObjectArrayElement.Boolean
+                    : argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.Byte } ? ObjectArrayElement.Byte
                     : argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.Char } ? ObjectArrayElement.Char
                     : contract.Arguments[0].Enum32 is { } enumeration ? ObjectArrayElement.Enum32(enumeration)
                     : item == IrType.Int64 ? ObjectArrayElement.Int64 : item == IrType.Int32 ? ObjectArrayElement.Int32
                     : item.Kind == IrTypeKind.Value ? ObjectArrayElement.Value(item.Class!) : ObjectArrayElement.Reference(item.Class!));
             }
             TypeSignature element;
-            if (view.ArrayElement!.Kind == ObjectArrayElementKind.Byte) element = new TypeSignature.Primitive(PrimitiveTypeCode.Byte);
+            if (view.ArrayElement!.Kind == ObjectArrayElementKind.Boolean) element = new TypeSignature.Primitive(PrimitiveTypeCode.Boolean);
+            else if (view.ArrayElement.Kind == ObjectArrayElementKind.Byte) element = new TypeSignature.Primitive(PrimitiveTypeCode.Byte);
             else if (view.ArrayElement.Kind == ObjectArrayElementKind.Char) element = new TypeSignature.Primitive(PrimitiveTypeCode.Char);
             else if (view.ArrayElement.Kind == ObjectArrayElementKind.Int32) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int32);
             else if (view.ArrayElement.Kind == ObjectArrayElementKind.Int64) element = new TypeSignature.Primitive(PrimitiveTypeCode.Int64);

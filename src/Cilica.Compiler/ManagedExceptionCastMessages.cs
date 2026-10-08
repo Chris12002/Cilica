@@ -41,7 +41,7 @@ internal static class ManagedExceptionCastMessages
             string elementName;
             if (array.ArrayElement!.Kind == ObjectArrayElementKind.Enum32) elementName = Name(catalog.EnumArrays.Single(e => ObjectTypeId.From(e.Source) == array.ArrayElement.Type).Source);
             else if (array.ArrayElement.Integer32) elementName = array.ArrayElement.Kind switch {
-                ObjectArrayElementKind.Byte => "System.Byte", ObjectArrayElementKind.Char => "System.Char", _ => "System.Int32" };
+                ObjectArrayElementKind.Boolean => "System.Boolean", ObjectArrayElementKind.Byte => "System.Byte", ObjectArrayElementKind.Char => "System.Char", _ => "System.Int32" };
             else if (array.ArrayElement.Kind == ObjectArrayElementKind.Int64) elementName = "System.Int64";
             else if (!(array.ArrayElement.Kind == ObjectArrayElementKind.Value ? boxes : names).TryGetValue(array.ArrayElement.Type!, out elementName!))
                 throw new ArgumentException("Array cast messages require the exact element's runtime type display name.");
