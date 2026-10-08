@@ -93,7 +93,7 @@ internal sealed partial class ObjectIrRules
                 && source.Name is not null && source.AssemblyIdentity is not null
                 && ObjectModelValidator.Specialization(source.Specialization)
                 && !declaration.Parameters.IsDefault && declaration.Parameters.Length is > 0 and <= IrLimits.MaximumParameters
-                && declaration.Parameters.All(p => p is not null && p.Kind is IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference)
+                && declaration.Parameters.All(p => p is not null && (p.Kind is IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference || values is not null && p.Kind == IrTypeKind.Value && _types.Valid(p, false)))
                 && declaration.ReturnType is { Kind: IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.Void },
                 "invalid abstract class signature/provenance.");
             var id = IrMethodId.From(declaration.Source);

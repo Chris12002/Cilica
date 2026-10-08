@@ -15,8 +15,10 @@ public static class ValueScalarLowering
     {
         _ = ValueRootAssignment.Assign(program);
         var values = program.Flow.Flow.Flow;
-        var objects = new ObjectIrProgram(LowerCore(values, returnPackets: true), LowerBindings(program.Flow.Bindings))
-            { InterfaceDispatch = LowerInterfacePlan(program.Flow.InterfaceDispatch), Dispatch = program.Flow.Dispatch, AbstractMethods = program.Flow.AbstractMethods };
+        var lowered = LowerCore(values, returnPackets: true);
+        var objects = new ObjectIrProgram(lowered, LowerBindings(program.Flow.Bindings))
+            { InterfaceDispatch = LowerInterfacePlan(program.Flow.InterfaceDispatch), Dispatch = program.Flow.Dispatch,
+                AbstractMethods = LowerAbstractMethods(program.Flow.AbstractMethods, values.Types, lowered) };
         var scalar = new ScalarBoxedIrProgram(new(objects), values.Types);
         var result = new ScalarManagedExceptionIrProgram(new(scalar), program.Exceptions);
         _ = ObjectRootAssignment.AssignExceptions(result);
@@ -33,8 +35,10 @@ public static class ValueScalarLowering
     public static ScalarDelegateIrProgram LowerDelegates(DelegateValueIrProgram program)
     {
         _ = ValueRootAssignment.Assign(program);
-        var objects = new ObjectIrProgram(LowerCore(program.Flow.Flow, returnPackets: true), LowerBindings(program.Bindings))
-            { InterfaceDispatch = LowerInterfacePlan(program.InterfaceDispatch), Dispatch = program.Dispatch, AbstractMethods = program.AbstractMethods };
+        var lowered = LowerCore(program.Flow.Flow, returnPackets: true);
+        var objects = new ObjectIrProgram(lowered, LowerBindings(program.Bindings))
+            { InterfaceDispatch = LowerInterfacePlan(program.InterfaceDispatch), Dispatch = program.Dispatch,
+                AbstractMethods = LowerAbstractMethods(program.AbstractMethods, program.Flow.Flow.Types, lowered) };
         var scalar = new ScalarBoxedIrProgram(new(objects), program.Flow.Flow.Types);
         var result = new ScalarDelegateIrProgram(scalar);
         _ = ObjectRootAssignment.AssignDelegates(result);
@@ -100,6 +104,30 @@ public static class ValueScalarLowering
                 [.. plans[type.Element.Class!].Slots.Select(slot => IrType.Location(Scalar(slot.Storage), type.ReadOnly))],
             _ => [type],
         };
+    }
+
+    private static ImmutableArray<ObjectAbstractMethodDeclaration> LowerAbstractMethods(
+        ImmutableArray<ObjectAbstractMethodDeclaration> declarations, ValueTypeCatalog values, ReferenceIrProgram lowered)
+    {
+        if (declarations.IsEmpty) return declarations;
+        var layouts = ValueLayoutPlanner.Build(values).ToDictionary(p => p.Type);
+        int remaining = IrLimits.MaximumParameters - lowered.Methods.Sum(m => m.Parameters.Length);
+        var result = ImmutableArray.CreateBuilder<ObjectAbstractMethodDeclaration>();
+        foreach (var declaration in declarations)
+        {
+            var parameters = ImmutableArray.CreateBuilder<IrType>();
+            foreach (var parameter in declaration.Parameters)
+            {
+                var expanded = ExpandSignatureType(parameter, layouts);
+                if (expanded.Length > remaining || expanded.Length > IrLimits.MaximumParameters - parameters.Count)
+                    throw new ArgumentException("Abstract value signatures exceed the expanded parameter budget.");
+                remaining -= expanded.Length;
+                parameters.AddRange(expanded);
+            }
+            result.Add(declaration.Parameters.Any(p => p.Kind == IrTypeKind.Value)
+                ? declaration with { Parameters = parameters.ToImmutable() } : declaration);
+        }
+        return result.ToImmutable();
     }
 
     private static ObjectInterfaceDispatchPlan? LowerInterfacePlan(ObjectInterfaceDispatchPlan? plan)

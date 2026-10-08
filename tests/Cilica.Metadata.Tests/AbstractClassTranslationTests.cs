@@ -111,7 +111,7 @@ public sealed class AbstractClassTranslationTests
         var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(AbstractClassProbe).GetMethod("UnsupportedInline")!.MetadataToken);
         var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
         Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Message.Contains("inline values and borrows need later lowering", StringComparison.Ordinal));
+        Assert.Contains(result.Diagnostics, d => d.Message.Contains("value returns and borrows need later lowering", StringComparison.Ordinal));
     }
 
 }

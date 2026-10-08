@@ -53,9 +53,9 @@ public static partial class ValueProgramDiscovery
             if (!ObjectMethodAccess.Allowed(work.Binding, binding, integers64)) Fail(work, "Abstract call requires an accessible declaration.", offset);
             ImmutableArray<IrType> parameters = [IrType.Reference(ownerId), .. target.Signature.Parameters.Select(t => Storage(t, work, offset, borrow: true))];
             var returned = Storage(target.Signature.ReturnType, work, offset, allowVoid: true);
-            if (parameters.Any(t => t.Kind is not (IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference))
+            if (parameters.Any(t => t.Kind is not (IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.Value))
                 || returned.Kind is not (IrTypeKind.Int32 or IrTypeKind.Int64 or IrTypeKind.Reference or IrTypeKind.Void))
-                Fail(work, "Abstract class calls currently require scalar/reference parameters and results; inline values and borrows need later lowering.", offset);
+                Fail(work, "Abstract class calls support copied value parameters with scalar/reference/void results; value returns and borrows need later lowering.", offset);
             _parameters += parameters.Length;
             if (_parameters > IrLimits.MaximumParameters) Fail(work, "Aggregate declaration parameter limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             var declaration = new ObjectAbstractMethodDeclaration(input.Source with { Specialization = id.Specialization }, parameters, returned);

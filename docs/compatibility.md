@@ -4176,3 +4176,15 @@ See ADR AC0181. Closed class target v4, CIL v77 and object IR v50 record the cha
 native v74, grants and limits are unchanged. Frozen discovery now reaches the
 separate inline-value abstract-signature restriction at GameOccurrence.Permits
 (998,255 metadata units). Full engine/fingerprint/replay execution is unfinished.
+
+### Copied value arguments on abstract class calls (AC8.56)
+
+Abstract declarations now accept copied inline-value parameters and expand their
+nested scalar/reference leaves with the same layouts as concrete implementations.
+Empty values remove no calls or null checks. Value returns and borrowed abstract
+parameters remain diagnostic. Six probes supply 1,764 repeated native/.NET
+comparisons; all 65 distinct selected checks pass. See ADR AC0182. CIL v78/object
+IR v51 record the contract; native v74, grants and limits are unchanged. Frozen
+engine discovery advances past Permits(PlayerId) to a custom message/inner-exception
+constructor in SetRangeModifier.DistanceFromFeet (1,019,328 metadata units).
+Full engine, unchanged fingerprint and saved-game replay execution remain unfinished.
