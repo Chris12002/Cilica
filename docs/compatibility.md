@@ -4089,3 +4089,15 @@ specific and intentionally differ from randomized .NET values. Eight probes supp
 and limits are unchanged. See ADR AC0173. Frozen discovery next reaches excessive
 parameterless-comparer hash reachability from ReferenceKeyOperations<T>.Hash;
 full engine/fingerprint/replay execution remains unfinished.
+
+### Receiver-bounded virtual dispatch (AC8.54)
+
+Class dispatch maps retain proven receiver classes from bounded stack discovery
+or validated constrained reference calls. Bounds union across call sites; unproven
+calls retain owner-wide discovery. Typed call validation and complete subclass
+coverage prevent omitted receivers, including inherited Object implementations.
+Six probes add 1,764 repeated native comparisons, with eight detached-IR corruption
+cases and 88 passing selected checks. CIL v75/object IR v48/native v74 record the
+contract; layout/interface/grants/limits are unchanged. See ADR AC0174. Frozen
+discovery next reaches SelectMany(source, selector) in ConstructionInvitations at
+955,482 metadata units; full engine/fingerprint/replay execution remains unfinished.

@@ -13,12 +13,15 @@ public static partial class ValueProgramDiscovery
     {
         private readonly Dictionary<IrMethodId, bool> _publicVirtualDeclarations = [];
         private readonly Dictionary<IrMethodId, Dictionary<int, MethodInstruction>> _receiverProducers = [];
-        // Narrow the declaration from a static class reference proven within one bounded
-        // block on a zero-argument callvirt. This is not devirtualization: derived
-        // overrides remain reachable, and typed validation checks the receiver.
-        private ResolvedMethod NarrowVirtualReceiver(Work work, MethodInstruction instruction, ResolvedMethod target)
+        // Prove a static class from an already validated constrained receiver or
+        // within one bounded block for a zero-argument callvirt. Keep the proof
+        // even when the selected implementation is inherited from Object.
+        // Derived overrides remain reachable; typed validation checks every call.
+        private ResolvedMethod NarrowVirtualReceiver(Work work, MethodInstruction instruction, ResolvedMethod target,
+            ObjectTypeId? constrainedReceiver, out ObjectTypeId? receiverBound)
         {
-            if (!integers64 || instruction.OpCode != "callvirt" || target.Signature.Parameters.Count != 0
+            receiverBound = null;
+            if (!integers64 || instruction.OpCode != "callvirt" || target.Signature.Parameters.Count != 0 && constrainedReceiver is null
                 || target.Signature.Header != 0x20 || target.MethodArguments.Count != 0) return target;
             if (!_receiverProducers.TryGetValue(work.Binding.Method, out var producers))
             {
@@ -37,7 +40,7 @@ public static partial class ValueProgramDiscovery
                 }
                 _receiverProducers.Add(work.Binding.Method, producers);
             }
-            var storage = KnownReceiverStorage(work, instruction.Offset, producers);
+            var storage = constrainedReceiver is null ? KnownReceiverStorage(work, instruction.Offset, producers) : IrType.Reference(constrainedReceiver);
             if (storage is not { Kind: IrTypeKind.Reference, Class: { ArrayElement: null } receiver }
                 || !_references.TryGetValue(receiver, out var type)
                 || (SnapshotClosed(type, work, instruction.Offset).Attributes & TypeAttributes.Interface) != 0)
@@ -54,7 +57,26 @@ public static partial class ValueProgramDiscovery
                         == (MethodAttributes.Virtual | MethodAttributes.Public);
                 _publicVirtualDeclarations.Add(id, isVirtual);
             }
-            return isVirtual ? ResolveVirtual(target, type, work, instruction.Offset).Implementation : target;
+            if (!isVirtual) return target;
+            var implementation = ResolveVirtual(target, type, work, instruction.Offset).Implementation;
+            receiverBound = receiver;
+            return implementation;
+        }
+        private readonly Dictionary<IrMethodId, HashSet<ObjectTypeId>?> _virtualReceiverBounds = [];
+        private int _receiverBoundCount;
+        private void RegisterVirtualCall(IrMethodId declaration, Work work, int offset, ObjectTypeId? receiverBound)
+        {
+            _virtualCalls.TryAdd(declaration, (work, offset));
+            if (!_virtualReceiverBounds.TryGetValue(declaration, out var bounds))
+            {
+                bounds = receiverBound is null ? null : [];
+                _virtualReceiverBounds.Add(declaration, bounds);
+            }
+            // An unproven call makes the shared declaration unrestricted. Bounds
+            // only grow as newly discovered bodies add call sites.
+            if (receiverBound is null) _virtualReceiverBounds[declaration] = null;
+            else if (bounds is not null && bounds.Add(receiverBound) && ++_receiverBoundCount > ObjectDispatchLimits.MaximumTargets)
+                Fail(work, "Aggregate class receiver-bound limit exceeded.", offset, Cilica.Metadata.DiagnosticIds.TranslationLimit);
         }
         // Track one stack slot backwards. Calls can consume a duplicate while
         // preserving the original below their arguments. This is a candidate

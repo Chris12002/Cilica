@@ -483,6 +483,7 @@ internal sealed partial class ObjectIrRules
             || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.InvariantCulture)) return false;
         for (int index = 0; index < arguments.Length; index++)
             if (arguments[index] < 0 || arguments[index] >= values.Count || !_types.Assignable(values[arguments[index]], signature[index + skip])) return false;
+        if (virtualDispatch && (arguments.IsEmpty || !_dispatch.Accepts(target, values[arguments[0]]))) return false;
         // Object slots also accept strings, arrays, delegates and boxes. Their
         // descriptors have no ordinary-class virtual table, so an Object alias
         // cannot prove that this map covers the dynamic receiver.

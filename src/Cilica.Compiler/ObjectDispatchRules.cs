@@ -73,12 +73,21 @@ internal sealed class ObjectDispatchRules
             else signatures.Add(slot, binding);
         }
         Require(!program.Dispatch.IsDefault && program.Dispatch.Length <= ProgramLimits.MaximumMethods, "invalid dispatch map array.");
-        int entries = interfaces.TargetCount;
+        int entries = interfaces.TargetCount, receiverBounds = 0;
         foreach (var map in program.Dispatch)
         {
             Require(map?.Declaration is not null && bindings.TryGetValue(map.Declaration, out var declaration)
                 && declaration.GenericInterfaceMethod is null && declaration.VirtualSlot is not null && (declaration.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
                 && _maps.TryAdd(map.Declaration, map), "invalid/duplicate dispatch declaration.");
+            Require(!map.ReceiverBounds.IsDefault && map.ReceiverBounds.Length <= ObjectModelLimits.MaximumTypes
+                && (map.ReceiverBounds.IsEmpty || program.Flow.Types.Integer64), "invalid class receiver bounds.");
+            receiverBounds += map.ReceiverBounds.Length;
+            Require(receiverBounds <= ObjectDispatchLimits.MaximumTargets, "aggregate class receiver-bound limit exceeded.");
+            var bounds = new HashSet<ObjectTypeId>();
+            foreach (var bound in map.ReceiverBounds)
+                Require(bound is { ArrayElement: null } && _layouts.ContainsKey(bound) && bounds.Add(bound)
+                    && types.Assignable(IrType.Reference(bound), IrType.Reference(bindings[map.Declaration].Owner)),
+                    "class receiver bounds must name distinct compatible ordinary classes.");
             Require(!map.Targets.IsDefault && map.Targets.Length <= ObjectModelLimits.MaximumTypes
                 && (!map.Targets.IsEmpty || program.Flow.Types.Integer64 && (bindings[map.Declaration].Attributes & MethodAttributes.Abstract) != 0), "invalid dispatch targets.");
             entries += map.Targets.Length;
@@ -92,6 +101,9 @@ internal sealed class ObjectDispatchRules
     }
 
     internal bool Has(IrMethodId declaration) => _maps.ContainsKey(declaration);
+    internal bool Accepts(IrMethodId declaration, IrType receiver) => _maps.TryGetValue(declaration, out var map)
+        && (map.ReceiverBounds.IsEmpty || receiver.Kind == IrTypeKind.NullReference
+            || map.ReceiverBounds.Any(bound => _types.Assignable(receiver, IrType.Reference(bound))));
     internal IEnumerable<IrMethodId> Targets(IrMethodId declaration) => _maps[declaration].Targets.Select(t => t.Implementation);
 
     internal void Validate()
@@ -109,8 +121,9 @@ internal sealed class ObjectDispatchRules
         foreach (var map in _maps.Values)
         {
             var declaration = _bindings[map.Declaration]; var slot = declaration.VirtualSlot!;
-            var expected = _layouts.Keys.Where(id => (_layouts[id].Attributes & TypeAttributes.Abstract) == 0 && _types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))).ToHashSet();
-            Require(expected.SetEquals(map.Targets.Select(t => t.Receiver)), "dispatch map must cover every compatible catalog receiver exactly once.");
+            var expected = _layouts.Keys.Where(id => (_layouts[id].Attributes & TypeAttributes.Abstract) == 0 && _types.Assignable(IrType.Reference(id), IrType.Reference(declaration.Owner))
+                && Accepts(map.Declaration, IrType.Reference(id))).ToHashSet();
+            Require(expected.SetEquals(map.Targets.Select(t => t.Receiver)), "dispatch map must cover every compatible catalog receiver allowed by its bounds exactly once.");
             foreach (var target in map.Targets)
             {
                 var key = (slot, target.Receiver);

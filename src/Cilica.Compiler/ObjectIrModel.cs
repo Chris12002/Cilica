@@ -38,7 +38,12 @@ public sealed record ObjectAbstractMethodDeclaration(Cilica.Metadata.IL.MethodSo
 
 public sealed record ObjectVirtualSlot(IrMethodId Method, ObjectTypeId Owner);
 public sealed record ObjectVirtualTarget(ObjectTypeId Receiver, IrMethodId Implementation);
-public sealed record ObjectVirtualDispatch(IrMethodId Declaration, ImmutableArray<ObjectVirtualTarget> Targets);
+public sealed record ObjectVirtualDispatch(IrMethodId Declaration, ImmutableArray<ObjectVirtualTarget> Targets)
+{
+    // Empty means every class compatible with the declaration. Otherwise calls
+    // must prove one of these static receiver types, including valid subclasses.
+    public ImmutableArray<ObjectTypeId> ReceiverBounds { get; init; } = [];
+}
 public static class ObjectDispatchLimits
 {
     public const int MaximumTargets = 65536;
@@ -47,7 +52,7 @@ public static class ObjectDispatchLimits
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v47";
+    public const string Profile = "object-operations-ir-v48";
     public ImmutableArray<ObjectAbstractMethodDeclaration> AbstractMethods { get; init; } = [];
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }

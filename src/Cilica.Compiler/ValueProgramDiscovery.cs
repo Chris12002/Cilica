@@ -387,14 +387,15 @@ public static partial class ValueProgramDiscovery
                             }
                             if (target.MethodArguments.Count != 0 && (target.Signature.Header & 0x20) != 0)
                                 Fail(work, "Generic instance methods require an exact interface call; direct/class calls and method pointers need later lowering.", offset);
-                            target = NarrowVirtualReceiver(work, instruction, target);
+                            target = NarrowVirtualReceiver(work, instruction, target,
+                                constrainedReferences.GetValueOrDefault(offset)?.Receiver, out var receiverBound);
                             if (integers64 && instruction.OpCode == "callvirt" && !constrainedCalls.ContainsKey(offset)
                                 && AbstractDeclaration(target, work, offset) is { } abstractCall)
                             {
                                 abstractCalls.Add(offset, abstractCall);
                                 _arguments += abstractCall.Parameters.Length;
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate abstract-call argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
-                                _virtualCalls.TryAdd(IrMethodId.From(abstractCall.Source), (work, offset));
+                                RegisterVirtualCall(IrMethodId.From(abstractCall.Source), work, offset, receiverBound);
                                 continue;
                             }
                             var callee = Discover(target, work, offset);
@@ -402,7 +403,7 @@ public static partial class ValueProgramDiscovery
                                 Fail(work, "callvirt requires a class instance method.", offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null
                                 && (callee.Binding.Attributes & MethodAttributes.Final) == 0)
-                                _virtualCalls.TryAdd(callee.Binding.Method, (work, offset));
+                                RegisterVirtualCall(callee.Binding.Method, work, offset, receiverBound);
                             bool factoryConstructor = factoryConstructors.ContainsKey(offset);
                             if (factoryConstructor && (callee.Binding.Kind != ObjectMethodKind.Static || callee.Binding.Owner != factoryConstructors[offset]
                                 || (callee.Parameters.Length != 1 && !(ordinalCollections.ContainsKey(offset) && callee.Parameters.Length == 2 && callee.Parameters[0].Kind is IrTypeKind.Int32 or IrTypeKind.Reference))
@@ -573,6 +574,8 @@ public static partial class ValueProgramDiscovery
                     {
                         var receiver = ObjectTypeId.From(layout.Source);
                         if ((layout.Attributes & TypeAttributes.Abstract) != 0) continue;
+                        if (_virtualReceiverBounds[site.Key] is { } bounds
+                            && !bounds.Any(bound => relations.Assignable(IrType.Reference(receiver), IrType.Reference(bound)))) continue;
                         if (!relations.Assignable(IrType.Reference(receiver), IrType.Reference(declarationBinding.Owner)) || targets.ContainsKey(receiver)) continue;
                         if (_dispatchTargetCount + interfaceTargets >= ObjectDispatchLimits.MaximumTargets)
                             Fail(site.Value.Caller, "Aggregate class/interface dispatch target limit exceeded.", site.Value.Offset, DiagnosticIds.TranslationLimit);
@@ -643,7 +646,9 @@ public static partial class ValueProgramDiscovery
                 { InterfaceDispatch = interfacePlan, AbstractMethods = [.. _abstractMethods.Values.Select(a => a.Declaration).OrderBy(a => a.Source.ContentHash, StringComparer.Ordinal).ThenBy(a => a.Source.Token).ThenBy(a => a.Source.Specialization, StringComparer.Ordinal)], AbstractBindings = [.. _abstractMethods.Values.Select(a => a.Binding)],
                     Dispatch = [.. _dispatch.OrderBy(p => p.Key.ContentHash, StringComparer.Ordinal).ThenBy(p => p.Key.Token).ThenBy(p => p.Key.Specialization, StringComparer.Ordinal)
                         .Select(p => new ObjectVirtualDispatch(p.Key, [.. p.Value.OrderBy(t => t.Key.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Key.Token).ThenBy(t => t.Key.Specialization, StringComparer.Ordinal)
-                            .Select(t => new ObjectVirtualTarget(t.Key, t.Value))]))],
+                            .Select(t => new ObjectVirtualTarget(t.Key, t.Value))]) {
+                                ReceiverBounds = _virtualReceiverBounds[p.Key] is { } bounds
+                                    ? [.. bounds.OrderBy(t => t.ContentHash, StringComparer.Ordinal).ThenBy(t => t.Token).ThenBy(t => t.Specialization, StringComparer.Ordinal)] : [] })],
                     Exceptions = exceptions ? new(_exceptionBase!, [.. catalog.References.Types.Where(t => IsException(ObjectTypeId.From(t.Source))).Select(t => ObjectTypeId.From(t.Source))], [.. _runtimeFaults]) { TypeInitialization = _typeInitializationException, ArgumentBase = _argumentBase, Resources = [.. _exceptionResources] } : null };
         }
 
