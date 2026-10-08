@@ -18,6 +18,7 @@ public sealed class NullableTextTests
     [InlineData(false,"Array")] [InlineData(true,"Array")]
     [InlineData(false,"TextComposite")] [InlineData(true,"TextComposite")]
     [InlineData(false,"Copies")] [InlineData(true,"Copies")]
+    [InlineData(false,"UnsupportedNullableComposite")] [InlineData(true,"UnsupportedNullableComposite")]
     public async Task Nullable_text_preserves_absence_mutation_copies_and_faults(bool optimized,string name)
     {
         var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(NullableTextProbe),[name]))[0];
@@ -29,7 +30,6 @@ public sealed class NullableTextTests
     [InlineData("Wide", "primitive fallbacks")]
     [InlineData("Boolean", "Narrow field addresses")]
     [InlineData("Character", "Narrow field addresses")]
-    [InlineData("UnsupportedNullableComposite", "directly proven box")]
     public async Task Separate_unimplemented_lowerings_remain_diagnostic(string name,string message)
     {
         using var files=new ResolverFiles();var (built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;

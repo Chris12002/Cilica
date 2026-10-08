@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v92";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v93";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -260,6 +260,7 @@ public static class ValueTranslator
                 _inputs += incoming[id].Length;
                 if (_inputs > IrLimits.MaximumInputs) Error(blockOffset, "Aggregate block-input limit exceeded.", DiagnosticIds.TranslationLimit);
                 var statements = new List<IrStatement>(); var values = new List<IrType>(); var valueExpressions = new List<IrExpression>(); var stack = new List<int>(); var nativeIndices = new HashSet<int>();
+                var nullableBoxes = new Dictionary<int, ObjectTypeId>();
                 IrTerminator? terminator = null;
                 int transferred = 0;
                 for (int i = 0; i < incoming[id].Length; i++)
@@ -750,7 +751,8 @@ public static class ValueTranslator
                                 && (formatBoxes.Length is not (1 or 2 or 3) || arguments.Length != formatBoxes.Length + 1
                                     || formatBoxes.Where((box, i) => box == stringType
                                         ? values[arguments[i + 1]] != IrType.Reference(stringType!) && values[arguments[i + 1]] != IrType.NullReference
-                                        : valueExpressions[arguments[i + 1]] is not IrExpression.BoxValue proof || proof.Type != box).Any()))
+                                        : (valueExpressions[arguments[i + 1]] is not IrExpression.BoxValue proof || proof.Type != box)
+                                            && (!nullableBoxes.TryGetValue(arguments[i + 1], out var payload) || payload != box)).Any()))
                                 Error(offset, "String.Format requires each directly proven box or typed string in the same control-flow block.", DiagnosticIds.ExecutionUnsupported);
                             if (method.LiteralIntegerFormats.Contains(offset) && (valueExpressions[arguments[0]] is not IrExpression.StringLiteral formatLiteral
                                 || !DefaultIntegerFormat.Literal(formatLiteral.CodeUnits)))
@@ -781,7 +783,14 @@ public static class ValueTranslator
                             }
                             else if (skip != 0) Push(offset, IrType.Reference(target.Binding.Owner), new IrExpression.NewObject(target.Binding.Method, [.. arguments]), true);
                             else if (target.ReturnType == IrType.Void) Add(new IrStatement.Invoke(offset, target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: virtualDispatch), offset);
-                            else Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: virtualDispatch), true);
+                            else
+                            {
+                                Push(offset, target.ReturnType, new IrExpression.Call(target.Binding.Method, [.. arguments], NullCheckReceiver: nullCheck, VirtualDispatch: virtualDispatch), true);
+                                // Only the exact metadata-validated CIL box gets this fact.
+                                // Locals, joins, arbitrary calls and direct helper calls do not.
+                                if (opcode == "box" && method.NullableBoxPayloads.TryGetValue(offset, out var payload))
+                                    nullableBoxes.Add(stack[^1], payload);
+                            }
                             break;
                         case "ldfld" or "ldflda" or "stfld":
                             var field = fields[method.Fields[offset]]; var fieldType = Storage(field.Storage);

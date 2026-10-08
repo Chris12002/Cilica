@@ -4458,3 +4458,13 @@ storage follow pinned .NET behavior. Twenty-nine selected nullable checks pass, 
 narrow field addresses and nullable composite boxes retain explicit diagnostics.
 Frozen discovery advances to Enumerable.Range; the independently observed nullable-box
 formatting gap also remains. Full engine, unchanged fingerprint and replay are unfinished.
+
+### Nullable boxed formatting (AC7b.24)
+
+String.Format now recognizes directly proven nullable boxes of admitted named values
+and Int32 enums. Discovery selects the actual payload type; block-local proof comes
+only from the exact nullable box operation. The shared formatter treats null arguments
+as empty text before payload dispatch. Sixty-four checks pass with 2,646 new repeated
+native/.NET comparisons. See ADR AC0204. CIL93; IR59/native79 unchanged. Aliases, joins,
+primitive nullable formats and IFormattable payloads stay diagnostic. Frozen discovery
+still stops at Enumerable.Range. Full engine, unchanged fingerprint and replay are unfinished.

@@ -71,9 +71,11 @@ namespace Cilica.Runtime
                 if ((uint)index >= (uint)count) throw new System.FormatException("Index (zero based) must be greater than or equal to zero and less than the size of the argument list.");
                 // Pass the original UTF-16 range without allocating a substring.
                 // Ordinary non-IFormattable renderers ignore this range.
-                string text = index == 0 ? BoxedText<TFirst>.Render(first, format, formatStart, formatLength)
-                    : index == 1 ? BoxedText<TSecond>.Render(second, format, formatStart, formatLength)
-                    : BoxedText<TThird>.Render(third, format, formatStart, formatLength);
+                // A boxed nullable may be null. Like the pinned formatter, skip
+                // payload dispatch for null before applying alignment to empty text.
+                string text = index == 0 ? (first == null ? null : BoxedText<TFirst>.Render(first, format, formatStart, formatLength))
+                    : index == 1 ? (second == null ? null : BoxedText<TSecond>.Render(second, format, formatStart, formatLength))
+                    : (third == null ? null : BoxedText<TThird>.Render(third, format, formatStart, formatLength));
                 if (text == null) text = "";
                 int padding = width - text.Length;
                 if (!left) for (int i = 0; i < padding; i++) output.Append(' ');

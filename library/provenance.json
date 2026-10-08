@@ -971,6 +971,7 @@
       ],
       "changes": [
         "Use the bounded managed StringBuilder instead of span/stack buffers.",
+        "AC7b.24 preserves null-argument empty text before payload dispatch and admits directly proven nullable boxes by their actual named/enum payload type. Same-block provenance is carried only from the authenticated CIL box operation; aliases and joins remain diagnostic.",
         "Specialize one or two directly boxed named non-IFormattable values; a shared parser retains each box and calls its exact ordinary ToString override on that payload.",
         "Keep invariant pinned error resources; carry suffix ranges without allocating substrings. Ordinary non-IFormattable values ignore those ranges.",
         "No custom providers, general IFormattable/ISpanFormattable dispatch, argument arrays, primitive/reference arguments or object aliases are admitted."

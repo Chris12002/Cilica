@@ -115,6 +115,15 @@ public static partial class ValueProgramDiscovery
         }
         private ConstructedType FormattingReceiver(TypeSignature signature, Work work, int offset)
         {
+            // Nullable boxing produces null or a box of T, never a Nullable<T> box.
+            // Candidate selection is separate from the block-local producer proof.
+            if (IsNullable(signature, work, offset))
+            {
+                CheckArgumentAccess(signature, work, offset);
+                var nullable = (TypeSignature.Generic)signature;
+                _ = SnapshotClosed(new(nullable.Definition.Definition, nullable.Arguments), work, offset);
+                signature = nullable.Arguments[0];
+            }
             var normalized = OperandSignature(signature, work, offset);
             if (normalized is TypeSignature.Primitive primitive && ScalarBoxing.Supported(primitive.Code))
                 Fail(work, "Scalar boxed formatting requires a directly proven literal without format suffixes for 32/64-bit integers; other scalar or provider formatting requires later lowering.", offset);
