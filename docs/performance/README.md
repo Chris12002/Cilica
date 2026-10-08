@@ -33,3 +33,6 @@ interpreting the historical .NET/native memory comparison.
 [NativeAOT / IL2CPP architectural comparison](runtime-comparison-20261008.md)
 records a read-only source review and ranked proposals, with unexecuted owned
 kernels for future comparisons. It adds no runtime adoption or performance claim.
+
+[Local Unity pipeline setup](../../tools/Performance/unity/README.md): Mac IL2CPP
+support installed, pinned .NET oracle verified; Editor build awaits license activation.

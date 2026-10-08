@@ -1,0 +1,17 @@
+{
+  "Preflight.csproj": "c03643cb17c3fd5f02484b49c68411737f99044c98e8bc367d7c541135ad30f6",
+  "csharp-api-preflight.log": "379bac4cf56da70e58a82e0f6798a5d6bb844f19f1e28c5d3e10af9e9ea13cd0",
+  "csharp-api-preflight.log.receipt.json": "ecd1bf0d8ffcd38700a926d45d331082b834170f7ced5626bce5f51afe482cd8",
+  "dotnet-candidate-build.log": "5f264a00ac40ac1c3d0d6c27d61a1b90f45d38b01cae1d777916b7cf58ab3cc8",
+  "dotnet-candidate-build.log.receipt.json": "319694a7775b8dcadc209724676c6431914384579359f136ba3e9bcd39de4164",
+  "dotnet-host-build.log": "44abf04dbd6189bc14ea937d67a0a5897cd42716d98d82a3d02e81c6ad211dac",
+  "dotnet-host-build.log.receipt.json": "7cc70c6f49847df086f74df06541d79467d14cf74f432cc7d6ed2cf642457cf9",
+  "dotnet-verify.json": "e469d96b5323ac9c7d5bae395f45b6b8ff6af617dc5b88f896d1102a3700ef08",
+  "dotnet-verify.json.receipt.json": "17992f787eff0368a850be104433aa472261c8d4be79a044336f7f5ef2842de8",
+  "expected.json": "3aabe51a4da37797b8e9d0c5cb70df7e357de7eb6c9bd488bd4ba1f4add58512",
+  "input-provenance.json": "37dedfd77b02b50872d94d8e2d6d731920cc1727d7ea592d6c43d4c0d2c1aec7",
+  "license-diagnostic.txt": "4e09c536ec564a2dc3c6dfeb2cf8175ceb9dd0e74f792878e94ec5c2fc6c586a",
+  "local-build.json": "3a1b44ca432fe40da98590b1cbf60d940de3b999cc445d4c413264a4f446dc17",
+  "status.json": "f6b761cbd91a84233730ad638f2ac383230f54a24976f41ce1d3f8d68efb139b",
+  "utility-tests.log": "18c9690a72b508b03bbfbf9cb00f79b7265db3446e5d83386d5752dda5659809"
+}

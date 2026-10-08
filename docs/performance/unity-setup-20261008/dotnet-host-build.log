@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/recipe/DotNetHost.csproj (in 49 ms).
+  DotNetHost -> /Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.33

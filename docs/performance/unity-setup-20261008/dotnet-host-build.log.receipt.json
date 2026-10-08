@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/christian/.dotnet/dotnet",
+    "build",
+    "inputs/recipe/DotNetHost.csproj",
+    "-c",
+    "Release",
+    "--output",
+    "inputs/host",
+    "-p:RestoreSources=/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/feed",
+    "-p:ImportDirectoryBuildProps=false",
+    "-p:ImportDirectoryBuildTargets=false",
+    "-p:NuGetAudit=false"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.016299625,
+  "stop_reason": null,
+  "isolation": "normal local account; wall/log bounds only"
+}

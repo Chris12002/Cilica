@@ -1,0 +1,27 @@
+{
+  "status": "blocked_on_unity_license",
+  "editor": "6000.3.2f1",
+  "architecture": "arm64",
+  "mac_il2cpp_module": "installed via official CLI; success confirmed",
+  "cli_version": "1.0.0-beta.13",
+  "cli_sha256": "9bfb74ef0a6fc4e9801c7e8c829d4989b8b60653f036a60b9fe37e0f6a105220",
+  "xcode": "26.1.1",
+  "dotnet_sdk": "10.0.400",
+  "work_directory": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing",
+  "unity_editor_exit_code": 198,
+  "unity_player_executed": false,
+  "generated_cpp_captured": false,
+  "timing_claim": false,
+  "dotnet_observations_matched": 523,
+  "checksum": 6146,
+  "authored_unity_api_compile": {
+    "warnings": 0,
+    "errors": 0,
+    "source_sha256": {
+      "tools/Performance/unity/template/ProjectData~/Assets/BenchmarkHarness.cs": "3760e4d8db21dff42d97c379b29a9b38ce84df7b06b191f99892adda3045cb5e",
+      "tools/Performance/unity/template/ProjectData~/Assets/Editor/BenchmarkBuild.cs": "81e6deb83bc23eb016a46671ceaf659b51bdd11cf4331fa9f118f0a75147cfb6"
+    }
+  },
+  "prior_template_failure": "ProjectVersion.txt must be omitted; corrected before license failure",
+  "license_or_account_changes": false
+}

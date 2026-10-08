@@ -1,0 +1,11 @@
+python3: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+test_capture_requires_workload_cpp_and_hashes_it (__main__.PipelineChecks) ... ok
+test_error_overrides_matching_output (__main__.PipelineChecks) ... ok
+test_exact_observations_required_even_when_checksum_matches (__main__.PipelineChecks) ... ok
+test_nonzero_exit_is_preserved_and_log_not_overwritten (__main__.PipelineChecks) ... ok
+test_timeout_has_failed_receipt (__main__.PipelineChecks) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.786s
+
+OK

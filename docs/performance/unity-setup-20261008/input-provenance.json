@@ -1,0 +1,105 @@
+{
+  "candidate_commit": "f500e73f28e28813f942f1f16dec5a34b40e48e3",
+  "harness_commit": "a581334811b8f303b0869079589e0e3ce528dfb3",
+  "sources": [
+    {
+      "path": "DiffPlex/Differ.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Differ.cs",
+      "git_blob_sha1": "281ee96c405676ba6f61958939d5121bdcc8584c",
+      "sha256": "eb8095402c52ae3d969babb258332539adadbd4df4318c9b7fe72b6f585bfa18"
+    },
+    {
+      "path": "DiffPlex/IDiffer.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IDiffer.cs",
+      "git_blob_sha1": "c860e04f7955a608579067eb7e577c152c82c8bd",
+      "sha256": "722b9f18b1d217d4096ec624e62258eca95b7d348ebe071288e97e4a84963f82"
+    },
+    {
+      "path": "DiffPlex/IChunker.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IChunker.cs",
+      "git_blob_sha1": "9e9de1a2f64c5148b46745d059c7b5f432798266",
+      "sha256": "48c93acd1a8c54c0675333fa0e10223a9d8b03129e48c7caeb6071c0c50b1198"
+    },
+    {
+      "path": "DiffPlex/Log.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Log.cs",
+      "git_blob_sha1": "6163e9e8b6ef7c38f5de7b50856e746b877dbee4",
+      "sha256": "3cbabe2e261d668f6467fa8f2fbc3c3d472b0481a5e7ac6717d9b164862ff204"
+    },
+    {
+      "path": "DiffPlex/Model/DiffBlock.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffBlock.cs",
+      "git_blob_sha1": "7fa5fe8a59dd92376252d2be519539c8d2ae3690",
+      "sha256": "1a070b72f4fbe30cb8a064a4affded233ae1b1a3a2bed50d8a2964fd79a51754"
+    },
+    {
+      "path": "DiffPlex/Model/DiffResult.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffResult.cs",
+      "git_blob_sha1": "8055eb1e444be7e93667bb420ba628e6cc6b4b92",
+      "sha256": "a0730bacc2cc221f3ff80369475804c4bdede21785b11542c8e7b865c245a602"
+    },
+    {
+      "path": "DiffPlex/Model/EditLengthResult.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/EditLengthResult.cs",
+      "git_blob_sha1": "859014fa0f6f04c4ba4bafc8714f8ec2086554e9",
+      "sha256": "51192a24cf312674a774b1016892d1c50aa989193eea057078f2312ec19fa02c"
+    },
+    {
+      "path": "DiffPlex/Model/ModificationData.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/ModificationData.cs",
+      "git_blob_sha1": "9a6e0774693b4276cf1040de10acad9b7183aadc",
+      "sha256": "502c9dae16459210678a6f0089b2d413ecfa37874c38384598d30046e60adc63"
+    },
+    {
+      "path": "DiffPlex/Chunkers/CharacterChunker.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/CharacterChunker.cs",
+      "git_blob_sha1": "8076c4fe8591973d26061a86ef702f94d82386a8",
+      "sha256": "8206b982d01b079953e4dc5888ce6cdd889f7a9d1ae6c5a5640cb524b23d79a3"
+    },
+    {
+      "path": "DiffPlex/Chunkers/CustomFunctionChunker.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/CustomFunctionChunker.cs",
+      "git_blob_sha1": "ac63c730a4031b58792d72123db429985298dd58",
+      "sha256": "572a413eb2145de46308f2bd6275f381dd08f44fde03b951ab69d8ab805d5b26"
+    },
+    {
+      "path": "DiffPlex/Chunkers/DelimiterChunker.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/DelimiterChunker.cs",
+      "git_blob_sha1": "cdb3ebb0ab8d15b88f23766c2718d55887c9dc97",
+      "sha256": "04b3ffa88e95a5bc87ca2d1f61f9579cef2c8edb6e9a7ec4609d9c808ce27d00"
+    },
+    {
+      "path": "DiffPlex/Chunkers/LineChunker.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/LineChunker.cs",
+      "git_blob_sha1": "79c6b6ed5449d6873af6b294b44512d900cbe7ee",
+      "sha256": "c6998537cbc3f109751e00e4675973ae13d3996d4860411ccbac10b88da41c44"
+    },
+    {
+      "path": "DiffPlex/Chunkers/LineEndingsPreservingChunker.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/LineEndingsPreservingChunker.cs",
+      "git_blob_sha1": "c61e39c3ff6f4c589a429f529de327915a835749",
+      "sha256": "f63fb513c6a5f293c31343bf98cf382dd599dd3d289212074202daef564f3cfb"
+    },
+    {
+      "path": "DiffPlex/Chunkers/WordChunker.cs",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/WordChunker.cs",
+      "git_blob_sha1": "66a9386f617eb357378796daef0fab886bbd9e7c",
+      "sha256": "617cf68767021b339e511dd53956d34ac66e6502b76555688be10397edbc4aec"
+    },
+    {
+      "path": "License.txt",
+      "url": "https://raw.githubusercontent.com/mmanela/diffplex/f500e73f28e28813f942f1f16dec5a34b40e48e3/License.txt",
+      "git_blob_sha1": "9aa0a58ae70544e0c0c17452016385db7aa06104",
+      "sha256": "2f5666c5dc09d47fdb0de97be21642ae2eb8ad94d3cd6108eafb778c1b3ba609"
+    }
+  ],
+  "original_owned_sha256": {
+    "SelectedRoots.csproj": "4dce1b3e1a49ab45c312ed2bc10fce3c98d760161750ffa7c79118e9e92b1258",
+    "BenchProbe.cs": "50e48757f2b8b613abb41ef50e6c510c4a730e1380449d6fb6c7ae8b61d32683",
+    "DotNetHost.cs": "85637796c8abbabb784a965715931202ff021c35227f7e9b0f286c6b06839dd5",
+    "DotNetHost.csproj": "c4e61e43e42b895bcb826c1987f2762dffcfb17193c7fa840c4d9275ec9dc736"
+  },
+  "adapted_host_project_sha256": "e98b51574c4c699892f74e09d1c207059cadcafe37897e639ba94c8f8f4ffd5a",
+  "historical_benchmark_dll_sha256": "1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb",
+  "historical_dll_hash_is_not_assumed_for_this_rebuild": true
+}

@@ -1,0 +1,6 @@
+{
+  "dotnet_sdk": "10.0.400",
+  "benchmark_dll_sha256": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+  "oracle_observations": 523,
+  "oracle_checksum": 6146
+}
