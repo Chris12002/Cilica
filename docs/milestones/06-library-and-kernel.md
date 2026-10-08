@@ -3599,3 +3599,15 @@ selected checks pass, including 3,024 new repeated native/.NET comparisons. See
 ADR AC0198. Frozen discovery passes WriteContext and reaches the default string
 comparer branch behind an explicit ordinal ThenBy. Full engine, unchanged
 fingerprint and saved-game replay remain unfinished.
+
+### Explicit ordinal ordering (AC6.22)
+
+All four OrderBy/ThenBy comparer overloads admit directly proven StringComparer.Ordinal
+string keys through checked managed bridges. Sorting, selector order, stable ties and
+terminal behavior reuse the owned implementation; cloning reuses its resolved comparer.
+Ordinal ThenBy requires exact owned source element types in the closed receiver universe;
+custom/covariant sources and unproven comparers remain diagnostic. Ninety-one distinct
+selected checks pass across the integrated run and targeted fixture repairs, including
+4,410 new repeated native/.NET comparisons. See ADR AC0199. Frozen discovery advances
+to missing IGrouping<TKey,TElement> in forced movement. Full engine, unchanged fingerprint
+and saved-game replay remain unfinished.

@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v90";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v91";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -695,6 +695,11 @@ public static class ValueTranslator
                                 int prefixMode = Pop(offset, IrType.Int32);
                                 if (valueExpressions[prefixMode] is not IrExpression.Constant { Value: 4 })
                                     Error(offset, "Ordinal text calls require a directly proven StringComparison.Ordinal constant; other modes and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                            }
+                            if (method.OrdinalOrderingGetters.TryGetValue(offset, out var orderingGetter))
+                            {
+                                if (opcode != "call" || stack.Count == 0 || valueExpressions[stack[^1]] is not IrExpression.Call { Arguments.IsEmpty: true } orderingProof || orderingProof.Target != orderingGetter)
+                                    Error(offset, "Ordinal ordering requires a directly proven StringComparer.Ordinal getter in the same block; null, custom comparers and aliases require later lowering.", DiagnosticIds.ExecutionUnsupported);
                             }
                             if (method.OrdinalCollectionGetters.TryGetValue(offset, out var ordinalCollectionGetter))
                             {

@@ -1090,5 +1090,33 @@
     "Member": "Render",
     "ParameterCount": 1,
     "Capability": "TupleElementText"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "OrdinalOrderBridge`1",
+    "Member": "OrderBy",
+    "ParameterCount": 3,
+    "Capability": "OrdinalOrdering"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "OrdinalOrderBridge`1",
+    "Member": "OrderByDescending",
+    "ParameterCount": 3,
+    "Capability": "OrdinalOrdering"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "OrdinalOrderBridge`1",
+    "Member": "ThenBy",
+    "ParameterCount": 3,
+    "Capability": "OrdinalOrdering"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "OrdinalOrderBridge`1",
+    "Member": "ThenByDescending",
+    "ParameterCount": 3,
+    "Capability": "OrdinalOrdering"
   }
 ]

@@ -30,8 +30,30 @@ namespace Cilica.Runtime
 {
     // Exact owned interfaces preserve inline element signatures without widening
     // the compiler's abstract-class call profile. Public metadata is not a mapped API.
+    // Compiler-selected only for the exact ordinal argument and a closed owned
+    // source universe. These helpers do not substitute culture-based defaults.
+    public static class OrdinalOrderBridge<T>
+    {
+        public static System.Linq.IOrderedEnumerable<T> OrderBy(IEnumerable<T> source, Func<T, string> selector, IComparer<string> comparer) =>
+            OrderedIterator<T, string>.CreateExplicit(source, selector, comparer, false, null);
+        public static System.Linq.IOrderedEnumerable<T> OrderByDescending(IEnumerable<T> source, Func<T, string> selector, IComparer<string> comparer) =>
+            OrderedIterator<T, string>.CreateExplicit(source, selector, comparer, true, null);
+        public static System.Linq.IOrderedEnumerable<T> ThenBy(System.Linq.IOrderedEnumerable<T> source, Func<T, string> selector, IComparer<string> comparer)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            IOrdering<T> parent = (IOrdering<T>)source;
+            return OrderedIterator<T, string>.CreateExplicit(parent.GetSource(), selector, comparer, false, parent);
+        }
+        public static System.Linq.IOrderedEnumerable<T> ThenByDescending(System.Linq.IOrderedEnumerable<T> source, Func<T, string> selector, IComparer<string> comparer)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            IOrdering<T> parent = (IOrdering<T>)source;
+            return OrderedIterator<T, string>.CreateExplicit(parent.GetSource(), selector, comparer, true, parent);
+        }
+    }
     public interface IOrdering<T>
     {
+        IEnumerable<T> GetSource();
         IOrderSorter<T> GetSorter(IOrderSorter<T> next);
         IOrderCache<T> GetCache(IOrderCache<T> child);
     }
@@ -59,6 +81,17 @@ namespace Cilica.Runtime
             this.source = source; selector = keySelector; this.comparer = comparer ?? Comparer<TKey>.Default;
             this.descending = descending; this.parent = parent; threadId = Environment.CurrentManagedThreadId;
         }
+        private OrderedIterator(IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey> comparer, bool descending, IOrdering<T> parent, bool resolved)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (keySelector == null) throw new ArgumentNullException("keySelector");
+            if (comparer == null) throw new ArgumentNullException("comparer");
+            this.source = source; selector = keySelector; this.comparer = comparer;
+            this.descending = descending; this.parent = parent; threadId = Environment.CurrentManagedThreadId;
+        }
+        internal static OrderedIterator<T, TKey> CreateExplicit(IEnumerable<T> source, Func<T, TKey> selector, IComparer<TKey> comparer, bool descending, IOrdering<T> parent) =>
+            new OrderedIterator<T, TKey>(source, selector, comparer, descending, parent, true);
+        public IEnumerable<T> GetSource() => source;
         public System.Linq.IOrderedEnumerable<T> CreateOrderedEnumerable<TNext>(Func<T, TNext> keySelector, IComparer<TNext> comparer, bool descending) =>
             new OrderedIterator<T, TNext>(source, keySelector, comparer, descending, this);
         public IOrderSorter<T> GetSorter(IOrderSorter<T> next)
@@ -80,7 +113,7 @@ namespace Cilica.Runtime
         }
         public IEnumerator<T> GetEnumerator()
         {
-            var result = state == 0 && threadId == Environment.CurrentManagedThreadId ? this : new OrderedIterator<T, TKey>(source, selector, comparer, descending, parent);
+            var result = state == 0 && threadId == Environment.CurrentManagedThreadId ? this : new OrderedIterator<T, TKey>(source, selector, comparer, descending, parent, true);
             result.state = 1; return result;
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

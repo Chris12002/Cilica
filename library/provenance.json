@@ -1417,9 +1417,10 @@
       "contracts": [
         "OrderBy/ThenBy preserve eager argument validation, deferred buffering, all-primary-then-secondary key evaluation and stable original-index ties.",
         "CreateOrderedEnumerable remains an exact generic interface call, including application implementations. Owned cache/sorter interfaces support existing inline-value call lowering.",
-        "Count, Any, Select and ToArray preserve pinned empty/single-element behavior, cache comparison argument order and source disposal. Private upstream iterator inheritance is flattened into owned classes."
+        "Count, Any, Select and ToArray preserve pinned empty/single-element behavior, cache comparison argument order and source disposal. Private upstream iterator inheritance is flattened into owned classes.",
+        "AC6.22 compiler-selected explicit ordinal string ordering uses the supplied comparer and a non-defaulting constructor. ThenBy requires a closed universe of exact owned element types; custom and covariant ordering sources remain diagnostic. Cloning reuses the already resolved comparer."
       ],
-      "scope": "Bounded Int32 key selectors over admitted element/source shapes. String/culture/default comparer fallback and direct wide/unsigned/narrow delegate keys remain diagnostic. No Order, partial sorting, Skip/Take or general sorting API."
+      "scope": "Bounded Int32 ordering and measured Int64 cardinality controls, plus directly proven StringComparer.Ordinal string keys through all four comparer overloads. Culture/default string comparers, aliases and custom comparers are not substituted. Ordinal ThenBy custom/covariant sources and direct unsigned/narrow delegate keys remain diagnostic. No Order, partial sorting or general sorting API; optimized Skip/Take remain separate."
     },
     {
       "path": "library/Cilica.Core/MapSort.cs",

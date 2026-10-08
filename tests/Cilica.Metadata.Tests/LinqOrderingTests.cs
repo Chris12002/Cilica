@@ -33,8 +33,7 @@ public sealed class LinqOrderingTests
             (from a in new[] { -1, 1 } from b in Enumerable.Range(-1, 300) select (a, b)).ToArray(), persistentRoots: true);
     }
     [Theory]
-    [InlineData("UnsupportedWide", "Delegate requires")] [InlineData("UnsupportedUnsigned", "Delegate requires")]
-    [InlineData("UnsupportedString", "Default comparer requires exact")]
+    [InlineData("UnsupportedUnsigned", "Delegate requires")]
     public async Task Unimplemented_key_profiles_remain_diagnostic(string name, string diagnostic)
     {
         using var files = new ResolverFiles();
@@ -45,6 +44,14 @@ public sealed class LinqOrderingTests
         var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(OrderingProbe).GetMethod(name)!.MetadataToken);
         var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains(diagnostic, StringComparison.Ordinal));
+    }
+    [Theory]
+    [InlineData(false, "UnsupportedWide")] [InlineData(true, "UnsupportedWide")]
+    [InlineData(false, "UnsupportedString")] [InlineData(true, "UnsupportedString")]
+    public async Task Previously_rejected_wide_and_explicit_ordinal_cardinality_probes_execute(bool optimized, string name)
+    {
+        var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(OrderingProbe), [name]))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized, [(name, program, typeof(OrderingProbe).GetMethod(name)!.CreateDelegate<Func<int,int,int>>())], expectedStaticRoots:3);
     }
     [Theory]
     [InlineData(false)] [InlineData(true)]
