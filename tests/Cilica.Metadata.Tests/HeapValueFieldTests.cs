@@ -24,7 +24,7 @@ public sealed class HeapValueFieldTests
     }
 
     [Fact]
-    public async Task Compound_struct_return_stores_remain_diagnostic_until_destination_order_is_lowered()
+    public async Task Nullable_compound_struct_return_stores_remain_diagnostic()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -35,7 +35,7 @@ public sealed class HeapValueFieldTests
         var result = ValueTranslator.TranslateIntegerObjects(scope, input,
             (System.Reflection.Metadata.MethodDefinitionHandle)System.Reflection.Metadata.Ecma335.MetadataTokens.EntityHandle(typeof(HeapValueProbe).GetMethod("CompoundStore")!.MetadataToken), implementation);
         Assert.False(result.Success); Assert.Null(result.Program);
-        Assert.Contains(result.Diagnostics, d => d.Message.Contains("destination/exception-order", StringComparison.Ordinal));
+        Assert.Contains(result.Diagnostics, d => d.Message.Contains("destination proven non-null", StringComparison.Ordinal));
     }
 
     [Fact]

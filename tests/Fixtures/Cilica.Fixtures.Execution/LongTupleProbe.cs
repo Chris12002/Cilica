@@ -59,7 +59,7 @@ namespace Cilica.Fixtures.Execution
             try { result=left.Equals(right)?17:19; } catch(InvalidOperationException e) { result=Observe(e.Message); }
             return unchecked(result+trace.Value*31+left.Item1.Value*7+left.Rest.Item1.Value*11);
         }
-        public static int UnsupportedHeapReturn(int a,int b) { var h=new LongTupleHolder(); h.Value=Make(a,b); return Read(h.Value); }
+        public static int HeapReturn(int a,int b) { var h=new LongTupleHolder(); h.Value=Make(a,b); return Read(h.Value); }
         public static int UnsupportedHash(int a,int b) => (a,b,a,b,a,b,a,b).GetHashCode();
         public static int UnsupportedText(int a,int b) => (a,b,a,b,a,b,a,b).ToString().Length;
     }

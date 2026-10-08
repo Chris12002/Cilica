@@ -61,8 +61,8 @@ public sealed class NullableLibraryTests
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = resolver.OpenInput(typeof(NullableProbe).Assembly.Location).Value!;
         var results = Probes.Select(p => p.Name).Where(n => n != "DirectOperators").Concat(MemberGaps)
-            .Append(nameof(NullableProbe.UnsupportedText)).Append(nameof(NullableProbe.UnsupportedHeapReturn))
-            .Append(nameof(NullableProbe.UnsupportedEnumWidth)).Append(nameof(NullableProbe.UnsupportedEnumVisibility)).ToDictionary(name => name, name =>
+            .Append(nameof(NullableProbe.UnsupportedText)).Append(nameof(NullableProbe.HeapReturn))
+            .Append(nameof(NullableProbe.UnsupportedEnumWidth)).Append(nameof(NullableProbe.InternalEnumFields)).ToDictionary(name => name, name =>
             ValueTranslator.TranslateIntegerObjects(scope, input,
                 (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(NullableProbe).GetMethod(name)!.MetadataToken), implementation));
         // C# normally lowers conversions to ctor/Value, so exercise the actual
@@ -102,6 +102,15 @@ public sealed class NullableLibraryTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized, probes);
     }
 
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Returned_nullable_and_internal_enum_fields_match_dotnet(bool optimized)
+    {
+        var results = await Results.Value;
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized, [
+            (nameof(NullableProbe.HeapReturn), results[nameof(NullableProbe.HeapReturn)].Program!, NullableProbe.HeapReturn),
+            (nameof(NullableProbe.InternalEnumFields), results[nameof(NullableProbe.InternalEnumFields)].Program!, NullableProbe.InternalEnumFields)]);
+    }
+
     [Fact]
     public async Task Nullable_boxing_and_unimplemented_members_never_fall_back_to_struct_semantics()
     {
@@ -109,16 +118,9 @@ public sealed class NullableLibraryTests
         var text = results[nameof(NullableProbe.UnsupportedText)];
         Assert.False(text.Success);
         Assert.Contains("primitive fallbacks", Assert.Single(text.Diagnostics).Message, StringComparison.Ordinal);
-        var heapReturn = results[nameof(NullableProbe.UnsupportedHeapReturn)];
-        Assert.False(heapReturn.Success);
-        Assert.Contains("Direct struct-return calls stored into heap fields", Assert.Single(heapReturn.Diagnostics).Message, StringComparison.Ordinal);
         var enumWidth = results[nameof(NullableProbe.UnsupportedEnumWidth)];
         Assert.False(enumWidth.Success);
         Assert.Contains("NullableSmallKind", Assert.Single(enumWidth.Diagnostics).Message, StringComparison.Ordinal);
-        var enumVisibility = results[nameof(NullableProbe.UnsupportedEnumVisibility)];
-        Assert.False(enumVisibility.Success);
-        // Scalar shape is now admitted; the separate internal field access remains outside this profile.
-        Assert.Contains("Fields require the same declaring owner", Assert.Single(enumVisibility.Diagnostics).Message, StringComparison.Ordinal);
         foreach (string name in MemberGaps)
         {
             var result = results[name];

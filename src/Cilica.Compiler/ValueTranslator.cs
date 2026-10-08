@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v109";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v110";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -218,13 +218,15 @@ public static class ValueTranslator
             var input = method.Input;
             var locals = method.Locals.ToBuilder();
             var constructorTemporaries = new Dictionary<int, int>();
+            var returnedFields = new HashSet<(int Block, int Receiver, int Offset)>();
             var constrainedPrefixes = method.ConstrainedCalls.Values.Concat(method.EnumCompareCalls.Values).Concat(method.EnumTextCalls.Values).Select(c => c.PrefixOffset)
                 .Concat(method.ConstrainedReferenceCalls.Values.Select(c => c.PrefixOffset)).ToHashSet();
             // Re-reading a carried class receiver is valid only while its argument
             // slot cannot be changed through a managed address. Direct starg.0 is
             // separately rejected for every instance method.
-            bool stableConstructorReceiver = types.IntegerCasts && method.Binding.Kind == ObjectMethodKind.Constructor
+            bool stableReferenceReceiver = types.IntegerCasts && method.Binding.Kind is (ObjectMethodKind.Constructor or ObjectMethodKind.Instance)
                 && !input.Instructions.Any(i => i.OpCode is "ldarga" or "ldarga.s" && i.IntegerOperand == 0);
+            bool stableConstructorReceiver = stableReferenceReceiver && method.Binding.Kind == ObjectMethodKind.Constructor;
             if (input.Instructions.IsEmpty) Error(0, "Method body is empty.");
             var boundaries = method.ExceptionRegions.SelectMany(r => new[] { r.TryStart, r.TryEnd, r.HandlerStart, r.HandlerEnd, r.FilterStart ?? r.HandlerStart });
             var partition = CilControlFlow.Partition(input, (code, message, offset) => Error(offset, message, code), boundaries, exceptions is not null, switches: types.IntegerCasts);
@@ -250,10 +252,15 @@ public static class ValueTranslator
             for (int id = 0; id < blocks.Length; id++)
                 if (blocks[id] is null) Error(input.Instructions[partition.Ranges[id].Start].Offset,
                     "Unreachable blocks require later analysis; remove dead IL before value translation.", DiagnosticIds.ExecutionUnsupported);
-            return new(input.Source, method.Parameters, method.ReturnType, [.. blocks], locals.ToImmutable()) { ExceptionRegions = regions, GenericArrays = method.GenericArrays };
+            var translated = new IrMethod(input.Source, method.Parameters, method.ReturnType, [.. blocks], locals.ToImmutable()) { ExceptionRegions = regions, GenericArrays = method.GenericArrays };
+            if (returnedFields.Count != 0)
+                NonNullFieldReturnProof.Validate(translated, stableConstructorReceiver, stableReferenceReceiver, returnedFields,
+                    (offset, message, limit) => Error(offset, message, limit ? DiagnosticIds.TranslationLimit : DiagnosticIds.ExecutionUnsupported));
+            return translated;
 
             IrBlock Block(int id)
             {
+                returnedFields.RemoveWhere(item => item.Block == id);
                 var (start, end) = partition.Ranges[id]; int blockOffset = input.Instructions[start].Offset;
                 int switchCase = partition.SwitchCases.GetValueOrDefault(id);
                 if (switchCase > 0) blockOffset += 5 + 4 * (switchCase - 1);
@@ -817,7 +824,11 @@ public static class ValueTranslator
                                 else if (opcode == "stfld")
                                 {
                                     if (fieldType.Kind == IrTypeKind.Value && valueExpressions[fieldValue] is IrExpression.Call)
-                                        Error(offset, "Direct struct-return calls stored into heap fields need destination/exception-order lowering; materialized copies and explicit managed locations are supported.", DiagnosticIds.ExecutionUnsupported);
+                                    {
+                                        if (!types.IntegerCasts)
+                                            Error(offset, NonNullFieldReturnProof.Unsupported, DiagnosticIds.ExecutionUnsupported);
+                                        returnedFields.Add((id, receiver, offset));
+                                    }
                                     Add(new IrStatement.StoreField(offset, field.Id, receiver, fieldValue), offset);
                                 }
                                 else Push(offset, IrType.Location(fieldType, (field.Attributes & FieldAttributes.InitOnly) != 0), new IrExpression.AddressField(field.Id, receiver), true);

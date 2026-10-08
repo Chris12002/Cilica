@@ -285,7 +285,7 @@ namespace Cilica.Fixtures.Execution
             return (object)value == null ? a : ~a;
         }
         public static int EnumBox(int a, int b) { NullableKind? value = (NullableKind)a; return (object)value == null ? a : b; }
-        public static int UnsupportedHeapReturn(int a, int b)
+        public static int HeapReturn(int a, int b)
         {
             var holder = new NullableHolder();
             holder.Value = Make(a);
@@ -293,7 +293,7 @@ namespace Cilica.Fixtures.Execution
         }
         private static int ReadId(NullableId value) => value.Value;
         public static int StaticInline(int a, int b) => ReadId(NullableStaticValues.Value);
-        public static int UnsupportedEnumVisibility(int a, int b) { var holder = new NullableInternalEnumHolder(); holder.Value = (NullableInternalKind)a; return (int)holder.Value; }
+        public static int InternalEnumFields(int a, int b) { var holder = new NullableInternalEnumHolder(); holder.Value = (NullableInternalKind)a; return (int)holder.Value; }
         public static int UnsupportedEnumWidth(int a, int b) { NullableSmallKind? value = new NullableSmallKind?((NullableSmallKind)a); return (int)value.Value; }
         public static int ScalarBox(int a, int b) { int? value = a; object boxed = value; return boxed == null ? a : b; }
         public static int EmptyScalarBox(int a, int b) { int? value = default; object boxed = value; return boxed == null ? a : b; }

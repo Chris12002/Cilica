@@ -4937,3 +4937,22 @@ Diagnostic string charging measures 352,292 UTF-16 units, above production 262,1
 only the audit copy receives more room. The fixed frozen engine reaches aggregate
 value-IR capacity after discovery/access validation. Neither root emits C++; full
 engine closure and saved-game replay remain incomplete. See ADR AC0229.
+
+
+### Proven non-null field returns (AC8.86)
+
+The integer-object translator now admits a direct struct-return call stored into
+an instance field when the receiver is proven non-null before RHS evaluation.
+A bounded forward analysis intersects local/input facts across incoming edges,
+recognizes stable constructor receivers and allocations, and excludes address-taken
+locals. A completed field access also proves a stable instance receiver for later
+loads and normal successors. Exception entries and finally-capable leaves drop local facts. It never
+moves a null check, reads a receiver again, or changes the existing caller-owned
+return packet and final field-copy lowering.
+
+All 32 selected checks pass, including 3,948 new O0/O2 native/.NET comparisons
+with forced collection and ASan/UBSan. Nullable destinations, nullable loop paths,
+borrowed aliases and finally mutation remain diagnostic. CIL110 identifies the
+new admission; IR65, native81, runtime and production resource limits are unchanged.
+The proof has its own 1,048,576-work cap per method. See ADR AC0230 for the caught
+exception-order regression, converted reference, review and frozen body inventory.

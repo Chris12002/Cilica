@@ -15,11 +15,11 @@ using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class LongTupleTests
 {
-    private static readonly string[] Names = ["Single", "Fields", "Copies", "Heap", "Arrays", "Boxing", "Nullable", "InvalidRest", "PublicTupleInterfaceIsInsufficient", "NestedDefaultRest", "Equality", "RestEffects"];
+    private static readonly string[] Names = ["Single", "Fields", "Copies", "Heap", "Arrays", "Boxing", "Nullable", "InvalidRest", "PublicTupleInterfaceIsInsufficient", "NestedDefaultRest", "Equality", "RestEffects", "HeapReturn"];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() => CoreLibraryBuildTests.TranslateFixtures(typeof(LongTupleProbe), Names));
     [Theory]
     [InlineData(false,0)] [InlineData(true,0)] [InlineData(false,1)] [InlineData(true,1)]
-    [InlineData(false,2)] [InlineData(true,2)] [InlineData(false,3)] [InlineData(true,3)]
+    [InlineData(false,2)] [InlineData(true,2)] [InlineData(false,3)] [InlineData(true,3)] [InlineData(false,4)] [InlineData(true,4)]
     public async Task Tuple_storage_rest_validation_and_equality_match_dotnet(bool optimized,int group)
     {
         var programs=await Programs.Value;
@@ -36,10 +36,10 @@ public sealed class LongTupleTests
         var input=resolver.OpenInput(typeof(LongTupleProbe).Assembly.Location).Value!;
         MethodDefinitionHandle Method(string name)=>(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LongTupleProbe).GetMethod(name)!.MetadataToken);
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,bytes,built.ManifestSha256).Value!;
-        foreach(var name in new[]{"UnsupportedHash","UnsupportedText","UnsupportedHeapReturn"})
+        foreach(var name in new[]{"UnsupportedHash","UnsupportedText"})
         {
             var result=ValueTranslator.TranslateIntegerObjects(scope,input,Method(name),implementation);
-            Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Message.Contains(name=="UnsupportedHeapReturn" ? "destination/exception-order lowering" : "no implemented managed body",StringComparison.Ordinal));
+            Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Message.Contains("no implemented managed body",StringComparison.Ordinal));
         }
         var manifest=JsonSerializer.Deserialize<LibraryBuildManifest>(bytes,new JsonSerializerOptions{Converters={new JsonStringEnumConverter<LibraryIntrinsicCapability>()}})!;
         var artifact=Assert.Single(manifest.Artifacts);

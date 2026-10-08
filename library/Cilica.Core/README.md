@@ -1471,3 +1471,14 @@ Diagnostic string charging measures 352,292 UTF-16 units, above production 262,1
 only the audit copy receives more room. The fixed frozen engine reaches aggregate
 value-IR capacity after discovery/access validation. Neither root emits C++; full
 engine closure and saved-game replay remain incomplete. See ADR AC0229.
+
+
+### Proven non-null field returns (AC8.86)
+
+CIL110 accepts direct returned values in heap fields only with a non-null receiver
+proof established before RHS evaluation. Constructor/allocated holders, nullable
+payloads and long tuples reuse rooted caller return packets and final field copies.
+All 32 selected checks pass (3,948 new sanitized O0/O2 comparisons); nullable or
+unproven destinations remain diagnostic. Owned core, grants, IR65/native81 and
+runtime budgets are unchanged. Full engine closure/replay remain incomplete;
+see ADR AC0230.

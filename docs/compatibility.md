@@ -1541,8 +1541,9 @@ The integer-object profile now supports closed inline values in heap fields
 (ADR 0139), including nested references/Int64, inheritance, empty values and
 checked borrows. Scalar components preserve declaring field identity and trace
 embedded references without boxing. Direct struct-return call results assigned
-to heap fields remain diagnostic pending destination/exception-order lowering;
-ordinary value copies and explicit byref assignments are tested.
+to heap fields are admitted in the integer-object profile when the receiver is
+proven non-null before RHS evaluation (ADR AC0230). Nullable destinations remain
+diagnostic; ordinary value copies and explicit byref assignments are tested.
 
 
 The direct-core dictionary trial (ADR 0141) adapts pinned bucket-chain lookup,
