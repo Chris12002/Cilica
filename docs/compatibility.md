@@ -4789,3 +4789,19 @@ scan next stops at String.LastIndexOf(Char) in SurfaceOccupants.SettleDrops. A s
 reduced probe retains the duplicate-text diagnostic for non-sealed reference values
 such as List<string>; the full Dispel path is not yet admitted. No engine C++ emission,
 native engine run or saved-game replay. See ADR AC0219.
+
+
+### Reverse character search (AC8.76)
+
+String.LastIndexOf now implements the Char, Char/startIndex and Char/startIndex/count
+overloads through bounded managed UTF-16 scans. Preserve the pinned empty-string return
+before validating bounds, then validate startIndex before count with exact parameter
+names/messages. Count zero performs no reads. String needles, comparison modes and
+LastIndexOfAny remain diagnostic. No new grants, compiler profiles, runtime operations
+or production quotas; CIL106/object IR63/interface20/native79 remain unchanged.
+
+All 30 forward/reverse search checks pass, including 5,640 new repeated O0/O2 native/.NET
+comparisons, ASan/UBSan, forced collection and exact frame/root cleanup. The frozen engine
+passes SurfaceOccupants.LastIndexOf and reaches the three-argument Enumerable.Contains
+call in ForcedMovementOperation.OneOf. Full native engine/replay and the independently
+confirmed polymorphic sorted-dictionary duplicate-text gap remain open. See ADR AC0220.

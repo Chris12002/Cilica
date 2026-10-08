@@ -710,9 +710,9 @@
     {
       "path": "library/Cilica.Core/StringSearching.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Searching.cs",
-      "algorithms": ["AC7b.21 IndexOf(Char), IndexOf(Char,Int32) and IndexOf(Char,Int32,Int32), including ordered range validation."],
+      "algorithms": ["AC7b.21 IndexOf(Char), IndexOf(Char,Int32) and IndexOf(Char,Int32,Int32), including ordered range validation.", "AC8.76 LastIndexOf(Char), LastIndexOf(Char,Int32) and LastIndexOf(Char,Int32,Int32), preserving the empty-string shortcut before range validation."],
       "changes": ["A checked managed UTF-16 scan replaces SpanHelpers/Unsafe scanning; exact pinned range messages and parameter names remain."],
-      "scope": "Character search only. String needles, comparison modes and IndexOfAny remain unmapped; no culture or case folding."
+      "scope": "Character search only. String needles, comparison modes and IndexOfAny/LastIndexOfAny remain unmapped; no culture or case folding."
     },
     {
       "path": "library/Cilica.Core/EqualityComparer.cs",
