@@ -879,15 +879,16 @@
         "Four-word equality and XOR hash",
         "Unsigned field-order comparison",
         "D/N/B/P/X hexadecimal formatting and format validation",
-        "String constructor, Parse and TryParse share status-based validation and copy four words only after successful parsing; TryParse clears the output on failure."
+        "String constructor, Parse and TryParse share status-based validation and copy four words only after successful parsing; TryParse clears the output on failure.",
+        "AC8.84: TryParseExact(String, String, out Guid) selects D/N/B/P/X, accepts either case and resets the output on all parse failures."
       ],
       "changes": [
         "Pack narrow fields into four managed Int32 words; no unsafe aliases, vectors, spans, serialization layout or native ABI claim.",
         "Use bounded managed string composition and hexadecimal digits in place of pointer/span writes.",
         "Retain the pinned English Guid error resources from src/libraries/System.Private.CoreLib/src/Resources/Strings.resx.",
-        "Omit ParseExact, provider/span/byte parsing, random generation and other unimplemented members; string construction, Parse and TryParse are recorded in GuidParsing.cs."
+        "Omit ParseExact, provider/span/byte parsing, random generation and other unimplemented members; string construction, Parse, TryParse and TryParseExact are recorded in GuidParsing.cs."
       ],
-      "scope": "Owned-core numeric and string constructors, Parse(String), TryParse(String, out Guid), Empty, typed equality/hash/comparison and standard formatting. Boxed overload admission follows the compiler profile; hash evidence is the pinned local little-endian oracle."
+      "scope": "Owned-core numeric and string constructors, Parse(String), TryParse(String, out Guid), TryParseExact(String, String, out Guid), Empty, typed equality/hash/comparison and standard formatting. Boxed overload admission follows the compiler profile; hash evidence is the pinned local little-endian oracle."
     },
     {
       "path": "library/Cilica.Core/Dictionary.cs",
@@ -1731,9 +1732,10 @@
       "contracts": [
         "Guid(String), Guid.Parse(String) and Guid.TryParse(String, out Guid) D/N/B/P/X parsing, Unicode whitespace trimming, all-whitespace removal inside X and pinned legacy +/0x spellings.",
         "Exact null/format/overflow exception order and resources, including constructor-specific UInt32 versus byte overflow behavior and the static Parse FormatException policy.",
-        "Four-word copy after complete parsing; TryParse returns false and default(Guid) on null, invalid or overflowing input without creating a parsing exception. Shared UnicodeWhitespace classification with String.IsNullOrWhiteSpace."
+        "Four-word copy after complete parsing; TryParse returns false and default(Guid) on null, invalid or overflowing input without creating a parsing exception. Shared UnicodeWhitespace classification with String.IsNullOrWhiteSpace.",
+        "AC8.84: TryParseExact selects one standard format through existing validation; requires a single format character and resets output after null, mismatched, malformed or overflowing input. Format text is not trimmed."
       ],
-      "scope": "String constructor, Parse(String) and TryParse(String, out Guid) only; provider/span parsing, ParseExact, byte constructors and random generation remain unmapped. Bounded Int32 result buffer and optional character/string whitespace copy replace explicit layouts and spans. Private overflow state uses Int32 borrowing, delimiter selection precedes borrowing, and scalar array words use explicit loads/stores."
+      "scope": "String constructor, Parse(String), TryParse(String, out Guid) and TryParseExact(String, String, out Guid) only; provider/span parsing, ParseExact, byte constructors and random generation remain unmapped. Bounded Int32 result buffer and optional character/string whitespace copy replace explicit layouts and spans. Private overflow state uses Int32 borrowing, delimiter selection precedes borrowing, and scalar array words use explicit loads/stores."
     },
     {
       "path": "library/Cilica.Core/ComparisonSort.cs",

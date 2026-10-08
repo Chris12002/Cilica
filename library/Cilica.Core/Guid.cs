@@ -40,6 +40,15 @@ namespace System
             return true;
         }
 
+        public static bool TryParseExact(string input, string format, out Guid result)
+        {
+            int error;
+            var words = Cilica.Runtime.GuidParsing.TryParseExact(input, format, out error);
+            if (words == null) { result = default(Guid); return false; }
+            result = new Guid(words);
+            return true;
+        }
+
         private Guid(int[] words)
         { a = words[0]; bc = words[1]; defg = words[2]; hijk = words[3]; }
 

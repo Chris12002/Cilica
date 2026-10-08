@@ -41,6 +41,28 @@ namespace Cilica.Runtime
             return Standard(text, start, length, text[start + 8] == '-', out error);
         }
 
+        internal static int[] TryParseExact(string text, string format, out int error)
+        {
+            error = 0;
+            if (text == null || format == null || format.Length != 1 || text.Length < 32)
+                return Failure(9, out error);
+            int start = 0, end = text.Length;
+            while (start < end && UnicodeWhitespace.Contains(text[start])) start++;
+            while (end > start && UnicodeWhitespace.Contains(text[end - 1])) end--;
+            int length = end - start;
+            int kind = format[0] | 0x20;
+            if (kind == 'd') return Standard(text, start, length, true, out error);
+            if (kind == 'n') return Standard(text, start, length, false, out error);
+            if (kind == 'b' || kind == 'p')
+            {
+                if (length != 38 || text[start] != (kind == 'b' ? '{' : '(') ||
+                    text[end - 1] != (kind == 'b' ? '}' : ')')) return Failure(8, out error);
+                return Standard(text, start + 1, 36, true, out error);
+            }
+            if (kind == 'x') return Expanded(Compact(text, start, length), out error);
+            return Failure(9, out error);
+        }
+
         private static int[] Standard(string text, int start, int length, bool dashed, out int error)
         {
             error = 0;

@@ -4067,3 +4067,17 @@ change. Frozen discovery passes Sign and exhausts 8,192 diagnostic snapshot fiel
 A diagnostic-only increase to 16,384 reaches Guid.TryParseExact in shield-option
 parsing; StateLookup validates 15 methods. Both emission fields are null. Full
 closure/replay remain incomplete; see ADR AC0227.
+
+### Exact Guid string parsing (AC8.84)
+
+Guid.TryParseExact(String,String,out Guid) now selects D/N/B/P/X explicitly,
+preserving case handling, Unicode whitespace, legacy grammar and default output
+on failure. Converted shield parsing and pinned Guid.cs guided the change. All
+16 distinct focused/adjacent checks pass, including 13,230 new sanitized O0/O2
+native/.NET comparisons with forced collection and borrowed storage. Profiles,
+grants, runtime and production budgets remain unchanged.
+
+Frozen discovery reaches the dynamic type-name string budget after 15,253 bodies;
+StateLookup validates 15 methods. Both audit emission fields are null. Full engine
+IR admission and saved-game replay remain incomplete. See ADR AC0228 for exact
+validation, the fixture correction and diagnostic timeout/follow-up evidence.
