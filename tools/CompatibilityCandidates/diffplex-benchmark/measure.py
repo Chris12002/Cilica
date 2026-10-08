@@ -1,6 +1,6 @@
 """Owned Linux-only comparison driver. Execute only in the approved offline guest."""
 from pathlib import Path
-import os,subprocess,time,json,statistics,hashlib,math
+import os,subprocess,time,json,statistics,hashlib,math,threading
 out=Path('/evidence'); rows=[]; started=time.monotonic()
 env=os.environ.copy();env.update(DOTNET_TieredCompilation='0',DOTNET_ReadyToRun='0',DOTNET_gcServer='0',DOTNET_PROCESSOR_COUNT='2')
 commands={'dotnet':['dotnet','/work/dotnet-host/DotNetHost.dll'],'cilica':['/work/out/native-bench']}
@@ -9,12 +9,17 @@ def run(runtime,mode,work,iterations=None,label=''):
     stdout=out/(name+'.jsonl');stderr=out/(name+'.stderr');t=time.perf_counter()
     with stdout.open('wb') as so,stderr.open('wb') as se:
         p=subprocess.Popen(args,stdout=so,stderr=se,env=env)
-        while True:
-            pid,status,usage=os.wait4(p.pid,os.WNOHANG)
-            if pid:break
-            if time.perf_counter()-t>180 or time.monotonic()-started>1500:
-                p.kill();os.wait4(p.pid,0);raise TimeoutError(name)
-            time.sleep(.01)
+        budget=min(180,1500-(time.monotonic()-started))
+        if budget<=0:p.kill();p.wait();raise TimeoutError(name)
+        timed_out=[]
+        def stop():
+            timed_out.append(True)
+            try:p.kill()
+            except ProcessLookupError:pass
+        watchdog=threading.Timer(budget,stop);watchdog.start()
+        try:pid,status,usage=os.wait4(p.pid,0)
+        finally:watchdog.cancel()
+        if timed_out:raise TimeoutError(name)
         p.returncode=os.waitstatus_to_exitcode(status)
     row={'name':name,'runtime':runtime,'mode':mode,'workload':work,'iterations':iterations,'wall_seconds':time.perf_counter()-t,'user_seconds':usage.ru_utime,'system_seconds':usage.ru_stime,'peak_rss_kib':usage.ru_maxrss,'exit_code':p.returncode,'records':[json.loads(x) for x in stdout.read_text().splitlines()]}
     rows.append(row);(out/'measurement-progress.json').write_text(json.dumps(rows,indent=2))
