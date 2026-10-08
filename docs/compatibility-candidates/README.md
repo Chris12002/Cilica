@@ -131,3 +131,9 @@ invoke NativeEvidence.Record at the same two points. Preserve failed source-only
 receipts and distinguish them from executed outputs. These receipts do not contain
 the generated source itself. This change does not recover the historical CRC32
 emitted-source hashes; that report's limitation remains explicit.
+
+## Pending CircularBuffer trial
+
+The [frozen selected-root plan](circularbuffer-execution-plan.md) and
+[hashed proposal](circularbuffer-execution-proposal.json) are ready for separate
+execution approval. No CircularBuffer source has been staged, compiled or run.
