@@ -149,6 +149,7 @@ namespace System
     {
         [MethodImpl(MethodImplOptions.InternalCall)] public extern Exception();
         [MethodImpl(MethodImplOptions.InternalCall)] public extern Exception(string message);
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern Exception(string message, Exception innerException);
         public extern Exception InnerException { [MethodImpl(MethodImplOptions.InternalCall)] get; }
         public virtual extern string Message { [MethodImpl(MethodImplOptions.InternalCall)] get; }
     }

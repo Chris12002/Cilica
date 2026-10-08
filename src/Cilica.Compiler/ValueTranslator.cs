@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v78";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v79";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -442,7 +442,7 @@ public static class ValueTranslator
                                 Error(offset, "Actual-value range faults require null or a directly boxed selected Int32 in the same block; aliases and other payloads need later lowering.", DiagnosticIds.ExecutionUnsupported);
                             Push(offset, IrType.Reference(actualFault.Type), new IrExpression.NewException(actualFault.Type,
                                 Message: actualMessage, ParameterName: actualName, ActualValue: actualValue), true); break;
-                        case "newobj" when method.Intrinsics.TryGetValue(offset, out var wrapper) && wrapper.Kind == ValueIntrinsic.NewInvalidOperationInner:
+                        case "newobj" when method.Intrinsics.TryGetValue(offset, out var wrapper) && wrapper.Kind is ValueIntrinsic.NewInvalidOperationInner or ValueIntrinsic.NewMessageInnerException:
                             int wrappedException = Pop(offset, IrType.Reference(exceptions!.Base));
                             int wrapperMessage = Pop(offset, IrType.Reference(stringType!));
                             Push(offset, IrType.Reference(wrapper.Type), new IrExpression.NewException(wrapper.Type,

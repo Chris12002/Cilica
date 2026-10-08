@@ -202,6 +202,7 @@ public static partial class ValueProgramDiscovery
                 {
                     ValidateExceptionConstructor(target, work, offset, 0);
                     if (signature.Parameters.Count != 0) _ = IncludeString(work, offset);
+                    if (MessageInnerSignature(signature)) return new(ValueIntrinsic.NewMessageInnerException, owner, 2);
                     bool named = _exceptionResources.Any(r => r.Type == owner && r.Kind is ExceptionResourceKind.ArgumentNull or ExceptionResourceKind.ArgumentOutOfRange);
                     int count = signature.Parameters.Count;
                     return new(ValueIntrinsic.NewException, owner, count,
@@ -249,6 +250,11 @@ public static partial class ValueProgramDiscovery
             void Authorize(LibraryIntrinsicCapability capability) =>
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(target.DeclaringType.Definition.Assembly, target.Handle, capability), work, offset);
         }
+        private bool MessageInnerSignature(MethodSignature signature) => integers64 && signature.Parameters.Count == 2
+            && signature.Parameters[0] is TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
+            && signature.Parameters[1] is TypeSignature.Named { Kind: SignatureTypeKind.Class } inner
+            && ObjectModelBuilder.Id(inner.Definition) == _exceptionBase;
+
         private void ValidateExceptionConstructor(ResolvedMethod target, Work work, int offset, int depth)
         {
             var owner = ClosedId(target.DeclaringType, work, offset); var id = new IrMethodId(owner.ContentHash, MetadataTokens.GetToken(target.Handle));
@@ -257,14 +263,17 @@ public static partial class ValueProgramDiscovery
             if (depth >= ObjectModelLimits.MaximumOwnerDepth) Fail(work, "Exception forwarding constructor depth exceeded.", offset, DiagnosticIds.TranslationLimit);
             const MethodAttributes flags = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
             bool named = _exceptionResources.Any(r => r.Type == owner && r.Kind is ExceptionResourceKind.ArgumentNull or ExceptionResourceKind.ArgumentOutOfRange);
-            int maximum = owner == _argumentBase || named ? 2 : 1;
+            bool messageInner = MessageInnerSignature(signature);
+            int maximum = owner == _argumentBase || named || messageInner ? 2 : 1;
             if (input.DeclaredName != ".ctor" || !(input.Attributes == flags
                     || integers64 && input.Attributes == ((flags & ~MethodAttributes.MemberAccessMask) | MethodAttributes.Assembly)) || signature.Header != 0x20
                 || signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Void }
-                || input.Signature.GenericArity != 0 || signature.Parameters.Count > maximum || signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }))
-                Fail(work, "Exception construction requires an exact accessible supported string constructor; inner exceptions and actual values need later lowering.", offset);
+                || input.Signature.GenericArity != 0 || signature.Parameters.Count > maximum || !messageInner && signature.Parameters.Any(p => p is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }))
+                Fail(work, "Exception construction requires an exact accessible string or selected message/inner constructor; other payloads need later lowering.", offset);
             if (_frameworkExceptions.Contains(owner))
             {
+                if (messageInner && (owner != _exceptionBase || input.HasBody || input.Implementation != MethodImplAttributes.InternalCall))
+                    Fail(work, "Message/inner forwarding requires the exact selected Exception base constructor.", offset);
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(target.DeclaringType.Definition.Assembly, target.Handle,
                     LibraryIntrinsicCapability.ExceptionConstructor), work, offset);
                 if (owner != _exceptionBase && !_runtimeFaults.Any(b => b.Type == owner) && !_exceptionResources.Any(r => r.Type == owner))
@@ -288,12 +297,14 @@ public static partial class ValueProgramDiscovery
             }
             if (body.ExceptionRegionCount != 0 || !body.Locals.IsEmpty || body.HasTypeInitializer || body.HasModuleInitializer
                 || body.Implementation != MethodImplAttributes.IL || instructions.Length != count + 3
-                || instructions[0].OpCode != "ldarg.0" || count == 1 && instructions[1].OpCode != "ldarg.1"
+                || instructions[0].OpCode != "ldarg.0" || count >= 1 && instructions[1].OpCode != "ldarg.1"
+                || count == 2 && instructions[2].OpCode != "ldarg.2"
                 || instructions[^2].OpCode != "call" || instructions[^1].OpCode != "ret")
                 Fail(work, "Custom exception constructors must only forward their unchanged arguments to the direct base constructor; additional behavior cannot be skipped.", offset);
             var called = Require(resolver.ResolveClosedCall(target, MetadataTokens.EntityHandle(instructions[^2].IntegerOperand ?? 0), _metadata), work, offset);
             var parent = Snapshot(target.DeclaringType.Definition, work, offset).BaseType as TypeSignature.Named;
-            if (parent is null || ObjectModelBuilder.Id(parent.Definition) != ClosedId(called.DeclaringType, work, offset) || called.Signature.Parameters.Count != count)
+            if (parent is null || ObjectModelBuilder.Id(parent.Definition) != ClosedId(called.DeclaringType, work, offset) || called.Signature.Parameters.Count != count
+                || !called.Signature.Parameters.SequenceEqual(signature.Parameters))
                 Fail(work, "Custom exception constructor must call its direct base with the same signature.", offset);
             if (_exceptionResources.Any(r => r.Type == ClosedId(called.DeclaringType, work, offset)
                 && !(r.Kind == ExceptionResourceKind.System && count == 1)))

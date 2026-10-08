@@ -25,7 +25,7 @@ public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<Obj
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "managed-exceptions-ir-v8";
+    public const string Profile = "managed-exceptions-ir-v9";
 }
 
 public static class ManagedExceptionIrValidator
@@ -56,6 +56,7 @@ internal sealed class ManagedExceptionRules
     private readonly ObjectTypeId? _actualInteger;
     private readonly HashSet<ObjectTypeId> _types;
     private readonly ObjectTypeRelations _relations;
+    private readonly HashSet<ObjectTypeId> _messageInnerTypes;
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new ArgumentException("Invalid managed exception IR: " + message);
@@ -118,6 +119,29 @@ internal sealed class ManagedExceptionRules
                 && classes[initialization].BaseType == types.Resources.SingleOrDefault(r => r.Kind == ExceptionResourceKind.System)?.Type,
                 "type initialization requires the exact selected framework identity and ancestry.");
         _ = ManagedExceptionMessages.Build(types, catalog);
+        _messageInnerTypes = MessageInnerTypes(types, catalog);
+    }
+    // Share the exact allowed identities with native construction checks. Custom
+    // chains must reach Exception without crossing a framework resource family.
+    internal static HashSet<ObjectTypeId> MessageInnerTypes(ManagedExceptionTypes types, ObjectTypeCatalog catalog)
+    {
+        var allowed = new HashSet<ObjectTypeId>();
+        if (!catalog.Integer64) return allowed;
+        var excluded = types.RuntimeFaults.Select(r => r.Type).Concat(types.Resources.Select(r => r.Type)).ToHashSet();
+        if (types.TypeInitialization is { } initialization) excluded.Add(initialization);
+        var parents = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source), t => t.BaseType);
+        foreach (var type in types.Types)
+        {
+            var current = type;
+            for (int depth = 0; depth <= ObjectModelLimits.MaximumOwnerDepth; ++depth)
+            {
+                if (current == types.Base) { allowed.Add(type); break; }
+                if (excluded.Contains(current) || !parents.TryGetValue(current, out var parent) || parent is null) break;
+                current = parent;
+            }
+        }
+        if (types.Resources.SingleOrDefault(r => r.Kind == ExceptionResourceKind.InvalidOperation) is { } operation) allowed.Add(operation.Type);
+        return allowed;
     }
     internal bool Throwable(IrType type) => type == IrType.NullReference || type.Kind == IrTypeKind.Reference && _types.Contains(type.Class!);
     private bool StringOperand(int? operand, IReadOnlyList<IrType> values) => operand is null
@@ -134,7 +158,7 @@ internal sealed class ManagedExceptionRules
             && Types.Resources.Any(r => r.Type == creation.Type && r.Kind == ExceptionResourceKind.ArgumentOutOfRange)
             && creation.Message is not null && creation.ParameterName is not null && ActualValue(creation.ActualValue.Value, values, block))
         && (creation.Inner is null || (creation.Type == Types.TypeInitialization || _catalog.Integer64
-                && Types.Resources.Any(r => r.Type == creation.Type && r.Kind == ExceptionResourceKind.InvalidOperation)
+                && _messageInnerTypes.Contains(creation.Type)
                 && creation.Message is not null && creation.ParameterName is null && creation.ActualValue is null)
             && creation.Inner is int inner && inner >= 0 && inner < values.Count && Throwable(values[inner]))
         && (creation.Type == Types.TypeInitialization ? creation.TypeName is not null && _catalog.String is not null

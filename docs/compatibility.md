@@ -4188,3 +4188,15 @@ IR v51 record the contract; native v74, grants and limits are unchanged. Frozen
 engine discovery advances past Permits(PlayerId) to a custom message/inner-exception
 constructor in SetRangeModifier.DistanceFromFeet (1,019,328 metadata units).
 Full engine, unchanged fingerprint and saved-game replay execution remain unfinished.
+
+### Custom message/inner exception forwarding (AC8.57)
+
+Exception(String,Exception) and fieldless custom forwarding chains now preserve
+exact message/inner identity through existing traced payloads. Discovery checks
+every argument and direct-base constructor; both IR stages and native allocation
+share allowed wrapper identities. Side effects and unsupported framework families
+remain diagnostic. Eight probes supply 2,352 repeated native/.NET comparisons,
+with two additional GC/allocation-failure checks; all 90 selected checks pass.
+See ADR AC0183. Integer CIL v79, exception IR v9 and native v75 record the change.
+Frozen discovery advances to missing EqualityComparer<T> mapping in target
+selection (1,039,295 metadata units). Full engine/fingerprint/replay remains unfinished.

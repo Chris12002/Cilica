@@ -27,7 +27,7 @@ public sealed class InnerOperationTests
             (name, programs[i], typeof(InnerOperationProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray(), pairs);
     }
     [Theory]
-    [InlineData("UnsupportedBase")] [InlineData("UnsupportedArgument")] [InlineData("UnsupportedInnerFilter")]
+    [InlineData("UnsupportedArgument")] [InlineData("UnsupportedInnerFilter")]
     public async Task Other_inner_constructor_families_remain_diagnostic(string name)
     {
         using var files = new ResolverFiles();

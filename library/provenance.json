@@ -356,6 +356,12 @@
   ],
   "adaptations": [
     {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Exception.cs",
+      "contracts": ["AC8.57 exact Exception(String, Exception) grant and fieldless custom forwarding chains retain message and inner identity through existing traced payloads."],
+      "scope": "Integer-object profile only; public/same-assembly internal constructors must forward each unchanged argument directly. Side effects, virtual members, other framework constructor families and serialization remain unsupported."
+    },
+    {
       "path": "library/Cilica.Core/StringSplitting.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs",
       "algorithms": [

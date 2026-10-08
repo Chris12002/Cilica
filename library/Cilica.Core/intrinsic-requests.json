@@ -113,6 +113,13 @@
   },
   {
     "Namespace": "System",
+    "Type": "Exception",
+    "Member": ".ctor",
+    "ParameterCount": 2,
+    "Capability": "ExceptionConstructor"
+  },
+  {
+    "Namespace": "System",
     "Type": "SystemException",
     "Member": null,
     "ParameterCount": null,
