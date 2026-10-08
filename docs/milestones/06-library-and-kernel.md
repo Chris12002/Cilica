@@ -3384,3 +3384,14 @@ pass. See ADR AC0178. Profiles, grants and limits are unchanged. Frozen discover
 next reaches String.Split(char,StringSplitOptions) in DamageReplacementCheckpoint.
 RecordAnswers at 989,604 metadata units. Full engine/fingerprint/replay execution
 remains unfinished.
+
+### Character string splitting (AC7b.20)
+
+String.Split(Char,StringSplitOptions) now supports UTF-16 separators, empty-entry
+removal and Unicode trimming through managed scans and existing substring copies.
+Invalid flags and empty/input identities match the pinned runtime. Six probes
+supply 3,696 repeated native comparisons; all 29 selected checks pass. See ADR AC0179.
+Other split overloads remain diagnostic. Profiles, grants and limits are unchanged.
+Frozen discovery next reaches invariant Int64.TryParse with NumberStyles.None in
+RecordAnswers at 990,636 metadata units. Full engine/fingerprint/replay execution
+remains unfinished.

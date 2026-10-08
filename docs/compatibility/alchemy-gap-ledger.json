@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v74",
-    "nativeProfileEvidence": "Public baseline revalidated at AC3.31 on CIL v75/native v74/layout v26; 46 native controls and 1 diagnostic gap.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC7b.20 on CIL v75/native v74/layout v26; 46 native controls and 1 diagnostic gap.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 46,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "236e89884707addb0e83f6d6c0f7916afcf7c7f5150138d2c3bc5187394cfc32",
-    "latestSlice": "AC3.31",
+    "fixtureSha256": "6747aa44c8a8e333bd59412538bc6530d9171ff773ad83aea78b14c4a5a7aa90",
+    "latestSlice": "AC7b.20",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -646,7 +646,7 @@
     "AC7b": {
       "prerequisites": ["AC7a"],
       "status": "in-progress",
-      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3", "AC7b.4", "AC7b.5", "AC7b.6", "AC7b.7", "AC7b.8", "AC7b.9", "AC7b.10", "AC7b.11", "AC7b.12", "AC7b.13", "AC7b.14", "AC7b.15", "AC7b.16", "AC7b.17", "AC7b.18", "AC7b.19"],
+      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3", "AC7b.4", "AC7b.5", "AC7b.6", "AC7b.7", "AC7b.8", "AC7b.9", "AC7b.10", "AC7b.11", "AC7b.12", "AC7b.13", "AC7b.14", "AC7b.15", "AC7b.16", "AC7b.17", "AC7b.18", "AC7b.19", "AC7b.20"],
       "remaining": "Additional comparison modes, broader formatting, decoding and remaining text APIs. AC7b.1 uses existing UTF-16 string storage independently of the remaining AC7a array work."
     },
     "AC7b.1": {
@@ -778,6 +778,11 @@
       "prerequisites": ["AC7b.18"],
       "status": "complete-bounded-beforefieldinit-structs",
       "decision": "docs/decisions/AC0146-beforefieldinit-structs.md"
+    },
+    "AC7b.20": {
+      "prerequisites": ["AC7b.8", "AC3.31"],
+      "status": "complete-bounded-character-string-split",
+      "decision": "docs/decisions/AC0179-character-string-splitting.md"
     },
     "AC7b.19": {
       "prerequisites": ["AC8.53", "AC7b.1"],
