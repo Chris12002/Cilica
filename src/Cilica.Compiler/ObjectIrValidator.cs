@@ -156,18 +156,22 @@ internal sealed partial class ObjectIrRules
             bool primitiveInstance = binding.Kind == ObjectMethodKind.PrimitiveInstance;
             Require(!binding.ThrowingIntegerParser || binding.IntegerParser is not null, "throwing integer parser evidence requires a selected parser identity.");
             if (binding.IntegerParser is { } parser)
+            {
+                bool implicitStyle = binding.ThrowingIntegerParser && parser.Code == PrimitiveTypeCode.Int64;
                 Require(flow.Types.Integer64 && isStatic && !binding.InvariantProviderOnly && binding.Primitive is null
                     && binding.OwnerExternallyVisible && binding.Owner.Specialization == "" && binding.Owner.ContentHash == flow.Types.ObjectBase.ContentHash
                     && (parser.Code == PrimitiveTypeCode.Int32 && parser.Source is { Name: "System.Int32" }
                         || parser.Code == PrimitiveTypeCode.Int64 && parser.Source is { Name: "System.Int64" })
                     && ObjectTypeId.From(parser.Source) == binding.Owner && binding.TypeInitializerName is null && binding.VirtualSlot is null
                     && binding.Attributes == (MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig)
-                    && method.Parameters.Length == (binding.ThrowingIntegerParser ? 3 : 4) && method.Parameters[0] == StringType && method.Parameters[1] == IrType.Int32
-                    && method.Parameters[2].Class is { } parserProvider && _program.Flow.Types.Interfaces.Any(i => ObjectTypeId.From(i.Source) == parserProvider
+                    && method.Parameters.Length == (implicitStyle ? 2 : binding.ThrowingIntegerParser ? 3 : 4) && method.Parameters[0] == StringType
+                    && (implicitStyle || method.Parameters[1] == IrType.Int32)
+                    && method.Parameters[implicitStyle ? 1 : 2].Class is { } parserProvider && _program.Flow.Types.Interfaces.Any(i => ObjectTypeId.From(i.Source) == parserProvider
                         && i.Source.Name == "System.IFormatProvider" && parserProvider.ContentHash == flow.Types.ObjectBase.ContentHash)
-                    && (binding.ThrowingIntegerParser ? parser.Code == PrimitiveTypeCode.Int32
-                        : method.Parameters[3] == IrType.Location(parser.Code == PrimitiveTypeCode.Int32 ? IrType.Int32 : IrType.Int64)) && method.ReturnType == IrType.Int32,
+                    && (binding.ThrowingIntegerParser || method.Parameters[3] == IrType.Location(parser.Code == PrimitiveTypeCode.Int32 ? IrType.Int32 : IrType.Int64))
+                    && method.ReturnType == (implicitStyle ? IrType.Int64 : IrType.Int32),
                     "integer parsing requires the selected static Int32/Int64 declaration and exact String/style/provider signature with the matching result/output mode.");
+            }
             if (binding.InvariantProviderOnly)
                 Require(primitiveInstance && binding.Primitive?.Code != PrimitiveTypeCode.Char && method.Parameters.Length == 2 && method.ReturnType == StringType
                     && method.Parameters[1].Class is { } provider && _program.Flow.Types.Interfaces.Any(i => ObjectTypeId.From(i.Source) == provider
@@ -488,10 +492,16 @@ internal sealed partial class ObjectIrRules
         if (virtualDispatch ? allocation || !nullCheck || callee.VirtualSlot is null || !_dispatch.Has(target)
             : nullCheck && callee.VirtualSlot is not null
                 && (!_program.Flow.Types.Integer64 || (callee.Attributes & MethodAttributes.Final) == 0)) return false;
-        if (callee.IntegerParser is not null && (arguments.Length != (callee.ThrowingIntegerParser ? 3 : 4) || expressions is null
-            || arguments[1] < 0 || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.Constant parserStyle
-            || parserStyle.Value != (callee.IntegerParser.Code == PrimitiveTypeCode.Int32 ? 7 : 0)
-            || arguments[2] < 0 || arguments[2] >= expressions.Count || expressions[arguments[2]] is not IrExpression.InvariantCulture)) return false;
+        if (callee.IntegerParser is { } parser)
+        {
+            bool implicitStyle = callee.ThrowingIntegerParser && parser.Code == PrimitiveTypeCode.Int64;
+            int providerIndex = implicitStyle ? 1 : 2;
+            if (arguments.Length != (implicitStyle ? 2 : callee.ThrowingIntegerParser ? 3 : 4) || expressions is null
+                || !implicitStyle && (arguments[1] < 0 || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.Constant parserStyle
+                    || parserStyle.Value != (parser.Code == PrimitiveTypeCode.Int32 ? 7 : 0))
+                || arguments[providerIndex] < 0 || arguments[providerIndex] >= expressions.Count
+                || expressions[arguments[providerIndex]] is not IrExpression.InvariantCulture) return false;
+        }
         if (callee.InvariantProviderOnly && (arguments.Length != 2 || expressions is null || arguments[1] < 0
             || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.InvariantCulture)) return false;
         for (int index = 0; index < arguments.Length; index++)

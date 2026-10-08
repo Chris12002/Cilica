@@ -16,6 +16,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Int64.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Int64.cs",
+      "sha256": "b9ad0967b527a6deee20b35429cf8fc2df1f5c134f0122d3f63aeb870e650586"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Skip.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Skip.cs",
       "sha256": "f649486bac61d9288121a6452ecfdd177aea6c85ab57962be940f6958fa183c3"
@@ -505,9 +510,9 @@
     },
     {
       "path": "library/Cilica.Library/IntegerParsing.cs",
-      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs; System/Int32.cs; Resources/Strings.resx",
-      "contracts": ["AC5a.9 shared invariant Int32 Integer grammar with success/format/overflow status, zero TryParse output on failure, and exact Parse exceptions.", "Consume digits after overflow so invalid trailing text takes precedence; preserve ASCII whitespace and trailing NUL rules."],
-      "scope": "Exact Int32.Parse(String,NumberStyles,IFormatProvider) with directly proven Integer/InvariantCulture. Other overloads/styles/providers stay diagnostic; existing Int32.TryParse and Int64.None behavior remains."
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs; System/Int32.cs; System/Int64.cs; Resources/Strings.resx",
+      "contracts": ["AC5a.9/AC5a.11 invariant Int32/Int64 Integer grammars with success/format/overflow status and exact Parse exceptions; Int32 TryParse keeps zero output on failure.", "Consume digits after overflow so invalid trailing text takes precedence; preserve ASCII whitespace and trailing NUL rules."],
+      "scope": "Exact Int32.Parse(String,NumberStyles,IFormatProvider) with directly proven Integer/InvariantCulture, and Int64.Parse(String,IFormatProvider) with directly proven InvariantCulture and implicit Integer style. Other overloads/styles/providers stay diagnostic; existing Int32.TryParse and Int64.None behavior remains."
     },
     {
       "path": "library/Cilica.Core/CoreTypes.cs",

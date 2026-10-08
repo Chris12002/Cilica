@@ -4314,3 +4314,14 @@ labelled 32-bit width-emulation tests cover evaluation/fault order and GC. Actua
 32-bit ABI and full CRC project execution remain unverified. See
 [decision](decisions/compatibility-008-checked-native-indices.md) and
 [results](compatibility-candidates/batch-008-results.md).
+
+### Throwing invariant Int64 parsing (AC5a.11)
+
+Int64.Parse(String,IFormatProvider) now supports a directly proven InvariantCulture
+provider and implicit Integer style. Its full signed range, ASCII whitespace,
+trailing NULs and exact format/overflow precedence match .NET. Four probes supply
+2,202 repeated native comparisons; all 40 selected integer-parser checks pass,
+including 262,754 managed-only oracle cases. Integration with the separately
+committed checked-index slice passes 69 distinct selected checks. See ADR AC0194. The frozen engine next
+reaches constrained ElementGender.ToString; full engine, fingerprint and saved-game
+replay remain unfinished.

@@ -743,17 +743,17 @@ public static partial class ValueProgramDiscovery
                 var parser = Primitive(owner, parent, offset)!;
                 bool throwing = input.DeclaredName == "Parse";
                 var parameters = input.Signature.Parameters;
+                bool implicitStyle = throwing && parser.Code == PrimitiveTypeCode.Int64;
                 if (input.Attributes != (MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig)
-                    || input.Signature.Header != 0 || parameters.Count != (throwing ? 3 : 4)
-                    || throwing && parser.Code != PrimitiveTypeCode.Int32
-                    || input.Signature.ReturnType != new TypeSignature.Primitive(throwing ? PrimitiveTypeCode.Int32 : PrimitiveTypeCode.Boolean)
+                    || input.Signature.Header != 0 || parameters.Count != (implicitStyle ? 2 : throwing ? 3 : 4)
+                    || input.Signature.ReturnType != new TypeSignature.Primitive(throwing ? parser.Code : PrimitiveTypeCode.Boolean)
                     || parameters[0] != new TypeSignature.Primitive(PrimitiveTypeCode.String)
-                    || parameters[1] is not TypeSignature.Named { Kind: SignatureTypeKind.ValueType } style
-                    || style.Definition != Require(resolver.ResolveType(library, "System.Globalization", "NumberStyles"), parent, offset)
-                    || parameters[2] is not TypeSignature.Named provider
+                    || !implicitStyle && (parameters[1] is not TypeSignature.Named { Kind: SignatureTypeKind.ValueType } style
+                        || style.Definition != Require(resolver.ResolveType(library, "System.Globalization", "NumberStyles"), parent, offset))
+                    || parameters[implicitStyle ? 1 : 2] is not TypeSignature.Named provider
                     || provider.Definition != Require(resolver.ResolveType(library, "System", "IFormatProvider"), parent, offset)
                     || !throwing && (parameters[3] is not TypeSignature.ByReference { Element: TypeSignature.Primitive output } || output.Code != parser.Code))
-                    Fail(parent, "Integer parsing requires the selected String/NumberStyles/IFormatProvider signature, with a matching TryParse output or an Int32 Parse result.", offset);
+                    Fail(parent, "Integer parsing requires the selected Int32 style/provider, Int64 None TryParse or Int64 provider-only Parse signature and matching result/output.", offset);
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(library, resolved.Handle, LibraryIntrinsicCapability.InvariantIntegerParsing), parent, offset);
                 binding = binding with { IntegerParser = parser, ThrowingIntegerParser = throwing };
             }

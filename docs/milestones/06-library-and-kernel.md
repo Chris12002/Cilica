@@ -3549,3 +3549,14 @@ exact fault policies. Six new probes supply 6,972 repeated native/.NET compariso
 all 32 selected GUID checks pass with O0/O2, forced GC and sanitizers. See ADR AC0193.
 The frozen engine advances to invariant Int64.Parse(String,IFormatProvider) in
 ShieldAcquisitionReceipt.Read. Full engine, fingerprint and replay remain unfinished.
+
+### Throwing invariant Int64 parsing (AC5a.11)
+
+Int64.Parse(String,IFormatProvider) now supports a directly proven InvariantCulture
+provider and implicit Integer style. Its full signed range, ASCII whitespace,
+trailing NULs and exact format/overflow precedence match .NET. Four probes supply
+2,202 repeated native comparisons; all 40 selected integer-parser checks pass,
+including 262,754 managed-only oracle cases. Integration with the separately
+committed checked-index slice passes 69 distinct selected checks. See ADR AC0194. The frozen engine next
+reaches constrained ElementGender.ToString; full engine, fingerprint and saved-game
+replay remain unfinished.

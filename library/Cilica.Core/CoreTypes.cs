@@ -103,6 +103,12 @@ namespace System
     }
     public struct Int64 : IConvertible, IComparable<long>, IEquatable<long>
     {
+        public static long Parse(string s, IFormatProvider provider)
+        {
+            if (provider != Globalization.CultureInfo.InvariantCulture)
+                throw new NotSupportedException("Only invariant Integer parsing is supported.");
+            return Cilica.Library.IntegerParsing.ParseInt64Integer(s);
+        }
         public static bool TryParse(string text, Globalization.NumberStyles style, IFormatProvider provider, out long result)
         {
             if (style != Globalization.NumberStyles.None || provider != Globalization.CultureInfo.InvariantCulture)
