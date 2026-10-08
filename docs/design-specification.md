@@ -4451,3 +4451,11 @@ comparisons; 23 adjacent controls also passed. See ADR AC0205. Frozen engine dis
 advances to the isolated scan's 8,192-local allowance (8,194 observed). Production
 limits and CIL93/IR59/native79 are unchanged. Full engine execution, unchanged
 fingerprinting and saved-game replay remain unfinished.
+
+### Diagnostic local-storage allowance (AC8.64)
+
+After Range exposed 8,194 aggregate locals, the isolated engine-discovery probe now
+allows 12,288 locals. The production 4,096-local limit and CIL93/IR59/native79 are
+unchanged. Discovery advances to Enum.GetValues(Type) in SpellModeChoices.BondsAfter;
+StateLookup still translates its 15-method closure. See ADR AC0206. This is diagnostic
+coverage, not full engine compilation, native execution or replay evidence.
