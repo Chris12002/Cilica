@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "observations": 523,
+  "flags": [
+    "clang++-18",
+    "-std=c++20",
+    "-O1",
+    "-g",
+    "-fno-exceptions",
+    "-fno-rtti",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "/work/out/index-forced.cpp",
+    "-o",
+    "/work/out/index-forced"
+  ],
+  "forced_gc": true,
+  "elapsed_seconds": 37.58156676799996,
+  "source_sha256": "e13884847a594cc4eb70a6163d165e70d86fec4c8e97dbc6dd09ee37ddf0cb69"
+}

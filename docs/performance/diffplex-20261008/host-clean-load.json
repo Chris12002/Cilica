@@ -1,0 +1,8852 @@
+[
+  {
+    "unix_time": 1791456183.339388,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 15.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 5.1,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 10679,
+        "cpu_percent": 10.9,
+        "exe": "Python"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 39.3,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 7.3,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 40.9,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 21.3,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.4,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 19.3,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 25.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 6.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.0,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.7,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456188.4705532,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 3520,
+        "cpu_percent": 6.4,
+        "exe": "Activity Monitor"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 38.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 35.4,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 13.4,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.2,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 20.3,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 10.3,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 89293,
+        "cpu_percent": 6.5,
+        "exe": "Docker Desktop Helper (Renderer)"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.6,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 101.6,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456193.590848,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.8,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 11022,
+        "cpu_percent": 5.9,
+        "exe": "swtransparencyd"
+      },
+      {
+        "pid": 11023,
+        "cpu_percent": 8.2,
+        "exe": "CloudTelemetryService"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 29.8,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 26.2,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 20.1,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.4,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 13.9,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 11.8,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 5.6,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 89144,
+        "cpu_percent": 7.0,
+        "exe": "com.docker.backend"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.7,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.9,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 99.1,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456198.712806,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 33.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 36.6,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 15.7,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.1,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 18.4,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 20.0,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.1,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.1,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.9,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456203.840294,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 15.3,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.1,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 52.2,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 61382,
+        "cpu_percent": 6.2,
+        "exe": "Claude"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 5.1,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.6,
+        "exe": "Python"
+      },
+      {
+        "pid": 76797,
+        "cpu_percent": 12.3,
+        "exe": "ChatGPT"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 21.6,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 26.6,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.3,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 99.1,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456208.9650922,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.1,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 29.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.4,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 44.0,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 8.8,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.6,
+        "exe": "Python"
+      },
+      {
+        "pid": 76797,
+        "cpu_percent": 6.2,
+        "exe": "ChatGPT"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 15.5,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 14.6,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.3,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.0,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 5.2,
+        "exe": "diagnosticd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.4,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456214.089202,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.9,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 28.5,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 29181,
+        "cpu_percent": 5.8,
+        "exe": "Cawtex.RegistrySpike"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 25.1,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.2,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 15.1,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 13.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 5.3,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.3,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.2,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456219.2119439,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 29.8,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 26.9,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 76797,
+        "cpu_percent": 6.2,
+        "exe": "ChatGPT"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 9.9,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 14.5,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.0,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.9,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 5.5,
+        "exe": "diagnosticd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 99.8,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456224.336082,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 31.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 27.2,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 9.5,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 10.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.6,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.4,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456229.472266,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.0,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 8.8,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 3502,
+        "cpu_percent": 10.9,
+        "exe": "ControlCenter"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 40.8,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.2,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 60.0,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 18.2,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.5,
+        "exe": "Python"
+      },
+      {
+        "pid": 76797,
+        "cpu_percent": 26.4,
+        "exe": "ChatGPT"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 13.5,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76877,
+        "cpu_percent": 5.5,
+        "exe": "codex"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 375.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.4,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 86.8,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456234.587807,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.7,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 6.2,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 26.8,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 14.0,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.2,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 21.1,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 11.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 5.3,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.2,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 99.9,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456239.6973388,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 12646,
+        "cpu_percent": 35.6,
+        "exe": "pairedsyncd"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 29.9,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.1,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 19.8,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 9.4,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.4,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 15.4,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 10.6,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 6.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.1,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.7,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.3,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456244.818398,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.4,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 40.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 23.4,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 76797,
+        "cpu_percent": 10.1,
+        "exe": "ChatGPT"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 11.1,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 12.0,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.7,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.5,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 99.9,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456249.936935,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.1,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 41.2,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 25.2,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 15.1,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 9.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 5.7,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.6,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.4,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456255.049803,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.8,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 39.9,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.6,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 32.6,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 22.5,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 12.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 5.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.0,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.8,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.2,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456260.168712,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.4,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 36.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.4,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 29.2,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 76797,
+        "cpu_percent": 5.4,
+        "exe": "ChatGPT"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 14.2,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 11.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 6.5,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.9,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.8,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.3,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456265.2898781,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.0,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 38.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 6.7,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 20.7,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 13.4,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 8.7,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 5.5,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.0,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.7,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 100.2,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456270.406991,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.7,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 31.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 45.5,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.3,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 16.2,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 10.7,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 8.8,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.7,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.0,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 92678,
+        "cpu_percent": 10.3,
+        "exe": "Antigravity IDE Helper (Plugin)"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 99.0,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456275.5207229,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.0,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 9.2,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 13560,
+        "cpu_percent": 86.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.9,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 31.2,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 11.0,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 6.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.1,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 99.2,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456280.65572,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.7,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.6,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.6,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 29.9,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 9.9,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.5,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 16.3,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 12.6,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 6.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.7,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.6,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 101.8,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456285.8222778,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 10.7,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 11525,
+        "cpu_percent": 6.0,
+        "exe": "donotdisturbd"
+      },
+      {
+        "pid": 13815,
+        "cpu_percent": 13.9,
+        "exe": "appleaccountd"
+      },
+      {
+        "pid": 13848,
+        "cpu_percent": 55.1,
+        "exe": "AuthenticationServicesAgent"
+      },
+      {
+        "pid": 13849,
+        "cpu_percent": 6.1,
+        "exe": "coreautha"
+      },
+      {
+        "pid": 13850,
+        "cpu_percent": 7.3,
+        "exe": "TextInputSwitcher"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 33.9,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.2,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 44.7,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.5,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 8.3,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 6.7,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 6.1,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.3,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.0,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456290.9083781,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.9,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 3797,
+        "cpu_percent": 6.8,
+        "exe": "WallpaperVideoExtension"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 13918,
+        "cpu_percent": 55.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 31.1,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 51.2,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 46.9,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.2,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 9.5,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.9,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 5.6,
+        "exe": "diagnosticd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456295.988993,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.3,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 13.7,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 3797,
+        "cpu_percent": 6.3,
+        "exe": "WallpaperVideoExtension"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 13918,
+        "cpu_percent": 57.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 14064,
+        "cpu_percent": 1.5,
+        "exe": "clang++"
+      },
+      {
+        "pid": 14065,
+        "cpu_percent": 46.0,
+        "exe": "clang"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 40.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 29181,
+        "cpu_percent": 6.0,
+        "exe": "Cawtex.RegistrySpike"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.5,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 24.7,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.6,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.1,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.5,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456301.0665479,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 14.4,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 3797,
+        "cpu_percent": 7.8,
+        "exe": "WallpaperVideoExtension"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 13918,
+        "cpu_percent": 30.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 14181,
+        "cpu_percent": 3.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 37.9,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 36.6,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.6,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.9,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.2,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98105,
+        "cpu_percent": 10.8,
+        "exe": "XprotectService"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456306.146341,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 2456,
+        "cpu_percent": 5.7,
+        "exe": "sysmond"
+      },
+      {
+        "pid": 3797,
+        "cpu_percent": 6.0,
+        "exe": "WallpaperVideoExtension"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 13918,
+        "cpu_percent": 3.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 14256,
+        "cpu_percent": 0.1,
+        "exe": "clang++"
+      },
+      {
+        "pid": 14257,
+        "cpu_percent": 93.0,
+        "exe": "clang"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 33.5,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.3,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 28.5,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 8.0,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.8,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.3,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456311.2388532,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.8,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 3797,
+        "cpu_percent": 7.6,
+        "exe": "WallpaperVideoExtension"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 13918,
+        "cpu_percent": 10.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 40.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 5.7,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 43428,
+        "cpu_percent": 33.2,
+        "exe": "WindowServer"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.0,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.1,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98105,
+        "cpu_percent": 34.0,
+        "exe": "XprotectService"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456316.3205519,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 10.8,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 11.6,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 2456,
+        "cpu_percent": 15.0,
+        "exe": "sysmond"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 13918,
+        "cpu_percent": 14.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 42.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.9,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.9,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98105,
+        "cpu_percent": 9.6,
+        "exe": "XprotectService"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456321.426993,
+    "processes": [
+      {
+        "pid": 1,
+        "cpu_percent": 8.9,
+        "exe": "launchd"
+      },
+      {
+        "pid": 379,
+        "cpu_percent": 8.3,
+        "exe": "runningboardd"
+      },
+      {
+        "pid": 384,
+        "cpu_percent": 9.3,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 569,
+        "cpu_percent": 11.5,
+        "exe": "lsd"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 20.2,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 9240,
+        "cpu_percent": 6.0,
+        "exe": "networkserviceproxy"
+      },
+      {
+        "pid": 13918,
+        "cpu_percent": 28.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 14470,
+        "cpu_percent": 42.9,
+        "exe": "mediaanalysisd"
+      },
+      {
+        "pid": 14533,
+        "cpu_percent": 41.7,
+        "exe": "deleted"
+      },
+      {
+        "pid": 14821,
+        "cpu_percent": 12.6,
+        "exe": "AssetMetricsExtension"
+      },
+      {
+        "pid": 14824,
+        "cpu_percent": 7.1,
+        "exe": "dprivacyd"
+      },
+      {
+        "pid": 14855,
+        "cpu_percent": 9.8,
+        "exe": "ODDIPoirotMetricsExtension"
+      },
+      {
+        "pid": 14862,
+        "cpu_percent": 15.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 42.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 30517,
+        "cpu_percent": 8.2,
+        "exe": "NeuroFlow"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 40356,
+        "cpu_percent": 6.5,
+        "exe": "Antigravity IDE Helper (Renderer)"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.6,
+        "exe": "Python"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 9.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 10.1,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.8,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98105,
+        "cpu_percent": 7.9,
+        "exe": "XprotectService"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456326.524935,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 9.1,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 6.6,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 12906,
+        "cpu_percent": 7.3,
+        "exe": "mobileassetd"
+      },
+      {
+        "pid": 13918,
+        "cpu_percent": 22.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 14470,
+        "cpu_percent": 72.8,
+        "exe": "mediaanalysisd"
+      },
+      {
+        "pid": 14815,
+        "cpu_percent": 7.7,
+        "exe": "fairplaydeviceidentityd"
+      },
+      {
+        "pid": 15001,
+        "cpu_percent": 214.5,
+        "exe": "(dotnet)"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 42.5,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35947,
+        "cpu_percent": 17.5,
+        "exe": "spotlightknowledged"
+      },
+      {
+        "pid": 40356,
+        "cpu_percent": 55.5,
+        "exe": "Antigravity IDE Helper (Renderer)"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.3,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.7,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 9.5,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456331.6178281,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 5.8,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.6,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.2,
+        "exe": "Python"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 55.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 8.3,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91042,
+        "cpu_percent": 18.4,
+        "exe": "Fork"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.9,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.8,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456336.7242649,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.3,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 31.5,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 68553,
+        "cpu_percent": 6.9,
+        "exe": "corespotlightd"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.4,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 8.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.8,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456341.832864,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.9,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 38.3,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 40356,
+        "cpu_percent": 21.0,
+        "exe": "Antigravity IDE Helper (Renderer)"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.5,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 9.7,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.9,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.9,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 5.2,
+        "exe": "diagnosticd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456346.937713,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.3,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 46.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.7,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 9.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.9,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456352.045185,
+    "processes": [
+      {
+        "pid": 306,
+        "cpu_percent": 7.7,
+        "exe": "fseventsd"
+      },
+      {
+        "pid": 384,
+        "cpu_percent": 14.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 45.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.1,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 9.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.8,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.4,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456357.148735,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 15567,
+        "cpu_percent": 50.5,
+        "exe": "(pairedsyncd)"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 34.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.0,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 21.2,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 11.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.1,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456362.259347,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.8,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 12.0,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.0,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.0,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98050,
+        "cpu_percent": 22.9,
+        "exe": "knowledge-agent"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456367.3573592,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 15797,
+        "cpu_percent": 25.9,
+        "exe": "xpcproxy_sim"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 40.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.8,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 12.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.0,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 11.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.3,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456372.45017,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.2,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 70255,
+        "cpu_percent": 98.3,
+        "exe": "NewsToday2"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.2,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 8.7,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.0,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 5.7,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 6.4,
+        "exe": "diagnosticd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456377.555218,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.3,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 32.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 11.9,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.7,
+        "exe": "Python"
+      },
+      {
+        "pid": 76851,
+        "cpu_percent": 5.1,
+        "exe": "Codex (Service)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 10.0,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 87975,
+        "cpu_percent": 9.0,
+        "exe": "Mail"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.2,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456382.638481,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 13.8,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16146,
+        "cpu_percent": 116.0,
+        "exe": "node"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.2,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.1,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.1,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 9.1,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 6.0,
+        "exe": "diagnosticd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456387.7386072,
+    "processes": [
+      {
+        "pid": 1,
+        "cpu_percent": 17.2,
+        "exe": "launchd"
+      },
+      {
+        "pid": 384,
+        "cpu_percent": 14.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 36.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.7,
+        "exe": "Python"
+      },
+      {
+        "pid": 76797,
+        "cpu_percent": 5.5,
+        "exe": "ChatGPT"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 13.5,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.4,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.0,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456392.8460941,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 45.2,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.4,
+        "exe": "Python"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 7.1,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 9.5,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.7,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.0,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.3,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 6.3,
+        "exe": "diagnosticd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456397.948482,
+    "processes": [
+      {
+        "pid": 379,
+        "cpu_percent": 7.3,
+        "exe": "runningboardd"
+      },
+      {
+        "pid": 384,
+        "cpu_percent": 14.4,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 44.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.3,
+        "exe": "Python"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 15.8,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 20.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.9,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 5.1,
+        "exe": "diagnosticd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456403.157171,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 9.2,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16450,
+        "cpu_percent": 40.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16503,
+        "cpu_percent": 1119.5,
+        "exe": "csc"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 39.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.8,
+        "exe": "Python"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.7,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 9.7,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98922,
+        "cpu_percent": 11.6,
+        "exe": "com.apple.Virtualization.VirtualMachine"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456408.302233,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.4,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 38.6,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 60481,
+        "cpu_percent": 13.5,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.3,
+        "exe": "Python"
+      },
+      {
+        "pid": 76882,
+        "cpu_percent": 126.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.6,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.1,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.0,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.3,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 5.1,
+        "exe": "diagnosticd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456413.41073,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.1,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 38.2,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 27.1,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.8,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 10.1,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 13.7,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.9,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.0,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456418.498361,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 10.3,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 90.2,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 3520,
+        "cpu_percent": 6.5,
+        "exe": "Activity Monitor"
+      },
+      {
+        "pid": 3576,
+        "cpu_percent": 61.2,
+        "exe": "NordVPN"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.9,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 21.4,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 5.7,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.8,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 7.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 6.7,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456423.612482,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.7,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 3520,
+        "cpu_percent": 7.6,
+        "exe": "Activity Monitor"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 35.5,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 17.2,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.8,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 8.1,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 89293,
+        "cpu_percent": 12.8,
+        "exe": "Docker Desktop Helper (Renderer)"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.9,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456428.723497,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.8,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 3520,
+        "cpu_percent": 5.3,
+        "exe": "Activity Monitor"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 36.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 45941,
+        "cpu_percent": 64.2,
+        "exe": "suggestd"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 1.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 8.9,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.7,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.6,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.1,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456433.8319108,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 43.1,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 14.0,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.5,
+        "exe": "Python"
+      },
+      {
+        "pid": 77134,
+        "cpu_percent": 9.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.9,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.9,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.2,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456438.944463,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.4,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 38.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 6.3,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.3,
+        "exe": "Python"
+      },
+      {
+        "pid": 77152,
+        "cpu_percent": 7.4,
+        "exe": "Codex (Renderer)"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 14.1,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 6.1,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 10.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.9,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456444.02463,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.6,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 16.8,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 2139,
+        "cpu_percent": 5.6,
+        "exe": "trustd"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 32.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 59.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 60446,
+        "cpu_percent": 7.8,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 5.7,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.5,
+        "exe": "Python"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.5,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.2,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 95232,
+        "cpu_percent": 7.3,
+        "exe": "cloudd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456449.11854,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.0,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 29.5,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 17372,
+        "cpu_percent": 0.0,
+        "exe": "clang++"
+      },
+      {
+        "pid": 17373,
+        "cpu_percent": 100.0,
+        "exe": "clang"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.3,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.1,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 94947,
+        "cpu_percent": 5.1,
+        "exe": "diagnosticd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456454.203627,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 2456,
+        "cpu_percent": 7.0,
+        "exe": "sysmond"
+      },
+      {
+        "pid": 3520,
+        "cpu_percent": 5.3,
+        "exe": "Activity Monitor"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 38.3,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 17432,
+        "cpu_percent": 0.0,
+        "exe": "clang++"
+      },
+      {
+        "pid": 17433,
+        "cpu_percent": 100.0,
+        "exe": "clang"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.8,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456459.294469,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.2,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 10.5,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 2456,
+        "cpu_percent": 12.4,
+        "exe": "sysmond"
+      },
+      {
+        "pid": 3520,
+        "cpu_percent": 10.2,
+        "exe": "Activity Monitor"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 37.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 13.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 12.4,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.1,
+        "exe": "Python"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.5,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.3,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98105,
+        "cpu_percent": 20.0,
+        "exe": "XprotectService"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456464.3795881,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.5,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 5.2,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 2456,
+        "cpu_percent": 11.2,
+        "exe": "sysmond"
+      },
+      {
+        "pid": 3520,
+        "cpu_percent": 8.0,
+        "exe": "Activity Monitor"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.8,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 20.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 17693,
+        "cpu_percent": 48.1,
+        "exe": "pairedsyncd"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 20.8,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.5,
+        "exe": "Python"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.6,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.0,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 7.6,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456469.466534,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 14.0,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 2456,
+        "cpu_percent": 35.7,
+        "exe": "sysmond"
+      },
+      {
+        "pid": 3520,
+        "cpu_percent": 11.0,
+        "exe": "Activity Monitor"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 42.7,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 3.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.3,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 25.3,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.5,
+        "exe": "Python"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.0,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.1,
+        "exe": "backboardd"
+      },
+      {
+        "pid": 98105,
+        "cpu_percent": 26.0,
+        "exe": "XprotectService"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456474.553299,
+    "processes": [
+      {
+        "pid": 306,
+        "cpu_percent": 8.3,
+        "exe": "fseventsd"
+      },
+      {
+        "pid": 384,
+        "cpu_percent": 12.1,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 12.6,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 43.3,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 31.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 17922,
+        "cpu_percent": 4.0,
+        "exe": "clang++"
+      },
+      {
+        "pid": 17923,
+        "cpu_percent": 6.4,
+        "exe": "clang"
+      },
+      {
+        "pid": 17924,
+        "cpu_percent": 6.7,
+        "exe": "xpcproxy_sim"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 11.7,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 5.1,
+        "exe": "Python"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 11.6,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.9,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.8,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456479.6369762,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 13.0,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 14334,
+        "cpu_percent": 63.0,
+        "exe": "IntelligencePlatformComputeService"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 38.0,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 2.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 18003,
+        "cpu_percent": 0.1,
+        "exe": "clang++"
+      },
+      {
+        "pid": 18004,
+        "cpu_percent": 97.1,
+        "exe": "clang"
+      },
+      {
+        "pid": 20361,
+        "cpu_percent": 63.7,
+        "exe": "Code Helper (Renderer)"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 1.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 1.1,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 21.0,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.1,
+        "exe": "Python"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 89144,
+        "cpu_percent": 11.1,
+        "exe": "com.docker.backend"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.8,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.7,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 9.2,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.8,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456484.72404,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 12.4,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 8.2,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 14334,
+        "cpu_percent": 77.5,
+        "exe": "IntelligencePlatformComputeService"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 30.3,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 3.9,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.7,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.6,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67671,
+        "cpu_percent": 8.3,
+        "exe": "Google Chrome Helper (Renderer)"
+      },
+      {
+        "pid": 75072,
+        "cpu_percent": 6.2,
+        "exe": "Python"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 12.2,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.8,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 9.2,
+        "exe": "backboardd"
+      }
+    ]
+  },
+  {
+    "unix_time": 1791456489.798149,
+    "processes": [
+      {
+        "pid": 384,
+        "cpu_percent": 11.3,
+        "exe": "coreaudiod"
+      },
+      {
+        "pid": 1029,
+        "cpu_percent": 20.5,
+        "exe": "com.nordvpn.macos.Shield"
+      },
+      {
+        "pid": 5624,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 5625,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 16593,
+        "cpu_percent": 43.4,
+        "exe": "com.apple.WebKit.WebContent"
+      },
+      {
+        "pid": 17231,
+        "cpu_percent": 17.8,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 18221,
+        "cpu_percent": 2.2,
+        "exe": "clang++"
+      },
+      {
+        "pid": 18222,
+        "cpu_percent": 37.7,
+        "exe": "clang"
+      },
+      {
+        "pid": 22748,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 32548,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35213,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 35214,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46464,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46465,
+        "cpu_percent": 0.4,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 46507,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 50723,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58401,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 58405,
+        "cpu_percent": 0.5,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 62730,
+        "cpu_percent": 0.2,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 67579,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 78121,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 80925,
+        "cpu_percent": 0.0,
+        "exe": "dotnet"
+      },
+      {
+        "pid": 91815,
+        "cpu_percent": 10.9,
+        "exe": "SimRenderServer"
+      },
+      {
+        "pid": 91816,
+        "cpu_percent": 5.4,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91818,
+        "cpu_percent": 8.3,
+        "exe": "SimMetalHost"
+      },
+      {
+        "pid": 91847,
+        "cpu_percent": 8.7,
+        "exe": "backboardd"
+      }
+    ]
+  }
+]

@@ -1,0 +1,208 @@
+{
+  "status": "passed",
+  "elapsed_seconds": 79.824153245,
+  "steps": [
+    {
+      "name": "clang++-18-version",
+      "argv": [
+        "clang++-18",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "nm-version",
+      "argv": [
+        "nm",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "addr2line-version",
+      "argv": [
+        "addr2line",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "transform-scopes",
+      "argv": [
+        "python3",
+        "/approved/residual.py",
+        "/approved/native-bench.cpp",
+        "/work/scopes.cpp",
+        "scopes"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-scopes",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-g",
+        "-fno-omit-frame-pointer",
+        "/work/scopes.cpp",
+        "-o",
+        "/work/scopes"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "run-scopes",
+      "argv": [
+        "/work/scopes",
+        "residual",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "transform-sample",
+      "argv": [
+        "python3",
+        "/approved/residual.py",
+        "/approved/native-bench.cpp",
+        "/work/sample.cpp",
+        "sample"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-sample",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-g",
+        "-fno-omit-frame-pointer",
+        "-no-pie",
+        "-ldl",
+        "/work/sample.cpp",
+        "-o",
+        "/work/sample"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "run-sample",
+      "argv": [
+        "/work/sample",
+        "sample",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "symbols",
+      "argv": [
+        "nm",
+        "-n",
+        "-S",
+        "-C",
+        "/work/sample"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "lines",
+      "argv": [
+        "addr2line",
+        "-a",
+        "-f",
+        "-i",
+        "-C",
+        "-e",
+        "/work/sample"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "transform-boundary-baseline",
+      "argv": [
+        "python3",
+        "/approved/residual.py",
+        "/approved/native-bench.cpp",
+        "/work/boundary-baseline.cpp",
+        "boundary-baseline"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-boundary-baseline",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-g",
+        "-fno-omit-frame-pointer",
+        "-fsanitize=address,undefined",
+        "-Wframe-larger-than=2048",
+        "/work/boundary-baseline.cpp",
+        "-o",
+        "/work/boundary-baseline"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "run-boundary-baseline",
+      "argv": [
+        "/work/boundary-baseline",
+        "boundary",
+        "0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "transform-boundary-index",
+      "argv": [
+        "python3",
+        "/approved/residual.py",
+        "/approved/native-bench.cpp",
+        "/work/boundary-index.cpp",
+        "boundary-index"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compile-boundary-index",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-g",
+        "-fno-omit-frame-pointer",
+        "-fsanitize=address,undefined",
+        "-Wframe-larger-than=2048",
+        "/work/boundary-index.cpp",
+        "-o",
+        "/work/boundary-index"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "run-boundary-index",
+      "argv": [
+        "/work/boundary-index",
+        "boundary",
+        "0"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

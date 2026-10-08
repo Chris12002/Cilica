@@ -1,0 +1,36 @@
+{
+  "unix_time": 1791457883.6944058,
+  "images": [
+    {
+      "id": "sha256:16e6b75b9ff119d556199c0d3dc7aab0ce73f49eeffa1bc4fea3eb7bff1f19f9",
+      "removed": true,
+      "output": "Deleted: sha256:16e6b75b9ff119d556199c0d3dc7aab0ce73f49eeffa1bc4fea3eb7bff1f19f9\nDeleted: sha256:24453ac9960c187f0bbfb080b02534d14f73aed85b8eb89eb88d2fd2155c13a6\nDeleted: sha256:4eac68b77e58cf79df94f03a47abff8ba9a456f115c41f23526786955e4e2645\nDeleted: sha256:b4bd68c29a4d2160d04bb67ed37b1239ac4a8c11b560698e9093ef39c5013377\nDeleted: sha256:c9c1c8421b1486223585b4a624f64e82e553b43c4dee1f46a568776e590b0afb\nDeleted: sha256:18bff1a46406acdd359564b7845794b5fd4e30154b6ca7c4a874136bcd484807\nDeleted: sha256:9dd2d977c0b0750b6dbcacc0c93160c9d81a35fd75e091fc96fa50e69cacc62e\nDeleted: sha256:ada54193339dfc2cb91eb85f5baa5c1cf56a384a953e372fd8b6285bcaed0466\nDeleted: sha256:71d3202d72252e5f3a9aee3818a173e4bb4bd3f5238e479f094363777966d079\n"
+    },
+    {
+      "id": "sha256:ed008fba7963183412a713563570298809f8046103f1ba096567f5693addb84e",
+      "removed": true,
+      "output": "Deleted: sha256:ed008fba7963183412a713563570298809f8046103f1ba096567f5693addb84e\n"
+    },
+    {
+      "id": "sha256:33c363f426b5239d8c7f97885333c67e3bc25a2253acd593823652ea78fc5b9c",
+      "removed": true,
+      "output": "Deleted: sha256:33c363f426b5239d8c7f97885333c67e3bc25a2253acd593823652ea78fc5b9c\nDeleted: sha256:2f3337fb3f592f304efefd5080407ac0dc8a34498181851eda03e50608793f93\nDeleted: sha256:fbfc4c7f5acadf2b4bcc37d96096d58cc14ab7f757c8212ae4f1f3dfe844757e\n"
+    }
+  ],
+  "containers": [
+    {
+      "name": "cilica-performance-fingerprint-20261008",
+      "absent": true
+    },
+    {
+      "name": "cilica-performance-residual-20261008",
+      "absent": true
+    }
+  ],
+  "removed_input_paths": [
+    "artifacts/performance-fingerprint-20261008/inputs",
+    "artifacts/performance-fingerprint-20261008/cilica.tar",
+    "artifacts/performance-residual-20261008/inputs"
+  ],
+  "shared_tool_image_retained": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80"
+}

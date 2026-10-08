@@ -1,0 +1,16 @@
+{"sample":0,"ns":22351042,"checksum":6146,"objects_before":0,"objects_after":846,"bytes_after":111696,"calls":[29695,126692,0],"nodes":[8164841,18342168,0],"root_ns":15283306,"gc_ns":0,"root_scopes":848,"collections":0}
+{"survivors":8,"survivor_bytes":5488}
+{"sample":1,"ns":20905875,"checksum":6146,"objects_before":8,"objects_after":832,"bytes_after":91416,"calls":[22750,125296,0],"nodes":[8144144,18083295,0],"root_ns":14139486,"gc_ns":0,"root_scopes":824,"collections":0}
+{"survivors":8,"survivor_bytes":5488}
+{"sample":2,"ns":20276250,"checksum":6146,"objects_before":8,"objects_after":832,"bytes_after":91416,"calls":[22750,125296,0],"nodes":[8144144,18083295,0],"root_ns":13781426,"gc_ns":0,"root_scopes":824,"collections":0}
+{"survivors":8,"survivor_bytes":5488}
+{"sample":3,"ns":20921000,"checksum":6146,"objects_before":8,"objects_after":832,"bytes_after":91416,"calls":[22750,125296,0],"nodes":[8144144,18083295,0],"root_ns":14250998,"gc_ns":0,"root_scopes":824,"collections":0}
+{"survivors":8,"survivor_bytes":5488}
+{"sample":4,"ns":20750083,"checksum":6146,"objects_before":8,"objects_after":832,"bytes_after":91416,"calls":[22750,125296,0],"nodes":[8144144,18083295,0],"root_ns":13913413,"gc_ns":0,"root_scopes":824,"collections":0}
+{"survivors":8,"survivor_bytes":5488}
+{"sample":5,"ns":21020542,"checksum":6146,"objects_before":8,"objects_after":832,"bytes_after":91416,"calls":[22750,125296,0],"nodes":[8144144,18083295,0],"root_ns":14181665,"gc_ns":0,"root_scopes":824,"collections":0}
+{"survivors":8,"survivor_bytes":5488}
+{"sample":6,"ns":20484292,"checksum":6146,"objects_before":8,"objects_after":832,"bytes_after":91416,"calls":[22750,125296,0],"nodes":[8144144,18083295,0],"root_ns":13710290,"gc_ns":0,"root_scopes":824,"collections":0}
+{"survivors":8,"survivor_bytes":5488}
+{"sample":7,"ns":20349375,"checksum":6146,"objects_before":8,"objects_after":832,"bytes_after":91416,"calls":[22750,125296,0],"nodes":[8144144,18083295,0],"root_ns":13572162,"gc_ns":0,"root_scopes":824,"collections":0}
+{"survivors":8,"survivor_bytes":5488}

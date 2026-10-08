@@ -1,0 +1,7 @@
+/work/boundary-index.cpp:63060:26: warning: stack frame size (66304) exceeds limit (2048) in 'cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_try' [-Wframe-larger-than]
+ 63060 | extern "C" std::uint32_t cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_try(std::int32_t* result, std::uint32_t* method, std::uint32_t* il, const char** image, const std::int32_t* parameters, std::size_t count) noexcept {
+       |                          ^
+/work/boundary-index.cpp:63091:5: warning: stack frame size (66432) exceeds limit (2048) in 'main' [-Wframe-larger-than]
+ 63091 | int main(int argc,char** argv) {
+       |     ^
+2 warnings generated.

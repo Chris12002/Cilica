@@ -1,0 +1,12 @@
+{
+  "accepted_repetitions": [
+    0,
+    1
+  ],
+  "excluded_repetitions": [
+    2
+  ],
+  "first_two_recorded_child_wall_seconds": 64.452269238,
+  "first_cpu_heavy_tool_observed_seconds_after_release": 92.18,
+  "reason": "Final repetition overlaps host dotnet activity. Entire repetition excluded conservatively; no clean rerun. Raw host monitor continues after timing ended."
+}

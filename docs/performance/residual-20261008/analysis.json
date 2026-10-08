@@ -1,0 +1,220 @@
+{
+  "sample_metadata": {
+    "iterations": 16384,
+    "checksum": 100696064,
+    "samples": 8304
+  },
+  "sample_counts": {
+    "root_validation": 1345,
+    "generated_steps": 2746,
+    "managed_locations_and_borrows": 920,
+    "type_checks": 813,
+    "external_library": 642,
+    "generated_method_driver": 1128,
+    "collection_tracing": 174,
+    "allocation_other": 130,
+    "ownership_other": 65,
+    "other_native": 341
+  },
+  "sample_shares": {
+    "root_validation": 0.16197013487475914,
+    "generated_steps": 0.3306840077071291,
+    "managed_locations_and_borrows": 0.11078998073217726,
+    "type_checks": 0.09790462427745665,
+    "external_library": 0.0773121387283237,
+    "generated_method_driver": 0.13583815028901733,
+    "collection_tracing": 0.020953757225433526,
+    "allocation_other": 0.01565510597302505,
+    "ownership_other": 0.007827552986512524,
+    "other_native": 0.0410645472061657
+  },
+  "top_leaf_functions": [
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Instance::owns(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Object const*) const",
+      906
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::valid_roots(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context const&)",
+      717
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::t_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_02000066_accepts(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Descriptor const*)",
+      680
+    ],
+    [
+      "??",
+      659
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::active_root_frame(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context const&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Frame const*)",
+      359
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003dc_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_steps::s6(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003dc_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage*)",
+      177
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::frame_location_storage(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Location const&)",
+      128
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::mark_graph(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::MarkLimits, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::MarkState&)",
+      113
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::find_borrow(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context const&, unsigned long)",
+      113
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::location_storage(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Location const&, bool)",
+      112
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060001cf(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      108
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_0600025a(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      102
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000011(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      98
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::BorrowScope::BorrowScope(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Frame const&, unsigned int*, unsigned long, bool (* const*)(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Descriptor const*) noexcept, unsigned long*, unsigned long)",
+      95
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::allocate_array(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Descriptor const&, unsigned int)",
+      78
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060001ce(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      66
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::retire_borrows(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Frame const&)",
+      62
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003d9_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      57
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_06000324(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      54
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::allocate_string(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Descriptor const&, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned int const*)",
+      50
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::array_length(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Object*)",
+      48
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::t_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_0200007e_accepts(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Descriptor const*)",
+      47
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003dc_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      46
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003d7_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      44
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_06000069_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      43
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000021(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::LocationArgument const*)",
+      42
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003db_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_steps::s14(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003db_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage*)",
+      42
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003d9_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_steps::s0(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003d9_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage*)",
+      39
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003df_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_steps::s7(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003df_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage*)",
+      39
+    ],
+    [
+      "cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003db_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_steps::s35(cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::Context&, cilica_m_1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb_06000055_objects_packed_closure::cilica_m_4b540b4e162b176954fb9bba66a3ff69c13a97f1290a42789527384548e9ad82_060003db_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage*)",
+      38
+    ]
+  ],
+  "external_leaf_symbols": [
+    [
+      "libc.so.6 ?",
+      459
+    ],
+    [
+      "libc.so.6 malloc",
+      60
+    ],
+    [
+      "libc.so.6 __libc_free",
+      55
+    ],
+    [
+      "libstdc++.so.6 ?",
+      48
+    ],
+    [
+      "libstdc++.so.6 _Znwm",
+      10
+    ],
+    [
+      "libstdc++.so.6 _ZnamRKSt9nothrow_t",
+      7
+    ],
+    [
+      "libstdc++.so.6 _ZnwmRKSt9nothrow_t",
+      3
+    ]
+  ],
+  "instrumented_scope_shares": {
+    "root_ns": 0.17733331496329313,
+    "gc_ns": 0.061455448337605065,
+    "allocation_inclusive_ns": 0.3632848105147704
+  },
+  "instrumented_counts_per_diff": {
+    "root_calls": 824.0,
+    "root_slots": 122000.0,
+    "nonnull_slots": 54369.0,
+    "frames": 5217.0625,
+    "frame_bytes": 2534927.5,
+    "steps": 110579.75
+  },
+  "boundary_baseline": [
+    {
+      "instance_size": 144,
+      "initial_charged_bytes": 0,
+      "managed_limit": 1048576
+    },
+    {
+      "detached_root_mark_status": 1,
+      "orphan_marked": 0,
+      "owns_orphan": 0
+    }
+  ],
+  "boundary_index": [
+    {
+      "instance_size": 65688,
+      "initial_charged_bytes": 0,
+      "managed_limit": 1048576
+    },
+    {
+      "detached_root_mark_status": 0,
+      "orphan_marked": 1,
+      "owns_orphan": 1
+    }
+  ]
+}

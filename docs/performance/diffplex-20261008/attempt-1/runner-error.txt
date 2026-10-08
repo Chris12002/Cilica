@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/runner.py", line 42, in <module>
+    run('transform-'+variant,['python3','/approved/profiling/transform.py','/work/out/native-bench.cpp','/work/out/'+variant+'.cpp',variant])
+  File "/runner.py", line 12, in run
+    if result.returncode:raise RuntimeError(name+' failed: '+str(result.returncode))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: transform-index failed: 1

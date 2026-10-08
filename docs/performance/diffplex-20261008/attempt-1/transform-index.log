@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/approved/profiling/transform.py", line 151, in <module>
+    if a.mode=='index':text=indexed(text)
+                            ^^^^^^^^^^^^^
+  File "/approved/profiling/transform.py", line 100, in indexed
+    assert text.count('++heap.count;') == 3
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

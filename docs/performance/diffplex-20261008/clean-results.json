@@ -1,0 +1,1269 @@
+{
+  "summary": {
+    "baseline": {
+      "compute_ns_per_op": [
+        260985338.6875,
+        260258695.4375,
+        238371625.125,
+        274575333.4375,
+        214345992.3125,
+        267949260.5625,
+        254975817.75,
+        260581838.6875,
+        264189218.875,
+        250265541.75,
+        268747401.1875,
+        211770830.8125,
+        264550578.25,
+        252321539.1875,
+        256990440.1875,
+        259426216.3125,
+        234382507.9375,
+        265683450.625,
+        223787916.75,
+        268948966.25,
+        293432544.375
+      ],
+      "median_ns": 260258695.4375,
+      "min_ns": 211770830.8125,
+      "max_ns": 293432544.375,
+      "noop_process_ns": [
+        902666,
+        843583,
+        826125
+      ],
+      "first_call_ns": [
+        34263750,
+        33473375,
+        32397958
+      ],
+      "cold_end_to_end_ns": [
+        35287375,
+        34337875,
+        33240083
+      ],
+      "measure_peak_rss_kib": [
+        12340,
+        12468,
+        12468
+      ]
+    },
+    "index": {
+      "compute_ns_per_op": [
+        514218.75,
+        493190.125,
+        503838.5625,
+        503687.5,
+        514231.75,
+        503044.25,
+        503677.125,
+        512221.375,
+        522416.625,
+        534364.5625,
+        531132.8125,
+        524117.1875,
+        520997.375,
+        513247.4375,
+        520270.8125,
+        525351.5625,
+        523713.5625,
+        509776.0625,
+        511359.375,
+        508372.375,
+        525335.9375
+      ],
+      "median_ns": 514218.75,
+      "min_ns": 493190.125,
+      "max_ns": 534364.5625,
+      "noop_process_ns": [
+        1274250,
+        1930458,
+        1806084
+      ],
+      "first_call_ns": [
+        615000,
+        608875,
+        697250
+      ],
+      "cold_end_to_end_ns": [
+        1326917,
+        1246042,
+        1618958
+      ],
+      "measure_peak_rss_kib": [
+        12340,
+        12468,
+        12852
+      ]
+    },
+    "dotnet": {
+      "compute_ns_per_op": [
+        5570.3033447265625,
+        5704.6630859375,
+        5692.07763671875,
+        5698.9532470703125,
+        5585.577392578125,
+        5608.67919921875,
+        5649.13330078125,
+        5613.3880615234375,
+        5666.6473388671875,
+        5645.22705078125,
+        5573.3673095703125,
+        5645.9014892578125,
+        5849.8931884765625,
+        5684.8907470703125,
+        5698.9501953125,
+        5591.436767578125,
+        5764.617919921875,
+        5846.2921142578125,
+        5988.1500244140625,
+        5628.06396484375,
+        5624.9847412109375
+      ],
+      "median_ns": 5649.13330078125,
+      "min_ns": 5570.3033447265625,
+      "max_ns": 5988.1500244140625,
+      "noop_process_ns": [
+        47300583,
+        42302917,
+        56761791
+      ],
+      "first_call_ns": [
+        4211900,
+        5229800,
+        4637300
+      ],
+      "cold_end_to_end_ns": [
+        166773709,
+        197722042,
+        174476625
+      ],
+      "measure_peak_rss_kib": [
+        38764,
+        38628,
+        38780
+      ]
+    }
+  },
+  "runs": [
+    {
+      "name": "baseline-noop-0",
+      "runtime": "baseline",
+      "mode": "noop",
+      "argv": [
+        "/work/out/clean",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 902666,
+      "user_seconds": 0.0,
+      "system_seconds": 0.000743,
+      "peak_rss_kib": 12340,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "baseline-cold-0",
+      "runtime": "baseline",
+      "mode": "cold",
+      "argv": [
+        "/work/out/clean",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 35287375,
+      "user_seconds": 0.034053,
+      "system_seconds": 0.001001,
+      "peak_rss_kib": 12340,
+      "records": [
+        {
+          "ns": 34263750,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "baseline-measure-0",
+      "runtime": "baseline",
+      "mode": "measure",
+      "argv": [
+        "/work/out/clean",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 29799199013,
+      "user_seconds": 29.794365,
+      "system_seconds": 0.001,
+      "peak_rss_kib": 12340,
+      "records": [
+        {
+          "warmIterations": 8,
+          "warm_ms": 1454.273
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 4175765419,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 164948,
+          "managed_objects_after": 1541,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 4164139127,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 370904,
+          "managed_objects_after": 3527,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 3813946002,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192048,
+          "managed_objects_after": 1809,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 4393205335,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 423332,
+          "managed_objects_after": 4019,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 3429535877,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 4287188169,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 4079613084,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 246076,
+          "managed_objects_after": 2317,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "index-noop-0",
+      "runtime": "index",
+      "mode": "noop",
+      "argv": [
+        "/work/out/index",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 1274250,
+      "user_seconds": 0.0,
+      "system_seconds": 0.000996,
+      "peak_rss_kib": 12340,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "index-cold-0",
+      "runtime": "index",
+      "mode": "cold",
+      "argv": [
+        "/work/out/index",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 1326917,
+      "user_seconds": 0.000597,
+      "system_seconds": 0.000597,
+      "peak_rss_kib": 12340,
+      "records": [
+        {
+          "ns": 615000,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "index-measure-0",
+      "runtime": "index",
+      "mode": "measure",
+      "argv": [
+        "/work/out/index",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 358585000,
+      "user_seconds": 0.358369,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 12340,
+      "records": [
+        {
+          "warmIterations": 592,
+          "warm_ms": 300.898
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 8227500,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 7891042,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 8061417,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 246076,
+          "managed_objects_after": 2317,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 8059000,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 80420,
+          "managed_objects_after": 731,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 8227708,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 285376,
+          "managed_objects_after": 2707,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 8048708,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 113920,
+          "managed_objects_after": 1063,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 8058834,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 339604,
+          "managed_objects_after": 3217,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "dotnet-noop-0",
+      "runtime": "dotnet",
+      "mode": "noop",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 47300583,
+      "user_seconds": 0.038169999999999996,
+      "system_seconds": 0.00904,
+      "peak_rss_kib": 26772,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "dotnet-cold-0",
+      "runtime": "dotnet",
+      "mode": "cold",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 166773709,
+      "user_seconds": 0.14883,
+      "system_seconds": 0.017979,
+      "peak_rss_kib": 34136,
+      "records": [
+        {
+          "ns": 4211900,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "dotnet-measure-0",
+      "runtime": "dotnet",
+      "mode": "measure",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "measure",
+        "0",
+        "32768"
+      ],
+      "wall_ns": 1762667251,
+      "user_seconds": 1.750953,
+      "system_seconds": 0.028110999999999997,
+      "peak_rss_kib": 38764,
+      "records": [
+        {
+          "warmIterations": 53704,
+          "warm_ms": 300.023
+        },
+        {
+          "sample": 0,
+          "iterations": 32768,
+          "ns": 182527700,
+          "checksum": 201392128,
+          "allocated_bytes": 466166864,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 1,
+          "iterations": 32768,
+          "ns": 186930400,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 2,
+          "iterations": 32768,
+          "ns": 186518000,
+          "checksum": 201392128,
+          "allocated_bytes": 466166624,
+          "gen0": 111,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 3,
+          "iterations": 32768,
+          "ns": 186743300,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 4,
+          "iterations": 32768,
+          "ns": 183028200,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 5,
+          "iterations": 32768,
+          "ns": 183785200,
+          "checksum": 201392128,
+          "allocated_bytes": 466166624,
+          "gen0": 111,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 6,
+          "iterations": 32768,
+          "ns": 185110800,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        }
+      ]
+    },
+    {
+      "name": "dotnet-noop-1",
+      "runtime": "dotnet",
+      "mode": "noop",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 42302917,
+      "user_seconds": 0.037447,
+      "system_seconds": 0.005059999999999999,
+      "peak_rss_kib": 26724,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "dotnet-cold-1",
+      "runtime": "dotnet",
+      "mode": "cold",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 197722042,
+      "user_seconds": 0.176012,
+      "system_seconds": 0.021877,
+      "peak_rss_kib": 34172,
+      "records": [
+        {
+          "ns": 5229800,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "dotnet-measure-1",
+      "runtime": "dotnet",
+      "mode": "measure",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "measure",
+        "0",
+        "32768"
+      ],
+      "wall_ns": 1815268918,
+      "user_seconds": 1.788384,
+      "system_seconds": 0.043983999999999995,
+      "peak_rss_kib": 38628,
+      "records": [
+        {
+          "warmIterations": 46400,
+          "warm_ms": 300.0345
+        },
+        {
+          "sample": 0,
+          "iterations": 32768,
+          "ns": 183939500,
+          "checksum": 201392128,
+          "allocated_bytes": 466166864,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 1,
+          "iterations": 32768,
+          "ns": 185684700,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 2,
+          "iterations": 32768,
+          "ns": 184982800,
+          "checksum": 201392128,
+          "allocated_bytes": 466166624,
+          "gen0": 111,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 3,
+          "iterations": 32768,
+          "ns": 182628100,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 4,
+          "iterations": 32768,
+          "ns": 185004900,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 5,
+          "iterations": 32768,
+          "ns": 191689300,
+          "checksum": 201392128,
+          "allocated_bytes": 466166624,
+          "gen0": 111,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 6,
+          "iterations": 32768,
+          "ns": 186282500,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        }
+      ]
+    },
+    {
+      "name": "index-noop-1",
+      "runtime": "index",
+      "mode": "noop",
+      "argv": [
+        "/work/out/index",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 1930458,
+      "user_seconds": 0.0,
+      "system_seconds": 0.0006929999999999999,
+      "peak_rss_kib": 12468,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "index-cold-1",
+      "runtime": "index",
+      "mode": "cold",
+      "argv": [
+        "/work/out/index",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 1246042,
+      "user_seconds": 0.0011309999999999998,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 12468,
+      "records": [
+        {
+          "ns": 608875,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "index-measure-1",
+      "runtime": "index",
+      "mode": "measure",
+      "argv": [
+        "/work/out/index",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 363194917,
+      "user_seconds": 0.36194899999999997,
+      "system_seconds": 0.0009989999999999999,
+      "peak_rss_kib": 12468,
+      "records": [
+        {
+          "warmIterations": 592,
+          "warm_ms": 303.394
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 8195542,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 8358666,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 8549833,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 246076,
+          "managed_objects_after": 2317,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 8498125,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 80420,
+          "managed_objects_after": 731,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 8385875,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 285376,
+          "managed_objects_after": 2707,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 8335958,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 113920,
+          "managed_objects_after": 1063,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 8211959,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 339604,
+          "managed_objects_after": 3217,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "baseline-noop-1",
+      "runtime": "baseline",
+      "mode": "noop",
+      "argv": [
+        "/work/out/clean",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 843583,
+      "user_seconds": 0.0,
+      "system_seconds": 0.000676,
+      "peak_rss_kib": 12468,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "baseline-cold-1",
+      "runtime": "baseline",
+      "mode": "cold",
+      "argv": [
+        "/work/out/clean",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 34337875,
+      "user_seconds": 0.033144,
+      "system_seconds": 0.001004,
+      "peak_rss_kib": 12468,
+      "records": [
+        {
+          "ns": 33473375,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "baseline-measure-1",
+      "runtime": "baseline",
+      "mode": "measure",
+      "argv": [
+        "/work/out/clean",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 29822105722,
+      "user_seconds": 29.817512999999998,
+      "system_seconds": 0.002,
+      "peak_rss_kib": 12468,
+      "records": [
+        {
+          "warmIterations": 8,
+          "warm_ms": 1462.06
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 4169309419,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 164948,
+          "managed_objects_after": 1541,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 4227027502,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 370904,
+          "managed_objects_after": 3527,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 4004248668,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192048,
+          "managed_objects_after": 1809,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 4299958419,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 423332,
+          "managed_objects_after": 4019,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 3388333293,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 4232809252,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 4037144627,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 246076,
+          "managed_objects_after": 2317,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "baseline-noop-2",
+      "runtime": "baseline",
+      "mode": "noop",
+      "argv": [
+        "/work/out/clean",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 826125,
+      "user_seconds": 0.0,
+      "system_seconds": 0.000677,
+      "peak_rss_kib": 12468,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "baseline-cold-2",
+      "runtime": "baseline",
+      "mode": "cold",
+      "argv": [
+        "/work/out/clean",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 33240083,
+      "user_seconds": 0.033027,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 12468,
+      "records": [
+        {
+          "ns": 32397958,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "baseline-measure-2",
+      "runtime": "baseline",
+      "mode": "measure",
+      "argv": [
+        "/work/out/clean",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 30292950722,
+      "user_seconds": 30.285914,
+      "system_seconds": 0.003,
+      "peak_rss_kib": 12468,
+      "records": [
+        {
+          "warmIterations": 8,
+          "warm_ms": 1448.089
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 4111847043,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 164948,
+          "managed_objects_after": 1541,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 4150819461,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 370904,
+          "managed_objects_after": 3527,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 3750120127,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192048,
+          "managed_objects_after": 1809,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 4250935210,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 423332,
+          "managed_objects_after": 4019,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 3580606668,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 4303183460,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 4694920710,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 246076,
+          "managed_objects_after": 2317,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "index-noop-2",
+      "runtime": "index",
+      "mode": "noop",
+      "argv": [
+        "/work/out/index",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 1806084,
+      "user_seconds": 0.000743,
+      "system_seconds": 0.000743,
+      "peak_rss_kib": 12852,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "index-cold-2",
+      "runtime": "index",
+      "mode": "cold",
+      "argv": [
+        "/work/out/index",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 1618958,
+      "user_seconds": 0.000752,
+      "system_seconds": 0.000752,
+      "peak_rss_kib": 12852,
+      "records": [
+        {
+          "ns": 697250,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "index-measure-2",
+      "runtime": "index",
+      "mode": "measure",
+      "argv": [
+        "/work/out/index",
+        "measure",
+        "0",
+        "16"
+      ],
+      "wall_ns": 361869916,
+      "user_seconds": 0.359632,
+      "system_seconds": 0.001997,
+      "peak_rss_kib": 12852,
+      "records": [
+        {
+          "warmIterations": 584,
+          "warm_ms": 302.604
+        },
+        {
+          "sample": 0,
+          "iterations": 16,
+          "ns": 8324333,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 338604,
+          "managed_objects_after": 3207,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 1,
+          "iterations": 16,
+          "ns": 8405625,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 167548,
+          "managed_objects_after": 1567,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 2,
+          "iterations": 16,
+          "ns": 8379417,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 371704,
+          "managed_objects_after": 3535,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 3,
+          "iterations": 16,
+          "ns": 8156417,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 192248,
+          "managed_objects_after": 1811,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 4,
+          "iterations": 16,
+          "ns": 8181750,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 423332,
+          "managed_objects_after": 4019,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 5,
+          "iterations": 16,
+          "ns": 8133958,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 201048,
+          "managed_objects_after": 1899,
+          "frame_peak_bytes": 11712
+        },
+        {
+          "sample": 6,
+          "iterations": 16,
+          "ns": 8405375,
+          "checksum": 98336,
+          "managed_heap_bytes_after": 425932,
+          "managed_objects_after": 4045,
+          "frame_peak_bytes": 11712
+        }
+      ]
+    },
+    {
+      "name": "dotnet-noop-2",
+      "runtime": "dotnet",
+      "mode": "noop",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "noop",
+        "0"
+      ],
+      "wall_ns": 56761791,
+      "user_seconds": 0.041861999999999996,
+      "system_seconds": 0.01495,
+      "peak_rss_kib": 26724,
+      "records": [
+        0
+      ]
+    },
+    {
+      "name": "dotnet-cold-2",
+      "runtime": "dotnet",
+      "mode": "cold",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "cold",
+        "0"
+      ],
+      "wall_ns": 174476625,
+      "user_seconds": 0.160457,
+      "system_seconds": 0.013951999999999999,
+      "peak_rss_kib": 34104,
+      "records": [
+        {
+          "ns": 4637300,
+          "checksum": 6146
+        }
+      ]
+    },
+    {
+      "name": "dotnet-measure-2",
+      "runtime": "dotnet",
+      "mode": "measure",
+      "argv": [
+        "dotnet",
+        "/work/dotnet-host/DotNetHost.dll",
+        "measure",
+        "0",
+        "32768"
+      ],
+      "wall_ns": 1783192167,
+      "user_seconds": 1.763681,
+      "system_seconds": 0.032066,
+      "peak_rss_kib": 38780,
+      "records": [
+        {
+          "warmIterations": 51784,
+          "warm_ms": 300.0174
+        },
+        {
+          "sample": 0,
+          "iterations": 32768,
+          "ns": 186743200,
+          "checksum": 201392128,
+          "allocated_bytes": 466166192,
+          "gen0": 111,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 1,
+          "iterations": 32768,
+          "ns": 183220200,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 2,
+          "iterations": 32768,
+          "ns": 188895000,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 3,
+          "iterations": 32768,
+          "ns": 191571300,
+          "checksum": 201392128,
+          "allocated_bytes": 466166624,
+          "gen0": 111,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 4,
+          "iterations": 32768,
+          "ns": 196219700,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 5,
+          "iterations": 32768,
+          "ns": 184420400,
+          "checksum": 201392128,
+          "allocated_bytes": 466167296,
+          "gen0": 112,
+          "gen1": 0,
+          "gen2": 0
+        },
+        {
+          "sample": 6,
+          "iterations": 32768,
+          "ns": 184319500,
+          "checksum": 201392128,
+          "allocated_bytes": 466166624,
+          "gen0": 111,
+          "gen1": 0,
+          "gen2": 0
+        }
+      ]
+    }
+  ]
+}

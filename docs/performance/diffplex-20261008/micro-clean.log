@@ -1,0 +1,15 @@
+{"objects":1,"queries":32768,"hits":32768,"ns":16834}
+{"objects":1,"queries":32768,"hits":32768,"ns":23083}
+{"objects":1,"queries":32768,"hits":32768,"ns":23417}
+{"objects":64,"queries":32768,"hits":32768,"ns":713375}
+{"objects":64,"queries":32768,"hits":32768,"ns":805708}
+{"objects":64,"queries":32768,"hits":32768,"ns":990000}
+{"objects":512,"queries":32768,"hits":32768,"ns":8895500}
+{"objects":512,"queries":32768,"hits":32768,"ns":8609458}
+{"objects":512,"queries":32768,"hits":32768,"ns":7445625}
+{"objects":2048,"queries":32768,"hits":32768,"ns":11907458}
+{"objects":2048,"queries":32768,"hits":32768,"ns":12003667}
+{"objects":2048,"queries":32768,"hits":32768,"ns":11444875}
+{"objects":4096,"queries":32768,"hits":32768,"ns":65939292}
+{"objects":4096,"queries":32768,"hits":32768,"ns":65762042}
+{"objects":4096,"queries":32768,"hits":32768,"ns":66822208}
