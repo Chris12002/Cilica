@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "batch": "batch-001",
+  "date": "2026-10-08",
+  "limit": 2,
+  "primary_checkout": {
+    "path": "/Users/christian/Cilica",
+    "branch": "codex/milestone-7-c-abi",
+    "baseline": "4fa6295",
+    "initial_status": "clean"
+  },
+  "coordination": {
+    "thread": "Review milestone 6",
+    "thread_id": "01a10e1c-e033-7143-b502-e6fca188979c",
+    "worktree": "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica",
+    "observed_commit": "08a2d75",
+    "note": "User-directed alignment with this active worktree. Existing IsNullOrEmpty (ADR AC0014) is reused unchanged; all temporary primary edits removed. No new runtime support claimed for this helper."
+  },
+  "candidates": [
+    {
+      "id": "fastenshtein",
+      "repository": "DanHarltey/Fastenshtein",
+      "url": "https://github.com/DanHarltey/Fastenshtein",
+      "commit": "b5c8438db4c722694672d6a65a11363a2a8a7cb0",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "cbf0a84c0fed514d16079b4e835f744b0908507c",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/LICENSE"
+        },
+        {
+          "path": "src/Fastenshtein/Fastenshtein.csproj",
+          "git_blob_sha1": "d24b84fe3b5d57af04b17abd7a87cbcb49c22e32",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/src/Fastenshtein/Fastenshtein.csproj"
+        },
+        {
+          "path": "src/Fastenshtein/StaticLevenshtein.cs",
+          "git_blob_sha1": "deaf457f25c12dfc5d8f7a0a36f4606905352228",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/src/Fastenshtein/StaticLevenshtein.cs"
+        },
+        {
+          "path": "src/Fastenshtein/Levenshtein.cs",
+          "git_blob_sha1": "085b2b15e8c76c4accac47d744dbc6d7b30ea346",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/src/Fastenshtein/Levenshtein.cs"
+        },
+        {
+          "path": "src/Fastenshtein/AutoCompleteLevenshtein.cs",
+          "git_blob_sha1": "b9046d93176c81aa4200a12f6510c65ab794d014",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/src/Fastenshtein/AutoCompleteLevenshtein.cs"
+        },
+        {
+          "path": "tests/Fastenshtein.Tests/Fastenshtein.Tests.csproj",
+          "git_blob_sha1": "e5f6994005236120344bdfba2f221c530d439438",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/tests/Fastenshtein.Tests/Fastenshtein.Tests.csproj"
+        },
+        {
+          "path": "tests/Fastenshtein.Tests/StaticLevenshteinTests.cs",
+          "git_blob_sha1": "0fb6a76ac8febe46dbd07de2490885e3bc6abde3",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/tests/Fastenshtein.Tests/StaticLevenshteinTests.cs"
+        },
+        {
+          "path": "tests/Fastenshtein.Tests/LevenshteinAlgorithmTests.cs",
+          "git_blob_sha1": "d4533236730a36cd4c6743c915d81b4ce685ce5b",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/tests/Fastenshtein.Tests/LevenshteinAlgorithmTests.cs"
+        },
+        {
+          "path": "tests/Fastenshtein.Tests/AutoCompleteLevenshteinTests.cs",
+          "git_blob_sha1": "ea3236e0b29b742e9f3aa4189b94bd9b6b591a93",
+          "url": "https://github.com/DanHarltey/Fastenshtein/blob/b5c8438db4c722694672d6a65a11363a2a8a7cb0/tests/Fastenshtein.Tests/AutoCompleteLevenshteinTests.cs"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "not-run; source-only mapping, no upstream MSBuild/generators/tests/binaries executed",
+      "semantic_failures": [],
+      "semantic_failure_note": "No candidate execution performed; absence of observed failures is not a pass.",
+      "license": "MIT; LICENSE at pinned commit",
+      "target_frameworks": [
+        "netstandard2.0",
+        "net462",
+        "net8.0",
+        "net9.0",
+        "net10.0"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "compatible with netstandard2.1 via netstandard2.0 asset; no claim for other assets",
+      "dependencies": {
+        "runtime_packages": [],
+        "build_packages": [
+          "Microsoft.SourceLink.GitHub 10.0.102 (PrivateAssets=all)"
+        ],
+        "tests": [
+          "Microsoft.NET.Test.Sdk 18.0.1",
+          "xunit 2.9.3",
+          "xunit.runner.visualstudio 3.1.5"
+        ],
+        "graph": "Selected library -> netstandard contract. Tests -> library + test packages. Benchmark projects excluded.",
+        "inspection": "Pinned tree contains no Directory.Build.props/targets or other imported project files. SDK/SourceLink are not restored or executed."
+      },
+      "roots": [
+        "Levenshtein.Distance(string,string)",
+        "Levenshtein..ctor(string)",
+        "Levenshtein.StoredLength",
+        "Levenshtein.DistanceFrom(string)",
+        "AutoCompleteLevenshtein.Distance(string,string)"
+      ],
+      "reachable_requirements": [
+        "Int32 arithmetic/comparisons/branches/loops",
+        "Int32 vectors: allocation/length/read/write",
+        "UTF-16 String.Length/get_Chars",
+        "Char scalar comparison",
+        "ordinary class construction, readonly string/array fields",
+        "null and bounds fault order"
+      ],
+      "unsupported_features": [],
+      "excluded_scope": [
+        "NET7_0_OR_GREATER span/generic-math overload absent from netstandard2.0 asset",
+        "Parallel.For test and benchmarking do not belong to selected runtime closure",
+        "Concurrency and span compatibility are not claimed"
+      ],
+      "upstream_tests_inspected": "Edit insertion/deletion/substitution/transposition, case sensitivity, empty strings, surrogate-pair code units; autocomplete prefix behavior. Parallel million-word stress is excluded.",
+      "mapped_status": "Selected string-entry source requirements mapped to the existing active compatibility profile; actual compiled candidate and semantic equivalence remain unverified.",
+      "status": "mapped-skip",
+      "evidence": [
+        "CandidateStringTests independent two-row edit-distance probe: 8x8 string pairs, native O0/O2; not copied candidate code or candidate execution",
+        "Known-distance oracle checks include empty strings, embedded NUL and surrogate units"
+      ],
+      "next_action": "Skip as a feature-discovery target at this pin. Optional isolated candidate execution may test integration defects; reopen on a new pin or concrete semantic failure."
+    },
+    {
+      "id": "diffplex",
+      "repository": "mmanela/diffplex",
+      "url": "https://github.com/mmanela/diffplex",
+      "commit": "f500e73f28e28813f942f1f16dec5a34b40e48e3",
+      "files": [
+        {
+          "path": "License.txt",
+          "git_blob_sha1": "9aa0a58ae70544e0c0c17452016385db7aa06104",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/License.txt"
+        },
+        {
+          "path": "Directory.Build.props",
+          "git_blob_sha1": "4da8180104a8c1a57a9d2d7f05a7256bd96cd790",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Directory.Build.props"
+        },
+        {
+          "path": "Directory.Build.targets",
+          "git_blob_sha1": "341027f3c7a81b1a34a213aac99e0151c40e80c6",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Directory.Build.targets"
+        },
+        {
+          "path": "NuGet.props",
+          "git_blob_sha1": "17d49f86a2894f51e1af0d5c54bb2e57aa72a601",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/NuGet.props"
+        },
+        {
+          "path": "DiffPlex/DiffPlex.csproj",
+          "git_blob_sha1": "c6c9a599420cc74d9b168cca5e37f155ba8ed291",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/DiffPlex.csproj"
+        },
+        {
+          "path": "DiffPlex/Differ.cs",
+          "git_blob_sha1": "281ee96c405676ba6f61958939d5121bdcc8584c",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Differ.cs"
+        },
+        {
+          "path": "DiffPlex/IDiffer.cs",
+          "git_blob_sha1": "c860e04f7955a608579067eb7e577c152c82c8bd",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IDiffer.cs"
+        },
+        {
+          "path": "DiffPlex/IChunker.cs",
+          "git_blob_sha1": "9e9de1a2f64c5148b46745d059c7b5f432798266",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Log.cs",
+          "git_blob_sha1": "6163e9e8b6ef7c38f5de7b50856e746b877dbee4",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Log.cs"
+        },
+        {
+          "path": "DiffPlex/Model/ModificationData.cs",
+          "git_blob_sha1": "9a6e0774693b4276cf1040de10acad9b7183aadc",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/ModificationData.cs"
+        },
+        {
+          "path": "DiffPlex/Model/DiffResult.cs",
+          "git_blob_sha1": "8055eb1e444be7e93667bb420ba628e6cc6b4b92",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffResult.cs"
+        },
+        {
+          "path": "DiffPlex/Model/DiffBlock.cs",
+          "git_blob_sha1": "7fa5fe8a59dd92376252d2be519539c8d2ae3690",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffBlock.cs"
+        },
+        {
+          "path": "DiffPlex/Model/EditLengthResult.cs",
+          "git_blob_sha1": "859014fa0f6f04c4ba4bafc8714f8ec2086554e9",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/EditLengthResult.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/CharacterChunker.cs",
+          "git_blob_sha1": "8076c4fe8591973d26061a86ef702f94d82386a8",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/CharacterChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/LineChunker.cs",
+          "git_blob_sha1": "79c6b6ed5449d6873af6b294b44512d900cbe7ee",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/LineChunker.cs"
+        },
+        {
+          "path": "Facts.DiffPlex/Facts.DiffPlex.csproj",
+          "git_blob_sha1": "b80e27988503c058a2c5e4f7ab5e6eef32903227",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Facts.DiffPlex/Facts.DiffPlex.csproj"
+        },
+        {
+          "path": "Facts.DiffPlex/DifferFacts.cs",
+          "git_blob_sha1": "92ea76c1f8b060c107a873dc926c8bf3da88b804",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Facts.DiffPlex/DifferFacts.cs"
+        },
+        {
+          "path": "DiffPlex.ConsoleRunner/DiffPlex.ConsoleRunner.csproj",
+          "git_blob_sha1": "848691cdd8930063dbc2e755eeacf933c235139d",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex.ConsoleRunner/DiffPlex.ConsoleRunner.csproj"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "not-run; source-only mapping, no upstream MSBuild/generators/tests/binaries executed",
+      "semantic_failures": [],
+      "semantic_failure_note": "No candidate execution performed; absence of observed failures is not a pass.",
+      "license": "Apache-2.0; License.txt at pinned commit",
+      "target_frameworks": [
+        "net45",
+        "netstandard2.0",
+        "net6.0"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "compatible with netstandard2.1 via netstandard2.0 asset; desktop/UI projects excluded",
+      "dependencies": {
+        "runtime_packages": [],
+        "build_packages": [
+          "Microsoft.SourceLink.GitHub 1.1.1 (PrivateAssets=All)"
+        ],
+        "tests": [
+          "Microsoft.NET.Test.Sdk 17.1.0",
+          "Moq 4.17.1",
+          "xunit 2.4.1",
+          "xunit.runner.visualstudio 2.4.3"
+        ],
+        "graph": "DiffPlex -> netstandard. DiffPlex imports NuGet.props (signing/package-on-build/SourceLink); Directory.Build.props sets latest C#; Directory.Build.targets empty. Facts -> DiffPlex + ConsoleRunner; ConsoleRunner -> DiffPlex and linked demo TestData; no extra runtime package in these projects.",
+        "inspection": "All named project/import files inspected as text; no restore/build or package signing performed."
+      },
+      "roots": [
+        "Differ.CreateCharacterDiffs(string,string,bool)",
+        "Differ.CreateLineDiffs(string,string,bool)"
+      ],
+      "reachable_requirements": [
+        "ArgumentNullException and ordinary properties/readonly fields",
+        "StringComparer.Ordinal/OrdinalIgnoreCase -> Dictionary<string,int>(IEqualityComparer<string>)",
+        "List<DiffBlock>, IReadOnlyList<string>, IDictionary<string,int> dispatch",
+        "Int32 and Boolean arrays; Array.Empty<bool>; enum locals",
+        "recursive edit-path algorithm, scalar Int32.Equals",
+        "String.IsNullOrEmpty in BuildPieceHashes",
+        "String.Trim even when wrapper passes false (no whole-program constant pruning assumed)",
+        "CharacterChunker: Char.ToString",
+        "LineChunker: String.Split(string[],StringSplitOptions)"
+      ],
+      "unsupported_features": [
+        {
+          "feature": "Boolean vectors/Array.Empty<bool>",
+          "kind": "profile-gap",
+          "status": "BooleanVector independent reduction produces CIL2001; ObjectArrayElementKind has no Boolean identity."
+        },
+        {
+          "feature": "StringComparer.OrdinalIgnoreCase and conditional comparer selection",
+          "kind": "library/admission-gap",
+          "status": "IgnoreCaseComparer reduction produces CIL3010 get_OrdinalIgnoreCase. Existing directly proven Ordinal support does not admit this branch."
+        },
+        {
+          "feature": "Char.ToString",
+          "kind": "library-gap",
+          "status": "CharacterText reduction produces CIL3010 ToString."
+        },
+        {
+          "feature": "String.Split(string[],StringSplitOptions)",
+          "kind": "library-gap",
+          "status": "StringSeparators reduction produces CIL3010 Split. Character-separator support does not supply this overload."
+        }
+      ],
+      "excluded_scope": [
+        "UI/console/three-way diff/rendering surfaces not mapped by this selected-root screen",
+        "LOG conditional calls excluded when LOG undefined; no claim if enabled",
+        "full Unicode ordinal-ignore-case mapping needs separately reviewed semantics"
+      ],
+      "upstream_tests_inspected": "DifferFacts null parameter names, empty/identical inputs, insertion/deletion/block positions and mixed line endings; not executed.",
+      "mapped_status": "Selected source paths remapped after Trim; four independent diagnostic gates remain. Full candidate compilation and semantic execution not run.",
+      "status": "mapped-blocked",
+      "evidence": [
+        "CandidateStringTests: null/empty/nonempty UTF-16 and side-effect/throwing argument evaluation; all tests compare .NET with Cilica native O0/O2",
+        "Post-change source reinspection retains Boolean storage, comparer and exact string-overload blockers; candidate compilation/execution not attempted",
+        "Post-Trim CandidateGapTests confirm four exact independent diagnostic gates; candidate source closure is still not admitted/executed."
+      ],
+      "next_action": "Resume with one independently scoped gap after Review milestone 6 coordination: Boolean vectors or Char.ToString, followed by string[] Split and comparer selection. Do not implement its existing IsNullOrEmpty/ordinal dictionary/LINQ/dispatch work again.",
+      "implemented_requirements": [
+        {
+          "feature": "String.Trim()",
+          "implementation": "library/Cilica.Core/StringWhitespace.cs",
+          "scope": "Parameterless UTF-16 whitespace trim via existing classifier/Substring; other Trim overloads remain diagnostic.",
+          "before": "CIL3010 Trim in independent reduction on active 08a2d75 baseline",
+          "tests": "CandidateTrimTests"
+        }
+      ],
+      "already_supported_requirements": [
+        "String.IsNullOrEmpty already implemented by Review milestone 6 (ADR AC0014); no duplicate helper retained.",
+        "Ordinal comparer-backed dictionary construction exists for directly proven Ordinal, not arbitrary/ignore-case selection."
+      ]
+    }
+  ],
+  "active_checkout": {
+    "path": "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica",
+    "branch": "codex/alchemy-replay-baseline",
+    "baseline": "08a2d75",
+    "reason": "User instructed this thread to use the up-to-date Review milestone 6 worktree",
+    "concurrent_changes": "Existing internal-slot compiler changes belong to Review milestone 6; do not stage or overwrite them",
+    "validation_head": "08a2d755309558d896c323f3da4f1e6c695f4888"
+  },
+  "validation": {
+    "focused_checks": 16,
+    "neighboring_checks": 46,
+    "snapshot_safety_checks": 8,
+    "note": "Four final exact-diagnostic reruns overlap the 46 checks; do not double-count. Full suite and actual candidate execution not run.",
+    "evidence_directory": "artifacts/compatibility-batch-001"
+  },
+  "cleanup": {
+    "fastenshtein": "No local snapshot created; screened via pinned online files.",
+    "diffplex": "Complete: 18 pinned files plus exact ownership marker verified and removed; no candidate implementation retained."
+  }
+}

@@ -5,6 +5,17 @@ namespace System
 {
     public sealed partial class String
     {
+        // Owned composition of the existing pinned whitespace predicate and
+        // checked substring operation; no new intrinsic or culture dependency.
+        public string Trim()
+        {
+            int start = 0, end = Length;
+            while (start < end && Cilica.Runtime.UnicodeWhitespace.Contains(this[start])) ++start;
+            while (start < end && Cilica.Runtime.UnicodeWhitespace.Contains(this[end - 1])) --end;
+            if (start == 0 && end == Length) return this;
+            return Substring(start, end - start);
+        }
+
         public static bool IsNullOrWhiteSpace(string value)
         {
             if (value == null) return true;

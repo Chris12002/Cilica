@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Example projects share Kernel/Prepare names; include their full directories
+         so isolated artifact output cannot collide. Existing repo props still run. -->
+    <ArtifactsProjectName>$([System.String]::Copy('$(MSBuildProjectDirectory)').Replace('/', '_'))</ArtifactsProjectName>
+  </PropertyGroup>
+</Project>
