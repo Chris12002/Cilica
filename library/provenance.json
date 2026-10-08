@@ -16,6 +16,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/CollectionExtensions.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/CollectionExtensions.cs",
+      "sha256": "2bac0e17e0c1f2e361e2e350c680f3c2bb9614ed1b00f6cf9d565b474c730e15"
+    },
+    {
       "upstreamPath": "src/libraries/System.Collections/src/System/Collections/Generic/Stack.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Collections/src/System/Collections/Generic/Stack.cs",
       "sha256": "901bdf04b68ea9d692a940bbcfd4f29d53f06a64dce99bf94c17ba2852c7438a"
@@ -467,6 +472,17 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/CollectionExtensions.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/CollectionExtensions.cs",
+      "algorithms": [
+        "AC3.35 both IReadOnlyDictionary GetValueOrDefault overloads, null validation and one TryGetValue callback."
+      ],
+      "changes": [
+        "Direct managed ArgumentNullException replaces ThrowHelper; no dictionary-type shortcut or new intrinsic."
+      ],
+      "scope": "GetValueOrDefault only; other CollectionExtensions members remain unimplemented."
+    },
     {
       "path": "library/Cilica.Core/Stack.cs",
       "upstreamPath": "src/libraries/System.Collections/src/System/Collections/Generic/Stack.cs",

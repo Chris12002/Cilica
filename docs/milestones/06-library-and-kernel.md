@@ -3632,3 +3632,12 @@ Twenty-three selected checks pass, including 2,352 new native/.NET comparisons.
 See ADR AC0201. Frozen discovery advances to CollectionExtensions.GetValueOrDefault
 in forced movement. Stack enumeration, other constructors and remaining members stay
 diagnostic. Full engine, unchanged fingerprint and saved-game replay remain unfinished.
+
+### Dictionary fallback lookup (AC3.35)
+
+Both IReadOnlyDictionary GetValueOrDefault overloads now use the owned null check
+and one ordinary TryGetValue call, preserving custom dictionary callbacks and fallback
+values. Eighteen checks pass with 2,352 native/.NET comparisons. See ADR AC0202.
+Frozen engine discovery advances to Nullable<T>.ToString in composite formatting;
+other CollectionExtensions members remain diagnostic. Full engine, unchanged
+fingerprint and saved-game replay remain unfinished.
