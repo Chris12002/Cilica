@@ -176,10 +176,15 @@ internal sealed partial class ObjectIrRules
                     "integer parsing requires the selected static Int32/Int64 declaration and exact String/style/provider signature with the matching result/output mode.");
             }
             if (binding.InvariantProviderOnly)
-                Require(primitiveInstance && binding.Primitive?.Code != PrimitiveTypeCode.Char && method.Parameters.Length == 2 && method.ReturnType == StringType
+                Require((primitiveInstance && binding.Primitive?.Code != PrimitiveTypeCode.Char
+                    || binding.Kind == ObjectMethodKind.ValueInstance && _valueLayouts is not null
+                        && _valueLayouts.TryGetValue(binding.Owner, out var decimalLayout)
+                        && decimalLayout.Source.Name == "System.Decimal" && binding.Owner.ContentHash == flow.Types.ObjectBase.ContentHash
+                        && binding.Attributes == (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final))
+                    && method.Parameters.Length == 2 && method.ReturnType == StringType
                     && method.Parameters[1].Class is { } provider && _program.Flow.Types.Interfaces.Any(i => ObjectTypeId.From(i.Source) == provider
                         && i.Source.Name == "System.IFormatProvider" && provider.ContentHash == flow.Types.ObjectBase.ContentHash),
-                    "invariant provider contract requires the selected primitive method and provider signature.");
+                    "invariant provider contract requires the selected primitive or Decimal method and provider signature.");
             Require(primitiveInstance == (binding.Primitive is not null), "primitive receiver evidence/kind mismatch.");
             Require(!method.Parameters.Any(p => p.Kind == IrTypeKind.ManagedLocation)
                 || (isStatic || valueConstructor) && binding.VirtualSlot is null && (binding.Attributes & MethodAttributes.Virtual) == 0

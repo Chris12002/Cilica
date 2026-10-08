@@ -3814,3 +3814,22 @@ graph. Typed value-array argument stores now retain those checks after lowering.
 CIL101/object IR61; native79, runtime and quotas unchanged. Batch013 passes 111 focused
 checks, 2,058 new native/.NET comparisons and allocation-failure recovery at O0/O2.
 CircularBuffer requires a new frozen selected-root trial; no external retry ran.
+
+
+### Bounded Decimal route arithmetic (AC8.70)
+
+The owned Decimal value implements Int32 construction/conversion, multiplication,
+division and directly proven invariant-provider text. A reusable managed helper
+preserves the 96-bit coefficient, sign, scale, nearest-even rounding, overflow and
+division-by-zero behavior. Fixed six-word scratch arrays use existing managed
+operations; there is no new native numeric ABI or floating-point approximation.
+CIL102/object IR62 record Decimal provider admission; native79 and production limits
+are unchanged. Constants, five-part/other constructors, parsing, other operators,
+equality/hashing and general formatting remain diagnostic.
+
+The final merged snapshot passes 71 focused/adjacent checks, including 38,766 new
+O0/O2 native/.NET comparisons with ASan/UBSan, forced collection, exact root/borrow
+cleanup and frame-budget boundaries. The frozen engine advances past Decimal to
+missing Enumerable.SequenceEqual in redirect-edit admission. This remains partial
+closure discovery, without full engine execution, fingerprint parity or replay.
+See ADR AC0214 and artifacts/alchemy-decimal{,-merged,-refresh,-engine}.

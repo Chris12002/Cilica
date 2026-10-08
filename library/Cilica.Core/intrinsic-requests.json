@@ -1174,5 +1174,12 @@
     "Member": "CopySection",
     "ParameterCount": 5,
     "Capability": "ArraySectionCopyBridge"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Decimal",
+    "Member": "ToString",
+    "ParameterCount": 1,
+    "Capability": "InvariantDecimalFormatting"
   }
 ]

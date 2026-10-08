@@ -494,6 +494,16 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Text/UTF8Encoding.Sealed.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Text/UTF8Encoding.Sealed.cs",
       "sha256": "6dff14b632dfa6740048f92be5d00cf8d7158fa7d3c741cabee85d53a7d1834d"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Decimal.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Decimal.cs",
+      "sha256": "89e04b0d528419a4e594f332aae1bdf7ccf249ecfb5e4cc9e562ab4234a878bb"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Decimal.DecCalc.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Decimal.DecCalc.cs",
+      "sha256": "423becf707e63aeda53ea7d81cf95b13cadb6bd79717ff9edfc9d0952eb8f6b8"
     }
   ],
   "adaptations": [
@@ -1431,6 +1441,35 @@
         "Return managed array plus Int32 count to owned query cursors; no Span or unsafe API."
       ],
       "scope": "AC6.13 List-backed Where/Select materialization only."
+    },
+    {
+      "path": "library/Cilica.Library/DecimalArithmetic.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Decimal.DecCalc.cs",
+      "algorithms": [
+        "VarDecMul coefficient multiplication, ScaleResult nearest-even reduction and observable zero scales",
+        "VarDecDiv quotient/remainder scaling, rounding overflow and conditional trailing-zero removal"
+      ],
+      "changes": [
+        "Replace unsafe buffers, platform intrinsics and optimized multiword division with fixed six-word managed arrays and one bounded binary division followed by decimal digits.",
+        "Use exact UInt32 limbs and UInt64 carries; no floating point or host decimal calls. Preserve all 96 coefficient bits, sign and scale.",
+        "Expose a readonly DecimalParts helper and invariant UTF-16 formatting through managed character arrays; no native Decimal ABI.",
+        "Use explicit UInt32 array reads/stores instead of unsupported unsigned element borrows.",
+        "Preserve the pinned Decimal overflow message; unsupported public Decimal members are not supplied by this helper."
+      ],
+      "scope": "Int32 construction, multiply, divide and invariant text; no general Decimal arithmetic, parsing, formatting or external ABI claim."
+    },
+    {
+      "path": "library/Cilica.Core/Decimal.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Decimal.cs",
+      "algorithms": [
+        "Decimal(Int32), implicit Int32 conversion, multiplication, division and provider text surface"
+      ],
+      "changes": [
+        "Delegate ordinary managed arithmetic to DecimalArithmetic through a nested readonly value.",
+        "Retain IConvertible ToString declaration flags and require exact InvariantDecimalFormatting grant plus direct invariant-provider evidence.",
+        "Leave parameterless ToString, equality and hashing explicitly unsupported, and omit all other constructors, constants and APIs."
+      ],
+      "scope": "Only the frozen route expression API surface; five-part construction remains diagnostic because its Byte actual-value exception payload is not yet supported."
     }
   ],
   "ownedAdapters": [

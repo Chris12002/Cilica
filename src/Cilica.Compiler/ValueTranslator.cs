@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v101";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v102";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
