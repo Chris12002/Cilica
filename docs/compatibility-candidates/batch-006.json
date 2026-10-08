@@ -145,9 +145,9 @@
         }
       ],
       "screened_before_download": true,
-      "external_execution": "Original and repaired offline selected-source trials retained; unchanged assembly compiles, repaired exact 2.0 contract selection reaches CIL2001 array-length branch. No candidate oracle/native execution yet.",
+      "external_execution": "Three pinned offline trials retained. Latest e5faa49 passes 25 focused checks and reaches scalar-array ldelema rejection during candidate translation; no candidate oracle/native execution.",
       "semantic_failures": [],
-      "semantic_failure_note": "Zero candidate semantic comparisons: translation stops before oracle invocation. This is a newly measured unsupported IL shape, not a runtime/output mismatch.",
+      "semantic_failure_note": "Zero candidate semantic comparisons. The scalar-array receiver diagnostic occurs before the oracle. Independent mutation reduction records the receiver-after-argument semantic requirement for a future fix.",
       "license": "Apache-2.0; License.txt at pinned commit",
       "target_frameworks": [
         "net45",
@@ -186,23 +186,24 @@
         "LineChunker: String.Split(string[],StringSplitOptions)"
       ],
       "unsupported_features": [
-        "ldlen consumed by a direct array-length truth branch without adjacent conv.i4 (Differ.CalculateEditLength IL_001d); independent EmptyPair reduction reproduces CIL2001."
+        "Scalar array element address used as Int32.Equals receiver; BuildModificationData token 0x06000010 IL_001e. EqualsElement and EqualsAfterArgumentMutation independently reproduce CIL2001."
       ],
       "excluded_scope": [
         "UI/console/three-way diff/rendering surfaces not mapped by this selected-root screen",
         "LOG conditional calls excluded when LOG undefined; no claim if enabled"
       ],
       "upstream_tests_inspected": "DifferFacts null parameter names, empty/identical inputs, insertion/deletion/block positions and mixed line endings; not executed.",
-      "mapped_status": "Previously screened source requirements mapped; actual retry exposed an additional ldlen truth-branch IL gap after exact earlier-contract repair.",
+      "mapped_status": "Earlier-contract binding and confined ldlen truth branches repaired; actual unchanged candidate now exposes scalar array element receiver borrowing as the next gap.",
       "status": "mapped-blocked",
       "evidence": [
         "94 main and 9 boundary checks pass; two managed Unicode sweeps and complete changed-mapping native checks included.",
         "Original and conditional ignore-case dictionary reductions now execute and match .NET.",
         "No actual DiffPlex code or build script executed; an explicit opt-in selected-source recipe and full transcript comparator are prepared but unrun.",
         "2026-10-08 isolated execution: selected assembly compiles; exact netstandard2.0 reference unresolved by approved harness; 1 explicit test fails before all 64 semantic scenarios. See diffplex-execution-20261008.md.",
-        "Retry ae04d32: contract regressions5/5 pass offline; unchanged candidate assembly advances from CIL3003 to CIL2001 ldlen truth branch. See diffplex-retry-20261008.md."
+        "Retry ae04d32: contract regressions5/5 pass offline; unchanged candidate assembly advances from CIL3003 to CIL2001 ldlen truth branch. See diffplex-retry-20261008.md.",
+        "Third trial e5faa49:25/25 offline focused checks pass; candidate hash unchanged; next CIL2001 is scalar array element receiver. See diffplex-ldlen-20261008.md."
       ],
-      "next_action": "Coordinate a confined ldlen truth-branch lowering slice. Promote CandidateArrayLengthBranchTests into O0/O2 semantic controls with null/order and negative escape tests, preserving native-integer boundaries. Rerun same pinned 14-source adapter/64 scenarios offline using retained verified tooling image; continue from the next actual diagnostic.",
+      "next_action": "Coordinate scalar-array receiver/borrow support with Review milestone 6. Promote both independent scalar receiver reductions to O0/O2 controls; preserve receiver reads after argument mutation, rooting across allocations, null/bounds order and native location lifetime. Keep other scalar widths/escapes explicitly bounded. Reuse retained verified image and rerun the same 14 unchanged sources and all 64 scenarios.",
       "implemented_requirements": [
         {
           "feature": "String.Trim()",
@@ -245,6 +246,13 @@
           "scope": "Pinned Unicode 16 ordinal equality/ordering/hash; supplementary scalars and malformed UTF-16; no culture/nongeneric comparer or StringComparison overload expansion.",
           "before": "CIL3010 get_OrdinalIgnoreCase in retained independent reductions",
           "tests": "CandidateOrdinalIgnoreCaseTests and promoted CandidateGap/Dictionary comparer controls"
+        },
+        {
+          "feature": "ldlen native-size truth branches",
+          "implementation": "src/Cilica.Compiler/ValueTranslator.cs",
+          "scope": "Integer CIL90 only: adjacent same-block brtrue/brfalse, short or long, lowers bounded length to Boolean with original fault; other native flows remain rejected.",
+          "before": "CIL2001 CalculateEditLength IL_001d in actual ae04d32 retry",
+          "tests": "CandidateArrayLengthBranchTests: 20 checks, 2,352 repeated O0/O2 comparisons; 81 adjacent checks pass."
         }
       ],
       "already_supported_requirements": [
@@ -258,7 +266,7 @@
         "semantics": "ignoreCase selects OrdinalIgnoreCase versus Ordinal. BuildPieceHashes requires equality/hash through Dictionary, Count, TryGetValue and indexer assignment. No culture-sensitive factory or direct comparer Compare call. Three-argument wrappers pass false but no whole-program branch pruning is assumed."
       },
       "reduced_semantic_failures": [],
-      "validation_blocker": "CIL2001: Array length requires an adjacent conv.i4 in the same block; native integer flow requires later lowering. Earlier CIL3003 is repaired by explicit pinned contract selection.",
+      "validation_blocker": "CIL2001: Element addresses currently require a closed inline value or reference array. Previous CIL3003 and ldlen truth-branch gates are repaired.",
       "integration_execution": {
         "report": "diffplex-execution-20261008.md",
         "cilica_commit": "268024e94879acdb004228afa360e1222e2068b8",
@@ -294,6 +302,28 @@
         },
         "diagnostic": "CIL2001",
         "location": "DiffPlex.Differ::CalculateEditLength token 0x0600000e IL_001d",
+        "oracle_scenarios": 0,
+        "native_scenarios": 0,
+        "target_scenarios": 64,
+        "semantic_comparisons": 0
+      },
+      "integration_ldlen_retry": {
+        "report": "diffplex-ldlen-20261008.md",
+        "cilica_commit": "e5faa49d1ce77736183f0c958dac083111272efc",
+        "previous_cilica_commit": "ae04d324484a349839863c1789328825b61e2dd4",
+        "candidate_assembly_unchanged": true,
+        "focused_regressions": {
+          "total": 25,
+          "passed": 25,
+          "failed": 0
+        },
+        "explicit_candidate_tests": {
+          "total": 1,
+          "passed": 0,
+          "failed": 1
+        },
+        "diagnostic": "CIL2001",
+        "location": "DiffPlex.Differ::BuildModificationData token 0x06000010 IL_001e",
         "oracle_scenarios": 0,
         "native_scenarios": 0,
         "target_scenarios": 64,

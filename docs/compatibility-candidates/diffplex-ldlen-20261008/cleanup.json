@@ -1,0 +1,11 @@
+{
+  "removed_candidate_image": "Untagged: cilica-diffplex-input:ldlen-20261008\nDeleted: sha256:6135ab13e4e5a4bd13f5d099d9bc73c592fb8c6d0686737f444c3daf2e1f4cb8\nDeleted: sha256:b2956a923c6c901ea90631bc37f788f9077ce1dddebbb6b6f15e9915d1a1b76d\nDeleted: sha256:511a9da1aa4e1cc6181f45d90e40fdb98e373ef27fc3edd9e869fbafd1364650\nDeleted: sha256:899881ff77f715bb2b3e8ec64aac1ae27d923ad1229af16df9bfdc59a4c0cb96\nDeleted: sha256:34ddfc2a6dcbb411dcf9a5aba6dc92cf6fe8c6f67dd3c610115e52d1bd5b4de1\nDeleted: sha256:afe6db028d68e77414cb28f6b4e81b101a457974d422b45e03de39cbd39f427d\nDeleted: sha256:195ce301b6044b0f2162a563fd07abb6c22baefa07b9c714539a3e64e18530be\n",
+  "removed_paths": [
+    "inputs/",
+    "cilica.tar",
+    "artifacts/compatibility-ldlen/reduction-snapshot/"
+  ],
+  "retained_tooling_image": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "tooling_size_bytes": 470855666,
+  "retained": "All three trial results, licences, hashes, recipes and independent regression sources; no live or peer source removed."
+}

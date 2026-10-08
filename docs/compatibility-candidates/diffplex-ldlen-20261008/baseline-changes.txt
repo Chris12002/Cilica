@@ -1,0 +1,4 @@
+e5faa49 feat: lower confined array length truth branches
+5dc3cf4 test: retain DiffPlex retry and array length branch reduction
+dc8d530 feat: admit same-assembly protected virtual slots
+b2983b7 feat: preserve enumerable set union semantics

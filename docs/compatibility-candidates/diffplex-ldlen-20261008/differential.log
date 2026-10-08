@@ -1,0 +1,15 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ApprovedDiffPlexExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: translating selected candidate root; no oracle invocation yet.
+    Cilica.Metadata.Tests.ApprovedDiffPlexExecutionTests.Selected_roots_match_every_transcript_observation [FAIL]
+      Diagnostic { Id = CIL2001, Severity = Error, Message = Element addresses currently require a closed inline value or reference array., Location = DiffPlex.Differ::BuildModificationData token 0x06000010 IL_001e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ApprovedDiffPlexExecutionTests.cs(31,0): at Cilica.Metadata.Tests.ApprovedDiffPlexExecutionTests.Selected_roots_match_every_transcript_observation()
+        --- End of stack trace from previous location ---
+      Output:
+        Stage: translating selected candidate root; no oracle invocation yet.
+  Finished:    Cilica.Metadata.Tests (ID = '92b1b746cadc27469c0360fb411ead04964cf462d83d33972b487c3a91c07b8a')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0.996s
