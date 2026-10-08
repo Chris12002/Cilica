@@ -110,10 +110,30 @@ public static class ObjectInterfacePlanBuilder
 
         private ObjectInterfaceDispatchPlan Prepare(ObjectTypeCatalog catalog, ImmutableArray<ResolvedMethod> declarations)
         {
-            var types = new IrTypeRules(catalog, _values, locations: catalog.Integer64); var variance = new ObjectInterfaceVarianceRules(catalog, types); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
+            var types = new IrTypeRules(catalog, _values, locations: catalog.Integer64); var variance = new ObjectInterfaceVarianceRules(catalog, types, _values); var maps = new List<ObjectInterfaceDispatch>(); int targetCount = 0;
             // The catalog is immutable for this pass. Rebuilding its transitive
             // assignment graph for every mapped method scales with the whole closure.
             BoxedTypeRelations? boxes = null; IrTypeRules? boxedTypes = null;
+            ResolvedMethod SelectContract(ResolvedMethod resolved, ObjectInterfaceDeclaration declaration, ObjectTypeId receiver)
+            {
+                var selected = resolved;
+                if (!variance.Nominal(receiver).Contains(declaration.Owner))
+                {
+                    var candidates = variance.Candidates(receiver, declaration.Owner);
+                    if (candidates.Length != 1 || resolved.MethodArguments.Count != 0)
+                        Fail("Variant interface dispatch requires exactly one declared compatible contract and a nongeneric method.", declaration.Source.Name);
+                    selected = Value(resolver.ResolveClosedDeclaration(_knownTypes[candidates[0]], declaration.Name, declaration.Parameters.Length - 1, budget, publicOnly: true));
+                    if (selected.Handle != resolved.Handle || selected.DeclaringType.Definition != resolved.DeclaringType.Definition)
+                        Fail("Variant interface dispatch must preserve the exact open member declaration.", declaration.Source.Name);
+                    var variantInput = Read(selected); var variantParameters = Parameters(variantInput, candidates[0]);
+                    var variant = new ObjectInterfaceDeclaration(variantInput.Source, candidates[0], variantInput.DeclaredName,
+                        variantInput.Attributes, variantInput.OwnerExternallyVisible, variantParameters, Type(variantInput.Signature.ReturnType, true));
+                    if (!ObjectInterfaceVarianceRules.Packet(declaration, variant, types))
+                        Fail("Variant interface dispatch requires compatible reference/scalar packets without value or byref adaptation.", declaration.Source.Name);
+                    Count(variantParameters.Length); _variants.Add((Id(resolved), receiver), variant);
+                }
+                return selected;
+            }
             foreach (var resolved in declarations)
             {
                 var id = Id(resolved); var declaration = _declarations[id]; var targets = new List<ObjectInterfaceTarget>();
@@ -129,22 +149,7 @@ public static class ObjectInterfacePlanBuilder
                         {
                             if (closed)
                             {
-                                var selected = resolved;
-                                if (!variance.Nominal(receiver).Contains(declaration.Owner))
-                                {
-                                    var candidates = variance.Candidates(receiver, declaration.Owner);
-                                    if (candidates.Length != 1 || resolved.MethodArguments.Count != 0)
-                                        Fail("Variant interface dispatch requires exactly one declared compatible contract and a nongeneric method.", declaration.Source.Name);
-                                    selected = Value(resolver.ResolveClosedDeclaration(_knownTypes[candidates[0]], declaration.Name, declaration.Parameters.Length - 1, budget, publicOnly: true));
-                                    if (selected.Handle != resolved.Handle || selected.DeclaringType.Definition != resolved.DeclaringType.Definition)
-                                        Fail("Variant interface dispatch must preserve the exact open member declaration.", declaration.Source.Name);
-                                    var variantInput = Read(selected); var variantParameters = Parameters(variantInput, candidates[0]);
-                                    var variant = new ObjectInterfaceDeclaration(variantInput.Source, candidates[0], variantInput.DeclaredName,
-                                        variantInput.Attributes, variantInput.OwnerExternallyVisible, variantParameters, Type(variantInput.Signature.ReturnType, true));
-                                    if (!ObjectInterfaceVarianceRules.Packet(declaration, variant, types))
-                                        Fail("Variant interface dispatch requires compatible reference/scalar packets without value or byref adaptation.", declaration.Source.Name);
-                                    Count(variantParameters.Length); _variants.Add((id, receiver), variant);
-                                }
+                                var selected = SelectContract(resolved, declaration, receiver);
                                 exact = Value(resolver.ResolveClosedInterfaceMethodTarget(selected, _knownTypes[receiver], runtimeLibrary, budget));
                             }
                             else
@@ -176,7 +181,7 @@ public static class ObjectInterfacePlanBuilder
                         if (++targetCount > ObjectDispatchLimits.MaximumTargets) Fail("Interface dispatch target limit exceeded.", limit: true);
                         if (!_choices.TryGetValue((id, receiver), out var exact))
                         {
-                            try { exact = Value(resolver.ResolveClosedInterfaceMethodTarget(resolved, _knownTypes[receiver], runtimeLibrary, budget)); }
+                            try { exact = Value(resolver.ResolveClosedInterfaceMethodTarget(SelectContract(resolved, declaration, receiver), _knownTypes[receiver], runtimeLibrary, budget)); }
                             catch (PlanFailure failure) { throw new PlanFailure(failure.Diagnostic, id); }
                             _choices.Add((id, receiver), exact);
                         }
@@ -185,7 +190,7 @@ public static class ObjectInterfacePlanBuilder
                             throw new PlanFailure(new(DiagnosticIds.ExecutionUnsupported, DiagnosticSeverity.Error,
                                 "Boxed interface dispatch requires a declared nongeneric instance body on the exact named value receiver.", declaration.Source.Name), id);
                         BoxedMethod(exact.Implementation, boxedTypes ??= new IrTypeRules(catalog, _values, locations: true));
-                        targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit));
+                        targets.Add(new(receiver, Id(exact.Mapping), Id(exact.Implementation), exact.IsExplicit) { VariantDeclaration = _variants.GetValueOrDefault((id, receiver)) });
                     }
                 }
                 foreach (var receiver in catalog.Arrays)

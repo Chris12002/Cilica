@@ -4,16 +4,19 @@ namespace Cilica.Compiler;
 
 // Declared interface ancestry is distinct from assignability through variance.
 // Exact contracts win; this bounded profile admits only one variant candidate.
-internal sealed class ObjectInterfaceVarianceRules(ObjectTypeCatalog catalog, IrTypeRules types)
+internal sealed class ObjectInterfaceVarianceRules(ObjectTypeCatalog catalog, IrTypeRules types, ValueTypeCatalog? values = null)
 {
     private readonly Dictionary<ObjectTypeId, ObjectTypeLayout> _classes = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
+    private readonly Dictionary<ObjectTypeId, ValueTypeLayout> _values = values?.Types.Where(v => v.ScalarBox is null).ToDictionary(v => ObjectTypeId.From(v.Source)) ?? [];
     private readonly Dictionary<ObjectTypeId, ObjectInterface> _contracts = catalog.Interfaces.ToDictionary(t => ObjectTypeId.From(t.Source));
     private readonly Dictionary<ObjectTypeId, HashSet<ObjectTypeId>> _nominal = [];
     internal HashSet<ObjectTypeId> Nominal(ObjectTypeId receiver)
     {
         if (_nominal.TryGetValue(receiver, out var known)) return known;
         var result = new HashSet<ObjectTypeId>(); var pending = new Stack<ObjectTypeId>();
-        for (ObjectTypeId? owner = receiver; owner is not null; owner = _classes[owner].BaseType)
+        if (_values.TryGetValue(receiver, out var value))
+            foreach (var contract in value.Interfaces) pending.Push(contract);
+        else for (ObjectTypeId? owner = receiver; owner is not null; owner = _classes[owner].BaseType)
             foreach (var contract in _classes[owner].Interfaces) pending.Push(contract);
         while (pending.TryPop(out var contract))
             if (result.Add(contract)) foreach (var parent in _contracts[contract].Parents) pending.Push(parent);

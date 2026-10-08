@@ -3766,3 +3766,16 @@ The follow-up AC8.67 audit increases only copied diagnostic metadata work to 4,1
 after measured 2,097,152 exhaustion. Frozen discovery then identifies boxed List<T>
 enumerator covariance at IEnumerator<T>.Current as the next gap. This is partial
 interface planning, not full engine execution, fingerprint parity or saved-game replay.
+
+### Boxed single-candidate interface variance (AC8.68)
+
+Named boxed values now share the existing exact-first, single-candidate variance
+selection with class receivers. Discovery selects the declared contract; both IR
+stages check its original member identity and compatible reference/scalar signature.
+Boxed payloads remain borrowed in place, preserving mutation and allocation roots.
+All 55 distinct selected checks pass, including 2,940 new native/.NET comparisons.
+CIL100/interface-plan19; object IR60/native79, core bodies and production quotas are
+unchanged. Ambiguous/generic variance and missing return-interface catalog discovery
+remain diagnostic. Frozen discovery finishes its initial interface-planning pass,
+then reaches 10,797 method declarations/mappings against the 8,192 diagnostic quota.
+See ADR AC0212. Full engine execution, fingerprint parity and replay remain unfinished.
