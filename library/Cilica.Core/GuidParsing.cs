@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// Bounded adaptation of pinned Guid.cs constructor and static parsing; see provenance.
+// Bounded adaptation of pinned Guid.cs parsing; see provenance.
+// Validation returns a status; only the throwing API wrapper creates exceptions.
 namespace Cilica.Runtime
 {
     internal static class GuidParsing
@@ -8,39 +9,53 @@ namespace Cilica.Runtime
         internal static int[] Parse(string text, bool constructor)
         {
             if (text == null) throw new System.ArgumentNullException(constructor ? "g" : "input");
+            int error;
+            var words = TryParse(text, out error);
+            if (words != null) return words;
+            if (error == -1 && constructor)
+                throw new System.OverflowException("Value was either too large or too small for a UInt32.");
+            throw Invalid(error);
+        }
+
+        internal static int[] TryParse(string text, out int error)
+        {
+            error = 0;
+            if (text == null) return Failure(9, out error);
             int start = 0, end = text.Length;
             while (start < end && UnicodeWhitespace.Contains(text[start])) start++;
             while (end > start && UnicodeWhitespace.Contains(text[end - 1])) end--;
             int length = end - start;
-            if (length < 32) throw Invalid(9);
+            if (length < 32) return Failure(9, out error);
             int first = text[start];
             if (first == '(')
             {
-                if (length != 38 || text[end - 1] != ')') throw Invalid(8);
-                return Standard(text, start + 1, 36, true);
+                if (length != 38 || text[end - 1] != ')') return Failure(8, out error);
+                return Standard(text, start + 1, 36, true, out error);
             }
             if (first == '{')
             {
-                if (text[start + 9] != '-') return Expanded(Compact(text, start, length), constructor);
-                if (length != 38 || text[end - 1] != '}') throw Invalid(8);
-                return Standard(text, start + 1, 36, true);
+                if (text[start + 9] != '-') return Expanded(Compact(text, start, length), out error);
+                if (length != 38 || text[end - 1] != '}') return Failure(8, out error);
+                return Standard(text, start + 1, 36, true, out error);
             }
-            return Standard(text, start, length, text[start + 8] == '-');
+            return Standard(text, start, length, text[start + 8] == '-', out error);
         }
 
-        private static int[] Standard(string text, int start, int length, bool dashed)
+        private static int[] Standard(string text, int start, int length, bool dashed, out int error)
         {
-            if (length != (dashed ? 36 : 32)) throw Invalid(8);
+            error = 0;
+            if (length != (dashed ? 36 : 32)) return Failure(8, out error);
             if (dashed && (text[start + 8] != '-' || text[start + 13] != '-' || text[start + 18] != '-' || text[start + 23] != '-'))
-                throw Invalid(4);
+                return Failure(4, out error);
             // D permits the pinned legacy +/0x prefixes in the first five components.
             // Its last eight digits, and every N component, remain strict hexadecimal.
-            uint a = Fixed(text, start, 8, dashed);
-            uint b = Fixed(text, start + (dashed ? 9 : 8), 4, dashed);
-            uint c = Fixed(text, start + (dashed ? 14 : 12), 4, dashed);
-            uint de = Fixed(text, start + (dashed ? 19 : 16), 4, dashed);
-            uint fg = Fixed(text, start + (dashed ? 24 : 20), 4, dashed);
-            uint hijk = Fixed(text, start + (dashed ? 28 : 24), 8, false);
+            uint a = Fixed(text, start, 8, dashed, ref error);
+            uint b = Fixed(text, start + (dashed ? 9 : 8), 4, dashed, ref error);
+            uint c = Fixed(text, start + (dashed ? 14 : 12), 4, dashed, ref error);
+            uint de = Fixed(text, start + (dashed ? 19 : 16), 4, dashed, ref error);
+            uint fg = Fixed(text, start + (dashed ? 24 : 20), 4, dashed, ref error);
+            uint hijk = Fixed(text, start + (dashed ? 28 : 24), 8, false, ref error);
+            if (error != 0) return null;
             var words = new int[4];
             words[0] = unchecked((int)a);
             words[1] = unchecked((int)(b | (c << 16)));
@@ -49,11 +64,11 @@ namespace Cilica.Runtime
             return words;
         }
 
-        private static uint Fixed(string text, int start, int length, bool compatible)
+        private static uint Fixed(string text, int start, int length, bool compatible, ref int error)
         {
             int overflow = 0;
             uint value;
-            if (!Hex(text, start, length, compatible, out value, ref overflow)) throw Invalid(7);
+            if (!Hex(text, start, length, compatible, out value, ref overflow)) error = 7;
             return value;
         }
 
@@ -105,14 +120,22 @@ namespace Cilica.Runtime
             return new string(characters);
         }
 
-        private static int[] Expanded(string text, bool constructor)
+        private static int[] Failure(int kind, out int error)
         {
-            if (text.Length == 0 || text[0] != '{') throw Invalid(2);
+            error = kind;
+            return null;
+        }
+
+        private static int[] Expanded(string text, out int error)
+        {
+            error = 0;
+            if (text.Length == 0 || text[0] != '{') return Failure(2, out error);
             int index = 1;
-            uint a = Component(text, ref index, ',', false, constructor);
-            uint b = Component(text, ref index, ',', false, constructor);
-            uint c = Component(text, ref index, ',', false, constructor);
-            if (index >= text.Length || text[index] != '{') throw Invalid(2);
+            uint a, b, c;
+            if (!Component(text, ref index, ',', false, out a, out error) ||
+                !Component(text, ref index, ',', false, out b, out error) ||
+                !Component(text, ref index, ',', false, out c, out error)) return null;
+            if (index >= text.Length || text[index] != '{') return Failure(2, out error);
             index++;
             var words = new int[4];
             words[0] = unchecked((int)a);
@@ -120,33 +143,33 @@ namespace Cilica.Runtime
             for (int i = 0; i < 8; i++)
             {
                 char delimiter = i == 7 ? '}' : ',';
-                uint octet = Component(text, ref index, delimiter, true, constructor);
+                uint octet;
+                if (!Component(text, ref index, delimiter, true, out octet, out error)) return null;
                 int word = i < 4 ? 2 : 3;
                 words[word] = words[word] | unchecked((int)(octet << ((i & 3) * 8)));
             }
-            if (index >= text.Length || text[index] != '}') throw Invalid(5);
-            if (index != text.Length - 1) throw Invalid(0);
+            if (index >= text.Length || text[index] != '}') return Failure(5, out error);
+            if (index != text.Length - 1) return Failure(0, out error);
             return words;
         }
 
-        private static uint Component(string text, ref int index, char delimiter, bool octet, bool constructor)
+        private static bool Component(string text, ref int index, char delimiter, bool octet, out uint value, out int error)
         {
-            if (index >= text.Length - 1 || text[index] != '0' || (text[index + 1] | 0x20) != 'x') throw Invalid(6);
+            value = 0;
+            error = 0;
+            if (index >= text.Length - 1 || text[index] != '0' || (text[index + 1] | 0x20) != 'x')
+            { error = 6; return false; }
             int start = index + 2, end = start;
             while (end < text.Length && text[end] != delimiter) end++;
-            if (end == text.Length || end == start) throw Invalid(delimiter == '}' ? 1 : 3);
+            if (end == text.Length || end == start)
+            { int kind = delimiter == '}' ? 1 : 3; error = kind; return false; }
             int overflow = 0;
-            uint value;
             bool success = Hex(text, start, end - start, true, out value, ref overflow);
-            if (overflow != 0)
-            {
-                if (constructor) throw new System.OverflowException("Value was either too large or too small for a UInt32.");
-                throw Invalid(9);
-            }
-            if (octet && value > 255) throw Invalid(9);
-            if (!success) throw Invalid(7);
+            if (overflow != 0) { error = -1; return false; }
+            if (octet && value > 255) { error = 9; return false; }
+            if (!success) { error = 7; return false; }
             index = end + 1;
-            return value;
+            return true;
         }
 
         private static System.FormatException Invalid(int kind)

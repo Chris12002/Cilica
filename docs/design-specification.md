@@ -4292,3 +4292,13 @@ TargetOptions.ParsePlayer at IL_0003. Discovery charges 1,117,323 metadata units
 in 4,288 ms; StateLookup remains 15 methods/11,613 units. Production's 256-type
 limit stays unchanged. See ADR AC0192. No engine emission or execution occurs;
 full engine, unchanged fingerprint and saved-game replay remain unfinished.
+
+### Nonthrowing string GUID parsing (AC5a.10)
+
+Guid.TryParse(String, out Guid) now shares D/N/B/P/X validation with the constructor
+and Parse, returns false and clears the output for null/invalid/overflowing input,
+and creates no parsing exception on those paths. The throwing APIs retain their
+exact fault policies. Six new probes supply 6,972 repeated native/.NET comparisons;
+all 32 selected GUID checks pass with O0/O2, forced GC and sanitizers. See ADR AC0193.
+The frozen engine advances to invariant Int64.Parse(String,IFormatProvider) in
+ShieldAcquisitionReceipt.Read. Full engine, fingerprint and replay remain unfinished.

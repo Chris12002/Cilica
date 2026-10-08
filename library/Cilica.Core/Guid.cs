@@ -31,6 +31,15 @@ namespace System
         }
 
         public static Guid Parse(string input) => new Guid(Cilica.Runtime.GuidParsing.Parse(input, false));
+        public static bool TryParse(string input, out Guid result)
+        {
+            int error;
+            var words = Cilica.Runtime.GuidParsing.TryParse(input, out error);
+            if (words == null) { result = default(Guid); return false; }
+            result = new Guid(words);
+            return true;
+        }
+
         private Guid(int[] words)
         { a = words[0]; bc = words[1]; defg = words[2]; hijk = words[3]; }
 
