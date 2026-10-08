@@ -3374,3 +3374,13 @@ comparisons plus two live-root checks; all 63 selected checks pass. See ADR AC01
 Profiles, grants and limits are unchanged. Frozen discovery next reaches List<T>.
 Reverse() in ContinueShieldWave at 964,532 metadata units. Full engine/fingerprint/
 replay execution remains unfinished.
+
+### List reversal (AC3.31)
+
+List<T>.Reverse() and Reverse(index,count) now reverse the validated range in place,
+including exact argument order/text and enumerator invalidation for empty/singleton
+ranges. Nine probes supply 2,952 repeated native comparisons; all 34 selected checks
+pass. See ADR AC0178. Profiles, grants and limits are unchanged. Frozen discovery
+next reaches String.Split(char,StringSplitOptions) in DamageReplacementCheckpoint.
+RecordAnswers at 989,604 metadata units. Full engine/fingerprint/replay execution
+remains unfinished.

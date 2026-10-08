@@ -577,12 +577,14 @@
         "AC3.6 direct generic CopyTo with complete bounds validation, unchanged version and per-element reference downcasts.",
         "AC3.8/AC3.11 IEnumerable construction: dynamic collection Count snapshot, zero count, exact capacity and CopyTo before size publication; other sources enumerate with Add growth and finally-disposal.",
         "AC3.10 Comparison<T> sorting with captured backing storage, callback faults and version semantics.",
+        "AC3.31 Reverse() and Reverse(index,count) preserve range validation, in-place reversal and version increments even for empty/singleton ranges.",
         "AC3.12 AddRange with collection Count/CopyTo, checked growth, post-copy size/version updates and per-item enumerable fallback.",
         "AC6.13 capture list count and backing array with the pinned CollectionsMarshal.AsSpan corruption check for owned query materialization.",
         "AC3.13 all three FindIndex overloads: start/count/match validation, captured end index and live backing-array reads through predicate mutation. AC3.17 adds Exists through FindIndex(match) != -1."
       ],
       "changes": [
         "Replace Array.Copy with typed managed loops; retain allocation-before-publication and exception ordering.",
+        "AC3.31 replaces the validated Array.Reverse span helper with typed managed swaps; no allocation, callback, capacity or size change is introduced.",
         "Use Array.Empty<T> for private empty storage; sorting captures backing storage across callbacks, including reentrant capacity changes.",
         "Factor constructor validation into managed helpers to preserve exception order within the current straight-line constructor profile.",
         "Read growth length through Capacity to retain explicit Int32 length conversion in supported IL.",

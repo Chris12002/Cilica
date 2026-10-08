@@ -163,6 +163,25 @@ namespace System.Collections.Generic
             if (size > 1) Cilica.Runtime.ComparisonSort<T>.Sort(items, size, comparison);
             version++;
         }
+        public void Reverse() => Reverse(0, size);
+        public void Reverse(int index, int count)
+        {
+            if (index < 0) throw new ArgumentOutOfRangeException("index", "Non-negative number required.");
+            if (count < 0) throw new ArgumentOutOfRangeException("count", "Non-negative number required.");
+            if (size - index < count)
+                throw new ArgumentException("Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection.");
+            if (count > 1)
+            {
+                int left = index, right = index + count - 1;
+                while (left < right)
+                {
+                    T temporary = items[left];
+                    items[left++] = items[right];
+                    items[right--] = temporary;
+                }
+            }
+            version++;
+        }
         public T[] ToArray()
         {
             if (size == 0)
