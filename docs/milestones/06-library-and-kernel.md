@@ -3937,3 +3937,22 @@ comparisons, ASan/UBSan, forced collection and exact frame/root cleanup. The fro
 passes SurfaceOccupants.LastIndexOf and reaches the three-argument Enumerable.Contains
 call in ForcedMovementOperation.OneOf. Full native engine/replay and the independently
 confirmed polymorphic sorted-dictionary duplicate-text gap remain open. See ADR AC0220.
+
+### Explicit-comparer sequence membership (AC8.77)
+
+`Enumerable.Contains<T>(source,value,comparer)` now supports admitted default-key
+and comparer shapes. An explicit null comparer uses default equality, including for
+collections with their own Contains behavior. Exact arrays and Lists retain their
+original storage/count through comparer callbacks; other sources enumerate with
+normal short-circuiting and disposal. Nullable/default-key and unsupported collection
+construction gaps remain diagnostic. No compiler profile, runtime or quota changes.
+
+The broad run passed 37 of 38 checks; its sole failure was a stale negative for a
+reference OfType/Select composition that now translates. Replacing it with native
+positive coverage passed both optimization levels: 39 distinct final checks passed
+across the broad run and focused follow-up, with 12,534 new native/.NET comparisons.
+ASan/UBSan, forced collection, exact roots/borrows and frame budgets remain enabled.
+The frozen engine scan now reaches String.Join in ForcedMovementOperation.Encode
+(3,306,855 work units); StateLookup validates 15 methods. Neither audit emits C++.
+Full engine closure/replay and non-sealed sorted-dictionary duplicate text remain
+open. See ADR AC0221 for evidence and scope.

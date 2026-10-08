@@ -30,9 +30,7 @@ public sealed class LinqContainsTests
                 persistentRoots: group >= 3, expectedStaticRoots: subset.Key ? 1 : 0);
     }
     [Theory]
-    [InlineData("UnsupportedComparer", "No implementation method matches")]
     [InlineData("UnsupportedNullable", "Nullable")]
-    [InlineData("UnsupportedReferenceProjection", "requested interface contract")]
     public async Task Unimplemented_overload_and_equality_shapes_remain_diagnostic(string name, string diagnostic)
     {
         using var files = new ResolverFiles();
@@ -44,4 +42,20 @@ public sealed class LinqContainsTests
         var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
         Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains(diagnostic, StringComparison.Ordinal));
     }
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Former_explicit_comparer_gap_executes(bool optimized)
+    {
+        var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(LinqContainsProbe),["UnsupportedComparer"]))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("UnsupportedComparer",program,LinqContainsProbe.UnsupportedComparer)],expectedStaticRoots:1);
+    }
+
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Former_reference_projection_gap_executes_with_exact_cache_roots(bool optimized)
+    {
+        var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(LinqContainsProbe),["UnsupportedReferenceProjection"]))[0];
+        var pairs=(from a in new[]{int.MinValue,-3,-1,0,1,2,3,4,7,int.MaxValue}
+                   from b in new[]{int.MinValue,-1,0,1,2,3,4,7,10,11,12,int.MaxValue} select(a,b)).ToArray();
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("UnsupportedReferenceProjection",program,LinqContainsProbe.UnsupportedReferenceProjection)],pairs,expectedStaticRoots:2);
+    }
+
 }

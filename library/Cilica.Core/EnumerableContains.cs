@@ -7,6 +7,24 @@ namespace System.Linq
 {
     public static partial class Enumerable
     {
+        public static bool Contains<T>(IEnumerable<T> source, T value, IEqualityComparer<T> comparer)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            T[] storage = Cilica.Runtime.SequenceComparison<T>.Storage(source, out int count);
+            if (storage != null)
+            {
+                for (int index = 0; index < count; ++index)
+                    if (Cilica.Runtime.SequenceComparison<T>.Equal(storage[index], value, comparer)) return true;
+                return false;
+            }
+            using (IEnumerator<T> cursor = source.GetEnumerator())
+            {
+                while (cursor.MoveNext())
+                    if (Cilica.Runtime.SequenceComparison<T>.Equal(cursor.Current, value, comparer)) return true;
+                return false;
+            }
+        }
+
         public static bool Contains<T>(IEnumerable<T> source, T value)
         {
             if (source is ICollection<T> collection) return collection.Contains(value);

@@ -1663,13 +1663,14 @@
     },
     {
       "path": "library/Cilica.Core/EnumerableContains.cs",
-      "behavioralSource": "src/libraries/System.Linq/src/System/Linq/Contains.cs",
+      "behavioralSource": "src/libraries/System.Linq/src/System/Linq/Contains.cs; System.Private.CoreLib/src/System/MemoryExtensions.cs",
       "contracts": [
         "The two-argument overload delegates to ICollection<T>.Contains before iterator/default enumeration and preserves null-source, short-circuit and disposal behavior.",
+        "AC8.77 adds the explicit-comparer overload: null comparer selects default equality rather than collection.Contains, exact array/List storage snapshots preserve callback mutation behavior, and ordinary traversal retains disposal.",
         "Existing exact core key helpers provide admitted default equality; fallback enumeration copies the candidate before mutating value Equals.",
         "Owned Contains interfaces preserve pinned query shortcuts: Ordered/Distinct search their source, ConcatN searches heads before its two-source tail, Where/OfType scan fresh sources, and selected fused projections preserve the original query cursor. General/iterator Select retains ordinary cursor consumption."
       ],
-      "scope": "Default two-argument Contains over already admitted equality/source shapes. Comparer overload, nullable equality, general reference equality, reference OfType.Select variance compositions and boxed collection factories remain diagnostic."
+      "scope": "Two-argument and explicit-comparer Contains over admitted default-key/source/comparer shapes. One formerly negative reference OfType.Select composition now has native evidence with exact cached roots; this is not general variance coverage. Nullable/default-key gaps, broader reference equality and unsupported collection construction remain diagnostic."
     },
     {
       "path": "library/Cilica.Core/EnumQueries.cs",
