@@ -4418,3 +4418,14 @@ The unchanged selected DiffPlex character/line roots now pass 64 scenarios and
 11,232 repeated native/.NET transcript comparisons at O0/O2; see the
 [trial report](compatibility-candidates/diffplex-int32-20261008.md). Broader candidate
 surfaces remain untested.
+
+### Default grouping (AC6.23)
+
+The two-argument GroupBy and IGrouping now preserve first-key group order, element
+order, deferred buffering, callback failures, read-only group lists and cursor state.
+Managed lookup storage uses the existing admitted default key operations. Sixty-two
+selected checks pass, including 6,342 new repeated native/.NET comparisons and exact
+retained-graph collection checks. See ADR AC0200. Frozen engine discovery advances
+to missing Stack<T> in forced movement. Comparer/selector overloads, ToLookup and
+optimized query Skip remain unimplemented. Full engine execution, unchanged
+fingerprinting and saved-game replay remain unfinished.

@@ -3611,3 +3611,14 @@ selected checks pass across the integrated run and targeted fixture repairs, inc
 4,410 new repeated native/.NET comparisons. See ADR AC0199. Frozen discovery advances
 to missing IGrouping<TKey,TElement> in forced movement. Full engine, unchanged fingerprint
 and saved-game replay remain unfinished.
+
+### Default grouping (AC6.23)
+
+The two-argument GroupBy and IGrouping now preserve first-key group order, element
+order, deferred buffering, callback failures, read-only group lists and cursor state.
+Managed lookup storage uses the existing admitted default key operations. Sixty-two
+selected checks pass, including 6,342 new repeated native/.NET comparisons and exact
+retained-graph collection checks. See ADR AC0200. Frozen engine discovery advances
+to missing Stack<T> in forced movement. Comparer/selector overloads, ToLookup and
+optimized query Skip remain unimplemented. Full engine execution, unchanged
+fingerprinting and saved-game replay remain unfinished.

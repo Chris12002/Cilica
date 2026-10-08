@@ -1,8 +1,5 @@
 using System;
 using System.Linq;
-using System.IO;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Cilica.Compiler;
 using Cilica.Fixtures.Execution;
@@ -24,16 +21,14 @@ public sealed class LinqMaterializationTests
     }
 
     [Theory]
-    [InlineData("UnsupportedUnsigned")]
-    public async Task Unimplemented_scalar_alias_paths_stay_diagnostic(string name)
+    [InlineData(false)] [InlineData(true)]
+    public async Task Previously_rejected_unsigned_snapshot_matches_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(LinqMaterializationProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LinqMaterializationProbe).GetMethod(name)!.MetadataToken);
-        var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(result.Success);
+        // UInt32 vectors were admitted before grouping; keep this former gap as
+        // an execution control rather than expecting a now-stale diagnostic.
+        const string name = "UnsupportedUnsigned";
+        var program = (await CoreLibraryBuildTests.TranslateFixtures(typeof(LinqMaterializationProbe), [name]))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [(name, program, LinqMaterializationProbe.UnsupportedUnsigned)]);
     }
 }

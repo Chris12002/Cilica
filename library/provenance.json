@@ -16,6 +16,26 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Grouping.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Grouping.cs",
+      "sha256": "a18aba637ab3cd087e33353efd96ea5eece3e11530231b86f72e59145955b819"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Lookup.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Lookup.cs",
+      "sha256": "390b3e88e30f8f16c10e7e2de63fcb6fe467c8e2403a9c8718d6f351d56f9f7d"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Grouping.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Grouping.SpeedOpt.cs",
+      "sha256": "63e4954276f2e75a5886680adeeab3d3adb5c27e88df4250179202c616c8e7b8"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/PartialArrayEnumerator.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/PartialArrayEnumerator.cs",
+      "sha256": "3c5cfb0e345daea9962b2d7f4aaee682af12a9c9ded73f5293ba6f794002e894"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Int64.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Int64.cs",
       "sha256": "b9ad0967b527a6deee20b35429cf8fc2df1f5c134f0122d3f63aeb870e650586"
@@ -442,6 +462,17 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/Grouping.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Grouping.cs",
+      "algorithms": [
+        "AC6.23 default two-argument GroupBy, insertion-ordered lookup, group arrays, cursor state and terminal specializations from Grouping.SpeedOpt.cs, Lookup.cs and PartialArrayEnumerator.cs."
+      ],
+      "changes": [
+        "Existing KeyOperations supply admitted default equality/hash. Managed loops and arrays replace spans and Array.Resize; private helper properties and an owner-local table factory preserve compiler access restrictions. Query markers retain Count/Any/First/materialization behavior and diagnose unimplemented optimized Skip."
+      ],
+      "scope": "Default GroupBy(source,keySelector), IGrouping and its read-only IList element view. Comparer, element-selector, result-selector and ToLookup overloads remain unimplemented."
+    },
     {
       "path": "library/Cilica.Core/SkipIterator.cs",
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SkipTake.SpeedOpt.cs",

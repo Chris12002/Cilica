@@ -40,6 +40,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/DistinctIterator.cs \
   --source library/Cilica.Core/ConcatIterator.cs \
   --source library/Cilica.Core/OrderedIterator.cs \
+  --source library/Cilica.Core/Grouping.cs \
   --source library/Cilica.Core/MapSort.cs \
   --source library/Cilica.Core/ComparisonSort.cs \
   --source library/Cilica.Core/OfTypeIterator.cs \
