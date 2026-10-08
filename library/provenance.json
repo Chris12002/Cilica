@@ -914,9 +914,9 @@
     {
       "path": "library/Cilica.Core/Enumerable.cs",
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Single.cs",
-      "scope": "AC6.9 predicate overloads for admitted array/reference-enumerator sources; parameterless/default-value overloads and boxed collection factories remain unsupported.",
+      "scope": "AC6.9 predicate overloads plus AC6.19 source-only Single/SingleOrDefault for admitted IList and enumerable sources. Explicit-default overloads and broader boxed collection factories remain unsupported.",
       "algorithms": [
-        "Predicate Single/SingleOrDefault null order, first loaded match, remainder scan, exact match-count messages and fallback disposal."
+        "Predicate Single/SingleOrDefault null order, first loaded match, remainder scan, exact match-count messages and fallback disposal. Source-only forms preserve IList Count/index-zero shortcuts, two-step enumeration, exact cardinality messages and disposal before no/multiple-element faults."
       ],
       "changes": [
         "Use direct array indexing in place of the array span; List span access is not admitted.",

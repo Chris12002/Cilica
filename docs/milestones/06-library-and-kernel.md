@@ -3354,3 +3354,13 @@ checks pass. Other overloads/nested-vector source types remain diagnostic. See A
 AC0175. Profiles, grants and limits are unchanged. Frozen discovery next reaches
 Single(source) in construction-contribution handling at 958,875 metadata units;
 full engine/fingerprint/replay execution remains unfinished.
+
+### Source-only Single terminals (AC6.19)
+
+Single(source) and SingleOrDefault(source) now preserve the pinned IList Count/index
+fast path and two-MoveNext enumerable path, including disposal and exact fault text.
+Nine probes supply 2,424 repeated native comparisons; all 37 selected checks pass.
+Explicit-default overloads remain unmapped. See ADR AC0176. Profiles, grants and
+limits are unchanged. Frozen discovery next reaches indexed Select in
+ContinueShieldContribution at 972,267 metadata units; full engine/fingerprint/replay
+execution remains unfinished.

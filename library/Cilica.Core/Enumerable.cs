@@ -50,6 +50,34 @@ namespace System.Linq
                 return Cilica.Runtime.SelectIterator<TSource, TResult>.FromArray(array, selector, array.Length);
             return new Cilica.Runtime.SelectIterator<TSource, TResult>(source, null, selector);
         }
+        public static TSource Single<TSource>(IEnumerable<TSource> source)
+        {
+            TSource value=TryGetSingle(source,out int found);
+            if (found==0) throw new InvalidOperationException("Sequence contains no elements");
+            return value;
+        }
+        public static TSource SingleOrDefault<TSource>(IEnumerable<TSource> source) => TryGetSingle(source,out _);
+        private static TSource TryGetSingle<TSource>(IEnumerable<TSource> source,out int found)
+        {
+            if (source==null) throw new ArgumentNullException("source");
+            if (source is IList<TSource> list)
+            {
+                int count=list.Count;
+                if (count==0) { found=0;return default; }
+                if (count==1) { found=1;return list[0]; }
+            }
+            else
+            {
+                using (IEnumerator<TSource> e=source.GetEnumerator())
+                {
+                    if (!e.MoveNext()) { found=0;return default; }
+                    TSource value=e.Current;
+                    if (!e.MoveNext()) { found=1;return value; }
+                }
+            }
+            found=0;
+            throw new InvalidOperationException("Sequence contains more than one element");
+        }
         public static TSource SingleOrDefault<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate) =>
             TryGetSingle(source, predicate, out _);
         public static TSource Single<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)

@@ -24,8 +24,8 @@ public sealed class LinqSingleTests
             (name, programs[i], typeof(LinqSingleProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedNoPredicate")] [InlineData("UnsupportedNoPredicateDefault")]
-    public async Task Unimplemented_single_shapes_remain_diagnostic(string name)
+    [InlineData("NoPredicate")] [InlineData("NoPredicateDefault")]
+    public async Task Source_only_single_declarations_now_bind(string name)
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -34,7 +34,7 @@ public sealed class LinqSingleTests
         var input = resolver.OpenInput(typeof(LinqSingleProbe).Assembly.Location).Value!;
         var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LinqSingleProbe).GetMethod(name)!.MetadataToken);
         var result = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics, d => d.Message.Contains("No implementation method matches", StringComparison.OrdinalIgnoreCase));
+        Assert.True(result.Success,string.Join("; ",result.Diagnostics));
+        Assert.NotNull(result.Program);
     }
 }

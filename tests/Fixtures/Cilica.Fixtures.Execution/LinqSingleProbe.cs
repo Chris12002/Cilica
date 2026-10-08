@@ -172,8 +172,8 @@ namespace Cilica.Fixtures.Execution
             }
             return result;
         }
-        public static int UnsupportedNoPredicate(int a, int b) => new[] { a, b }.Single();
-        public static int UnsupportedNoPredicateDefault(int a, int b) => new[] { a, b }.SingleOrDefault();
+        public static int NoPredicate(int a, int b) => new[] { a, b }.Single();
+        public static int NoPredicateDefault(int a, int b) => new[] { a, b }.SingleOrDefault();
         public static int ListSingle(int a, int b)
         {
             var source = new List<int>();
