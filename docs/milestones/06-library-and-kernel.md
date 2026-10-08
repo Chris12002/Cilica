@@ -3881,6 +3881,24 @@ Production limits and the 60-second probe bound remain unchanged.
 
 The next semantic gap is Int32.Parse(String,IFormatProvider) in the unchanged
 ActivationCountDamage operation, using directly supplied InvariantCulture. EngineStep
-still fails before C++ emission; StateLookup retains its isolated 15-method C++ output.
-No probe output is compiled/executed natively. Full engine/fingerprint/replay work
+still fails during discovery; StateLookup validates a 15-method program. These diagnostic
+scans suppress C++ emission for both roots; no probe output is compiled/executed natively. Full engine/fingerprint/replay work
 remains unfinished. See ADR AC0217.
+
+
+### Provider-only Int32 parsing (AC8.74)
+
+Int32.Parse(String,IFormatProvider) now uses the existing owned Integer parser with
+an exact overload-specific InvariantIntegerParsing grant and a directly proven
+InvariantCulture operand. Validation derives the provider position from the selected
+signature and the result width from the primitive identity. CIL104/object IR63;
+native79, runtime operations and production quotas are unchanged. Other providers,
+provider aliases, default overloads and Int64 explicit-style Parse remain diagnostic.
+
+All 90 combined parsing/Char-delegate checks pass on an isolated snapshot, including
+2,202 new repeated O0/O2 native/.NET comparisons for four parsing roots, forced GC,
+ASan/UBSan and exact frame/root cleanup. Removing only this overload's grant rejects
+it while preserving explicit-style Int32 Parse. The frozen engine passes the new call
+and reaches unmapped SortedDictionary<TKey,TValue> in DispelOperation.Run. The measured
+probe predates the merged Char-delegate source; full native engine/replay remains open.
+See ADR AC0218. AC8.73 emission notes are corrected: diagnostic scans emit neither root.

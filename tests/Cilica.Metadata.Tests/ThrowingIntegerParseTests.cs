@@ -77,7 +77,7 @@ public sealed class ThrowingIntegerParseTests
         using var files=new ResolverFiles();var (built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
         var bytes=await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken);
         var manifest=JsonSerializer.Deserialize<LibraryBuildManifest>(bytes,new JsonSerializerOptions {Converters={new JsonStringEnumConverter<LibraryIntrinsicCapability>()}})!;
-        var artifact=Assert.Single(manifest.Artifacts);Assert.Single(artifact.Grants.Where(g=>g.Capability==LibraryIntrinsicCapability.InvariantIntegerParsing && g.Owner=="System.Int32" && g.Member=="Parse"));
+        var artifact=Assert.Single(manifest.Artifacts);Assert.Equal(2,artifact.Grants.Count(g=>g.Capability==LibraryIntrinsicCapability.InvariantIntegerParsing && g.Owner=="System.Int32" && g.Member=="Parse"));
         var narrowed=manifest with {Artifacts=[artifact with {Grants=[..artifact.Grants.Where(g=>g.Capability!=LibraryIntrinsicCapability.InvariantIntegerParsing || g.Owner!="System.Int32" || g.Member!="Parse")]}]};
         var deniedBytes=AssemblyResolver.SerializeLibraryBuildManifest(narrowed);var input=resolver.OpenInput(typeof(ThrowingIntegerParseProbe).Assembly.Location).Value!;
         MethodDefinitionHandle Method(string name)=>(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ThrowingIntegerParseProbe).GetMethod(name)!.MetadataToken);

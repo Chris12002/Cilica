@@ -662,7 +662,7 @@
       "path": "library/Cilica.Library/IntegerParsing.cs",
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs; System/Int32.cs; System/Int64.cs; Resources/Strings.resx",
       "contracts": ["AC5a.9/AC5a.11 invariant Int32/Int64 Integer grammars with success/format/overflow status and exact Parse exceptions; Int32 TryParse keeps zero output on failure.", "Consume digits after overflow so invalid trailing text takes precedence; preserve ASCII whitespace and trailing NUL rules."],
-      "scope": "Exact Int32.Parse(String,NumberStyles,IFormatProvider) with directly proven Integer/InvariantCulture, and Int64.Parse(String,IFormatProvider) with directly proven InvariantCulture and implicit Integer style. Other overloads/styles/providers stay diagnostic; existing Int32.TryParse and Int64.None behavior remains."
+      "scope": "Exact Int32.Parse(String,NumberStyles,IFormatProvider) with directly proven Integer/InvariantCulture, and Int32/Int64.Parse(String,IFormatProvider) with directly proven InvariantCulture and implicit Integer style (AC8.74 adds the Int32 overload without changing the parser). Other overloads/styles/providers stay diagnostic; existing Int32.TryParse and Int64.None behavior remains."
     },
     {
       "path": "library/Cilica.Core/CoreTypes.cs",

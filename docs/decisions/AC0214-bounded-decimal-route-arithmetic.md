@@ -81,5 +81,5 @@ advances to missing Enumerable.SequenceEqual at RedirectResolutionSpellEdit.CanA
 IL_0073, called from AlchemyEffectBlockHost.Resume. It charges 2,600,833 metadata units
 in 10,512ms. StateLookup remains 15 methods/11,616 units in 494ms. Production probes still
 stop at their 256-type allowance. Evidence: artifacts/alchemy-decimal-refresh and
-artifacts/alchemy-decimal-engine; EngineStep emitted no C++; StateLookup retained its isolated C++ output. No probe output was compiled or executed natively.
+artifacts/alchemy-decimal-engine; The diagnostic harness suppressed C++ emission for both roots; StateLookup validated a 15-method program. No probe output was compiled or executed natively.
 Full closure admission, canonical fingerprints and saved-game replay remain unfinished.

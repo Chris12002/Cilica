@@ -31,6 +31,13 @@
     "Namespace": "System",
     "Type": "Int32",
     "Member": "Parse",
+    "ParameterCount": 2,
+    "Capability": "InvariantIntegerParsing"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Int32",
+    "Member": "Parse",
     "ParameterCount": 3,
     "Capability": "InvariantIntegerParsing"
   },

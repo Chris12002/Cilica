@@ -42,8 +42,10 @@ The later character-trimming/array changes are not in these receipts. Six frozen
 assembly hashes remain verified by AC8.72. Review confirms only diagnostic budget
 constants/counters change; no tests mirror this documentation-only slice.
 
-Clarify the historical audit flag: the harness emits isolated StateLookup C++ on
-successful translation, but never compiles or executes it. EngineStep has emitted
-no C++ in any of these runs. Current-turn audit records now state these separately
-rather than the ambiguous nativeEmission=false flag. Full closure admission,
-native engine execution, canonical fingerprints and saved-game replay remain open.
+Correct the earlier emission interpretation: the refresh harness has an emitter branch,
+but its production-limit runs reject both roots before that branch. The larger diagnostic
+copies remove the emitter branch entirely, so successful StateLookup validation does not
+emit C++. The saved rows confirm Emission=null. Neither root is emitted, compiled or
+executed in these scans. The initial AC8.73 audit flag stateLookupCppEmission=true was
+incorrect; AC8.74 corrects the receipts and notes. Full closure admission, native engine
+execution, canonical fingerprints and saved-game replay remain open.

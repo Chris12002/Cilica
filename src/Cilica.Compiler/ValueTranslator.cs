@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v103";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v104";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -771,7 +771,7 @@ public static class ValueTranslator
                                 Error(offset, "Integer composite formatting requires a directly proven literal without format suffixes in the same block.", DiagnosticIds.ExecutionUnsupported);
                             if (target.Binding.IntegerParser is { } parser)
                             {
-                                bool implicitStyle = target.Binding.ThrowingIntegerParser && parser.Code == PrimitiveTypeCode.Int64;
+                                bool implicitStyle = target.Binding.ThrowingIntegerParser && (parser.Code == PrimitiveTypeCode.Int64 || target.Parameters.Length == 2);
                                 if (arguments.Length != (implicitStyle ? 2 : target.Binding.ThrowingIntegerParser ? 3 : 4)
                                     || !implicitStyle && (valueExpressions[arguments[1]] is not IrExpression.Constant parserStyle
                                         || parserStyle.Value != (parser.Code == PrimitiveTypeCode.Int32 ? 7 : 0))
