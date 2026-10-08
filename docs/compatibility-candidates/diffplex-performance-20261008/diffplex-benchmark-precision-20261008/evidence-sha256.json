@@ -1,0 +1,20 @@
+{
+  "dotnet-host-build.log": "9455b88bd30ceac077cf370812208d048119d5743047d9022c2ca86d63b07818",
+  "measurement-progress.json": "52a54160ae30c313011a341cf38046c32a084c0adc1d0cc9a3a71ddd49b51769",
+  "dotnet-measure-0-precision.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "precision-results.json": "f74694c18b5f48c9f5ba13bac6a11cb24b0baf442a2efc31727733117595009b",
+  "stage.log": "c83bab4dc7cd2074a8b34d41a34db030e67464b9bb711148d17d2b5d30a05812",
+  "verify.log": "e1655ded1085e91e5a730f7a1f114d6341efbf46196ff139be88557fa8b0082f",
+  "result.json": "90df780e84706fc6203cf36a72bf2666553c87729c827689e6cd38d3e414fe86",
+  "precision.log": "33371457b773d209ba50091a5babe66575462027f011c0dbe6a43a20eb00b44e",
+  "candidate-assembly.sha256": "637f453af6bc39400ed13ee756be15e1f9a4760f0276534350b096efcf4688e8",
+  "cpu-stat-before.txt": "f2678fd3b3edcc5fe761caf5ad2b1ca3dd4f6bffff08cf430d652ae464db39a1",
+  "candidate-build.log": "65e7f08996cc1dd273edd371922d913192ad5ed1587ad2dbd21d59b469facb6c",
+  "dotnet-measure-0-precision.jsonl": "06997b60986d27bdcae9268b7be23bb35965127ba8d0ac4599f12b7104bd62b6",
+  "candidate-restore.log": "ca12f09f2e15c5b2e6125cde381e6344f07902a466feb746b91011f1b2255ff2",
+  "benchmark-environment.json": "82f517c0675386a0a77f636cfc95fa70e2dfff9af8852f998ecfd48540287879",
+  "progress.json": "1ea3648364e739724dca0fd4de5231824404197e60d7f6dbb8bed931f065945a",
+  "versions.log": "bc24ad1e0829882681197db05e882a6b2f0a21d6684d433b13c803084284408f",
+  "input-provenance.json": "606b15c5d5334537a0d3af2d5605aa856a31ec560688152a158bea7412c2df21",
+  "tooling-packages.txt": "031998cb75b003bed8a5b665b89e86ae5da1ff983055d7ec25dd04bd0a6fadaf"
+}

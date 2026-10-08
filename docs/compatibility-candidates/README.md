@@ -11,6 +11,10 @@ on Cilica 3d0bb53, with 64 scenarios and 11,232 repeated O0/O2 comparisons. Batc
 contains the current status and next action. CRC32.NET external execution remains
 separately unapproved. Earlier batch reports preserve their historical outcomes.
 
+Separate [Release performance measurements](diffplex-performance-20261008.md)
+show a large current throughput gap on one verified character-diff workload.
+Correctness trial durations are not performance results.
+
 ## Resume and coordinate
 
 1. Verify `git status`, branch, HEAD and all active worktrees. Read AGENTS.md and

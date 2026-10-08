@@ -1,0 +1,15 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ApprovedDiffPlexBenchmarkEmissionTests.Emit_approved_benchmark [FAIL]
+      Diagnostic { Id = CIL3005, Severity = Error, Message = Type 'System.Collections.Generic.CollectionExtensions' was not found., Location = netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/NetStandard20Contract.cs(53,0): at Cilica.Metadata.Tests.NetStandard20Contract.Require[T](ResolutionResult`1 result)
+        tests/Cilica.Metadata.Tests/NetStandard20Contract.cs(44,0): at Cilica.Metadata.Tests.NetStandard20Contract.Include(AssemblyResolver resolver, LibraryBindingPlan existing, ResolvedAssembly implementation)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(62,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/ApprovedDiffPlexBenchmarkEmissionTests.cs(26,0): at Cilica.Metadata.Tests.ApprovedDiffPlexBenchmarkEmissionTests.Emit_approved_benchmark()
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '92b1b746cadc27469c0360fb411ead04964cf462d83d33972b487c3a91c07b8a')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0.793s

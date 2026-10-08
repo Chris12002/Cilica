@@ -1,0 +1,119 @@
+{
+  "dotnet": {
+    "samples_ns_per_operation": [
+      6013.427734375,
+      6105.2459716796875,
+      5751.52587890625,
+      5714.0167236328125,
+      5680.95703125,
+      5658.843994140625,
+      5765.6982421875
+    ],
+    "median_ns": 5751.52587890625,
+    "min_ns": 5658.843994140625,
+    "max_ns": 6105.2459716796875,
+    "iterations_per_sample": 32768,
+    "sample_count": 7,
+    "warmup": {
+      "warmIterations": 52672,
+      "warm_ms": 300.0198
+    },
+    "peak_rss_kib": 38648,
+    "cold_first_call_ns": [
+      5112100,
+      5252600,
+      5095500
+    ],
+    "cold_process_wall_ms": [
+      182.05504200000178,
+      181.79179200001272,
+      183.0083749999858
+    ],
+    "allocated_bytes_per_operation": [
+      14226.26318359375,
+      14226.296875,
+      14226.296875,
+      14226.2763671875,
+      14226.296875,
+      14226.296875,
+      14226.2763671875
+    ],
+    "gen0_collections": [
+      111,
+      112,
+      112,
+      111,
+      112,
+      112,
+      111
+    ]
+  },
+  "cilica": {
+    "samples_ns_per_operation": [
+      322618000.5,
+      157966062.5,
+      457506771.0,
+      109033458.5,
+      376358187.5,
+      90038958.5,
+      265501104.5
+    ],
+    "median_ns": 265501104.5,
+    "min_ns": 90038958.5,
+    "max_ns": 457506771.0,
+    "iterations_per_sample": 2,
+    "sample_count": 7,
+    "warmup": {
+      "warmIterations": 8,
+      "warm_ms": 1508.595
+    },
+    "peak_rss_kib": 16612,
+    "cold_first_call_ns": [
+      33447833,
+      33232417,
+      33087166
+    ],
+    "cold_process_wall_ms": [
+      34.81308400000671,
+      34.44012500000326,
+      34.170582999990984
+    ],
+    "managed_bytes_after": [
+      104320,
+      276176,
+      75420,
+      247276,
+      419132,
+      169944,
+      341800
+    ],
+    "managed_objects_after": [
+      967,
+      2615,
+      681,
+      2329,
+      3977,
+      1582,
+      3230
+    ]
+  },
+  "ratio_cilica_over_dotnet": 46161.85514764467,
+  "output_observations": 523,
+  "compiler_commit": "3d0bb53e94b5356cbbe59fae3c2ebca93af68fc8",
+  "benchmark_commit": "a581334811b8f303b0869079589e0e3ce528dfb3",
+  "candidate_commit": "f500e73f28e28813f942f1f16dec5a34b40e48e3",
+  "line_workload": "not reported: native complete-output validation exceeded its180-second subprocess bound",
+  "host_cpu": {
+    "model": "Apple M4 Pro",
+    "machine": "Mac16,7",
+    "logical_cpus": 14
+  },
+  "limits": {
+    "cpus": 2,
+    "memory_gib": 8,
+    "pids": 256,
+    "scratch_gib": 10,
+    "output_gib": 1,
+    "host_deadline_minutes": 30
+  }
+}

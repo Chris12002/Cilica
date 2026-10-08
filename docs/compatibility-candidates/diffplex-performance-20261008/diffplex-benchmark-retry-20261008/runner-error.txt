@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/runner.py", line 37, in <module>
+    run('measure',['python3',bench+'measure.py'])
+  File "/runner.py", line 12, in run
+    if result.returncode:raise RuntimeError(name+' failed: '+str(result.returncode))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: measure failed: 1

@@ -1,0 +1,153 @@
+{
+  "status": "failed",
+  "error": "measure failed: 1",
+  "elapsed_seconds": 370.770831336,
+  "steps": [
+    {
+      "name": "versions",
+      "argv": [
+        "sh",
+        "-c",
+        "dotnet --info; clang++-18 --version; python3 --version; id; cat /proc/self/status; cat /proc/mounts"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "stage",
+      "argv": [
+        "python3",
+        "tools/CompatibilityCandidates/candidate_snapshot.py",
+        "stage",
+        "diffplex",
+        "--batch",
+        "batch-006",
+        "--input-json",
+        "/work/input/reviewed.json"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "verify",
+      "argv": [
+        "python3",
+        "tools/CompatibilityCandidates/candidate_snapshot.py",
+        "verify",
+        "diffplex",
+        "--batch",
+        "batch-006"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "candidate-restore",
+      "argv": [
+        "dotnet",
+        "restore",
+        "/work/recipe/SelectedRoots.csproj",
+        "--source",
+        "/approved/offline-feed",
+        "-p:CandidateSource=/work/cilica/artifacts/compatibility-candidates/diffplex-f500e73f28e28813f942f1f16dec5a34b40e48e3",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "candidate-build",
+      "argv": [
+        "dotnet",
+        "build",
+        "/work/recipe/SelectedRoots.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--output",
+        "/work/out",
+        "-p:CandidateSource=/work/cilica/artifacts/compatibility-candidates/diffplex-f500e73f28e28813f942f1f16dec5a34b40e48e3"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "dotnet-host-build",
+      "argv": [
+        "dotnet",
+        "build",
+        "/work/recipe/DotNetHost.csproj",
+        "-c",
+        "Release",
+        "--output",
+        "/work/dotnet-host",
+        "-p:RestoreSources=/approved/offline-feed",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "cilica-build",
+      "argv": [
+        "dotnet",
+        "build",
+        "tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj",
+        "--artifacts-path",
+        "artifacts/diffplex-approved/build",
+        "-p:CustomBeforeDirectoryBuildProps=/work/cilica/tools/CompatibilityCandidates/isolated-build.props",
+        "-p:RestoreSources=/approved/offline-feed",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false",
+        "-m:1"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "emit",
+      "argv": [
+        "dotnet",
+        "artifacts/diffplex-approved/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-explicit",
+        "only",
+        "-method",
+        "Cilica.Metadata.Tests.ApprovedDiffPlexBenchmarkEmissionTests.Emit_approved_benchmark",
+        "-culture",
+        "invariant",
+        "-noColor"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "native-build",
+      "argv": [
+        "clang++-18",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/work/out/native-bench.cpp",
+        "-o",
+        "/work/out/native-bench"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "measure",
+      "argv": [
+        "python3",
+        "/work/cilica/tools/CompatibilityCandidates/diffplex-benchmark/measure.py"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 1
+    }
+  ]
+}

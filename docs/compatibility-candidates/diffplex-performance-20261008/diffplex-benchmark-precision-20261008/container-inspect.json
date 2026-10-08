@@ -1,0 +1,232 @@
+{
+  "Id": "7652b1249c464d30a1df146af2ac7335044f99a2c77d6053563bd73d2ee47083",
+  "Created": "2026-10-08T10:08:18.652043467Z",
+  "Path": "python3",
+  "Args": [
+    "-B",
+    "-c",
+    "\"\"\"Owned entrypoint: run the exact approved recipe offline, retain logs, await pickup.\"\"\"\nimport hashlib,json,os,pathlib,shutil,subprocess,time,traceback\nout=pathlib.Path('/evidence'); started=time.monotonic(); steps=[]\ndef save(value):\n    (out/'result.json').write_text(json.dumps(value,indent=2)+'\\n')\ndef run(name,args,cwd='/work/cilica'):\n    step={'name':name,'argv':args,'cwd':cwd};steps.append(step)\n    (out/'progress.json').write_text(json.dumps(steps,indent=2))\n    with (out/(name+'.log')).open('w') as log:\n        result=subprocess.run(args,cwd=cwd,stdout=log,stderr=subprocess.STDOUT,timeout=max(1,1710-(time.monotonic()-started)))\n    step['exit_code']=result.returncode\n    if result.returncode:raise RuntimeError(name+' failed: '+str(result.returncode))\ntry:\n    shutil.copytree('/approved/cilica','/work/cilica')\n    shutil.copytree('/approved/input','/work/input')\n    pathlib.Path('/work/home').mkdir();pathlib.Path('/work/recipe').mkdir();pathlib.Path('/work/out').mkdir()\n    shutil.copy('/tooling-packages.txt',out/'tooling-packages.txt')\n    shutil.copy('/approved/input-provenance.json',out/'input-provenance.json')\n    run('versions',['sh','-c','dotnet --info; clang++-18 --version; python3 --version; id; cat /proc/self/status; cat /proc/mounts'])\n    run('stage',['python3','tools/CompatibilityCandidates/candidate_snapshot.py','stage','diffplex','--batch','batch-006','--input-json','/work/input/reviewed.json'])\n    run('verify',['python3','tools/CompatibilityCandidates/candidate_snapshot.py','verify','diffplex','--batch','batch-006'])\n    source='-p:CandidateSource=/work/cilica/artifacts/compatibility-candidates/diffplex-f500e73f28e28813f942f1f16dec5a34b40e48e3'\n    bench='/work/cilica/tools/CompatibilityCandidates/diffplex-benchmark/'\n    for name in ['SelectedRoots.csproj','BenchProbe.cs','DotNetHost.csproj','DotNetHost.cs']:\n        shutil.copy(bench+name,'/work/recipe/'+name)\n    run('candidate-restore',['dotnet','restore','/work/recipe/SelectedRoots.csproj','--source','/approved/offline-feed',source,'-p:NuGetAudit=false'])\n    run('candidate-build',['dotnet','build','/work/recipe/SelectedRoots.csproj','-c','Release','--no-restore','--output','/work/out',source])\n    (out/'candidate-assembly.sha256').write_text(hashlib.sha256(pathlib.Path('/work/out/DiffPlex.Benchmark.dll').read_bytes()).hexdigest()+'  DiffPlex.Benchmark.dll\\n')\n    run('dotnet-host-build',['dotnet','build','/work/recipe/DotNetHost.csproj','-c','Release','--output','/work/dotnet-host','-p:RestoreSources=/approved/offline-feed','-p:NuGetAudit=false'])\n    assert hashlib.sha256(pathlib.Path('/work/out/DiffPlex.Benchmark.dll').read_bytes()).hexdigest() == '1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb'\n    run('precision',['python3','-c',\"from pathlib import Path\\nimport json\\ntext=Path('/work/cilica/tools/CompatibilityCandidates/diffplex-benchmark/measure.py').read_text()\\nexec(text.split('for work in [0,1]:')[0])\\nrow=run('dotnet','measure',0,32768,label='-precision')\\nassert all(x['checksum']==6146*32768 for x in row['records'] if 'sample' in x)\\n(out/'precision-results.json').write_text(json.dumps(row,indent=2))\\nprint(json.dumps(row,indent=2))\\n\"])\n    save({'status':'passed','elapsed_seconds':time.monotonic()-started,'steps':steps})\nexcept Exception as ex:\n    (out/'runner-error.txt').write_text(traceback.format_exc())\n    save({'status':'failed','error':str(ex),'elapsed_seconds':time.monotonic()-started,'steps':steps})\n# tmpfs disappears on stop. Host watchdog copies bounded evidence, then removes this container.\nwhile True:time.sleep(10)\n"
+  ],
+  "State": {
+    "Status": "created",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "0001-01-01T00:00:00Z",
+    "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "Image": "sha256:322970303c4519051a530956a935fbf39d31f71133b281cb0fabdc8d8b3a325b",
+  "ResolvConfPath": "",
+  "HostnamePath": "",
+  "HostsPath": "",
+  "LogPath": "",
+  "Name": "/cilica-diffplex-benchmark-precision-20261008",
+  "RestartCount": 0,
+  "Driver": "overlayfs",
+  "Platform": "linux",
+  "MountLabel": "",
+  "ProcessLabel": "",
+  "AppArmorProfile": "",
+  "ExecIDs": null,
+  "HostConfig": {
+    "Binds": null,
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "Type": "none",
+      "Config": {}
+    },
+    "NetworkMode": "none",
+    "PortBindings": {},
+    "RestartPolicy": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "VolumeDriver": "",
+    "VolumesFrom": null,
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "CapAdd": null,
+    "CapDrop": [
+      "ALL"
+    ],
+    "CgroupnsMode": "private",
+    "Dns": null,
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": null,
+    "GroupAdd": null,
+    "IpcMode": "private",
+    "Cgroup": "",
+    "Links": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyRootfs": true,
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Tmpfs": {
+      "/evidence": "rw,noexec,nosuid,nodev,size=1g,uid=10001,gid=10001,mode=0700",
+      "/tmp": "rw,exec,nosuid,nodev,size=1g,uid=10001,gid=10001,mode=0700",
+      "/work": "rw,exec,nosuid,nodev,size=9g,uid=10001,gid=10001,mode=0700"
+    },
+    "UTSMode": "",
+    "UsernsMode": "",
+    "ShmSize": 67108864,
+    "Runtime": "runc",
+    "Isolation": "",
+    "CpuShares": 0,
+    "Memory": 8589934592,
+    "NanoCpus": 2000000000,
+    "CgroupParent": "",
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteIOps": [],
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "Devices": [],
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "MemoryReservation": 0,
+    "MemorySwap": 8589934592,
+    "MemorySwappiness": null,
+    "OomKillDisable": false,
+    "PidsLimit": 256,
+    "Ulimits": [],
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "IOMaximumIOps": 0,
+    "IOMaximumBandwidth": 0,
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ],
+    "Init": true
+  },
+  "Storage": {
+    "RootFS": {
+      "Snapshot": {
+        "Name": "overlayfs"
+      }
+    }
+  },
+  "Mounts": [],
+  "Config": {
+    "Hostname": "7652b1249c46",
+    "Domainname": "",
+    "User": "10001:10001",
+    "AttachStdin": false,
+    "AttachStdout": true,
+    "AttachStderr": true,
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": [
+      "DOTNET_PROCESSOR_COUNT=2",
+      "NUGET_CERT_REVOCATION_MODE=offline",
+      "CILICA_CXX=clang++-18",
+      "NUGET_PACKAGES=/work/nuget",
+      "DOTNET_CLI_TELEMETRY_OPTOUT=1",
+      "DOTNET_GENERATE_ASPNET_CERTIFICATE=false",
+      "CILICA_CSC_DIRECTORY=/usr/share/dotnet/sdk/10.0.401/Roslyn/bincore",
+      "CILICA_APPROVED_DIFFPLEX_PIN=f500e73f28e28813f942f1f16dec5a34b40e48e3",
+      "CILICA_DIFFPLEX_ASSEMBLY=/work/out/DiffPlex.SelectedRoots.dll",
+      "HOME=/work/home",
+      "DOTNET_CLI_HOME=/work/home",
+      "TMPDIR=/tmp",
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "APP_UID=1654",
+      "ASPNETCORE_HTTP_PORTS=8080",
+      "DOTNET_RUNNING_IN_CONTAINER=true",
+      "DOTNET_VERSION=10.0.12",
+      "ASPNET_VERSION=10.0.12",
+      "DOTNET_NOLOGO=1",
+      "DOTNET_SDK_VERSION=10.0.401",
+      "DOTNET_USE_POLLING_FILE_WATCHER=true",
+      "NUGET_XMLDOC_MODE=skip",
+      "POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetSDK-Ubuntu-24.04-arm64",
+      "DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1"
+    ],
+    "Cmd": [
+      "-B",
+      "-c",
+      "\"\"\"Owned entrypoint: run the exact approved recipe offline, retain logs, await pickup.\"\"\"\nimport hashlib,json,os,pathlib,shutil,subprocess,time,traceback\nout=pathlib.Path('/evidence'); started=time.monotonic(); steps=[]\ndef save(value):\n    (out/'result.json').write_text(json.dumps(value,indent=2)+'\\n')\ndef run(name,args,cwd='/work/cilica'):\n    step={'name':name,'argv':args,'cwd':cwd};steps.append(step)\n    (out/'progress.json').write_text(json.dumps(steps,indent=2))\n    with (out/(name+'.log')).open('w') as log:\n        result=subprocess.run(args,cwd=cwd,stdout=log,stderr=subprocess.STDOUT,timeout=max(1,1710-(time.monotonic()-started)))\n    step['exit_code']=result.returncode\n    if result.returncode:raise RuntimeError(name+' failed: '+str(result.returncode))\ntry:\n    shutil.copytree('/approved/cilica','/work/cilica')\n    shutil.copytree('/approved/input','/work/input')\n    pathlib.Path('/work/home').mkdir();pathlib.Path('/work/recipe').mkdir();pathlib.Path('/work/out').mkdir()\n    shutil.copy('/tooling-packages.txt',out/'tooling-packages.txt')\n    shutil.copy('/approved/input-provenance.json',out/'input-provenance.json')\n    run('versions',['sh','-c','dotnet --info; clang++-18 --version; python3 --version; id; cat /proc/self/status; cat /proc/mounts'])\n    run('stage',['python3','tools/CompatibilityCandidates/candidate_snapshot.py','stage','diffplex','--batch','batch-006','--input-json','/work/input/reviewed.json'])\n    run('verify',['python3','tools/CompatibilityCandidates/candidate_snapshot.py','verify','diffplex','--batch','batch-006'])\n    source='-p:CandidateSource=/work/cilica/artifacts/compatibility-candidates/diffplex-f500e73f28e28813f942f1f16dec5a34b40e48e3'\n    bench='/work/cilica/tools/CompatibilityCandidates/diffplex-benchmark/'\n    for name in ['SelectedRoots.csproj','BenchProbe.cs','DotNetHost.csproj','DotNetHost.cs']:\n        shutil.copy(bench+name,'/work/recipe/'+name)\n    run('candidate-restore',['dotnet','restore','/work/recipe/SelectedRoots.csproj','--source','/approved/offline-feed',source,'-p:NuGetAudit=false'])\n    run('candidate-build',['dotnet','build','/work/recipe/SelectedRoots.csproj','-c','Release','--no-restore','--output','/work/out',source])\n    (out/'candidate-assembly.sha256').write_text(hashlib.sha256(pathlib.Path('/work/out/DiffPlex.Benchmark.dll').read_bytes()).hexdigest()+'  DiffPlex.Benchmark.dll\\n')\n    run('dotnet-host-build',['dotnet','build','/work/recipe/DotNetHost.csproj','-c','Release','--output','/work/dotnet-host','-p:RestoreSources=/approved/offline-feed','-p:NuGetAudit=false'])\n    assert hashlib.sha256(pathlib.Path('/work/out/DiffPlex.Benchmark.dll').read_bytes()).hexdigest() == '1da7fb72d688a9b346fdb52318d9683a2bd861bd4d09dcd3eca933c6da0368bb'\n    run('precision',['python3','-c',\"from pathlib import Path\\nimport json\\ntext=Path('/work/cilica/tools/CompatibilityCandidates/diffplex-benchmark/measure.py').read_text()\\nexec(text.split('for work in [0,1]:')[0])\\nrow=run('dotnet','measure',0,32768,label='-precision')\\nassert all(x['checksum']==6146*32768 for x in row['records'] if 'sample' in x)\\n(out/'precision-results.json').write_text(json.dumps(row,indent=2))\\nprint(json.dumps(row,indent=2))\\n\"])\n    save({'status':'passed','elapsed_seconds':time.monotonic()-started,'steps':steps})\nexcept Exception as ex:\n    (out/'runner-error.txt').write_text(traceback.format_exc())\n    save({'status':'failed','error':str(ex),'elapsed_seconds':time.monotonic()-started,'steps':steps})\n# tmpfs disappears on stop. Host watchdog copies bounded evidence, then removes this container.\nwhile True:time.sleep(10)\n"
+    ],
+    "Image": "sha256:322970303c4519051a530956a935fbf39d31f71133b281cb0fabdc8d8b3a325b",
+    "Volumes": null,
+    "WorkingDir": "",
+    "Entrypoint": [
+      "python3"
+    ],
+    "Labels": {
+      "org.opencontainers.image.version": "24.04"
+    },
+    "StopTimeout": 1
+  },
+  "NetworkSettings": {
+    "SandboxID": "",
+    "SandboxKey": "",
+    "Ports": {},
+    "Networks": {
+      "none": {
+        "IPAMConfig": null,
+        "Links": null,
+        "Aliases": null,
+        "DriverOpts": null,
+        "GwPriority": 0,
+        "NetworkID": "",
+        "EndpointID": "",
+        "Gateway": "",
+        "IPAddress": "",
+        "MacAddress": "",
+        "IPPrefixLen": 0,
+        "IPv6Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "DNSNames": null
+      }
+    }
+  },
+  "ImageManifestDescriptor": {
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "digest": "sha256:322970303c4519051a530956a935fbf39d31f71133b281cb0fabdc8d8b3a325b",
+    "size": 4546,
+    "platform": {
+      "architecture": "arm64",
+      "os": "linux"
+    }
+  }
+}

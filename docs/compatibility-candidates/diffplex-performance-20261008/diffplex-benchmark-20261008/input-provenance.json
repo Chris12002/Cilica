@@ -1,0 +1,275 @@
+{
+  "cilica_commit": "927df95463b52b3f2627ac22b7a3c7859c346b45",
+  "archive_sha256": "49ea74d1646395b186d3340fc867bdf91cfdbb9b7d734451685f4c4c6702880a",
+  "candidate_commit": "f500e73f28e28813f942f1f16dec5a34b40e48e3",
+  "candidate_files": [
+    {
+      "path": "License.txt",
+      "git_blob_sha1": "9aa0a58ae70544e0c0c17452016385db7aa06104",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/License.txt"
+    },
+    {
+      "path": "Directory.Build.props",
+      "git_blob_sha1": "4da8180104a8c1a57a9d2d7f05a7256bd96cd790",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Directory.Build.props"
+    },
+    {
+      "path": "Directory.Build.targets",
+      "git_blob_sha1": "341027f3c7a81b1a34a213aac99e0151c40e80c6",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Directory.Build.targets"
+    },
+    {
+      "path": "NuGet.props",
+      "git_blob_sha1": "17d49f86a2894f51e1af0d5c54bb2e57aa72a601",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/NuGet.props"
+    },
+    {
+      "path": "DiffPlex/DiffPlex.csproj",
+      "git_blob_sha1": "c6c9a599420cc74d9b168cca5e37f155ba8ed291",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/DiffPlex.csproj"
+    },
+    {
+      "path": "DiffPlex/Differ.cs",
+      "git_blob_sha1": "281ee96c405676ba6f61958939d5121bdcc8584c",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Differ.cs"
+    },
+    {
+      "path": "DiffPlex/IDiffer.cs",
+      "git_blob_sha1": "c860e04f7955a608579067eb7e577c152c82c8bd",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IDiffer.cs"
+    },
+    {
+      "path": "DiffPlex/IChunker.cs",
+      "git_blob_sha1": "9e9de1a2f64c5148b46745d059c7b5f432798266",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IChunker.cs"
+    },
+    {
+      "path": "DiffPlex/Log.cs",
+      "git_blob_sha1": "6163e9e8b6ef7c38f5de7b50856e746b877dbee4",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Log.cs"
+    },
+    {
+      "path": "DiffPlex/Model/ModificationData.cs",
+      "git_blob_sha1": "9a6e0774693b4276cf1040de10acad9b7183aadc",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/ModificationData.cs"
+    },
+    {
+      "path": "DiffPlex/Model/DiffResult.cs",
+      "git_blob_sha1": "8055eb1e444be7e93667bb420ba628e6cc6b4b92",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffResult.cs"
+    },
+    {
+      "path": "DiffPlex/Model/DiffBlock.cs",
+      "git_blob_sha1": "7fa5fe8a59dd92376252d2be519539c8d2ae3690",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffBlock.cs"
+    },
+    {
+      "path": "DiffPlex/Model/EditLengthResult.cs",
+      "git_blob_sha1": "859014fa0f6f04c4ba4bafc8714f8ec2086554e9",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/EditLengthResult.cs"
+    },
+    {
+      "path": "DiffPlex/Chunkers/CharacterChunker.cs",
+      "git_blob_sha1": "8076c4fe8591973d26061a86ef702f94d82386a8",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/CharacterChunker.cs"
+    },
+    {
+      "path": "DiffPlex/Chunkers/LineChunker.cs",
+      "git_blob_sha1": "79c6b6ed5449d6873af6b294b44512d900cbe7ee",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/LineChunker.cs"
+    },
+    {
+      "path": "Facts.DiffPlex/Facts.DiffPlex.csproj",
+      "git_blob_sha1": "b80e27988503c058a2c5e4f7ab5e6eef32903227",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Facts.DiffPlex/Facts.DiffPlex.csproj"
+    },
+    {
+      "path": "Facts.DiffPlex/DifferFacts.cs",
+      "git_blob_sha1": "92ea76c1f8b060c107a873dc926c8bf3da88b804",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Facts.DiffPlex/DifferFacts.cs"
+    },
+    {
+      "path": "DiffPlex.ConsoleRunner/DiffPlex.ConsoleRunner.csproj",
+      "git_blob_sha1": "848691cdd8930063dbc2e755eeacf933c235139d",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex.ConsoleRunner/DiffPlex.ConsoleRunner.csproj"
+    },
+    {
+      "path": "global.json",
+      "git_blob_sha1": "c0357efa53999aafda2535cf0777c6259c46bb3b",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/global.json"
+    },
+    {
+      "path": "NuGet.config",
+      "git_blob_sha1": "a416b7dd412099c3deb215e774ca66379cff9845",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/NuGet.config"
+    },
+    {
+      "path": "DiffPlex/Chunkers/CustomFunctionChunker.cs",
+      "git_blob_sha1": "ac63c730a4031b58792d72123db429985298dd58",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/CustomFunctionChunker.cs"
+    },
+    {
+      "path": "DiffPlex/Chunkers/DelimiterChunker.cs",
+      "git_blob_sha1": "cdb3ebb0ab8d15b88f23766c2718d55887c9dc97",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/DelimiterChunker.cs"
+    },
+    {
+      "path": "DiffPlex/Chunkers/WordChunker.cs",
+      "git_blob_sha1": "66a9386f617eb357378796daef0fab886bbd9e7c",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/WordChunker.cs"
+    },
+    {
+      "path": "DiffPlex/Chunkers/LineEndingsPreservingChunker.cs",
+      "git_blob_sha1": "c61e39c3ff6f4c589a429f529de327915a835749",
+      "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/LineEndingsPreservingChunker.cs"
+    }
+  ],
+  "packages": [
+    {
+      "package": "Microsoft.ApplicationInsights/2.23.0",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "3Ul7+tDGXlSk940qFkTz0IVNTNAd2DulBvjV1TY14oFSx8EyEN1d05hXgKqxRqdiDePrrq2O8SxvhwiGdsIVfw==",
+      "sha256": "e6c7f76e0ec26598c7b1e2be1777e839c84486655e8a878fc4c655bd2e918dbd"
+    },
+    {
+      "package": "Microsoft.Bcl.AsyncInterfaces/6.0.0",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "IhoFoMkQ96h7Yg2PODHtOStOuV0RK+4nTTXycAmtKiZEXenXzSNf5vtKA/JVCHS9o7493dlu2vnAhSqcI9ewmQ==",
+      "sha256": "e3df87fe2170a7e01f0880af59caa8f6eb380b3c40a4f282dfb43912aaf0f895"
+    },
+    {
+      "package": "Microsoft.CodeAnalysis.BannedApiAnalyzers/5.6.0",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "FS7MvD3L9OuM0pEj6piv42doKXdJT+FSSGpgy3bgqIDHk8JSNLm14oXWur0fSOqog9ZyqzStJ+BjPz9fNEOG1Q==",
+      "sha256": "f2ef6b5cbd7ec027d87293e51a98c91a689fc96761fa803f7a85863f379c638c"
+    },
+    {
+      "package": "Microsoft.CodeCoverage/18.8.1",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "8h9rObu86JMC0ouOd7meNjPhjrTYQPEyOT42hshBxdxknvpfYLRzTY13ZBhRAf7tohl7wApqq/aaN6WRxhdwjw==",
+      "sha256": "beb0209f5f895c2e6c41cadaac5a6f3e6c641997feddbe7d24f9e9ccd95a2c57"
+    },
+    {
+      "package": "Microsoft.NET.Test.Sdk/18.8.1",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "7ZJBYyRfeaV4hDllSLVb7dtLXQb4SpbAhy+s9Sc+dUV2zwDUTTJtPLYTjanS5kqqm+283NNxIY4271uUY0Pvjw==",
+      "sha256": "8c1c5fcf73432dba471899e41ed0c342d1449e613dd981eb9e301916a18db895"
+    },
+    {
+      "package": "Microsoft.TestPlatform.ObjectModel/18.8.1",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "+ng/tKQNSOlrGQHUc72D3cg62HPViwXXBC0FoeEO6m1u4H4TCjITJy6Ym1bC8Folj0MAT0Y3236hMtY67zGphQ==",
+      "sha256": "e183005ae4f0c57d7111bedb6cec8b3e0bb12780326e703af9d41d2a5f0e6b21"
+    },
+    {
+      "package": "Microsoft.TestPlatform.TestHost/18.8.1",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "RterAFeFkQwnHzCmWBUctxEH/Yenj39954gR5J7IZXQk5okBv6lD3XOv0uGGRe02EpRjhDawHaGUXHpFBKfI3g==",
+      "sha256": "7875d837cd8da249c7817b72e97604532f5251f9af9b571059e3aeb3fa1b0093"
+    },
+    {
+      "package": "Microsoft.Testing.Extensions.Telemetry/1.9.1",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "xeVKlo/UEuTOLcyY68PJFU/i1J4uXFOc4UYM8Bqdj9QZfZDqWs6KlXQ2jbYp/70iSyc74kIIMFAIeivWD7fZFw==",
+      "sha256": "225ce692a0c2b22265b1b836390fdc4e0b3bd9dcd41d87405aff6301b853656c"
+    },
+    {
+      "package": "Microsoft.Testing.Extensions.TrxReport.Abstractions/1.9.1",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "Zl3HyYD2CJ6K1HIgE1OgusMIvFWXZgMzK/jlaCR/vTwfxkTJqQSun4AOUJaNLvAtc1raRhbo/Jx1yxgpCnVA7A==",
+      "sha256": "e2721103b80186371866a00f2b4e843363b396106b0b35569accc2c84a7412ca"
+    },
+    {
+      "package": "Microsoft.Testing.Platform.MSBuild/1.9.1",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "VokB7BwguY1IaS5vGCJgF3EFpMC+KJA4Baw/BS00DW1LbGoR9ZMbI9EAeP8KcLtlT/YG6LuMdD3uwcHNuPNqHQ==",
+      "sha256": "e656707346c3b661decb574f279713ec0e46d84e4ca2593a1285479beeefc567"
+    },
+    {
+      "package": "Microsoft.Testing.Platform/1.9.1",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "EMiafkoBQig50+6N3p/WsejIUEoIJXOhIJOYQ0rRQ2+yd0u5bJacweYHmxI0gzAyJN4yc/g0bwDtFR8vTzYaSw==",
+      "sha256": "dcc7a695780bf2c0ee4f06f30cf0aba1845bc4769fa36478ac4b87579f579b76"
+    },
+    {
+      "package": "Microsoft.Win32.Registry/5.0.0",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "Rx5mVnzlnMhkda7OeBXQUmEmTOEU4MFoi6JVHdUUlJAfpy3XqPdPjo8PPbp0r4WV8XdVLzwGq7S/znZpIZcHbg==",
+      "sha256": "f64ca53c67ca65ce7cc85a8d29aefbb2da2672836731e1115e8cd62730dc5080"
+    },
+    {
+      "package": "xunit.analyzers/1.27.0",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "K5IO29ZNN2ydez2jhlTRsR20ylp/eQMrMgoonfIpv9c9sWBN6MXRIPGWxvuotojuST3HgU9e/X7l4/ViOLPBvw==",
+      "sha256": "463c14d78a60248f91a76bcc631ff60609e2679acd0b3a30f38f7945ee61914e"
+    },
+    {
+      "package": "xunit.runner.visualstudio/3.1.5",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "b/tvN9kXtUd3wSSYbC80Ic6y/dYlYbNSvatYiv71iozPhXqM4EaOuHujkIJh85b+wY6dgf25k9ENSy8jN6mlvQ==",
+      "sha256": "3b9eb9efcf3840695db33b045901420d14d7562141999e06182fb8894faeb124"
+    },
+    {
+      "package": "xunit.v3.assert/3.2.2",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "Chq9P6A06AAS8z1Z5RcrHo2MNd9X89rqWYK4+d2sEv/2G0ssdYWCAHexiVtsAgqnHoBZH7Uavh2ZwIJ1w1c+eg==",
+      "sha256": "c3775aac8f1cc2c3c4a0a2105b97b190dca01924e29a883b8b99c220fb787bc6"
+    },
+    {
+      "package": "xunit.v3.common/3.2.2",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "oP0ZooWMM18OtbaiRs3x/ZtWdISj5g7cc2rPt8r6BLkOh0tIWiLEvyN3Rpsa/3ZYWWw1KChZ8dIBN7kTmWqw/A==",
+      "sha256": "90e5960fde1a502083a333be75bf05cb0de11b03471435c31ac48ad3bc5f1290"
+    },
+    {
+      "package": "xunit.v3.core.mtp-v1/3.2.2",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "RXqPTvA2VW0BgbtW1UpFlQ78a7y2nt2+w0HwlyrAhkGM5rtIZVQ1v6mH3cDNW5fZfiaw1XpYlFXEJIxUQEsWSw==",
+      "sha256": "817f93844cbfdd923a1cb417fb0ed302008811f4a5fdc607da1c9a1895a86083"
+    },
+    {
+      "package": "xunit.v3.extensibility.core/3.2.2",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "29K/mhVXzrou6GmU6vwIb4lWkcl8A6ElF23S3By0l+EDgwIv8BT6ijAXHXRGx5R5W5fe7RbqcFYnaBUaCk3Dog==",
+      "sha256": "2285bf7868701c97e2e0a0fdf89f97761a1d49ce3ac33d1ce8bfe86ae54eeb51"
+    },
+    {
+      "package": "xunit.v3.mtp-v1/3.2.2",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "oa8jUHEMsVcc8xr5K9/SqDWt1ekLzBMq27HhHsqHzBo/A4LSpKxuj6guDlH013/61xgCqabyXek2vyKAdQEE7Q==",
+      "sha256": "c4b4d226547639daa669cdc3453cfb9505ba6c0432cee89ffe69821c337bdc23"
+    },
+    {
+      "package": "xunit.v3.runner.common/3.2.2",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "Im0LpwRI9TRVMtFZNAynDg1LCLdm/8nJeu4z+Gx3FarzqRamEDItuAWv66VvwTI0gK338SW4qWDFH7pPJmrvsA==",
+      "sha256": "98d4ccf2e6de806d757a0639e5dff6ee8183b0f5304b19327338d16c9d40c1e8"
+    },
+    {
+      "package": "xunit.v3.runner.inproc.console/3.2.2",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "258QSVqUl6ByMuNzn8r+OtuSPwlzFPLva8HaDoXrppNT+GGBNuAnSkXvmZL+SyIyqC9ibV34ygEkA5xsrmbC/g==",
+      "sha256": "1bede7ecde0b53ee71fe4a42faaedb67e2b56c6a7868b7e3d3f204a41df3a89c"
+    },
+    {
+      "package": "xunit.v3/3.2.2",
+      "source": "copied existing NuGet package cache; verified cache SHA512",
+      "sha512": "lhL0gR/OkQZlVRrDcThrdGC8EYo514iSw1cJP5KqqeoaXcIeL5Oa4/8NWZycYnSaL5WHEibmCvoqmAfrJrv31g==",
+      "sha256": "47a23f2098f28a6aa62f154d9e0e761a7e627ff09c7778a22e3754d5f2014543"
+    },
+    {
+      "package": "netstandard.library/2.0.3",
+      "source": "https://api.nuget.org/v3-flatcontainer/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg",
+      "sha512": "548M6mnBSJWxsIlkQHfbzoYxpiYFXZZSL00p4GHYv8PkiqFBnnT68mW5mGEsA/ch9fDO9GkPgkFQpWiXZN7mAQ==",
+      "sha256": "3eb87644f79bcffb3c0331dbdac3c7837265f2cdf58a7bfd93e431776f77c9ba"
+    },
+    {
+      "package": "microsoft.netcore.platforms/1.1.0",
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg",
+      "sha512": "a/iSwnRZb+LHFk49hQOyThh/ZNC3vsbZsF65XwQIb863qF6msmhdQtxGXFL28Ob2NsCz/drEj28BJd/YPpLRBg==",
+      "sha256": "15e338d24b5c39b4099389cc612841eb51ff13c07bb4829f97d39b27420e7023"
+    }
+  ],
+  "original_cilica_commit": "268024e94879acdb004228afa360e1222e2068b8",
+  "previous_cilica_commit": "3d0bb53e94b5356cbbe59fae3c2ebca93af68fc8"
+}

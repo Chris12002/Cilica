@@ -1,0 +1,11 @@
+{
+  "containers": "all three removed by their bounded host supervisors",
+  "removed_input_images": [
+    "Untagged: cilica-diffplex-benchmark-retry-20261008:latest\nDeleted: sha256:322970303c4519051a530956a935fbf39d31f71133b281cb0fabdc8d8b3a325b\nDeleted: sha256:93fc4df632b3170a66033f0ceea1613f94b9049e1e431f2c0e0d700a409f8547\nDeleted: sha256:e81945ccbc28ba3fa9fd63e39277eca37543c6a5f16b0cc1a25cedebcaf8e2fe\nDeleted: sha256:f2185e686d1ec18ebaffb216a43d501106a4f58fa55c8664522bbe0fcd3ca9ae\nDeleted: sha256:160a8ac3657f9922cdc377358fee562a284a5f7bfe7cde9be994eefb92c770fb\nDeleted: sha256:11a3e98c2d7356faaa7aa177ecb3966ecd76587963b5146d79e18b481496145e\nDeleted: sha256:507d847df921bcd364188ca7025e9e07356c222fb8bb9d03e37bab67bf56a2ff\n",
+    "Untagged: cilica-diffplex-benchmark-20261008:latest\nDeleted: sha256:cc2001ea9f22407b53e28c1dd417217324e08440999a4e7ac69df85578bbcb66\nDeleted: sha256:fc835ee2e178d33c2f45b9cdda0d086f1227061f457d3fadc96459989035dc9e\nDeleted: sha256:5bf436e87e6831ff723bd12a838ee5db685781bbff0581311c3f0823983acb83\nDeleted: sha256:b49e2814fc81ea18d0b852d43a8cc31b8e43a090da43609ecfc82e99e4aa7901\nDeleted: sha256:63b1f39e271433f032b187c536e56928ccb98436886113c3f828727af04b86ec\nDeleted: sha256:0d827da1cec5a1d78ce664f56970b95060cb63b65087bed177cd78e8fb79ae4f\nDeleted: sha256:b1c94dc96aab6eb366954e8a56a7139049c63ae7a610bfbcd9ce2ae9e8af7b7c\n"
+  ],
+  "removed": "Only these task input directories and archived compiler copies; prior DiffPlex correctness evidence untouched.",
+  "retained_tooling_image": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "retained_evidence": "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/diffplex-performance-20261008",
+  "crc32_execution": "not approved; not compiled or executed"
+}

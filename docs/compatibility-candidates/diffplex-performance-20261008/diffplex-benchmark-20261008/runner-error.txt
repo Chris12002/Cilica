@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/runner.py", line 34, in <module>
+    run('emit',['dotnet','artifacts/diffplex-approved/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll','-explicit','only','-method','Cilica.Metadata.Tests.ApprovedDiffPlexBenchmarkEmissionTests.Emit_approved_benchmark','-culture','invariant','-noColor'])
+  File "/runner.py", line 12, in run
+    if result.returncode:raise RuntimeError(name+' failed: '+str(result.returncode))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: emit failed: 1

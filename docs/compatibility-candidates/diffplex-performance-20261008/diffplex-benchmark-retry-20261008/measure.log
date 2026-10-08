@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/work/cilica/tools/CompatibilityCandidates/diffplex-benchmark/measure.py", line 35, in <module>
+    verified=[run(r,'verify',work) for r in commands]
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/work/cilica/tools/CompatibilityCandidates/diffplex-benchmark/measure.py", line 22, in run
+    if timed_out:raise TimeoutError(name)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: cilica-verify-1

@@ -1,0 +1,100 @@
+{
+  "status": "passed",
+  "elapsed_seconds": 5.159943460000022,
+  "steps": [
+    {
+      "name": "versions",
+      "argv": [
+        "sh",
+        "-c",
+        "dotnet --info; clang++-18 --version; python3 --version; id; cat /proc/self/status; cat /proc/mounts"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "stage",
+      "argv": [
+        "python3",
+        "tools/CompatibilityCandidates/candidate_snapshot.py",
+        "stage",
+        "diffplex",
+        "--batch",
+        "batch-006",
+        "--input-json",
+        "/work/input/reviewed.json"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "verify",
+      "argv": [
+        "python3",
+        "tools/CompatibilityCandidates/candidate_snapshot.py",
+        "verify",
+        "diffplex",
+        "--batch",
+        "batch-006"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "candidate-restore",
+      "argv": [
+        "dotnet",
+        "restore",
+        "/work/recipe/SelectedRoots.csproj",
+        "--source",
+        "/approved/offline-feed",
+        "-p:CandidateSource=/work/cilica/artifacts/compatibility-candidates/diffplex-f500e73f28e28813f942f1f16dec5a34b40e48e3",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "candidate-build",
+      "argv": [
+        "dotnet",
+        "build",
+        "/work/recipe/SelectedRoots.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--output",
+        "/work/out",
+        "-p:CandidateSource=/work/cilica/artifacts/compatibility-candidates/diffplex-f500e73f28e28813f942f1f16dec5a34b40e48e3"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "dotnet-host-build",
+      "argv": [
+        "dotnet",
+        "build",
+        "/work/recipe/DotNetHost.csproj",
+        "-c",
+        "Release",
+        "--output",
+        "/work/dotnet-host",
+        "-p:RestoreSources=/approved/offline-feed",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "precision",
+      "argv": [
+        "python3",
+        "-c",
+        "from pathlib import Path\nimport json\ntext=Path('/work/cilica/tools/CompatibilityCandidates/diffplex-benchmark/measure.py').read_text()\nexec(text.split('for work in [0,1]:')[0])\nrow=run('dotnet','measure',0,32768,label='-precision')\nassert all(x['checksum']==6146*32768 for x in row['records'] if 'sample' in x)\n(out/'precision-results.json').write_text(json.dumps(row,indent=2))\nprint(json.dumps(row,indent=2))\n"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    }
+  ]
+}

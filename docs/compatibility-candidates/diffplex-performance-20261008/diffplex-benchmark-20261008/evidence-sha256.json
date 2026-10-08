@@ -1,0 +1,16 @@
+{
+  "dotnet-host-build.log": "9d4c055981167a5e29346cec74861fa736b18e47904cf197b7627f4b794d4604",
+  "stage.log": "c83bab4dc7cd2074a8b34d41a34db030e67464b9bb711148d17d2b5d30a05812",
+  "verify.log": "e1655ded1085e91e5a730f7a1f114d6341efbf46196ff139be88557fa8b0082f",
+  "result.json": "f4a773dda49dde7c42c4f409184f7a0dfdde815b9a919a3c40382880255b22fe",
+  "cilica-build.log": "982c28f85cd9d4503f9ea0f5c0a06ad063e289ab7fca1946fea205a93eca0c8e",
+  "runner-error.txt": "86829e668df51caa220021974d0d93e5285a7ecd3e4b58e1ccb7794c0f6a69c7",
+  "candidate-assembly.sha256": "637f453af6bc39400ed13ee756be15e1f9a4760f0276534350b096efcf4688e8",
+  "candidate-build.log": "97cf5c86fee3022462379875ac47954fa4c3e88e1425e2fd388fa2cb5580cb9c",
+  "candidate-restore.log": "11eaabc4d764fd1460609a6d7cfb4fb3df5f5439c737bd9d9e8f5bfda8f74c27",
+  "emit.log": "b074097661af5d91d322c032e21ca81320fb91bafdefb57f64328ce5a9bf1128",
+  "progress.json": "f2ca1f49ddf98d0f3b357664f80f0374bce8fdb07b98c0ed67373ffdb1562bb8",
+  "versions.log": "47048702dc424fa3eb379f8c9f464de8ae3d11d4a022357ac0918f6f844c1938",
+  "input-provenance.json": "902b1cf440ec271e65239f684f0442f348d4af7694390f70c9042abc7ca4e1d4",
+  "tooling-packages.txt": "031998cb75b003bed8a5b665b89e86ae5da1ff983055d7ec25dd04bd0a6fadaf"
+}
