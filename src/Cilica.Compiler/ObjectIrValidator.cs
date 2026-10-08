@@ -140,9 +140,9 @@ internal sealed partial class ObjectIrRules
                 Require(binding.Kind == ObjectMethodKind.Instance && binding.TypeInitializerName is null && !binding.InvariantProviderOnly
                     && (binding.Attributes & (MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.RTSpecialName)) == MethodAttributes.Virtual
                     && ((binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
-                        || flow.Types.Integer64 && (binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly)
+                        || flow.Types.Integer64 && (binding.Attributes & MethodAttributes.MemberAccessMask) is MethodAttributes.Assembly or MethodAttributes.Family)
                     && _layouts.TryGetValue(binding.Owner, out var abstractOwner) && (abstractOwner.Attributes & TypeAttributes.Abstract) != 0,
-                    "abstract declarations require admitted public/internal virtual instance slots on abstract class owners.");
+                    "abstract declarations require admitted public/internal/protected virtual instance slots on abstract class owners.");
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
             if (binding.TypeInitializerName is { } initializerName)
                 Require(flow.Types.Integer64 && initializerName.Length is > 0 and <= ObjectStringLimits.MaximumLiteralCodeUnits

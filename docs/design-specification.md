@@ -4354,3 +4354,13 @@ identity without Count/CopyTo shortcuts. All 67 selected set checks pass; twelve
 new probes provide 5,184 repeated native/.NET comparisons. See ADR AC0197. Frozen
 discovery next reaches protected abstract GameOccurrence.WriteContext dispatch.
 Full engine, unchanged fingerprint and saved-game replay remain unfinished.
+
+### Protected class slots (AC8.63)
+
+Closed class dispatch admits exact protected slots with same-assembly receivers
+and overrides. Caller access remains independently checked: calls from the owning
+class work; this does not grant inherited or foreign protected access. All 176
+selected checks pass, including 3,024 new repeated native/.NET comparisons. See
+ADR AC0198. Frozen discovery passes WriteContext and reaches the default string
+comparer branch behind an explicit ordinal ThenBy. Full engine, unchanged
+fingerprint and saved-game replay remain unfinished.
