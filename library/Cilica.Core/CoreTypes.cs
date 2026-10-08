@@ -59,7 +59,7 @@ namespace System
     public struct Byte { }
     public struct Int16 { }
     public struct UInt16 { }
-    public struct Int32 : IConvertible, IComparable<int>
+    public struct Int32 : IConvertible, IComparable<int>, IEquatable<int>
     {
         public static bool TryParse(string text, Globalization.NumberStyles style, IFormatProvider provider, out int result)
         {
@@ -67,6 +67,7 @@ namespace System
                 throw new NotSupportedException("Only invariant Integer parsing is supported.");
             return Cilica.Library.IntegerParsing.Int32Integer(text, out result);
         }
+        public bool Equals(int value) => this == value;
         public int CompareTo(int value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => this;
         public override string ToString() => Cilica.Runtime.IntegerText.Int32(this);
@@ -76,8 +77,9 @@ namespace System
             return Cilica.Runtime.IntegerText.Int32(this);
         }
     }
-    public struct UInt32 : IConvertible, IComparable<uint>
+    public struct UInt32 : IConvertible, IComparable<uint>, IEquatable<uint>
     {
+        public bool Equals(uint value) => this == value;
         public int CompareTo(uint value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this);
         public override string ToString() => Cilica.Runtime.IntegerText.UInt32(this);
@@ -87,7 +89,7 @@ namespace System
             return Cilica.Runtime.IntegerText.UInt32(this);
         }
     }
-    public struct Int64 : IConvertible, IComparable<long>
+    public struct Int64 : IConvertible, IComparable<long>, IEquatable<long>
     {
         public static bool TryParse(string text, Globalization.NumberStyles style, IFormatProvider provider, out long result)
         {
@@ -95,6 +97,7 @@ namespace System
                 throw new NotSupportedException("Only invariant None parsing is supported.");
             return Cilica.Library.IntegerParsing.Int64None(text, out result);
         }
+        public bool Equals(long value) => this == value;
         public int CompareTo(long value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
         public override string ToString() => Cilica.Runtime.IntegerText.Int64(this);
@@ -104,8 +107,9 @@ namespace System
             return Cilica.Runtime.IntegerText.Int64(this);
         }
     }
-    public struct UInt64 : IConvertible, IComparable<ulong>
+    public struct UInt64 : IConvertible, IComparable<ulong>, IEquatable<ulong>
     {
+        public bool Equals(ulong value) => this == value;
         public int CompareTo(ulong value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
         public override string ToString() => Cilica.Runtime.IntegerText.UInt64(this);

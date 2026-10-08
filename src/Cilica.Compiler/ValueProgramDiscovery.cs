@@ -294,6 +294,7 @@ public static partial class ValueProgramDiscovery
                             if (literalIntegerFormat) literalIntegerFormats.Add(offset);
                             if (BoxedRender(work, instruction, ref target) is { } renderBox) boxedRenderCalls.Add(offset, renderBox);
                             ComparerOperation(work, instruction, ref target);
+                            EqualityComparerOperation(work, instruction, ref target);
                             if (KeyOperation(work, instruction, ref target) is { } keyOperation)
                             {
                                 _arguments += keyOperation.Operation == ClosedKeyOperation.Equal ? 2 : keyOperation.Operation == ClosedKeyOperation.ContainsReferences ? 0 : 1;

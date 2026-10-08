@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/EqualityComparer.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/EqualityComparer.cs",
+      "sha256": "0ff1fef1bf5360324d6caea4cda886d38aa2456c0d5ad53df8e2029af76bdc0c"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringSplitOptions.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/StringSplitOptions.cs",
       "sha256": "9a5f612f1418b39fd5c0fa66687895e436b4ffba9cccdebdf2b756d65183f100"
@@ -355,6 +360,13 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/EqualityComparer.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/EqualityComparer.cs",
+      "algorithms": ["AC3.32 typed generic equality and hashing for four integers and exact IEquatable<T> keys."],
+      "changes": ["Private EquatableComparerCreate grant selects a managed factory and per-runtime generic static cache; existing KeyOperations supplies copying, nulls, equality and hash callbacks.", "CoreTypes adds exact integer IEquatable<T> interfaces and ordinary typed Equals bodies."],
+      "scope": "Typed Default/Equals/GetHashCode, custom subclasses and generic interface dispatch. Specialized string, enum, nullable, object fallbacks, nongeneric operations and comparer-object equality/hash remain diagnostic."
+    },
     {
       "path": "library/Cilica.Core/CoreTypes.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Exception.cs",

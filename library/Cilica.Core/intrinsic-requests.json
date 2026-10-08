@@ -1,5 +1,12 @@
 [
   {
+    "Namespace": "Cilica.Runtime",
+    "Type": "EqualityComparerOperations`1",
+    "Member": "Create",
+    "ParameterCount": 0,
+    "Capability": "EquatableComparerCreate"
+  },
+  {
     "Namespace": "System",
     "Type": "Object",
     "Member": "MemberwiseClone",

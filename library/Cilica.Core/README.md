@@ -60,6 +60,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/StringComparison.cs \
   --source library/Cilica.Core/StringComparer.cs \
   --source library/Cilica.Core/Comparer.cs \
+  --source library/Cilica.Core/EqualityComparer.cs \
   --source library/Cilica.Core/StringWhitespace.cs \
   --source library/Cilica.Core/UnicodeWhitespace.cs \
   --source library/Cilica.Core/BooleanParsing.cs \

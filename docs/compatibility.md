@@ -4200,3 +4200,15 @@ with two additional GC/allocation-failure checks; all 90 selected checks pass.
 See ADR AC0183. Integer CIL v79, exception IR v9 and native v75 record the change.
 Frozen discovery advances to missing EqualityComparer<T> mapping in target
 selection (1,039,295 metadata units). Full engine/fingerprint/replay remains unfinished.
+
+### Default comparers for exact equatable keys (AC3.32)
+
+EqualityComparer<T>.Default retains one comparer per closed T and runtime for four
+integer types and exact IEquatable<T> keys. Existing key operations preserve copied
+structs, null handling and typed callbacks. Eleven probes supply 3,234 repeated
+native/.NET comparisons plus two independent-runtime ownership checks; all 80
+selected checks pass. See ADR AC0184. Integer CIL v80 adds a private factory grant;
+native v75, IR and limits are unchanged. Specialized string/enum/nullable/object
+fallbacks, nongeneric operations and comparer-object methods remain diagnostic.
+Frozen discovery advances to the existing field-metadata limit (1,038,837 work
+units). Full engine, unchanged fingerprint and saved-game replay remain unfinished.
