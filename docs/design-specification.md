@@ -4178,3 +4178,15 @@ boxed/provider calls and narrow field/array receivers remain diagnostic. See
 [character-text decision](decisions/compatibility-003-character-text.md) and the
 [batch manifest](compatibility-candidates/batch-003.json). Full DiffPlex execution
 remains unverified with Boolean storage and ignore-case comparer gates.
+
+### Throwing invariant Int32 parsing (AC5a.9)
+
+The exact three-argument Int32.Parse now admits directly proven Integer and
+InvariantCulture. Shared managed status parsing distinguishes malformed text from
+overflow, preserving invalid-suffix precedence and existing TryParse outputs.
+Four probes supply 2,202 repeated native/.NET comparisons; all 73 selected checks
+pass. Another 262,752 Parse/TryParse oracle cases are managed-only. See ADR AC0187.
+Integer CIL v82 and object IR v53 add the exact throwing-mode declaration contract;
+native v75 and production limits remain unchanged. Frozen engine discovery now
+reaches the diagnostic instruction limit (1,049,093 metadata units). Full engine,
+unchanged fingerprint and saved-game replay execution remain unfinished.

@@ -3474,3 +3474,15 @@ grants and production limits are unchanged. Frozen discovery with the measured
 diagnostic field allowance advances to Int32.Parse(String,NumberStyles,IFormatProvider)
 in TargetOptions.ParseCell (1,051,158 metadata units). Full engine, unchanged
 fingerprint and saved-game replay execution remain unfinished.
+
+### Throwing invariant Int32 parsing (AC5a.9)
+
+The exact three-argument Int32.Parse now admits directly proven Integer and
+InvariantCulture. Shared managed status parsing distinguishes malformed text from
+overflow, preserving invalid-suffix precedence and existing TryParse outputs.
+Four probes supply 2,202 repeated native/.NET comparisons; all 73 selected checks
+pass. Another 262,752 Parse/TryParse oracle cases are managed-only. See ADR AC0187.
+Integer CIL v82 and object IR v53 add the exact throwing-mode declaration contract;
+native v75 and production limits remain unchanged. Frozen engine discovery now
+reaches the diagnostic instruction limit (1,049,093 metadata units). Full engine,
+unchanged fingerprint and saved-game replay execution remain unfinished.

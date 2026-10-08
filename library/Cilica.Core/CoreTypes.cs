@@ -67,6 +67,12 @@ namespace System
     public struct UInt16 { }
     public struct Int32 : IConvertible, IComparable<int>, IEquatable<int>
     {
+        public static int Parse(string s, Globalization.NumberStyles style, IFormatProvider provider)
+        {
+            if (style != Globalization.NumberStyles.Integer || provider != Globalization.CultureInfo.InvariantCulture)
+                throw new NotSupportedException("Only invariant Integer parsing is supported.");
+            return Cilica.Library.IntegerParsing.ParseInt32Integer(s);
+        }
         public static bool TryParse(string text, Globalization.NumberStyles style, IFormatProvider provider, out int result)
         {
             if (style != Globalization.NumberStyles.Integer || provider != Globalization.CultureInfo.InvariantCulture)

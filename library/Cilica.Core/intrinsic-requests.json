@@ -1,5 +1,12 @@
 [
   {
+    "Namespace": "System",
+    "Type": "Int32",
+    "Member": "Parse",
+    "ParameterCount": 3,
+    "Capability": "InvariantIntegerParsing"
+  },
+  {
     "Namespace": "Cilica.Runtime",
     "Type": "EqualityComparerOperations`1",
     "Member": "Create",

@@ -9,6 +9,16 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Int32.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Int32.cs",
+      "sha256": "0207e9a0260d6474fd85a47dee534eb34b92b8ecceddfbe67c95c12ec42f9b3b"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs",
+      "sha256": "5c961803190c8bb992a410d754c6fd33435b7db80e22e7bdf7763a9b3490c28a"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Searching.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.Searching.cs",
       "sha256": "c2e1a924f2b72a8c637db37abee6ca3d5ff6e15774483bc7629a0129356daf4c"
@@ -365,6 +375,12 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Library/IntegerParsing.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs; System/Int32.cs; Resources/Strings.resx",
+      "contracts": ["AC5a.9 shared invariant Int32 Integer grammar with success/format/overflow status, zero TryParse output on failure, and exact Parse exceptions.", "Consume digits after overflow so invalid trailing text takes precedence; preserve ASCII whitespace and trailing NUL rules."],
+      "scope": "Exact Int32.Parse(String,NumberStyles,IFormatProvider) with directly proven Integer/InvariantCulture. Other overloads/styles/providers stay diagnostic; existing Int32.TryParse and Int64.None behavior remains."
+    },
     {
       "path": "library/Cilica.Core/CoreTypes.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Char.cs",
