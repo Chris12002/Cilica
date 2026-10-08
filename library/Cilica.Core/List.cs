@@ -248,6 +248,20 @@ namespace System.Collections.Generic
             if (Cilica.Runtime.KeyOperations<T>.ContainsReferences()) items[size] = default;
             version++;
         }
+        public void RemoveRange(int index, int count)
+        {
+            if (index < 0) throw new ArgumentOutOfRangeException("index", "Non-negative number required.");
+            if (count < 0) throw new ArgumentOutOfRangeException("count", "Non-negative number required.");
+            if (size - index < count)
+                throw new ArgumentException("Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection.");
+            if (count == 0) return;
+            size -= count;
+            // The destination precedes the source, so a forward copy preserves overlap.
+            for (int i = index; i < size; ++i) items[i] = items[i + count];
+            ++version;
+            if (Cilica.Runtime.KeyOperations<T>.ContainsReferences())
+                Cilica.Runtime.ArraySections<T>.ClearSection(items, size, count);
+        }
         // Use ordinary same-assembly accessors until generic lexical private
         // field access has its own closed-owner proof.
         internal int EnumerationVersion => version;

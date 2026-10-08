@@ -4912,3 +4912,15 @@ unchanged. The diagnostic engine scan passes that formatting gap and reaches the
 type-relation work limit at 3,590 identities; StateLookup validates 15 methods.
 Neither audit emits C++. Full closure and saved-game replay remain incomplete.
 See ADR AC0225 for reference hashes, exact tests and counter evidence.
+
+### Contiguous list removal (AC8.82)
+
+List<T>.RemoveRange now preserves range-validation order, overlapping compaction,
+positive-count version changes and reference-bearing tail clearing. All 19 focused/
+adjacent checks pass, including 5,808 new O0/O2 native/.NET comparisons and four
+precise lifetime checks. Converted Alchemy C++ and pinned List.cs guided the slice.
+No profiles, grants, runtime or production limits change. The enlarged diagnostic
+catalog uses a measured relation-work allowance of 4,194,304; production remains
+1,048,576. Frozen engine discovery now reaches Math.Sign in BarrierOperation.Span;
+StateLookup validates 15 methods. Both emission fields are null; full closure/replay
+remain incomplete. See ADR AC0226 for exact counts, provenance and audit evidence.

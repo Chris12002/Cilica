@@ -981,6 +981,7 @@
         "List construction, capacity, indexed access, Add and geometric growth",
         "Concrete Insert, RemoveAt, Clear and ToArray with overlap-safe shifts and pinned empty snapshot identity",
         "AC8.80 RemoveAll preserves live size/storage reads, copied predicate arguments, partial compaction through faults, final reference-bearing tail clear and completion-only size/version publication.",
+        "AC8.82 RemoveRange preserves index/count/range validation order, forward overlapping compaction, positive-count version publication and reference-containing tail clearing; zero count preserves enumerators.",
         "AC3.4 Contains/IndexOf/Remove with array-search equality receiver semantics",
         "AC3.6 direct generic CopyTo with complete bounds validation, unchanged version and per-element reference downcasts.",
         "AC3.8/AC3.11 IEnumerable construction: dynamic collection Count snapshot, zero count, exact capacity and CopyTo before size publication; other sources enumerate with Add growth and finally-disposal.",
