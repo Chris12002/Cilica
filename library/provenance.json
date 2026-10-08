@@ -16,6 +16,16 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Range.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Range.cs",
+      "sha256": "bc1addf068bdb62b3d67d1272e2397e3a9cb3af75beca77759b25880668bff6e"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Range.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Range.SpeedOpt.cs",
+      "sha256": "929cad08e5309d17449ab224f3f0855a6170fd61b3023d46404f7624939ec2f0"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Nullable.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Nullable.cs",
       "sha256": "6728f66657329080f0f419df519283a455cdca7d2617a05b180553b02da502fa"
@@ -477,6 +487,17 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/RangeIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Range.cs",
+      "algorithms": [
+        "AC6.24 bounded Int32 Range validation/cursor, Range.SpeedOpt list/count/first/contains/materialization/Skip contracts."
+      ],
+      "changes": [
+        "Concrete Int32 arithmetic replaces INumber generic operators, and managed loops replace FillIncrementing spans/SIMD. Existing query interfaces preserve RangeSelect callback/count/materialization behavior using independent traversals."
+      ],
+      "scope": "Enumerable.Range(Int32,Int32), read-only IList/IReadOnlyList views and supported query composition; projected Skip and unimplemented Enumerable members remain diagnostic."
+    },
     {
       "path": "library/Cilica.Core/CollectionExtensions.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/CollectionExtensions.cs",

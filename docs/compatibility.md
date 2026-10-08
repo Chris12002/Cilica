@@ -4468,3 +4468,14 @@ as empty text before payload dispatch. Sixty-four checks pass with 2,646 new rep
 native/.NET comparisons. See ADR AC0204. CIL93; IR59/native79 unchanged. Aliases, joins,
 primitive nullable formats and IFormattable payloads stay diagnostic. Frozen discovery
 still stops at Enumerable.Range. Full engine, unchanged fingerprint and replay are unfinished.
+
+### Int32 ranges (AC6.24)
+
+Enumerable.Range now validates bounds and supplies a reusable Int32 iterator with
+read-only list views and the admitted query operations. End-marker wraparound,
+retained cursor values, copy exceptions and independent Select traversal match the
+pinned runtime. All 24 focused Range checks pass with 3,528 repeated native/.NET
+comparisons; 23 adjacent controls also passed. See ADR AC0205. Frozen engine discovery
+advances to the isolated scan's 8,192-local allowance (8,194 observed). Production
+limits and CIL93/IR59/native79 are unchanged. Full engine execution, unchanged
+fingerprinting and saved-game replay remain unfinished.

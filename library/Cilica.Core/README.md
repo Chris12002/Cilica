@@ -41,6 +41,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/ConcatIterator.cs \
   --source library/Cilica.Core/OrderedIterator.cs \
   --source library/Cilica.Core/Grouping.cs \
+  --source library/Cilica.Core/RangeIterator.cs \
   --source library/Cilica.Core/Stack.cs \
   --source library/Cilica.Core/CollectionExtensions.cs \
   --source library/Cilica.Core/MapSort.cs \
