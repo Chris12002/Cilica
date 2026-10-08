@@ -3,6 +3,9 @@ namespace System
 {
     public abstract partial class Enum
     {
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern Array GetValues(Type enumType);
+
         public static bool IsDefined(Type enumType, object value)
         {
             if (enumType == null) throw new ArgumentNullException("enumType");

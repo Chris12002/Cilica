@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v93";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v94";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -307,6 +307,18 @@ public static class ValueTranslator
                     else switch (opcode)
                     {
                         case "nop": break;
+                        case "ldtoken" when method.EnumValues.Values.Any(e => e.TokenOffset == offset): break;
+                        case "call" when method.EnumValues.Values.Any(e => e.HandleOffset == offset): break;
+                        case "call" when method.EnumValues.TryGetValue(offset, out var enumValues):
+                            int enumLength = Define(offset, IrType.Int32, new IrExpression.Constant(enumValues.Values.Length));
+                            int enumArray = Define(offset, IrType.Reference(enumValues.ArrayType), new IrExpression.NewArray(enumValues.ArrayType, enumLength), true);
+                            for (int element = 0; element < enumValues.Values.Length; ++element)
+                            {
+                                int enumIndex = Define(offset, IrType.Int32, new IrExpression.Constant(element));
+                                int value = Define(offset, IrType.Int32, new IrExpression.Constant(enumValues.Values[element]));
+                                Add(new IrStatement.StoreElement(offset, enumValues.ArrayType, enumArray, enumIndex, value), offset);
+                            }
+                            stack.Add(enumArray); break;
                         case "ldtoken" when method.StaticArrays.Values.Any(a => a.TokenOffset == offset): break;
                         case "call" when method.StaticArrays.TryGetValue(offset, out var staticArray):
                             int initializedArray = Pop(offset, IrType.Reference(staticArray.ArrayType));

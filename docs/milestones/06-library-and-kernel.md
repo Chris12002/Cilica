@@ -3680,3 +3680,13 @@ allows 12,288 locals. The production 4,096-local limit and CIL93/IR59/native79 a
 unchanged. Discovery advances to Enum.GetValues(Type) in SpellModeChoices.BondsAfter;
 StateLookup still translates its 15-method closure. See ADR AC0206. This is diagnostic
 coverage, not full engine compilation, native execution or replay evidence.
+
+### Named enum value arrays (AC5b.16)
+
+Enum.GetValues(typeof(Int32-enum)) now constructs fresh nominal arrays in unsigned
+constant order, retaining aliases and empty-array identity. One uninterrupted typeof
+sequence and exact grants for both calls are required; dynamic Type values, other
+carriers and more than 256 entries remain diagnostic. Sixty-eight distinct selected
+checks pass, including 3,234 new native/.NET comparisons. See ADR AC0207. CIL94;
+IR59/native79 unchanged. Frozen discovery advances to parameterless List<Int64>.Sort
+in GameStateHasher.AppendSpell. Full engine, unchanged fingerprint and replay are unfinished.

@@ -1,6 +1,20 @@
 [
   {
     "Namespace": "System",
+    "Type": "Enum",
+    "Member": "GetValues",
+    "ParameterCount": 1,
+    "Capability": "EnumValues"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Type",
+    "Member": "GetTypeFromHandle",
+    "ParameterCount": 1,
+    "Capability": "EnumValues"
+  },
+  {
+    "Namespace": "System",
     "Type": "Object",
     "Member": "ToString",
     "ParameterCount": 0,

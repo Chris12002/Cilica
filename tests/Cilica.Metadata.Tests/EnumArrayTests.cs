@@ -50,13 +50,20 @@ public sealed class EnumArrayTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,
             [("EnumView", programs[0], EnumArrayProbe.UnsupportedInterface), ("IntegerView", programs[1], EnumArrayProbe.UnsupportedIntegerView)]);
     }
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Former_unsigned_enum_vector_alias_matches_dotnet(bool optimized)
+    {
+        var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(EnumArrayProbe),"UnsupportedUnsigned"))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("UnsignedAlias",program,EnumArrayProbe.UnsupportedUnsigned)]);
+    }
     [Fact]
-    public async Task Unimplemented_widths_and_unsigned_vectors_fail_closed()
+    public async Task Unimplemented_enum_widths_fail_closed()
     {
         using var files=new ResolverFiles();var (built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
         var input=resolver.OpenInput(typeof(EnumArrayProbe).Assembly.Location).Value!;
-        foreach(var name in new[]{"UnsupportedUnsigned","UnsupportedWidth"}) {
+        foreach(var name in new[]{"UnsupportedWidth"}) {
             var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(EnumArrayProbe).GetMethod(name)!.MetadataToken),implementation);
             Assert.False(result.Success,name);Assert.NotEmpty(result.Diagnostics);
         }

@@ -488,6 +488,12 @@
   ],
   "adaptations": [
     {
+      "path": "library/Cilica.Core/EnumQueries.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Enum.cs and System/RuntimeType.cs",
+      "contracts": ["AC5b.16 exact granted Enum.GetValues(typeof(Int32-enum)) creates a fresh nominal vector in unsigned constant order, retaining duplicate values."],
+      "scope": "Compiler specializes one uninterrupted, granted typeof/GetValues sequence into existing array IR; at most 256 constants. Dynamic Type values, other carriers and general reflection remain unsupported."
+    },
+    {
       "path": "library/Cilica.Core/RangeIterator.cs",
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Range.cs",
       "algorithms": [

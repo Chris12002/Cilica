@@ -1113,3 +1113,11 @@ when unchanged. Valid pairs and lone surrogates are preserved at their original
 UTF-16 width. Run `python3 tools/generate_unicode_lower.py --check` to verify the
 lookup against the retained licensed data. Other casing/culture APIs are not added.
 See ADR AC0189 for exact/native evidence and host Unicode-version limitations.
+
+### Named enum value arrays
+
+AC5b.16 admits Enum.GetValues(typeof(Int32-enum)) for up to 256 validated constants.
+Fresh arrays preserve exact enum identity, unsigned ordering and duplicate values.
+The exact granted typeof/GetValues sequence is specialized to ordinary array IR;
+dynamic Type arguments, other enum widths and general reflection remain diagnostic.
+See ADR AC0207.
