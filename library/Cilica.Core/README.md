@@ -47,6 +47,8 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/StringConcatenation.cs \
   --source library/Cilica.Core/StringSubstring.cs \
   --source library/Cilica.Core/StringSearching.cs \
+  --source library/Cilica.Core/StringInvariantCasing.cs \
+  --source library/Cilica.Core/UnicodeSimpleLower.cs \
   --source library/Cilica.Core/StringSplitting.cs \
   --source library/Cilica.Core/StringCharacters.cs \
   --source library/Cilica.Core/Utf8Encoding.cs \
@@ -1095,3 +1097,11 @@ checks pass. Other overloads/nested-vector source types remain diagnostic. See A
 AC0175. Profiles, grants and limits are unchanged. Frozen discovery next reaches
 Single(source) in construction-contribution handling at 958,875 metadata units;
 full engine/fingerprint/replay execution remains unfinished.
+
+StringInvariantCasing.cs implements ToLowerInvariant with a generated Unicode 16.0.0
+simple-lowercase lookup and the pinned invariant U+0130 exception. Empty/unchanged
+ASCII retain the pinned .NET identity behavior; non-ASCII results are copied even
+when unchanged. Valid pairs and lone surrogates are preserved at their original
+UTF-16 width. Run `python3 tools/generate_unicode_lower.py --check` to verify the
+lookup against the retained licensed data. Other casing/culture APIs are not added.
+See ADR AC0189 for exact/native evidence and host Unicode-version limitations.

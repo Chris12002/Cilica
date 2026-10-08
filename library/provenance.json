@@ -7,7 +7,29 @@
     "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
     "license": "MIT"
   },
+  "unicodeLowercaseData": {
+    "version": "16.0.0",
+    "url": "https://www.unicode.org/Public/16.0.0/ucd/UnicodeData.txt",
+    "localPath": "library/upstream/unicode/16.0.0/UnicodeData.txt",
+    "sha256": "ff58e5823bd095166564a006e47d111130813dcf8bf234ef79fa51a870edb48f",
+    "licensePath": "library/upstream/unicode/16.0.0/LICENSE.txt"
+  },
   "originals": [
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.cs",
+      "sha256": "b7291cef3ef1990f0d42d601e1245f13eed3f10378a2360bf7d8395f938ace30"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.Icu.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.Icu.cs",
+      "sha256": "8a2d0219eba0167e1cfe74bd4ff0fac9651a7d9ed57cf6d783d87cb8e8571937"
+    },
+    {
+      "upstreamPath": "src/native/libs/System.Globalization.Native/pal_casing.c",
+      "localPath": "library/upstream/dotnet-runtime/src/native/libs/System.Globalization.Native/pal_casing.c",
+      "sha256": "e7a999771263d07663e5babb588d106ce34a302ddce8912a525b4b8fa65ebd3a"
+    },
     {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Int32.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Int32.cs",
@@ -375,6 +397,28 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/StringInvariantCasing.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.cs",
+      "algorithms": [
+        "AC7b.22 String.ToLowerInvariant identity, invariant simple casing and unchanged UTF-16 width."
+      ],
+      "changes": [
+        "Scalar managed scans and existing StringConstruction replace unsafe ASCII vector scans, allocation and OS ICU calls. U+0130 remains unchanged as required by pinned pal_casing.c."
+      ],
+      "scope": "Invariant lowercase only, with pinned Unicode 16.0.0 data; culture overloads, uppercasing and case-insensitive equality are not added."
+    },
+    {
+      "path": "library/Cilica.Core/UnicodeSimpleLower.cs",
+      "upstreamPath": "https://www.unicode.org/Public/16.0.0/ucd/UnicodeData.txt",
+      "algorithms": [
+        "Unicode simple lowercase mapping field 13, except invariant U+0130."
+      ],
+      "changes": [
+        "tools/generate_unicode_lower.py groups 1459 mappings in 186 exact ranges, split among eight allocation-free page methods. Width and range expansion are verified before emission."
+      ],
+      "scope": "Pinned Unicode 16.0.0; not host-dependent globalization data."
+    },
     {
       "path": "library/Cilica.Library/IntegerParsing.cs",
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs; System/Int32.cs; Resources/Strings.resx",

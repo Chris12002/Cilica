@@ -36,4 +36,7 @@
     <ProjectReference Include="..\..\examples\Primitive\Prepare\Prepare.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\examples\Objects\Prepare\Prepare.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../library/Cilica.Core/UnicodeSimpleLower.cs" Link="UnicodeSimpleLower.cs" />
+  </ItemGroup>
 </Project>

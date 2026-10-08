@@ -3497,3 +3497,15 @@ in ContinueConstructionContribution (1,052,133 metadata units/4,239 ms). Product
 limits remain unchanged. This audit uses AC5a.9's archived CIL v82/IR v53 sources,
 separate from concurrent Boolean-vector work. See ADR AC0188. Full engine,
 unchanged fingerprint and saved-game replay execution remain unfinished.
+
+### Pinned invariant string lowercasing (AC7b.22)
+
+String.ToLowerInvariant now uses pinned Unicode 16.0.0 simple lowercase mappings,
+including the invariant U+0130 exception, supplementary pairs, lone surrogates and
+pinned .NET string identity. A generated managed lookup uses no static arrays or
+host globalization API. All 1,114,112 code-point inputs match the local .NET oracle;
+18,156 repeated native comparisons cover exact changed scalars/neighbors, complete
+Unicode string-block hashes, identity, nulls and mixed text. All 98 selected
+checks pass. See ADR AC0189. No compiler profile, grant or production limit changes.
+Frozen discovery advances to 6,145/6,144 diagnostic locals in ContinueShieldContribution;
+full engine, unchanged fingerprint and saved-game replay remain unfinished.
