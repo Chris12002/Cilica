@@ -1,0 +1,27 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ArrayCopyTests.Array_copy_requires_each_exact_grant_and_rejects_unsigned_aliases [FAIL]
+      System.Text.Json.JsonException : The JSON value could not be converted to Cilica.LibraryBuild.LibraryIntrinsicRequest. Path: $[162].Capability | LineNumber: 1140 | BytePositionInLine: 37.
+      Stack Trace:
+           at System.Text.Json.ThrowHelper.ThrowJsonException(String message)
+           at System.Text.Json.Serialization.Converters.EnumConverter`1.Read(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options)
+           at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+           at System.Text.Json.Serialization.JsonConverter`1.TryReadAsObject(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, Object& value)
+           at System.Text.Json.Serialization.Converters.LargeObjectWithParameterizedConstructorConverter`1.ReadAndCacheConstructorArgument(ReadStack& state, Utf8JsonReader& reader, JsonParameterInfo jsonParameterInfo)
+           at System.Text.Json.Serialization.Converters.ObjectWithParameterizedConstructorConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
+           at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+           at System.Text.Json.Serialization.JsonCollectionConverter`2.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, TCollection& value)
+           at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+           at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+           at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.Deserialize(Utf8JsonReader& reader, ReadStack& state)
+           at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 utf8Json, JsonTypeInfo`1 jsonTypeInfo, Nullable`1 actualByteCount)
+           at System.Text.Json.JsonSerializer.Deserialize[TValue](ReadOnlySpan`1 utf8Json, JsonSerializerOptions options)
+        tools/Cilica.LibraryBuild/LibraryIntrinsicRequests.cs(35,0): at Cilica.LibraryBuild.LibraryIntrinsicRequests.Read(String path)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(32,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/ArrayCopyTests.cs(41,0): at Cilica.Metadata.Tests.ArrayCopyTests.Array_copy_requires_each_exact_grant_and_rejects_unsigned_aliases()
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '52d0f6e60f6bc8027f21129bb3ccf4d959611f29991493b2c1a406f0672a8cc1')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0.087s

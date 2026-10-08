@@ -54,4 +54,17 @@ namespace Cilica.Runtime
             return array[index];
         }
     }
+    // Safe ordinary managed implementation; public so mapped application calls
+    // obey normal method/type access checks. No privileged storage operation.
+    public static class ArraySections<T>
+    {
+        // Pinned Array.Clear range semantics for admitted zero-based vectors.
+        public static void ClearSection(T[] array, int index, int length)
+        {
+            if (array == null) throw new System.ArgumentNullException("array");
+            if (index < 0 || length < 0 || index > array.Length || length > array.Length - index)
+                throw new System.IndexOutOfRangeException();
+            for (int i = 0; i < length; i++) array[index + i] = default(T);
+        }
+    }
 }

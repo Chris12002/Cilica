@@ -1,0 +1,14 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ArrayCopyTests.Array_copy_requires_each_exact_grant_and_rejects_unsigned_aliases [FAIL]
+      Assert.False() Failure
+      Expected: False
+      Actual:   True
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ArrayCopyTests.cs(57,0): at Cilica.Metadata.Tests.ArrayCopyTests.Array_copy_requires_each_exact_grant_and_rejects_unsigned_aliases()
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '1a4d094b257c7f7aa3e85e9d053dbc67ac4e95e884cd53bf21e640d33d279bf1')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 80, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 102.943s

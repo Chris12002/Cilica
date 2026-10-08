@@ -77,6 +77,16 @@ namespace Cilica.Fixtures.Execution
             try { ((ICollection<CopyBase>)list).CopyTo(target, a & 1); return list.Count + 3; }
             catch (ArgumentException e) { return Hash(e.Message); }
         }
-        public static int UnsupportedUnsigned(int a, int b) { ((ICollection<uint>)new uint[1]).CopyTo(new uint[1], 0); return a; }
+        public static int Unsigned(int a, int b)
+        {
+            uint[] source = { unchecked((uint)a), 0x80000000u, uint.MaxValue };
+            uint[] destination = b < 0 ? null : new uint[] { 7, 11, 13, 17 };
+            int result = 19;
+            try { ((ICollection<uint>)source).CopyTo(destination, b); }
+            catch (ArgumentException e) { result = Hash(e.Message); }
+            if (destination != null) for (int i = 0; i < destination.Length; ++i)
+                result = unchecked(result * 31 + (int)destination[i]);
+            return result;
+        }
     }
 }

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "batch": "batch-010",
+  "compiler_source_baseline": "d37c2ada1d72b8baf2fdb0d7c7c5f7dff4c7bd82",
+  "recording_head": "a7c5d2baefbdd093c953499bee31f9da1be71766",
+  "profiles": {
+    "CIL": 95,
+    "IR": 59,
+    "native": 79
+  },
+  "results": {
+    "focused": {
+      "checks": 15,
+      "passed": 15,
+      "seconds": 17.66
+    },
+    "adjacent_initial": {
+      "checks": 80,
+      "passed": 79,
+      "failed": 1,
+      "seconds": 102.943
+    },
+    "repaired_copy_and_candidate": {
+      "checks": 18,
+      "passed": 18,
+      "seconds": 27.656
+    },
+    "distinct_passing_checks_final": 97,
+    "new_repeated_native_dotnet_comparisons": 2940,
+    "comparison_breakdown": {
+      "clear_semantic": 2352,
+      "candidate_clear_reduction": 294,
+      "uint32_copy_positive": 294
+    },
+    "gc_lifetime_checks": 4,
+    "upstream_circularbuffer": "not run; remaining Copy/ArraySegment blockers",
+    "crc32": "separate frozen approved trial passed, see crc32-execution-20261008.md"
+  },
+  "initial_failures": [
+    "Internal helper correctly failed ordinary access checks; helper moved to public managed type without access bypass.",
+    "Byte/Char/Boolean generic initobj reaches existing narrow-memory boundary; retained as negative controls instead of broadening scope.",
+    "Adjacent unsigned-copy rejection stale: reproduced same Assert.False failure on d37c2ad without Clear. Replaced with positive high-bit/fault native coverage, exact grant and external-intrinsic denials retained."
+  ],
+  "baseline": {
+    "commit": "d37c2ada1d72b8baf2fdb0d7c7c5f7dff4c7bd82",
+    "archive_sha256": "72b4c0863454b3ddf11a3db2f847131539581037e24dc0e97173e68a2c96a6da",
+    "binaries_sha256": {
+      "Cilica.Fixtures.Basic.dll": "184ff9f5018a2562a70cdb8c9c927324b0e693122c69df0a10e721c1ccb3404f",
+      "Cilica.Fixtures.Execution.dll": "f5339479c9c81d41b9a384a021b5880112e3791dbbf97aef7ec67d82b0e14145",
+      "Cilica.Library.dll": "679dde8760489cde29484932df6424d7a49aacff82326c383be0a84d3365e35b",
+      "Cilica.Metadata.dll": "a50d7358613a92ea441ac0ebff8189650fca2ad1ace1ac210212702f41c9d496",
+      "Cilica.Fixtures.Forwarding.dll": "23d6b748dfc647d7b44dc86aa23fbdeea05e9734ef9b1aac3db933232246e99a",
+      "Cilica.Metadata.Tests.dll": "c13e2c439ce607803e68af00ec44371dbecbd900434c066456aaaf51a2adb6e0",
+      "Cilica.LibraryBuild.dll": "2b8ff24a1a0f3e0bb6c8a909475ac59264915047a6aa1f8999d0fdec71c74f4d",
+      "Cilica.Compiler.dll": "9207d5ebc55148faa94137d49524252741bb42c3aef21cbbf35fec5182ba6321",
+      "Cilica.Fixtures.ControlFlow.dll": "e8a3d45128c99350675cb118b2a880c4689df8aaf27bd60bb391c51561742c8b"
+    },
+    "result": "same Assert.False failure at ArrayCopyTests line57",
+    "setup_corrections": "Initial archive command accidentally built live sources into a separate output; never treated as baseline evidence. Actual pinned export built separately. First baseline execution found live core due output location and failed manifest parse; moved already-built binaries under export, then reproduced exact stale assertion. All logs retained."
+  },
+  "final_owned_source_sha256": {
+    "library/Cilica.Core/ArrayInterface.cs": "e5db17951dc4af7284df9bbdf3bff890851985dd04ee2a34b792741425985cf0",
+    "library/Cilica.Core/CoreTypes.cs": "489fd8981c367d27ff2f885edd2f49074c6cf46ab55431c5a4b6fe32bbbfb9b2",
+    "library/Cilica.Core/intrinsic-requests.json": "a96282e9d16290d9b1fd6fea2f512fd4ae9ac961d39d45b99229045ac5a16bc5",
+    "library/provenance.json": "f695cbd56be3701729b6a7cfcd86b45998dccf59561f5626cdac04b37a7a35a9",
+    "src/Cilica.Compiler/ValueProgramDiscovery.cs": "acc3267500051603b79f579a13ee0455bbb47cf82beecfc8b3f582a67fd730b9",
+    "src/Cilica.Compiler/ValueTranslator.cs": "85c2d17ce2acea166ef01a77e93b8840a5c37951060fce4fe69ecafa49ac2b7e",
+    "src/Cilica.Metadata/Resolution/LibraryBuildAdmission.cs": "79dfcd5f0d8c48f1e1c311e43c8c73f36e2ed631cf2e1defc4ff687b4a202c7c",
+    "tests/Cilica.Metadata.Tests/ArrayCopyTests.cs": "08a6f3b49cecf6938cb297d4489d6323c4651a3ffea2b609a123a7326f647997",
+    "tests/Cilica.Metadata.Tests/CandidateCircularBufferTests.cs": "bd222fdb0aa3739a316359f4bce1356e225944f3f79d5c47e5619cecae30a1a2",
+    "tests/Fixtures/Cilica.Fixtures.Execution/ArrayCopyProbe.cs": "438976ca39c9cc938b0d60499a48ef166e0d7cd73e535c52f8c200fec6e626fa",
+    "src/Cilica.Compiler/ValueArrayClearDiscovery.cs": "bb193dee10ebb1bd144bcb8fde740a9d0fb7cac624e7ffd70bbd5aed92a2b6bb",
+    "tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs": "c08b8ca112915d63937b6fcb504e5d8288c6e2e10a20b1d06f72bb7535707a9c",
+    "tests/Fixtures/Cilica.Fixtures.Execution/ArraySectionClearProbe.cs": "d9c60f24b78996b9fb7b8cc6a8af4bca329032f5dc7ddedbaf07083dacbc513f"
+  },
+  "final_repaired_run_binaries_sha256": {
+    "Cilica.Fixtures.Basic.dll": "c340aaf1fe49d961f52579175b3a8a3afbb8704c105fa32f14acb037717f73e8",
+    "Cilica.Fixtures.Execution.dll": "ca05b86f9f72d98c79e68ce3e9795c62c702d46e7f71a31214c91523d58b4181",
+    "Cilica.Library.dll": "679dde8760489cde29484932df6424d7a49aacff82326c383be0a84d3365e35b",
+    "Cilica.Metadata.dll": "1f3650ed6a3146c78ec970e43335c4c9990a118d6103723730a7dc54975c8a8f",
+    "Cilica.Fixtures.Forwarding.dll": "6a5e1d0696c2f733938c84cb67bd8e3760d5c53a3fcd86a260506f75b7d59cb3",
+    "Cilica.Metadata.Tests.dll": "5b1d2127a501cf72ac44229a81bd842fdd90a131eb000aeac6b76b8a6a95bdec",
+    "Cilica.LibraryBuild.dll": "51496335b72fc1912bdc535b13e3358c572b9d08ca050fce70c7752bbde541fc",
+    "Cilica.Compiler.dll": "2c7be630a5d4839ad7420dde7c7885656310af89794424d488907861078d5225",
+    "Cilica.Fixtures.ControlFlow.dll": "aacf8c577eeb6850da4adceb20a2ae4fd6452df718e91118bdd9bc42ea460d58"
+  },
+  "retained_logs_sha256": {
+    "initial-tests.log": "e349016ea3b4da41741db1499e5e0c9e3db957b8ffcf6719b23bbe58497e694d",
+    "baseline-wrong-core-path.log": "dcca47488826b38783fe83ec5f763b533cc53bb0d4d398e5e237592db2521f93",
+    "baseline-export-error.log": "c432da83bab2a0f2d8681487c2f347e2624467bb7cdf932a61865f5f675de1d0",
+    "narrow-boundary-build.log": "3d07554f7dbb1e52428055495a2684c13d3bfb0d45355f560960232d3d5eb42d",
+    "initial-build.log": "c4d71d602d63f855bafe2b754cc70c2f575f431c8f87af395f6c1073db1b08fb",
+    "adjacent-tests.log": "39a3817baabcf98e21e16ba965bf4e91f4f381e8d4ec634c18f7ac1185e3c442",
+    "narrow-boundary-tests.log": "250556c228e782e356ffaf50167fa00e2008d9a59cfc63d9caeeb062974c6dc3",
+    "repaired-copy-tests.log": "92c59ea6803b2d437572fbfad007fcf7dd8fb216080ab67e5493d1e2f3e22dad",
+    "baseline-build.log": "a7005e5fef123f3f6d88910c6a5c00550262f8a79e0746f9fe1af2d417aee972",
+    "final-build.log": "f3c729c78815cae5112ecb0664252df15beca6caff75b8d8288e53936abb0f3d",
+    "tests.log": "e5b3828b2e01f1b092b1c248b62850d31b4e9b7b0c3aa1cd87569d032c7511ee",
+    "baseline-tests.log": "be7b10e1883dc8129a55d0f31d66f10d95292a082122255c43254c90c53f027e",
+    "build.log": "ced94db947f3938e472ec7fa34f386fee254c929a1c6c30712272c4109717806"
+  },
+  "build": "Final build succeeded14.57s with one preexisting CS0108 fixture warning. Production source unchanged between successful Clear/adjacent run and test-only copy expectation repair.",
+  "review": "Reviewed same-block producer proof, independent ordinary stack/access checks, whole-range-before-write order, subtraction overflow safety and existing typed stores/GC. No generated runtime or ownership index changes.",
+  "cleanup": "Baseline tracked files byte-verified against pinned archive, then task export/archive/generated baseline outputs removed. No CircularBuffer source staged. Own regressions, logs and compiler build artifacts retained; no peer or unique work removed."
+}

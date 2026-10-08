@@ -299,6 +299,7 @@ public static partial class ValueProgramDiscovery
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate enum comparison argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                                 continue;
                             }
+                            ArraySectionClear(work, instruction, instructionIndex, ref target);
                             if (OrdinalOrdering(work, instruction, ref target) is { } orderingGetter) ordinalOrdering.Add(offset, orderingGetter);
                             if (OrdinalListSort(work, instruction, ref target) is { } ordinalGetter) ordinalSorts.Add(offset, ordinalGetter);
                             if (OrdinalCollectionConstruction(work, instruction, ref target) is { } ordinalCollection)

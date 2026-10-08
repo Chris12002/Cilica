@@ -1129,3 +1129,15 @@ managed introsort and numeric CompareTo bridge, preserving cursor invalidation f
 empty/single-item lists. Unsigned delegate/vector composition, other default comparer
 types and section-sort overloads retain diagnostics. No new grant or runtime operation.
 See ADR AC0208.
+
+### Bounded vector section clearing (compatibility batch010)
+
+Array.Clear(Array,Int32,Int32) now selects a granted ordinary managed helper for
+same-block proven vectors. Complete null/range validation precedes typed default
+stores; covariance, argument evaluation and reference release are preserved.
+Int32/UInt32/Int64/enums, references and supported inline values have O0/O2 .NET and
+GC evidence. Narrow scalar generic locations, general Array aliases and joined
+argument stacks remain diagnostic. CIL95; IR59/native79, layouts, quotas and
+collector unchanged. See [decision](../../docs/decisions/compatibility-012-array-section-clear.md)
+and compatibility batch010. CircularBuffer still needs public Copy/ArraySegment;
+its upstream code and full Alchemy replay have not been executed by this slice.

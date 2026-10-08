@@ -15,7 +15,7 @@ using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class ArrayCopyTests
 {
-    private static readonly string[] Names = ["Integers", "Lists", "Values", "EmptyValues", "CovariantSources", "Downcast", "Interfaces", "Self"];
+    private static readonly string[] Names = ["Integers", "Lists", "Values", "EmptyValues", "CovariantSources", "Downcast", "Interfaces", "Self", "Unsigned"];
     private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() => CoreLibraryBuildTests.TranslateFixtures(typeof(ArrayCopyProbe), Names));
     [Theory]
     [InlineData(false, 0)] [InlineData(true, 0)] [InlineData(false, 1)] [InlineData(true, 1)] [InlineData(false, 2)] [InlineData(true, 2)]
@@ -35,7 +35,7 @@ public sealed class ArrayCopyTests
     }
 
     [Fact]
-    public async Task Array_copy_requires_each_exact_grant_and_rejects_unsigned_aliases()
+    public async Task Array_copy_requires_each_exact_grant_and_rejects_external_intrinsic_calls()
     {
         using var files = new ResolverFiles();
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
@@ -54,7 +54,6 @@ public sealed class ArrayCopyTests
             Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Id == DiagnosticIds.LibraryIntrinsicDenied);
         }
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, bytes, built.ManifestSha256).Value!;
-        Assert.False(ValueTranslator.TranslateIntegerObjects(scope, input, (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ArrayCopyProbe).GetMethod("UnsupportedUnsigned")!.MetadataToken), implementation).Success);
         var b = new ResolutionAssemblyBuilder(new AssemblyIdentity("ExternalCopyCompatibility", new Version(1, 0, 0, 0)));
         var core = b.Reference(implementation.Identity); var owner = b.TypeReference("Cilica.Runtime", "ArrayInterface`1", core);
         byte code = checked((byte)((MetadataTokens.GetRowNumber(owner) << 2) | 1));

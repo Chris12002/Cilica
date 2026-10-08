@@ -10,8 +10,15 @@ using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class CandidateCircularBufferTests(ITestOutputHelper output)
 {
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Reduced_section_clear_matches_dotnet(bool optimized)
+    {
+        var programs=await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateCircularBufferProbe),["SectionClear"]);
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("SectionClear",programs[0],CandidateCircularBufferProbe.SectionClear)]);
+    }
     [Fact]
-    public async Task Public_array_copy_clear_and_segment_requirements_remain_actionable_gaps()
+    public async Task Public_array_copy_and_segment_requirements_remain_actionable_gaps()
     {
         using var files=new ResolverFiles();
         var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);
@@ -22,7 +29,7 @@ public sealed class CandidateCircularBufferTests(ITestOutputHelper output)
         var segment=resolver.ResolveType(contract,"System","ArraySegment`1").Value!;
         string segmentToken=$"0x{MetadataTokens.GetToken(segment.Handle):x8}";
         var input=scope.OpenInput(typeof(CandidateCircularBufferProbe).Assembly.Location).Value!;
-        foreach(var(name,requirement)in new[]{("WholeCopy","Copy"),("OverlapCopy","Copy"),("SectionClear","Clear"),("SegmentView","ArraySegment")})
+        foreach(var(name,requirement)in new[]{("WholeCopy","Copy"),("OverlapCopy","Copy"),("SegmentView","ArraySegment")})
         {
             var method=typeof(CandidateCircularBufferProbe).GetMethod(name)!;
             var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(method.MetadataToken),implementation);

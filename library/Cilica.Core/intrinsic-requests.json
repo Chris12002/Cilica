@@ -1132,5 +1132,19 @@
     "Member": "ThenByDescending",
     "ParameterCount": 3,
     "Capability": "OrdinalOrdering"
+  },
+  {
+    "Namespace": "System",
+    "Type": "Array",
+    "Member": "Clear",
+    "ParameterCount": 3,
+    "Capability": "ArraySectionClear"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ArraySections`1",
+    "Member": "ClearSection",
+    "ParameterCount": 3,
+    "Capability": "ArraySectionClearBridge"
   }
 ]

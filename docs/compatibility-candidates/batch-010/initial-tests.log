@@ -1,0 +1,115 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(optimized: False, group: 0) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(25,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(optimized: True, group: 0) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(25,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(optimized: False, group: 1) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(25,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(optimized: True, group: 1) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(25,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(optimized: False, group: 2) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(25,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(optimized: True, group: 2) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(25,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(optimized: False, group: 3) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(25,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(optimized: True, group: 3) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(25,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Sections_faults_and_argument_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Clear_releases_references_while_the_array_stays_rooted(optimized: False, valueElements: False) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(66,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Clear_releases_references_while_the_array_stays_rooted(Boolean optimized, Boolean valueElements)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Clear_releases_references_while_the_array_stays_rooted(optimized: True, valueElements: False) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(66,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Clear_releases_references_while_the_array_stays_rooted(Boolean optimized, Boolean valueElements)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Clear_releases_references_while_the_array_stays_rooted(optimized: False, valueElements: True) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(66,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Clear_releases_references_while_the_array_stays_rooted(Boolean optimized, Boolean valueElements)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ArraySectionClearTests.Clear_releases_references_while_the_array_stays_rooted(optimized: True, valueElements: True) [FAIL]
+      Ints: Diagnostic { Id = CIL2001, Severity = Error, Message = Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile. Reachable via: Cilica.Fixtures.Execution.ArraySectionClearProbe::Ints token 0x060000d4 IL_0016., Location = Cilica.Fixtures.Execution.ArraySectionClearProbe::Clear token 0x060000d2 specialization a0743c5caecf6e78e31ad5bce6e7223d59d114dbbfc796c9b2efb5aafd743149 IL_0003 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/ArraySectionClearTests.cs(66,0): at Cilica.Metadata.Tests.ArraySectionClearTests.Clear_releases_references_while_the_array_stays_rooted(Boolean optimized, Boolean valueElements)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '1a4d094b257c7f7aa3e85e9d053dbc67ac4e95e884cd53bf21e640d33d279bf1')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 15, Errors: 0, Failed: 12, Skipped: 0, Not Run: 0, Time: 1.668s

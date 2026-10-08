@@ -1,0 +1,7 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+  Finished:    Cilica.Metadata.Tests (ID = '1a4d094b257c7f7aa3e85e9d053dbc67ac4e95e884cd53bf21e640d33d279bf1')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 15, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 17.660s
