@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "dotnet",
+    "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-018/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+    "-method",
+    "Cilica.Metadata.Tests.InvariantLowerTests.Identity_mixed_surrogates_nulls_and_retained_source_match_dotnet",
+    "-method",
+    "Cilica.Metadata.Tests.CandidateOrdinalIgnoreCaseTests.Every_scalar_and_lone_surrogate_matches_the_oracle_profile",
+    "-parallel",
+    "none",
+    "-culture",
+    "invariant",
+    "-noColor"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 15.098495792
+}

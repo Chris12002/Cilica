@@ -1287,3 +1287,14 @@ it while preserving explicit-style Int32 Parse. The frozen engine passes the new
 and reaches unmapped SortedDictionary<TKey,TValue> in DispelOperation.Run. The measured
 probe predates the merged Char-delegate source; full native engine/replay remains open.
 See ADR AC0218. AC8.73 emission notes are corrected: diagnostic scans emit neither root.
+
+
+### Pinned invariant uppercase (compatibility batch 018)
+
+String.ToUpperInvariant reuses pinned Unicode 16.0.0 data with exact invariant
+long-s/dotless-i rules, identity and UTF-16 width preservation. All 39 selected
+checks pass, including 18,564 new repeated native/.NET comparisons and exact
+lookup comparison over all Unicode values. Existing lowercase/ordinal behavior
+is preserved; no compiler/runtime profile, grant or quota changes. The owned
+decoder API composition passes, but actual candidate execution and full replay
+remain unverified. See [the decision](../../docs/decisions/compatibility-020-invariant-uppercase.md).

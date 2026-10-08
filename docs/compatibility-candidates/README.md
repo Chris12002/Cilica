@@ -179,3 +179,11 @@ negative. No upstream candidate executed; earlier skip decisions remain unchange
 Any with live mutation. All 90 checks pass with 9,588 new native/.NET comparisons
 and four precise GC/cache checks. The next owned decoder gate is ToUpperInvariant;
 no upstream candidate was executed.
+
+
+## Invariant uppercase and completed owned decoder API composition
+
+[Batch018](batch-018-results.md) implements exact pinned ToUpperInvariant with
+39 passing checks and 18,564 new native/.NET comparisons. The owned decoder API
+sequence now executes; actual Albireo.Base32 Decode validation requires the
+separately approved bounded execution recipe. No upstream candidate executed.

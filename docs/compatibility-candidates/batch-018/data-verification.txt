@@ -1,0 +1,2 @@
+Verified 100 retained upstream hashes and Unicode16.0.0 digest.
+1475 exact mappings in 203 ranges; width and expansion verified

@@ -55,15 +55,12 @@ public sealed class CharArrayEnumerationTests
         var result=ValueTranslator.TranslateIntegerObjects(scope,input,method,implementation);
         Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Message.Contains("Narrow vector interfaces",StringComparison.Ordinal));
     }
-    [Fact]
-    public async Task Full_owned_decoder_shape_records_the_next_missing_API()
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Full_owned_decoder_shape_matches_dotnet(bool optimized)
     {
-        using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
-        using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
-        var input=scope.OpenInput(typeof(CharArrayEnumerationProbe).Assembly.Location).Value!;
-        var method=(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CharArrayEnumerationProbe).GetMethod("DecoderShape")!.MetadataToken);
-        var result=ValueTranslator.TranslateIntegerObjects(scope,input,method,implementation);
-        Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Id=="CIL3010" && d.Message.Contains("ToUpperInvariant",StringComparison.Ordinal));
+        var p=await CoreLibraryBuildTests.TranslateFixtures(typeof(CharArrayEnumerationProbe),"DecoderShape");
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("DecoderShape",p[0],CharArrayEnumerationProbe.DecoderShape)],
+            Enumerable.Range(0,6).Select(i=>(i,0)).ToArray());
     }
     [Fact]
     public async Task Detached_Char_enumeration_packets_require_exact_receivers_and_results()

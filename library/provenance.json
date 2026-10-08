@@ -640,12 +640,14 @@
       "path": "library/Cilica.Core/StringInvariantCasing.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.cs",
       "algorithms": [
-        "AC7b.22 String.ToLowerInvariant identity, invariant simple casing and unchanged UTF-16 width."
+        "AC7b.22 String.ToLowerInvariant identity, invariant simple casing and unchanged UTF-16 width.",
+        "Compatibility020 String.ToUpperInvariant with exact identity, invariant simple uppercase and UTF-16 width preservation."
       ],
       "changes": [
-        "Scalar managed scans and existing StringConstruction replace unsafe ASCII vector scans, allocation and OS ICU calls. U+0130 remains unchanged as required by pinned pal_casing.c."
+        "Scalar managed scans and existing StringConstruction replace unsafe ASCII vector scans, allocation and OS ICU calls. U+0130 remains unchanged as required by pinned pal_casing.c.",
+        "Uppercase reuses the retained UnicodeOrdinalUpper table, restoring U+017F to U+0053 while keeping U+0131 unchanged under the pinned pal_casing.c invariant rule."
       ],
-      "scope": "Invariant lowercase only, with pinned Unicode 16.0.0 data; culture overloads, uppercasing and case-insensitive equality are not added."
+      "scope": "Parameterless invariant lower/uppercase with pinned Unicode 16.0.0 data; culture overloads and full case folding remain unsupported."
     },
     {
       "path": "library/Cilica.Core/UnicodeSimpleLower.cs",

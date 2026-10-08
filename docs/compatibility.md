@@ -4759,3 +4759,14 @@ object IR63/native79, grants and runtime ownership are unchanged. Other narrow
 generic operations remain diagnostic. The owned decoder next reaches missing
 ToUpperInvariant; actual candidate execution and full replay remain unverified.
 See [the decision](decisions/compatibility-019-character-array-enumeration.md).
+
+
+### Pinned invariant uppercase (compatibility batch 018)
+
+String.ToUpperInvariant reuses pinned Unicode 16.0.0 data with exact invariant
+long-s/dotless-i rules, identity and UTF-16 width preservation. All 39 selected
+checks pass, including 18,564 new repeated native/.NET comparisons and exact
+lookup comparison over all Unicode values. Existing lowercase/ordinal behavior
+is preserved; no compiler/runtime profile, grant or quota changes. The owned
+decoder API composition passes, but actual candidate execution and full replay
+remain unverified. See [the decision](decisions/compatibility-020-invariant-uppercase.md).

@@ -1,0 +1,11 @@
+{
+  "Cilica.Fixtures.Basic.dll": "7e8a383d7c1037fa8b46259447a595b49707c6868d29c37e3115da8c38bc36cb",
+  "Cilica.Fixtures.Execution.dll": "d8d035e10ac239ecd8c548e173386a139f14b3f8deec9ecebe8a4b1655fedcf9",
+  "Cilica.Library.dll": "2e6a0a78bff555ebb84d70297a9451105424c3c67b7a9a04ddbe4b62025568f5",
+  "Cilica.Metadata.dll": "664a6b46c52bfad6b0fc9696ad4a52ceb0f5161f26960569fff5b0b8b7ac6be3",
+  "Cilica.Fixtures.Forwarding.dll": "a1eec2e1e77db423cf797ae044c5646a84594ccd32007d865af912af07705595",
+  "Cilica.Metadata.Tests.dll": "9b5b92131e9ae2dbe126d58bd4e3eb918049a896cb3352ba403141cace1bd50a",
+  "Cilica.LibraryBuild.dll": "29e7d331146d99113b3b27ba85ef9298db1f4416c3c3755b6ab64cf592b75002",
+  "Cilica.Compiler.dll": "52fd471795cdcb8ac38598bb665af145de687c295ce8092e3401a31589222f59",
+  "Cilica.Fixtures.ControlFlow.dll": "912cf67f65c9ba9b69e402ea0e47a751fbf21dc3f3894de5a523a2daa9342002"
+}
