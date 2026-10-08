@@ -3,6 +3,22 @@ namespace System
 {
     public sealed partial class String
     {
+        public string Replace(char oldChar, char newChar)
+        {
+            if (oldChar == newChar) return this;
+            int first = IndexOf(oldChar);
+            if (first < 0) return this;
+            int length = Length;
+            var units = new int[length];
+            for (int i = 0; i < first; ++i) units[i] = this[i];
+            for (int i = first; i < length; ++i)
+            {
+                char value = this[i];
+                units[i] = value == oldChar ? newChar : value;
+            }
+            return Cilica.Runtime.StringConstruction.FromCodeUnits(units);
+        }
+
         // Preserve the pinned String.cs copy/cache contract using ordinary
         // managed UTF-16 reads and stores; no native pointer or copy intrinsic.
         public char[] ToCharArray()

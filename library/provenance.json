@@ -1694,13 +1694,14 @@
     },
     {
       "path": "library/Cilica.Core/StringCharacters.cs",
-      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/String.cs",
+      "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/String.cs; String.Manipulation.cs",
       "contracts": [
+        "AC8.79 adds Replace(Char,Char): preserve receiver identity for equal characters or no match; otherwise copy and replace exact UTF-16 code units into a fresh string.",
         "Exact granted Char[] constructor maps to an ordinary managed String factory using the shared constructor-factory path.",
         "Null and zero-length inputs return canonical Empty; other arrays copy exact UTF-16 code units into an independent immutable string.",
         "Parameterless ToCharArray returns the per-instance Array.Empty<Char> cache for empty strings and a fresh exact UTF-16 Char vector for nonempty strings; null receivers retain normal call faults."
       ],
-      "scope": "Single Char[] constructor and parameterless ToCharArray. The constructor retains its rooted temporary Int32 buffer/FromCodeUnits helper; ToCharArray uses existing Char reads/stores and Array.Empty. Section ToCharArray and section/repetition/pointer constructors remain unsupported. Allocation quotas unchanged."
+      "scope": "Replace(Char,Char), single Char[] constructor and parameterless ToCharArray. String-pattern/culture replacement remains unsupported. The constructor retains its rooted temporary Int32 buffer/FromCodeUnits helper; ToCharArray uses existing Char reads/stores and Array.Empty. Section ToCharArray and section/repetition/pointer constructors remain unsupported. Allocation quotas unchanged."
     },
     {
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Text/UTF8Encoding.cs; Encoding.cs; UTF8Encoding.Sealed.cs",

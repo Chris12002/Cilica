@@ -4814,3 +4814,16 @@ zero-root test passes. The frozen engine scan now reaches String.Replace in
 SuppressTaggedEffectOperation.Label (3,310,764 units); StateLookup validates 15
 methods. Both audit emission fields are null. Full closure/replay and the separate
 non-sealed sorted-dictionary duplicate-text gap remain open. See ADR AC0222.
+
+### Character replacement (AC8.79)
+
+`String.Replace(Char,Char)` now preserves the original string for equal characters
+or no match, otherwise copies exact UTF-16 units to a fresh string through existing
+managed construction. String-pattern/culture overloads remain diagnostic. All 12
+focused/adjacent checks pass, including 5,880 new sanitized O0/O2 native/.NET
+comparisons with forced collection and exact cleanup/frame budgets.
+
+The frozen engine scan now reaches List.RemoveAll in ObstacleOverflow.Drain
+(3,379,372 work units); StateLookup validates 15 methods. Neither audit emits C++.
+No profile/grant/runtime/production-budget changes; full closure and saved-game
+replay remain incomplete. See ADR AC0223 for validation and the frozen hashes.
