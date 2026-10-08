@@ -4855,3 +4855,18 @@ The frozen engine scan now reaches List.RemoveAll in ObstacleOverflow.Drain
 (3,379,372 work units); StateLookup validates 15 methods. Neither audit emits C++.
 No profile/grant/runtime/production-budget changes; full closure and saved-game
 replay remain incomplete. See ADR AC0223 for validation and the frozen hashes.
+
+### Predicate list removal (AC8.80)
+
+`List<T>.RemoveAll` now follows pinned live compaction, callback/exception order,
+reference-bearing tail clearing and completion-only size/version publication.
+Reentrant list mutation remains observable; null predicates and failed clear ranges
+retain managed faults. All 19 focused/adjacent checks pass, including 4,608 new
+O0/O2 native/.NET comparisons and four new live-list GC checks for references and
+reference-bearing values. Existing sanitizer, cleanup and frame checks remain on.
+
+The frozen engine now reaches the previously reduced polymorphic duplicate-text gap
+in SortedDictionary.Add through DispelOperation. The collection value is a non-sealed
+reference type; its ToString dispatch is not yet admitted by DictionaryKeyText.
+Engine work is 3,387,734 units; StateLookup validates 15 methods. Both Emission fields
+are null. Full closure and saved-game replay remain incomplete. See ADR AC0224.

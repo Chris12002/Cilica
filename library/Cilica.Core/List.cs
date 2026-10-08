@@ -202,6 +202,25 @@ namespace System.Collections.Generic
         public bool Contains(T value) => IndexOf(value) >= 0;
         public void CopyTo(T[] array) => CopyTo(array, 0);
         public void CopyTo(T[] array, int arrayIndex) => Cilica.Runtime.ArrayInterface<T>.CopyPrefix(items, size, array, arrayIndex);
+        public int RemoveAll(Predicate<T> match)
+        {
+            if (match == null) throw new ArgumentNullException("match");
+            int freeIndex = 0;
+            while (freeIndex < size && !match(items[freeIndex])) ++freeIndex;
+            if (freeIndex >= size) return 0;
+            int current = freeIndex + 1;
+            while (current < size)
+            {
+                while (current < size && match(items[current])) ++current;
+                if (current < size) items[freeIndex++] = items[current++];
+            }
+            if (Cilica.Runtime.KeyOperations<T>.ContainsReferences())
+                Cilica.Runtime.ArraySections<T>.ClearSection(items, freeIndex, size - freeIndex);
+            int result = size - freeIndex;
+            size = freeIndex;
+            ++version;
+            return result;
+        }
         public bool Remove(T value)
         {
             int index = IndexOf(value);
