@@ -4345,3 +4345,12 @@ copied method allowance to 8,192 then reaches HashSet<T>.UnionWith through
 ResolveChain. Production remains 4,096 parameters/512 methods. See ADR AC0196.
 No engine code is emitted or executed; full engine, fingerprint and replay remain
 unfinished.
+
+### Enumerable set union (AC3.33)
+
+HashSet<T>.UnionWith now performs the pinned null check and one-pass insertion.
+It preserves source callbacks/disposal, partial mutation, self-union and stored
+identity without Count/CopyTo shortcuts. All 67 selected set checks pass; twelve
+new probes provide 5,184 repeated native/.NET comparisons. See ADR AC0197. Frozen
+discovery next reaches protected abstract GameOccurrence.WriteContext dispatch.
+Full engine, unchanged fingerprint and saved-game replay remain unfinished.

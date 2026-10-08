@@ -647,7 +647,7 @@
       "algorithms": [
         "Default-comparer Add/Contains/Remove/Clear/TryGetValue, prime buckets and free slots; AC4.9 concrete/interface cursors and AC3.15 enumerable construction with dense clone, sparse reinsertion and stored-hash trimming.",
         "Copy equality receivers; hash the owned argument byref; retain bucket/entry array identity across callbacks.",
-        "AC3.30 all three generic CopyTo overloads retain validation order, actual negative argument details, active-slot order and requested-count behavior."
+        "AC3.30 all three generic CopyTo overloads retain validation order, actual negative argument details, active-slot order and requested-count behavior. AC3.33 UnionWith preserves one-pass enumeration, insertion callbacks, self-union, partial mutation and disposal/fault order."
       ],
       "changes": [
         "Traced inline generic entry arrays use existing bounded value storage. Share the existing pinned prime helper.",
@@ -655,7 +655,7 @@
         "Cilica default string hashing retains its bounded deterministic profile; randomized collision hardening is not implemented.",
         "AC6.7 shares fields and algorithms in non-enumerable SetStorage<T>; public HashSet owns one storage object and delegates implemented members. Query helpers prepare capacities and copy stored values without rehashing."
       ],
-      "scope": "Default/enumerable construction and listed key/mutation/cursor operations for admitted payloads. AC7a.2 supplies native Int64-vector/cursor evidence without changing these owned bodies. AC3.30 implements all generic CopyTo overloads with captured storage, partial covariant writes and unchanged version. Unadmitted comparers, capacity constructors, set algebra and serialization remain unsupported."
+      "scope": "Default/enumerable construction and listed key/mutation/cursor operations for admitted payloads. AC7a.2 supplies native Int64-vector/cursor evidence without changing these owned bodies. AC3.30 implements all generic CopyTo overloads with captured storage, partial covariant writes and unchanged version. UnionWith delegates each enumerated value to existing insertion without Count/CopyTo or self shortcuts. Unadmitted comparers, capacity constructors, other set algebra and serialization remain unsupported."
     },
     {
       "path": "library/Cilica.Core/Enumerable.cs",

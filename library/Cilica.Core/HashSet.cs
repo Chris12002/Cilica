@@ -126,7 +126,11 @@ namespace System.Collections.Generic
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => Count == 0
             ? System.SZGenericArrayEnumerator<T>.Create(null, 0) : GetEnumerator();
         Collections.IEnumerator Collections.IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
-        public void UnionWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+        public void UnionWith(IEnumerable<T> other)
+        {
+            if (other == null) throw new ArgumentNullException("other");
+            foreach (T item in other) storage.Add(item);
+        }
         public void IntersectWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         public void ExceptWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
         public void SymmetricExceptWith(IEnumerable<T> other) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
