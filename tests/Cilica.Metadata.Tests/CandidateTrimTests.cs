@@ -36,18 +36,12 @@ public sealed class CandidateTrimTests
     }
 
     [Theory]
-    [InlineData("UnsupportedCharacters")] [InlineData("UnsupportedStart")]
-    public async Task Other_trim_overloads_remain_diagnostic(string name)
+    [InlineData(false)] [InlineData(true)]
+    public async Task Previously_diagnostic_character_and_start_reductions_match_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
-            await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(CandidateTrimProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CandidateTrimProbe).GetMethod(name)!.MetadataToken);
-        var translated = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(translated.Success);
-        Assert.Contains(translated.Diagnostics, d => d.Message.Contains("Trim", StringComparison.Ordinal));
+        var programs = await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateTrimProbe), "UnsupportedCharacters", "UnsupportedStart");
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("FormerCharacterGap", programs[0], CandidateTrimProbe.UnsupportedCharacters),
+             ("FormerStartGap", programs[1], CandidateTrimProbe.UnsupportedStart)]);
     }
 }

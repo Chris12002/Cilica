@@ -1194,6 +1194,19 @@ closure discovery, without full engine execution, fingerprint parity or replay.
 See ADR AC0214 and artifacts/alchemy-decimal{,-merged,-refresh,-engine}.
 
 
+### Explicit-character and directional trimming (compatibility016)
+
+Owned String.Trim/TrimStart/TrimEnd now support Char and Char[] arguments; parameterless
+TrimStart/TrimEnd share the existing Unicode whitespace classifier. Exact UTF-16 set
+membership, null/empty-set whitespace fallback, receiver identity, canonical empty
+results and call evaluation order are preserved through managed operations. All19
+focused/adjacent checks pass, including15,042 new repeated O0/O2 native/.NET comparisons,
+forced GC, sanitizers and frame/root boundaries. No profiles, grants, compiler/runtime
+operations or quotas change. Actual Albireo.Base32 execution and String.ToCharArray
+remain unverified/unsupported respectively; see compatibility batch014 and ADR
+compatibility-016-character-set-trimming. Span overloads and full replay remain open.
+
+
 ### Bounded SequenceEqual traversal (AC8.71)
 
 SequenceEqual now accepts two admitted sequences, with default equality or an

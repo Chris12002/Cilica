@@ -1,0 +1,162 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.CandidateTrimTests.Previously_diagnostic_character_and_start_reductions_match_dotnet(optimized: False) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimTests.cs(42,0): at Cilica.Metadata.Tests.CandidateTrimTests.Previously_diagnostic_character_and_start_reductions_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimTests.Previously_diagnostic_character_and_start_reductions_match_dotnet(optimized: True) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimTests.cs(42,0): at Cilica.Metadata.Tests.CandidateTrimTests.Previously_diagnostic_character_and_start_reductions_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimTests.Every_utf16_edge_unit_and_unchanged_identity_match_dotnet(optimized: False) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimTests.cs(20,0): at Cilica.Metadata.Tests.CandidateTrimTests.Every_utf16_edge_unit_and_unchanged_identity_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimTests.Every_utf16_edge_unit_and_unchanged_identity_match_dotnet(optimized: True) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimTests.cs(20,0): at Cilica.Metadata.Tests.CandidateTrimTests.Every_utf16_edge_unit_and_unchanged_identity_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimTests.Exact_payload_empty_identity_roots_and_receiver_faults_match_dotnet(optimized: False) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimTests.cs(30,0): at Cilica.Metadata.Tests.CandidateTrimTests.Exact_payload_empty_identity_roots_and_receiver_faults_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimTests.Exact_payload_empty_identity_roots_and_receiver_faults_match_dotnet(optimized: True) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimTests.cs(30,0): at Cilica.Metadata.Tests.CandidateTrimTests.Exact_payload_empty_identity_roots_and_receiver_faults_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimSetTests.Character_and_set_directions_payload_identity_and_faults_match_dotnet(optimized: False) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimSetTests.cs(20,0): at Cilica.Metadata.Tests.CandidateTrimSetTests.Character_and_set_directions_payload_identity_and_faults_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimSetTests.Character_and_set_directions_payload_identity_and_faults_match_dotnet(optimized: True) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimSetTests.cs(20,0): at Cilica.Metadata.Tests.CandidateTrimSetTests.Character_and_set_directions_payload_identity_and_faults_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimSetTests.Unimplemented_adjacent_surfaces_remain_diagnostic(name: "MissingCharacters") [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CandidateTrimSetTests.cs(37,0): at Cilica.Metadata.Tests.CandidateTrimSetTests.Unimplemented_adjacent_surfaces_remain_diagnostic(String name)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.StringWhitespaceTests.Selected_string_body_cannot_become_virtual_or_an_initializer [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/StringWhitespaceTests.cs(27,0): at Cilica.Metadata.Tests.StringWhitespaceTests.Selected_string_body_cannot_become_virtual_or_an_initializer()
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.StringWhitespaceTests.All_utf16_units_and_mixed_strings_match_dotnet(optimized: False) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/StringWhitespaceTests.cs(17,0): at Cilica.Metadata.Tests.StringWhitespaceTests.All_utf16_units_and_mixed_strings_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.StringWhitespaceTests.All_utf16_units_and_mixed_strings_match_dotnet(optimized: True) [FAIL]
+      System.InvalidOperationException : Compiler failed (1): source/62.cs(19,28): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(20,33): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      source/62.cs(21,31): error CS0656: Missing compiler required member 'System.ParamArrayAttribute..ctor'
+      
+      Stack Trace:
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(170,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(180,0): at Cilica.LibraryBuild.LibraryBuilder.Compile(ProcessStartInfo start)
+        tools/Cilica.LibraryBuild/LibraryBuilder.cs(91,0): at Cilica.LibraryBuild.LibraryBuilder.Build(LibraryBuildRequest request)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(36,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.BuildAndMapContracts(ResolverFiles files, Boolean includeNetStandard20, String[] additionalSources)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(88,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/StringWhitespaceTests.cs(17,0): at Cilica.Metadata.Tests.StringWhitespaceTests.All_utf16_units_and_mixed_strings_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = 'eb79cc164d1ec40f14c9847c785692e23f201c2bf10760be5177b40b16d1dc09')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 12, Errors: 0, Failed: 12, Skipped: 0, Not Run: 0, Time: 2.197s

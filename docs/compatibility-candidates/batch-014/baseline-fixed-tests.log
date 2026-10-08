@@ -1,0 +1,25 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.CandidateTrimSetTests.Character_and_set_directions_payload_identity_and_faults_match_dotnet(optimized: False) [FAIL]
+      Single: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: Trim, Location = Cilica.Fixtures.Execution.CandidateTrimSetProbe::Single token 0x06000255 IL_0040; token 0x0a00014b in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x06000255 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimSetTests.cs(20,0): at Cilica.Metadata.Tests.CandidateTrimSetTests.Character_and_set_directions_payload_identity_and_faults_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateTrimSetTests.Character_and_set_directions_payload_identity_and_faults_match_dotnet(optimized: True) [FAIL]
+      Single: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: Trim, Location = Cilica.Fixtures.Execution.CandidateTrimSetProbe::Single token 0x06000255 IL_0040; token 0x0a00014b in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x06000255 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(93,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CandidateTrimSetTests.cs(20,0): at Cilica.Metadata.Tests.CandidateTrimSetTests.Character_and_set_directions_payload_identity_and_faults_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = 'eb79cc164d1ec40f14c9847c785692e23f201c2bf10760be5177b40b16d1dc09')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 2, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 0.853s

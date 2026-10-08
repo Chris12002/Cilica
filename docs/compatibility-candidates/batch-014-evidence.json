@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "batch": "batch-014",
+  "tested_head": "30fe50ded5a6cd84803b695829768dbdb1019a19",
+  "profiles": {
+    "CIL": 102,
+    "object_IR": 62,
+    "native": 79,
+    "note": "Unchanged peer Decimal baseline; this slice adds only managed library bodies."
+  },
+  "owned_source_sha256": {
+    "library/Cilica.Core/StringWhitespace.cs": "a56ec8512b820407fdeec2a3bc56730017f3d7ed85a881a9af0142c789bed25d",
+    "tests/Cilica.Metadata.Tests/CandidateTrimTests.cs": "b6933aa75e4e70f166225408ccde1a7b9cd94070f987b1b4b677d92df9138d6b",
+    "tests/Cilica.Metadata.Tests/CandidateTrimSetTests.cs": "ac38e35535c8cb431a4dc9a69acd6c7f10696ab5a9f1663fb4f601ccc1ff605c",
+    "tests/Fixtures/Cilica.Fixtures.Execution/CandidateTrimSetProbe.cs": "41ead149405abbc9bc7ec7f06c8339f04fc7c0cc098685b912472e68deaf9cd5"
+  },
+  "results": {
+    "checks": 19,
+    "passed": 19,
+    "test_seconds": 69.708,
+    "new_repeated_native_dotnet_comparisons": 15042,
+    "breakdown": {
+      "new_trim_set_roots": 14454,
+      "formerly_diagnostic_character_and_start": 588
+    },
+    "scope": "CandidateTrimSetTests, CandidateTrimTests, StringWhitespaceTests, CharacterStringTests. Forced GC, ASan/UBSan, exact root/borrow/frame cleanup, strict native frame limit.",
+    "boundary_followup": {
+      "checks": 1,
+      "passed": 1,
+      "seconds": 0.785,
+      "note": "Tightened existing ToCharArray check to exact CIL3010/member name; overlaps the19 checks, do not count as20 distinct checks."
+    }
+  },
+  "attempts": {
+    "baseline-build.log": "Authored negative probe referenced span trimming unavailable in fixture target; removed without changing production scope. Original failure retained.",
+    "baseline-fixed-tests.log": "2/2 fail expected baseline CIL3010 missing Trim(Char); no candidate execution.",
+    "implemented-tests.log": "12/12 fail owned-core compilation: ParamArrayAttribute unavailable. Corrected implementation declarations to exact Char[] without source params attribute.",
+    "repaired-tests.log": "19/19 pass; no observed semantic mismatches.",
+    "boundary-tests.log": "1/1 passes exact CIL3010 ToCharArray check after assertion tightening; no native rerun required."
+  },
+  "native_hash_pairs": 20,
+  "retained_files_sha256": {
+    "baseline-run.json": "49e14b26caef7a30f468b620090b15fdeb52be861687289213befdaf4e03c681",
+    "boundary-run.json": "9d8040eb2eecc522464a7266ef72acea588726625e2538898c9186dc162d4338",
+    "implemented-build.log": "ec75ac998cf3a7f60743176df5dfec8de3e8cd1d70194b99a9b99e88383c042e",
+    "run_trim_set.py": "a7d7ed135da88381c2323be18f97b407587207b2200f04c0a3218df397725aa4",
+    "run_trim_set_baseline_fixed.py": "61f330c8865e666ebcf246e73f9871a00b42b3c96cc52575a71042b3b0503b4d",
+    "implemented-run.json": "1456f3d6fc45220859d0abb4b0e55339b8e63892b89f5d086a3e55ab02246afc",
+    "implemented-tests.log": "643eb0f2f2b85a0b3e421b3868395ed1ef212288809b1c084784d0ebbd63351d",
+    "repaired-run.json": "68bfbe87e1f00d8c7174b9c5740bc81e3f70d91f0df418908321dadfeac52221",
+    "repaired-build.log": "fb014dc8e3de0219ec2ad73bdeca54e48a187b331e275784b087a987ae9646b0",
+    "baseline-build.log": "cf3627302cc7c3efd5ed4dd4e2ae28b8238b43ca782ff3b1179c7450a446c24c",
+    "boundary-build.log": "f03bc47bdfce52d90f4cf736ae43a28f5ba0d34387ec82f2071b947e4ab3e340",
+    "baseline-fixed-run.json": "fd1d4c5ef3ea55deb42eda3badffb19cd179019dbe44e4826b5050f3a4e83204",
+    "baseline-fixed-build.log": "89071ea1b816b2802b21dd32e4a0c966f2453575cb67a1f3dcbe090942ad0188",
+    "run_trim_set_implemented.py": "e3b6861504fd32fc9f48ac142a5bc3b282c26d182dc88042c3a4ac76d3a36162",
+    "run_trim_set_repaired.py": "d6fc8d1098148f4286a5c87f711a7a03d0d38abb7d7b0948309107b69ffe8055",
+    "repaired-tests.log": "47dac02a2da4668a90f701dd8805c41890978dd459be310ad5ad8e66ebe5ff69",
+    "boundary-tests.log": "2ed049766f881869c417ccfa79a980fc22d66e1ef60c798c4fd2a1f182d0c260",
+    "run_trim_set_boundary.py": "4bdc1218e704f7a8e52162bf78b88f0df8643e3596cf417f107fbcda51f4baa3",
+    "baseline-fixed-tests.log": "f2b81d6b327da39c5092c8a2de6b099b9ca367f4726fbc701aa1f5a8872eb9ca",
+    "native-evidence-repaired/f0a71054726265a5bd02a13f715f419d8168055bef2cd2512c2624539c61c2a4-O2.json": "4673a37a9189a634c9349293a6470f0265cdfb1d80b10d053b10ef55a6ded825",
+    "native-evidence-repaired/c8a5e739defb968895f11f7dda5dcb5b91ceca515f69d51992ad0d8cecb38bea-O0.json": "537aca77a4cac4afbddb4d7312906ed3c94f2e7f1d0e299ce46a48262c27ac21",
+    "native-evidence-repaired/c3d08a6df90748b2b445e8c64cc436fc65110fda46d0db19ef184b065215a1c6-O2.json": "545e0516048a77b80bd250feaa5b387cd1d5bf5fcceda94569ba894a48b40cfe",
+    "native-evidence-repaired/6468ac051b7b299c194bac954e81f06a27cb075b77a0a0769526ad2b975839b4-O2.json": "dfb59253479d3d937cdb4441eb6a4bfa7d31d14cecf71e1a734c463cb5cb7951",
+    "native-evidence-repaired/a313fb1673ac7c8833283601c43370d3235add04cdaf74e267cabe37058c6c57-O2.json": "d36d2ed2aabd9148218762d50c2c636f30188f29ed75e14cbfe416b9c985f400",
+    "native-evidence-repaired/c35064581104a7d088026f76b98cf5c38e478765cb4cf34de9d41d7523cba2ed-O0.json": "a906a54433d7ac6bd5fbce0a2009df421f09642dfc5fcb8935a1642a76f4ff30",
+    "native-evidence-repaired/6639b9898a1a83d444ff42ab800096ad7c483db22e35087525f5b16200c68537-O0.json": "3e62ac027e15fe43b6707336482b61c282700599ba90661a707d435cdcbc9648",
+    "native-evidence-repaired/fe15aa92e9f681ff4157cbb4cfe9bc22ac023caeb1a303716b78ad679daa4f4c-O0.json": "9ed2a53ed2c6788eee93503d1bc1ab314e788795e5c5f55fa20c794fa3d333bc",
+    "native-evidence-repaired/c841e013e01fe9b0255eda78122b4e69cf797a42b9d84f728b0825197ca5c6c6-O0.json": "b83c036b7c58ac078dabe1f079ce50f93b59f6f9d8d918591319d65c042b570c",
+    "native-evidence-repaired/fbd4373ae11bf863e0af62be11f8f2b022602cb23c7333c1e776c3a08a9b4377-O2.json": "f02ef5f17497c1b11beb92bebb380f3d63cee4b01f3b5026808ad73c9f13928b",
+    "native-evidence-repaired/6639b9898a1a83d444ff42ab800096ad7c483db22e35087525f5b16200c68537-O2.json": "922a58a86cf3848c8aa4cb1c562882828f0bcdbc24c0b7feddd59b86ec7c1131",
+    "native-evidence-repaired/fe15aa92e9f681ff4157cbb4cfe9bc22ac023caeb1a303716b78ad679daa4f4c-O2.json": "c6bc12afdaf8094308b5c325718b3ddbfa8f39b62cf181d95663a192b2e08731",
+    "native-evidence-repaired/fbd4373ae11bf863e0af62be11f8f2b022602cb23c7333c1e776c3a08a9b4377-O0.json": "458e9cc13eac09da6990a4177dd30e195b3f330aa574bc1b1944d07961dc08dd",
+    "native-evidence-repaired/c841e013e01fe9b0255eda78122b4e69cf797a42b9d84f728b0825197ca5c6c6-O2.json": "73430807fdcfda39f716db43bba3a052e902709da048d6cba7ddb5d58f530cdd",
+    "native-evidence-repaired/f0a71054726265a5bd02a13f715f419d8168055bef2cd2512c2624539c61c2a4-O0.json": "d2f56d06fab76b0ea762dc62e42bf7a6b4ee31dcb3b728fef78c9c631113e879",
+    "native-evidence-repaired/c3d08a6df90748b2b445e8c64cc436fc65110fda46d0db19ef184b065215a1c6-O0.json": "4973c97a91e5b97a458056a5135c48e8e0a4b24250c597019958bdcece445c86",
+    "native-evidence-repaired/c8a5e739defb968895f11f7dda5dcb5b91ceca515f69d51992ad0d8cecb38bea-O2.json": "b9efdca3f7e0de07705646adec18e2c38193a9b2dee2a18684b9b47112cdedda",
+    "native-evidence-repaired/c35064581104a7d088026f76b98cf5c38e478765cb4cf34de9d41d7523cba2ed-O2.json": "d0337fb3f17d935325d2fbd26987272d0e37a92ed4c6d39d6fbe36e4e4c0ca98",
+    "native-evidence-repaired/a313fb1673ac7c8833283601c43370d3235add04cdaf74e267cabe37058c6c57-O0.json": "677b89df2d3e94bd8975c85412821d4bcaf5ff75b657f4540bb66e88af8f2863",
+    "native-evidence-repaired/6468ac051b7b299c194bac954e81f06a27cb075b77a0a0769526ad2b975839b4-O0.json": "5d3f4daea289a6cf200c989820704b45384113a305c7dae567257e7139611b52"
+  },
+  "tested_assemblies_sha256": {
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Basic.dll": "1c9a82f0479343f6d65fea778a8d9a687e115e5f95b66365028768fda9bc2684",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Execution.dll": "dbc67d2ea043b7835d87756be8a2f8e87a4013561e59937e2c62c67be91b16e3",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Library.dll": "2e6a0a78bff555ebb84d70297a9451105424c3c67b7a9a04ddbe4b62025568f5",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.dll": "ecf2b90b0d8ed4c2f0fcaaace708c1b52bafc5c86d4839d2f8f94e90ef6e4ba8",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Forwarding.dll": "e91b10772afc23d7496845636704877edff2e3309ded4965a92b060740d83ca2",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll": "89b19a72fbca53caa7a2075a5932f9797926187ec69253b801462d952a4b506d",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.LibraryBuild.dll": "a07461bb9f8fa72a8f6ebde179c2800c3f53bd6c444b65ca7155a91236da17e9",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Compiler.dll": "1a70a24d37ea878d03b0920e9796a3b1c6cc83d7e7746d1d2e0d8557b4833f0b",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.ControlFlow.dll": "ef2aff7f68f1725bbb7a76e4606eca2f570f212bf280d00e3135f86044b4c920"
+  },
+  "review": "Half-open bounds, exact Char equality, null/empty-set whitespace fallback, no mutation/retention/callback or temporary membership allocation. Existing Substring and call lowering preserve identity, canonical empty, evaluation order and ownership. No profile, grant, compiler or runtime changes. Peer Decimal30fe50d retained.",
+  "external_execution": "None. Online connector inspection only; no candidate copies/builds/restore/tests.",
+  "untested": [
+    "Full repository suite and Alchemy replay",
+    "Actual Albireo.Base32 decoder/encoder",
+    "ToCharArray implementation and Char predicate/byref closure",
+    "Span trimming and broader candidate surfaces"
+  ],
+  "cleanup": "No disposable candidate copies created; owned test temporary native files cleaned by harness after20 hash pairs retained.",
+  "focused_suite_source_sha256": {
+    "library/Cilica.Core/StringWhitespace.cs": "a56ec8512b820407fdeec2a3bc56730017f3d7ed85a881a9af0142c789bed25d",
+    "tests/Cilica.Metadata.Tests/CandidateTrimTests.cs": "b6933aa75e4e70f166225408ccde1a7b9cd94070f987b1b4b677d92df9138d6b",
+    "tests/Cilica.Metadata.Tests/CandidateTrimSetTests.cs": "996b31117425d4f23690a935abcf23717d68b0ff7bac7b4dfbf9d0f95eac9ad3",
+    "tests/Fixtures/Cilica.Fixtures.Execution/CandidateTrimSetProbe.cs": "41ead149405abbc9bc7ec7f06c8339f04fc7c0cc098685b912472e68deaf9cd5"
+  },
+  "boundary_test_assemblies_sha256": {
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Basic.dll": "1c9a82f0479343f6d65fea778a8d9a687e115e5f95b66365028768fda9bc2684",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Execution.dll": "8929d2eb4d935c8d1ba6b868e07e4763e16d84d4d1d8863ed2f109f897f9415b",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Library.dll": "2e6a0a78bff555ebb84d70297a9451105424c3c67b7a9a04ddbe4b62025568f5",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.dll": "ecf2b90b0d8ed4c2f0fcaaace708c1b52bafc5c86d4839d2f8f94e90ef6e4ba8",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Forwarding.dll": "e91b10772afc23d7496845636704877edff2e3309ded4965a92b060740d83ca2",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll": "a7ed50ff16534b95a2e927f998a4578655d279b2144979ac23f7d8a181271fdf",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.LibraryBuild.dll": "a07461bb9f8fa72a8f6ebde179c2800c3f53bd6c444b65ca7155a91236da17e9",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Compiler.dll": "1a70a24d37ea878d03b0920e9796a3b1c6cc83d7e7746d1d2e0d8557b4833f0b",
+    "bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.ControlFlow.dll": "ef2aff7f68f1725bbb7a76e4606eca2f570f212bf280d00e3135f86044b4c920"
+  },
+  "concurrency": "Peer SequenceEqual source-list/provenance/docs merged after full trimming suite while exact ToCharArray boundary ran. Full suite pins retain original tested DLL hashes; final boundary DLL hashes retained separately. No compatibility inference from the later merge."
+}

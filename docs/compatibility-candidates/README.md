@@ -2,8 +2,8 @@
 
 This workflow turns pinned public projects into independently testable Cilica
 requirements. It is a source-screening and regression workflow, not an automatic
-third-party build farm. The current batch is [batch-013.json](batch-013.json);
-[results](batch-013-results.md) distinguish implemented support, diagnostics and
+third-party build farm. The current batch is [batch-014.json](batch-014.json);
+[results](batch-014-results.md) distinguish implemented support, diagnostics and
 tested and excluded candidate roots.
 
 Latest execution follow-ups: [CircularBuffer selected roots verified](circularbuffer-retry-20261008.md)
@@ -25,7 +25,7 @@ Correctness trial durations are not performance results.
    applicable local skills. Ask the owning thread about overlapping work before
    selecting a gap. The primary checkout and the active Alchemy compatibility
    worktree differ substantially; never infer freshness from their directory names.
-2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-013`.
+2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-014`.
    The CLI default remains the historical batch 001; use explicit `--batch batch-NNN`
    for current or later batches. Existing immutable screening can be reused at the
    same pin. Start with two candidates and one independently useful feature. Reopen a mapped entry only for a new pin,
@@ -146,3 +146,12 @@ After independent general constructor support, the reviewed
 approval covered the unchanged scope, as explicitly confirmed by the parent.
 See [results and complete hash receipts](circularbuffer-retry-20261008.md).
 ToArray, segments/iterators and other type instantiations remain untested.
+
+
+## Character-set trimming follow-up
+
+[Batch014](batch-014-results.md) screens four small candidates online and implements
+eight missing trimming overloads with19 passing checks/15,042 new comparisons.
+No new candidate executed. Albireo.Base32 remains blocked at independently diagnosed
+ToCharArray and other not-yet-reduced compositions; unsafe/locking candidates and
+current SimpleBase targets were excluded with explicit reasons.
