@@ -11,9 +11,12 @@
     <Compile Include="../../library/Cilica.Core/UnicodeWhitespace.cs" Link="OwnedUnicodeWhitespace.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" Link="ReferenceContracts/netstandard2.0/netstandard.dll" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../docs/compatibility/alchemy-gap-ledger.json" Link="compatibility-gap-ledger.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Metadata-only exact earlier contract; no package build/analyzer/runtime assets. -->
+    <PackageReference Include="NETStandard.Library" GeneratePathProperty="true" PrivateAssets="all" ExcludeAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio">

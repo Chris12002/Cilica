@@ -24,7 +24,10 @@ public sealed class CoreLibraryBuildTests
         Assert.NotNull(root); return Path.Combine(root.FullName, "library", "Cilica.Core", name);
     }
 
-    internal static async Task<(LibraryBuildResult Built, LibraryBuildRequest Request, AssemblyResolver Resolver, ResolvedAssembly Implementation, LibraryBindingPlan Plan)> BuildAndMap(ResolverFiles files, params string[] additionalSources)
+    internal static Task<(LibraryBuildResult Built, LibraryBuildRequest Request, AssemblyResolver Resolver, ResolvedAssembly Implementation, LibraryBindingPlan Plan)> BuildAndMap(ResolverFiles files, params string[] additionalSources)
+        => BuildAndMapContracts(files, false, additionalSources);
+
+    internal static async Task<(LibraryBuildResult Built, LibraryBuildRequest Request, AssemblyResolver Resolver, ResolvedAssembly Implementation, LibraryBindingPlan Plan)> BuildAndMapContracts(ResolverFiles files, bool includeNetStandard20, params string[] additionalSources)
     {
         var requests = LibraryIntrinsicRequests.Read(CorePath("intrinsic-requests.json"));
         var request = LibraryBuildProducerTests.Request(files, CorePath("CoreTypes.cs"));
@@ -32,7 +35,8 @@ public sealed class CoreLibraryBuildTests
         request = request with { Sources = [CorePath("CoreTypes.cs"), CorePath("RuntimeTypes.cs"), CorePath("EnumQueries.cs"), CorePath("Environment.cs"), CorePath("Nullable.cs"), CorePath("IntegerText.cs"), CorePath("NumberStyles.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerParsing.cs")), CorePath("CollectionContracts.cs"), CorePath("DelegateContracts.cs"), CorePath("Guid.cs"), CorePath("GuidParsing.cs"), CorePath("KeyOperations.cs"), CorePath("Dictionary.cs"), CorePath("HashSet.cs"), CorePath("DictionaryContracts.cs"), CorePath("ArrayInterface.cs"), CorePath("ArrayEnumerator.cs"), CorePath("Enumerable.cs"), CorePath("EnumerableContains.cs"), CorePath("WhereIterator.cs"), CorePath("SelectIterator.cs"), CorePath("SelectManyIterator.cs"), CorePath("SkipIterator.cs"), CorePath("DistinctIterator.cs"), CorePath("ConcatIterator.cs"), CorePath("OrderedIterator.cs"), CorePath("MapSort.cs"), CorePath("ComparisonSort.cs"), CorePath("OfTypeIterator.cs"), CorePath("CastIterator.cs"), CorePath("StringBuilder.cs"), CorePath("StringConcatenation.cs"), CorePath("StringSubstring.cs"), CorePath("StringSearching.cs"), CorePath("StringInvariantCasing.cs"), CorePath("UnicodeSimpleLower.cs"), CorePath("StringSplitting.cs"), CorePath("StringCharacters.cs"), CorePath("Utf8Encoding.cs"), CorePath("Sha256.cs"), CorePath("List.cs"), CorePath("ReadOnlyCollection.cs"), CorePath("ValueTuple.cs"), CorePath("StringKeyOperations.cs"), CorePath("PairHash.cs"), CorePath("HashCode.cs"), CorePath("BoxedFormatting.cs"), CorePath("StringComparison.cs"), CorePath("StringComparer.cs"), CorePath("StringOrdinalIgnoreCase.cs"), CorePath("OrdinalIgnoreCaseText.cs"), CorePath("UnicodeOrdinalUpper.cs"), CorePath("Comparer.cs"), CorePath("EqualityComparer.cs"), CorePath("StringWhitespace.cs"), CorePath("UnicodeWhitespace.cs"), CorePath("BooleanParsing.cs"), CorePath("Math.cs"), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "IntegerFormatting.cs")), Path.GetFullPath(Path.Combine(CorePath(".."), "Cilica.Library", "ManagedSha256.cs")), .. additionalSources], AssemblyName = "Cilica.Core", References = [], CoreLibrary = true, Intrinsics = requests };
         var built = await LibraryBuilder.Build(request);
         var resolver = AssemblyResolver.Create([Path.GetDirectoryName(reference)!, Path.GetDirectoryName(built.AssemblyPath)!,
-            Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!]).Value!;
+            Path.GetDirectoryName(typeof(Cilica.Library.IntegerFormatting).Assembly.Location)!,
+            .. includeNetStandard20 ? new[] { Path.GetDirectoryName(NetStandard20Contract.ReferencePath)! } : Array.Empty<string>()]).Value!;
         var contract = resolver.OpenInput(reference).Value!; Assert.True(contract.IsReferenceAssembly);
         var implementation = resolver.OpenInput(built.AssemblyPath).Value!;
         var names = requests.Where(r => r.Namespace != "Cilica.Runtime").Select(r => (r.Namespace, r.Type)).Append(("System", "Object")).Append(("System", "ValueType")).Append(("System", "IFormatProvider")).Concat(new[] { "Boolean", "Char", "SByte", "Byte", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64" }.Select(n => ("System", n))).Distinct().ToArray();
@@ -55,7 +59,8 @@ public sealed class CoreLibraryBuildTests
                 resolver.ResolveType(implementation, "System.Collections.Generic", "Dictionary`2", view, "Enumerator").Value!));
         var plan = resolver.CreateLibraryBindingPlan(pairs);
         Assert.True(plan.Success, string.Join("; ", plan.Diagnostics));
-        return (built, request, resolver, implementation, plan.Value!);
+        var selected = includeNetStandard20 ? NetStandard20Contract.Include(resolver, plan.Value!, implementation) : plan.Value!;
+        return (built, request, resolver, implementation, selected);
     }
 
     internal static readonly (string Namespace, string Name)[] DictionaryContractNames = [

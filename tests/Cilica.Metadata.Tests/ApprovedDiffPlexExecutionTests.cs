@@ -23,7 +23,7 @@ public sealed class ApprovedDiffPlexExecutionTests
         {
             var assembly=context.LoadFromAssemblyPath(path);
             var method=assembly.GetType("Cilica.CandidateValidation.Probe")!.GetMethod("Run")!;
-            using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
+            using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMapContracts(files, includeNetStandard20:true);using var lifetime=resolver;
             using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
             var input=scope.OpenInput(path).Value!;
             var translated=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(method.MetadataToken),implementation);
