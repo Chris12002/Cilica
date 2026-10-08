@@ -1,5 +1,5 @@
 {
-  "status": "awaiting-separate-execution-approval",
+  "status": "approved-executed-blocked-before-oracle",
   "compiler_baseline": "87fb7e5f6f3752cf684c90601c1efa4e59af132f",
   "candidate_repository": "joaoportela/CircularBuffer-CSharp",
   "candidate_commit": "9ebb911dfe27a62c2793d0b02c642f79bbbf524b",
@@ -45,6 +45,7 @@
     "host_kill_seconds": 1790,
     "evidence_deadline_seconds": 1740
   },
-  "result": "not run; recipe/driver/adapter not compiled",
-  "plan": "circularbuffer-execution-plan.md"
+  "result": "circularbuffer-execution-20261008.md",
+  "plan": "circularbuffer-execution-plan.md",
+  "execution_result": "Candidate/compiler builds passed; one explicit check failed CIL2001 constructor-chain validation before oracle or native code generation. No semantic comparisons."
 }

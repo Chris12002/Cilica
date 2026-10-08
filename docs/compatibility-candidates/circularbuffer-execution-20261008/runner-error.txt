@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/runner.py", line 33, in <module>
+    run('differential',['dotnet','artifacts/circularbuffer-approved/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll','-explicit','only','-method','Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation','-parallel','none','-culture','invariant','-showLiveOutput','-noColor'])
+  File "/runner.py", line 12, in run
+    if result.returncode:raise RuntimeError(name+' failed: '+str(result.returncode))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: differential failed: 1

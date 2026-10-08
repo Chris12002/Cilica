@@ -132,8 +132,9 @@ receipts and distinguish them from executed outputs. These receipts do not conta
 the generated source itself. This change does not recover the historical CRC32
 emitted-source hashes; that report's limitation remains explicit.
 
-## Pending CircularBuffer trial
+## CircularBuffer trial blocked before execution
 
-The [frozen selected-root plan](circularbuffer-execution-plan.md) and
-[hashed proposal](circularbuffer-execution-proposal.json) are ready for separate
-execution approval. No CircularBuffer source has been staged, compiled or run.
+The approved [frozen trial](circularbuffer-execution-plan.md) built the unchanged
+candidate but stopped at constructor-chain validation before oracle/native execution.
+See the [retained failure and cleanup](circularbuffer-execution-20261008.md).
+A changed compiler baseline requires a revised trial proposal; no retry is active.

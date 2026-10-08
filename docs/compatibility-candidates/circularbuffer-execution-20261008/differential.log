@@ -1,0 +1,15 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: translating selected candidate root; no oracle invocation yet.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [FAIL]
+      Diagnostic { Id = CIL2001, Severity = Error, Message = Invalid reference IR: invalid void call or base initialization. CircularBuffer.CircularBuffer`1::.ctor token 0x06000003 IL_0008 (Parameter 'method'), Location = Cilica.CandidateValidation.CircularBufferProbe::Run token 0x06000021 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ApprovedCircularBufferExecutionTests.cs(35,0): at Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation()
+        --- End of stack trace from previous location ---
+      Output:
+        Stage: translating selected candidate root; no oracle invocation yet.
+  Finished:    Cilica.Metadata.Tests (ID = '331b18ec0570abcccb2f98cf59605ca253f0640769ee3eb0fc9dd02a911522ee')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 1.056s

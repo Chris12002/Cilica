@@ -1,8 +1,9 @@
 # CircularBuffer selected-root execution proposal
 
-**Awaiting separate execution approval. No CircularBuffer source has been staged,
-compiled or run.** This requests one bounded correctness trial; preparation is not
-permission to execute. The parent explicitly reserved external execution approval.
+**Historical proposal: directly approved by the user and attempted on 2026-10-08.**
+The trial stopped at a constructor-chain compiler gate before oracle/native execution.
+See [retained result](circularbuffer-execution-20261008.md). The original boundaries
+below remain the record of the one approved trial.
 
 ## Frozen input and recipe
 
@@ -107,6 +108,6 @@ regression tests, failed attempts, unique evidence and the shared tooling image.
 Earlier CRC generated-C++ hash omissions remain explicit; this trial must capture
 hashes before temporary cleanup. No push, merge, hosted CI or paid service is requested.
 
-This proposal has had static closure/XML/hash review only. Its adapter, driver and
-candidate have not been compiled or executed. A separate approval is the remaining
-execution gate; even a successful trial will establish only the named roots.
+At proposal time, review was static only. The later approved trial built the
+candidate and driver but stopped before oracle/native execution. Any revised trial
+must freeze and review its changed compiler baseline before requesting approval.

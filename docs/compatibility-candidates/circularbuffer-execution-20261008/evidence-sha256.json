@@ -1,0 +1,14 @@
+{
+  "verify.log": "ea79537f254b21887369329bafb0835b4d6b9e5b348f6dc1b81cf881f9845573",
+  "result.json": "8c799b55e95c3851e7a47b017f40da95f31373d8942e3e7e1259fd94dc2d2b05",
+  "cilica-build.log": "762c26df015889352e84ac6a7db0359f28d8f8b3935d01ea26877a29ad31bcd8",
+  "runner-error.txt": "e3d76574c8a04cac0aead4de931dc6701884e2ad37c0c39b631bd0284f75e5b5",
+  "candidate-assembly.sha256": "864739cfd589aac154dff5f65836c7b3257b1922201dd1147e4e1f78664a7ecb",
+  "candidate-build.log": "8a4e6535bff5bdf37b5a6a92fbd05f7160645d6afb714797841b5fdc19ca17d7",
+  "candidate-restore.log": "2c4edffde3538edf363d281c47cafd1330e2d5d8963b17e683293db386e52fbe",
+  "differential.log": "c516f24df17ecd2788d1d26557b3b8652ae44b7786e924732faebeff029d3cd9",
+  "progress.json": "4ddc2bfdb6b36143ac768ae308aac3f7aae49734a1c629eb1b274e1377b6aabe",
+  "versions.log": "4ee2a6f5447deb1366d7bb586d8394b77ba568288cdb8b912f1b7c15db51c5f6",
+  "input-provenance.json": "59a601ed0f13d884cadb664a264ae5852b8903ac5b8a9d3a65fdcde4230c3505",
+  "tooling-packages.txt": "031998cb75b003bed8a5b665b89e86ae5da1ff983055d7ec25dd04bd0a6fadaf"
+}
