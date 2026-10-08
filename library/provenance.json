@@ -359,13 +359,14 @@
       "path": "library/Cilica.Core/StringSplitting.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs",
       "algorithms": [
-        "Character Split validation, UTF-16 separator recognition, trimming/removing empty entries, sole-value and empty-result identity."
+        "Character Split validation, UTF-16 separator recognition, trimming/removing empty entries, sole-value and empty-result identity.",
+        "Compatibility batch 002: string-array separator matching in declaration order, nonoverlapping consumption, ignored null/empty entries, and null/empty-array Unicode whitespace fallback."
       ],
       "changes": [
         "Use two managed scans and an exact result array instead of stack/pool separator spans and Array.Resize. The immutable string permits rescanning without callbacks.",
         "Reuse Substring for UTF-16 copies and UnicodeWhitespace for trimming. Keep canonical empty arrays only on the no-separator shortcut; all-removed multi-part splits own a fresh empty result."
       ],
-      "scope": "AC7b.20 String.Split(Char,StringSplitOptions) only; None, RemoveEmptyEntries, numeric TrimEntries and their combination follow pinned .NET 10 behavior. Count, array and string separator overloads remain unmapped; no public Trim operation is added."
+      "scope": "AC7b.20 adds String.Split(Char,StringSplitOptions); compatibility batch 002 adds String.Split(String[],StringSplitOptions). None, RemoveEmptyEntries, numeric TrimEntries and their combination follow pinned .NET 10 behavior. Count, Char[] and single-string separator overloads remain unmapped. Public parameterless Trim is separately covered by compatibility batch 001."
     },
     {
       "path": "library/Cilica.Core/StringSplitting.cs",

@@ -2,8 +2,8 @@
 
 This workflow turns pinned public projects into independently testable Cilica
 requirements. It is a source-screening and regression workflow, not an automatic
-third-party build farm. The current batch is [batch-001.json](batch-001.json);
-[results](batch-001-results.md) distinguish implemented support, diagnostics and
+third-party build farm. The current batch is [batch-002.json](batch-002.json);
+[results](batch-002-results.md) distinguish implemented support, diagnostics and
 untested candidate execution.
 
 ## Resume and coordinate
@@ -12,9 +12,10 @@ untested candidate execution.
    applicable local skills. Ask the owning thread about overlapping work before
    selecting a gap. The primary checkout and the active Alchemy compatibility
    worktree differ substantially; never infer freshness from their directory names.
-2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status`.
-   Use `--batch batch-NNN` for another recorded batch. Start with two candidates
-   and one independently useful feature. Reopen a mapped entry only for a new pin,
+2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-002`.
+   The CLI default remains the historical batch 001; use explicit `--batch batch-NNN`
+   for current or later batches. Existing immutable screening can be reused at the
+   same pin. Start with two candidates and one independently useful feature. Reopen a mapped entry only for a new pin,
    changed profile or concrete semantic failure. Do not keep adding candidates to
    an unfinished batch.
 3. Screen online before downloading: resolve a full commit; read the selected

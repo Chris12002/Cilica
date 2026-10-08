@@ -10,9 +10,17 @@ namespace Cilica.Metadata.Tests;
 public sealed class CandidateGapTests
 {
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task String_separator_reduction_now_matches_dotnet(bool optimized)
+    {
+        var program = (await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateGapProbe), "StringSeparators"))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("StringSeparators", program, CandidateGapProbe.StringSeparators)], [(0, 0)]);
+    }
+
+    [Theory]
     [InlineData("BooleanVector", "CIL2001", "Composed vector elements")]
     [InlineData("CharacterText", "CIL3010", "ToString")]
-    [InlineData("StringSeparators", "CIL3010", "Split")]
     [InlineData("IgnoreCaseComparer", "CIL3010", "get_OrdinalIgnoreCase")]
     public async Task Remaining_candidate_requirements_are_explicit_admission_gaps(string name, string diagnosticId, string requirement)
     {

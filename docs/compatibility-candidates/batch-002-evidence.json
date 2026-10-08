@@ -1,0 +1,40 @@
+{
+  "head_before_commit": "d5eafa9007964bbcc3ffa53ca307d070e34f68f4",
+  "note": "Concurrent working-source hashes observed after tests; they document local context, not an immutable source snapshot at each compiler invocation. Binary hashes identify the retained tested assemblies.",
+  "source_sha256": {
+    "library/Cilica.Core/StringSplitting.cs": "25687a2ae982f9b5c910a4854f486eb13e880402932efe1369b35b08c3c18a8c",
+    "library/provenance.json": "a79830c93ca84ae966ca8dd5cc7b11ae446ac31c43374b5e28762fa11e89deec",
+    "tests/Cilica.Metadata.Tests/CandidateSeparatorTests.cs": "58f192c01c82e6dd92dc41f8349018bb848a91439753ec1fb64a592f4e6d1cfe",
+    "tests/Cilica.Metadata.Tests/CandidateGapTests.cs": "3761ace7a0a86194e50a748bc7ad95d7574d4e9d09ce9c8544df3f9a89eb03d4",
+    "tests/Fixtures/Cilica.Fixtures.Execution/CandidateSeparatorProbe.cs": "7394b9e641f849baf1f30762fbd4fad055669c059b1af1e0b998aa580dd5f580",
+    "tests/Fixtures/Cilica.Fixtures.Execution/CandidateGapProbe.cs": "46c8fbe000262424102d88c02b4286175e9e210e641e1c037993c9e23e17d98f"
+  },
+  "concurrent_source_sha256": {
+    "src/Cilica.Compiler/ObjectIrModel.cs": "37e00691db6b6ae0e2493da48f83aaea0e07b08cd45906de42acc761e7b13eb5",
+    "src/Cilica.Compiler/ObjectIrValidator.cs": "aceaf5844bca44f06de95e66291d433e87b1e1dd1b03b17523674e4e454d8996",
+    "src/Cilica.Compiler/ValueAbstractMethodDiscovery.cs": "51a8d432b434f548918cbc41b318f410b72cbe1874aed9f5b69f0fb5049e70c1",
+    "src/Cilica.Compiler/ValueScalarLowering.cs": "fb01e06979d2785ab3c7c7342f99183e7a2a6b29b6c29217eff2394725c88bb3",
+    "src/Cilica.Compiler/ValueTranslator.cs": "3aeda4f1c5d2f9a21f5b5dab50334d18cf8f917715b79d42048971f54e3fc4d6",
+    "tests/Cilica.Metadata.Tests/AbstractClassTranslationTests.cs": "56fcd455d7a4462aec34de80464ecd7fdeb28d4d7035e51dfb3f524f65b05e46",
+    "tests/Cilica.Metadata.Tests/InternalVirtualTests.cs": "b292d7af17fcbbdcc1f77c256c371892031b5fde6723ed9a048cc5650b78216c"
+  },
+  "log_sha256": {
+    "after.log": "10628bc72102d4cf340bfedefd343aa6a063c47d78b25602332dbf6a0fe15140",
+    "before.log": "bd78b5c4d3c3a794ffaa663323c7268585409dd8079a986a2e19039646851a56",
+    "regressions.log": "aae3317f4947055282908344faa0e0233600ad7eebfde3734efa3f0eed54baba"
+  },
+  "binary_sha256": {
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Compiler.dll": "329e0e02c157ae2e77d86522edb757fb36e04afed1f1f74e250005175079ce6c",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Basic.dll": "7fd0fee3ffcf5f448a3ea16bd4e28ab61b18f9fd319dba7ef5f6c2a12e665cf9",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.ControlFlow.dll": "56ceee357463bf452f38f67c8c588d8cd8aeafd56ad079213f8a3b3ed28dd44f",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Execution.dll": "7a07b26371b407174d268e144bffd2548d26f1db55c8f7c91cad0eba79e7061e",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Forwarding.dll": "8ec73b318984fe80feeeba6fc942aaeb0b67dbff58169d7716eb7a60be7315ad",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Library.dll": "b3bfb114385a86f167c1be0380245dd54008686bc76b0444a561620ce7e1dce6",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.LibraryBuild.dll": "b84f3b596ae7e9ba6fc0e1d153c70f0ae9aa4c261b05fa94a6b39fbb1674f076",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll": "daa1c8282e4773a1d56dec865eb1784346217cd9037157e664cd93908b490fef",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.dll": "9e5160fa0a66c10f58b4c9dd39a2a4a287eea9442cb1880310b8179a43301045"
+  },
+  "retained_upstream_sha256": {
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs": "1956723302dabe05550580baaf682491569dc3f825502d330d38978864d4679d"
+  }
+}
