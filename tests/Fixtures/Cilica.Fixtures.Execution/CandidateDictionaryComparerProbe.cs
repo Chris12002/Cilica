@@ -132,7 +132,7 @@ namespace Cilica.Fixtures.Execution
             return unchecked(key.Number+stored*31+value*101+old*1009+trace.Hashes*7+trace.Equalities*11+map.Count);
         }
         public static int UnsupportedIgnoreCase(int a,int b)
-        {var map=new Dictionary<string,int>(a>0?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal);map.Add("a",a);return map["A"];}
+        {var map=new Dictionary<string,int>(a>0?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal);map.Add("a",a);try{return map["A"];}catch(KeyNotFoundException){return -31;}}
         public static int UnsupportedCulture(int a,int b)
         {var map=new Dictionary<string,int>(StringComparer.CurrentCulture);return map.Count;}
     }

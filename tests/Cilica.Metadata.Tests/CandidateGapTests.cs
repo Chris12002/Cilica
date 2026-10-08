@@ -36,21 +36,10 @@ public sealed class CandidateGapTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("BooleanVector",program,CandidateGapProbe.BooleanVector)]);
     }
 
-    [Theory]
-    [InlineData("IgnoreCaseComparer", "CIL3010", "get_OrdinalIgnoreCase")]
-    public async Task Remaining_candidate_requirements_are_explicit_admission_gaps(string name, string diagnosticId, string requirement)
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Ignore_case_dictionary_reduction_now_matches_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
-            await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(CandidateGapProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CandidateGapProbe).GetMethod(name)!.MetadataToken);
-        var translated = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(translated.Success);
-        Assert.Null(translated.Program);
-        Assert.Contains(translated.Diagnostics, d => d.Id == diagnosticId && d.Message.Contains(requirement, StringComparison.Ordinal));
-        TestContext.Current.TestOutputHelper!.WriteLine(name + ": " + string.Join("; ", translated.Diagnostics));
+        var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateGapProbe),"IgnoreCaseComparer"))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("IgnoreCaseComparer",program,CandidateGapProbe.IgnoreCaseComparer)],expectedStaticRoots:1);
     }
 }

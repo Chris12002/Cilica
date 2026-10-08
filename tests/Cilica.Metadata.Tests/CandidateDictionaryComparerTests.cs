@@ -29,7 +29,13 @@ public sealed class CandidateDictionaryComparerTests
     [Theory] [InlineData(false)] [InlineData(true)]
     public Task Explicit_default_comparer_preserves_mutable_value_key_receiver(bool optimized)
         => Selected_comparer_callbacks_values_identity_and_faults_match_dotnet(optimized,9);
-    [Theory] [InlineData("UnsupportedIgnoreCase","get_OrdinalIgnoreCase")] [InlineData("UnsupportedCulture","get_CurrentCulture")]
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Conditional_ignore_case_factory_selection_now_matches_dotnet(bool optimized)
+    {
+        var program=(await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateDictionaryComparerProbe),"UnsupportedIgnoreCase"))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("Selection",program,CandidateDictionaryComparerProbe.UnsupportedIgnoreCase)],expectedStaticRoots:1);
+    }
+    [Theory] [InlineData("UnsupportedCulture","get_CurrentCulture")]
     public async Task Missing_text_comparers_remain_exact_diagnostics(string name,string member)
     {
         using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;

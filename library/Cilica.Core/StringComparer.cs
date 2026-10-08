@@ -12,6 +12,7 @@ namespace System
         Collections.Generic.IComparer<string>, Collections.Generic.IEqualityComparer<string>
     {
         protected StringComparer() { }
+        public static StringComparer OrdinalIgnoreCase => Cilica.Runtime.OrdinalIgnoreCaseComparerCache.Instance;
         public static StringComparer Ordinal => Cilica.Runtime.OrdinalComparerCache.Instance;
         public abstract int Compare(string first, string second);
         public abstract bool Equals(string first, string second);

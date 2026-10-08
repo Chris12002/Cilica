@@ -23,7 +23,7 @@ public sealed class StringComparerTests
     }
     [Theory]
     [InlineData("UnsupportedComparerHash")] [InlineData("UnsupportedObjectCompare")]
-    [InlineData("UnsupportedIgnoreCase")] [InlineData("UnsupportedObjectEquality")]
+    [InlineData("UnsupportedObjectEquality")]
     public async Task Unimplemented_comparer_shapes_remain_diagnostic(string name)
     {
         using var files = new ResolverFiles();

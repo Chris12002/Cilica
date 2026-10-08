@@ -37,6 +37,8 @@
     <ProjectReference Include="..\..\examples\Objects\Prepare\Prepare.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="../../library/Cilica.Core/UnicodeOrdinalUpper.cs" Link="UnicodeOrdinalUpper.cs" />
+    <Compile Include="../../library/Cilica.Core/OrdinalIgnoreCaseText.cs" Link="OrdinalIgnoreCaseText.cs" />
     <Compile Include="../../library/Cilica.Core/UnicodeSimpleLower.cs" Link="UnicodeSimpleLower.cs" />
   </ItemGroup>
 </Project>

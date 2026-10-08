@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>DiffPlex.SelectedRoots</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <RunAnalyzers>false</RunAnalyzers>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Probe.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Differ.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/IDiffer.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/IChunker.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Log.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Model/DiffBlock.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Model/DiffResult.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Model/EditLengthResult.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Model/ModificationData.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Chunkers/CharacterChunker.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Chunkers/CustomFunctionChunker.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Chunkers/DelimiterChunker.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Chunkers/LineChunker.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Chunkers/LineEndingsPreservingChunker.cs" />
+    <Compile Include="$(CandidateSource)/DiffPlex/Chunkers/WordChunker.cs" />
+  </ItemGroup>
+</Project>

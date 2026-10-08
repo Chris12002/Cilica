@@ -4246,3 +4246,15 @@ profile or limit changes. The two obsolete dictionary ordinal-factory grants are
 removed. See [decision](decisions/compatibility-005-dictionary-comparers.md) and
 [results](compatibility-candidates/batch-005-results.md). OrdinalIgnoreCase/culture
 factories remain explicit diagnostics; full DiffPlex execution is unverified.
+
+
+### Unicode ordinal-ignore-case comparer (compatibility batch 006)
+
+StringComparer.OrdinalIgnoreCase now uses pinned Unicode16 simple uppercase with
+U+0131/U+017F excluded, valid surrogate-pair ordering and lone-surrogate preservation.
+Typed comparison/equality and consistent deterministic hashing use ordinary managed
+code; no new compiler grant, runtime operation or limit is added. See
+[decision](decisions/compatibility-006-ordinal-ignore-case.md) and
+[results](compatibility-candidates/batch-006-results.md). DiffPlex's selected source
+requirements are mapped; real integration remains unexecuted pending approved
+isolation. Culture factories and nongeneric comparer operations remain diagnostic.

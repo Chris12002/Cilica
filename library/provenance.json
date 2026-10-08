@@ -16,6 +16,21 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/Ordinal.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Globalization/Ordinal.cs",
+      "sha256": "918e155e8b6314bf1ab45285187d2e7bd8553bc3fa2ac27c405a8cd0d6dc4aed"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/OrdinalCasing.Icu.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Globalization/OrdinalCasing.Icu.cs",
+      "sha256": "6bfed1b23de49b2178979473c9307bfdfe5cd67ad43315f605e8d6e516619fbd"
+    },
+    {
+      "upstreamPath": "src/native/libs/System.Globalization.Native/pal_common.c",
+      "localPath": "library/upstream/dotnet-runtime/src/native/libs/System.Globalization.Native/pal_common.c",
+      "sha256": "9c53f753f135fb5993b21f895e0fdfacfab42a998473012563d777e5f825f903"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.cs",
       "sha256": "b7291cef3ef1990f0d42d601e1245f13eed3f10378a2360bf7d8395f938ace30"
@@ -398,6 +413,39 @@
   ],
   "adaptations": [
     {
+      "path": "library/Cilica.Core/StringOrdinalIgnoreCase.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringComparer.cs",
+      "algorithms": [
+        "Typed ordinal-ignore-case singleton, null rules and comparer dispatch."
+      ],
+      "changes": [
+        "Separate runtime-instance cache and ordinary managed calls; object/nongeneric operations remain diagnostic."
+      ],
+      "scope": "Unicode 16 pinned ordinal comparison only; no culture-sensitive factory or general StringComparison overload expansion."
+    },
+    {
+      "path": "library/Cilica.Core/OrdinalIgnoreCaseText.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/OrdinalCasing.Icu.cs",
+      "algorithms": [
+        "CompareStringIgnoreCase scalar/pair ordering and simple uppercase equality."
+      ],
+      "changes": [
+        "Checked indexing replaces unsafe references/SIMD. Hash is authored deterministic DJB-XOR over canonical UTF-16, consistent with equality; numeric equivalence with randomized .NET hashes is not promised."
+      ],
+      "scope": "Typed equality/comparison/hash, valid pairs and lone surrogates. ICU-style pinned behavior, no NLS or arbitrary-host-Unicode-version equivalence claim."
+    },
+    {
+      "path": "library/Cilica.Core/UnicodeOrdinalUpper.cs",
+      "upstreamPath": "src/native/libs/System.Globalization.Native/pal_common.c",
+      "algorithms": [
+        "Ordinal one-to-one uppercase mapping excluding U+0131/U+017F."
+      ],
+      "changes": [
+        "Generate 1475 mappings in 203 exact ranges from retained UnicodeData 16.0.0 field 12, using its existing Unicode licence. Width, idempotence, exact range expansion and source digest are checked."
+      ],
+      "scope": "Supplementary mappings follow retained CharUnicodeInfo.cs ToUpper simple mapping. No casefold expansion, normalization, contextual casing or locale tailoring."
+    },
+    {
       "path": "library/Cilica.Core/StringInvariantCasing.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/TextInfo.cs",
       "algorithms": [
@@ -644,7 +692,7 @@
         "AC3.14 adds checked Add/indexer reads. Pass the private insertion key byref so duplicate messages use hash mutations; retain the original lookup key for missing-key messages. Keep formatting outside the shared insert body so TryAdd/setters preserve their accepted key scope.",
         "Use exact private selected integer/string/ordinary-value key text and managed concatenation for pinned error resources; no general provider/IFormattable dispatch or allocation-count equivalence claim."
       ],
-      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types. AC4.3 supports concrete GetEnumerator/MoveNext/Current/Dispose; AC4.11 adds generic/nongeneric ordinary pair factories and checked boxed Current. AC4.4 supports concrete key/value view enumerators; AC4.11 adds their interface factories and boxed Current. Dictionary pairs use a distinct stateless empty singleton; views retain the array singleton. AC3.29 supplies generic CopyTo for keys, values and ICollection<KeyValuePair<TKey,TValue>>, retaining active-slot order and partial covariant stores. Nongeneric copies and legacy IDictionary entry factories/accessors remain diagnostic. AC3.14 adds Add/indexer reads for keys with admitted error formatting. AC3.16 adds default-comparer Int32 capacity construction with negative validation and atomic publication of allocated storage. Compatibility batch 005 admits comparer aliases and runtime selection for both constructor overloads, with ordinary traced comparer storage. Key/default-operation admission, formatting and dispatch limits still apply; OrdinalIgnoreCase and culture factories remain diagnostic."
+      "scope": "Bounded public constructor, Count, TryAdd, TryGetValue, ContainsKey and indexer setter, plus constant interface flags and SyncRoot; AC3.3 removal/clear and free-slot reuse; no serialization implementation. AC4.2 adds cached Keys/Values, their nominal interfaces and ContainsValue for admitted equality types. AC4.3 supports concrete GetEnumerator/MoveNext/Current/Dispose; AC4.11 adds generic/nongeneric ordinary pair factories and checked boxed Current. AC4.4 supports concrete key/value view enumerators; AC4.11 adds their interface factories and boxed Current. Dictionary pairs use a distinct stateless empty singleton; views retain the array singleton. AC3.29 supplies generic CopyTo for keys, values and ICollection<KeyValuePair<TKey,TValue>>, retaining active-slot order and partial covariant stores. Nongeneric copies and legacy IDictionary entry factories/accessors remain diagnostic. AC3.14 adds Add/indexer reads for keys with admitted error formatting. AC3.16 adds default-comparer Int32 capacity construction with negative validation and atomic publication of allocated storage. Compatibility batch 005 admits comparer aliases and runtime selection for both constructor overloads, with ordinary traced comparer storage. Key/default-operation admission, formatting and dispatch limits still apply; Batch 006 supplies OrdinalIgnoreCase; culture factories remain diagnostic."
     },
     {
       "path": "library/Cilica.Core/ArrayInterface.cs",
@@ -1071,7 +1119,7 @@
         "Typed ordinal hashing throws ArgumentNullException with parameter obj, then shares the existing deterministic UTF-16 key hash. Numeric hash equality with randomized .NET hashes is not promised. Nongeneric methods, comparer-object equality and parameterless comparer hashing remain diagnostic.",
         "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
       ],
-      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Batch 006 adds OrdinalIgnoreCase through separate owned helpers. Culture factories, serialization, alternate span lookup and default comparers remain unsupported."
     },
     {
       "path": "library/Cilica.Core/StringComparer.cs",
@@ -1085,7 +1133,7 @@
         "Typed ordinal hashing throws ArgumentNullException with parameter obj, then shares the existing deterministic UTF-16 key hash. Numeric hash equality with randomized .NET hashes is not promised. Nongeneric methods, comparer-object equality and parameterless comparer hashing remain diagnostic.",
         "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
       ],
-      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Batch 006 adds OrdinalIgnoreCase through separate owned helpers. Culture factories, serialization, alternate span lookup and default comparers remain unsupported."
     },
     {
       "path": "library/Cilica.Core/StringComparer.cs",
@@ -1099,7 +1147,7 @@
         "Typed ordinal hashing throws ArgumentNullException with parameter obj, then shares the existing deterministic UTF-16 key hash. Numeric hash equality with randomized .NET hashes is not promised. Nongeneric methods, comparer-object equality and parameterless comparer hashing remain diagnostic.",
         "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
       ],
-      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Batch 006 adds OrdinalIgnoreCase through separate owned helpers. Culture factories, serialization, alternate span lookup and default comparers remain unsupported."
     },
     {
       "path": "library/Cilica.Core/ConcatIterator.cs",
