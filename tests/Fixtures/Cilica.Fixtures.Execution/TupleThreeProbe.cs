@@ -39,7 +39,7 @@ namespace Cilica.Fixtures.Execution
             try { result = left.Equals(right) ? 31 : 37; } catch (InvalidOperationException) { result = 41; }
             return unchecked(trace.Value * 43 + result + left.Item1.Value + left.Item2.Value + left.Item3.Value);
         }
-        public static int UnsupportedConditionalConstruction(int a, int b)
+        public static int ConditionalConstruction(int a, int b)
         {
             var trace = new TupleFiveCell(0);
             var right = (new TupleFiveComponent(a < b ? a : b, 1, trace), a, b);

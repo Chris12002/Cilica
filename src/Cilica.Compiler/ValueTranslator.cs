@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v111";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v112";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -234,9 +234,9 @@ public static class ValueTranslator
             var regions = method.ExceptionRegions.Select(r => r with { TryStart = BlockAt(r.TryStart), TryEnd = BlockAt(r.TryEnd),
                 HandlerStart = BlockAt(r.HandlerStart), HandlerEnd = BlockAt(r.HandlerEnd), FilterStart = r.FilterStart is int first ? BlockAt(first) : null }).ToImmutableArray();
             var incoming = new ImmutableArray<IrType>[partition.Ranges.Count];
-            var incomingThis = new ImmutableArray<bool>[partition.Ranges.Count];
+            var incomingSources = new ImmutableArray<IrExpression?>[partition.Ranges.Count];
             var blocks = new IrBlock[partition.Ranges.Count]; var pending = new Queue<int>();
-            incoming[0] = []; incomingThis[0] = []; pending.Enqueue(0);
+            incoming[0] = []; incomingSources[0] = []; pending.Enqueue(0);
             foreach (var region in regions)
             {
                 Seed(region.HandlerStart, region.Kind == IrExceptionClause.Catch ? [IrType.Reference(region.CatchType!)]
@@ -246,7 +246,7 @@ public static class ValueTranslator
             void Seed(int id, ImmutableArray<IrType> types)
             {
                 if (!incoming[id].IsDefault) { if (!incoming[id].SequenceEqual(types)) Error(0, "Conflicting exception entry stack."); return; }
-                incoming[id] = types; incomingThis[id] = [.. types.Select(_ => false)]; pending.Enqueue(id);
+                incoming[id] = types; incomingSources[id] = [.. types.Select(_ => (IrExpression?)null)]; pending.Enqueue(id);
             }
             while (pending.TryDequeue(out int id)) blocks[id] = Block(id);
             for (int id = 0; id < blocks.Length; id++)
@@ -271,7 +271,7 @@ public static class ValueTranslator
                 IrTerminator? terminator = null;
                 int transferred = 0;
                 for (int i = 0; i < incoming[id].Length; i++)
-                    Push(blockOffset, incoming[id][i], incomingThis[id][i] ? new IrExpression.Parameter(0) : new IrExpression.StackInput(transferred++));
+                    Push(blockOffset, incoming[id][i], incomingSources[id][i] ?? new IrExpression.StackInput(transferred++));
                 for (int index = start; index < end; index++)
                 {
                     var instruction = input.Instructions[index]; int offset = switchCase > 0 ? blockOffset : instruction.Offset; string opcode = instruction.OpCode;
@@ -953,7 +953,7 @@ public static class ValueTranslator
                 if (nativeIndices.Count != 0) Error(blockOffset, "Checked native indices require one array element use in the same block.", DiagnosticIds.ExecutionUnsupported);
                 var last = input.Instructions[end - 1];
                 terminator ??= new IrJump(last.Offset, Edge(last.Offset + last.Length, last.Offset));
-                return new(id, blockOffset, [.. incoming[id].Where((_, index) => !incomingThis[id][index])], [.. statements], terminator);
+                return new(id, blockOffset, [.. incoming[id].Where((_, index) => incomingSources[id][index] is null)], [.. statements], terminator);
 
                 void Add(IrStatement statement, int offset)
                 {
@@ -1058,10 +1058,21 @@ public static class ValueTranslator
                 {
                     if (nativeIndices.Count != 0) Error(from, "Checked native indices cannot cross block boundaries.", DiagnosticIds.ExecutionUnsupported);
                     var stackTypes = stack.Select(id => values[id]).ToImmutableArray();
-                    var receiverSlots = stack.Select(value => (stableConstructorReceiver || method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance))
-                        && valueExpressions[value] is IrExpression.Parameter { Index: 0 }).ToImmutableArray();
-                    if (stackTypes.Where((type, index) => type.Kind == IrTypeKind.ManagedLocation && !receiverSlots[index]).Any())
-                        Error(from, "Managed locations other than the direct value receiver cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
+                    var sources = stack.Select(value =>
+                    {
+                        var expression = valueExpressions[value];
+                        if ((stableConstructorReceiver || method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance))
+                            && expression is IrExpression.Parameter { Index: 0 }) return expression;
+                        // These addresses identify a stable slot for the whole method.
+                        // Recreate the exact same borrow at the successor instead of
+                        // introducing a native location phi. Never reload its contents.
+                        if (types.IntegerCasts && values[value].Kind == IrTypeKind.ManagedLocation
+                            && expression is (IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.Parameter))
+                            return expression;
+                        return null;
+                    }).ToImmutableArray();
+                    if (stackTypes.Where((type, index) => type.Kind == IrTypeKind.ManagedLocation && sources[index] is null).Any())
+                        Error(from, "Managed locations other than stable local/parameter slots cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
                     if (!incoming[target].IsDefault && !incoming[target].SequenceEqual(stackTypes))
                     {
                         if (exceptions is null || incoming[target].Length != stackTypes.Length) Error(from, "Block receives incompatible stack types or depths.");
@@ -1070,11 +1081,11 @@ public static class ValueTranslator
                         var widened = joined.Select(t => t!).ToImmutableArray();
                         if (!incoming[target].SequenceEqual(widened)) { incoming[target] = widened; pending.Enqueue(target); }
                     }
-                    if (incoming[target].IsDefault) { incoming[target] = stackTypes; incomingThis[target] = receiverSlots; pending.Enqueue(target); }
-                    else if (!incomingThis[target].SequenceEqual(receiverSlots)) Error(from, "Constructor receiver provenance differs across incoming edges.");
+                    if (incoming[target].IsDefault) { incoming[target] = stackTypes; incomingSources[target] = sources; pending.Enqueue(target); }
+                    else if (!incomingSources[target].SequenceEqual(sources)) Error(from, "Rematerialized receiver/location identity differs across incoming edges.");
                     _edges += stackTypes.Length;
                     if (_edges > IrLimits.MaximumEdgeArguments) Error(from, "Aggregate edge-argument limit exceeded.", DiagnosticIds.TranslationLimit);
-                    return new(target, [.. stack.Where((_, index) => !receiverSlots[index])]);
+                    return new(target, [.. stack.Where((_, index) => sources[index] is null)]);
                 }
             }
         }

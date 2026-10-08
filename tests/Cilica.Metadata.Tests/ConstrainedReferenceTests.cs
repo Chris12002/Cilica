@@ -56,7 +56,7 @@ public sealed class ConstrainedReferenceTests
         var input=scope.OpenInput(typeof(ConstrainedReferenceProbe).Assembly.Location).Value!;
         foreach(string name in new[]{"Replacement","NullToObject","ObjectToNull"}) {
             var result=ValueTranslator.TranslateIntegerObjects(scope,input,(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(ConstrainedReferenceProbe).GetMethod(name)!.MetadataToken),implementation);
-            Assert.False(result.Success,name);Assert.Contains(result.Diagnostics,d=>d.Message.Contains("Managed locations other than the direct value receiver cannot cross block joins",StringComparison.Ordinal));
+            Assert.False(result.Success,name);Assert.Contains(result.Diagnostics,d=>d.Message.Contains("Rematerialized receiver/location identity differs across incoming edges",StringComparison.Ordinal));
         }
     }
     [Fact]

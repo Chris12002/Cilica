@@ -4967,3 +4967,15 @@ EffectOperationDescriptor.Supports guided this slice. All 27 selected checks pas
 including 1,764 new sanitized O0/O2 native/.NET comparisons. IR65/native81, owned
 core, grants and budgets are unchanged. Full closure/replay remain incomplete;
 see ADR AC0231.
+
+
+### Stable location joins (AC8.88)
+
+CIL112 carries identical local/parameter slot identities across branches by
+recreating their addresses in successor blocks. Borrowed arguments retain the
+current contents and existing method lifetime. Different origins and derived
+heap/array addresses remain diagnostic. All 59 distinct selected checks pass,
+including 2,646 new sanitized O0/O2 native/.NET comparisons. IR65/native81, owned
+core, grants and budgets are unchanged. The combined diagnostic-only inventory
+now has 28 body failures (15,225 individually translated); it is not full IR/native
+admission or saved-game replay. See ADR AC0232.
