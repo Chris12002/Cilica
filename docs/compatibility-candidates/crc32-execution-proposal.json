@@ -1,0 +1,12 @@
+{
+  "status": "awaiting-separate-approval",
+  "compiler_baseline": "c64312e6993a5bce4078cb23961e737cd1df8e24",
+  "candidate_commit": "26c5a818a5c7a3d6a622c92d3cd08dba586c263c",
+  "owned_overlay_sha256": {
+    "tools/CompatibilityCandidates/crc32-validation/ApprovedCrc32ExecutionTests.cs": "a2eee65eb9daf5f9d3f9499d29966c006ec4db5851da25818c63658a54f51dbd",
+    "tools/CompatibilityCandidates/crc32-validation/Probe.cs": "cfa183fc41eff1d73ed19a0f971b75e943acef4669cbf1af2a15cefcbeb9adcc",
+    "tools/CompatibilityCandidates/crc32-validation/SelectedRoots.csproj": "fd6b9c1f85ffd2d737c203a423854a9a4da93da67e97c55b2d7f3fd153f8d40d"
+  },
+  "execution": "not compiled or run",
+  "driver_install": "Copy the retained driver into tests/Cilica.Metadata.Tests in the disposable compiler export only after approval."
+}

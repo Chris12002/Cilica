@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <NetStandardImplicitPackageVersion>2.0.3</NetStandardImplicitPackageVersion>
+    <AssemblyName>Crc32.SelectedRoots</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <DefineConstants>NETCORE;NETCORE20</DefineConstants>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <RunAnalyzers>false</RunAnalyzers>
+    <Optimize>true</Optimize>
+    <Deterministic>true</Deterministic>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Probe.cs" />
+    <Compile Include="$(CandidateSource)/Crc32.NET/Crc32Algorithm.cs" />
+    <Compile Include="$(CandidateSource)/Crc32.NET/SafeProxy.cs" />
+  </ItemGroup>
+</Project>
