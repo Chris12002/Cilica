@@ -4212,3 +4212,13 @@ native v75, IR and limits are unchanged. Specialized string/enum/nullable/object
 fallbacks, nongeneric operations and comparer-object methods remain diagnostic.
 Frozen discovery advances to the existing field-metadata limit (1,038,837 work
 units). Full engine, unchanged fingerprint and saved-game replay remain unfinished.
+
+### Diagnostic field-budget audit (AC8.58)
+
+The unchanged frozen engine exhausts 4,096 cached field declarations at 1,914 type
+snapshots; the next type needs eight more fields. Explicit roots then contain 184
+values, 1,304 references and 157 vectors. These are partial discovery counts, not
+emitted layouts. Raising only the isolated diagnostic copy to 6,144 fields reaches
+String.IndexOf(Char) in TargetOptions.ParseCell (1,041,357 metadata units/4,429 ms).
+Production limits, profiles and semantics remain unchanged. See ADR AC0185.
+Full engine, unchanged fingerprint and saved-game replay remain unfinished.
