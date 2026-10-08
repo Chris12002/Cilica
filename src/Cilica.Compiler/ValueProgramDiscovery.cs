@@ -797,7 +797,7 @@ public static partial class ValueProgramDiscovery
                     || parameters[implicitStyle ? 1 : 2] is not TypeSignature.Named provider
                     || provider.Definition != Require(resolver.ResolveType(library, "System", "IFormatProvider"), parent, offset)
                     || !throwing && (parameters[3] is not TypeSignature.ByReference { Element: TypeSignature.Primitive output } || output.Code != parser.Code))
-                    Fail(parent, "Integer parsing requires the selected Int32 style/provider or provider-only Parse, Int64 None TryParse or Int64 provider-only Parse signature and matching result/output.", offset);
+                    Fail(parent, "Integer parsing requires the selected Int32 style/provider or provider-only Parse, Int64 None/Integer TryParse or Int64 provider-only Parse signature and matching result/output.", offset);
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(library, resolved.Handle, LibraryIntrinsicCapability.InvariantIntegerParsing), parent, offset);
                 binding = binding with { IntegerParser = parser, ThrowingIntegerParser = throwing };
             }

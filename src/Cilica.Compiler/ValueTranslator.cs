@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v112";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v113";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -789,7 +789,7 @@ public static class ValueTranslator
                                 bool implicitStyle = target.Binding.ThrowingIntegerParser && (parser.Code == PrimitiveTypeCode.Int64 || target.Parameters.Length == 2);
                                 if (arguments.Length != (implicitStyle ? 2 : target.Binding.ThrowingIntegerParser ? 3 : 4)
                                     || !implicitStyle && (valueExpressions[arguments[1]] is not IrExpression.Constant parserStyle
-                                        || parserStyle.Value != (parser.Code == PrimitiveTypeCode.Int32 ? 7 : 0))
+                                        || !IntegerParserRules.AllowsStyle(parser.Code, parserStyle.Value))
                                     || valueExpressions[arguments[implicitStyle ? 1 : 2]] is not IrExpression.InvariantCulture)
                                     Error(offset, "Integer parsing requires the selected fixed grammar and directly proven CultureInfo.InvariantCulture.", DiagnosticIds.ExecutionUnsupported);
                             }

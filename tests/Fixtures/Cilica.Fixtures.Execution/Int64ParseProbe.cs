@@ -32,7 +32,7 @@ namespace Cilica.Fixtures.Execution
         public static int Roundtrip(int a,int b) {long input=unchecked(((long)a<<32)|(uint)b),value;bool ok=long.TryParse(input.ToString(CultureInfo.InvariantCulture),NumberStyles.None,CultureInfo.InvariantCulture,out value);return unchecked((int)value*31+(int)(value>>32)+(ok?17:19));}
         public static int Heap(int a,int b) {var holder=new Int64ParseHolder();holder.Value=731;bool ok=long.TryParse(Input(a),NumberStyles.None,CultureInfo.InvariantCulture,out holder.Value);var pressure=new Int64ParseHolder();pressure.Value=b;return unchecked((int)holder.Value*31+(int)(holder.Value>>32)+(ok?17:31)+(int)pressure.Value);}
         public static int NullOutput(int a,int b) {Int64ParseHolder holder=a<0?null:new Int64ParseHolder();try{bool ok=long.TryParse(Input(b),NumberStyles.None,CultureInfo.InvariantCulture,out holder.Value);return ok?(int)holder.Value:19;}catch(NullReferenceException){return 23;}}
-        public static int UnsupportedStyle(int a,int b) {long value;return long.TryParse("17",NumberStyles.Integer,CultureInfo.InvariantCulture,out value)?(int)value:0;}
+        public static int UnsupportedStyle(int a,int b) {long value;return long.TryParse("17",NumberStyles.HexNumber,CultureInfo.InvariantCulture,out value)?(int)value:0;}
         public static int UnsupportedProvider(int a,int b) {long value;return long.TryParse("17",NumberStyles.None,null,out value)?(int)value:0;}
         public static int UnsupportedFlagsText(int a,int b) => ((NumberStyles)a).ToString().Length;
         public static int UnsupportedDynamicStyle(int a,int b) {long value;return long.TryParse("17",(NumberStyles)a,CultureInfo.InvariantCulture,out value)?(int)value:0;}

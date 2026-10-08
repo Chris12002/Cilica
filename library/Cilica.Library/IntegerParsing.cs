@@ -46,6 +46,7 @@ namespace Cilica.Library
             else result = unchecked((int)magnitude);
             return 0;
         }
+        public static bool Int64Integer(string text, out long result) => Int64IntegerStatus(text, out result) == 0;
         public static long ParseInt64Integer(string text)
         {
             if (text == null) throw new System.ArgumentNullException("s");

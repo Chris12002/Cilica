@@ -4979,3 +4979,14 @@ including 2,646 new sanitized O0/O2 native/.NET comparisons. IR65/native81, owne
 core, grants and budgets are unchanged. The combined diagnostic-only inventory
 now has 28 body failures (15,225 individually translated); it is not full IR/native
 admission or saved-game replay. See ADR AC0232.
+
+
+### Invariant Int64 Integer TryParse (AC8.89)
+
+Int64.TryParse now accepts explicit NumberStyles.Integer alongside None with a
+proven invariant provider. It reuses the throwing parser's signed grammar and
+clears output on failure. CIL113/object IR66/native82 share the exact style gate;
+grants, native algorithms and budgets are unchanged. All 31 selected checks pass,
+including 3,660 new sanitized O0/O2 native/.NET comparisons. The rebuilt-core
+inventory clears both parser blockers and now has 26 body failures; it returns no
+program or native emission. Full closure/replay remain incomplete; see ADR AC0233.

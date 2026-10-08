@@ -531,7 +531,7 @@ internal sealed partial class ObjectIrRules
             int providerIndex = implicitStyle ? 1 : 2;
             if (arguments.Length != (implicitStyle ? 2 : callee.ThrowingIntegerParser ? 3 : 4) || expressions is null
                 || !implicitStyle && (arguments[1] < 0 || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.Constant parserStyle
-                    || parserStyle.Value != (parser.Code == PrimitiveTypeCode.Int32 ? 7 : 0))
+                    || !IntegerParserRules.AllowsStyle(parser.Code, parserStyle.Value))
                 || arguments[providerIndex] < 0 || arguments[providerIndex] >= expressions.Count
                 || expressions[arguments[providerIndex]] is not IrExpression.InvariantCulture) return false;
         }

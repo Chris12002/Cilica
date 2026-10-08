@@ -120,9 +120,12 @@ namespace System
         }
         public static bool TryParse(string text, Globalization.NumberStyles style, IFormatProvider provider, out long result)
         {
-            if (style != Globalization.NumberStyles.None || provider != Globalization.CultureInfo.InvariantCulture)
-                throw new NotSupportedException("Only invariant None parsing is supported.");
-            return Cilica.Library.IntegerParsing.Int64None(text, out result);
+            if ((style != Globalization.NumberStyles.None && style != Globalization.NumberStyles.Integer)
+                || provider != Globalization.CultureInfo.InvariantCulture)
+                throw new NotSupportedException("Only invariant None or Integer parsing is supported.");
+            return style == Globalization.NumberStyles.None
+                ? Cilica.Library.IntegerParsing.Int64None(text, out result)
+                : Cilica.Library.IntegerParsing.Int64Integer(text, out result);
         }
         public bool Equals(long value) => this == value;
         public int CompareTo(long value) => this < value ? -1 : this > value ? 1 : 0;
