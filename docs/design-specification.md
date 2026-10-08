@@ -4225,3 +4225,12 @@ Unicode string-block hashes, identity, nulls and mixed text. All 98 selected
 checks pass. See ADR AC0189. No compiler profile, grant or production limit changes.
 Frozen discovery advances to 6,145/6,144 diagnostic locals in ContinueShieldContribution;
 full engine, unchanged fingerprint and saved-game replay remain unfinished.
+
+### Diagnostic local-budget audit (AC8.60)
+
+After AC7b.22, the frozen engine needs 6,145 local slots against the diagnostic
+6,144 allowance (10,345/12,288 parameters). Raising only the archived diagnostic
+copy to 8,192 locals reaches Enumerable.Skip in ContinueAcquiredShieldChoice,
+with 1,075,533 metadata units/4,336 ms. Production limits remain unchanged; no
+engine code is emitted or executed. See ADR AC0190. Full engine, unchanged
+fingerprint and saved-game replay remain unfinished.
