@@ -3727,3 +3727,15 @@ are unchanged. Private nested generic construction and default value-key text re
 independent diagnostics. Frozen discovery passes WaveGroupId hashing and next exhausts
 the existing diagnostic instruction allowance. Full engine execution, unchanged
 fingerprints and saved-game replay remain unfinished.
+
+### Initial interface-planning audit allowances (AC8.66)
+
+After AC8.65, the isolated frozen-engine scan reaches 196,602 decoded instructions;
+the next method consumes its remaining six-instruction quota with 29 IL bytes left.
+A diagnostic-only 262,144-instruction allowance lets the initial work queue drain at
+7,621 bodies. Interface planning then exhausts 1,572,864 metadata work units. Raising
+only that isolated budget to 2,097,152 reveals the next semantic gap: nongeneric
+narrow-array enumeration reached through OfTypeIterator.Count. This is partial
+closure discovery, without full IR admission, native emission or replay. Production
+limits remain 65,536 instructions/metadata units; StateLookup still translates 15
+methods. See ADR AC0210 for the measured progression and unchanged input identities.
