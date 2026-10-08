@@ -579,9 +579,9 @@
       ],
       "changes": [
         "Replace unsafe word reads with checked managed UTF-16 pairs and explicit trailing zero.",
-        "Route only exact private granted string key helpers to ordinary managed equality/hash bodies."
+        "Route exact private granted string key helpers to ordinary managed equality/hash bodies; the owned ordinal comparer now also calls the same managed hash after its public null check."
       ],
-      "scope": "Private dictionary/tuple ordinal string keys; public String.GetHashCode and arbitrary reference equality remain diagnostic."
+      "scope": "Dictionary/tuple ordinal string keys and StringComparer.Ordinal.GetHashCode(string) share this implementation-specific deterministic hash; public String.GetHashCode and arbitrary reference equality remain diagnostic."
     },
     {
       "path": "library/Cilica.Core/HashCode.cs",
@@ -871,43 +871,43 @@
       "path": "library/Cilica.Core/StringComparer.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringComparer.cs",
       "algorithms": [
-        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison and typed equality."
+        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison, typed equality and string hashing."
       ],
       "changes": [
         "Retain only the selected case-sensitive ordinal implementation; use the existing owned CompareOrdinal and string equality.",
         "Store the runtime-instance-owned singleton in a separate initialization helper, leaving comparer class dispatch facts fieldless and initializer-free.",
-        "Nongeneric methods, comparer-object equality and randomized hash APIs fail through UnsupportedLibraryMember.",
+        "Typed ordinal hashing throws ArgumentNullException with parameter obj, then shares the existing deterministic UTF-16 key hash. Numeric hash equality with randomized .NET hashes is not promised. Nongeneric methods, comparer-object equality and parameterless comparer hashing remain diagnostic.",
         "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
       ],
-      "scope": "Bounded typed ordinal compare/equality and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
     },
     {
       "path": "library/Cilica.Core/StringComparer.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IComparer.cs",
       "algorithms": [
-        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison and typed equality."
+        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison, typed equality and string hashing."
       ],
       "changes": [
         "Retain only the selected case-sensitive ordinal implementation; use the existing owned CompareOrdinal and string equality.",
         "Store the runtime-instance-owned singleton in a separate initialization helper, leaving comparer class dispatch facts fieldless and initializer-free.",
-        "Nongeneric methods, comparer-object equality and randomized hash APIs fail through UnsupportedLibraryMember.",
+        "Typed ordinal hashing throws ArgumentNullException with parameter obj, then shares the existing deterministic UTF-16 key hash. Numeric hash equality with randomized .NET hashes is not promised. Nongeneric methods, comparer-object equality and parameterless comparer hashing remain diagnostic.",
         "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
       ],
-      "scope": "Bounded typed ordinal compare/equality and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
     },
     {
       "path": "library/Cilica.Core/StringComparer.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/IEqualityComparer.cs",
       "algorithms": [
-        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison and typed equality."
+        "Generic comparer declaration variance; ordinal singleton, UTF-16 comparison, typed equality and string hashing."
       ],
       "changes": [
         "Retain only the selected case-sensitive ordinal implementation; use the existing owned CompareOrdinal and string equality.",
         "Store the runtime-instance-owned singleton in a separate initialization helper, leaving comparer class dispatch facts fieldless and initializer-free.",
-        "Nongeneric methods, comparer-object equality and randomized hash APIs fail through UnsupportedLibraryMember.",
+        "Typed ordinal hashing throws ArgumentNullException with parameter obj, then shares the existing deterministic UTF-16 key hash. Numeric hash equality with randomized .NET hashes is not promised. Nongeneric methods, comparer-object equality and parameterless comparer hashing remain diagnostic.",
         "Omit ref-struct anti-constraints outside the pinned .NET Standard 2.1 contract."
       ],
-      "scope": "Bounded typed ordinal compare/equality and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
+      "scope": "Bounded typed ordinal compare/equality/hash and exact application comparer interfaces. Other factories, culture/ignore-case comparison, serialization, alternate span lookup and default comparers are not implemented."
     },
     {
       "path": "library/Cilica.Core/ConcatIterator.cs",

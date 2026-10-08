@@ -1069,3 +1069,14 @@ capacity ordering; active slots copy without hashing or changing the set version
 Counts exceeding the set size are allowed when the destination has room. Public
 validation precedes storage access in the three-argument overload, preserving raw
 null-receiver timing. See ADR AC0170.
+
+### Ordinal string hashing (AC7b.19)
+
+StringComparer.Ordinal.GetHashCode(string) now checks null with parameter obj and
+uses the existing managed UTF-16 key hash. Direct/generic comparer calls preserve
+equal-string consistency and fault ordering. Numeric hashes are implementation-
+specific and intentionally differ from randomized .NET values. Eight probes supply
+5,454 repeated native comparisons; all 30 selected checks pass. Profiles, grants
+and limits are unchanged. See ADR AC0173. Frozen discovery next reaches excessive
+parameterless-comparer hash reachability from ReferenceKeyOperations<T>.Hash;
+full engine/fingerprint/replay execution remains unfinished.

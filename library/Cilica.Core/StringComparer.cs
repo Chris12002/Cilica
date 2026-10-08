@@ -16,7 +16,7 @@ namespace System
         public abstract int Compare(string first, string second);
         public abstract bool Equals(string first, string second);
         public abstract int GetHashCode(string value);
-        // Nongeneric comparison/equality and randomized hashes need separate semantics.
+        // Nongeneric comparison/equality need separate semantics.
         public int Compare(object first, object second) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
         public bool Equals(object first, object second) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         public int GetHashCode(object value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
@@ -26,7 +26,13 @@ namespace System
         public OrdinalCaseSensitiveComparer() { }
         public override int Compare(string first, string second) => String.CompareOrdinal(first, second);
         public override bool Equals(string first, string second) => first == second;
-        public override int GetHashCode(string value) => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
+        public override int GetHashCode(string value)
+        {
+            if (value == null) throw new ArgumentNullException("obj");
+            // Numeric hashes are implementation-specific. Share the owned ordinal
+            // UTF-16 algorithm used by collection keys, without new intrinsics.
+            return Cilica.Runtime.StringKeyOperations.Hash(ref value);
+        }
         public override bool Equals(object other) => Cilica.Runtime.UnsupportedLibraryMember<bool>.Invoke();
         public override int GetHashCode() => Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke();
     }

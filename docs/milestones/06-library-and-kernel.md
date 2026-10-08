@@ -3320,3 +3320,14 @@ comparer reachability from Type-key hashing. Seven new native probes provide
 checks pass. Integer CIL v74 records the change; IR v47/native v73 and limits stay
 unchanged. See ADR AC0172. Frozen discovery next reaches the actual ordinal string
 hash in UnitId.GetHashCode at 1,182,823 metadata units; full replay is unfinished.
+
+### Ordinal string hashing (AC7b.19)
+
+StringComparer.Ordinal.GetHashCode(string) now checks null with parameter obj and
+uses the existing managed UTF-16 key hash. Direct/generic comparer calls preserve
+equal-string consistency and fault ordering. Numeric hashes are implementation-
+specific and intentionally differ from randomized .NET values. Eight probes supply
+5,454 repeated native comparisons; all 30 selected checks pass. Profiles, grants
+and limits are unchanged. See ADR AC0173. Frozen discovery next reaches excessive
+parameterless-comparer hash reachability from ReferenceKeyOperations<T>.Hash;
+full engine/fingerprint/replay execution remains unfinished.
