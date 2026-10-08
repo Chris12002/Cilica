@@ -4081,3 +4081,19 @@ Frozen discovery reaches the dynamic type-name string budget after 15,253 bodies
 StateLookup validates 15 methods. Both audit emission fields are null. Full engine
 IR admission and saved-game replay remain incomplete. See ADR AC0228 for exact
 validation, the fixture correction and diagnostic timeout/follow-up evidence.
+
+### Same-assembly instance fields (AC8.85)
+
+Reference-instance fields now use the shared field-access rule for internal and
+family-or-assembly members, with exact image identity and validated lexical
+visibility. Proven nested callers can access private containing-type members;
+readonly, inaccessible nesting and foreign-image restrictions remain. Frozen
+PhysicalDamagePayload.Invocation and the converted engine guided the regression.
+CIL109/object IR65/native81; interface20, physical layouts and production limits
+remain unchanged. All 81 distinct selected checks pass, including 2,058 new O0/O2
+native/.NET comparisons and logical/scalar tampering checks.
+
+Diagnostic string charging measures 352,292 UTF-16 units, above production 262,144;
+only the audit copy receives more room. The fixed frozen engine reaches aggregate
+value-IR capacity after discovery/access validation. Neither root emits C++; full
+engine closure and saved-game replay remain incomplete. See ADR AC0229.

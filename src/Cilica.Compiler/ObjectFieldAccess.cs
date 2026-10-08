@@ -3,7 +3,7 @@ using System.Reflection;
 using Cilica.Metadata.Resolution;
 namespace Cilica.Compiler;
 
-internal static class ObjectStaticFieldAccess
+internal static class ObjectFieldAccess
 {
     internal static bool Allowed(ObjectMethodBinding caller, ObjectTypeId owner, FieldAttributes attributes,
         bool externallyVisible, ImmutableArray<LexicalTypeOwner> chain, bool sameAssembly)

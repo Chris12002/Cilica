@@ -640,10 +640,14 @@ public static partial class ValueProgramDiscovery
                         ? inlineOwner.ExternallyVisible || integers64 && SourceTypeVisible(method.Binding, field.Id.Owner, _snapshots[field.Id.Owner].LexicalOwners)
                         : _snapshots[field.Id.Owner].ExternallyVisible
                         || integers64 && ObjectLexicalAccess.Visible(method.Binding, field.Id.Owner, _snapshots[field.Id.Owner].LexicalOwners);
-                    if ((field.Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.PrivateScope
-                        || method.Binding.Owner != field.Id.Owner
-                        && ((field.Attributes & FieldAttributes.FieldAccessMask) != FieldAttributes.Public || !visible))
-                        Fail(work, "Fields require the same declaring owner or a public member on an externally visible type.", access.Key);
+                    bool allowed = layouts.ContainsKey(field.Id.Owner)
+                        ? (field.Attributes & FieldAttributes.FieldAccessMask) != FieldAttributes.PrivateScope
+                            && (method.Binding.Owner == field.Id.Owner
+                                || (field.Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Public && visible)
+                        : ObjectFieldAccess.Allowed(method.Binding, field.Id.Owner, field.Attributes,
+                            _snapshots[field.Id.Owner].ExternallyVisible, _snapshots[field.Id.Owner].LexicalOwners, integers64);
+                    if (!allowed)
+                        Fail(work, "Instance field access requires the declaring owner, visible public access, proven same-assembly internal access or validated nongeneric nested containment.", access.Key);
                     // Taking an address retains readonly capability in body translation.
                     if ((field.Attributes & FieldAttributes.InitOnly) != 0
                         && writes.Contains(access.Key) && !(method.Binding.Kind is (ObjectMethodKind.Constructor or ObjectMethodKind.ValueConstructor) && method.Binding.Owner == field.Id.Owner))

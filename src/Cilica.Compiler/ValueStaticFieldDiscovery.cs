@@ -18,7 +18,7 @@ public static partial class ValueProgramDiscovery
                 && (work.Binding.TypeInitializerName is null || work.Binding.Owner != ClosedId(field.DeclaringType, work, offset)))
                 Fail(work, "Readonly static fields cannot be assigned outside their type initializer.", offset);
             var id = new ObjectFieldId(ClosedId(field.DeclaringType, work, offset), MetadataTokens.GetToken(field.Handle));
-            if (!ObjectStaticFieldAccess.Allowed(work.Binding, id.Owner, declaration.Attributes,
+            if (!ObjectFieldAccess.Allowed(work.Binding, id.Owner, declaration.Attributes,
                 owner.ExternallyVisible, owner.LexicalOwners, integers64))
                 Fail(work, "Static field access requires the declaring owner, visible public access, proven same-assembly internal access or validated nongeneric nested containment.", offset);
             if (_staticFields.TryGetValue(id, out var known)) return known;

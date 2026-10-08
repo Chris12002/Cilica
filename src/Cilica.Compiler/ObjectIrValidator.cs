@@ -613,7 +613,7 @@ internal sealed partial class ObjectIrRules
         if (id is null || !_statics.TryGetValue(id, out var field)) return false;
         var caller = Binding(IrMethodId.From(method.Source));
         if (write && (field.Attributes & FieldAttributes.InitOnly) != 0 && (caller.Owner != id.Owner || caller.TypeInitializerName is null)) return false;
-        if (!ObjectStaticFieldAccess.Allowed(caller, id.Owner, field.Attributes,
+        if (!ObjectFieldAccess.Allowed(caller, id.Owner, field.Attributes,
             field.OwnerExternallyVisible, field.LexicalOwners, _program.Flow.Types.Integer64)) return false;
         storage = field.Type; return true;
     }
@@ -626,10 +626,10 @@ internal sealed partial class ObjectIrRules
         if (id?.Owner is not { ArrayElement: null } || !_fields.TryGetValue(id, out var field) || receiver < 0 || receiver >= values.Count
             || !_types.Assignable(values[receiver], IrType.Reference(id.Owner))) return false;
         var caller = Binding(IrMethodId.From(method.Source));
-        var access = field.Attributes & FieldAttributes.FieldAccessMask;
-        if (access == FieldAttributes.PrivateScope || (caller.Owner != id.Owner && (access != FieldAttributes.Public
-            || (_layouts[id.Owner].Attributes & TypeAttributes.VisibilityMask) != TypeAttributes.Public
-                && (!_program.Flow.Types.Integer64 || !ObjectLexicalAccess.Visible(caller, id.Owner, _layouts[id.Owner].LexicalOwners))))) return false;
+        var layout = _layouts[id.Owner];
+        if (!ObjectFieldAccess.Allowed(caller, id.Owner, field.Attributes,
+            (layout.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public,
+            layout.LexicalOwners, _program.Flow.Types.Integer64)) return false;
         storage = field.Storage switch { ObjectStorage.Int32 => IrType.Int32, ObjectStorage.Int64 => IrType.Int64,
             ObjectStorage.Reference reference => IrType.Reference(reference.Type), ObjectStorage.Value value => IrType.Value(value.Type), _ => null! };
         return true;
