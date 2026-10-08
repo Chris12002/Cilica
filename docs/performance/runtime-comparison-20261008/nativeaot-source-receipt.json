@@ -1,0 +1,51 @@
+[
+  {
+    "repository": "dotnet/runtime",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "path": "src/coreclr/nativeaot/Runtime/GCHelpers.cpp",
+    "url": "https://raw.githubusercontent.com/dotnet/runtime/79d0c463f1b55624c874a11585f7e47731e8d675/src/coreclr/nativeaot/Runtime/GCHelpers.cpp",
+    "sha256": "7c21403b38e035b712384917f198506cd15e15fbae0b18a15ea5ed7129abd226"
+  },
+  {
+    "repository": "dotnet/runtime",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "path": "src/coreclr/nativeaot/Runtime/gcenv.ee.cpp",
+    "url": "https://raw.githubusercontent.com/dotnet/runtime/79d0c463f1b55624c874a11585f7e47731e8d675/src/coreclr/nativeaot/Runtime/gcenv.ee.cpp",
+    "sha256": "abe5ce8c438949da21562d2e04beb36767aac7a2a51806f024652017a1359a49"
+  },
+  {
+    "repository": "dotnet/runtime",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "path": "src/coreclr/nativeaot/Runtime/GcEnum.cpp",
+    "url": "https://raw.githubusercontent.com/dotnet/runtime/79d0c463f1b55624c874a11585f7e47731e8d675/src/coreclr/nativeaot/Runtime/GcEnum.cpp",
+    "sha256": "c881622c06b4b80dceb59051676854047a6e1b7033e7ce26db8fb75259e2f6e1"
+  },
+  {
+    "repository": "dotnet/runtime",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "path": "src/coreclr/nativeaot/Runtime/thread.cpp",
+    "url": "https://raw.githubusercontent.com/dotnet/runtime/79d0c463f1b55624c874a11585f7e47731e8d675/src/coreclr/nativeaot/Runtime/thread.cpp",
+    "sha256": "aeba3bdd4400fce672c12d68de7ef1c1b80a95076507477d2952086798ca8eee"
+  },
+  {
+    "repository": "dotnet/runtime",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "path": "src/coreclr/nativeaot/Runtime/unix/UnixNativeCodeManager.cpp",
+    "url": "https://raw.githubusercontent.com/dotnet/runtime/79d0c463f1b55624c874a11585f7e47731e8d675/src/coreclr/nativeaot/Runtime/unix/UnixNativeCodeManager.cpp",
+    "sha256": "1ef304486456055cbff74ecee00a6fbeda737575aad5279f5f2ef03ac996f672"
+  },
+  {
+    "repository": "dotnet/runtime",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "path": "src/coreclr/nativeaot/Runtime/ObjectLayout.h",
+    "url": "https://raw.githubusercontent.com/dotnet/runtime/79d0c463f1b55624c874a11585f7e47731e8d675/src/coreclr/nativeaot/Runtime/ObjectLayout.h",
+    "sha256": "ffbae70de4f17ee4adb8dc9b93896da001fa297f9ed1455686d1a1ca24b5895c"
+  },
+  {
+    "repository": "dotnet/runtime",
+    "commit": "79d0c463f1b55624c874a11585f7e47731e8d675",
+    "path": "src/coreclr/runtime/arm64/AllocFast.S",
+    "url": "https://raw.githubusercontent.com/dotnet/runtime/79d0c463f1b55624c874a11585f7e47731e8d675/src/coreclr/runtime/arm64/AllocFast.S",
+    "sha256": "415aec48d5f7d4adced2a385755241dad203b258cce759bfe86a862481c4cf04"
+  }
+]

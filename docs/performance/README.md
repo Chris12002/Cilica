@@ -29,3 +29,7 @@ after corruption/frame/budget checks and independent review. It remains experime
 A separate check also confirmed that launch-inclusive `wait4` RSS can inherit the
 Python launcher's high-water floor; see the revision's RSS correction before
 interpreting the historical .NET/native memory comparison.
+
+[NativeAOT / IL2CPP architectural comparison](runtime-comparison-20261008.md)
+records a read-only source review and ranked proposals, with unexecuted owned
+kernels for future comparisons. It adds no runtime adoption or performance claim.
