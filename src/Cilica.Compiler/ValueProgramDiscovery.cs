@@ -734,8 +734,10 @@ public static partial class ValueProgramDiscovery
             var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible)
                 { LexicalOwners = integers64 ? input.LexicalOwners : [], OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible, Primitive = primitive };
             if (integers64 && !instance && input.DeclaredName == "TryParse"
-                && owner == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), parent, offset))
+                && (owner == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), parent, offset)
+                    || owner == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int64), parent, offset)))
             {
+                var parser = Primitive(owner, parent, offset)!;
                 var parameters = input.Signature.Parameters;
                 if (input.Attributes != (MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig)
                     || input.Signature.Header != 0 || parameters.Count != 4
@@ -745,10 +747,10 @@ public static partial class ValueProgramDiscovery
                     || style.Definition != Require(resolver.ResolveType(library, "System.Globalization", "NumberStyles"), parent, offset)
                     || parameters[2] is not TypeSignature.Named provider
                     || provider.Definition != Require(resolver.ResolveType(library, "System", "IFormatProvider"), parent, offset)
-                    || parameters[3] is not TypeSignature.ByReference { Element: TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } })
-                    Fail(parent, "Int32.TryParse requires the selected String/NumberStyles/IFormatProvider/out Int32 declaration.", offset);
+                    || parameters[3] is not TypeSignature.ByReference { Element: TypeSignature.Primitive output } || output.Code != parser.Code)
+                    Fail(parent, "Integer TryParse requires the selected String/NumberStyles/IFormatProvider/out matching integer declaration.", offset);
                 _ = Require(resolver.AuthorizeLibraryIntrinsic(library, resolved.Handle, LibraryIntrinsicCapability.InvariantIntegerParsing), parent, offset);
-                binding = binding with { IntegerParser = Primitive(owner, parent, offset) };
+                binding = binding with { IntegerParser = parser };
             }
             if (initializer)
             {

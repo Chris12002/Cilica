@@ -3395,3 +3395,15 @@ Other split overloads remain diagnostic. Profiles, grants and limits are unchang
 Frozen discovery next reaches invariant Int64.TryParse with NumberStyles.None in
 RecordAnswers at 990,636 metadata units. Full engine/fingerprint/replay execution
 remains unfinished.
+
+### Invariant Int64 parsing (AC5a.8)
+
+The exact Int64.TryParse(String,NumberStyles,IFormatProvider,out Int64) declaration
+now accepts directly proven None and InvariantCulture. A managed parser checks
+unsigned accumulation before overflow and preserves all output bits. Four probes
+supply 3,660 repeated native comparisons; 131,648 additional grammar cases are
+managed-only. All 72 distinct selected checks pass. See ADR AC0180. CIL v76/object
+IR v49 record the wider contract; native v74 and all limits remain unchanged.
+Frozen discovery next stops at nonpublic GameOccurrence.Permits dispatch in
+ShieldReactionDiscovery.Discover (998,224 metadata units). Full engine/fingerprint/
+replay execution remains unfinished.

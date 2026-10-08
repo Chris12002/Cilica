@@ -89,6 +89,12 @@ namespace System
     }
     public struct Int64 : IConvertible, IComparable<long>
     {
+        public static bool TryParse(string text, Globalization.NumberStyles style, IFormatProvider provider, out long result)
+        {
+            if (style != Globalization.NumberStyles.None || provider != Globalization.CultureInfo.InvariantCulture)
+                throw new NotSupportedException("Only invariant None parsing is supported.");
+            return Cilica.Library.IntegerParsing.Int64None(text, out result);
+        }
         public int CompareTo(long value) => this < value ? -1 : this > value ? 1 : 0;
         public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
         public override string ToString() => Cilica.Runtime.IntegerText.Int64(this);
