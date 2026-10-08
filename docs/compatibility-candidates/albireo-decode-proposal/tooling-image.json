@@ -1,0 +1,6 @@
+{
+  "Id": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "Architecture": "arm64",
+  "Os": "linux",
+  "scope": "Read-only existing image inspection; no container started."
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "awaiting-explicit-upstream-execution-approval",
+  "candidate_repository": "https://github.com/kappa7194/base32",
+  "candidate_commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+  "license": "MIT; Copyright 2014 Albireo",
+  "candidate_files": [
+    {
+      "path": "Albireo.Base32/Base32.cs",
+      "git_blob_sha1": "bd6584e246151e3e493ed1eb9f17de269cb1ddc1",
+      "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32/Base32.cs"
+    },
+    {
+      "path": "LICENSE.txt",
+      "git_blob_sha1": "1b3da92904fd9e9c1f4f327fafa5c7e0c771b150",
+      "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/LICENSE.txt"
+    }
+  ],
+  "screening_manifest": "batch-018.json",
+  "cilica_commit": "b8f462870351be165692401d90340c019fadc3ae",
+  "selected_root": "Cilica.CandidateValidation.AlbireoDecodeProbe.Run(Int32,Int32) -> Albireo.Base32.Base32.Decode(in String)",
+  "excluded": [
+    "Encode",
+    "upstream MSBuild projects/targets",
+    "upstream tests",
+    "generators/analyzers",
+    "network access",
+    "host execution of candidate",
+    "production compiler/runtime changes"
+  ],
+  "scenario_count": 32,
+  "input_bound_UTF16_units": 257,
+  "transcript_bound_per_scenario": 4096,
+  "total_wall_seconds": 1800,
+  "native_subprocess_seconds": 30,
+  "runtime_heap_and_frame_limits": "existing production limits unchanged",
+  "execution": "Normal .NET oracle followed by Cilica O0/O2 native; three repetitions, forced GC, ASan/UBSan, exact context/root/borrow cleanup, stable retained-cache counts and exact/one-short managed frames. Every output byte and exception message/parameter unit is observed. No NativeAOT substitute.",
+  "tooling_image": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "offline_package_manifest": "../../tools/CompatibilityCandidates/albireo-validation/offline-packages.json",
+  "isolation": {
+    "network": "none",
+    "user": "10001:10001",
+    "read_only_root": true,
+    "cap_drop": "ALL",
+    "no_new_privileges": true,
+    "cpus": 2,
+    "memory": "8g",
+    "pids_limit": 256,
+    "host_mounts": [],
+    "credentials": [],
+    "tmpfs": {
+      "/work": "9g,exec,nosuid,nodev",
+      "/tmp": "1g,exec,nosuid,nodev",
+      "/evidence": "1g,noexec,nosuid,nodev"
+    }
+  },
+  "owned_overlay_sha256": {
+    "tools/CompatibilityCandidates/albireo-validation/ApprovedAlbireoExecutionTests.cs": "6bb7f29a056ffed0725a6684cc94fb04b4d2b4a1f66e0ea5a1ae14a445d178a8",
+    "tools/CompatibilityCandidates/albireo-validation/Probe.cs": "633269ecc3ffd9952a4edadefdc7b269c086e278a98ee0694be62140c196e139",
+    "tools/CompatibilityCandidates/albireo-validation/README.md": "2cf039920eb4b19376821e596bc85ea829bd82b2353e6f55e513791148ba8832",
+    "tools/CompatibilityCandidates/albireo-validation/SelectedDecode.csproj": "48e98e735739346a539fb6cd8079a04fdbd1d0becfabd29e8e17f78ed6a0412c",
+    "tools/CompatibilityCandidates/albireo-validation/offline-packages.json": "8b23ddbc500c1724ae26d104eedff9e6024cc4e705e0df061963d739e82beae2"
+  },
+  "preflight": "Existing immutable image and all24 offline package hashes verified read-only. Candidate/harness not built or executed.",
+  "retention_and_cleanup": "Retain source/blob/DLL/generated-C++/native hashes, versions, exact approval receipt, full transcript results and failures before removing only this task candidate/input-image/container copies. Keep licence with retained source; shared tooling image preserved."
+}
