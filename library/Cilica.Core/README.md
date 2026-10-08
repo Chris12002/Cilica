@@ -30,6 +30,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/HashSet.cs \
   --source library/Cilica.Core/DictionaryContracts.cs \
   --source library/Cilica.Core/ArrayInterface.cs \
+  --source library/Cilica.Core/ArraySegment.cs \
   --source library/Cilica.Core/ArrayEnumerator.cs \
   --source library/Cilica.Core/Enumerable.cs \
   --source library/Cilica.Core/EnumerableContains.cs \
@@ -1153,3 +1154,19 @@ General Array aliases, unsupported producer shapes, cross-element widening/boxin
 and Int64 overloads remain diagnostic. CIL98; IR60/native79, quotas and runtime
 unchanged. See [decision](../../docs/decisions/compatibility-013-array-section-copy.md).
 CircularBuffer itself is unexecuted; ArraySegment and full replay remain open.
+
+
+### Bounded ArraySegment views
+
+ArraySegment<T> constructors and Array/Offset/Count now use ordinary rooted managed
+value fields. Null/negative/range ordering, default values, shared backing identity
+and copied segments preserve pinned behavior. Required interface metadata remains
+exact; existing boxed Count is tested, while other interface/indexer/equality/copy/
+enumerator bodies remain unsupported. Empty segments retain the complete backing
+array. No compiler/runtime profile, grant or quota changes: CIL98/IR60/native79.
+Batch012 passes 48 focused checks, 2,940 new repeated native/.NET comparisons and 4 GC
+lifetime variants. The actual CircularBuffer trial remains blocked at same-owner
+constructor chaining before oracle/native execution; full replay is unverified.
+
+Include the exact ``System.ArraySegment`1`` reference mapping when composing the core
+binding plan, alongside the new ArraySegment.cs source.

@@ -16,6 +16,16 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ArraySegment.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/ArraySegment.cs",
+      "sha256": "b5b0d089f5c7786c38ca60661c1a5ae71fb467f3704e9cff2eac5af303d9d819"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ThrowHelper.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/ThrowHelper.cs",
+      "sha256": "5c21b9149ef32e1f68396d060e6fc70311324c9829ed40328c33f6d5f859a757"
+    },
+    {
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Range.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Range.cs",
       "sha256": "bc1addf068bdb62b3d67d1272e2397e3a9cb3af75beca77759b25880668bff6e"
@@ -487,6 +497,24 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/ArraySegment.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ArraySegment.cs",
+      "additionalUpstreamPaths": [
+        "src/libraries/System.Private.CoreLib/src/System/ThrowHelper.cs",
+        "src/libraries/System.Private.CoreLib/src/Resources/Strings.resx"
+      ],
+      "adaptedMembers": [
+        "ArraySegment<T>(T[]) and (T[],Int32,Int32)",
+        "Array, Offset and Count"
+      ],
+      "changes": [
+        "Use ordinary managed vector/reference and Int32 fields; preserve default null/zero fields and live backing identity.",
+        "Inline pinned constructor validation with null, negative offset, negative count, then overflow-safe range order and exact resource messages.",
+        "Retain IList/IReadOnlyList metadata to preserve Count dispatch attributes; unimplemented interface/equality/hash/text bodies explicitly diagnose. Empty, public indexer, slicing/copy and enumeration APIs remain unsupported."
+      ],
+      "scope": "Only direct constructors/properties and ordinary value copies/rooted storage; no grants, compiler or runtime profile changes."
+    },
     {
       "path": "library/Cilica.Core/List.cs",
       "behavioralSource": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs and ArraySortHelper.cs",

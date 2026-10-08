@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "batch": "batch-012",
+  "source_baseline": "3625157",
+  "recording_head": "3baf279037531aef6f9edfe3b7321cdbc28a0ca6",
+  "profiles": {
+    "CIL": 98,
+    "IR": 60,
+    "native": 79,
+    "changed": false
+  },
+  "results": {
+    "final": {
+      "checks": 48,
+      "passed": 48,
+      "seconds": 87.252,
+      "classes": [
+        "ArraySegmentTests",
+        "CandidateCircularBufferTests",
+        "ArraySectionCopyTests",
+        "ArraySectionClearTests"
+      ]
+    },
+    "new_repeated_native_dotnet_comparisons": 2940,
+    "comparison_breakdown": {
+      "eight_segment_semantic_roots": 2352,
+      "boxed_interface_count": 294,
+      "original_candidate_segment_reduction": 294
+    },
+    "new_gc_lifetime_checks": 4,
+    "constructor_chain_reduction": "CIL2001 same-owner constructor call at IL0008, independently reproduces external trial gate."
+  },
+  "initial_runs": {
+    "tests.log": "2/16 passed;14 fail after correct metadata binding rejects get_Count attributes. Missing interfaces were restored to retain actual contract virtual/final shape.",
+    "contract-tests.log": "15/16 passed. Expected interface Count rejection was wrong: existing boxed interface path supports it. Added positive native coverage and changed negative to unimplemented Add.",
+    "final-tests.log": "48/48 passed; no remaining failures in owned selected checks."
+  },
+  "owned_source_sha256": {
+    "library/Cilica.Core/ArraySegment.cs": "b061c433571bc47010319a46b32da8c7987f3b5c3c7d5669299eea68cdf413a1",
+    "library/provenance.json": "020f13053c79311199140035208b0dc95093be86976040fe1c07251fb879d274",
+    "tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs": "5983540d2a1e65a05a3f2e2146b8853538845430c0a8028086833edab8b94cc7",
+    "tests/Cilica.Metadata.Tests/ArraySegmentTests.cs": "74e9316763d08ddcfac256fb5f94c932381ec7a80697038794728df7047f4b86",
+    "tests/Cilica.Metadata.Tests/CandidateCircularBufferTests.cs": "2de485206d2a28b01050af7ce73f15cb911571639fd2fcd3a1a0056c13f11d61",
+    "tests/Fixtures/Cilica.Fixtures.Execution/ArraySegmentProbe.cs": "8303900c702e978f7370d25ad2f3598e43787d8877cf9e94bcc9780050a65756"
+  },
+  "run_binaries_sha256": {
+    "Cilica.Compiler.dll": "77f495c5883c192c6cfc38c13f89e8b46c55de046f457adbe5dabf8211151bf1",
+    "Cilica.Fixtures.Basic.dll": "e12ff382e1783d6f67209aa67a78452037d0ff44e579897dc2576c14fe5314bc",
+    "Cilica.Fixtures.ControlFlow.dll": "6c20b935f068cd4e418b358f24509c8c17d662d67466cbd9452dbca045e867f8",
+    "Cilica.Fixtures.Execution.dll": "cf9608f8ce1b6fbf86ac2192b74c178c326d748176ba2043b436ff777f94d5b1",
+    "Cilica.Fixtures.Forwarding.dll": "537e1760a530f64bc103eed85a14a393c8651a6eb336441f2b0ab682a2f508f8",
+    "Cilica.Library.dll": "679dde8760489cde29484932df6424d7a49aacff82326c383be0a84d3365e35b",
+    "Cilica.LibraryBuild.dll": "d89a7cdf8f3d15d63590b924dc5397bde5350d383557c29742c0cca3e6e43447",
+    "Cilica.Metadata.Tests.dll": "79ecdbb17fa9f89e1d7f01cd8e02ea9dc444dbb0d9c94015e35eadb7ec60550c",
+    "Cilica.Metadata.dll": "8544c3f71decabae23c1144ce505af8cba60a133323b090ed5ed9e703e02e8f9"
+  },
+  "logs_sha256": {
+    "build.log": "49b9cd736c3a6f4f4d4227eff1ccdcc9b98539821fa4d243c19fef2caaec4f24",
+    "contract-build.log": "4f8bf17e3adafdce81bfccccd7febaf6f4afdefd46b6dc60de2106afe7c87f19",
+    "contract-tests.log": "f3373ba44a05c3e0365b61245b69a8f974deb66e2ac8a032d70a43979c5685bf",
+    "final-build.log": "b0ea3f51ac05e84d77c7cdd8a8c7b6a5de02e778f8a14af53f7d83ccf586d266",
+    "final-tests.log": "bf347ac3d90cf2c1c76b64989bae721f3609c4f55aa7d996391963dafba01a7b",
+    "tests.log": "13a92967ef258ca06909c3fdfd9a2458b8b4ca5f3e022628630f971358e4e980"
+  },
+  "native_hash_receipts": {
+    "native-evidence": {
+      "count": 14,
+      "sha256": "0114407a299bfccdabd8ecaab31de8bd551f5ad2fd4c73419494cc9bdfa99a4d"
+    },
+    "native-evidence-final": {
+      "count": 40,
+      "sha256": "61ce20556d30320fe2b4c5639d025bce7e7126b44186718147b36a687e65a50c"
+    }
+  },
+  "native_hash_scope": "VerifyTranslated plus new segment GC harness. Adjacent older Clear custom GC harness does not record hashes. No external CircularBuffer native code was generated.",
+  "review": "Pinned null/negative-offset/negative-count/range order; subtraction bounds prevent overflow. Ordinary value/reference storage retains complete backing array even for empty segments. Required interface metadata preserved; only Count bodies implemented. No validator/access/GC changes.",
+  "external_trial": "One direct-user-approved frozen trial recorded in circularbuffer-execution-20261008.md; build passed then translation gate before oracle/native generation. No retry.",
+  "untested": [
+    "Full ArraySegment surface and candidate ToArray/segments/enumeration",
+    "CircularBuffer semantic execution",
+    "Full repository suite",
+    "Alchemy replay"
+  ],
+  "cleanup": "External staging1880files verified before task-only deletion; container and input image removed. Shared tooling, own probes and all raw failure evidence retained."
+}

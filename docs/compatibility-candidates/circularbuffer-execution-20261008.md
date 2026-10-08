@@ -26,8 +26,8 @@ The capacity-only constructor delegates to another constructor of the same close
 generic class with an empty T[] argument. Read-only inspection of ObjectIrValidator
 shows BaseCall accepts only a base-owner constructor, not this same-owner chain.
 This is a reachable compiler admission gap, not an observed candidate semantic
-failure. An independently authored generic-constructor reduction is being retained
-with the next owned feature batch. Fixing the constructor state rules needs its own
+failure. An independently authored generic-constructor reduction confirms the same gate in
+[batch012](batch-012-results.md). Fixing the constructor state rules needs its own
 semantic and malformed-IR tests; broadening validation without those tests is unsafe.
 
 The exact [differential log](circularbuffer-execution-20261008/differential.log)
