@@ -1252,3 +1252,20 @@ boundaries. Minimal readonly in-string composition passes; Func<Char,Boolean> re
 a diagnosed narrow delegate-parameter gap. Range ToCharArray and actual candidate
 execution remain unverified. No profiles, grants, runtime/compiler operations or
 quotas change. See compatibility batch015 and ADR compatibility-017-string-character-arrays.
+
+
+### Later interface-body audit headroom (AC8.73)
+
+The diagnostic scan passes Stack enumeration, then exhausts cached types, fields,
+call arguments and combined interface-method declarations. Increase only isolated
+audit allowances to types 4,096, fields 8,192, call arguments 131,072 and methods 16,384.
+After measuring 259,735/262,144 instructions and 11,747/12,288 locals, add proactive
+headroom to 393,216 instructions, 16,384 locals and 6,291,456 metadata units; these last
+three original limits were not exhausted in that run. Parameters remain 32,768.
+Production limits and the 60-second probe bound remain unchanged.
+
+The next semantic gap is Int32.Parse(String,IFormatProvider) in the unchanged
+ActivationCountDamage operation, using directly supplied InvariantCulture. EngineStep
+still fails before C++ emission; StateLookup retains its isolated 15-method C++ output.
+No probe output is compiled/executed natively. Full engine/fingerprint/replay work
+remains unfinished. See ADR AC0217.

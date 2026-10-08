@@ -54,5 +54,5 @@ System.Collections.Generic.Stack<T>.System.Collections.IEnumerable.GetEnumerator
 whose body intentionally rejects traversal. It is requested through OfTypeIterator.Count
 from ContributeHandCardsModifier.Read. The engine charges 2,668,468 metadata units in
 10,731ms; StateLookup remains 15 methods/11,616 units in 464ms. This is partial compiler
-closure discovery, with no native game emission, execution, fingerprint or replay
-claim. Evidence: artifacts/alchemy-sequence-equal{,-refresh,-engine}.
+closure discovery, EngineStep emits no C++; StateLookup retains its isolated C++ output. No probe output
+is compiled or executed natively, and there is no fingerprint or replay claim. Evidence: artifacts/alchemy-sequence-equal{,-refresh,-engine}.
