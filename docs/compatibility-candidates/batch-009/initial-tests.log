@@ -1,0 +1,18 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.CandidateCircularBufferTests.Public_array_copy_clear_and_segment_requirements_remain_actionable_gaps [FAIL]
+      Assert.Contains() Failure: Filter not matched in collection
+      Collection: [Diagnostic { Id = CIL3015, Severity = Error, Message = Contract type 0x02000022 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping. Add an implemented, reviewed type or remove the dependency., Location = token 0x0600017d in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }]
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CandidateCircularBufferTests.cs(27,0): at Cilica.Metadata.Tests.CandidateCircularBufferTests.Public_array_copy_clear_and_segment_requirements_remain_actionable_gaps()
+        --- End of stack trace from previous location ---
+      Output:
+        WholeCopy: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: Copy, Location = Cilica.Fixtures.Execution.CandidateCircularBufferProbe::WholeCopy token 0x0600017a IL_0019; token 0x0a0000d8 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x0600017a in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+        OverlapCopy: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: Copy, Location = Cilica.Fixtures.Execution.CandidateCircularBufferProbe::OverlapCopy token 0x0600017b IL_001e; token 0x0a0000d9 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x0600017b in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+        SectionClear: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: Clear, Location = Cilica.Fixtures.Execution.CandidateCircularBufferProbe::SectionClear token 0x0600017c IL_001c; token 0x0a0000da in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x0600017c in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+        SegmentView: Diagnostic { Id = CIL3015, Severity = Error, Message = Contract type 0x02000022 in 'netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' has no library mapping. Add an implemented, reviewed type or remove the dependency., Location = token 0x0600017d in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null }
+  Finished:    Cilica.Metadata.Tests (ID = '6ed7638d76f1881f8cc25fd10fa62a30f48956726c064542d88eb250ff84fd71')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 2, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0.806s

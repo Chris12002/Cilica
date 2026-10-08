@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "batch": "batch-009",
+  "compiler_source_baseline": "e232f8b",
+  "recording_head": "c64312e6993a5bce4078cb23961e737cd1df8e24",
+  "concurrency": "c64312e was a peer documentation-only commit; compiler/library sources unchanged from initial e232f8b during validation. No production changes owned here.",
+  "results": {
+    "checks": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.781,
+    "native_execution": "not-run; four reductions are diagnosed admission gaps",
+    "external_candidate_execution": "not-run"
+  },
+  "diagnostics": {
+    "WholeCopy": "CIL3010 missing implementation Copy",
+    "OverlapCopy": "CIL3010 missing implementation Copy",
+    "SectionClear": "CIL3010 missing implementation Clear",
+    "SegmentView": "CIL3015 no library mapping for System.ArraySegment`1; netstandard2.1 token0x02000022 resolved by test"
+  },
+  "dotnet_oracles": {
+    "WholeCopy(2,7)": 69,
+    "OverlapCopy(2,7)": 128,
+    "SectionClear(2,7)": 85,
+    "SegmentView(2,7)": 250
+  },
+  "initial_failures": "Two assertion-only failures retained: ArraySegment diagnostic names a token rather than a type, then core build request has no reference inputs after no-stdlib setup. Corrected test resolves exact contract from binding plan. No production failure was repaired or hidden.",
+  "build": "Initial13.31s build succeeded with one existing CandidateHashAlgorithmOwner.State CS0108 warning. Final incremental build succeeded. Cached packages only, isolated outputs.",
+  "owned_source_sha256": {
+    "tests/Cilica.Metadata.Tests/CandidateCircularBufferTests.cs": "faff2dc28e6dabe26951e0d9a7e64e1c1ec107994a86889f6a97335b09c562b8",
+    "tests/Fixtures/Cilica.Fixtures.Execution/CandidateCircularBufferProbe.cs": "f15b0bbeecfa5cf32368a09e305bf931eb5a98bedd3a0624918d696ed76e9ebe"
+  },
+  "executed_binaries_sha256": {
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Compiler.dll": "461c95e7059395c7660dbded02fdc5d63c0b76ca302d0e267efb29defa3d5866",
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Basic.dll": "f8fea3cbdc7cfd7caa6e3d85bd0efd84863fd14c97ea81371b95eea291d351fd",
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.ControlFlow.dll": "cb1cc1de239b28fa8d8302f3d39be0ca0e0138e3d982daa566a07da776002061",
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Execution.dll": "929aa72813fa60d600947137d540aac3b2f342755bdae5ca9a0de067140fab85",
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Forwarding.dll": "8728f4d50bd0ba7455c044246e05106371e5906e3650af8424bcce61ea4e90bc",
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Library.dll": "679dde8760489cde29484932df6424d7a49aacff82326c383be0a84d3365e35b",
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.LibraryBuild.dll": "3bc999c46dbd05d932ff7597e3fed86a84fc378d19a7f3bd765307eff207126e",
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll": "cc1e533efa0fe61e8a662f8d2a7c56be977cd374596b484d9d88d7f197f9bb00",
+    "artifacts/compatibility-batch-009/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.dll": "b81e0eb66e43e9874f5753d0ab7921fb893c0710d7aaff540d5513927358785c"
+  },
+  "retained_logs_sha256": {
+    "build.log": "2f74e0788b0dc637b74bc2f8f6a17e6692f35cec98fafbb2a84b264cb7b45c79",
+    "initial-tests.log": "084bf1ebbed5e0c690c13978d81fffd5471207e3a59260b1f95d3a14860702a5",
+    "assertion-repair-tests.log": "9843bceb05d60e6e83c36eda51d682198735021a98d280e07da0ed7289909ea2",
+    "final-build.log": "23a61035df26bf7c970ce9f3f9b50f213beb857ebbfdaa4c795a33497203a3b2",
+    "tests.log": "2fa3da498e287571e1621fde045cc46f16f4ce860ff9fd469a65473f57e12cc4"
+  },
+  "crc_recipe": "Prepared and statically reviewed only; no compilation/execution. Exact owned hashes in crc32-execution-proposal.json.",
+  "cleanup": "No downloaded/staged candidate copies; nothing eligible for candidate cleanup."
+}

@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "batch": "batch-009",
+  "date": "2026-10-08",
+  "limit": 2,
+  "previous_batch": "batch-008.json",
+  "active_checkout": {
+    "path": "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica",
+    "branch": "codex/alchemy-replay-baseline",
+    "initial_head": "e232f8b",
+    "validation_head": "c64312e6993a5bce4078cb23961e737cd1df8e24",
+    "concurrent_changes": "Peer committed documentation-only diagnostic local-storage evidence during this lane; peer Range implementation was already present at build. No production files edited here."
+  },
+  "coordination": {
+    "feature_peer": "Review milestone 6",
+    "performance_thread": "01a11b0d-1c65-75a9-9f2b-27e9cba9a0f7",
+    "ownership": "New independent reductions, batch-009 records and CRC approval recipe only. No production runtime/compiler/library files claimed; builds complete before clean timing."
+  },
+  "candidates": [
+    {
+      "id": "circularbuffer",
+      "repository": "joaoportela/CircularBuffer-CSharp",
+      "url": "https://github.com/joaoportela/CircularBuffer-CSharp",
+      "commit": "9ebb911dfe27a62c2793d0b02c642f79bbbf524b",
+      "license": "Unlicense; LICENSE inspected at pinned commit",
+      "target_frameworks": [
+        "net461",
+        "netstandard2.0",
+        "net5.0",
+        "net6.0",
+        "net7.0",
+        "net8.0"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "netstandard2.0 asset compatible with initial netstandard2.1 filter; no Cilica compatibility inference.",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "fdddb29aa445bf3d6a5d843d6dd77e10a9f99657",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/LICENSE"
+        },
+        {
+          "path": "CircularBuffer/CircularBuffer.csproj",
+          "git_blob_sha1": "8a2d77e3e659eb4a335862ecdc267601a2b7cbbd",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.csproj"
+        },
+        {
+          "path": "CircularBuffer/CircularBuffer.cs",
+          "git_blob_sha1": "7aef4a0935c8b413fda8f360c803c4a12def2d15",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.cs"
+        },
+        {
+          "path": "CircularBuffer.Tests/CircularBuffer.Tests.csproj",
+          "git_blob_sha1": "11c1fe3b9b354b4812e9f59f7a6c8465b83f6ec3",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Tests/CircularBuffer.Tests.csproj"
+        },
+        {
+          "path": "CircularBuffer.Tests/CircularBufferTests.cs",
+          "git_blob_sha1": "0c0224028f73cecc4d95c5c7fff1c949a9fa0300",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Tests/CircularBufferTests.cs"
+        },
+        {
+          "path": "CircularBuffer.Example/CircularBuffer.Example.csproj",
+          "git_blob_sha1": "b450c08c2c6c4cf001b0a437feb6fc4c601bcdb0",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Example/CircularBuffer.Example.csproj"
+        },
+        {
+          "path": "nuget.config",
+          "git_blob_sha1": "765346e5343d46ac83654843869dc06b65b2bdc4",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/nuget.config"
+        },
+        {
+          "path": ".github/workflows/build.yml",
+          "git_blob_sha1": "af09416020c242e2d306d42c3bcbdbb1205e5536",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/.github/workflows/build.yml"
+        },
+        {
+          "path": ".github/workflows/publish.yml",
+          "git_blob_sha1": "b4358856aaf10231f12f682229e0ee9880471181",
+          "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/.github/workflows/publish.yml"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "not-run; no third-party source staged, compiled or executed",
+      "dependencies": {
+        "runtime_packages": [],
+        "library_graph": "CircularBuffer.cs only, framework System/Collections/Collections.Generic; SDK imports. Complete pinned tree contains no Directory.Build.props/targets or other library source.",
+        "tests": [
+          "NUnit 3.13.3",
+          "NUnit3TestAdapter 4.5.0",
+          "Microsoft.NET.Test.Sdk 17.9.0"
+        ],
+        "test_graph": "Tests -> CircularBuffer; six test TFMs. Tests use System.Linq for assertions. Example -> CircularBuffer on net8.0.",
+        "build": "nuget.config selects nuget.org. GitHub workflows restore/build/test and publish packages/releases; inspected only, excluded from execution."
+      },
+      "roots": [
+        "CircularBuffer<int>(int,T[]) and capacity-only constructor",
+        "PushBack/PushFront/PopBack/PopFront, Front/Back/indexer/Size/Capacity",
+        "Clear",
+        "ToArraySegments/ToArray and generic enumeration (separate follow-up surface)"
+      ],
+      "reachable_requirements": [
+        "Closed generic class fields and T[] storage",
+        "Array.Copy(Array,Array,Int32) in every constructor",
+        "Array.Clear(Array,Int32,Int32) in Clear",
+        "ArraySegment<T> constructors and Array/Offset/Count getters",
+        "Array.Copy(Array,Int32,Array,Int32,Int32) in ToArray",
+        "IList<ArraySegment<T>> and generic array enumeration; yield-generated reference iterator and disposal",
+        "Int32 field borrows and wraparound arithmetic; initobj/default generic slot reset",
+        "Exact ArgumentException/ArgumentNullException/InvalidOperationException/IndexOutOfRangeException; literal boxed Int32 formatting"
+      ],
+      "unsupported_features": [
+        {
+          "requirement": "Public Array.Copy three-argument overload",
+          "evidence": "Independent WholeCopy -> CIL3010 missing Copy; known generic ICollection<T>.CopyTo support is a separate surface."
+        },
+        {
+          "requirement": "Public Array.Copy five-argument overload, including self-overlap",
+          "evidence": "Independent OverlapCopy -> CIL3010 missing Copy."
+        },
+        {
+          "requirement": "Public Array.Clear section overload",
+          "evidence": "Independent SectionClear -> CIL3010 missing Clear."
+        },
+        {
+          "requirement": "ArraySegment<T> contract mapping",
+          "evidence": "Independent SegmentView -> CIL3015 missing mapped contract type; test resolves System.ArraySegment`1 to contract token rather than assuming its name appears in diagnostic."
+        }
+      ],
+      "semantic_failures": [],
+      "semantic_failure_note": "No native candidate execution. Reductions establish admission gaps, not semantic mismatches or whole-closure sufficiency.",
+      "excluded_scope": [
+        "No broad System.Array support claim: multidimensional/non-zero-bound arrays, primitive widening and arbitrary object-array coercion remain outside proposed bounded follow-up.",
+        "Reference/inline-value candidate instantiations and full iterator closure require separate mapping and semantic checks.",
+        "Upstream project/test/CI/publish execution not approved."
+      ],
+      "upstream_tests_inspected": "Entire CircularBufferTests.cs: constructor and capacity errors, front/back, wraparound overwrite, push/pop on both ends, logical ordering, segment pairs, enumeration, index writes, clear/reuse, regression where Size differs from Capacity. None executed.",
+      "mapped_status": "mapped-blocked",
+      "status": "mapped-blocked",
+      "next_action": "Prioritize a separately designed same-type single-dimensional public Array.Copy slice for the constructor blocker, preserving overlap, range/exception order, covariance/partial writes where admitted, and GC roots. Reuse existing typed copy semantics only with exact static proof; no blanket System.Array runtime expansion. Array.Clear and ArraySegment follow separately. Before production edits coordinate Review milestone6/performance lane, then obtain separate approval before actual candidate execution."
+    }
+  ],
+  "crc32_followup": {
+    "previous_manifest": "batch-008.json",
+    "status": "awaiting-separate-execution-approval",
+    "plan": "crc32-execution-plan.md",
+    "hashes": "crc32-execution-proposal.json",
+    "external_execution": "not-run"
+  },
+  "cleanup": "No third-party candidate checkout/source cache created by this batch. Preserve owned tests, approval recipe and screening evidence."
+}

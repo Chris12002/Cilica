@@ -2,14 +2,15 @@
 
 This workflow turns pinned public projects into independently testable Cilica
 requirements. It is a source-screening and regression workflow, not an automatic
-third-party build farm. The current batch is [batch-008.json](batch-008.json);
-[results](batch-008-results.md) distinguish implemented support, diagnostics and
+third-party build farm. The current batch is [batch-009.json](batch-009.json);
+[results](batch-009-results.md) distinguish implemented support, diagnostics and
 untested candidate execution.
 
 Latest execution follow-up: [DiffPlex selected roots verified](diffplex-int32-20261008.md)
 on Cilica 3d0bb53, with 64 scenarios and 11,232 repeated O0/O2 comparisons. Batch 008
-contains the current status and next action. CRC32.NET external execution remains
-separately unapproved. Earlier batch reports preserve their historical outcomes.
+retains the verified DiffPlex status. Batch 009 screens CircularBuffer and records
+the [separate CRC32.NET execution proposal](crc32-execution-plan.md), still awaiting
+approval. Earlier batch reports preserve their historical outcomes.
 
 Separate [Release performance measurements](diffplex-performance-20261008.md)
 show a large current throughput gap on one verified character-diff workload.
@@ -21,7 +22,7 @@ Correctness trial durations are not performance results.
    applicable local skills. Ask the owning thread about overlapping work before
    selecting a gap. The primary checkout and the active Alchemy compatibility
    worktree differ substantially; never infer freshness from their directory names.
-2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-008`.
+2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-009`.
    The CLI default remains the historical batch 001; use explicit `--batch batch-NNN`
    for current or later batches. Existing immutable screening can be reused at the
    same pin. Start with two candidates and one independently useful feature. Reopen a mapped entry only for a new pin,
