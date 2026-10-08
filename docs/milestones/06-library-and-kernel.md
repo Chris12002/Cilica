@@ -3343,3 +3343,14 @@ cases and 88 passing selected checks. CIL v75/object IR v48/native v74 record th
 contract; layout/interface/grants/limits are unchanged. See ADR AC0174. Frozen
 discovery next reaches SelectMany(source, selector) in ConstructionInvitations at
 955,482 metadata units; full engine/fingerprint/replay execution remains unfinished.
+
+### Single-selector SelectMany (AC6.18)
+
+The nonindexed two-generic SelectMany overload now provides deferred nested
+iteration plus the pinned independent terminal paths. Managed segments preserve
+inner collection Count/CopyTo choices, and cursor faults retain exact disposal
+ordering. Fifteen probes provide 6,078 repeated native comparisons; all 45 selected
+checks pass. Other overloads/nested-vector source types remain diagnostic. See ADR
+AC0175. Profiles, grants and limits are unchanged. Frozen discovery next reaches
+Single(source) in construction-contribution handling at 958,875 metadata units;
+full engine/fingerprint/replay execution remains unfinished.

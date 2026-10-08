@@ -9,6 +9,16 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SelectMany.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/SelectMany.cs",
+      "sha256": "f93d3944f377077fd1f922d0d91e96fb77c2f83024101cb4b902f8d9b68080da"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SelectMany.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/SelectMany.SpeedOpt.cs",
+      "sha256": "67d99a9c26639168cbdd9985809a7c945321aaef95b7c40bccab4a37193311f5"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Boolean.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Boolean.cs",
       "sha256": "02d2ef825fed7a781213d8c840a96723a20727ae2966ee7377a9b42528996a99"
@@ -340,6 +350,53 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/Enumerable.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SelectMany.cs",
+      "algorithms": [
+        "Nonindexed SelectMany validates source then selector and returns canonical empty arrays before constructing a deferred iterator."
+      ],
+      "changes": [
+        "Use the owned SelectManyIterator and existing admitted generic array checks."
+      ],
+      "scope": "Only the two-generic, single-selector overload; other overloads remain unmapped."
+    },
+    {
+      "path": "library/Cilica.Core/SelectManyIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SelectMany.cs",
+      "algorithms": [
+        "Argument validation, empty-array fast path, deferred nested traversal and inner-before-outer disposal."
+      ],
+      "changes": [
+        "Use the existing owned query interfaces instead of generic virtual Iterator methods. Preserve outer/inner cursor state and disposal ordering; terminal Count and Contains dispatch to each selected inner sequence.",
+        "Replace private stack scratch and pooled buffers with traced managed segments. Keep eight initial slots, pool-sized growth, and the same generic collection Count/CopyTo versus enumeration choices. Output storage is freshly managed; pool reuse and allocation counts are not compatibility contracts."
+      ],
+      "scope": "Nonindexed SelectMany(source, selector) for admitted source/result types, including ordinary iteration, Count/Any/First, Contains, ToArray/ToList and Select composition. Indexed/result-selector overloads and nested-vector source types remain diagnostic."
+    },
+    {
+      "path": "library/Cilica.Core/SelectManyIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SelectMany.SpeedOpt.cs",
+      "algorithms": [
+        "Independent terminal Count, Contains and segmented materialization."
+      ],
+      "changes": [
+        "Use the existing owned query interfaces instead of generic virtual Iterator methods. Preserve outer/inner cursor state and disposal ordering; terminal Count and Contains dispatch to each selected inner sequence.",
+        "Replace private stack scratch and pooled buffers with traced managed segments. Keep eight initial slots, pool-sized growth, and the same generic collection Count/CopyTo versus enumeration choices. Output storage is freshly managed; pool reuse and allocation counts are not compatibility contracts."
+      ],
+      "scope": "Nonindexed SelectMany(source, selector) for admitted source/result types, including ordinary iteration, Count/Any/First, Contains, ToArray/ToList and Select composition. Indexed/result-selector overloads and nested-vector source types remain diagnostic."
+    },
+    {
+      "path": "library/Cilica.Core/SelectManyIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SegmentedArrayBuilder.cs",
+      "algorithms": [
+        "Collection Count, exact array/list spans, conditional CopyTo, enumeration and segmented output copy."
+      ],
+      "changes": [
+        "Use the existing owned query interfaces instead of generic virtual Iterator methods. Preserve outer/inner cursor state and disposal ordering; terminal Count and Contains dispatch to each selected inner sequence.",
+        "Replace private stack scratch and pooled buffers with traced managed segments. Keep eight initial slots, pool-sized growth, and the same generic collection Count/CopyTo versus enumeration choices. Output storage is freshly managed; pool reuse and allocation counts are not compatibility contracts."
+      ],
+      "scope": "Nonindexed SelectMany(source, selector) for admitted source/result types, including ordinary iteration, Count/Any/First, Contains, ToArray/ToList and Select composition. Indexed/result-selector overloads and nested-vector source types remain diagnostic."
+    },
     {
       "path": "library/Cilica.Core/Enumerable.cs",
       "upstreamPath": "src/libraries/System.Linq/src/System/Linq/First.cs",

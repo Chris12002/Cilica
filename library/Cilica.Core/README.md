@@ -35,6 +35,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/EnumerableContains.cs \
   --source library/Cilica.Core/WhereIterator.cs \
   --source library/Cilica.Core/SelectIterator.cs \
+  --source library/Cilica.Core/SelectManyIterator.cs \
   --source library/Cilica.Core/DistinctIterator.cs \
   --source library/Cilica.Core/ConcatIterator.cs \
   --source library/Cilica.Core/OrderedIterator.cs \
@@ -1079,4 +1080,15 @@ specific and intentionally differ from randomized .NET values. Eight probes supp
 5,454 repeated native comparisons; all 30 selected checks pass. Profiles, grants
 and limits are unchanged. See ADR AC0173. Frozen discovery next reaches excessive
 parameterless-comparer hash reachability from ReferenceKeyOperations<T>.Hash;
+full engine/fingerprint/replay execution remains unfinished.
+
+### Single-selector SelectMany (AC6.18)
+
+The nonindexed two-generic SelectMany overload now provides deferred nested
+iteration plus the pinned independent terminal paths. Managed segments preserve
+inner collection Count/CopyTo choices, and cursor faults retain exact disposal
+ordering. Fifteen probes provide 6,078 repeated native comparisons; all 45 selected
+checks pass. Other overloads/nested-vector source types remain diagnostic. See ADR
+AC0175. Profiles, grants and limits are unchanged. Frozen discovery next reaches
+Single(source) in construction-contribution handling at 958,875 metadata units;
 full engine/fingerprint/replay execution remains unfinished.

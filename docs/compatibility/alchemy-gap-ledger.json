@@ -20,7 +20,7 @@
   "baseline": {
     "integrationCommit": "e317e93",
     "nativeProfile": "object-frames-native-v74",
-    "nativeProfileEvidence": "Public baseline revalidated at AC8.54 on CIL v75/native v74/layout v26; 46 native controls and 1 diagnostic gap.",
+    "nativeProfileEvidence": "Public baseline revalidated at AC6.18 on CIL v75/native v74/layout v26; 46 native controls and 1 diagnostic gap.",
     "testClass": "CompatibilityGapTests",
     "source": "tests/Fixtures/Cilica.Fixtures.Execution/CompatibilityGapProbe.cs",
     "corePolicy": "Tests build the current owned core and admit the exact resulting manifest; historical core hashes above identify audit evidence only.",
@@ -30,8 +30,8 @@
     "positiveControlCount": 46,
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
-    "fixtureSha256": "fd493f5ba4779e84380de6078c0c36193be759accf9b9c5fd77e3b518bf1b140",
-    "latestSlice": "AC8.54",
+    "fixtureSha256": "2969feccd0e956c2e782c47b1e1f8715f59f8c60ad48fb4d61f9fa0bd9d8130c",
+    "latestSlice": "AC6.18",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -500,7 +500,8 @@
         "AC6.14",
         "AC6.15",
         "AC6.16",
-        "AC6.17"
+        "AC6.17",
+        "AC6.18"
       ],
       "remaining": "Remaining deferred/terminal operators, indexed Select, List specializations, boxed collection factories and full replay closure."
     },
@@ -543,6 +544,11 @@
       "prerequisites": ["AC4.7", "AC6.7"],
       "status": "complete-bounded-oftype",
       "decision": "docs/decisions/AC0054-nongeneric-cursors-and-oftype.md"
+    },
+    "AC6.18": {
+      "prerequisites": ["AC6.17", "AC8.54"],
+      "status": "complete-bounded-single-selector-selectmany",
+      "decision": "docs/decisions/AC0175-single-selector-selectmany.md"
     },
     "AC6.17": {
       "prerequisites": ["AC6.8", "AC4.10"],

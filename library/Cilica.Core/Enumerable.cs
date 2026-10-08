@@ -35,6 +35,13 @@ namespace System.Linq
             if (source is TSource[] array) return Cilica.Runtime.DistinctIterator<TSource>.FromArray(array, array.Length);
             return new Cilica.Runtime.DistinctIterator<TSource>(source);
         }
+        public static IEnumerable<TResult> SelectMany<TSource, TResult>(IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (selector == null) throw new ArgumentNullException("selector");
+            if (source is TSource[] array && NoElements(array.Length)) return Array.Empty<TResult>();
+            return new Cilica.Runtime.SelectManyIterator<TSource, TResult>(source, selector);
+        }
         public static IEnumerable<TResult> Select<TSource, TResult>(IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
             if (source == null) throw new ArgumentNullException("source");
