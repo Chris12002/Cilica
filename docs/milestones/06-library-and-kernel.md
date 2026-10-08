@@ -3486,3 +3486,14 @@ Integer CIL v82 and object IR v53 add the exact throwing-mode declaration contra
 native v75 and production limits remain unchanged. Frozen engine discovery now
 reaches the diagnostic instruction limit (1,049,093 metadata units). Full engine,
 unchanged fingerprint and saved-game replay execution remain unfinished.
+
+### Diagnostic instruction-budget audit (AC8.59)
+
+The frozen engine consumes 131,071 of the diagnostic 131,072 instructions; the next
+method needs more than the one remaining. Partial discovery has 5,147 declarations,
+5,096 bodies, 324,841 IL bytes, 10,035 parameters and 5,994 locals. Raising only the
+archived diagnostic compiler to 196,608 instructions reaches String.ToLowerInvariant
+in ContinueConstructionContribution (1,052,133 metadata units/4,239 ms). Production
+limits remain unchanged. This audit uses AC5a.9's archived CIL v82/IR v53 sources,
+separate from concurrent Boolean-vector work. See ADR AC0188. Full engine,
+unchanged fingerprint and saved-game replay execution remain unfinished.
