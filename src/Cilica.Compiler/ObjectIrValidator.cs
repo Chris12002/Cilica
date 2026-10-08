@@ -246,10 +246,11 @@ internal sealed partial class ObjectIrRules
             }
             else Require(binding.Owner != flow.Types.ObjectBase || flow.Types.Integer64 && binding.Kind == ObjectMethodKind.Instance
                 && binding.Attributes == (MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig)
-                && method.ReturnType == IrType.Int32 && (binding.VirtualName == "Equals" && method.Parameters.Length == 2
+                && (method.ReturnType == IrType.Int32 && (binding.VirtualName == "Equals" && method.Parameters.Length == 2
                     && method.Parameters[1] == IrType.Reference(flow.Types.ObjectBase)
-                    || binding.VirtualName == "GetHashCode" && method.Parameters.Length == 1),
-                "ordinary selected Object methods require the admitted managed equality/hash signatures.");
+                    || binding.VirtualName == "GetHashCode" && method.Parameters.Length == 1)
+                    || binding.VirtualName == "ToString" && method.Parameters.Length == 1 && method.ReturnType == StringType),
+                "ordinary selected Object methods require the admitted managed equality/hash/default-text signatures.");
         }
         ValidateGenericArrays();
         ObjectLexicalAccess.Consistent(program.Bindings.Select(b => (b.Owner, b.LexicalOwners))
@@ -408,6 +409,29 @@ internal sealed partial class ObjectIrRules
         && values[query.Value].Kind is IrTypeKind.Reference or IrTypeKind.NullReference
         && result == (query.Message ? StringType : IrType.Int32);
 
+    private bool _defaultTextNamesValidated;
+    internal bool DefaultObjectText(IrMethod method, int operand, IReadOnlyList<IrType> values, IrType result)
+    {
+        if (!_program.Flow.Types.Integer64 || result != StringType || operand < 0 || operand >= values.Count
+            || values[operand] != IrType.Reference(_program.Flow.Types.ObjectBase)
+            || method.Source.Name != "System.Object::ToString" || method.Parameters.Length != 1
+            || method.Parameters[0] != values[operand] || !_bindings.TryGetValue(IrMethodId.From(method.Source), out var binding)
+            || binding.Owner != _program.Flow.Types.ObjectBase || binding.Kind != ObjectMethodKind.Instance
+            || binding.VirtualSlot is null) return false;
+        if (!_defaultTextNamesValidated)
+        {
+            foreach (var layout in _program.Flow.Types.Types)
+            {
+                string name = layout.Source.RuntimeName ?? layout.Source.Name.Replace('/', '+');
+                if (name.Length > ObjectStringLimits.MaximumLiteralCodeUnits
+                    || name.Length > ObjectStringLimits.MaximumTotalLiteralCodeUnits - _literalUnits) return false;
+                if (!StringLiteral([.. name.Select(c => (ushort)c)])) return false;
+            }
+            _defaultTextNamesValidated = true;
+        }
+        return true;
+    }
+
     internal bool RuntimeTypeOperand(int operand, IReadOnlyList<IrType> values, ObjectTypeId? implementation, IrType result, bool hash) =>
         RuntimeTypeBase(implementation) is { } type && operand >= 0 && operand < values.Count
         && (hash ? _types.Assignable(values[operand], IrType.Reference(type)) : values[operand].Kind is IrTypeKind.Reference or IrTypeKind.NullReference)
@@ -515,6 +539,8 @@ internal sealed partial class ObjectIrRules
             || arguments[1] >= expressions.Count || expressions[arguments[1]] is not IrExpression.InvariantCulture)) return false;
         for (int index = 0; index < arguments.Length; index++)
             if (arguments[index] < 0 || arguments[index] >= values.Count || !_types.Assignable(values[arguments[index]], signature[index + skip])) return false;
+        if (callee.Owner == _program.Flow.Types.ObjectBase && callee.VirtualName == "ToString"
+            && (arguments.IsEmpty || !OrdinaryTextReceiver(values[arguments[0]]))) return false;
         if (virtualDispatch && (arguments.IsEmpty || !_dispatch.Accepts(target, values[arguments[0]]))) return false;
         // Object slots also accept strings, arrays, delegates and boxes. Their
         // descriptors have no ordinary-class virtual table, so an Object alias
@@ -541,6 +567,22 @@ internal sealed partial class ObjectIrRules
         var signature = _methods[target.Method].Parameters;
         return call.Arguments.Select((argument, index) => argument >= 0 && argument < values.Count
             && _types.Assignable(values[argument], signature[index])).All(valid => valid);
+    }
+
+    private bool OrdinaryTextReceiver(IrType type)
+    {
+        if (type.Kind == IrTypeKind.NullReference) return true;
+        if (type.Kind != IrTypeKind.Reference || type.Class is not { } receiver || receiver == _program.Flow.Types.ObjectBase) return false;
+        for (int depth=0; depth<ObjectModelLimits.MaximumOwnerDepth; ++depth)
+        {
+            if (receiver == _program.Flow.Types.ObjectBase) return true;
+            if (!_layouts.TryGetValue(receiver, out var layout)) return false;
+            if (receiver.ContentHash == _program.Flow.Types.ObjectBase.ContentHash
+                && layout.Source.Name is "System.Type" or "System.Reflection.MemberInfo" or "Cilica.Runtime.RuntimeTypeObject") return false;
+            if (layout.BaseType is null) return false;
+            receiver=layout.BaseType;
+        }
+        return false;
     }
 
     internal bool Clone(IrMethod method, ObjectTypeId? type, int operand, IReadOnlyList<IrType> values, IrType result)
@@ -675,6 +717,7 @@ internal sealed partial class ObjectIrRules
                             IrExpression.Call c => c.Arguments.All(a => !This(a)),
                             IrExpression.NewObject n => n.Arguments.All(a => !This(a)),
                             IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral => true,
+                            IrExpression.ObjectDefaultText t => !This(t.Operand),
                             IrExpression.ObjectGetType t => !This(t.Operand),
                             IrExpression.RuntimeTypeHash t => !This(t.Operand),
                             IrExpression.ObjectIdentityHash t => !This(t.Operand),

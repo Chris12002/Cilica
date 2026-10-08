@@ -1,0 +1,279 @@
+[
+  {
+    "Name": "Probe_EngineStep",
+    "Token": 100663354,
+    "Success": false,
+    "Diagnostics": [
+      {
+        "Id": "CIL2001",
+        "Severity": 0,
+        "Message": "Scalar boxed formatting requires a directly proven literal without format suffixes for 32/64-bit integers; other scalar or provider formatting requires later lowering. Reachable via: GapProbes::Probe_EngineStep token 0x0600003a IL_0009 -\u003E Alchemy.Engine.AlchemyGameEngine::Step token 0x06000023 IL_05b9 -\u003E Alchemy.Engine.AlchemyGameEngine::PrepareForfeit token 0x06000029 IL_03ab -\u003E TurnEngine.Core.ResolutionKernel\u00604::ReconcilePriority token 0x060000a3 specialization 224754564f3921b2d81dcc28685094d7452f4fe30f2e28a6bf162b776266a761 IL_00ef -\u003E TurnEngine.Core.ResolutionKernel\u00604::DriveAutomatic token 0x060000a8 specialization 224754564f3921b2d81dcc28685094d7452f4fe30f2e28a6bf162b776266a761 IL_0131 -\u003E Alchemy.Engine.AlchemyGameEngine/MovementResolutionHandler::Resolve token 0x06001129 IL_0159 -\u003E Alchemy.Engine.AlchemyGameEngine/PhysicalDamagePayload::Resolve token 0x060011b1 IL_0a53 -\u003E Alchemy.Engine.AlchemyGameEngine/ShieldModes::Run token 0x06001230 IL_0733 -\u003E Alchemy.Engine.Effects.EffectOperationRunner::RunShield token 0x06000b77 IL_008c -\u003E Alchemy.Engine.Effects.EffectProgramRunner::Run token 0x06000c21 specialization 31f08c55e6a53bfe626d0fff8ae6e0a7376a325afac01d6bfc8d452d4f66e80b IL_018c -\u003E Alchemy.Engine.Effects.EffectOperationInstruction\u00601::Run token 0x06000b7d specialization 904adb8fbb9deb014035b3583d9ced2f140c06a8e42fe21251e12e1a7c42d94d IL_00cb -\u003E Alchemy.Engine.Effects.ForcedMovementOperation::Run token 0x06000cb1 IL_00d9 -\u003E Alchemy.Engine.Effects.ForcedMovementOperation::ContinueDamage token 0x06000cb2 IL_036a -\u003E Alchemy.Engine.Effects.ObjectDamage::CalculateFixed token 0x06000da9 IL_0088.",
+        "Location": "Alchemy.Engine.BoardObjectState::WithHitPoints token 0x060000cd IL_0028"
+      }
+    ],
+    "Methods": null,
+    "Emission": null,
+    "Work": {
+      "Snapshot": [
+        774,
+        11669
+      ],
+      "InspectMember": [
+        1602602,
+        1602602
+      ],
+      "ReadManagedExceptionMethodInput": [
+        14622,
+        400988
+      ],
+      "ClosedDispatchValidation": [
+        48296,
+        944487
+      ],
+      "SnapshotClosed": [
+        1971,
+        62767
+      ],
+      "NarrowVirtualReceiver": [
+        1843,
+        57360
+      ],
+      "ObjectCloneCall": [
+        6,
+        60
+      ],
+      "ExceptionDeclaration": [
+        58,
+        2084
+      ],
+      "OrdinalTextBridge": [
+        348,
+        22620
+      ],
+      "OrdinalStringCall": [
+        137,
+        8905
+      ],
+      "ReadEnumInput": [
+        74,
+        841
+      ],
+      "Consume": [
+        6027,
+        176310
+      ],
+      "EmptyArrayCall": [
+        877,
+        10524
+      ],
+      "FormattingDeclaration": [
+        96,
+        2460
+      ],
+      "ReadDelegateDeclarations": [
+        652,
+        1958
+      ],
+      "OrdinalListSort": [
+        262,
+        15196
+      ],
+      "CollectionConstructor": [
+        389,
+        22562
+      ],
+      "OrdinalCollectionConstruction": [
+        70,
+        3559
+      ],
+      "IsNullable": [
+        1,
+        1
+      ],
+      "OrdinalOrdering": [
+        6,
+        165
+      ],
+      "OrdinalComparerGetter": [
+        22,
+        286
+      ],
+      "DictionaryKeyText": [
+        24,
+        120
+      ],
+      "EnumValuesDeclaration": [
+        30,
+        245
+      ],
+      "EnumComparison": [
+        27,
+        216
+      ],
+      "StringConstructionCall": [
+        8,
+        40
+      ],
+      "KeyOperation": [
+        176,
+        1760
+      ],
+      "GenericArrays": [
+        157,
+        456
+      ],
+      "EnumQueryCall": [
+        2,
+        12
+      ],
+      "SortComparisonName": [
+        380,
+        5700
+      ],
+      "StaticArrays": [
+        4,
+        20
+      ],
+      "ReadStaticFieldData": [
+        4,
+        324
+      ],
+      "EnumTextCall": [
+        73,
+        657
+      ],
+      "IntegerCacheCall": [
+        2,
+        12
+      ],
+      "CharacterStringConstructor": [
+        20,
+        1300
+      ],
+      "ReadExceptionTypeDeclarations": [
+        3,
+        3
+      ],
+      "ValidateExceptionConstructor": [
+        3,
+        12
+      ],
+      "AbstractDeclaration": [
+        17,
+        183
+      ],
+      "TupleShapeCall": [
+        1,
+        5
+      ],
+      "RuntimeTypeCall": [
+        2,
+        12
+      ],
+      "ComparerOperation": [
+        5,
+        30
+      ],
+      "ReferenceKeyTypeName": [
+        3,
+        18
+      ],
+      "TupleElementText": [
+        2,
+        10
+      ],
+      "Build": [
+        1136,
+        24605
+      ],
+      "Require": [
+        3,
+        186
+      ],
+      "Check": [
+        60,
+        108
+      ],
+      "ArrayCopyStoreCall": [
+        259,
+        6475
+      ],
+      "NullableBoxingHelper": [
+        1,
+        1
+      ],
+      "ConstrainedEnumText": [
+        10,
+        75
+      ],
+      "EqualityComparerOperation": [
+        2,
+        10
+      ],
+      "ResolveClosedInterfaceMethodTarget": [
+        2,
+        15
+      ]
+    },
+    "Milliseconds": 18744
+  },
+  {
+    "Name": "Probe_StateLookup",
+    "Token": 100663355,
+    "Success": true,
+    "Diagnostics": [],
+    "Methods": 15,
+    "Emission": null,
+    "Work": {
+      "Snapshot": [
+        20,
+        205
+      ],
+      "InspectMember": [
+        1502,
+        1502
+      ],
+      "ReadManagedExceptionMethodInput": [
+        16,
+        327
+      ],
+      "SnapshotClosed": [
+        4,
+        115
+      ],
+      "Consume": [
+        8,
+        108
+      ],
+      "NarrowVirtualReceiver": [
+        1,
+        13
+      ],
+      "Build": [
+        369,
+        8966
+      ],
+      "Require": [
+        3,
+        186
+      ],
+      "Check": [
+        60,
+        108
+      ],
+      "ObjectCloneCall": [
+        1,
+        10
+      ],
+      "ClosedDispatchValidation": [
+        15,
+        195
+      ],
+      "ExceptionDeclaration": [
+        1,
+        7
+      ]
+    },
+    "Milliseconds": 445
+  }
+]

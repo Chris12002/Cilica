@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v79";
+    public const string Profile = "object-frames-native-v80";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -110,6 +110,9 @@ public static class ObjectCppEmitter
         string LiteralKey(ImmutableArray<ushort> units) => new(units.Select(u => (char)u).ToArray());
         foreach (var literal in methods.Values.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression).OfType<IrExpression.StringLiteral>())
             literals.TryAdd(LiteralKey(literal.CodeUnits), literal.CodeUnits);
+        bool defaultText = methods.Values.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Any(v => v.Expression is IrExpression.ObjectDefaultText);
+        var defaultNames = defaultText ? types.ToDictionary(p => p.Key, p => p.Value.Source.RuntimeName ?? p.Value.Source.Name.Replace('/', '+')) : [];
+        foreach (var name in defaultNames.Values) literals.TryAdd(name, [.. name.Select(c => (ushort)c)]);
         var literalIds = literals.Keys.Select((key, index) => (key, index)).ToDictionary(p => p.key, p => p.index, StringComparer.Ordinal);
         var referenceTypes = concrete.Concat(contracts).ToArray();
         var runtimeOperations = methods.Values.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression).ToArray();
@@ -201,6 +204,21 @@ public static class ObjectCppEmitter
             foreach (var literal in literals)
                 text.Append("[[maybe_unused]] static constexpr std::array<std::uint16_t, ").Append(N(literal.Value.Length)).Append("> literal_")
                     .Append(N(literalIds[literal.Key])).Append(" = {").Append(string.Join(", ", literal.Value.Select(u => N(u) + "u"))).Append("};\n");
+        }
+        if (defaultText)
+        {
+            text.Append("struct DefaultTextEntry { const Descriptor* type; std::size_t literal; const std::uint16_t* units; std::uint32_t length; };\n")
+                .Append("static constexpr std::array<DefaultTextEntry, ").Append(N(defaultNames.Count)).Append("> default_text_entries = {{\n");
+            foreach (var item in defaultNames)
+            {
+                string id = N(literalIds[item.Value]);
+                text.Append("    {&").Append(TypeSymbol(item.Key)).Append("_descriptor, ").Append(id).Append("u, literal_").Append(id)
+                    .Append(".data(), ").Append(N(item.Value.Length)).Append("u},\n");
+            }
+            text.Append("}};\n[[maybe_unused, gnu::noinline]] static Object* default_object_text(Context& context, Object* value) noexcept {\n")
+                .Append("    for (const auto& entry : default_text_entries) if (value->type == entry.type) return string_literal(context, ")
+                .Append(TypeSymbol(program.Flow.Types.String!)).Append("_descriptor, entry.literal, entry.units, entry.length);\n")
+                .Append("    context.pending = 6u; return nullptr;\n}\n");
         }
         foreach (var array in arrays)
         {
@@ -528,7 +546,7 @@ public static class ObjectCppEmitter
                         or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.InitializeExceptionMessage or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionObjectName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectClone or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectClone or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.InitializeType or IrStatement.StoreStatic or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
                     // Array/field access, type tests and virtual calls include ownership/type checks.
@@ -648,6 +666,9 @@ public static class ObjectCppEmitter
                                 case IrExpression.RuntimeTypeLiteral literalType:
                                     string literalImplementation = TypeSymbol(literalType.Implementation);
                                     expression = "runtime_type<" + literalImplementation + ">(context, " + literalImplementation + "_descriptor, " + N(runtimeIdentities[literalType.Target]) + "u)"; break;
+                                case IrExpression.ObjectDefaultText defaultName:
+                                    Check(Value(defaultName.Operand), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
+                                    expression = "default_object_text(context, " + Value(defaultName.Operand) + ")"; break;
                                 case IrExpression.ObjectGetType objectType:
                                     Check(Value(objectType.Operand), program.Flow.Types.ObjectBase, true, value.ILOffset); Flush();
                                     string objectImplementation = TypeSymbol(objectType.Implementation);
@@ -752,7 +773,7 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
-                            else if (value.Expression is IrExpression.ObjectClone or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.EnumEntry { Name: true } or IrExpression.EnumQuery { Message: true })
+                            else if (value.Expression is IrExpression.ObjectClone or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringConcat or IrExpression.EnumEntry { Name: true } or IrExpression.EnumQuery { Message: true })
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
                             else if (value.Expression is (IrExpression.LoadElement or IrExpression.LoadStatic) && value.Type.Kind == IrTypeKind.Reference)
                             {

@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "232c8d6 plus polymorphic key text; CIL107 IR64 interface20 native80; diagnostic instructions393216 metadata6291456 locals16384 methods16384 parameters32768",
+  "changes": [
+    "Diagnostic-only MaximumFields 8192 after measured 6142 used plus 3 requested declarations; field-read counters",
+    "Counter-only vector/root type audit",
+    "Diagnostic-only MaximumInstructions 393216; proactive headroom after measured 259735/262144 in the latest completed scan",
+    "Diagnostic-only MaximumTypes 4096 after measured 3072/3072 cached snapshots (AC8.72)",
+    "Diagnostic-only MaximumMethods 16384 after measured 13778/12288 combined declarations and mappings",
+    "Diagnostic-only metadata work budget 6291456; proactive headroom after 3189679 units in the latest scan; original 4194304 not exhausted",
+    "Diagnostic-only MaximumParameters 32768 after measured 16385/16384 aggregate parameters during interface-body discovery (AC8.69)",
+    "Diagnostic-only MaximumLocals 16384; proactive headroom after measured 11747/12288 in the latest completed scan",
+    "Diagnostic-only MaximumCallArguments 131072 after observed 65536 aggregate-call exhaustion; exact crossing counter",
+    "Parameter/local counter diagnostics",
+    "Compiler-supplied caller-name counters with no stack traces; input assemblies remain data"
+  ],
+  "engineCppEmission": false,
+  "stateLookupCppEmission": false,
+  "nativeCompilation": false,
+  "nativeExecution": false,
+  "output": "work12288.json"
+}

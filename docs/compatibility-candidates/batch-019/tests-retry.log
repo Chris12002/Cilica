@@ -1,0 +1,38 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: False, group: 1) [FAIL]
+      Assertion failed: (heap.count == permanent), function run_SortedList, file wide.cpp, line 27695.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(114,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(24,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: True, group: 1) [FAIL]
+      Assertion failed: (heap.count == permanent), function run_SortedList, file wide.cpp, line 27695.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(114,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(24,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: False, group: 2) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-74eb049d1d2d43fbad5c90692eb5983f/wide-cil/wide.cpp:1526:48: error: stack frame size (2096) exceeds limit (2048) in 'cilica_m_a930f3525d71af6f31ebeb4ad813043bfc2a1c074f252972d71dac69b7cc7a97_06000fa9_objects_packed_closure::default_object_text(cilica_m_a930f3525d71af6f31ebeb4ad813043bfc2a1c074f252972d71dac69b7cc7a97_06000fa9_objects_packed_closure::Context&, cilica_m_a930f3525d71af6f31ebeb4ad813043bfc2a1c074f252972d71dac69b7cc7a97_06000fa9_objects_packed_closure::Object*)' [-Werror,-Wframe-larger-than]
+       1526 | [[maybe_unused, gnu::noinline]] static Object* default_object_text(Context& context, Object* value) noexcept {
+            |                                                ^
+      1 error generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(112,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(24,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: True, group: 2) [FAIL]
+      Assertion failed: (heap.count == permanent), function run_SortedDerived, file wide.cpp, line 12981.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(114,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(24,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '894e3dd0d97ec9dc5deb27bd0a2c61c9693f144eb090d0b13b9547c731475a09')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 8, Errors: 0, Failed: 4, Skipped: 0, Not Run: 0, Time: 24.625s

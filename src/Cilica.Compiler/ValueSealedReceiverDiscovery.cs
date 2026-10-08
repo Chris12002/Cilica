@@ -128,6 +128,19 @@ public static partial class ValueProgramDiscovery
                         break;
                     case "stloc.0" or "stloc.1" or "stloc.2" or "stloc.3" or "stloc.s" or "stloc" or "starg" or "starg.s" or "stsfld": pops = 1; break;
                     case "stfld": pops = 2; break;
+                    case "box":
+                        // Closed reference boxing is an identity operation. The
+                        // typed translator separately authenticates that operand.
+                        pushes = 1; pops = 1;
+                        if (depth == 0)
+                        {
+                            var boxed = Require(resolver.ResolveClosedTypeOperand(work.Resolved,
+                                MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
+                            var normalized = OperandSignature(boxed, work, offset);
+                            if (normalized is TypeSignature.Named { Kind: SignatureTypeKind.Class }
+                                or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class }) storage = Storage(normalized, work, offset);
+                        }
+                        break;
                     case "ldstr" or "ldnull" or "ldloca" or "ldloca.s" or "ldarga" or "ldarga.s": pushes = 1; break;
                     case "call" or "callvirt" or "newobj":
                         var producer = Require(resolver.ResolveClosedCall(work.Resolved,

@@ -1,0 +1,205 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Exact_default_text_grant_and_private_caller_are_required [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(61,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Exact_default_text_grant_and_private_caller_are_required()
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Explicit_base_call_uses_dynamic_default_name(optimized: False) [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(35,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Explicit_base_call_uses_dynamic_default_name(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Explicit_base_call_uses_dynamic_default_name(optimized: True) [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(35,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Explicit_base_call_uses_dynamic_default_name(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: False, group: 0) [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(27,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: True, group: 0) [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(27,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: False, group: 1) [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(27,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: True, group: 1) [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(27,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: False, group: 2) [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(27,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: True, group: 2) [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(27,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_text_validates_at_both_stages [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(22,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_text_validates_at_both_stages()
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Derived_formattable_is_rejected_after_complete_receiver_discovery(name: "UnsupportedDerivedFormattable", diagnostic: "IFormattable requires provider dispatch") [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(46,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Derived_formattable_is_rejected_after_complete_receiver_discovery(String name, String diagnostic)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Derived_formattable_is_rejected_after_complete_receiver_discovery(name: "UnsupportedRuntimeType", diagnostic: "reflected-name semantics") [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = 19d2c0c21699f079b8db0d393e7be34c6f75df6ad5e46589b53b9963ced15b78, Token = 33554588, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(46,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Derived_formattable_is_rejected_after_complete_receiver_discovery(String name, String diagnostic)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Detached_default_text_packets_are_checked_at_both_stages(mutation: "operand") [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(77,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Detached_default_text_packets_are_checked_at_both_stages(String mutation)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Detached_default_text_packets_are_checked_at_both_stages(mutation: "result") [FAIL]
+      System.Collections.Generic.KeyNotFoundException : The given key 'ObjectTypeId { ContentHash = fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f, Token = 33555241, ArrayElement = , Specialization =  }' was not present in the dictionary.
+      Stack Trace:
+           at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(424,0): at Cilica.Compiler.ValueProgramDiscovery.Session.Read(ResolvedAssembly assembly, MethodDefinitionHandle entry)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(125,0): at Cilica.Compiler.ValueProgramDiscovery.ReadCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueProgramDiscovery.cs(118,0): at Cilica.Compiler.ValueProgramDiscovery.ReadIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        src/Cilica.Compiler/ValueTranslator.cs(114,0): at Cilica.Compiler.ValueTranslator.TranslateCore(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits, Boolean arrays, Boolean classes, Boolean boxing, Boolean generics, Boolean delegates, Boolean exceptions, Boolean integers64)
+        src/Cilica.Compiler/ValueTranslator.cs(53,0): at Cilica.Compiler.ValueTranslator.TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly, MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits limits)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(101,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(77,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Detached_default_text_packets_are_checked_at_both_stages(String mutation)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '894e3dd0d97ec9dc5deb27bd0a2c61c9693f144eb090d0b13b9547c731475a09')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 57, Errors: 0, Failed: 14, Skipped: 0, Not Run: 0, Time: 117.911s

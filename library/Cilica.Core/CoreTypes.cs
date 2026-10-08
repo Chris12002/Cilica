@@ -12,7 +12,7 @@ namespace System
         [MethodImpl(MethodImplOptions.InternalCall)] public extern Type GetType();
         public virtual bool Equals(object value) => this == value;
         public virtual int GetHashCode() => Cilica.Runtime.TypeIdentity.ObjectHash(this);
-        [MethodImpl(MethodImplOptions.InternalCall)] public virtual extern string ToString();
+        public virtual string ToString() => Cilica.Runtime.ObjectText.Default(this);
     }
     public abstract class ValueType
     {

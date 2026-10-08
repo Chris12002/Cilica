@@ -1,0 +1,271 @@
+[
+  {
+    "Name": "Probe_EngineStep",
+    "Token": 100663354,
+    "Success": false,
+    "Diagnostics": [
+      {
+        "Id": "CIL2001",
+        "Severity": 0,
+        "Message": "Enum text requires the exact selected constrained Object.ToString declaration. Reachable via: GapProbes::Probe_EngineStep token 0x0600003a IL_0009 -\u003E Alchemy.Engine.AlchemyGameEngine::Step token 0x06000023 IL_05b9 -\u003E Alchemy.Engine.AlchemyGameEngine::PrepareForfeit token 0x06000029 IL_03ab -\u003E TurnEngine.Core.ResolutionKernel\u00604::ReconcilePriority token 0x060000a3 specialization 224754564f3921b2d81dcc28685094d7452f4fe30f2e28a6bf162b776266a761 IL_00ef -\u003E TurnEngine.Core.ResolutionKernel\u00604::DriveAutomatic token 0x060000a8 specialization 224754564f3921b2d81dcc28685094d7452f4fe30f2e28a6bf162b776266a761 IL_0131 -\u003E Alchemy.Engine.AlchemyGameEngine/SpellResolutionHandler::Resolve token 0x06001089 IL_0011 -\u003E Alchemy.Engine.AlchemyGameEngine/SpellResolutionHandler::Resolve token 0x0600108a IL_0058 -\u003E Alchemy.Engine.AlchemyGameEngine/SpellResolutionHandler::ContinueConstructionContribution token 0x06001075 IL_054f.",
+        "Location": "Alchemy.Engine.AlchemyGameEngine/SpellResolutionHandler/\u003C\u003Ec__DisplayClass10_2::\u003CContinueConstructionContribution\u003Eb__3 token 0x06001563 IL_0063"
+      }
+    ],
+    "Methods": null,
+    "Emission": null,
+    "Work": {
+      "Snapshot": [
+        671,
+        10285
+      ],
+      "InspectMember": [
+        563974,
+        563974
+      ],
+      "ReadManagedExceptionMethodInput": [
+        6490,
+        184947
+      ],
+      "ClosedDispatchValidation": [
+        11265,
+        251026
+      ],
+      "SnapshotClosed": [
+        921,
+        33533
+      ],
+      "NarrowVirtualReceiver": [
+        1272,
+        35304
+      ],
+      "ObjectCloneCall": [
+        6,
+        60
+      ],
+      "ExceptionDeclaration": [
+        45,
+        1414
+      ],
+      "OrdinalTextBridge": [
+        224,
+        14560
+      ],
+      "OrdinalStringCall": [
+        91,
+        5915
+      ],
+      "ReadEnumInput": [
+        73,
+        833
+      ],
+      "Consume": [
+        1568,
+        42798
+      ],
+      "EmptyArrayCall": [
+        430,
+        5160
+      ],
+      "FormattingDeclaration": [
+        73,
+        1985
+      ],
+      "ReadDelegateDeclarations": [
+        417,
+        1253
+      ],
+      "OrdinalListSort": [
+        145,
+        8410
+      ],
+      "CollectionConstructor": [
+        224,
+        12992
+      ],
+      "OrdinalCollectionConstruction": [
+        49,
+        2593
+      ],
+      "IsNullable": [
+        1,
+        1
+      ],
+      "OrdinalOrdering": [
+        6,
+        165
+      ],
+      "OrdinalComparerGetter": [
+        15,
+        195
+      ],
+      "DictionaryKeyText": [
+        12,
+        60
+      ],
+      "EnumValuesDeclaration": [
+        20,
+        160
+      ],
+      "EnumComparison": [
+        20,
+        160
+      ],
+      "StringConstructionCall": [
+        6,
+        30
+      ],
+      "KeyOperation": [
+        98,
+        980
+      ],
+      "GenericArrays": [
+        34,
+        102
+      ],
+      "EnumQueryCall": [
+        2,
+        12
+      ],
+      "SortComparisonName": [
+        150,
+        2250
+      ],
+      "StaticArrays": [
+        4,
+        20
+      ],
+      "ReadStaticFieldData": [
+        4,
+        324
+      ],
+      "EnumTextCall": [
+        49,
+        441
+      ],
+      "IntegerCacheCall": [
+        2,
+        12
+      ],
+      "CharacterStringConstructor": [
+        14,
+        910
+      ],
+      "ReadExceptionTypeDeclarations": [
+        3,
+        3
+      ],
+      "ValidateExceptionConstructor": [
+        3,
+        12
+      ],
+      "AbstractDeclaration": [
+        11,
+        126
+      ],
+      "TupleShapeCall": [
+        1,
+        5
+      ],
+      "RuntimeTypeCall": [
+        2,
+        12
+      ],
+      "ComparerOperation": [
+        2,
+        12
+      ],
+      "ReferenceKeyTypeName": [
+        2,
+        12
+      ],
+      "TupleElementText": [
+        2,
+        10
+      ],
+      "Build": [
+        649,
+        15621
+      ],
+      "Require": [
+        1,
+        62
+      ],
+      "Check": [
+        20,
+        36
+      ],
+      "ArrayCopyStoreCall": [
+        89,
+        2225
+      ],
+      "NullableBoxingHelper": [
+        1,
+        1
+      ],
+      "ConstrainedEnumText": [
+        1,
+        10
+      ]
+    },
+    "Milliseconds": 5171
+  },
+  {
+    "Name": "Probe_StateLookup",
+    "Token": 100663355,
+    "Success": true,
+    "Diagnostics": [],
+    "Methods": 15,
+    "Emission": null,
+    "Work": {
+      "Snapshot": [
+        20,
+        205
+      ],
+      "InspectMember": [
+        1502,
+        1502
+      ],
+      "ReadManagedExceptionMethodInput": [
+        16,
+        327
+      ],
+      "SnapshotClosed": [
+        4,
+        115
+      ],
+      "Consume": [
+        8,
+        108
+      ],
+      "NarrowVirtualReceiver": [
+        1,
+        13
+      ],
+      "Build": [
+        369,
+        8966
+      ],
+      "Require": [
+        3,
+        186
+      ],
+      "Check": [
+        60,
+        108
+      ],
+      "ObjectCloneCall": [
+        1,
+        10
+      ],
+      "ClosedDispatchValidation": [
+        15,
+        195
+      ],
+      "ExceptionDeclaration": [
+        1,
+        7
+      ]
+    },
+    "Milliseconds": 496
+  }
+]

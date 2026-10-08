@@ -1195,5 +1195,12 @@
     "Member": "ToString",
     "ParameterCount": 1,
     "Capability": "InvariantDecimalFormatting"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "ObjectText",
+    "Member": "Default",
+    "ParameterCount": 1,
+    "Capability": "ObjectDefaultText"
   }
 ]

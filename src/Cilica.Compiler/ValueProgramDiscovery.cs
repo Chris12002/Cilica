@@ -60,7 +60,7 @@ public sealed record ConstrainedValueCall(int PrefixOffset, ObjectTypeId Receive
 public sealed record ConstrainedReferenceCall(int PrefixOffset, ObjectTypeId Receiver, int ParameterCount);
 
 /// <summary>A bounded metadata discovery result, not an executable program or access-proof supplied by a caller.</summary>
-public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, NewArgumentOutOfRangeActual, ArrayCopyStore, ArrayCopyCompatible, StringOrdinalEqual, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash, NewInvalidOperationInner, EnumQuery, EnumErrorMessage, EnumBits, EnumCount, EnumValueAt, EnumNameAt, ClosedTupleShape, NewObjectDisposedException, ExceptionObjectName, ObjectClone, NewMessageInnerException }
+public enum ValueIntrinsic { NewException, ExceptionMessage, StringLength, StringEqual, StringCodeUnit, StringConcat, StringNotEqual, ExceptionParameterName, InvariantCulture, IntegerTextFind, IntegerTextPublish, StringFromCodeUnits, EmptyArray, NewTypeInitializationException, ExceptionInnerException, ExceptionTypeName, NewArgumentOutOfRangeActual, ArrayCopyStore, ArrayCopyCompatible, StringOrdinalEqual, ObjectGetType, RuntimeTypeHash, ObjectIdentityHash, NewInvalidOperationInner, EnumQuery, EnumErrorMessage, EnumBits, EnumCount, EnumValueAt, EnumNameAt, ClosedTupleShape, NewObjectDisposedException, ExceptionObjectName, ObjectClone, NewMessageInnerException, ObjectDefaultText }
 public sealed record ExceptionMessageConstruction(IrMethodId Concat, ImmutableArray<ushort> Prefix, ImmutableArray<ushort> Suffix);
 public sealed record ValueIntrinsicCall(ValueIntrinsic Kind, ObjectTypeId Type, int Parameters,
     int MessageArgument = -1, int ParameterArgument = -1)
@@ -363,7 +363,7 @@ public static partial class ValueProgramDiscovery
                             }
                             if (exceptions && (SortComparisonName(work, instruction, target) ?? ReferenceKeyTypeName(work, instruction, target)) is { } comparisonName)
                             { literals.Add(offset, comparisonName); continue; }
-                            if (exceptions && !factoryConstructors.ContainsKey(offset) && (ArrayCopyStoreCall(work, instruction, target) ?? TupleShapeCall(work, instruction, target) ?? EnumTextCall(work, instruction, target) ?? EnumQueryCall(work, instruction, target) ?? ObjectCloneCall(work, instruction, target) ?? RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
+                            if (exceptions && !factoryConstructors.ContainsKey(offset) && (ArrayCopyStoreCall(work, instruction, target) ?? TupleShapeCall(work, instruction, target) ?? EnumTextCall(work, instruction, target) ?? EnumQueryCall(work, instruction, target) ?? ObjectDefaultTextCall(work, instruction, target) ?? ObjectCloneCall(work, instruction, target) ?? RuntimeTypeCall(work, instruction, target) ?? OrdinalStringCall(work, instruction, target) ?? EmptyArrayCall(work, instruction, target) ?? StringConstructionCall(work, instruction, target) ?? IntegerCacheCall(work, instruction, target) ?? CultureCall(work, instruction, target) ?? ExceptionCall(work, instruction, target)) is { } intrinsic)
                             {
                                 _arguments += intrinsic.Parameters + (intrinsic.ExceptionMessage is null ? 0 : 3);
                                 if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate intrinsic argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
@@ -416,6 +416,13 @@ public static partial class ValueProgramDiscovery
                                 Fail(work, "Generic instance methods require an exact interface call; direct/class calls and method pointers need later lowering.", offset);
                             target = NarrowVirtualReceiver(work, instruction, target,
                                 constrainedReferences.GetValueOrDefault(offset)?.Receiver, out var receiverBound);
+                            if (integers64 && instruction.OpCode == "callvirt" && target.DeclaringType.Definition == resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object).Value
+                                && target.Signature.ReturnType == new TypeSignature.Primitive(PrimitiveTypeCode.String) && target.Signature.Parameters.Count == 0)
+                            {
+                                if (receiverBound is null || receiverBound == ObjectBase())
+                                    Fail(work, "Default Object.ToString requires a proven ordinary class receiver; Object aliases, vectors and boxes require later formatting dispatch.", offset);
+                                RejectRuntimeTypeText(_references[receiverBound!], work, offset);
+                            }
                             if (integers64 && instruction.OpCode == "callvirt" && !constrainedCalls.ContainsKey(offset)
                                 && AbstractDeclaration(target, work, offset) is { } abstractCall)
                             {
@@ -618,6 +625,8 @@ public static partial class ValueProgramDiscovery
                 if (_pending.Count == 0) break;
             }
             ValidateOrdinalOrderingSources(catalog);
+            ValidateReferenceTextBounds(catalog);
+            ValidateDefaultTextNames(catalog, root);
             var layouts = catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
             var declarations = catalog.Types.SelectMany(t => t.Fields).Concat(catalog.References.Types.SelectMany(t => t.Fields)).ToDictionary(f => f.Id);
             foreach (var method in methods)

@@ -11,6 +11,15 @@ public static partial class ValueProgramDiscovery
 {
     private sealed partial class Session
     {
+        private readonly Dictionary<ObjectTypeId, (Work Work, int Offset)> _referenceTextBounds = [];
+        private void ValidateReferenceTextBounds(ValueTypeCatalog catalog)
+        {
+            var relations = new IrTypeRules(catalog.References);
+            foreach (var bound in _referenceTextBounds)
+                foreach (var layout in catalog.References.Types)
+                    if (relations.Assignable(IrType.Reference(ObjectTypeId.From(layout.Source)), IrType.Reference(bound.Key)))
+                        RejectReferenceFormattable(_knownTypes[ObjectTypeId.From(layout.Source)], bound.Value.Work, bound.Value.Offset);
+        }
         private void DictionaryKeyText(Work work, MethodInstruction instruction, ref ResolvedMethod target)
         {
             if (!integers64 || target.DeclaringType.Definition.Assembly != library
@@ -43,6 +52,15 @@ public static partial class ValueProgramDiscovery
             else if (OperandSignature(argument, work, offset) is TypeSignature.Named { Kind: SignatureTypeKind.Class }
                 or TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class })
             {
+                var receiver = ReferenceTextReceiver(argument, work, offset);
+                RejectReferenceFormattable(receiver, work, offset);
+                if ((SnapshotClosed(receiver, work, offset).Attributes & TypeAttributes.Sealed) == 0)
+                {
+                    _referenceTextBounds.TryAdd(IncludeReference(receiver, work, offset), (work, offset));
+                    var bridge = Require(resolver.ResolveType(library, "Cilica.Runtime", "ReferenceKeyText`1"), work, offset);
+                    target = Require(resolver.ResolveClosedDeclaration(new(bridge, new([argument])), "Render", 1, _metadata), work, offset);
+                    return;
+                }
                 var (_, implementation) = ReferenceKeyTextTarget(argument, work, offset);
                 if (implementation.DeclaringType.Definition != resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object).Value)
                     target = implementation;
@@ -61,12 +79,26 @@ public static partial class ValueProgramDiscovery
         }
         private (ConstructedType Receiver, ResolvedMethod Implementation) ReferenceKeyTextTarget(TypeSignature signature, Work work, int offset)
         {
+            var receiver = ReferenceTextReceiver(signature, work, offset);
+            if ((SnapshotClosed(receiver, work, offset).Attributes & TypeAttributes.Sealed) == 0)
+                Fail(work, "Static reference key names require a sealed ordinary class.", offset);
+            RejectReferenceFormattable(receiver, work, offset);
+            var obj = Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object), work, offset);
+            var declaration = Require(resolver.ResolveClosedDeclaration(new(obj, SignatureList<TypeSignature>.Empty), "ToString", 0, _metadata), work, offset);
+            return (receiver, ResolveVirtual(declaration, receiver, work, offset).Implementation);
+        }
+        private ConstructedType ReferenceTextReceiver(TypeSignature signature, Work work, int offset)
+        {
             var receiver = OperandSignature(signature, work, offset) switch {
                 TypeSignature.Named { Kind: SignatureTypeKind.Class } named => new ConstructedType(named.Definition, SignatureList<TypeSignature>.Empty),
                 TypeSignature.Generic { Definition.Kind: SignatureTypeKind.Class } generic => new ConstructedType(generic.Definition.Definition, generic.Arguments),
                 _ => null };
-            if (receiver is null || (SnapshotClosed(receiver, work, offset).Attributes & (TypeAttributes.Sealed | TypeAttributes.Interface)) != TypeAttributes.Sealed)
-                Fail(work, "Reference dictionary key text requires an exact sealed ordinary class; polymorphic keys require later formatting dispatch.", offset);
+            if (receiver is null || (SnapshotClosed(receiver, work, offset).Attributes & TypeAttributes.Interface) != 0)
+                Fail(work, "Reference dictionary key text requires an ordinary class.", offset);
+            return receiver!;
+        }
+        private void RejectReferenceFormattable(ConstructedType receiver, Work work, int offset)
+        {
             var formattable = Require(resolver.ResolveType(library, "System", "IFormattable"), work, offset);
             var pending = new Queue<ConstructedType>(); pending.Enqueue(receiver!);
             var visited = new HashSet<ObjectTypeId>();
@@ -84,9 +116,6 @@ public static partial class ValueProgramDiscovery
                         TypeSignature.Generic generic => new(generic.Definition.Definition, generic.Arguments),
                         _ => throw new System.ArgumentException("Invalid reference key formatting hierarchy.") });
             }
-            var obj = Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Object), work, offset);
-            var declaration = Require(resolver.ResolveClosedDeclaration(new(obj, SignatureList<TypeSignature>.Empty), "ToString", 0, _metadata), work, offset);
-            return (receiver!, ResolveVirtual(declaration, receiver!, work, offset).Implementation);
         }
 
         private ImmutableArray<ushort>? ReferenceKeyTypeName(Work work, MethodInstruction instruction, ResolvedMethod target)

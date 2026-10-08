@@ -233,3 +233,16 @@ namespace Cilica.Runtime
         private static extern string Name();
     }
 }
+
+namespace Cilica.Runtime
+{
+    internal static class ReferenceKeyText<T> where T : class
+    {
+        internal static string Render(T value) => value.ToString();
+    }
+    internal static class ObjectText
+    {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern string Default(object value);
+    }
+}

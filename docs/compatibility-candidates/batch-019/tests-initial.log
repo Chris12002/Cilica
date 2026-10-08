@@ -1,0 +1,70 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: False, group: 0) [FAIL]
+      DefaultNames: Diagnostic { Id = CIL2001, Severity = Error, Message = Invalid object operation IR: ordinary selected Object methods require the admitted managed equality/hash signatures., Location = Cilica.Fixtures.Execution.PolymorphicKeyTextProbe::DefaultNames token 0x06000fa5 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(22,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: True, group: 0) [FAIL]
+      DefaultNames: Diagnostic { Id = CIL2001, Severity = Error, Message = Invalid object operation IR: ordinary selected Object methods require the admitted managed equality/hash signatures., Location = Cilica.Fixtures.Execution.PolymorphicKeyTextProbe::DefaultNames token 0x06000fa5 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(22,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: False, group: 1) [FAIL]
+      DefaultNames: Diagnostic { Id = CIL2001, Severity = Error, Message = Invalid object operation IR: ordinary selected Object methods require the admitted managed equality/hash signatures., Location = Cilica.Fixtures.Execution.PolymorphicKeyTextProbe::DefaultNames token 0x06000fa5 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(22,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: True, group: 1) [FAIL]
+      DefaultNames: Diagnostic { Id = CIL2001, Severity = Error, Message = Invalid object operation IR: ordinary selected Object methods require the admitted managed equality/hash signatures., Location = Cilica.Fixtures.Execution.PolymorphicKeyTextProbe::DefaultNames token 0x06000fa5 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(22,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: False, group: 2) [FAIL]
+      DefaultNames: Diagnostic { Id = CIL2001, Severity = Error, Message = Invalid object operation IR: ordinary selected Object methods require the admitted managed equality/hash signatures., Location = Cilica.Fixtures.Execution.PolymorphicKeyTextProbe::DefaultNames token 0x06000fa5 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(22,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(optimized: True, group: 2) [FAIL]
+      DefaultNames: Diagnostic { Id = CIL2001, Severity = Error, Message = Invalid object operation IR: ordinary selected Object methods require the admitted managed equality/hash signatures., Location = Cilica.Fixtures.Execution.PolymorphicKeyTextProbe::DefaultNames token 0x06000fa5 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(22,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_names_slots_callbacks_and_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_text_validates_at_both_stages [FAIL]
+      DefaultNames: Diagnostic { Id = CIL2001, Severity = Error, Message = Invalid object operation IR: ordinary selected Object methods require the admitted managed equality/hash signatures., Location = Cilica.Fixtures.Execution.PolymorphicKeyTextProbe::DefaultNames token 0x06000fa5 IL_0000 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/PolymorphicKeyTextTests.cs(17,0): at Cilica.Metadata.Tests.PolymorphicKeyTextTests.Dynamic_text_validates_at_both_stages()
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '894e3dd0d97ec9dc5deb27bd0a2c61c9693f144eb090d0b13b9547c731475a09')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 8, Errors: 0, Failed: 7, Skipped: 0, Not Run: 0, Time: 1.431s

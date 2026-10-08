@@ -4013,3 +4013,22 @@ lifetime checks for removed handlers and retained events. Compiler/runtime
 behavior and production bounds are unchanged. This is supplementary regression
 evidence; full Alchemy closure and saved-game replay remain incomplete. See the
 [reference and validation record](../compatibility/alchemy-handler-registry-reference.md).
+
+### Bounded polymorphic dictionary text (compatibility 021)
+
+Non-sealed ordinary dictionary keys/values retain receiver-bounded ToString
+virtual dispatch and actual runtime class names. The private default-text grant
+uses existing UTF-16 literal roots and charging; Object aliases, vectors/boxes,
+reflected Type names and IFormattable contracts remain diagnostic. Both direct
+and virtual calls validate receiver proofs. CIL107/object IR64/native80; interface20
+and production ownership/GC/resource limits are unchanged.
+
+120 distinct selected checks pass, including 2,598 new O0/O2 native/.NET comparisons
+and native quota/cache/instance-boundary checks. Actual converted Alchemy C++
+reference locations and hashes informed dynamic-name and virtual-slot tests;
+its DLLs differ from the frozen audit inputs and no Unity runtime was adopted.
+Frozen discovery advances to scalar boxed formatting in BoardObjectState.WithHitPoints
+(3,390,014 work units); StateLookup validates 15 methods. Both emission fields remain
+null. Full engine execution/replay and milestone-7 completion remain unverified.
+See [compatibility 021](../decisions/compatibility-021-polymorphic-key-text.md) and
+`docs/compatibility-candidates/batch-019-results.md` for exact receipts and limits.

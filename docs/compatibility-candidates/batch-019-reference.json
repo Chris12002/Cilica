@@ -1,0 +1,61 @@
+{
+  "format": "cilica.reference-review",
+  "version": 1,
+  "report": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/alchemy-reference-20261008T2312Z/alchemy-reference-report.md",
+  "manifest_sha256": "ef92db3034ca2fef25de62f41e967410113462f4b43cb3c1383cdab3daa07aad",
+  "alchemy_reference_commit": "445c192ca078519ca69feda41de2b5da1a6191a3",
+  "unity": "6000.3.2f1",
+  "references": [
+    {
+      "path": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/alchemy-reference-20261008T2312Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__6.cpp",
+      "sha256": "d71298eb5365f3c8a06dd1859e980c47cc9c50de97e858c1ea7d47434a1e49ea",
+      "lines": [
+        5115,
+        5123
+      ],
+      "decision": "Default Object.ToString obtains runtime type then formats that type: use dynamic receiver metadata names, including explicit base calls."
+    },
+    {
+      "path": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/alchemy-reference-20261008T2312Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__25.cpp",
+      "sha256": "045c114787632ce6a33a2c168c4f7742079f8750c1da01401b13bada4d327747",
+      "lines": [
+        14,
+        41
+      ],
+      "decision": "Virtual String-return calls use the actual receiver slot. Preserve Cilica bounded canonical dispatch; test overrides, inherited overrides and new-slot hiding."
+    },
+    {
+      "path": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/alchemy-reference-20261008T2312Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Alchemy.Engine__6.cpp",
+      "sha256": "21455d5f4a89a1a37a981cbe305a4d91c5dfab7c553f63b5bcd738eb91368886",
+      "lines": [
+        15848,
+        15902
+      ],
+      "decision": "SemanticFingerprint obtains the virtual StringBuilder result then passes it to Hash: keep returned managed strings rooted across later work; existing root assignment remains mandatory."
+    },
+    {
+      "path": "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/codegen/il2cpp-codegen.h",
+      "sha256": "23f523d44670bc1de773110c40bbbe75d247dffdc0b1fc49ff1c5a418cb7296f",
+      "lines": [
+        717,
+        726
+      ],
+      "decision": "Unity raw class-slot lookup is not a Cilica boundary model: preserve instance ownership, descriptor checks, exact IR maps and quota/root validation."
+    }
+  ],
+  "limitations": [
+    "Exact frozen SortedDictionary/DictionaryKeyText path is absent from this narrow capture.",
+    "All five Unity DLL hashes differ from the frozen milestone-6 audit inputs.",
+    "Generated method presence is not execution coverage. No same-binary/full-engine comparison or milestone-7 completion is claimed.",
+    "No Unity implementation was copied or adopted."
+  ],
+  "frozen_inputs": {
+    "Probes.dll": "4063e19b6c38365853912785f06a34f407f4ffb6a605dbb556b1d4e51c8a0e8b",
+    "Alchemy.Engine.dll": "f42d9306229a76d833e1578a1a9bc924a5e1eeb4b56b7e326f493b68e2a9ccee",
+    "Alchemy.Content.dll": "34aef678a808149fac754b51c43b77374ae394d9aaad8e9bad94b709c6084268",
+    "Alchemy.Primitives.dll": "e63fb7fdb8fb2709c3b071bbc24ad11063b34c04cecc2cb07e67e9e99d9cb75a",
+    "TurnEngine.Core.dll": "58c4a88d2b5031c5b80abb03eb967a403e3b03a9911bcc1f23e813edc6908d2a",
+    "TurnEngine.Primitives.dll": "29fa793832c5b1b15dbbafcc7ca91f83f67efb4dae52bdd66b67fdb45f7a73ff"
+  },
+  "unity_engine_sha256": "266b349757726ebb751f728229cc41321628e877d73eb78633763e9f039cdafd"
+}

@@ -1775,6 +1775,15 @@
         "Ordinary managed IL uses width-preserving frame borrows and the shared UnicodeWhitespace classifier."
       ],
       "scope": "String overload and local/parameter output locations only. Boolean.Parse, spans and field/array output locations remain unsupported. No parser intrinsic or native host parsing."
+    },
+    {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "behavioralSource": "https://github.com/dotnet/runtime/blob/79d0c463f1b55624c874a11585f7e47731e8d675/src/libraries/System.Private.CoreLib/src/System/Object.cs#L35-L38",
+      "contracts": [
+        "Compatibility batch019: Object.ToString follows the actual runtime class name through a private exact ObjectDefaultText grant; ordinary virtual overrides remain managed dispatch.",
+        "ReferenceKeyText<T> is an independent owned bridge; sealed key paths remain unchanged, nonsealed keys use bounded virtual dispatch and reject admitted IFormattable subtypes."
+      ],
+      "scope": "Ordinary proven class receivers only; Object aliases, vectors/boxes and reflected Type names remain diagnostic. Names reuse existing UTF-16 literal roots and budgets; Unity code is reference-only, not retained implementation."
     }
   ]
 }

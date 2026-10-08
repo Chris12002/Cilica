@@ -26,7 +26,6 @@ public sealed class ReferenceKeyTextTests
             (name, programs[i], typeof(ReferenceKeyTextProbe).GetMethod(name)!.CreateDelegate<Func<int,int,int>>())).Skip(group * 2).Take(2).ToArray());
     }
     [Theory]
-    [InlineData("UnsupportedPolymorphic", "exact sealed ordinary class")]
     [InlineData("UnsupportedFormattable", "IFormattable requires provider dispatch")]
     public async Task Broader_reference_formatting_stays_diagnostic(string name, string diagnostic)
     {

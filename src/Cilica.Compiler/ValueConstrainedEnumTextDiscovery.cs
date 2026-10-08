@@ -30,11 +30,11 @@ public static partial class ValueProgramDiscovery
                 return input;
             }
             var source = Declaration(target);
-            if (source.DeclaredName != "ToString" || source.IsReferenceAssembly || source.HasBody || source.HasTypeInitializer || source.HasModuleInitializer
+            if (source.DeclaredName != "ToString" || source.IsReferenceAssembly || !source.HasBody || source.HasTypeInitializer || source.HasModuleInitializer
                 || source.OwnerGenericArity != 0 || target.DeclaringType.Arguments.Count != 0 || target.MethodArguments.Count != 0
                 || source.Signature.Header != 0x20 || source.Signature.GenericArity != 0
                 || source.Attributes != (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot)
-                || source.Implementation != MethodImplAttributes.InternalCall)
+                || source.Implementation != MethodImplAttributes.IL)
                 Fail(work, "Enum text requires the exact selected constrained Object.ToString declaration.", offset);
             _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.EnumFormatting), work, offset);
             _ = EnumFormattingConstants(named.Definition, work);

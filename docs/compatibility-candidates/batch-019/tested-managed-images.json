@@ -1,0 +1,6 @@
+{
+  "tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll": "28d1cc2848c0eac162b457f75f84530487a174099f9ab06cb7651755be78bbde",
+  "tests/Fixtures/Cilica.Fixtures.Execution/bin/Debug/netstandard2.1/Cilica.Fixtures.Execution.dll": "fc1738541ddbded2af82bf907311100d3f1d2c10ba781d2ffad3519f4ac9504f",
+  "src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll": "9574874e05078c47dfe6e6e87f02449e69a6bb6652223b6c935903aa59ebe250",
+  "src/Cilica.Metadata/bin/Debug/net10.0/Cilica.Metadata.dll": "82e81eb427feb2dc21b854ec05380307ca5e5f395dfdb1c827424fb745ec513f"
+}

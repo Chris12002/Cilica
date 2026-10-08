@@ -1,0 +1,7 @@
+{
+  "source_sha256": "0c32f3027741b1fdf8f71bf31f94648209ca8d5d36f8f306cd7aec98b0225657",
+  "executable_sha256": "7c882911dfd5043fddf471b193841ff9d1be586ccb41c804a0085168db64be98",
+  "optimization": "O0",
+  "sanitizers": "address,undefined",
+  "source_name": "text.cpp"
+}

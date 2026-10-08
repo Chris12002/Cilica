@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v106";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v107";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -383,6 +383,8 @@ public static class ValueTranslator
                             int typeObject = Define(offset, IrType.Reference(tokenType.Type), new IrExpression.RuntimeTypeLiteral(tokenType.Target, tokenType.Implementation), true);
                             int emptyHandle = Define(offset, IrType.Value(tokenType.Handle), new IrExpression.DefaultValue(tokenType.Handle));
                             Push(offset, IrType.Value(tokenType.Handle), new IrExpression.WithValueField(tokenType.HandleField, emptyHandle, typeObject)); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var defaultText) && defaultText.Kind == ValueIntrinsic.ObjectDefaultText:
+                            int textReceiver = Pop(offset); Push(offset, IrType.Reference(defaultText.Type), new IrExpression.ObjectDefaultText(textReceiver), true); break;
                         case "call" or "callvirt" when method.Intrinsics.TryGetValue(offset, out var runtimeType) && runtimeType.Kind is ValueIntrinsic.ObjectGetType or ValueIntrinsic.RuntimeTypeHash:
                             int typeReceiver = Pop(offset);
                             if (!Reference(values[typeReceiver])) Error(offset, "Runtime type identity requires a reference operand.");

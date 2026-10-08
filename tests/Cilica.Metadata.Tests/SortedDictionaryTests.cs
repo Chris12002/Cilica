@@ -41,7 +41,7 @@ public sealed class SortedDictionaryTests
         MethodDefinitionHandle Method(string name)=>(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(SortedDictionaryProbe).GetMethod(name)!.MetadataToken);
         using(var denied=resolver.CreateTrustedLibraryCompilationScope(plan,deniedBytes,Convert.ToHexStringLower(SHA256.HashData(deniedBytes))).Value!){var result=ValueTranslator.TranslateIntegerObjects(denied,input,Method("Ordering"),implementation);Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Id==DiagnosticIds.LibraryIntrinsicDenied);}
         using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,bytes,built.ManifestSha256).Value!;
-        foreach(var name in new[]{"UnsupportedCursorTypeof","UnsupportedInteger","UnsupportedDefault","UnsupportedNull","UnsupportedIgnoreCase","UnsupportedAlias","UnsupportedRemove","UnsupportedSet","UnsupportedPolymorphicValue"})
-        {var result=ValueTranslator.TranslateIntegerObjects(scope,input,Method(name),implementation);Assert.False(result.Success,name);Assert.NotEmpty(result.Diagnostics);if(name=="UnsupportedPolymorphicValue")Assert.Contains(result.Diagnostics,d=>d.Message.Contains("exact sealed ordinary class",StringComparison.Ordinal));}
+        foreach(var name in new[]{"UnsupportedCursorTypeof","UnsupportedInteger","UnsupportedDefault","UnsupportedNull","UnsupportedIgnoreCase","UnsupportedAlias","UnsupportedRemove","UnsupportedSet"})
+        {var result=ValueTranslator.TranslateIntegerObjects(scope,input,Method(name),implementation);Assert.False(result.Success,name);Assert.NotEmpty(result.Diagnostics);}
     }
 }

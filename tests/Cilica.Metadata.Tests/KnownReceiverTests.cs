@@ -30,7 +30,7 @@ public sealed class KnownReceiverTests
         var result = ValueTranslator.TranslateIntegerObjects(scope, input,
             (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(KnownReceiverProbe).GetMethod("UnprovenReference")!.MetadataToken), implementation);
         Assert.False(result.Success);
-        Assert.Contains(result.Diagnostics,d => d.Message.Contains("no managed IL body",StringComparison.Ordinal));
+        Assert.Contains(result.Diagnostics,d => d.Message.Contains("proven ordinary class receiver",StringComparison.Ordinal));
     }
     [Theory]
     [InlineData(false,0)] [InlineData(true,0)] [InlineData(false,1)] [InlineData(true,1)] [InlineData(false,2)] [InlineData(true,2)]
