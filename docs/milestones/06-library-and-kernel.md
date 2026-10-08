@@ -3622,3 +3622,13 @@ retained-graph collection checks. See ADR AC0200. Frozen engine discovery advanc
 to missing Stack<T> in forced movement. Comparer/selector overloads, ToLookup and
 optimized query Skip remain unimplemented. Full engine execution, unchanged
 fingerprinting and saved-game replay remain unfinished.
+
+### Bounded stack storage (AC3.34)
+
+Stack<T> now supports parameterless construction, Count, Push and Pop with pinned
+growth and empty-stack exceptions. Popped reference-bearing values release their
+stored references; failed growth leaves the stack unchanged and recoverable.
+Twenty-three selected checks pass, including 2,352 new native/.NET comparisons.
+See ADR AC0201. Frozen discovery advances to CollectionExtensions.GetValueOrDefault
+in forced movement. Stack enumeration, other constructors and remaining members stay
+diagnostic. Full engine, unchanged fingerprint and saved-game replay remain unfinished.
