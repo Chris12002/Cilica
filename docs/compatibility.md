@@ -4558,3 +4558,18 @@ narrow-array enumeration reached through OfTypeIterator.Count. This is partial
 closure discovery, without full IR admission, native emission or replay. Production
 limits remain 65,536 instructions/metadata units; StateLookup still translates 15
 methods. See ADR AC0210 for the measured progression and unchanged input identities.
+
+### Narrow nongeneric array enumeration (AC7a.8)
+
+Boolean, Byte and Char arrays now use the existing nongeneric array cursor and exact
+primitive boxes. Shared discovery/detached-plan rules preserve the actual element
+identity; generic enumeration, other narrow element operations, signed/UInt16 array
+construction and OfType<byte>'s narrow-memory requirement remain diagnostic. All 36
+selected checks pass on the combined Array.Copy snapshot, including 2,352 new repeated
+native/.NET comparisons at O0/O2 with sanitizers and forced GC. CIL99/interface-plan18;
+object IR60/native79 and all production quotas remain unchanged. See ADR AC0211.
+
+The follow-up AC8.67 audit increases only copied diagnostic metadata work to 4,194,304
+after measured 2,097,152 exhaustion. Frozen discovery then identifies boxed List<T>
+enumerator covariance at IEnumerator<T>.Current as the next gap. This is partial
+interface planning, not full engine execution, fingerprint parity or saved-game replay.

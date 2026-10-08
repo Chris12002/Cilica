@@ -84,12 +84,14 @@ internal static class ObjectArrayInterfaceRecipes
     internal static int Arity(string name) => name is "CopyTo" or "Set" or "Insert" or "InsertObject" ? 3 : name is "Get" or "Add" or "RemoveAt" or "IndexOf" or "Contains" or "Remove" ? 2 : 1;
     // These managed helpers inspect only array metadata/identity, never an element.
     internal static bool ElementIndependent(string? name) => name is "Count" or "False" or "True" or "Identity";
+    // Nongeneric cursors preserve the actual narrow element identity when boxing.
+    internal static bool NarrowRecipe(string? name) => ElementIndependent(name) || name == "EnumerateObjects";
     internal static bool ExactNarrowContract(ObjectTypeId vector, ObjectInterface contract) => contract.Arguments.IsEmpty
         || contract.Arguments.Length == 1 && contract.Arguments[0].Identity == ClosedGenericKey.Create(
             new([new TypeSignature.Primitive(vector.ArrayElement!.Kind == ObjectArrayElementKind.Boolean ? PrimitiveTypeCode.Boolean : vector.ArrayElement.Kind == ObjectArrayElementKind.Byte ? PrimitiveTypeCode.Byte : PrimitiveTypeCode.Char)]), SignatureList<TypeSignature>.Empty);
     internal static bool Signature(ObjectDispatchMethod method, ObjectInterfaceDispatchPlan plan)
     {
-        if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector || vector.ArrayElement.Narrow && !ElementIndependent(method.Name))
+        if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector || vector.ArrayElement.Narrow && !NarrowRecipe(method.Name))
             return false;
         var element = Result("Get", vector)!;
         if (element.Kind == IrTypeKind.Value && plan.Values is null && method.Name is "Get" or "Set" or "Add" or "Insert" or "IndexOf" or "Contains" or "Remove")

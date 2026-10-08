@@ -310,8 +310,8 @@ public static class ObjectInterfacePlanBuilder
             if (_arrayChoices.TryGetValue(key, out var cached)) return cached;
             var contract = catalog.Interfaces.Single(i => ObjectTypeId.From(i.Source) == declaration.Owner);
             var recipe = ObjectArrayInterfaceRecipes.Select(declaration, contract.ArrayContract, catalog.ObjectBase);
-            if (receiver.ArrayElement!.Narrow && !ObjectArrayInterfaceRecipes.ElementIndependent(recipe))
-                Fail("Narrow vector interfaces currently admit only Count, collection flags and SyncRoot; element operations require later lowering.", declaration.Source.Name);
+            if (receiver.ArrayElement!.Narrow && !ObjectArrayInterfaceRecipes.NarrowRecipe(recipe))
+                Fail("Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering.", declaration.Source.Name);
             if (!closed || !catalog.Integer64 || recipe is null)
                 Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, IndexOf/Contains, fixed-size Add/Insert/Remove/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags, SyncRoot, generic/nongeneric GetEnumerator and generic CopyTo are admitted.", declaration.Source.Name);
             // Generic helpers preserve the requested element identity, including its
