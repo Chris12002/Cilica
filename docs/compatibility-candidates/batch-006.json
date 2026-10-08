@@ -145,9 +145,9 @@
         }
       ],
       "screened_before_download": true,
-      "external_execution": "2026-10-08 approved offline selected-source restore/build and explicit translation test; no upstream build/test scripts; oracle/native not reached",
+      "external_execution": "Original and repaired offline selected-source trials retained; unchanged assembly compiles, repaired exact 2.0 contract selection reaches CIL2001 array-length branch. No candidate oracle/native execution yet.",
       "semantic_failures": [],
-      "semantic_failure_note": "No semantic comparison ran: CIL3003 exact reference identity failure precedes oracle invocation. Zero of 64 scenarios executed.",
+      "semantic_failure_note": "Zero candidate semantic comparisons: translation stops before oracle invocation. This is a newly measured unsupported IL shape, not a runtime/output mismatch.",
       "license": "Apache-2.0; License.txt at pinned commit",
       "target_frameworks": [
         "net45",
@@ -185,21 +185,24 @@
         "CharacterChunker: Char.ToString",
         "LineChunker: String.Split(string[],StringSplitOptions)"
       ],
-      "unsupported_features": [],
+      "unsupported_features": [
+        "ldlen consumed by a direct array-length truth branch without adjacent conv.i4 (Differ.CalculateEditLength IL_001d); independent EmptyPair reduction reproduces CIL2001."
+      ],
       "excluded_scope": [
         "UI/console/three-way diff/rendering surfaces not mapped by this selected-root screen",
         "LOG conditional calls excluded when LOG undefined; no claim if enabled"
       ],
       "upstream_tests_inspected": "DifferFacts null parameter names, empty/identical inputs, insertion/deletion/block positions and mixed line endings; not executed.",
-      "mapped_status": "Previously screened source requirements mapped. Actual selected-source netstandard2.0 build passes; integration blocked by exact netstandard 2.0 versus 2.1 contract resolution in approved baseline 268024e.",
+      "mapped_status": "Previously screened source requirements mapped; actual retry exposed an additional ldlen truth-branch IL gap after exact earlier-contract repair.",
       "status": "mapped-blocked",
       "evidence": [
         "94 main and 9 boundary checks pass; two managed Unicode sweeps and complete changed-mapping native checks included.",
         "Original and conditional ignore-case dictionary reductions now execute and match .NET.",
         "No actual DiffPlex code or build script executed; an explicit opt-in selected-source recipe and full transcript comparator are prepared but unrun.",
-        "2026-10-08 isolated execution: selected assembly compiles; exact netstandard2.0 reference unresolved by approved harness; 1 explicit test fails before all 64 semantic scenarios. See diffplex-execution-20261008.md."
+        "2026-10-08 isolated execution: selected assembly compiles; exact netstandard2.0 reference unresolved by approved harness; 1 explicit test fails before all 64 semantic scenarios. See diffplex-execution-20261008.md.",
+        "Retry ae04d32: contract regressions5/5 pass offline; unchanged candidate assembly advances from CIL3003 to CIL2001 ldlen truth branch. See diffplex-retry-20261008.md."
       ],
-      "next_action": "Reduce exact netstandard2.0 contract resolution/mapping into an independent regression; design explicit earlier-contract binding while preserving identity checks. Then select an updated approved baseline/harness and rerun the unchanged 14-source recipe offline. Do not retarget candidate to conceal this gap.",
+      "next_action": "Coordinate a confined ldlen truth-branch lowering slice. Promote CandidateArrayLengthBranchTests into O0/O2 semantic controls with null/order and negative escape tests, preserving native-integer boundaries. Rerun same pinned 14-source adapter/64 scenarios offline using retained verified tooling image; continue from the next actual diagnostic.",
       "implemented_requirements": [
         {
           "feature": "String.Trim()",
@@ -255,7 +258,7 @@
         "semantics": "ignoreCase selects OrdinalIgnoreCase versus Ordinal. BuildPieceHashes requires equality/hash through Dictionary, Count, TryGetValue and indexer assignment. No culture-sensitive factory or direct comparer Compare call. Three-argument wrappers pass false but no whole-program branch pruning is assumed."
       },
       "reduced_semantic_failures": [],
-      "validation_blocker": "CIL3003: candidate references netstandard Version=2.0.0.0; approved BuildAndMap supplies only Version=2.1.0.0. No version/key substitution. Earlier-contract integration is unverified; not a semantic mismatch.",
+      "validation_blocker": "CIL2001: Array length requires an adjacent conv.i4 in the same block; native integer flow requires later lowering. Earlier CIL3003 is repaired by explicit pinned contract selection.",
       "integration_execution": {
         "report": "diffplex-execution-20261008.md",
         "cilica_commit": "268024e94879acdb004228afa360e1222e2068b8",
@@ -273,6 +276,28 @@
         "target_scenarios": 64,
         "semantic_comparisons": 0,
         "cleanup": "See execution report; candidate copies removed after evidence retention."
+      },
+      "integration_retry": {
+        "report": "diffplex-retry-20261008.md",
+        "cilica_commit": "ae04d324484a349839863c1789328825b61e2dd4",
+        "prior_cilica_commit": "268024e94879acdb004228afa360e1222e2068b8",
+        "candidate_assembly_unchanged": true,
+        "contract_regressions": {
+          "total": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        "explicit_candidate_tests": {
+          "total": 1,
+          "passed": 0,
+          "failed": 1
+        },
+        "diagnostic": "CIL2001",
+        "location": "DiffPlex.Differ::CalculateEditLength token 0x0600000e IL_001d",
+        "oracle_scenarios": 0,
+        "native_scenarios": 0,
+        "target_scenarios": 64,
+        "semantic_comparisons": 0
       }
     },
     {

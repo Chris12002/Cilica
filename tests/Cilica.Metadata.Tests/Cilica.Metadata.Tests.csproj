@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" Link="ReferenceContracts/netstandard2.0/netstandard.dll" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(PkgNETStandard_Library)/LICENSE.TXT" Link="ReferenceContracts/netstandard2.0/LICENSE.TXT" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(PkgNETStandard_Library)/THIRD-PARTY-NOTICES.TXT" Link="ReferenceContracts/netstandard2.0/THIRD-PARTY-NOTICES.TXT" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../docs/compatibility/alchemy-gap-ledger.json" Link="compatibility-gap-ledger.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>

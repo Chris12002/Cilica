@@ -1,0 +1,40 @@
+  Determining projects to restore...
+  Restored /work/cilica/library/Cilica.Library/Cilica.Library.csproj (in 34 ms).
+  Restored /work/cilica/examples/Primitive/Prepare/Prepare.csproj (in 12 ms).
+  Restored /work/cilica/examples/Primitive/Kernel/Kernel.csproj (in 0.4 ms).
+  Restored /work/cilica/examples/Objects/Prepare/Prepare.csproj (in 0.6 ms).
+  Restored /work/cilica/examples/Objects/Kernel/Kernel.csproj (in 6 ms).
+  Restored /work/cilica/examples/Objects/Emit/Emit.csproj (in 2 ms).
+  Restored /work/cilica/tools/Cilica.LibraryBuild/Cilica.LibraryBuild.csproj (in 0.9 ms).
+  Restored /work/cilica/tests/Fixtures/Cilica.Fixtures.Forwarding/Cilica.Fixtures.Forwarding.csproj (in 0.3 ms).
+  Restored /work/cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj (in 0.3 ms).
+  Restored /work/cilica/tests/Fixtures/Cilica.Fixtures.ControlFlow/Cilica.Fixtures.ControlFlow.csproj (in 0.2 ms).
+  Restored /work/cilica/tests/Fixtures/Cilica.Fixtures.Basic/Cilica.Fixtures.Basic.csproj (in 0.2 ms).
+  Restored /work/cilica/src/Cilica.Cli/Cilica.Cli.csproj (in 146 ms).
+  Restored /work/cilica/src/Cilica.Metadata/Cilica.Metadata.csproj (in 1 ms).
+  Restored /work/cilica/src/Cilica.Compiler/Cilica.Compiler.csproj (in 1 ms).
+  Restored /work/cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj (in 332 ms).
+  Cilica.Metadata -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_src_Cilica.Metadata/debug/Cilica.Metadata.dll
+  Cilica.LibraryBuild -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_tools_Cilica.LibraryBuild/debug/Cilica.LibraryBuild.dll
+  Cilica.Compiler -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_src_Cilica.Compiler/debug/Cilica.Compiler.dll
+  Cilica.Cli -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_src_Cilica.Cli/debug/cilica.dll
+  Cilica.Fixtures.Basic -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_tests_Fixtures_Cilica.Fixtures.Basic/debug/Cilica.Fixtures.Basic.dll
+  Cilica.Fixtures.Forwarding -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_tests_Fixtures_Cilica.Fixtures.Forwarding/debug/Cilica.Fixtures.Forwarding.dll
+  Cilica.Fixtures.ControlFlow -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_tests_Fixtures_Cilica.Fixtures.ControlFlow/debug/Cilica.Fixtures.ControlFlow.dll
+  Cilica.Library -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_library_Cilica.Library/debug/Cilica.Library.dll
+/work/cilica/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/work/cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+  Cilica.Fixtures.Execution -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_tests_Fixtures_Cilica.Fixtures.Execution/debug/Cilica.Fixtures.Execution.dll
+  Kernel -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_examples_Primitive_Kernel/debug/Cilica.Examples.Primitive.Kernel.dll
+  Prepare -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_examples_Primitive_Prepare/debug/Cilica.Examples.Primitive.Prepare.dll
+  Kernel -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_examples_Objects_Kernel/debug/Cilica.Examples.Objects.Kernel.dll
+  Emit -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_examples_Objects_Emit/debug/Cilica.Examples.Objects.Emit.dll
+  Prepare -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_examples_Objects_Prepare/debug/Cilica.Examples.Objects.Prepare.dll
+  Cilica.Metadata.Tests -> /work/cilica/artifacts/diffplex-approved/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll
+
+Build succeeded.
+
+/work/cilica/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/work/cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:26.39

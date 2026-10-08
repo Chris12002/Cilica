@@ -1,0 +1,4 @@
+/tmp/cilica-diffplex-retry-20261008/reference-pack/build/netstandard2.0/ref/netstandard.dll
+System.Linq IOrderedEnumerable`1 flags=Public, ClassSemanticsMask, Abstract generic=None
+/Users/christian/.dotnet/packs/NETStandard.Library.Ref/2.1.0/ref/netstandard2.1/netstandard.dll
+System.Linq IOrderedEnumerable`1 flags=Public, ClassSemanticsMask, Abstract generic=Covariant

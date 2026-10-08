@@ -1,0 +1,8 @@
+ae04d32 test: bind pinned netstandard 2.0 contracts explicitly
+5905742 docs: record diagnostic parameter and method allowance probes
+9ff32c5 docs: record isolated DiffPlex contract resolution failure
+399ebf9 feat: preserve constrained enum text and cached name identity
+8cb2cc5 feat: add proven invariant Int64 parsing
+f494f5b feat: support checked native conversions for bounded array indices
+1759646 feat: add nonthrowing GUID string parsing
+30bc8d4 docs: record diagnostic type snapshot probe and GUID parsing gap

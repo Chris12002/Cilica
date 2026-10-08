@@ -1,0 +1,12 @@
+{
+  "removed_candidate_image": "Untagged: cilica-diffplex-input:retry-20261008\nDeleted: sha256:245074da34fbf1ee7eba8de6187293c2a7ca8ca1e23d8245368cf7c58a4f4b0a\nDeleted: sha256:85e95b3092759b91cc262927a4946fd463a4c1b9cdfe7bb5e00d3734b3d91df5\nDeleted: sha256:1968122c375817572673b25eb4bc0e02e8ad67c97f80cca89f54e5700b17e257\nDeleted: sha256:040350733bb0ea5f7bb70a1f0e32d2035cf416d3fe2a531ece006ed78b0d98ad\nDeleted: sha256:802ca4b7efdaafd35aece4da0664158c6817bea53818f1e33de7453cded31cba\nDeleted: sha256:28ab7308cfdf7e0b4ecc013bfb41155a20c6615392149da07c9cc7797c615ada\nDeleted: sha256:e0ce109dda55ae7b065c57df1ddb98fc8b8f8b2d52cd108e0d686eb2a9f0c9a7\n",
+  "deleted_task_paths": [
+    "inputs/",
+    "cilica.tar",
+    "artifacts/compatibility-netstandard20/reduction-snapshot/"
+  ],
+  "retained_tooling_image_id": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "retained_tooling_image_size_bytes": 470855666,
+  "reason": "Authorized reusable official toolchain contains no candidate source; retained for follow-up within storage bound. Use immutable ID because Docker tag lookup failed despite listing the tag.",
+  "evidence": "Versioned retry logs, hashes, original failed report, local setup recipes/licences and independent regression retained. No unrelated worktree, container or compiler changes removed."
+}
