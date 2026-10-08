@@ -366,6 +366,17 @@
   ],
   "adaptations": [
     {
+      "path": "library/Cilica.Core/CoreTypes.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Char.cs",
+      "algorithms": [
+        "Compatibility batch 003: parameterless and static Char.ToString return a fresh one-code-unit string, including NUL and unpaired surrogates."
+      ],
+      "changes": [
+        "Use the existing managed String(Char[]) construction path instead of String.CreateFromChar/FastAllocateString and private string storage. Preserve exact UInt16 receiver storage using existing frame borrows."
+      ],
+      "scope": "Char.ToString() and Char.ToString(Char); provider overload, boxed virtual formatting and narrow field/array receiver borrows remain unsupported. String allocation semantics also follow retained System/String.cs CreateFromChar."
+    },
+    {
       "path": "library/Cilica.Core/StringSearching.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Searching.cs",
       "algorithms": ["AC7b.21 IndexOf(Char), IndexOf(Char,Int32) and IndexOf(Char,Int32,Int32), including ordered range validation."],

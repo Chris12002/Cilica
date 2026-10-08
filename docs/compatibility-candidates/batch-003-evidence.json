@@ -1,0 +1,46 @@
+{
+  "head_before_commit": "f1f01991361ef05557ec4e002f9eaa7f785c037a",
+  "note": "Staged source hashes contain only this batch. Working-source hashes document concurrent integer parsing edits observed after tests; no claim of an immutable combined source snapshot. Tested binary hashes identify retained assemblies. Char slice increments CIL to v81/IR v52; concurrent parser work subsequently advances working versions to v82/v53.",
+  "staged_source_sha256": {
+    "library/Cilica.Core/CoreTypes.cs": "143e8793335265f64e0e41fc48e2428b08b9978f22d3b8bb2ed726eae12982f8",
+    "src/Cilica.Compiler/ValuePrimitiveDiscovery.cs": "16ad7d3686973812c72435ee46d5fe2643f8f32405423838c9c9c1d50c5b6f89",
+    "src/Cilica.Compiler/ObjectIrModel.cs": "28ec1fbd0afc9db4331def7004ca9902329dc88a3d34d5b6d4d59e3fcfc29ab4",
+    "src/Cilica.Compiler/ValueProgramDiscovery.cs": "8b82ea516249af26869e7adc1eee0936be975c13ec69730c34c8ecab0a81327b",
+    "src/Cilica.Compiler/ObjectIrValidator.cs": "fbb0ebe77a963c563e1ac33ed01d860505dabb427fb90c37907713946f327ba5",
+    "src/Cilica.Compiler/ValueTranslator.cs": "50c63ae481f7fa2e19c24b9d5651068e833833ea40a47269a8feb091027980a6",
+    "tests/Cilica.Metadata.Tests/CandidateGapTests.cs": "beb5a6f9883ca6c8507fdf1d0c8283c0bda3a070abf69ed69e93078d133c2166",
+    "tests/Cilica.Metadata.Tests/CandidateCharacterTextTests.cs": "ab83192b8e346f2b65463d2863f4d32281ce2ec6c109a46168b67316462acdcb",
+    "tests/Fixtures/Cilica.Fixtures.Execution/CandidateCharacterTextProbe.cs": "8cc5edd5def08a5285d3c89e41a8401703cbaa5101e47263bd323cc70f8b7091",
+    "library/provenance.json": "ea93b6dc184cd3c4f38936f28be5ffcda87a6a1671294f07441b7fadd24f83c5"
+  },
+  "concurrent_working_source_sha256": {
+    "library/Cilica.Core/CoreTypes.cs": "8c369f420d293d1cb2becef894430593334c7aa2d8caf51867526e9a05873556",
+    "library/Cilica.Core/intrinsic-requests.json": "67af3e1d8dc64b74dcd61f2f494dfc5f15e8c6733d287c43f1dd24bcf0a8ca2d",
+    "library/Cilica.Library/IntegerParsing.cs": "a673546da89c341f363e7e5916251a5cc9389d37f75829c07c29b3dddee1fa9b",
+    "src/Cilica.Compiler/ObjectIrModel.cs": "5703779ddafcc805aee394d733ae8cf8afa96d12abba48138a7defbaf56321cc",
+    "src/Cilica.Compiler/ObjectIrValidator.cs": "16409adebfaa4e1745b09a5d5b8d1b85e85271c8e8ba28decc5e33304fe9be01",
+    "src/Cilica.Compiler/ValueProgramDiscovery.cs": "7f9a3e5e9f8d73dc0ab74d8d9e417c9c79df88c68d2b5734f4ba34c421b04bb7",
+    "src/Cilica.Compiler/ValueTranslator.cs": "6c1aa20c75e35973e647427bf8a481d14836fd7ac1da38aff1ea27169c58d47f",
+    "tests/Cilica.Metadata.Tests/IntegerParseTests.cs": "d004a42727f8754bd6145c6e0a3f4e2f02d5faaf54bc05a5deef9cc3a593ce3b"
+  },
+  "log_sha256": {
+    "after.log": "cb04479888c46f4b8ad78f6e54257884dffae61e0c4bd9daaf6153da41dc5723",
+    "before.log": "d8d21aff039a8273a594901646be782094feede4a08cf99a691a33512af86acf",
+    "regressions.log": "8f09c7ce06f4973e0e505c8b3d478f08d40bf621b386c3aaa73c57332aace52e"
+  },
+  "binary_sha256": {
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Compiler.dll": "0fb6a12dcccb0ebbd5da86c8f216e69af3a5a98d5e03e6922eeb7eab39b5f4af",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Basic.dll": "dceb78311bdfc1f1cd5d8191420b4c7acb2843958b72cbe061d0fa7254e50fee",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.ControlFlow.dll": "5ac3bb55feba1e71a525f2c2833cd28b9a62eac3d28295186ee08a0ce87965b2",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Execution.dll": "0785c3bb6d8c4274086bff5744c5fa8358e4d3f0de42ef93e92be18ff19bc01e",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Fixtures.Forwarding.dll": "47fc7c4da218cd2a76c08093d17e2975041eac0d3391abde5738a8d72ee42389",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Library.dll": "1ea4d1b6a602f14aa77df1dd63ea628bad601f6e07389454238b1781e5733733",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.LibraryBuild.dll": "ccde88f66a42dbaf3da6ddb1d49777fefb5452813ebf138ba0f6cd8090107385",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll": "214870c077ce0dee008bd0518c7ca63c536990c4267c8e7d670a69aac3d728f6",
+    "build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.dll": "14a7dfc1fe6f01b084a6b34ca2a98f42f497e446e0eed39a6fdd42f9a3f5a98f"
+  },
+  "upstream_sha256": {
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Char.cs": "55ade7e035571a2e6287645d4cace388e03d5754fb2733e16a18daa5df22382d",
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.cs": "12774ab3e250374dede05eb62f84c044d472296deea73509943984fc33a3d9ea"
+  }
+}

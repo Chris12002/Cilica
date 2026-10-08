@@ -763,7 +763,12 @@ public static partial class ValueProgramDiscovery
                 var initializedOwner = SnapshotClosed(resolved.DeclaringType, parent, offset);
                 binding = binding with { TypeInitializerName = initializedOwner.Source.Name.Replace('/', '+') };
             }
-            if (primitive is not null && input.DeclaredName == "ToString")
+            if (primitive?.Code == PrimitiveTypeCode.Char
+                && (input.DeclaredName != "ToString" || input.Signature.Parameters.Count != 0
+                    || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
+                    || input.Attributes != (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual)))
+                Fail(parent, "Character instance text requires the exact parameterless ToString override and UInt16 receiver borrow.", offset);
+            if (primitive is not null && primitive.Code != PrimitiveTypeCode.Char && input.DeclaredName == "ToString")
             {
                 bool defaultText = input.Signature.Parameters.Count == 0;
                 if (input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
@@ -783,7 +788,7 @@ public static partial class ValueProgramDiscovery
             // Establish its lexical/closed context before converting signature storage.
             var work = new Work(owner.Assembly, resolved, input, binding, [], IrType.Void, [], parent, offset);
             work = work with {
-                Parameters = [.. (instance ? new[] { primitive is not null ? IrType.Location(primitive.Storage) : inlineInstance ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
+                Parameters = [.. (instance ? new[] { primitive is not null ? primitive.ReceiverType : inlineInstance ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, work, 0, borrow: true))],
                 ReturnType = Storage(input.Signature.ReturnType, work, 0, allowVoid: true),
                 Locals = [.. input.Locals.Select(t => Storage(t, work, 0, borrow: integers64))] };

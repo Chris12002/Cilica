@@ -19,8 +19,17 @@ public sealed class CandidateGapTests
     }
 
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Character_text_reduction_now_matches_dotnet(bool optimized)
+    {
+        var program = (await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateGapProbe), "CharacterText"))[0];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("CharacterText", program, CandidateGapProbe.CharacterText)],
+            [(int.MinValue, 0), (-1, 0), (0, 0), (0xd800, 0), (0xffff, 0), (int.MaxValue, 0)]);
+    }
+
+    [Theory]
     [InlineData("BooleanVector", "CIL2001", "Composed vector elements")]
-    [InlineData("CharacterText", "CIL3010", "ToString")]
     [InlineData("IgnoreCaseComparer", "CIL3010", "get_OrdinalIgnoreCase")]
     public async Task Remaining_candidate_requirements_are_explicit_admission_gaps(string name, string diagnosticId, string requirement)
     {

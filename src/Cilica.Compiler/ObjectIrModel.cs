@@ -26,7 +26,8 @@ public sealed record ObjectMethodBinding(IrMethodId Method, ObjectTypeId Owner, 
 /// <summary>Exact selected primitive identity; its receiver is an existing scalar borrow, never an object layout.</summary>
 public sealed record PrimitiveReceiver(TypeSource Source, PrimitiveTypeCode Code)
 {
-    public IrType Storage => Code is PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 ? IrType.Int32 : IrType.Int64;
+    public IrType Storage => Code is PrimitiveTypeCode.Char or PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 ? IrType.Int32 : IrType.Int64;
+    public IrType ReceiverType => IrType.Location(Storage, narrow: Code == PrimitiveTypeCode.Char ? IntegerCastTarget.UInt16 : null);
 }
 
 /// <summary>A class virtual signature with no executable body. Its binding must be abstract.</summary>
@@ -52,7 +53,7 @@ public static class ObjectDispatchLimits
 /// <summary>Detached object operations and declaration bindings, validated before native lowering.</summary>
 public sealed record ObjectIrProgram(ReferenceIrProgram Flow, ImmutableArray<ObjectMethodBinding> Bindings)
 {
-    public const string Profile = "object-operations-ir-v51";
+    public const string Profile = "object-operations-ir-v52";
     public ImmutableArray<ObjectAbstractMethodDeclaration> AbstractMethods { get; init; } = [];
     public ImmutableArray<ObjectVirtualDispatch> Dispatch { get; init; } = [];
     public ObjectInterfaceDispatchPlan? InterfaceDispatch { get; init; }

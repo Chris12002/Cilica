@@ -167,7 +167,7 @@ internal sealed partial class ObjectIrRules
                     && method.Parameters[3] == IrType.Location(parser.Code == PrimitiveTypeCode.Int32 ? IrType.Int32 : IrType.Int64) && method.ReturnType == IrType.Int32,
                     "integer parsing requires the selected static Int32/Int64 declaration and exact String/style/provider/out signature.");
             if (binding.InvariantProviderOnly)
-                Require(primitiveInstance && method.Parameters.Length == 2 && method.ReturnType == StringType
+                Require(primitiveInstance && binding.Primitive?.Code != PrimitiveTypeCode.Char && method.Parameters.Length == 2 && method.ReturnType == StringType
                     && method.Parameters[1].Class is { } provider && _program.Flow.Types.Interfaces.Any(i => ObjectTypeId.From(i.Source) == provider
                         && i.Source.Name == "System.IFormatProvider" && provider.ContentHash == flow.Types.ObjectBase.ContentHash),
                     "invariant provider contract requires the selected primitive method and provider signature.");
@@ -202,12 +202,17 @@ internal sealed partial class ObjectIrRules
                     && binding.Owner.ContentHash == flow.Types.ObjectBase.ContentHash
                     && binding.Primitive!.Source is { } primitiveSource && ObjectTypeId.From(primitiveSource) == binding.Owner
                     && primitiveSource.Name == "System." + binding.Primitive.Code
-                    && binding.Primitive.Code is PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64
-                    && method.Parameters.Length > 0 && method.Parameters[0] == IrType.Location(binding.Primitive.Storage)
+                    && binding.Primitive.Code is PrimitiveTypeCode.Char or PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64
+                    && method.Parameters.Length > 0 && method.Parameters[0] == binding.Primitive.ReceiverType
                     && method.ReturnType.Kind != IrTypeKind.ManagedLocation && binding.VirtualSlot is null
                     && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) == 0
                     && ((binding.Attributes & MethodAttributes.Virtual) != 0 || (binding.Attributes & (MethodAttributes.NewSlot | MethodAttributes.Final)) == 0),
-                    "primitive instance method requires exact selected integer identity, a scalar borrow and ordinary direct-call flags.");
+                    "primitive instance method requires exact selected scalar identity, a width-preserving borrow and ordinary direct-call flags.");
+                if (binding.Primitive!.Code == PrimitiveTypeCode.Char)
+                    Require(method.Source.Name == "System.Char::ToString" && method.Parameters.Length == 1
+                        && method.ReturnType == StringType && !binding.InvariantProviderOnly
+                        && binding.Attributes == (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual),
+                        "character primitive requires the exact parameterless ToString override.");
                 Require(!primitiveOwners.TryGetValue(binding.Owner, out var previous) || previous == binding.Primitive,
                     "primitive identity has contradictory receiver facts.");
                 Require(!primitiveCodes.TryGetValue(binding.Primitive!.Code, out var previousOwner) || previousOwner == binding.Owner,

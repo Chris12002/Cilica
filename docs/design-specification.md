@@ -4166,3 +4166,15 @@ grants and production limits are unchanged. Frozen discovery with the measured
 diagnostic field allowance advances to Int32.Parse(String,NumberStyles,IFormatProvider)
 in TargetOptions.ParseCell (1,051,158 metadata units). Full engine, unchanged
 fingerprint and saved-game replay execution remain unfinished.
+
+### Character text for compatibility batch 003
+
+Exact Char.ToString instance calls use existing UInt16-tagged frame borrows; the
+static overload constructs a fresh one-code-unit string through existing managed
+character-array construction. All 19 focused and 52 adjacent checks pass, including
+every UTF-16 code unit, identity, roots and malformed receiver facts. Integer CIL
+v81 and object IR v52 record admission. No new native operations, grants or limits;
+boxed/provider calls and narrow field/array receivers remain diagnostic. See
+[character-text decision](decisions/compatibility-003-character-text.md) and the
+[batch manifest](compatibility-candidates/batch-003.json). Full DiffPlex execution
+remains unverified with Boolean storage and ignore-case comparer gates.

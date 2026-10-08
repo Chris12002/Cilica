@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "batch": "batch-003",
+  "date": "2026-10-08",
+  "limit": 1,
+  "previous_batch": "batch-002.json",
+  "coordination": {
+    "thread": "Review milestone 6",
+    "thread_id": "01a10e1c-e033-7143-b502-e6fca188979c",
+    "ownership": "Character receiver/text changes only; review thread owns character searching and concurrent throwing integer parsing. Exact shared-file hunks and profile reservations communicated before editing."
+  },
+  "active_checkout": {
+    "path": "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica",
+    "branch": "codex/alchemy-replay-baseline",
+    "initial_head": "5af013f",
+    "validation_head": "f1f01991361ef05557ec4e002f9eaa7f785c037a",
+    "concurrent_changes": "Character searching committed as f1f0199 during this batch; concurrent integer parsing changes are preserved, not part of this slice."
+  },
+  "candidates": [
+    {
+      "id": "diffplex",
+      "repository": "mmanela/diffplex",
+      "url": "https://github.com/mmanela/diffplex",
+      "commit": "f500e73f28e28813f942f1f16dec5a34b40e48e3",
+      "files": [
+        {
+          "path": "License.txt",
+          "git_blob_sha1": "9aa0a58ae70544e0c0c17452016385db7aa06104",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/License.txt"
+        },
+        {
+          "path": "Directory.Build.props",
+          "git_blob_sha1": "4da8180104a8c1a57a9d2d7f05a7256bd96cd790",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Directory.Build.props"
+        },
+        {
+          "path": "Directory.Build.targets",
+          "git_blob_sha1": "341027f3c7a81b1a34a213aac99e0151c40e80c6",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Directory.Build.targets"
+        },
+        {
+          "path": "NuGet.props",
+          "git_blob_sha1": "17d49f86a2894f51e1af0d5c54bb2e57aa72a601",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/NuGet.props"
+        },
+        {
+          "path": "DiffPlex/DiffPlex.csproj",
+          "git_blob_sha1": "c6c9a599420cc74d9b168cca5e37f155ba8ed291",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/DiffPlex.csproj"
+        },
+        {
+          "path": "DiffPlex/Differ.cs",
+          "git_blob_sha1": "281ee96c405676ba6f61958939d5121bdcc8584c",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Differ.cs"
+        },
+        {
+          "path": "DiffPlex/IDiffer.cs",
+          "git_blob_sha1": "c860e04f7955a608579067eb7e577c152c82c8bd",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IDiffer.cs"
+        },
+        {
+          "path": "DiffPlex/IChunker.cs",
+          "git_blob_sha1": "9e9de1a2f64c5148b46745d059c7b5f432798266",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/IChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Log.cs",
+          "git_blob_sha1": "6163e9e8b6ef7c38f5de7b50856e746b877dbee4",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Log.cs"
+        },
+        {
+          "path": "DiffPlex/Model/ModificationData.cs",
+          "git_blob_sha1": "9a6e0774693b4276cf1040de10acad9b7183aadc",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/ModificationData.cs"
+        },
+        {
+          "path": "DiffPlex/Model/DiffResult.cs",
+          "git_blob_sha1": "8055eb1e444be7e93667bb420ba628e6cc6b4b92",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffResult.cs"
+        },
+        {
+          "path": "DiffPlex/Model/DiffBlock.cs",
+          "git_blob_sha1": "7fa5fe8a59dd92376252d2be519539c8d2ae3690",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/DiffBlock.cs"
+        },
+        {
+          "path": "DiffPlex/Model/EditLengthResult.cs",
+          "git_blob_sha1": "859014fa0f6f04c4ba4bafc8714f8ec2086554e9",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Model/EditLengthResult.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/CharacterChunker.cs",
+          "git_blob_sha1": "8076c4fe8591973d26061a86ef702f94d82386a8",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/CharacterChunker.cs"
+        },
+        {
+          "path": "DiffPlex/Chunkers/LineChunker.cs",
+          "git_blob_sha1": "79c6b6ed5449d6873af6b294b44512d900cbe7ee",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex/Chunkers/LineChunker.cs"
+        },
+        {
+          "path": "Facts.DiffPlex/Facts.DiffPlex.csproj",
+          "git_blob_sha1": "b80e27988503c058a2c5e4f7ab5e6eef32903227",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Facts.DiffPlex/Facts.DiffPlex.csproj"
+        },
+        {
+          "path": "Facts.DiffPlex/DifferFacts.cs",
+          "git_blob_sha1": "92ea76c1f8b060c107a873dc926c8bf3da88b804",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/Facts.DiffPlex/DifferFacts.cs"
+        },
+        {
+          "path": "DiffPlex.ConsoleRunner/DiffPlex.ConsoleRunner.csproj",
+          "git_blob_sha1": "848691cdd8930063dbc2e755eeacf933c235139d",
+          "url": "https://github.com/mmanela/diffplex/blob/f500e73f28e28813f942f1f16dec5a34b40e48e3/DiffPlex.ConsoleRunner/DiffPlex.ConsoleRunner.csproj"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "not-run; source-only mapping, no upstream MSBuild/generators/tests/binaries executed",
+      "semantic_failures": [],
+      "semantic_failure_note": "No candidate execution performed; absence of observed failures is not a pass.",
+      "license": "Apache-2.0; License.txt at pinned commit",
+      "target_frameworks": [
+        "net45",
+        "netstandard2.0",
+        "net6.0"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "compatible with netstandard2.1 via netstandard2.0 asset; desktop/UI projects excluded",
+      "dependencies": {
+        "runtime_packages": [],
+        "build_packages": [
+          "Microsoft.SourceLink.GitHub 1.1.1 (PrivateAssets=All)"
+        ],
+        "tests": [
+          "Microsoft.NET.Test.Sdk 17.1.0",
+          "Moq 4.17.1",
+          "xunit 2.4.1",
+          "xunit.runner.visualstudio 2.4.3"
+        ],
+        "graph": "DiffPlex -> netstandard. DiffPlex imports NuGet.props (signing/package-on-build/SourceLink); Directory.Build.props sets latest C#; Directory.Build.targets empty. Facts -> DiffPlex + ConsoleRunner; ConsoleRunner -> DiffPlex and linked demo TestData; no extra runtime package in these projects.",
+        "inspection": "All named project/import files inspected as text; no restore/build or package signing performed."
+      },
+      "roots": [
+        "Differ.CreateCharacterDiffs(string,string,bool)",
+        "Differ.CreateLineDiffs(string,string,bool)"
+      ],
+      "reachable_requirements": [
+        "ArgumentNullException and ordinary properties/readonly fields",
+        "StringComparer.Ordinal/OrdinalIgnoreCase -> Dictionary<string,int>(IEqualityComparer<string>)",
+        "List<DiffBlock>, IReadOnlyList<string>, IDictionary<string,int> dispatch",
+        "Int32 and Boolean arrays; Array.Empty<bool>; enum locals",
+        "recursive edit-path algorithm, scalar Int32.Equals",
+        "String.IsNullOrEmpty in BuildPieceHashes",
+        "String.Trim even when wrapper passes false (no whole-program constant pruning assumed)",
+        "CharacterChunker: Char.ToString",
+        "LineChunker: String.Split(string[],StringSplitOptions)"
+      ],
+      "unsupported_features": [
+        {
+          "feature": "Boolean vectors/Array.Empty<bool>",
+          "kind": "profile-gap",
+          "status": "BooleanVector independent reduction produces CIL2001; ObjectArrayElementKind has no Boolean identity."
+        },
+        {
+          "feature": "StringComparer.OrdinalIgnoreCase and conditional comparer selection",
+          "kind": "library/admission-gap",
+          "status": "IgnoreCaseComparer reduction produces CIL3010 get_OrdinalIgnoreCase. Existing directly proven Ordinal support does not admit this branch."
+        }
+      ],
+      "excluded_scope": [
+        "UI/console/three-way diff/rendering surfaces not mapped by this selected-root screen",
+        "LOG conditional calls excluded when LOG undefined; no claim if enabled",
+        "full Unicode ordinal-ignore-case mapping needs separately reviewed semantics"
+      ],
+      "upstream_tests_inspected": "DifferFacts null parameter names, empty/identical inputs, insertion/deletion/block positions and mixed line endings; not executed.",
+      "mapped_status": "Selected roots remapped after character text; Boolean storage and ignore-case comparer admission remain explicit gates. Actual candidate compilation and execution remain unverified.",
+      "status": "mapped-blocked",
+      "evidence": [
+        "Immutable batch 001 online screen and 18 pinned project/import/licence/source/test files reused without downloading or executing candidate code.",
+        "CandidateCharacterTextTests: all 65,536 UTF-16 units, fresh identity, width-tagged ref/local/parameter receivers, fault order and rooted results; 19 checks pass.",
+        "CandidateGapTests: original CharacterText reduction now executes natively; BooleanVector and IgnoreCaseComparer still produce exact recorded diagnostics."
+      ],
+      "next_action": "Coordinate with Review milestone 6, then consider Boolean vectors/Array.Empty<bool> as a distinct storage slice. Keep ignore-case Unicode semantics/comparer admission separate. Request a concrete isolated execution approval only after the candidate closure is admitted.",
+      "implemented_requirements": [
+        {
+          "feature": "String.Trim()",
+          "implementation": "library/Cilica.Core/StringWhitespace.cs",
+          "scope": "Parameterless UTF-16 whitespace trim via existing classifier/Substring; other Trim overloads remain diagnostic.",
+          "before": "CIL3010 Trim in independent reduction on active 08a2d75 baseline",
+          "tests": "CandidateTrimTests"
+        },
+        {
+          "feature": "String.Split(string[],StringSplitOptions)",
+          "implementation": "library/Cilica.Core/StringSplitting.cs",
+          "scope": "Ordered ordinal UTF-16 matching; null/empty-array whitespace fallback; ignored null/empty separator entries; options None/RemoveEmptyEntries and pinned numeric TrimEntries combinations. No count or single-string overload.",
+          "before": "CIL3010 Split in independent reduction",
+          "tests": "CandidateSeparatorTests and CandidateGapTests.String_separator_reduction_now_matches_dotnet"
+        },
+        {
+          "feature": "Char.ToString() and Char.ToString(char)",
+          "implementation": "library/Cilica.Core/CoreTypes.cs",
+          "scope": "One UTF-16 code unit in a fresh string. Instance receiver is an exact UInt16 frame borrow; provider overload, boxed dispatch and field/array receiver borrows remain diagnostic.",
+          "before": "CIL3010 ToString in retained independent reduction",
+          "tests": "CandidateCharacterTextTests and CandidateGapTests.Character_text_reduction_now_matches_dotnet"
+        }
+      ],
+      "already_supported_requirements": [
+        "String.IsNullOrEmpty already implemented by Review milestone 6 (ADR AC0014); no duplicate helper retained.",
+        "Ordinal comparer-backed dictionary construction exists for directly proven Ordinal, not arbitrary/ignore-case selection."
+      ]
+    }
+  ],
+  "validation": {
+    "focused_checks": 19,
+    "neighboring_checks": 52,
+    "new_repeated_native_comparisons": 14772,
+    "original_reduction_repeated_native_comparisons": 36,
+    "note": "71 distinct selected checks passed; 2048 input packets sweep every UTF-16 unit with exact payload/identity assertions. O0/O2, forced GC, ASan/UBSan and frame/cleanup checks. Full suite, actual DiffPlex and Alchemy execution not run.",
+    "evidence_directory": "artifacts/compatibility-batch-003"
+  },
+  "cleanup": {
+    "diffplex": "No new candidate checkout or artifact created; batch 001 snapshot already removed. Retained only pins, independent regressions and evidence."
+  }
+}

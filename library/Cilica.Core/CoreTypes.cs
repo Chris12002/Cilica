@@ -54,7 +54,13 @@ namespace System
     {
         public static bool TryParse(string value, out bool result) => Cilica.Runtime.BooleanParsing.TryParse(value, out result);
     }
-    public struct Char { }
+    public struct Char
+    {
+        // Adapted from pinned Char.ToString/CreateFromChar; see provenance.json.
+        // Existing string construction preserves fresh identity and UTF-16 units.
+        public override string ToString() => ToString(this);
+        public static string ToString(char value) => new string(new[] { value });
+    }
     public struct SByte { }
     public struct Byte { }
     public struct Int16 { }
