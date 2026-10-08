@@ -5,6 +5,35 @@ namespace System
 {
     public sealed partial class String
     {
+        public static string Join(string separator, Collections.Generic.IEnumerable<string> values)
+        {
+            if (values is Collections.Generic.List<string> list)
+            {
+                string[] storage = list.QueryStorage(out int count);
+                return Cilica.Runtime.StringConcatenation.JoinStorage(separator, storage, count);
+            }
+            if (values is string[] array)
+                return Cilica.Runtime.StringConcatenation.JoinStorage(separator, array, array.Length);
+            if (values == null) throw new ArgumentNullException("values");
+            using (Collections.Generic.IEnumerator<string> cursor = values.GetEnumerator())
+            {
+                if (!cursor.MoveNext()) return "";
+                string first = cursor.Current;
+                if (!cursor.MoveNext()) return first ?? "";
+                var result = new Text.StringBuilder();
+                result.Append(first);
+                do
+                {
+                    Cilica.Runtime.StringConcatenation.Length((long)result.Length + (separator == null ? 0 : separator.Length));
+                    result.Append(separator);
+                    string next = cursor.Current;
+                    Cilica.Runtime.StringConcatenation.Length((long)result.Length + (next == null ? 0 : next.Length));
+                    result.Append(next);
+                }
+                while (cursor.MoveNext());
+                return result.ToString();
+            }
+        }
         public static string Concat(string first, string second, string third)
         {
             if (IsNullOrEmpty(first)) return Concat(second, third);
@@ -65,6 +94,44 @@ namespace Cilica.Runtime
 {
     internal static class StringConcatenation
     {
+        internal static string JoinStorage(string separator, string[] values, int count)
+        {
+            if (count == 0) return "";
+            if (count == 1) return values[0] ?? "";
+            int separatorLength = separator == null ? 0 : separator.Length;
+            long total = (long)(count - 1) * separatorLength;
+            Length(total);
+            for (int i = 0; i < count; ++i)
+            {
+                string value = values[i];
+                if (value != null) { total += value.Length; Length(total); }
+            }
+            int length = (int)total;
+            if (length == 0) return "";
+            var result = new int[length];
+            int copied = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                string value = values[i];
+                if (value != null)
+                {
+                    if (value.Length > length - copied) return JoinSnapshot(separator, values, count);
+                    copied = Copy(result, copied, value);
+                }
+                if (i < count - 1 && separatorLength != 0)
+                {
+                    if (separatorLength > length - copied) return JoinSnapshot(separator, values, count);
+                    copied = Copy(result, copied, separator);
+                }
+            }
+            return copied == length ? StringConstruction.FromCodeUnits(result) : JoinSnapshot(separator, values, count);
+        }
+        private static string JoinSnapshot(string separator, string[] values, int count)
+        {
+            var snapshot = new string[count];
+            for (int i = 0; i < count; ++i) snapshot[i] = values[i];
+            return JoinStorage(separator, snapshot, count);
+        }
         internal static int Length(long total)
         {
             if (total > 2147483647L) throw new System.OutOfMemoryException("String length exceeded supported range.");

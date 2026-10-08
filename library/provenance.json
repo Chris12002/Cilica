@@ -815,13 +815,14 @@
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs",
       "algorithms": [
         "String.Concat(string[]) and string-span empty/single shortcuts, Int64 total, overflow, exact copies and defensive snapshot/retry.",
-        "Three/four-string overloads preserve ordered null/empty reduction, original identity for a sole contributing string, and Int64 total length before copying."
+        "Three/four-string overloads preserve ordered null/empty reduction, original identity for a sole contributing string, and Int64 total length before copying.",
+        "AC8.78 adds String.Join(string,IEnumerable<string>): List/array storage shortcuts, null separator and entries, empty/single identity, cursor order and finally disposal."
       ],
       "changes": [
         "Replace direct string allocation with a managed Int32 UTF-16 buffer and existing exact-granted FromCodeUnits construction.",
         "Keep snapshot/retry in an ordinary private runtime helper; concurrent source mutation remains unvalidated."
       ],
-      "scope": "String arrays and three/four-string overloads; existing bounded resource limits and additional temporary storage apply. No object-array/enumerable overloads."
+      "scope": "Concat string arrays and three/four-string overloads, plus Join(string,IEnumerable<string>). Existing bounded resource limits and additional temporary storage apply; enumerable Join uses the owned chunk builder instead of stack-based ValueStringBuilder. Other Join overloads and object/enumerable Concat remain diagnostic; concurrent mutation remains unvalidated."
     },
     {
       "path": "library/Cilica.Core/HashSet.cs",

@@ -31,7 +31,7 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "0b4261d59d4714af1e005b184ec5a64369ccc2e5d24726e6cd5b748cdb3cc478",
-    "latestSlice": "AC8.77",
+    "latestSlice": "AC8.78",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -773,6 +773,11 @@
       "status": "complete-format-range-transport",
       "decision": "docs/decisions/AC0097-format-range-transport.md"
     },
+    "AC8.78": {
+      "prerequisites": ["AC8.77"],
+      "status": "complete-bounded-string-sequence-join",
+      "decision": "docs/decisions/AC0222-string-sequence-join.md"
+    },
     "AC8.77": {
       "prerequisites": ["AC8.76"],
       "status": "complete-bounded-explicit-comparer-contains",
@@ -1072,7 +1077,7 @@
     "AC8": {
       "prerequisites": ["required AC1-AC7 slices"],
       "status": "in-progress",
-      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12", "AC8.13", "AC8.14", "AC8.15", "AC8.16", "AC8.17", "AC8.18", "AC8.19", "AC8.20", "AC8.21", "AC8.22", "AC8.25", "AC8.26", "AC8.29", "AC8.30", "AC8.31", "AC8.32", "AC8.33", "AC8.34", "AC8.35", "AC8.37", "AC8.38", "AC8.39", "AC8.40", "AC8.41", "AC8.42", "AC8.43", "AC8.44", "AC8.45", "AC8.46", "AC8.47", "AC8.48", "AC8.49", "AC8.50", "AC8.51", "AC8.52", "AC8.53", "AC8.54", "AC8.55", "AC8.56", "AC8.57", "AC8.58", "AC8.59", "AC8.60", "AC8.61", "AC8.62", "AC8.63", "AC8.64", "AC8.65", "AC8.66", "AC8.67", "AC8.68", "AC8.69", "AC8.70", "AC8.71", "AC8.72", "AC8.73", "AC8.74", "AC8.75", "AC8.76", "AC8.77"],
+      "completedSubslices": ["AC8.1", "AC8.2", "AC8.3", "AC8.4", "AC8.5", "AC8.6", "AC8.7", "AC8.8", "AC8.9", "AC8.10", "AC8.11", "AC8.12", "AC8.13", "AC8.14", "AC8.15", "AC8.16", "AC8.17", "AC8.18", "AC8.19", "AC8.20", "AC8.21", "AC8.22", "AC8.25", "AC8.26", "AC8.29", "AC8.30", "AC8.31", "AC8.32", "AC8.33", "AC8.34", "AC8.35", "AC8.37", "AC8.38", "AC8.39", "AC8.40", "AC8.41", "AC8.42", "AC8.43", "AC8.44", "AC8.45", "AC8.46", "AC8.47", "AC8.48", "AC8.49", "AC8.50", "AC8.51", "AC8.52", "AC8.53", "AC8.54", "AC8.55", "AC8.56", "AC8.57", "AC8.58", "AC8.59", "AC8.60", "AC8.61", "AC8.62", "AC8.63", "AC8.64", "AC8.65", "AC8.66", "AC8.67", "AC8.68", "AC8.69", "AC8.70", "AC8.71", "AC8.72", "AC8.73", "AC8.74", "AC8.75", "AC8.76", "AC8.77", "AC8.78"],
       "remaining": "Generic type-test origin evidence, catalog budget audit and remaining real closure gaps; private generic arrays are validated in AC8.4."
     },
     "AC8.1": {

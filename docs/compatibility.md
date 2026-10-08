@@ -4824,3 +4824,21 @@ The frozen engine scan now reaches String.Join in ForcedMovementOperation.Encode
 (3,306,855 work units); StateLookup validates 15 methods. Neither audit emits C++.
 Full engine closure/replay and non-sealed sorted-dictionary duplicate text remain
 open. See ADR AC0221 for evidence and scope.
+
+### String-sequence joining (AC8.78)
+
+`String.Join(string,IEnumerable<string>)` now uses List/array storage shortcuts and
+ordered cursor traversal for other sequences. Preserve null separator/entries,
+empty and singleton identity, UTF-16 code units, length checks and finally disposal.
+Other Join overloads remain diagnostic. Existing managed UTF-16 buffers and the
+owned chunk builder replace pinned native/span construction; no runtime/profile or
+quota changes, and concurrent source mutation is not validated.
+
+Twenty distinct checks pass across the adjacent run and focused follow-up, including
+5,376 new O0/O2 native/.NET comparisons with sanitizers, forced collection and exact
+cleanup/frame budgets. The first run's two failures were an incorrect cached-delegate
+expectation in the new test; fixture IL proves a fresh delegate, and the corrected
+zero-root test passes. The frozen engine scan now reaches String.Replace in
+SuppressTaggedEffectOperation.Label (3,310,764 units); StateLookup validates 15
+methods. Both audit emission fields are null. Full closure/replay and the separate
+non-sealed sorted-dictionary duplicate-text gap remain open. See ADR AC0222.
