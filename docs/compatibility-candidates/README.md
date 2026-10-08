@@ -6,11 +6,11 @@ third-party build farm. The current batch is [batch-009.json](batch-009.json);
 [results](batch-009-results.md) distinguish implemented support, diagnostics and
 untested candidate execution.
 
-Latest execution follow-up: [DiffPlex selected roots verified](diffplex-int32-20261008.md)
-on Cilica 3d0bb53, with 64 scenarios and 11,232 repeated O0/O2 comparisons. Batch 008
-retains the verified DiffPlex status. Batch 009 screens CircularBuffer and records
-the [separate CRC32.NET execution proposal](crc32-execution-plan.md), still awaiting
-approval. Earlier batch reports preserve their historical outcomes.
+Latest execution follow-ups: [CRC32 selected roots verified](crc32-execution-20261008.md)
+on frozen Cilica c64312e with 41 scenarios and 4,374 repeated O0/O2 comparisons;
+[DiffPlex selected roots verified](diffplex-int32-20261008.md) on 3d0bb53 with
+64 scenarios and 11,232 comparisons. Earlier batch reports preserve their
+historical outcomes. The CRC report records its generated-C++ hash retention gap.
 
 Separate [Release performance measurements](diffplex-performance-20261008.md)
 show a large current throughput gap on one verified character-diff workload.

@@ -1,0 +1,24 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: translating selected candidate root; no oracle invocation yet.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: translation passed; collecting 41 complete .NET oracle transcripts.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: all 41 oracle scenarios completed; 729 transcript observations including lengths.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 0/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 128/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 256/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 384/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 512/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 640/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 completed all 729 observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 0/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 128/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 256/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 384/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 512/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 640/729 completed observations.
+    Cilica.Metadata.Tests.ApprovedCrc32ExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 completed all 729 observations.
+  Finished:    Cilica.Metadata.Tests (ID = 'f74ae7bfd3ba8786e79c3f5ee1be09671690d2a141a800129e9437fc3eb084a3')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 29.045s

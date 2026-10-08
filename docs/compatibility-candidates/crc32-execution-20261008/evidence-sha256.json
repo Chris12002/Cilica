@@ -1,0 +1,14 @@
+{
+  "stage.log": "a19c49a7859b685f3646f3ece82e03bb1dc70d03f0bd8636fc6bf740f14f7a1a",
+  "verify.log": "275ee529e3b7246db022d112c3d8b6a790d427dc6694fd06c48bf6d3980c1546",
+  "result.json": "a29142cde4df90f7b131c95bfbf10b782dbfeef10c2f413f3f14b1cc6027ef66",
+  "cilica-build.log": "7984d78a7d33a9500be5a619aae837f23fc81edb456772cdc61ec37af5504358",
+  "candidate-assembly.sha256": "1f1dc737bb087dfe0e51b289d7e6a6d4f57f791b90e05f025378c51b4dfbcabe",
+  "candidate-build.log": "2095daaa8fe39ab98d770880a1926a331a0a58e3dccfc3bce239b0c8cbb1a37b",
+  "candidate-restore.log": "77b098d2ec7c742149d2621d2756df22d051d3bd40121c3618b2c7ff89e00e74",
+  "differential.log": "1dfb91f2c00db0a01142ffc94d5443864bf3bb88d12491fba289521118f856be",
+  "progress.json": "1544a53571b77f7a534e126bd749644357a1b0f36adeb33ede3c88d4f13bde3c",
+  "versions.log": "50ff175aa6aa28d2c6760386de7fc78e1bcd9b467669ac215e9fc257a3c1fd4c",
+  "input-provenance.json": "d91cdbbc8dbf544d540474b708b94a0ccec034a87229217d1b16c360bc9f5f57",
+  "tooling-packages.txt": "031998cb75b003bed8a5b665b89e86ae5da1ff983055d7ec25dd04bd0a6fadaf"
+}

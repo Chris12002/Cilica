@@ -1,6 +1,10 @@
 # CRC32.NET selected-source execution proposal
 
-**Awaiting separate approval; not executed.** Prepared 2026-10-08. The user's
+**Historical proposal, approved and executed successfully on 2026-10-08.**
+See [results and remaining provenance limitation](crc32-execution-20261008.md).
+The original pre-execution wording below records the reviewed boundary.
+
+Prepared 2026-10-08. The user's
 instruction limits existing third-party execution permission to DiffPlex. This
 proposal requests one CRC32.NET correctness trial, not a benchmark or upstream
 project/test run. No candidate source has been staged locally, compiled or run.

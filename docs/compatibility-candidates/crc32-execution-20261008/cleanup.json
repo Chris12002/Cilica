@@ -1,0 +1,10 @@
+{
+  "container": "removed by supervising watchdog after 61.2 seconds",
+  "input_image": "sha256:878a804112f416becaaba362610c798572a30d21908c67cc6bdcf54185f22b1f",
+  "image_removal": "Untagged: cilica-crc32-approved-20261008:input\nDeleted: sha256:878a804112f416becaaba362610c798572a30d21908c67cc6bdcf54185f22b1f\nDeleted: sha256:c71b55c56c0eacca7781b168741760feb66702226c4946e3eaa673066db0a453\nDeleted: sha256:0fab29c22137f2dadaeacf11807e846a6fbe58b445282a98439316264bbe43fc\nDeleted: sha256:967bad9401be6027611279a8f0f80a2b459bc0231cfc50baaa7208aba70573d8\nDeleted: sha256:4fe17d762e93fc73a6b16cb2f42faf12f56d747489c1931eff7c2e120c034e1f\nDeleted: sha256:75d783728a6dc94bdb6c0b920f0323e34af653cef747adceba3778949f81e854\nDeleted: sha256:33b37a8db908aeaacb6ea467c2e751fd9e68f7cd0cc09c6dd5c1f94acc39eeb3\n",
+  "staging": "/tmp/cilica-crc32-approved-20261008",
+  "staging_removed": true,
+  "tooling_retained": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "preserved": "Cilica checkout, peer files, all owned regressions, source and package pins, MIT licence, recipes and evidence",
+  "generated_cpp_hash": "not retained: successful temporary native files deleted by existing test helper; no claim of emitted-source hash provenance"
+}
