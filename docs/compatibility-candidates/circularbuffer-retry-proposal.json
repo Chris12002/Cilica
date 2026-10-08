@@ -1,0 +1,54 @@
+{
+  "status": "awaiting-separate-retry-approval",
+  "compiler_baseline": "d07346375cc22e2fbebf1294f9a62fb81287965b",
+  "candidate_repository": "joaoportela/CircularBuffer-CSharp",
+  "candidate_commit": "9ebb911dfe27a62c2793d0b02c642f79bbbf524b",
+  "selected_target": "netstandard2.0",
+  "owned_overlay_sha256": {
+    "tools/CompatibilityCandidates/circularbuffer-validation/ApprovedCircularBufferExecutionTests.cs": "68cdbd6867ea79a42b13a2a9d5b07af352e1a27aa8106abcfac929d1cc306a10",
+    "tools/CompatibilityCandidates/circularbuffer-validation/Probe.cs": "24ee48f9240327d3b5dbfdf26b2516978ddfa6bcca094929390fdb12855cb4cf",
+    "tools/CompatibilityCandidates/circularbuffer-validation/SelectedRoots.csproj": "31a96ae6827080c720cd76360b6eca0a2840810c16dc5dea43c2123dd0a73f17",
+    "tools/CompatibilityCandidates/circularbuffer-validation/offline-packages.json": "8b23ddbc500c1724ae26d104eedff9e6024cc4e705e0df061963d739e82beae2"
+  },
+  "candidate_files": [
+    {
+      "path": "LICENSE",
+      "git_blob_sha1": "fdddb29aa445bf3d6a5d843d6dd77e10a9f99657",
+      "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/LICENSE"
+    },
+    {
+      "path": "CircularBuffer/CircularBuffer.cs",
+      "git_blob_sha1": "7aef4a0935c8b413fda8f360c803c4a12def2d15",
+      "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.cs"
+    }
+  ],
+  "tooling_image": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "execution": "One correctness trial, 48 scenarios with full state/fault transcripts, all observations O0/O2 with three repetitions and forced GC/ASan/UBSan. No benchmark.",
+  "driver_install": "Only after separate approval, copy the reviewed driver into tests/Cilica.Metadata.Tests in a disposable export of compiler_baseline. No live checkout mounts.",
+  "isolation": {
+    "network": "none",
+    "uid_gid": "10001:10001",
+    "cpus": 2,
+    "memory_gib": 8,
+    "memory_plus_swap_gib": 8,
+    "pids": 256,
+    "read_only_root": true,
+    "capabilities": "all dropped",
+    "no_new_privileges": true,
+    "host_binds": [],
+    "tmpfs_gib": {
+      "/work": 9,
+      "/tmp": 1,
+      "/evidence": 1
+    },
+    "wall_seconds": 1800,
+    "host_kill_seconds": 1790,
+    "evidence_deadline_seconds": 1740
+  },
+  "result": "not run; no candidate source staged or task image/container created",
+  "plan": "circularbuffer-retry-plan.md",
+  "owned_overlay_source_commit": "3625157",
+  "previous_trial": "circularbuffer-execution-20261008.md",
+  "compiler_change": "Prior trial87fb7e5(CIL98/IR60) -> d073463(CIL101/IR61/native79). Includes bounded ArraySegment views, peer narrow-enumeration/boxed-interface support and exact acyclic constructor chains. Runtime/native profile and resource limits unchanged.",
+  "candidate_scope_change": "None: identical pin, source, owned adapter/driver/dependency inventory hashes,48scenarios, output comparisons and isolation caps."
+}

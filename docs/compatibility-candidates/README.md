@@ -138,3 +138,11 @@ The approved [frozen trial](circularbuffer-execution-plan.md) built the unchange
 candidate but stopped at constructor-chain validation before oracle/native execution.
 See the [retained failure and cleanup](circularbuffer-execution-20261008.md).
 A changed compiler baseline requires a revised trial proposal; no retry is active.
+
+## Pending same-source CircularBuffer retry
+
+The constructor-chain gate is fixed by independent tests. The
+[frozen retry plan](circularbuffer-retry-plan.md) and
+[exact manifest](circularbuffer-retry-proposal.json) keep the candidate,48scenarios
+and isolation limits unchanged, with compiler baseline d073463. Separate approval
+is required; no retry has run.
