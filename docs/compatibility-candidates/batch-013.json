@@ -14,7 +14,7 @@
   "coordination": {
     "feature_peer": "Review milestone 6",
     "performance_thread": "01a11b0d-1c65-75a9-9f2b-27e9cba9a0f7",
-    "ownership": "Same-owner constructor initialization validation, independent regressions and retry proposal; no external execution."
+    "ownership": "Same-owner constructor initialization validation, independent regressions and separately reviewed same-source CircularBuffer retry; no performance/runtime optimization."
   },
   "candidates": [
     {
@@ -81,7 +81,7 @@
         }
       ],
       "screened_before_download": true,
-      "external_execution": "Direct user approved frozen proposal3625157. Unchanged source built offline, translation failed CIL2001 before oracle/native execution; no semantic comparison or retry.",
+      "external_execution": "Reviewed same-source retry under existing direct user approval passed48scenarios/4531observations/27186repeated O0/O2 comparisons on frozen d073463; first failure retained.",
       "dependencies": {
         "runtime_packages": [],
         "library_graph": "CircularBuffer.cs only, framework System/Collections/Collections.Generic; SDK imports. Complete pinned tree contains no Directory.Build.props/targets or other library source.",
@@ -111,7 +111,7 @@
       ],
       "unsupported_features": [],
       "semantic_failures": [],
-      "semantic_failure_note": "First actual candidate run stopped at constructor-chain validation, never reached oracle/native execution. Independent chain semantics now pass; actual candidate must be rerun under a new frozen proposal.",
+      "semantic_failure_note": "No observed semantic failures in the selected48scenarios; all full transcript observations matched normal .NET with forced GC and sanitizers. Broader roots untested.",
       "excluded_scope": [
         "No broad System.Array support claim: multidimensional/non-zero-bound arrays, primitive widening and arbitrary object-array coercion remain outside proposed bounded follow-up.",
         "Reference/inline-value candidate instantiations and full iterator closure require separate mapping and semantic checks.",
@@ -121,17 +121,17 @@
         "ArraySegment indexer, Empty, copy/slice/equality and enumeration bodies remain missing/diagnostic; boxed Count tested through existing dispatch only."
       ],
       "upstream_tests_inspected": "Entire CircularBufferTests.cs: constructor and capacity errors, front/back, wraparound overwrite, push/pop on both ends, logical ordering, segment pairs, enumeration, index writes, clear/reuse, regression where Size differs from Capacity. None executed.",
-      "mapped_status": "mapped-blocked",
-      "status": "mapped-blocked",
-      "next_action": "Review/approve same-source, same48-scenario retry on the new frozen compiler baseline. Do not infer candidate compatibility from independent tests. Stop at any new gate; ToArray/segments/iterator roots remain excluded.",
+      "mapped_status": "verified",
+      "status": "verified",
+      "next_action": "Skip verified Int32 constructor/deque/indexer/Clear roots unless a changed pin/profile or concrete semantic regression warrants reopening. ToArray/segments/iterator and other instantiations need separate mapping and reviewed execution scope.",
       "implemented_requirements": [
         "Array.Clear(Array,Int32,Int32) with same-block proven vector operands: Int32/UInt32/Int64/Int32 enums, supported references and inline values through ordinary managed stores. Independent SectionClear reduction now executes at O0/O2.",
         "Public Array.Copy three/five-argument Int32 overloads for same-declared-element proven vectors; independent whole/overlap/constructor field reductions and exact fault, partial-write and GC tests.",
         "ArraySegment<T> constructors and Array/Offset/Count with exact contract shape, default/live aliases and ordinary rooted value copies; original SegmentView native reduction passes.",
         "Acyclic exact same-owner constructor chaining in the integer-object profile; original owned capacity-only generic constructor reduction now executes O0/O2."
       ],
-      "evidence": "circularbuffer-execution-20261008.md",
-      "mapping_note": "Known selected-root gate fixed by owned regression; actual new closure remains unverified, so status is not verified."
+      "evidence": "circularbuffer-retry-20261008.md",
+      "mapping_note": "Verified only the approved selected roots on unchanged pinned candidate source with all72 native source/executable hash pairs retained; not a full-library claim."
     },
     {
       "id": "crc32-net",
@@ -242,5 +242,5 @@
       "evidence": "crc32-execution-20261008.md"
     }
   ],
-  "cleanup": "No candidate inputs created. Owned evidence and unsuccessful attempts retained."
+  "cleanup": "Same-source retry evidence retained; task container, exact input image and all hash-verified disposable staging removed. Shared tooling, original failure, regressions and peer work preserved."
 }

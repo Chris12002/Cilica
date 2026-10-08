@@ -1,0 +1,85 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: translating selected candidate root; no oracle invocation yet.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: translation passed; collecting 48 complete .NET oracle transcripts.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: all 48 oracle scenarios completed; 4531 transcript observations including lengths.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 0/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 128/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 256/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 384/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 512/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 640/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 768/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 896/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 1024/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 1152/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 1280/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 1408/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 1536/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 1664/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 1792/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 1920/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 2048/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 2176/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 2304/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 2432/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 2560/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 2688/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 2816/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 2944/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 3072/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 3200/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 3328/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 3456/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 3584/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 3712/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 3840/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 3968/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 4096/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 4224/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 4352/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 4480/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 completed all 4531 observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 0/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 128/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 256/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 384/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 512/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 640/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 768/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 896/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 1024/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 1152/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 1280/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 1408/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 1536/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 1664/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 1792/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 1920/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 2048/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 2176/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 2304/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 2432/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 2560/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 2688/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 2816/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 2944/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 3072/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 3200/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 3328/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 3456/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 3584/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 3712/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 3840/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 3968/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 4096/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 4224/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 4352/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 4480/4531 completed observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 completed all 4531 observations.
+    Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: retained 72 source/executable hash pairs before native temporary cleanup.
+  Finished:    Cilica.Metadata.Tests (ID = '331b18ec0570abcccb2f98cf59605ca253f0640769ee3eb0fc9dd02a911522ee')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 527.504s

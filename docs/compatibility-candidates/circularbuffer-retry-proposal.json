@@ -1,5 +1,5 @@
 {
-  "status": "awaiting-separate-retry-approval",
+  "status": "approved-executed-selected-roots-verified",
   "compiler_baseline": "d07346375cc22e2fbebf1294f9a62fb81287965b",
   "candidate_repository": "joaoportela/CircularBuffer-CSharp",
   "candidate_commit": "9ebb911dfe27a62c2793d0b02c642f79bbbf524b",
@@ -24,7 +24,7 @@
   ],
   "tooling_image": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
   "execution": "One correctness trial, 48 scenarios with full state/fault transcripts, all observations O0/O2 with three repetitions and forced GC/ASan/UBSan. No benchmark.",
-  "driver_install": "Only after separate approval, copy the reviewed driver into tests/Cilica.Metadata.Tests in a disposable export of compiler_baseline. No live checkout mounts.",
+  "driver_install": "Executed only in the disposable frozen export under verified human approval and parent same-scope retry authorization.",
   "isolation": {
     "network": "none",
     "uid_gid": "10001:10001",
@@ -45,10 +45,20 @@
     "host_kill_seconds": 1790,
     "evidence_deadline_seconds": 1740
   },
-  "result": "not run; no candidate source staged or task image/container created",
+  "result": "circularbuffer-retry-20261008.md",
   "plan": "circularbuffer-retry-plan.md",
   "owned_overlay_source_commit": "3625157",
   "previous_trial": "circularbuffer-execution-20261008.md",
   "compiler_change": "Prior trial87fb7e5(CIL98/IR60) -> d073463(CIL101/IR61/native79). Includes bounded ArraySegment views, peer narrow-enumeration/boxed-interface support and exact acyclic constructor chains. Runtime/native profile and resource limits unchanged.",
-  "candidate_scope_change": "None: identical pin, source, owned adapter/driver/dependency inventory hashes,48scenarios, output comparisons and isolation caps."
+  "candidate_scope_change": "None: identical pin, source, owned adapter/driver/dependency inventory hashes,48scenarios, output comparisons and isolation caps.",
+  "authorization": "Direct user approval message01a11b66-eb59-737b-b724-c9025b5706de; parent explicitly confirmed unchanged source/scenarios/isolation/limits are covered after review of d073463.",
+  "execution_result": {
+    "scenarios": 48,
+    "observations": 4531,
+    "repeated_O0_O2_comparisons": 27186,
+    "native_source_executable_hash_pairs": 72,
+    "explicit_checks_passed": 1,
+    "elapsed_seconds": 592.825500227,
+    "candidate_assembly_sha256": "313b61c51f1b7b7a4b36e89d79133507fc3a612538a11409977d38fed762ce07"
+  }
 }

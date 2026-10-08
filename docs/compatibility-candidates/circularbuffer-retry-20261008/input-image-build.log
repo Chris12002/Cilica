@@ -1,0 +1,27 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  54.69MB
+Step 1/8 : FROM sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80
+ ---> 68b78e3c1c62
+Step 2/8 : COPY cilica/ /approved/cilica/
+ ---> 4fecf0af9f62
+Step 3/8 : COPY offline-feed/ /approved/offline-feed/
+ ---> aa5fcde00dc1
+Step 4/8 : COPY input/ /approved/input/
+ ---> a0e33bcf8f0c
+Step 5/8 : COPY input-provenance.json /approved/input-provenance.json
+ ---> 8e7427a768d1
+Step 6/8 : COPY runner.py /runner.py
+ ---> ae69a7af7079
+Step 7/8 : USER 10001:10001
+ ---> Running in 3f79945ce1c2
+ ---> Removed intermediate container 3f79945ce1c2
+ ---> 59016d6f7de8
+Step 8/8 : ENTRYPOINT ["python3", "-B", "/runner.py"]
+ ---> Running in e03f4348da07
+ ---> Removed intermediate container e03f4348da07
+ ---> a7d6710956a8
+Successfully built a7d6710956a8
+Successfully tagged cilica-circularbuffer-retry-20261008:input

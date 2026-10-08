@@ -1,0 +1,78 @@
+[
+  {
+    "name": "versions",
+    "argv": [
+      "sh",
+      "-c",
+      "dotnet --info; clang++-18 --version; python3 --version; id; cat /proc/self/status; cat /proc/mounts"
+    ],
+    "cwd": "/work/cilica",
+    "exit_code": 0
+  },
+  {
+    "name": "candidate-restore",
+    "argv": [
+      "dotnet",
+      "restore",
+      "/work/recipe/SelectedRoots.csproj",
+      "--source",
+      "/approved/offline-feed",
+      "-p:CandidateSource=/work/input",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/work/cilica",
+    "exit_code": 0
+  },
+  {
+    "name": "candidate-build",
+    "argv": [
+      "dotnet",
+      "build",
+      "/work/recipe/SelectedRoots.csproj",
+      "-c",
+      "Release",
+      "--no-restore",
+      "--output",
+      "/work/out",
+      "-p:CandidateSource=/work/input"
+    ],
+    "cwd": "/work/cilica",
+    "exit_code": 0
+  },
+  {
+    "name": "cilica-build",
+    "argv": [
+      "dotnet",
+      "build",
+      "tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj",
+      "--artifacts-path",
+      "artifacts/circularbuffer-approved/build",
+      "-p:CustomBeforeDirectoryBuildProps=/work/cilica/tools/CompatibilityCandidates/isolated-build.props",
+      "-p:RestoreSources=/approved/offline-feed",
+      "-p:NuGetAudit=false",
+      "-p:UseSharedCompilation=false",
+      "-nodeReuse:false",
+      "-m:1"
+    ],
+    "cwd": "/work/cilica",
+    "exit_code": 0
+  },
+  {
+    "name": "differential",
+    "argv": [
+      "dotnet",
+      "artifacts/circularbuffer-approved/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+      "-explicit",
+      "only",
+      "-method",
+      "Cilica.Metadata.Tests.ApprovedCircularBufferExecutionTests.Selected_roots_match_every_transcript_observation",
+      "-parallel",
+      "none",
+      "-culture",
+      "invariant",
+      "-showLiveOutput",
+      "-noColor"
+    ],
+    "cwd": "/work/cilica"
+  }
+]

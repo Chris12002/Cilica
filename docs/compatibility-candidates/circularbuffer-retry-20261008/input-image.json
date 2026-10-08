@@ -1,0 +1,73 @@
+{
+  "Architecture": "arm64",
+  "Config": {
+    "Entrypoint": [
+      "python3",
+      "-B",
+      "/runner.py"
+    ],
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "APP_UID=1654",
+      "ASPNETCORE_HTTP_PORTS=8080",
+      "DOTNET_RUNNING_IN_CONTAINER=true",
+      "DOTNET_VERSION=10.0.12",
+      "ASPNET_VERSION=10.0.12",
+      "DOTNET_GENERATE_ASPNET_CERTIFICATE=false",
+      "DOTNET_NOLOGO=1",
+      "DOTNET_SDK_VERSION=10.0.401",
+      "DOTNET_USE_POLLING_FILE_WATCHER=true",
+      "NUGET_XMLDOC_MODE=skip",
+      "POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetSDK-Ubuntu-24.04-arm64",
+      "DOTNET_CLI_TELEMETRY_OPTOUT=1",
+      "DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1"
+    ],
+    "Labels": {
+      "org.opencontainers.image.version": "24.04"
+    },
+    "User": "10001:10001"
+  },
+  "Created": "2026-10-08T12:48:50.413039384Z",
+  "Descriptor": {
+    "digest": "sha256:a7d6710956a8b67d30fdfd0b8b37fa8b96451ad547ff4a164cacdca0dda9e8f9",
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "size": 4545
+  },
+  "Id": "sha256:a7d6710956a8b67d30fdfd0b8b37fa8b96451ad547ff4a164cacdca0dda9e8f9",
+  "Metadata": {
+    "LastTagTime": "2026-10-08T12:48:50.483413468Z"
+  },
+  "Os": "linux",
+  "Parent": "sha256:59016d6f7de887e98d3f2b3d2ea3f8335e1793ec6e8a37a138211d19a4c38fe4",
+  "RepoDigests": [
+    "cilica-circularbuffer-retry-20261008@sha256:a7d6710956a8b67d30fdfd0b8b37fa8b96451ad547ff4a164cacdca0dda9e8f9"
+  ],
+  "RepoTags": [
+    "cilica-circularbuffer-retry-20261008:input"
+  ],
+  "RootFS": {
+    "Layers": [
+      "sha256:9a354992483c962fa69075527e7a2690fd9103f53d2c10af083fb31f24335256",
+      "sha256:64723c36a2e8a475d02fd4680daf184919724e7b0e518989587b29235da69024",
+      "sha256:3e5db5ab1ddf5ac38f0b727d4cb114c7d390a5a87c05f804b485070b3010b744",
+      "sha256:6863b65ce0227838e70dca139b45b609b10fcabcd4939737ca901077a01c469d",
+      "sha256:fa43c5a340a5b19a57b02f12ace314fe400432a0524b908b0ece9c100abb3cd8",
+      "sha256:0ad4db910ac08a621b175352b81eee71aa22a57b8c71f0293f54a33d6754f321",
+      "sha256:c726939dcf8619a5c3d62cd678e823f0918754ac91f1fc018ba4e40cc771cd46",
+      "sha256:54a5e2e72dfb0cc0e9b18cbfd6ef5880662a74a39f65c7052c96080d57776237",
+      "sha256:4f9774978fb1a760f7e74dd8ecadfa9884321299fb28279f9af8d6e85a681568",
+      "sha256:c007a25fddcdfee3e2e0defc24c25578a40b6d895dd2cdf408f5d74facdd99a5",
+      "sha256:ad861d06d364ff9a4d9f91789d6393e311ddaaf05c8dad7f0c2aa20f944b0e75",
+      "sha256:0c1b2eb54c67cf54755199d56fbfdff70d0e7cd45bac3270741158a59c79db0c",
+      "sha256:bbce940bfb13da2b9a55f9cbe31ccdeebd3d7295b35c41d8d464bf7242592b7d",
+      "sha256:02d5c15103f489193c853a05e5f247172cebb6e98e6adf814a9f7f8a567ee850",
+      "sha256:27e1d6afaf4a2c8a5ad97cde62b7c04c1cdbdebed1d34a9cff89652f208f06e3",
+      "sha256:65d8b4d2100a5b318733d09024c158c65e41b0aa381c45cce616c46787b0a272",
+      "sha256:abb7a6875f1332a31420e2bdd89b0f0abacea83f2a40b70b5a0468fb14857c7e",
+      "sha256:876e505cfa05f561ba96ddd54f65bacfec6a1dabb7acfd8ddf081e71e4cb6a79",
+      "sha256:73a72b4f3ed4ff270de8e617f39ef90cc7322188442fb080dfe777eb4b033943"
+    ],
+    "Type": "layers"
+  },
+  "Size": 510050057
+}

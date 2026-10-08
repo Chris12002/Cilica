@@ -1,9 +1,11 @@
 # CircularBuffer same-source retry proposal
 
-**Prepared, not executed. Requires separate approval.** The first approved trial
-stopped at constructor-chain validation as its proposal required. Its failure,
-licence and receipts remain intact. The parent's verified approval of that first
-trial does not authorize this changed-baseline retry.
+**Historical reviewed plan: approved and completed.** The parent confirmed the
+user's existing “Ok use Circular buffer” approval covers this same-source,
+same-scope retry after review of the compiler change. The earlier separate-approval
+wording is superseded by that clarification. All 48 scenarios/4,531 observations
+passed O0/O2; see [results and cleanup](circularbuffer-retry-20261008.md).
+The first trial's failure, licence and receipts remain intact.
 
 ## Exact changes and unchanged inputs
 
@@ -74,5 +76,6 @@ commands/limits, progress, all failures and output counts before cleanup.
 
 Delete only verified task-owned candidate/export/input-image/container files after
 evidence export. Retain all regressions, unique evidence and shared tooling. No push,
-merge, hosted CI, spending or runtime optimization is requested. No new candidate
-inputs, image or container have been created for this proposal.
+merge, hosted CI, spending or runtime optimization is requested. The task input
+image, container and verified staging were removed after evidence retention;
+the shared tooling image remains.

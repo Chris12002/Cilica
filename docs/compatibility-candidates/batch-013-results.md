@@ -22,7 +22,7 @@ final source/assembly hashes and native source/executable receipts. The
 [final log](batch-013/final-tests.log) and [decision](../decisions/compatibility-015-constructor-chains.md)
 record the passing outcome and review boundary.
 
-No actual CircularBuffer retry ran. Its first approved failure remains recorded in
+At the feature-commit checkpoint, no actual CircularBuffer retry had run. Its first approved failure remains recorded in
 [circularbuffer-execution-20261008.md](circularbuffer-execution-20261008.md). The human
 approval was independently verified by the parent (message 01a11b66-eb59-737b-b724-c9025b5706de).
 Per its stop-on-gate boundary, a revised frozen trial proposal is prepared separately:
@@ -34,3 +34,13 @@ and embeds CIL99. Its earlier CIL98 label missed a concurrent peer change; the r
 now says 99 and retains all logs/hashes. Current peer CIL100 and documentation 890e14a
 are preserved. No performance experiment was adopted, and no candidate cleanup was
 needed in this owned-only batch.
+
+
+## Approved execution follow-up
+
+The subsequently reviewed same-source retry passed 48 scenarios, 4,531 observations
+and 27,186 repeated O0/O2 native/.NET comparisons on frozen d073463, with all 72
+source/executable hash pairs retained. The parent confirmed existing direct human
+approval covers the unchanged execution scope. See [full result](circularbuffer-retry-20261008.md).
+The candidate manifest now marks only those selected roots verified; original
+feature evidence and failed-trial receipts remain unchanged.

@@ -4,9 +4,12 @@ This workflow turns pinned public projects into independently testable Cilica
 requirements. It is a source-screening and regression workflow, not an automatic
 third-party build farm. The current batch is [batch-013.json](batch-013.json);
 [results](batch-013-results.md) distinguish implemented support, diagnostics and
-untested candidate execution.
+tested and excluded candidate roots.
 
-Latest execution follow-ups: [CRC32 selected roots verified](crc32-execution-20261008.md)
+Latest execution follow-ups: [CircularBuffer selected roots verified](circularbuffer-retry-20261008.md)
+on frozen d073463 with 48 scenarios, 4,531 observations and 27,186 repeated O0/O2
+comparisons; all 72 native source/executable hash pairs retained.
+[CRC32 selected roots verified](crc32-execution-20261008.md)
 on frozen Cilica c64312e with 41 scenarios and 4,374 repeated O0/O2 comparisons;
 [DiffPlex selected roots verified](diffplex-int32-20261008.md) on 3d0bb53 with
 64 scenarios and 11,232 comparisons. Earlier batch reports preserve their
@@ -132,17 +135,14 @@ receipts and distinguish them from executed outputs. These receipts do not conta
 the generated source itself. This change does not recover the historical CRC32
 emitted-source hashes; that report's limitation remains explicit.
 
-## CircularBuffer trial blocked before execution
+## CircularBuffer original gate and successful retry
 
-The approved [frozen trial](circularbuffer-execution-plan.md) built the unchanged
+The first approved [frozen trial](circularbuffer-execution-plan.md) built the unchanged
 candidate but stopped at constructor-chain validation before oracle/native execution.
-See the [retained failure and cleanup](circularbuffer-execution-20261008.md).
-A changed compiler baseline requires a revised trial proposal; no retry is active.
-
-## Pending same-source CircularBuffer retry
-
-The constructor-chain gate is fixed by independent tests. The
-[frozen retry plan](circularbuffer-retry-plan.md) and
-[exact manifest](circularbuffer-retry-proposal.json) keep the candidate,48scenarios
-and isolation limits unchanged, with compiler baseline d073463. Separate approval
-is required; no retry has run.
+Its [failure and cleanup](circularbuffer-execution-20261008.md) remain immutable.
+After independent general constructor support, the reviewed
+[same-source retry](circularbuffer-retry-plan.md) on d073463 passed all 48 scenarios,
+4,531 observations and 27,186 repeated O0/O2 comparisons. Existing direct user
+approval covered the unchanged scope, as explicitly confirmed by the parent.
+See [results and complete hash receipts](circularbuffer-retry-20261008.md).
+ToArray, segments/iterators and other type instantiations remain untested.

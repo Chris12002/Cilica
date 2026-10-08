@@ -1,0 +1,10 @@
+{
+  "container": "removed by watchdog after evidence export; absence independently verified before image cleanup",
+  "input_image": "sha256:a7d6710956a8b67d30fdfd0b8b37fa8b96451ad547ff4a164cacdca0dda9e8f9",
+  "image_removal": "Untagged: cilica-circularbuffer-retry-20261008:input\nDeleted: sha256:a7d6710956a8b67d30fdfd0b8b37fa8b96451ad547ff4a164cacdca0dda9e8f9\nDeleted: sha256:59016d6f7de887e98d3f2b3d2ea3f8335e1793ec6e8a37a138211d19a4c38fe4\nDeleted: sha256:ae69a7af707912e7bc1d2b613a199ab99f8b96dd729ff62794295f260db76b52\nDeleted: sha256:8e7427a768d13edbb57db026642a871d69b7fbfe6d590377cf27ff246ed6726f\nDeleted: sha256:a0e33bcf8f0cdd902aa68bb0bd6240f7df79dac4e2dbe067cfd95cf6f311e61b\nDeleted: sha256:aa5fcde00dc1fcbf0a7e6382ed36f41f746bb17f8fbc8f66e622166c653e6966\nDeleted: sha256:4fecf0af9f62132b88e08261914a045e5e0b43716208b50e840e8835d18a803b\n",
+  "staging": "/tmp/cilica-circularbuffer-retry-20261008",
+  "staging_removed": true,
+  "verified_input_files": 1953,
+  "tooling_retained": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "preserved": "Frozen pins, Unlicense, owned adapter/driver, full logs, candidate assembly SHA256, all 72 generated-source/executable SHA256 pairs and complete passing evidence; original failed trial remains unchanged; no Cilica or peer source removed."
+}
