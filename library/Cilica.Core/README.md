@@ -36,6 +36,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/WhereIterator.cs \
   --source library/Cilica.Core/SelectIterator.cs \
   --source library/Cilica.Core/SelectManyIterator.cs \
+  --source library/Cilica.Core/SkipIterator.cs \
   --source library/Cilica.Core/DistinctIterator.cs \
   --source library/Cilica.Core/ConcatIterator.cs \
   --source library/Cilica.Core/OrderedIterator.cs \
@@ -62,6 +63,9 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/BoxedFormatting.cs \
   --source library/Cilica.Core/StringComparison.cs \
   --source library/Cilica.Core/StringComparer.cs \
+  --source library/Cilica.Core/StringOrdinalIgnoreCase.cs \
+  --source library/Cilica.Core/OrdinalIgnoreCaseText.cs \
+  --source library/Cilica.Core/UnicodeOrdinalUpper.cs \
   --source library/Cilica.Core/Comparer.cs \
   --source library/Cilica.Core/EqualityComparer.cs \
   --source library/Cilica.Core/StringWhitespace.cs \

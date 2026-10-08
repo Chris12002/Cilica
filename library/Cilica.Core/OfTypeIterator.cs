@@ -7,8 +7,10 @@ using System.Collections.Generic;
 namespace Cilica.Runtime
 {
     public sealed class OfTypeIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryCardinality,
-        IQueryMaterialization<T>, IQueryFirst<T>, IQueryTraversal<T>, IQueryContains<T>, IQueryContainsTraversal<T>
+        IQueryMaterialization<T>, IQueryFirst<T>, IQueryTraversal<T>, IQueryContains<T>, IQueryContainsTraversal<T>, IQuerySkip<T>
     {
+        public IEnumerable<T> Skip(int count) => UnsupportedLibraryMember<IEnumerable<T>>.Invoke();
+
         private readonly IEnumerable source;
         private readonly int threadId;
         private IEnumerator enumerator;

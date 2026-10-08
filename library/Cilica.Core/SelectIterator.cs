@@ -22,8 +22,10 @@ namespace Cilica.Runtime
     public interface IQueryCheapCount { int GetCheapCount(); }
 
     public sealed class SelectIterator<TSource, TResult> : IEnumerable<TResult>, IEnumerator<TResult>,
-        IQueryTraversal<TResult>, IQueryFirst<TResult>, IQueryCheapCount, IQueryCardinality, IQueryMaterialization<TResult>, IQueryContains<TResult>, IQueryContainsTraversal<TResult>
+        IQueryTraversal<TResult>, IQueryFirst<TResult>, IQueryCheapCount, IQueryCardinality, IQueryMaterialization<TResult>, IQueryContains<TResult>, IQueryContainsTraversal<TResult>, IQuerySkip<TResult>
     {
+        public IEnumerable<TResult> Skip(int count) => UnsupportedLibraryMember<IEnumerable<TResult>>.Invoke();
+
         private readonly IEnumerable<TSource> source;
         private readonly TSource[] array;
         private readonly Func<TSource, TResult> selector;

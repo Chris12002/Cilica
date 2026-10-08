@@ -24,8 +24,10 @@ namespace Cilica.Runtime
             found = 0; return default(T);
         }
     }
-    public sealed class DistinctIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryFirst<T>, IQueryCardinality, IQueryMaterialization<T>, IQueryContains<T>
+    public sealed class DistinctIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryFirst<T>, IQueryCardinality, IQueryMaterialization<T>, IQueryContains<T>, IQuerySkip<T>
     {
+        public IEnumerable<T> Skip(int count) => UnsupportedLibraryMember<IEnumerable<T>>.Invoke();
+
         private readonly IEnumerable<T> source;
         private readonly int threadId;
         private SetStorage<T> set;

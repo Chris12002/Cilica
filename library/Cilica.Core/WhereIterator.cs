@@ -24,8 +24,10 @@ namespace Cilica.Runtime
     // iterator inheritance/layout is not a compatibility contract.
     // Public metadata permits the existing cross-owner generic visibility rule;
     // this Cilica helper is not a mapped framework iterator contract.
-    public sealed class WhereIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryCardinality, IQueryMaterialization<T>, IQueryTraversal<T>, IQueryFirst<T>, IQueryContains<T>, IQueryContainsTraversal<T>
+    public sealed class WhereIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryCardinality, IQueryMaterialization<T>, IQueryTraversal<T>, IQueryFirst<T>, IQueryContains<T>, IQueryContainsTraversal<T>, IQuerySkip<T>
     {
+        public IEnumerable<T> Skip(int count) => UnsupportedLibraryMember<IEnumerable<T>>.Invoke();
+
         private readonly IEnumerable<T> source;
         private readonly T[] array;
         private readonly int length;

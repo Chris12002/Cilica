@@ -38,8 +38,10 @@ namespace Cilica.Runtime
     public interface IOrderSorter<T> : IMapComparison { void ComputeKeys(T[] elements); }
     public interface IOrderCache<T> { void SetElement(T item); int Compare(T item); }
     public sealed class OrderedIterator<T, TKey> : System.Linq.IOrderedEnumerable<T>, IOrdering<T>, IEnumerator<T>,
-        IQueryMaterialization<T>, IQueryCardinality, IQueryCheapCount, IQueryTraversal<T>, IQueryFirst<T>, IQueryFirstProjection<T>, IQueryContains<T>
+        IQueryMaterialization<T>, IQueryCardinality, IQueryCheapCount, IQueryTraversal<T>, IQueryFirst<T>, IQueryFirstProjection<T>, IQueryContains<T>, IQuerySkip<T>
     {
+        public IEnumerable<T> Skip(int count) => UnsupportedLibraryMember<IEnumerable<T>>.Invoke();
+
         private readonly IEnumerable<T> source;
         private readonly Func<T, TKey> selector;
         private readonly IComparer<TKey> comparer;

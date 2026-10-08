@@ -8,8 +8,10 @@ using System.Linq;
 namespace Cilica.Runtime
 {
     public sealed class SelectManyIterator<TSource,TResult> : IEnumerable<TResult>, IEnumerator<TResult>,
-        IQueryCardinality, IQueryCheapCount, IQueryMaterialization<TResult>, IQueryContains<TResult>
+        IQueryCardinality, IQueryCheapCount, IQueryMaterialization<TResult>, IQueryContains<TResult>, IQuerySkip<TResult>
     {
+        public IEnumerable<TResult> Skip(int count) => UnsupportedLibraryMember<IEnumerable<TResult>>.Invoke();
+
         private readonly IEnumerable<TSource> source;
         private readonly Func<TSource,IEnumerable<TResult>> selector;
         private readonly int threadId;

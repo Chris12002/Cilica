@@ -3518,3 +3518,15 @@ copy to 8,192 locals reaches Enumerable.Skip in ContinueAcquiredShieldChoice,
 with 1,075,533 metadata units/4,336 ms. Production limits remain unchanged; no
 engine code is emitted or executed. See ADR AC0190. Full engine, unchanged
 fingerprint and saved-game replay remain unfinished.
+
+### Skip over ordinary enumerable and list sources (AC6.21)
+
+Enumerable.Skip now supports ordinary IEnumerable and IList sources, including
+arrays, deferred acquisition/disposal, repeated/overflowed skips, mutable lists,
+count/first/materialization and the exposed read-only list view. Copied equality,
+ToList capacity and source/destination copy validation match the pinned .NET paths.
+Seventeen probes supply 7,344 repeated native comparisons; all 124 selected checks
+pass. Optimized LINQ-source specializations remain explicit build diagnostics,
+including Where, Select and ordering. See ADR AC0191. No compiler/native profile,
+intrinsic grant or production-limit change is needed. Frozen discovery remains
+partial; full engine, unchanged fingerprint and saved-game replay are unfinished.

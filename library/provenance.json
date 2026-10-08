@@ -16,6 +16,31 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Skip.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Skip.cs",
+      "sha256": "f649486bac61d9288121a6452ecfdd177aea6c85ab57962be940f6958fa183c3"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/Skip.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/Skip.SpeedOpt.cs",
+      "sha256": "69c6b323f7e6bad4fb2ac727b6e4f9d4e73ff4b3dff5a2923cf9eab245445565"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SkipTake.SpeedOpt.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Linq/src/System/Linq/SkipTake.SpeedOpt.cs",
+      "sha256": "b8266917685f9640567ee91de9e09ca8e01dba2b470592de9da314bc61aa9a15"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/MemoryExtensions.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/MemoryExtensions.cs",
+      "sha256": "4da1346fb1951d868c1085d9ea7e54df294d191f81b32f10dc5ccfad19a47b2a"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Span.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Span.cs",
+      "sha256": "bbaf38430e087085f2c10b58386123a389f45715ead6bc6f80d92198c2aea3f1"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Globalization/Ordinal.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Globalization/Ordinal.cs",
       "sha256": "918e155e8b6314bf1ab45285187d2e7bd8553bc3fa2ac27c405a8cd0d6dc4aed"
@@ -412,6 +437,17 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/SkipIterator.cs",
+      "upstreamPath": "src/libraries/System.Linq/src/System/Linq/SkipTake.SpeedOpt.cs",
+      "algorithms": [
+        "AC6.21 Skip on ordinary enumerable and IList sources, clone/defer/dispose state, overflow composition, optimized count/first/materialization and exposed IList contracts."
+      ],
+      "changes": [
+        "Managed buffers and indexed copies replace spans; exact count/callback behavior, copied default-comparer equality, concrete array/list source-span validation and list capacity are retained. IQuerySkip marks optimized LINQ sources; their unimplemented specializations are explicit build diagnostics."
+      ],
+      "scope": "Ordinary IEnumerable, arrays and IList sources only. Skip over Where/Select/OrderBy/Concat/Distinct/OfType/Cast-collection/SelectMany iterators remains diagnostic pending their specific callback and ordering paths."
+    },
     {
       "path": "library/Cilica.Core/StringOrdinalIgnoreCase.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/StringComparer.cs",

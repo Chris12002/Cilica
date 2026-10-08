@@ -10,8 +10,10 @@ namespace Cilica.Runtime
     // IteratorSelect obtains this first result before invoking its selector.
     public interface IQueryFirstProjection<T> { T TryFirst(out int found); }
     public sealed class ConcatIterator<T> : IEnumerable<T>, IEnumerator<T>, IQueryFirst<T>, IQueryFirstProjection<T>,
-        IQueryCardinality, IQueryCheapCount, IQueryMaterialization<T>, IQueryTraversal<T>, IQueryContains<T>
+        IQueryCardinality, IQueryCheapCount, IQueryMaterialization<T>, IQueryTraversal<T>, IQueryContains<T>, IQuerySkip<T>
     {
+        public IEnumerable<T> Skip(int count) => UnsupportedLibraryMember<IEnumerable<T>>.Invoke();
+
         private readonly IEnumerable<T> first;
         private readonly IEnumerable<T> second;
         private readonly ConcatIterator<T> tail;

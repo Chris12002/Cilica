@@ -4258,3 +4258,15 @@ code; no new compiler grant, runtime operation or limit is added. See
 [results](compatibility-candidates/batch-006-results.md). DiffPlex's selected source
 requirements are mapped; real integration remains unexecuted pending approved
 isolation. Culture factories and nongeneric comparer operations remain diagnostic.
+
+### Skip over ordinary enumerable and list sources (AC6.21)
+
+Enumerable.Skip now supports ordinary IEnumerable and IList sources, including
+arrays, deferred acquisition/disposal, repeated/overflowed skips, mutable lists,
+count/first/materialization and the exposed read-only list view. Copied equality,
+ToList capacity and source/destination copy validation match the pinned .NET paths.
+Seventeen probes supply 7,344 repeated native comparisons; all 124 selected checks
+pass. Optimized LINQ-source specializations remain explicit build diagnostics,
+including Where, Select and ordering. See ADR AC0191. No compiler/native profile,
+intrinsic grant or production-limit change is needed. Frozen discovery remains
+partial; full engine, unchanged fingerprint and saved-game replay are unfinished.

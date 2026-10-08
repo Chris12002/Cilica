@@ -52,8 +52,10 @@ namespace Cilica.Runtime
 
     public sealed class CastCollectionIterator<T> : IEnumerable<T>, IEnumerator<T>,
         IQueryCardinality, IQueryCheapCount, IQueryMaterialization<T>, IQueryFirst<T>,
-        IQueryFirstProjection<T>, IQueryContains<T>, IQueryTraversal<T>
+        IQueryFirstProjection<T>, IQueryContains<T>, IQueryTraversal<T>, IQuerySkip<T>
     {
+        public IEnumerable<T> Skip(int count) => UnsupportedLibraryMember<IEnumerable<T>>.Invoke();
+
         private readonly ICollection source;
         private readonly int threadId;
         private IEnumerator enumerator;

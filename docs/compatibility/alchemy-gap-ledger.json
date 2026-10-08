@@ -31,7 +31,7 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "0b4261d59d4714af1e005b184ec5a64369ccc2e5d24726e6cd5b748cdb3cc478",
-    "latestSlice": "AC8.60",
+    "latestSlice": "AC6.21",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -523,7 +523,8 @@
         "AC6.17",
         "AC6.18",
         "AC6.19",
-        "AC6.20"
+        "AC6.20",
+        "AC6.21"
       ],
       "remaining": "Remaining deferred/terminal operators, List specializations, boxed collection factories and full replay closure."
     },
@@ -566,6 +567,11 @@
       "prerequisites": ["AC4.7", "AC6.7"],
       "status": "complete-bounded-oftype",
       "decision": "docs/decisions/AC0054-nongeneric-cursors-and-oftype.md"
+    },
+    "AC6.21": {
+      "prerequisites": ["AC8.60", "AC6.20"],
+      "status": "complete-bounded-skip-source-families",
+      "decision": "docs/decisions/AC0191-skip-source-families.md"
     },
     "AC6.20": {
       "prerequisites": ["AC6.19", "AC6.16"],
