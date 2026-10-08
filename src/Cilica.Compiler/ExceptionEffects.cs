@@ -20,6 +20,7 @@ internal static class ExceptionEffects
                     case IrExpression.Binary binary when Int32Operations.MayFault(binary.Operation):
                     case IrExpression.Binary64 wide when Int64Operations.MayFault(wide.Operation):
                     case IrExpression.IntegerCast { Checked: true }:
+                    case IrExpression.CheckedNativeIndex:
                         if (throwing.Add(id)) pending.Enqueue(id); break;
                 }
         }

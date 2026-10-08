@@ -4302,3 +4302,15 @@ exact fault policies. Six new probes supply 6,972 repeated native/.NET compariso
 all 32 selected GUID checks pass with O0/O2, forced GC and sanitizers. See ADR AC0193.
 The frozen engine advances to invariant Int64.Parse(String,IFormatProvider) in
 ShieldAcquisitionReceipt.Read. Full engine, fingerprint and replay remain unfinished.
+
+### Checked native array indices for compatibility batch 008
+
+The integer object profile admits conv.ovf.i/conv.ovf.i.un only for block-local
+array element indices. Overflow uses emitted target pointer width; invalid wide
+indices are encoded without truncation or early bounds faults. Opaque frontend
+tracking rejects other native-integer uses and block transfers. CIL 86/IR 56/native 78;
+array layout, grants and quotas are unchanged. Independent 64-bit differential and
+labelled 32-bit width-emulation tests cover evaluation/fault order and GC. Actual
+32-bit ABI and full CRC project execution remain unverified. See
+[decision](decisions/compatibility-008-checked-native-indices.md) and
+[results](compatibility-candidates/batch-008-results.md).

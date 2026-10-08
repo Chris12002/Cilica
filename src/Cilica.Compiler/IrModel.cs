@@ -54,6 +54,10 @@ public abstract record IrExpression
     // Narrow results are normalized to the CIL Int32 evaluation stack. Source
     // signedness is explicit because .un checked conversions reinterpret bits.
     public sealed record IntegerCast(IntegerCastTarget Target, int Operand, bool Checked, bool UnsignedSource) : IrExpression;
+    // A checked signed-native conversion followed by bounded array-index encoding.
+    // Values outside [0, Int32.MaxValue] become -1 only after native overflow checks.
+    // This is not a general native-integer value; the frontend confines its use.
+    public sealed record CheckedNativeIndex(int Operand, bool UnsignedSource) : IrExpression;
     public sealed record Null : IrExpression;
     public sealed record Parameter(int Index) : IrExpression;
     public sealed record Local(int Index) : IrExpression;

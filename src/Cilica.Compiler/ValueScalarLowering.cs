@@ -497,6 +497,7 @@ public static class ValueScalarLowering
                                 IrExpression.Not64 unary => unary with { Operand = One(unary.Operand) },
                                 IrExpression.ConvertInteger conversion => conversion with { Operand = One(conversion.Operand) },
                                 IrExpression.IntegerCast cast => cast with { Operand = One(cast.Operand) },
+                                IrExpression.CheckedNativeIndex cast => cast with { Operand = One(cast.Operand) },
                                 IrExpression.Unary unary => unary with { Operand = One(unary.Operand) },
                                 IrExpression.Compare compare => compare with { Left = One(compare.Left), Right = One(compare.Right) },
                                 IrExpression.Call call => call with { Arguments = Arguments(call.Arguments, true) },

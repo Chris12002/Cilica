@@ -13,7 +13,7 @@ using Xunit;
 namespace Cilica.Metadata.Tests;
 public sealed class CandidateUInt32VectorTests
 {
-    private static readonly string[] Names=["Values","Generic","Widen","Heap","Types","Aliases","Interfaces","Copy","Search","Enumerate","Boxes","ActualBoxes","Empty","Static","Clear","Faults","CastMessage","RequestedBoxes","AllocationFaults","NullLoad"];
+    private static readonly string[] Names=["Values","Generic","Widen","Heap","Types","Aliases","Interfaces","Copy","Search","Enumerate","Boxes","ActualBoxes","Empty","Static","Clear","Faults","CastMessage","RequestedBoxes","AllocationFaults","NullLoad","WideIndex"];
     private static readonly ConcurrentDictionary<string,Lazy<Task<ManagedExceptionIrProgram[]>>> Programs=new();
     private static async Task<ManagedExceptionIrProgram> Program(string name)=>(await Programs.GetOrAdd(name,n=>new(()=>CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateUInt32VectorProbe),[n]))).Value)[0];
     public static IEnumerable<object[]> Cases()=>from name in Names from optimized in new[]{false,true} select new object[]{name,optimized};
@@ -24,7 +24,7 @@ public sealed class CandidateUInt32VectorTests
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,[(name,await Program(name),typeof(CandidateUInt32VectorProbe).GetMethod(name)!.CreateDelegate<Func<int,int,int>>())],
             (from a in edges from b in new[]{-1,0,1,2,int.MaxValue} select(a,b)).ToArray());
     }
-    [Theory] [InlineData("UnsupportedBorrow","Element addresses")] [InlineData("WideIndex","conv.ovf.i")]
+    [Theory] [InlineData("UnsupportedBorrow","Element addresses")]
     public async Task Remaining_crc_index_and_borrow_boundaries_are_explicit(string name,string diagnostic)
     {
         using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;

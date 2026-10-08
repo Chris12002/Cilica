@@ -157,6 +157,8 @@ internal static class IrValidator
                             IrExpression.IntegerCast c => types.IntegerCasts && Enum.IsDefined(c.Target) && Earlier(c.Operand)
                                 && valueTypes[c.Operand] is var castInput && (castInput == IrType.Int32 || castInput == IrType.Int64)
                                 && value.Type == IntegerCasts.Result(c.Target),
+                            IrExpression.CheckedNativeIndex c => catalog is not null && types.IntegerCasts && Earlier(c.Operand)
+                                && (valueTypes[c.Operand] == IrType.Int32 || valueTypes[c.Operand] == IrType.Int64) && value.Type == IrType.Int32,
                             IrExpression.Null => catalog is not null && value.Type == IrType.NullReference,
                             IrExpression.Parameter p => p.Index >= 0 && p.Index < method.Parameters.Length && value.Type == method.Parameters[p.Index],
                             IrExpression.Local l => Local(l.Index) && value.Type == method.Locals[l.Index],
@@ -264,7 +266,7 @@ internal static class IrValidator
                             or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot ||
                             value.Expression is IrExpression.Binary binary && Int32Operations.MayFault(binary.Operation)
                             || value.Expression is IrExpression.Binary64 wide && Int64Operations.MayFault(wide.Operation)
-                            || value.Expression is IrExpression.IntegerCast { Checked: true };
+                            || value.Expression is IrExpression.IntegerCast { Checked: true } or IrExpression.CheckedNativeIndex;
                         Require(define.Exceptional == (throwing ? IrExceptionTarget.MethodExit : null),
                             "throwing definitions need an explicit method-exit edge; pure definitions cannot have one.");
                         if (value.Expression is IrExpression.Call call)

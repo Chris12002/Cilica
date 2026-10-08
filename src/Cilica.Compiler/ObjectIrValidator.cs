@@ -640,6 +640,7 @@ internal sealed partial class ObjectIrRules
                             IrExpression.Not64 n when _program.Flow.Types.Integer64 => !This(n.Operand),
                             IrExpression.ConvertInteger c when _program.Flow.Types.Integer64 => !This(c.Operand),
                             IrExpression.IntegerCast c when _program.Flow.Types.Integer64 => !This(c.Operand),
+                            IrExpression.CheckedNativeIndex c when _program.Flow.Types.Integer64 => !This(c.Operand),
                             IrExpression.ValueField f when _program.Flow.Types.Integer64 => !This(f.Operand),
                             IrExpression.WithValueField f when _program.Flow.Types.Integer64 => !This(f.Operand) && !This(f.Value),
                             IrExpression.LocationField f when _program.Flow.Types.Integer64 => !This(f.Location),

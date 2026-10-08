@@ -112,7 +112,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
             or IrExpression.LoadStatic or IrExpression.AddressLocal or IrExpression.AddressParameter => [],
         IrExpression.Binary b => [b.Left, b.Right], IrExpression.Binary64 b => [b.Left, b.Right],
         IrExpression.Unary u => [u.Operand], IrExpression.Not64 u => [u.Operand],
-        IrExpression.ConvertInteger c => [c.Operand], IrExpression.IntegerCast c => [c.Operand],
+        IrExpression.ConvertInteger c => [c.Operand], IrExpression.IntegerCast c => [c.Operand], IrExpression.CheckedNativeIndex c => [c.Operand],
         IrExpression.NewException e => new[] {e.Message, e.ParameterName, e.Inner, e.TypeName, e.ActualValue, e.ObjectName}.Where(v => v.HasValue).Select(v => v!.Value),
         IrExpression.ObjectClone e => [e.Operand],
         IrExpression.ObjectIdentityHash e => [e.Operand],

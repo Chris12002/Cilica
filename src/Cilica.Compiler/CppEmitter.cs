@@ -167,6 +167,18 @@ public static class CppEmitter
         Func<int, string>? operand = null, Func<bool, string>? scratch = null, Func<int, IrType>? operandType = null)
     {
         operand ??= id => "v" + Number(id);
+        if (value.Expression is IrExpression.CheckedNativeIndex index)
+        {
+            string result = "index_" + Number(value.Id);
+            text.Append("    static_assert(sizeof(std::intptr_t) == 4 || sizeof(std::intptr_t) == 8);\n");
+            text.Append("    const I8Result ").Append(result).Append(" = cilica_cast_integer(").Append(operand(index.Operand))
+                .Append(", ").Append(operandType?.Invoke(index.Operand) == IrType.Int64 ? "64u" : "32u")
+                .Append(", sizeof(std::intptr_t) * 8u, false, true, ").Append(index.UnsignedSource ? "true" : "false").Append(");\n");
+            text.Append("    if (").Append(result).Append(".fault != 0u) {\n"); fault(Int32Fault.Overflow, value.ILOffset); text.Append("    }\n");
+            // Every admitted vector length is a nonnegative Int32. Do not truncate
+            // a wide invalid index into a valid one, or fault before store operands.
+            return "(" + result + ".value <= 0x7fffffffu ? static_cast<std::uint32_t>(" + result + ".value) : 0xffffffffu)";
+        }
         if (value.Expression is IrExpression.IntegerCast cast)
         {
             string result = "cast_" + Number(value.Id);

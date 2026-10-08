@@ -1,11 +1,15 @@
 # DiffPlex selected-root execution approval plan
 
-**Not executed.** Approve compiling and executing the 14 reviewed DiffPlex source
+**Approved, not executed.** User approval was recorded on 2026-10-08 at
+07:17:49 UTC for compiling and executing the 14 reviewed DiffPlex source
 files at `f500e73f28e28813f942f1f16dec5a34b40e48e3` plus the authored validation
 adapter, inside a disposable credential-free environment. The user instruction
 requires approval before third-party execution. The explicit-test attribute and
 environment variables prevent accidental default runs; they are not isolation.
-No suitable isolated environment has been provisioned by this task.
+No suitable isolated environment has been verified or provisioned by this task.
+The [read-only feasibility check](diffplex-isolation-feasibility.md) records the
+missing daemon/offline prerequisites. Use approved Cilica revision
+`268024e94879acdb004228afa360e1222e2068b8`; subsequent independent work is excluded.
 
 This plan validates the character/line diff paths, including whitespace and case
 options. It is **not** execution of the full upstream project, builders, renderer,

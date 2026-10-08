@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v85";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v86";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -259,7 +259,7 @@ public static class ValueTranslator
                 if (switchCase > 0) blockOffset += 5 + 4 * (switchCase - 1);
                 _inputs += incoming[id].Length;
                 if (_inputs > IrLimits.MaximumInputs) Error(blockOffset, "Aggregate block-input limit exceeded.", DiagnosticIds.TranslationLimit);
-                var statements = new List<IrStatement>(); var values = new List<IrType>(); var valueExpressions = new List<IrExpression>(); var stack = new List<int>();
+                var statements = new List<IrStatement>(); var values = new List<IrType>(); var valueExpressions = new List<IrExpression>(); var stack = new List<int>(); var nativeIndices = new HashSet<int>();
                 IrTerminator? terminator = null;
                 int transferred = 0;
                 for (int i = 0; i < incoming[id].Length; i++)
@@ -289,6 +289,13 @@ public static class ValueTranslator
                         Push(offset, values[left], values[left] == IrType.Int64
                             ? new IrExpression.Binary64(Int64Operations.FromOpcode(opcode), left, right)
                             : new IrExpression.Binary(operation, left, right), Int32Operations.MayFault(operation));
+                    }
+                    else if (types.IntegerCasts && opcode is ("conv.ovf.i" or "conv.ovf.i.un"))
+                    {
+                        int operand = Pop(offset);
+                        if (!Integer(values[operand])) Error(offset, "Checked native index conversion requires Int32 or Int64.");
+                        int nativeIndex = Define(offset, IrType.Int32, new IrExpression.CheckedNativeIndex(operand, opcode.EndsWith(".un", StringComparison.Ordinal)), true);
+                        nativeIndices.Add(nativeIndex); stack.Add(nativeIndex);
                     }
                     else if (types.IntegerCasts && IntegerCasts.FromOpcode(opcode, -1) is { } cast)
                     {
@@ -514,20 +521,20 @@ public static class ValueTranslator
                             int lengthArray = PopArray(offset); ++index;
                             Push(offset, IrType.Int32, new IrExpression.ArrayLength(lengthArray), true); break;
                         case "ldelema" when types.IntegerCasts:
-                            int addressIndex = Pop(offset, IrType.Int32), addressArray = PopArray(offset);
+                            int addressIndex = Pop(offset, IrType.Int32, arrayIndex: true), addressArray = PopArray(offset);
                             var addressView = ArrayView(addressArray, opcode, offset);
                             if (addressView.ArrayElement!.Kind is not (ObjectArrayElementKind.Value or ObjectArrayElementKind.Reference))
                                 Error(offset, "Element addresses currently require a closed inline value or reference array.", DiagnosticIds.ExecutionUnsupported);
                             Push(offset, IrType.Location(ElementType(addressView)), new IrExpression.AddressElement(addressView, addressArray, addressIndex), true); break;
                         case "ldelem.u4" or "ldelem.i8" or "ldelem.ref" or "ldelem" or "ldelem.u1" or "ldelem.u2" when types.IntegerCasts:
                         case "ldelem.i4" when arrays:
-                            int loadIndex = Pop(offset, IrType.Int32), loadArray = PopArray(offset);
+                            int loadIndex = Pop(offset, IrType.Int32, arrayIndex: true), loadArray = PopArray(offset);
                             var loadView = ArrayView(loadArray, opcode, offset);
                             Push(offset, ElementType(loadView),
                                 new IrExpression.LoadElement(loadView, loadArray, loadIndex), true); break;
                         case "stelem.i8" or "stelem.ref" or "stelem" or "stelem.i1" or "stelem.i2" when types.IntegerCasts:
                         case "stelem.i4" when arrays:
-                            int elementValue = Pop(offset), storeIndex = Pop(offset, IrType.Int32), storeArray = PopArray(offset);
+                            int elementValue = Pop(offset), storeIndex = Pop(offset, IrType.Int32, arrayIndex: true), storeArray = PopArray(offset);
                             var storeView = ArrayView(storeArray, opcode, offset);
                             elementValue = AdaptBox(elementValue, ElementType(storeView), offset);
                             Compatible(values[elementValue], ElementType(storeView), offset);
@@ -867,6 +874,7 @@ public static class ValueTranslator
                     }
                     if (stack.Count > input.MaxStack) Error(offset, "Evaluation stack exceeds the declared maximum.");
                 }
+                if (nativeIndices.Count != 0) Error(blockOffset, "Checked native indices require one array element use in the same block.", DiagnosticIds.ExecutionUnsupported);
                 var last = input.Instructions[end - 1];
                 terminator ??= new IrJump(last.Offset, Edge(last.Offset + last.Length, last.Offset));
                 return new(id, blockOffset, [.. incoming[id].Where((_, index) => !incomingThis[id][index])], [.. statements], terminator);
@@ -892,10 +900,15 @@ public static class ValueTranslator
                     ? Define(offset, IrType.Int32, new IrExpression.IntegerCast(target, operand, false, false)) : operand;
                 int NormalizeField(int operand, int offset) => method.NarrowFields.TryGetValue(offset, out var target)
                     ? Define(offset, IrType.Int32, new IrExpression.IntegerCast(target, operand, false, false)) : operand;
-                int Pop(int offset, IrType? expected = null)
+                int Pop(int offset, IrType? expected = null, bool arrayIndex = false)
                 {
                     if (stack.Count == 0) Error(offset, "Instruction requires an evaluation-stack operand.");
                     int id = stack[^1]; stack.RemoveAt(stack.Count - 1);
+                    if (nativeIndices.Contains(id))
+                    {
+                        if (!arrayIndex) Error(offset, "Checked native indices support only array element access; arithmetic, aliases and general native-integer flow require later lowering.", DiagnosticIds.ExecutionUnsupported);
+                        nativeIndices.Remove(id);
+                    }
                     if (expected is not null) { id = AdaptBox(id, expected, offset); Compatible(values[id], expected, offset); } return id;
                 }
                 int AdaptBox(int id, IrType expected, int offset)
@@ -967,6 +980,7 @@ public static class ValueTranslator
                 }
                 IrEdge EdgeToBlock(int target, int from)
                 {
+                    if (nativeIndices.Count != 0) Error(from, "Checked native indices cannot cross block boundaries.", DiagnosticIds.ExecutionUnsupported);
                     var stackTypes = stack.Select(id => values[id]).ToImmutableArray();
                     var receiverSlots = stack.Select(value => (stableConstructorReceiver || method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance))
                         && valueExpressions[value] is IrExpression.Parameter { Index: 0 }).ToImmutableArray();
