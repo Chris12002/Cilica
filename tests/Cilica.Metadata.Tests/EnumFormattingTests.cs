@@ -58,7 +58,7 @@ public sealed class EnumFormattingTests
         Assert.False(rejected.Success); Assert.Contains(rejected.Diagnostics, d => d.Message.Contains("lexical declaring scope", StringComparison.Ordinal));
         var manifest = JsonSerializer.Deserialize<LibraryBuildManifest>(bytes, new JsonSerializerOptions { Converters = { new JsonStringEnumConverter<LibraryIntrinsicCapability>() } })!;
         var artifact = Assert.Single(manifest.Artifacts);
-        foreach (var grant in artifact.Grants.Where(g => g.Capability == LibraryIntrinsicCapability.EnumFormatting))
+        foreach (var grant in artifact.Grants.Where(g => g.Capability == LibraryIntrinsicCapability.EnumFormatting && g.Owner == "Cilica.Runtime.EnumText`1"))
         {
             var changed = manifest with { Artifacts = [artifact with { Grants = [.. artifact.Grants.Where(g => g != grant)] }] };
             var deniedBytes = AssemblyResolver.SerializeLibraryBuildManifest(changed);

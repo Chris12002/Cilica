@@ -884,14 +884,15 @@
     {
       "path": "library/Cilica.Core/BoxedFormatting.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Enum.cs",
-      "algorithms": ["ToStringInlined format selection", "GetSingleFlagsEnumNameForValue and TryFindFlagsNames unsigned greedy decomposition"],
+      "algorithms": ["ToStringInlined format selection and default-name cache identity", "GetSingleFlagsEnumNameForValue and TryFindFlagsNames unsigned greedy decomposition"],
       "changes": [
         "Admit only Int32 enums with unique values and no custom attributes; reject Flags and duplicate-value aliases before execution.",
         "Retain bounded constant metadata as immutable unsigned-sorted native tables; exact private helpers read bits, count, values and UTF-16 names.",
         "Keep format parsing, uppercase eight-digit hex, fallback decimal and decomposition in ordinary managed bodies; perform a nonallocating decomposition pass before reading names.",
-        "Use managed concatenation instead of stack spans for composite names; no allocation-count or memory-threshold equivalence claim."
+        "Use managed concatenation instead of stack spans for composite names; no allocation-count or memory-threshold equivalence claim.",
+        "AC7b.23 constrained default enum text uses a separate public managed bridge with a private per-closed-type name cache. Publish after complete name copying; unnamed values reuse the existing invariant integer cache. The metadata helpers remain private."
       ],
-      "scope": "G/g, D/d, X/x, F/f and default suffixes within the directly boxed one/two-argument String.Format bridge; existing invariant numeric culture only."
+      "scope": "G/g, D/d, X/x, F/f and default suffixes within the directly boxed one/two-argument String.Format bridge, plus exact constrained Object.ToString calls on admitted Int32 enums. Default named text preserves per-enum reference identity; boxes, other widths, flags/aliases and direct enum-array borrows remain outside the new path. Existing invariant numeric culture only."
     },
     {
       "path": "library/Cilica.Core/BoxedFormatting.cs",

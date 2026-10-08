@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v87";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v88";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -218,7 +218,7 @@ public static class ValueTranslator
             var input = method.Input;
             var locals = method.Locals.ToBuilder();
             var constructorTemporaries = new Dictionary<int, int>();
-            var constrainedPrefixes = method.ConstrainedCalls.Values.Concat(method.EnumCompareCalls.Values).Select(c => c.PrefixOffset)
+            var constrainedPrefixes = method.ConstrainedCalls.Values.Concat(method.EnumCompareCalls.Values).Concat(method.EnumTextCalls.Values).Select(c => c.PrefixOffset)
                 .Concat(method.ConstrainedReferenceCalls.Values.Select(c => c.PrefixOffset)).ToHashSet();
             // Re-reading a carried class receiver is valid only while its argument
             // slot cannot be changed through a managed address. Direct starg.0 is
@@ -323,6 +323,15 @@ public static class ValueTranslator
                         case "call" when exceptions is not null && method.Literals.ContainsKey(offset):
                         case "ldstr" when exceptions is not null:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringLiteral(method.Literals[offset]), true); break;
+                        case "callvirt" when method.EnumTextCalls.ContainsKey(offset):
+                            var enumTextTarget = methods[method.Calls[offset]];
+                            if (enumTextTarget.Binding.Kind != ObjectMethodKind.Static || enumTextTarget.Parameters.Length != 1
+                                || enumTextTarget.Parameters[0] != IrType.Int32 || enumTextTarget.ReturnType != IrType.Reference(stringType!))
+                                Error(offset, "Constrained enum text requires its checked static Int32/string bridge.");
+                            int textAddress = Pop(offset, IrType.Location(IrType.Int32));
+                            int textBits = Define(offset, IrType.Int32, new IrExpression.LoadLocation(textAddress), true);
+                            Push(offset, IrType.Reference(stringType!), new IrExpression.Call(enumTextTarget.Binding.Method, [textBits]), true);
+                            break;
                         case "callvirt" when method.EnumCompareCalls.TryGetValue(offset, out var enumComparison):
                             int enumTarget = Pop(offset, IrType.Reference(objectBase));
                             bool nullEnumTarget = valueExpressions[enumTarget] is IrExpression.Null;

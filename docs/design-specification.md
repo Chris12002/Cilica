@@ -4325,3 +4325,14 @@ including 262,754 managed-only oracle cases. Integration with the separately
 committed checked-index slice passes 69 distinct selected checks. See ADR AC0194. The frozen engine next
 reaches constrained ElementGender.ToString; full engine, fingerprint and saved-game
 replay remain unfinished.
+
+### Constrained default enum text (AC7b.23)
+
+Exact constrained Object.ToString calls on admitted Int32 enums now read the scalar
+receiver and use managed formatting. Names are cached per closed enum type;
+unnamed values reuse the existing invariant integer cache. Private metadata helpers
+stay private. Nine probes supply 3,030 repeated native/.NET comparisons, plus 129
+allocation-limit recovery cases at each optimization level. All 77 selected checks
+pass. See ADR AC0195. Flags, aliases, wide/boxed receivers and direct enum-array
+addresses remain diagnostic. Frozen discovery reaches 12,290/12,288 diagnostic
+parameters; full engine, unchanged fingerprint and saved-game replay are unfinished.

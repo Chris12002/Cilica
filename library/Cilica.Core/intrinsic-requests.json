@@ -1,6 +1,13 @@
 [
   {
     "Namespace": "System",
+    "Type": "Object",
+    "Member": "ToString",
+    "ParameterCount": 0,
+    "Capability": "EnumFormatting"
+  },
+  {
+    "Namespace": "System",
     "Type": "Int64",
     "Member": "Parse",
     "ParameterCount": 2,

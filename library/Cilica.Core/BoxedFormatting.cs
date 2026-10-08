@@ -107,6 +107,27 @@ namespace Cilica.Runtime
 {
     // Bounded Int32 enum formatting, adapted from the pinned System.Enum source.
     // Discovery admits unique values with no custom attributes (including Flags).
+    public static class EnumDefaultText<T>
+    {
+        private static string[] names;
+        // Checked managed bridge. Publish only a complete per-enum name cache.
+        public static string Default(int bits)
+        {
+            var cached = names;
+            if (cached == null)
+            {
+                int count = EnumText<T>.Count();
+                cached = new string[count];
+                for (int i = 0; i < count; i++) cached[i] = EnumText<T>.NameAt(i);
+                names = cached;
+            }
+            for (int i = 0; i < cached.Length; i++)
+                if (EnumText<T>.ValueAt(i) == bits) return cached[i];
+            return IntegerText.Int32(bits);
+        }
+
+    }
+
     internal static class EnumText<T>
     {
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
