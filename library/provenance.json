@@ -9,6 +9,11 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Searching.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.Searching.cs",
+      "sha256": "c2e1a924f2b72a8c637db37abee6ca3d5ff6e15774483bc7629a0129356daf4c"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/EqualityComparer.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/EqualityComparer.cs",
       "sha256": "0ff1fef1bf5360324d6caea4cda886d38aa2456c0d5ad53df8e2029af76bdc0c"
@@ -360,6 +365,13 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/StringSearching.cs",
+      "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/String.Searching.cs",
+      "algorithms": ["AC7b.21 IndexOf(Char), IndexOf(Char,Int32) and IndexOf(Char,Int32,Int32), including ordered range validation."],
+      "changes": ["A checked managed UTF-16 scan replaces SpanHelpers/Unsafe scanning; exact pinned range messages and parameter names remain."],
+      "scope": "Character search only. String needles, comparison modes and IndexOfAny remain unmapped; no culture or case folding."
+    },
     {
       "path": "library/Cilica.Core/EqualityComparer.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/Collections/Generic/EqualityComparer.cs",

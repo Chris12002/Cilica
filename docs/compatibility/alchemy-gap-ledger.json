@@ -31,7 +31,7 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "0b4261d59d4714af1e005b184ec5a64369ccc2e5d24726e6cd5b748cdb3cc478",
-    "latestSlice": "AC8.58",
+    "latestSlice": "AC7b.21",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -656,7 +656,7 @@
     "AC7b": {
       "prerequisites": ["AC7a"],
       "status": "in-progress",
-      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3", "AC7b.4", "AC7b.5", "AC7b.6", "AC7b.7", "AC7b.8", "AC7b.9", "AC7b.10", "AC7b.11", "AC7b.12", "AC7b.13", "AC7b.14", "AC7b.15", "AC7b.16", "AC7b.17", "AC7b.18", "AC7b.19", "AC7b.20"],
+      "completedSubslices": ["AC7b.1", "AC7b.2", "AC7b.3", "AC7b.4", "AC7b.5", "AC7b.6", "AC7b.7", "AC7b.8", "AC7b.9", "AC7b.10", "AC7b.11", "AC7b.12", "AC7b.13", "AC7b.14", "AC7b.15", "AC7b.16", "AC7b.17", "AC7b.18", "AC7b.19", "AC7b.20", "AC7b.21"],
       "remaining": "Additional comparison modes, broader formatting, decoding and remaining text APIs. AC7b.1 uses existing UTF-16 string storage independently of the remaining AC7a array work."
     },
     "AC7b.1": {
@@ -808,6 +808,11 @@
       "prerequisites": ["AC7b.18"],
       "status": "complete-bounded-beforefieldinit-structs",
       "decision": "docs/decisions/AC0146-beforefieldinit-structs.md"
+    },
+    "AC7b.21": {
+      "prerequisites": ["AC7b.20", "AC8.58"],
+      "status": "complete-bounded-character-search",
+      "decision": "docs/decisions/AC0186-character-string-searching.md"
     },
     "AC7b.20": {
       "prerequisites": ["AC7b.8", "AC3.31"],

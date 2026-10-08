@@ -3464,3 +3464,13 @@ emitted layouts. Raising only the isolated diagnostic copy to 6,144 fields reach
 String.IndexOf(Char) in TargetOptions.ParseCell (1,041,357 metadata units/4,429 ms).
 Production limits, profiles and semantics remain unchanged. See ADR AC0185.
 Full engine, unchanged fingerprint and saved-game replay remain unfinished.
+
+### Character string searching (AC7b.21)
+
+String.IndexOf(Char) and its start/count overloads now use a managed UTF-16 scan,
+with exact ordered range validation and errors. Seven probes supply 5,640 repeated
+native/.NET comparisons; all 69 selected checks pass. See ADR AC0186. Profiles,
+grants and production limits are unchanged. Frozen discovery with the measured
+diagnostic field allowance advances to Int32.Parse(String,NumberStyles,IFormatProvider)
+in TargetOptions.ParseCell (1,051,158 metadata units). Full engine, unchanged
+fingerprint and saved-game replay execution remain unfinished.
