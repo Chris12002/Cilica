@@ -52,12 +52,15 @@ internal sealed class ObjectDispatchRules
                 "virtual methods must preserve their exact closed owner specialization.");
             var slot = binding.VirtualSlot!;
             Require(binding.Kind == ObjectMethodKind.Instance && ((binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                    || program.Flow.Types.Integer64 && (binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly
                     || interfaces.Mapped(binding))
                 && (binding.Attributes & MethodAttributes.RTSpecialName) == 0 && !string.IsNullOrEmpty(binding.VirtualName),
-                "class virtual declarations require public instance methods or validated interface slots, with names.");
+                "class virtual declarations require admitted public/internal instance methods or validated interface slots, with names.");
             Require(slot.Method is not null && slot.Owner is { ArrayElement: null } && _layouts.ContainsKey(slot.Owner)
                 && slot.Method.ContentHash == slot.Owner.ContentHash && (binding.GenericInterfaceMethod is null ? slot.Method.Specialization == slot.Owner.Specialization : slot.Method == binding.Method && slot.Owner == binding.Owner) && (uint)slot.Method.Token >> 24 == 0x06 && (slot.Method.Token & 0xffffff) != 0
                 && types.Assignable(IrType.Reference(binding.Owner), IrType.Reference(slot.Owner)), "invalid canonical virtual slot identity/owner.");
+            if ((binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly)
+                Require(binding.Owner.ContentHash == slot.Owner.ContentHash, "internal class slots cannot cross assembly boundaries.");
             if ((binding.Attributes & MethodAttributes.NewSlot) != 0)
                 Require(slot.Method == binding.Method && slot.Owner == binding.Owner, "newslot must introduce its own canonical slot.");
             if (bindings.TryGetValue(slot.Method, out var introduction))
@@ -67,6 +70,11 @@ internal sealed class ObjectDispatchRules
             if (signatures.TryGetValue(slot, out var previous))
             {
                 var left = methods[previous.Method]; var right = methods[binding.Method];
+                var access = binding.Attributes & MethodAttributes.MemberAccessMask;
+                var previousAccess = previous.Attributes & MethodAttributes.MemberAccessMask;
+                Require(access != MethodAttributes.Assembly && previousAccess != MethodAttributes.Assembly
+                    || access == previousAccess && binding.Owner.ContentHash == previous.Owner.ContentHash,
+                    "internal class overrides require identical access and assembly.");
                 Require(previous.VirtualName == binding.VirtualName && left.ReturnType == right.ReturnType
                     && left.Parameters.Skip(1).SequenceEqual(right.Parameters.Skip(1)), "virtual slot names/signatures disagree.");
             }
@@ -77,7 +85,9 @@ internal sealed class ObjectDispatchRules
         foreach (var map in program.Dispatch)
         {
             Require(map?.Declaration is not null && bindings.TryGetValue(map.Declaration, out var declaration)
-                && declaration.GenericInterfaceMethod is null && declaration.VirtualSlot is not null && (declaration.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                && declaration.GenericInterfaceMethod is null && declaration.VirtualSlot is not null
+                && ((declaration.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                    || program.Flow.Types.Integer64 && (declaration.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly)
                 && _maps.TryAdd(map.Declaration, map), "invalid/duplicate dispatch declaration.");
             Require(!map.ReceiverBounds.IsDefault && map.ReceiverBounds.Length <= ObjectModelLimits.MaximumTypes
                 && (map.ReceiverBounds.IsEmpty || program.Flow.Types.Integer64), "invalid class receiver bounds.");
@@ -126,6 +136,9 @@ internal sealed class ObjectDispatchRules
             Require(expected.SetEquals(map.Targets.Select(t => t.Receiver)), "dispatch map must cover every compatible catalog receiver allowed by its bounds exactly once.");
             foreach (var target in map.Targets)
             {
+                Require((declaration.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Assembly
+                    || target.Receiver.ContentHash == slot.Owner.ContentHash,
+                    "internal class dispatch receivers must belong to the slot assembly.");
                 var key = (slot, target.Receiver);
                 if (!nearest.TryGetValue(key, out var body))
                 {

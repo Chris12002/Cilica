@@ -86,9 +86,12 @@ public sealed partial class AssemblyResolver
     }
 
     private ClassVirtualTarget ClassSlotTarget(ResolvedMethod declaration, ResolvedType receiver,
-        List<ConstructedType> hierarchy, MemberResolutionBudget budget, bool allowPrivateFinalSlots = false, bool closed = false)
+        List<ConstructedType> hierarchy, MemberResolutionBudget budget, bool allowPrivateFinalSlots = false, bool closed = false, bool allowAssemblySlots = false)
     {
-        ValidateClassVirtual(declaration, allowPrivateFinalSlots, closed);
+        ValidateClassVirtual(declaration, allowPrivateFinalSlots, closed, allowAssemblySlots);
+        if (allowAssemblySlots && (declaration.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(declaration.Handle).Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly
+            && receiver.Assembly.ContentHash != declaration.DeclaringType.Definition.Assembly.ContentHash)
+            throw new UnsupportedBindingException("Internal class dispatch receivers must belong to the slot assembly.");
         var assembly = declaration.DeclaringType.Definition.Assembly;
         string name = assembly.Image.Reader.GetString(assembly.Image.Reader.GetMethodDefinition(declaration.Handle).Name);
         if (!hierarchy.Exists(t => t == declaration.DeclaringType))
@@ -123,7 +126,7 @@ public sealed partial class AssemblyResolver
                 if (++exactDeclarations > 1)
                     throw Failure(DiagnosticIds.MemberConflict, "Multiple class declarations match one virtual name/signature on an owner.");
                 if ((definition.Attributes & MethodAttributes.Virtual) == 0) continue;
-                ValidateClassVirtual(candidate, allowPrivateFinalSlots, closed);
+                ValidateClassVirtual(candidate, allowPrivateFinalSlots, closed, allowAssemblySlots);
                 match = candidate;
             }
             if (match is null) continue;
@@ -132,7 +135,13 @@ public sealed partial class AssemblyResolver
             else
             {
                 var previous = slots[^1];
-                if ((previous.Body.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(previous.Body.Handle).Attributes & MethodAttributes.Final) != 0)
+                var previousFlags = previous.Body.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(previous.Body.Handle).Attributes;
+                var access = flags & MethodAttributes.MemberAccessMask;
+                var previousAccess = previousFlags & MethodAttributes.MemberAccessMask;
+                if (allowAssemblySlots && (access == MethodAttributes.Assembly || previousAccess == MethodAttributes.Assembly)
+                    && (access != previousAccess || match.DeclaringType.Definition.Assembly.ContentHash != previous.Root.DeclaringType.Definition.Assembly.ContentHash))
+                    throw new UnsupportedBindingException("Internal class overrides require the same assembly and exact internal slot access.");
+                if ((previousFlags & MethodAttributes.Final) != 0)
                     throw new BadImageFormatException("Class dispatch override attempts to replace a final virtual method.");
                 slots[^1] = (previous.Root, match);
             }
@@ -146,7 +155,7 @@ public sealed partial class AssemblyResolver
         return new(declaration, slots[selected].Root, receiver, selectedBody);
     }
 
-    private static void ValidateClassVirtual(ResolvedMethod method, bool allowPrivateFinalSlots = false, bool closed = false)
+    private static void ValidateClassVirtual(ResolvedMethod method, bool allowPrivateFinalSlots = false, bool closed = false, bool allowAssemblySlots = false)
     {
         var definition = method.DeclaringType.Definition.Assembly.Image.Reader.GetMethodDefinition(method.Handle);
         const MethodAttributes allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Virtual
@@ -163,9 +172,12 @@ public sealed partial class AssemblyResolver
             && method.MethodArguments.Count == method.Signature.GenericArity && method.Signature.Header == 0x30
             && (definition.Attributes & (MethodAttributes.Final | MethodAttributes.NewSlot | MethodAttributes.Abstract))
                 == (MethodAttributes.Final | MethodAttributes.NewSlot);
-        var admitted = allowed | (closed ? MethodAttributes.Abstract : 0);
+        var admitted = allowed | (closed ? MethodAttributes.Abstract : 0)
+            | (closed && allowAssemblySlots && (definition.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly
+                ? MethodAttributes.CheckAccessOnOverride : 0);
         if ((definition.Attributes & MethodAttributes.Virtual) == 0 || (definition.Attributes & ~admitted) != 0
             || (definition.Attributes & MethodAttributes.MemberAccessMask) != MethodAttributes.Public && !privateFinalSlot
+                && !(closed && allowAssemblySlots && (definition.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly)
             || !closed && method.DeclaringType.Arguments.Count != 0
             || !genericFinalSlot && (method.MethodArguments.Count != 0 || method.Signature.Header != 0x20 || method.Signature.GenericArity != 0))
             throw new UnsupportedBindingException(allowPrivateFinalSlots

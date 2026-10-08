@@ -4099,3 +4099,14 @@ IR v49 record the wider contract; native v74 and all limits remain unchanged.
 Frozen discovery next stops at nonpublic GameOccurrence.Permits dispatch in
 ShieldReactionDiscovery.Discover (998,224 metadata units). Full engine/fingerprint/
 replay execution remains unfinished.
+
+### Same-assembly internal class dispatch (AC8.55)
+
+Closed class dispatch now admits internal virtual/abstract slots and C#'s
+CheckAccessOnOverride flag under exact same-assembly receiver/override and caller
+access checks. Other access modes and legacy/interface profiles remain restricted.
+Eight probes add 3,024 repeated native comparisons; all 123 selected checks pass.
+See ADR AC0181. Closed class target v4, CIL v77 and object IR v50 record the change;
+native v74, grants and limits are unchanged. Frozen discovery now reaches the
+separate inline-value abstract-signature restriction at GameOccurrence.Permits
+(998,255 metadata units). Full engine/fingerprint/replay execution is unfinished.

@@ -128,17 +128,21 @@ internal sealed partial class ObjectIrRules
                 && binding.Kind is ObjectMethodKind.Static or ObjectMethodKind.Instance
                 or ObjectMethodKind.Constructor or ObjectMethodKind.ObjectBaseConstructor or ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance, "invalid bound signature/kind.");
             Require((binding.Attributes & ~(MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
-                | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final | MethodAttributes.Abstract)) == 0
+                | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final | MethodAttributes.Abstract
+                | (flow.Types.Integer64 && binding.Kind == ObjectMethodKind.Instance
+                    && (binding.Attributes & (MethodAttributes.MemberAccessMask | MethodAttributes.Virtual)) == (MethodAttributes.Assembly | MethodAttributes.Virtual)
+                    ? MethodAttributes.CheckAccessOnOverride : 0))) == 0
                 && (binding.Attributes & MethodAttributes.MemberAccessMask) is > MethodAttributes.PrivateScope and <= MethodAttributes.Public,
                 "native and unsupported method flags require later lowering.");
             bool abstractMethod = _abstractMethods.Contains(binding.Method);
             Require(abstractMethod == ((binding.Attributes & MethodAttributes.Abstract) != 0), "abstract flags and bodyless declarations disagree.");
             if (abstractMethod)
                 Require(binding.Kind == ObjectMethodKind.Instance && binding.TypeInitializerName is null && !binding.InvariantProviderOnly
-                    && (binding.Attributes & (MethodAttributes.MemberAccessMask | MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.RTSpecialName))
-                        == (MethodAttributes.Public | MethodAttributes.Virtual)
+                    && (binding.Attributes & (MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.RTSpecialName)) == MethodAttributes.Virtual
+                    && ((binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public
+                        || flow.Types.Integer64 && (binding.Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly)
                     && _layouts.TryGetValue(binding.Owner, out var abstractOwner) && (abstractOwner.Attributes & TypeAttributes.Abstract) != 0,
-                    "abstract declarations require public virtual instance slots on abstract class owners.");
+                    "abstract declarations require admitted public/internal virtual instance slots on abstract class owners.");
             bool isStatic = binding.Kind == ObjectMethodKind.Static;
             if (binding.TypeInitializerName is { } initializerName)
                 Require(flow.Types.Integer64 && initializerName.Length is > 0 and <= ObjectStringLimits.MaximumLiteralCodeUnits

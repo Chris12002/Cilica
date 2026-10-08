@@ -698,6 +698,8 @@ public static partial class ValueProgramDiscovery
             bool instance = constructor || delegates && (input.Attributes & MethodAttributes.Static) == 0;
             var allowed = MethodAttributes.MemberAccessMask | MethodAttributes.Static | MethodAttributes.HideBySig
                 | (integers64 ? MethodAttributes.SpecialName : 0)
+                | (integers64 && instance && (input.Attributes & (MethodAttributes.MemberAccessMask | MethodAttributes.Virtual))
+                    == (MethodAttributes.Assembly | MethodAttributes.Virtual) ? MethodAttributes.CheckAccessOnOverride : 0)
                 | (integers64 || fact is not null ? MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final : 0)
                 | (constructor || initializer ? MethodAttributes.SpecialName | MethodAttributes.RTSpecialName : 0);
             if (input.IsReferenceAssembly || !generics && (input.OwnerGenericArity != 0 || input.Signature.GenericArity != 0) || input.Signature.Header != ((instance ? 0x20 : 0) | (generics && input.Signature.GenericArity != 0 ? 0x10 : 0))
