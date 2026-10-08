@@ -47,6 +47,7 @@ dotnet tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll \
   --source library/Cilica.Core/Grouping.cs \
   --source library/Cilica.Core/RangeIterator.cs \
   --source library/Cilica.Core/Stack.cs \
+  --source library/Cilica.Core/SortedDictionary.cs \
   --source library/Cilica.Core/CollectionExtensions.cs \
   --source library/Cilica.Core/MapSort.cs \
   --source library/Cilica.Core/ComparisonSort.cs \
@@ -1298,3 +1299,22 @@ lookup comparison over all Unicode values. Existing lowercase/ordinal behavior
 is preserved; no compiler/runtime profile, grant or quota changes. The owned
 decoder API composition passes, but actual candidate execution and full replay
 remain unverified. See [the decision](../../docs/decisions/compatibility-020-invariant-uppercase.md).
+
+
+### Bounded ordinal sorted dictionary (AC8.75)
+
+SortedDictionary<string,TValue> now admits a directly proven StringComparer.Ordinal
+constructor through an exact factory grant, Count/Comparer, Add, indexed read/write,
+ContainsKey, TryGetValue and concrete/generic/nongeneric traversal. The owned red-black
+tree preserves insertion order of comparisons, duplicate/version behavior, live current
+values and shared cursor-copy paths. Empty interface cursors share the mutable array
+cursor, distinct from ordinary Dictionary's empty cursor. Remaining members are absent
+or diagnostic stubs; public SortedSet construction is not implemented.
+
+All 21 focused/adjacent checks pass, including 2,592 new O0/O2 native/.NET comparisons
+and two allocation-failure recovery checks, with sanitizers, forced collection and
+exact frame/root cleanup. CIL106; object IR63/interface20/native79 unchanged. The frozen
+scan next stops at String.LastIndexOf(Char) in SurfaceOccupants.SettleDrops. A separate
+reduced probe retains the duplicate-text diagnostic for non-sealed reference values
+such as List<string>; the full Dispel path is not yet admitted. No engine C++ emission,
+native engine run or saved-game replay. See ADR AC0219.

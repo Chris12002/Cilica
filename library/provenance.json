@@ -16,6 +16,21 @@
   },
   "originals": [
     {
+      "upstreamPath": "src/libraries/System.Collections/src/System/Collections/Generic/SortedDictionary.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Collections/src/System/Collections/Generic/SortedDictionary.cs",
+      "sha256": "86e8425dcb9002db0928752961f4d9883ae819b679fea92e7d30cd85fc09ae1e"
+    },
+    {
+      "upstreamPath": "src/libraries/System.Collections/src/System/Collections/Generic/SortedSet.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Collections/src/System/Collections/Generic/SortedSet.cs",
+      "sha256": "14cb6aa428a9b9cd6e6c6664f6e1ed68514ebbbeffcb033e20e495603ebb9315"
+    },
+    {
+      "upstreamPath": "src/libraries/Common/src/System/Collections/Generic/EnumerableHelpers.cs",
+      "localPath": "library/upstream/dotnet-runtime/src/libraries/Common/src/System/Collections/Generic/EnumerableHelpers.cs",
+      "sha256": "6f304b86f48263a6e96e3ff547c159fb1f9c35dd4cc4cd9b0085a592a5d35811"
+    },
+    {
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ArraySegment.cs",
       "localPath": "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/ArraySegment.cs",
       "sha256": "b5b0d089f5c7786c38ca60661c1a5ae71fb467f3704e9cff2eac5af303d9d819"
@@ -517,6 +532,21 @@
     }
   ],
   "adaptations": [
+    {
+      "path": "library/Cilica.Core/SortedDictionary.cs",
+      "upstreamPaths": [
+        "src/libraries/System.Collections/src/System/Collections/Generic/SortedDictionary.cs",
+        "src/libraries/System.Collections/src/System/Collections/Generic/SortedSet.cs",
+        "src/libraries/Common/src/System/Collections/Generic/EnumerableHelpers.cs"
+      ],
+      "algorithms": [
+        "Pinned red-black insertion and rotations, comparison order, pre-search nonempty version changes, replacement updates, shared cursor paths and empty array-cursor identity."
+      ],
+      "changes": [
+        "Only the directly proven ordinal string-key constructor is admitted through an exact managed-factory grant. Node storage is a reusable public Cilica.Runtime helper for the existing reference-vector visibility boundary, with internal accessors. The private cursor path reserves the pinned maximum-height bound; public SortedSet constructors and remaining dictionary operations are not supplied."
+      ],
+      "scope": "Bounded SortedDictionary<string,TValue> lookup/add/replacement/traversal. Duplicate pair text reuses existing text selection, retaining its diagnostic for polymorphic reference values; no claim that the frozen Dispel closure is executable."
+    },
     {
       "path": "library/Cilica.Core/ArraySegment.cs",
       "upstreamPath": "src/libraries/System.Private.CoreLib/src/System/ArraySegment.cs",

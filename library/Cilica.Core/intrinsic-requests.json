@@ -1,5 +1,12 @@
 [
   {
+    "Namespace": "System.Collections.Generic",
+    "Type": "SortedDictionary`2",
+    "Member": "CreateOrdinal",
+    "ParameterCount": 1,
+    "Capability": "SortedDictionaryOrdinalConstruction"
+  },
+  {
     "Namespace": "System",
     "Type": "Enum",
     "Member": "GetValues",

@@ -13,7 +13,8 @@ public static partial class ValueProgramDiscovery
         {
             if (!integers64 || target.DeclaringType.Definition.Assembly != library || target.Signature.Parameters.Count is not (1 or 2)
                 || target.Signature.Parameters[^1] is not TypeSignature.Generic) return null;
-            bool dictionary = target.DeclaringType.Definition == resolver.ResolveType(library, "System.Collections.Generic", "Dictionary`2").Value;
+            bool sorted = target.DeclaringType.Definition == resolver.ResolveType(library, "System.Collections.Generic", "SortedDictionary`2").Value;
+            bool dictionary = sorted || target.DeclaringType.Definition == resolver.ResolveType(library, "System.Collections.Generic", "Dictionary`2").Value;
             if (!dictionary && target.DeclaringType.Definition != resolver.ResolveType(library, "System.Collections.Generic", "HashSet`1").Value) return null;
             int arity = dictionary ? 2 : 1;
             int parameterCount = target.Signature.Parameters.Count;
@@ -32,8 +33,8 @@ public static partial class ValueProgramDiscovery
                 : input.Signature.Parameters[0] is TypeSignature.Generic source && source.Definition.Kind == SignatureTypeKind.Class
                     && source.Definition.Definition == Require(resolver.ResolveType(library, "System.Collections.Generic", "IEnumerable`1"), work, offset)
                     && source.Arguments.Count == 1 && source.Arguments[0] is TypeSignature.Variable { IsMethod: false, Index: 0 });
-            var comparer = Require(resolver.ResolveType(library, "System.Collections.Generic", "IEqualityComparer`1"), work, offset);
-            if (instruction.OpCode != "newobj" || input.IsReferenceAssembly || input.HasTypeInitializer || input.HasModuleInitializer
+            var comparer = Require(resolver.ResolveType(library, "System.Collections.Generic", sorted ? "IComparer`1" : "IEqualityComparer`1"), work, offset);
+            if (sorted && parameterCount != 1 || instruction.OpCode != "newobj" || input.IsReferenceAssembly || input.HasTypeInitializer || input.HasModuleInitializer
                 || input.OwnerGenericArity != arity || target.DeclaringType.Arguments.Count != arity || target.MethodArguments.Count != 0
                 || target.DeclaringType.Arguments[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
                 || input.Signature.Header != 0x20 || input.Signature.GenericArity != 0
@@ -44,9 +45,9 @@ public static partial class ValueProgramDiscovery
                 || input.Signature.Parameters[^1] is not TypeSignature.Generic contract
                 || contract.Definition.Kind != SignatureTypeKind.Class || contract.Definition.Definition != comparer
                 || contract.Arguments.Count != 1 || contract.Arguments[0] is not TypeSignature.Variable { IsMethod: false, Index: 0 })
-                Fail(work, "Ordinal collection construction requires an exact HashSet<string> or Dictionary<string, TValue> newobj contract and a directly proven StringComparer.Ordinal getter.", offset);
+                Fail(work, "Ordinal collection construction requires an exact HashSet<string>, Dictionary<string, TValue> or SortedDictionary<string, TValue> newobj contract and a directly proven StringComparer.Ordinal getter.", offset);
             var helper = Require(resolver.ResolveClosedDeclaration(target.DeclaringType, "CreateOrdinal", parameterCount, _metadata), work, offset);
-            _ = Require(resolver.AuthorizeLibraryIntrinsic(library, helper.Handle, dictionary ? LibraryIntrinsicCapability.DictionaryOrdinalConstruction : LibraryIntrinsicCapability.HashSetOrdinalConstruction), work, offset);
+            _ = Require(resolver.AuthorizeLibraryIntrinsic(library, helper.Handle, sorted ? LibraryIntrinsicCapability.SortedDictionaryOrdinalConstruction : dictionary ? LibraryIntrinsicCapability.DictionaryOrdinalConstruction : LibraryIntrinsicCapability.HashSetOrdinalConstruction), work, offset);
             var body = Read(helper);
             if (body.IsReferenceAssembly || !body.HasBody || body.HasTypeInitializer || body.HasModuleInitializer
                 || body.OwnerGenericArity != arity || body.Signature.Header != 0 || body.Signature.GenericArity != 0
