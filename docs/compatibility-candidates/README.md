@@ -6,6 +6,11 @@ third-party build farm. The current batch is [batch-008.json](batch-008.json);
 [results](batch-008-results.md) distinguish implemented support, diagnostics and
 untested candidate execution.
 
+Latest execution follow-up: [DiffPlex selected roots verified](diffplex-int32-20261008.md)
+on Cilica 3d0bb53, with 64 scenarios and 11,232 repeated O0/O2 comparisons. Batch 008
+contains the current status and next action. CRC32.NET external execution remains
+separately unapproved. Earlier batch reports preserve their historical outcomes.
+
 ## Resume and coordinate
 
 1. Verify `git status`, branch, HEAD and all active worktrees. Read AGENTS.md and

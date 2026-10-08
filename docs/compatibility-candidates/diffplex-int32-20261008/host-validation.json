@@ -1,0 +1,27 @@
+{
+  "baseline": "90291f9d35cd7a976e32954554e56479dfab1dbe",
+  "new_checks": 31,
+  "adjacent_initial": {
+    "total": 155,
+    "passed": 153,
+    "failed": 2
+  },
+  "baseline_reproduction": {
+    "total": 2,
+    "failed": 2
+  },
+  "repaired_value_vector_checks": 8,
+  "distinct_passing_checks": 186,
+  "new_semantic_comparisons": 2352,
+  "existing_primitive_controls_added_comparisons": 588,
+  "optimizations": [
+    "O0",
+    "O2"
+  ],
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "forced_gc": true,
+  "baseline_archive_sha256": "e58461d38fdd0486e8f1ceb291ee1fc533292c3765d3bd9c318b95b674e1a163"
+}

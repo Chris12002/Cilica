@@ -1,0 +1,13 @@
+{
+  "removed_candidate_image": "Untagged: cilica-diffplex-int32-20261008:latest\nDeleted: sha256:7497dd41d58e32d76f1ff7870c7cb0bf56b2ac7d49e26a9eb7d0033c4da1bfb1\nDeleted: sha256:6224c63bd0dac568297da1b1bdfe3230dd1cbfbfab315b6d7ff46feafbd6d2b7\nDeleted: sha256:e3c6fbba6783b4570e43daf5c5d4ddaa2e13b2175c773e1dda9bbe72867c2caf\nDeleted: sha256:83360c5a6dfe41f5a61187dc26c9fa31beef108fd6aeb42e4567a8bf8c103db6\nDeleted: sha256:97fb2544fb6256c9d7b5a256179eebf0a225f42e84d796f07e17f718e6953d20\nDeleted: sha256:402249f2d5d1219f4c6aa0a49e7d424a1ac10175b6c73c2c182f32fbe9df84ca\nDeleted: sha256:aa9fb84272b14aecd28538e0f4d2ace6fa50aa07a307b60a41e47a65785a51da\n",
+  "removed_container": "cilica-diffplex-int32-20261008; host supervisor confirmed removal",
+  "removed_paths": [
+    "/tmp/cilica-diffplex-int32-20261008/inputs",
+    "/tmp/cilica-diffplex-int32-20261008/cilica.tar",
+    "artifacts/compatibility-int32-array/baseline",
+    "artifacts/compatibility-int32-array/baseline.tar"
+  ],
+  "retained_tooling_image": "sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80",
+  "tooling_size_bytes": 470855666,
+  "retained": "All four trial results, licences, hashes, owned recipes and independent regression sources. No live checkout, peer source, unique changes or evidence removed."
+}

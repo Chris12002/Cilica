@@ -4413,5 +4413,8 @@ roots. Exact Int32 views also preserve existing UInt32/Int32-enum array aliases;
 other declared scalar views and escaping/native borrows remain diagnostic. Both
 IR stages and native carriers validate the new path. All 31 new checks pass,
 including 2,352 repeated O0/O2 native/.NET comparisons. CIL92/IR59/native79; see
-[the decision](decisions/compatibility-011-int32-array-locations.md). Full candidate
-compatibility still requires the unchanged pinned DiffPlex transcript trial.
+[the decision](decisions/compatibility-011-int32-array-locations.md).
+The unchanged selected DiffPlex character/line roots now pass 64 scenarios and
+11,232 repeated native/.NET transcript comparisons at O0/O2; see the
+[trial report](compatibility-candidates/diffplex-int32-20261008.md). Broader candidate
+surfaces remain untested.

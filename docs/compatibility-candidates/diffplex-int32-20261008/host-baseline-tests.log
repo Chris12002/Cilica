@@ -1,0 +1,23 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ValueVectorTranslationTests.Named_primitive_operands_do_not_masquerade_as_inline_values(name: "NarrowAllocationOnly") [FAIL]
+      Assert.False() Failure
+      Expected: False
+      Actual:   True
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ValueVectorTranslationTests.cs(25,0): at Cilica.Metadata.Tests.ValueVectorTranslationTests.Named_primitive_operands_do_not_masquerade_as_inline_values(String name)
+           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+           at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+    Cilica.Metadata.Tests.ValueVectorTranslationTests.Named_primitive_operands_do_not_masquerade_as_inline_values(name: "WideAllocationOnly") [FAIL]
+      Assert.False() Failure
+      Expected: False
+      Actual:   True
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ValueVectorTranslationTests.cs(25,0): at Cilica.Metadata.Tests.ValueVectorTranslationTests.Named_primitive_operands_do_not_masquerade_as_inline_values(String name)
+           at InvokeStub_ValueVectorTranslationTests.Named_primitive_operands_do_not_masquerade_as_inline_values(Object, Span`1)
+           at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Finished:    Cilica.Metadata.Tests (ID = '374b8e177ce2eb47eabf6351f30cc9e0a907bfdeeecde19939c0e5d51a0ecc44')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 2, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 0.345s

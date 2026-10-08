@@ -1,0 +1,3 @@
+3d0bb53 feat: preserve Int32 array element locations across calls
+90291f9 feat: support proven ordinal string ordering
+6f61bf2 test: retain DiffPlex scalar array receiver gap

@@ -145,9 +145,9 @@
         }
       ],
       "screened_before_download": true,
-      "external_execution": "Three pinned offline trials retained. Latest e5faa49 passes 25 focused checks and reaches scalar-array ldelema rejection during candidate translation; no candidate oracle/native execution.",
+      "external_execution": "Four pinned offline trials retained. Latest 3d0bb53 passes 56 focused checks and all 64 candidate oracle/native scenarios at O0/O2, 11232 repeated transcript comparisons.",
       "semantic_failures": [],
-      "semantic_failure_note": "Zero candidate semantic comparisons. The scalar-array receiver diagnostic occurs before the oracle. Independent mutation reduction records the receiver-after-argument semantic requirement for a future fix.",
+      "semantic_failure_note": "All 1872 transcript observations match normal .NET at both optimization levels and three repetitions. No candidate mismatch observed in the selected 64 scenarios; broader inputs/surfaces remain untested.",
       "license": "Apache-2.0; License.txt at pinned commit",
       "target_frameworks": [
         "net45",
@@ -172,7 +172,9 @@
       },
       "roots": [
         "Differ.CreateCharacterDiffs(string,string,bool)",
-        "Differ.CreateLineDiffs(string,string,bool)"
+        "Differ.CreateCharacterDiffs(string,string,bool,bool)",
+        "Differ.CreateLineDiffs(string,string,bool)",
+        "Differ.CreateLineDiffs(string,string,bool,bool)"
       ],
       "reachable_requirements": [
         "ArgumentNullException and ordinary properties/readonly fields",
@@ -185,25 +187,24 @@
         "CharacterChunker: Char.ToString",
         "LineChunker: String.Split(string[],StringSplitOptions)"
       ],
-      "unsupported_features": [
-        "Scalar array element address used as Int32.Equals receiver; BuildModificationData token 0x06000010 IL_001e. EqualsElement and EqualsAfterArgumentMutation independently reproduce CIL2001."
-      ],
+      "unsupported_features": [],
       "excluded_scope": [
         "UI/console/three-way diff/rendering surfaces not mapped by this selected-root screen",
         "LOG conditional calls excluded when LOG undefined; no claim if enabled"
       ],
       "upstream_tests_inspected": "DifferFacts null parameter names, empty/identical inputs, insertion/deletion/block positions and mixed line endings; not executed.",
-      "mapped_status": "Earlier-contract binding and confined ldlen truth branches repaired; actual unchanged candidate now exposes scalar array element receiver borrowing as the next gap.",
-      "status": "mapped-blocked",
+      "mapped_status": "Verified selected unchanged character/line roots at the pinned source and Cilica baseline; earlier contract, ldlen and Int32 receiver gates repaired.",
+      "status": "verified",
       "evidence": [
         "94 main and 9 boundary checks pass; two managed Unicode sweeps and complete changed-mapping native checks included.",
         "Original and conditional ignore-case dictionary reductions now execute and match .NET.",
-        "No actual DiffPlex code or build script executed; an explicit opt-in selected-source recipe and full transcript comparator are prepared but unrun.",
+        "Historical pre-execution screen: No actual DiffPlex code or build script executed; an explicit opt-in selected-source recipe and full transcript comparator are prepared but unrun.",
         "2026-10-08 isolated execution: selected assembly compiles; exact netstandard2.0 reference unresolved by approved harness; 1 explicit test fails before all 64 semantic scenarios. See diffplex-execution-20261008.md.",
         "Retry ae04d32: contract regressions5/5 pass offline; unchanged candidate assembly advances from CIL3003 to CIL2001 ldlen truth branch. See diffplex-retry-20261008.md.",
-        "Third trial e5faa49:25/25 offline focused checks pass; candidate hash unchanged; next CIL2001 is scalar array element receiver. See diffplex-ldlen-20261008.md."
+        "Third trial e5faa49:25/25 offline focused checks pass; candidate hash unchanged; next CIL2001 is scalar array element receiver. See diffplex-ldlen-20261008.md.",
+        "Fourth trial 3d0bb53: 56/56 offline focused checks and 1/1 explicit candidate check pass; 64/64 scenarios, 1872 observations per optimization, 11232 repeated comparisons; unchanged assembly hash. See diffplex-int32-20261008.md."
       ],
-      "next_action": "Coordinate scalar-array receiver/borrow support with Review milestone 6. Promote both independent scalar receiver reductions to O0/O2 controls; preserve receiver reads after argument mutation, rooting across allocations, null/bounds order and native location lifetime. Keep other scalar widths/escapes explicitly bounded. Reuse retained verified image and rerun the same 14 unchanged sources and all 64 scenarios.",
+      "next_action": "Skip these already verified selected roots at this pin/profile unless a concrete new failure or changed input justifies reopening. Next bounded candidate is CRC32.NET in batch-008: static requirements mapped, actual external execution requires its separate reviewed plan/approval. Retain handcrafted semantic tests; do not broaden DiffPlex UI/rendering/three-way scope.",
       "implemented_requirements": [
         {
           "feature": "String.Trim()",
@@ -253,6 +254,13 @@
           "scope": "Integer CIL90 only: adjacent same-block brtrue/brfalse, short or long, lowers bounded length to Boolean with original fault; other native flows remain rejected.",
           "before": "CIL2001 CalculateEditLength IL_001d in actual ae04d32 retry",
           "tests": "CandidateArrayLengthBranchTests: 20 checks, 2,352 repeated O0/O2 comparisons; 81 adjacent checks pass."
+        },
+        {
+          "feature": "Int32 vector element managed locations",
+          "implementation": "ValueTranslator/IrValidator/ManagedLocationIrValidator/ObjectCppLocations/ObjectCppEmitter",
+          "scope": "CIL92/IR59/native79: exact Int32 views, reduced UInt32/Int32-enum owner aliases, rooted synchronous nonescaping locations. Receiver reads remain after arguments; other scalar views/native escapes remain diagnostic.",
+          "before": "CIL2001 BuildModificationData token 0x06000010 IL_001e in actual e5faa49 retry",
+          "tests": "CandidateScalarArrayReceiverTests and CandidateScalarArraySafetyTests: 31 checks, 2352 repeated O0/O2 comparisons; 186 distinct host checks pass after two baseline-proven stale expectations are repaired."
         }
       ],
       "already_supported_requirements": [
@@ -266,7 +274,7 @@
         "semantics": "ignoreCase selects OrdinalIgnoreCase versus Ordinal. BuildPieceHashes requires equality/hash through Dictionary, Count, TryGetValue and indexer assignment. No culture-sensitive factory or direct comparer Compare call. Three-argument wrappers pass false but no whole-program branch pruning is assumed."
       },
       "reduced_semantic_failures": [],
-      "validation_blocker": "CIL2001: Element addresses currently require a closed inline value or reference array. Previous CIL3003 and ldlen truth-branch gates are repaired.",
+      "validation_blocker": null,
       "integration_execution": {
         "report": "diffplex-execution-20261008.md",
         "cilica_commit": "268024e94879acdb004228afa360e1222e2068b8",
@@ -328,6 +336,38 @@
         "native_scenarios": 0,
         "target_scenarios": 64,
         "semantic_comparisons": 0
+      },
+      "integration_int32_retry": {
+        "report": "diffplex-int32-20261008.md",
+        "cilica_commit": "3d0bb53e94b5356cbbe59fae3c2ebca93af68fc8",
+        "previous_cilica_commit": "e5faa49d1ce77736183f0c958dac083111272efc",
+        "candidate_assembly_unchanged": true,
+        "candidate_assembly_sha256": "514ff0d67c5d10e0be5532d3ddd01a73fa705d3e28402e6c117fd14987b9e621",
+        "selected_source_count": 14,
+        "focused_regressions": {
+          "total": 56,
+          "passed": 56,
+          "failed": 0
+        },
+        "explicit_candidate_tests": {
+          "total": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "diagnostic": null,
+        "oracle_scenarios": 64,
+        "native_scenarios_per_optimization": 64,
+        "target_scenarios": 64,
+        "transcript_observations": 1872,
+        "optimization_levels": [
+          "O0",
+          "O2"
+        ],
+        "repetitions_per_observation": 3,
+        "semantic_comparisons": 11232,
+        "elapsed_seconds": 536.8338600799999,
+        "scope": "Selected unchanged character/line roots via owned adapter; invariant culture; no full-library or upstream-test compatibility claim.",
+        "cleanup": "diffplex-int32-20261008/cleanup.json"
       }
     },
     {
@@ -439,13 +479,45 @@
   "validation": {
     "distinct_final_passed": 103,
     "failed": 0,
-    "external_candidate_execution": "not-run",
+    "external_candidate_execution": "verified selected DiffPlex roots; execution_followup records the separate integration trial",
     "note": "94 main gate +9 distinct boundary checks; explicit external test excluded by default. Native comparisons and source hashes in evidence.",
     "new_repeated_native_comparisons": 50460,
     "native_exact_mapping_points": 2229
   },
   "cleanup": {
-    "diffplex": "No new snapshot; previous owned snapshot remains removed. Recipe contains only authored adapter and metadata.",
+    "diffplex": "Fourth trial container, candidate image/layers, input staging and compiler export removed after retaining hashes/results/licence. Verified tooling image retained. See diffplex-int32-20261008/cleanup.json.",
     "crc32-net": "Online only; no copy created or cleanup needed."
+  },
+  "execution_followup": {
+    "report": "diffplex-int32-20261008.md",
+    "cilica_commit": "3d0bb53e94b5356cbbe59fae3c2ebca93af68fc8",
+    "previous_cilica_commit": "e5faa49d1ce77736183f0c958dac083111272efc",
+    "candidate_assembly_unchanged": true,
+    "candidate_assembly_sha256": "514ff0d67c5d10e0be5532d3ddd01a73fa705d3e28402e6c117fd14987b9e621",
+    "selected_source_count": 14,
+    "focused_regressions": {
+      "total": 56,
+      "passed": 56,
+      "failed": 0
+    },
+    "explicit_candidate_tests": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "diagnostic": null,
+    "oracle_scenarios": 64,
+    "native_scenarios_per_optimization": 64,
+    "target_scenarios": 64,
+    "transcript_observations": 1872,
+    "optimization_levels": [
+      "O0",
+      "O2"
+    ],
+    "repetitions_per_observation": 3,
+    "semantic_comparisons": 11232,
+    "elapsed_seconds": 536.8338600799999,
+    "scope": "Selected unchanged character/line roots via owned adapter; invariant culture; no full-library or upstream-test compatibility claim.",
+    "cleanup": "diffplex-int32-20261008/cleanup.json"
   }
 }

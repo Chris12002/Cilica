@@ -42,3 +42,11 @@ were created, so cleanup had nothing to remove. No push, merge, CI or install.
 [Manifest](batch-008.json) and [evidence](batch-008-evidence.json) retain next actions,
 source/binary/log hashes and final test identities; logs remain in
 artifacts/compatibility-batch-008/.
+
+## Subsequent approved execution follow-up
+
+The DiffPlex prerequisites and three discovered admission gates are now resolved.
+The unchanged selected roots pass all 64 scenarios and 11,232 repeated O0/O2
+comparisons on 3d0bb53. See [the fourth-trial report](diffplex-int32-20261008.md);
+its evidence supersedes the execution status above while retaining that history.
+CRC32.NET still requires its own reviewed execution plan/approval.

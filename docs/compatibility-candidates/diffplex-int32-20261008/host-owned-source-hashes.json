@@ -1,0 +1,15 @@
+{
+  "docs/compatibility.md": "b83f5c2552cc289bae1abb2a4d77f445ec536a9ac17721496fd5bfe9badb06ff",
+  "docs/design-specification.md": "ca4744615795eddf5c7c6c720b47e427de3c0650274f82a0c78256f02800d228",
+  "src/Cilica.Compiler/IrValidator.cs": "90a1ea0aa7466b549599acd9a9327c2e8f6cbbbbc1d4e5c6365cf59700a1c79e",
+  "src/Cilica.Compiler/ManagedLocationIrValidator.cs": "5bf1e6947d6fc9b4c227454aae657bf78a5882cabb927b6defcf0276e304fdad",
+  "src/Cilica.Compiler/ObjectCppEmitter.cs": "d10001c3a202be31dbb68dcc83e6877cc3195adde2992a0cab1817a207a03048",
+  "src/Cilica.Compiler/ObjectCppLocations.cs": "bad9a101c33e5282e9fce05a298f54d7be34ba491a8a4284cb598f93cacd6a8f",
+  "src/Cilica.Compiler/ObjectIrModel.cs": "7a38dbcfb2e98a9ff75e0a54397357f4fdbf6701a05e812588eb859318e66b2c",
+  "src/Cilica.Compiler/ValueTranslator.cs": "ef2410ff5d1a72b52797fa0f39051c8251157d729179ac848befbcdfb4910384",
+  "tests/Cilica.Metadata.Tests/CandidateScalarArrayReceiverTests.cs": "876cd852c42add0ecf68a1e5edd7f0f2e31a4cdf214ba44bb3c602e80df12926",
+  "tests/Cilica.Metadata.Tests/ValueVectorTranslationTests.cs": "db46b6c64dd2359b39df25d7598c030e2324320c7d0d5e79ffedd306098c9779",
+  "tests/Fixtures/Cilica.Fixtures.Execution/CandidateScalarArrayReceiverProbe.cs": "0dbddd0df152711f541d31858fc604ce15074eb5bee44a909a57646d7b10c06c",
+  "docs/decisions/compatibility-011-int32-array-locations.md": "54722c7aa986f4e32e5ed85875e0d4762800530002c26732c38d7040dc93a806",
+  "tests/Cilica.Metadata.Tests/CandidateScalarArraySafetyTests.cs": "dc2323d6d23aada0d01cab6c2240d0e7bfc8dc3bf2e4261289b712938215676d"
+}
