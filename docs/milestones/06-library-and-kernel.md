@@ -3833,3 +3833,20 @@ cleanup and frame-budget boundaries. The frozen engine advances past Decimal to
 missing Enumerable.SequenceEqual in redirect-edit admission. This remains partial
 closure discovery, without full engine execution, fingerprint parity or replay.
 See ADR AC0214 and artifacts/alchemy-decimal{,-merged,-refresh,-engine}.
+
+
+### Bounded SequenceEqual traversal (AC8.71)
+
+SequenceEqual now accepts two admitted sequences, with default equality or an
+admitted explicit comparer. Preserve first/second null precedence, collection
+count shortcuts, indexed reads and paired-enumerator acquisition, callbacks and
+reverse disposal. Exact arrays/lists retain rooted backing-storage/count snapshots,
+including across callback mutations; other shapes use the collection or cursor path.
+Default value equality receives copies, so mutating Equals cannot alter the source.
+Existing unsupported key types remain diagnostic, including Nullable.
+
+Ten focused checks pass, including 7,920 O0/O2 native/.NET comparisons with forced
+collection, sanitizers and exact cleanup/frame-budget checks. No compiler profile,
+intrinsic, runtime, emitter or production quota change. The frozen engine advances
+to Stack<T>'s unimplemented nongeneric enumerator via OfType.Count. Full engine
+execution and replay remain unfinished. See ADR AC0215.
