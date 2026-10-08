@@ -39,16 +39,13 @@ public sealed class CharacterDelegateTests
         var result=ValueTranslator.TranslateIntegerObjects(scope,input,method,implementation);
         Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Id=="CIL2001" && d.Message.Contains("Delegate requires",StringComparison.Ordinal));
     }
-    [Fact]
-    public async Task Character_LINQ_composition_retains_the_narrow_vector_interface_diagnostic()
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public async Task Character_LINQ_live_mutation_matches_dotnet(bool optimized)
     {
-        using var files=new ResolverFiles();
-        var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMap(files);using var lifetime=resolver;
-        using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
-        var input=scope.OpenInput(typeof(CharacterDelegateProbe).Assembly.Location).Value!;
-        var method=(MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(CharacterDelegateProbe).GetMethod("LiveAny")!.MetadataToken);
-        var result=ValueTranslator.TranslateIntegerObjects(scope,input,method,implementation);
-        Assert.False(result.Success);Assert.Contains(result.Diagnostics,d=>d.Id=="CIL2001" && d.Message.Contains("Narrow vector interfaces admit",StringComparison.Ordinal));
+        var p=await CoreLibraryBuildTests.TranslateFixtures(typeof(CharacterDelegateProbe),"LiveAny");
+        int[] units=[0,1,-1,65,255,256,32767,32768,0xd800,0xdfff,0xffff,0x10000,int.MinValue,int.MaxValue];
+        var pairs=(from a in units from b in new[]{0,1,-1,65,0xffff} select(a,b)).ToArray();
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("LiveAny",p[0],CharacterDelegateProbe.LiveAny)],pairs);
     }
     [Fact]
     public void Standalone_delegate_profile_still_rejects_character_parameters()

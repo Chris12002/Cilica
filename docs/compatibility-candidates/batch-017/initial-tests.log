@@ -1,0 +1,95 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Every_UTF16_unit_is_read_through_exact_generic_Current(optimized: False) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(38,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Every_UTF16_unit_is_read_through_exact_generic_Current(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Every_UTF16_unit_is_read_through_exact_generic_Current(optimized: True) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(38,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Every_UTF16_unit_is_read_through_exact_generic_Current(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Detached_Char_enumeration_packets_require_exact_receivers_and_results [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(61,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Detached_Char_enumeration_packets_require_exact_receivers_and_results()
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Mutable_empty_cache_has_exact_closed_identity(optimized: False) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(32,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Mutable_empty_cache_has_exact_closed_identity(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Mutable_empty_cache_has_exact_closed_identity(optimized: True) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(32,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Mutable_empty_cache_has_exact_closed_identity(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(optimized: False, group: 0) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(23,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(optimized: True, group: 0) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(23,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(optimized: False, group: 1) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(23,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(optimized: True, group: 1) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(23,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(optimized: False, group: 2) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(23,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(optimized: True, group: 2) [FAIL]
+      DecoderShape: Diagnostic { Id = CIL3010, Severity = Error, Message = No implementation method matches the mapped owner and declaration signature: ToUpperInvariant, Location = Cilica.Fixtures.Execution.CharArrayEnumerationProbe::Check token 0x060002ba IL_0012; token 0x0a000176 in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; resolving token 0x060002ba in Cilica.Fixtures.Execution, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null; requested from Cilica.Fixtures.Execution.CharArrayEnumerationProbe::DecoderShape token 0x060002b9 IL_003e }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(99,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(96,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/CharArrayEnumerationTests.cs(23,0): at Cilica.Metadata.Tests.CharArrayEnumerationTests.Cursor_and_query_semantics_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '8ac389aff39be05e045d590c470380dfc36cff2f0872186309e80737d3c8e7b7')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 53, Errors: 0, Failed: 11, Skipped: 0, Not Run: 0, Time: 69.280s

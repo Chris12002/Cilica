@@ -4747,3 +4747,15 @@ it while preserving explicit-style Int32 Parse. The frozen engine passes the new
 and reaches unmapped SortedDictionary<TKey,TValue> in DispelOperation.Run. The measured
 probe predates the merged Char-delegate source; full native engine/replay remains open.
 See ADR AC0218. AC8.73 emission notes are corrected: diagnostic scans emit neither root.
+
+
+### Exact generic Char enumeration (compatibility batch 017)
+
+Exact Char arrays now reuse the managed generic enumeration helper with exact
+Char receiver and IEnumerator<Char> validation. Any's existing body now composes.
+All 90 selected checks pass, including 9,588 new repeated native/.NET comparisons
+and four precise GC/cache checks. CIL105/interface-plan20 record the extension;
+object IR63/native79, grants and runtime ownership are unchanged. Other narrow
+generic operations remain diagnostic. The owned decoder next reaches missing
+ToUpperInvariant; actual candidate execution and full replay remain unverified.
+See [the decision](decisions/compatibility-019-character-array-enumeration.md).

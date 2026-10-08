@@ -198,11 +198,14 @@ public static class ObjectInterfacePlanValidator
                 if (target.Receiver.ArrayElement is not null)
                 {
                     Require(target.VariantDeclaration is null, "array interface targets do not admit variant declarations.");
-                    Require(!target.Receiver.ArrayElement.Narrow || ObjectArrayInterfaceRecipes.NarrowRecipe(mapping.Name)
+                    Require(!target.Receiver.ArrayElement.Narrow || ObjectArrayInterfaceRecipes.NarrowRecipe(mapping.Name, target.Receiver)
                         && ObjectArrayInterfaceRecipes.ExactNarrowContract(target.Receiver, contracts[declaration.Owner]),
-                        "Narrow array targets require a metadata or nongeneric enumeration helper and an exact Boolean/Byte/Char contract.");
+                        "Narrow array targets require a metadata, nongeneric enumeration or exact Char enumeration helper and an exact Boolean/Byte/Char contract.");
                     Require(mapping.Name != "EnumerateObjects" || mapping.Parameters[0].Class == target.Receiver,
                         "Nongeneric enumeration must retain the actual array element boxing identity.");
+                    Require(mapping.Name != "Enumerate" || target.Receiver.ArrayElement.Kind != ObjectArrayElementKind.Char
+                        || mapping.Parameters[0].Class == target.Receiver,
+                        "Generic Char enumeration must retain the exact Char array receiver.");
                     var requestedArgument = contracts[declaration.Owner].Arguments.FirstOrDefault();
                     foreach (var (code, element) in new[] { (System.Reflection.Metadata.PrimitiveTypeCode.Int32, ObjectArrayElement.Int32), (System.Reflection.Metadata.PrimitiveTypeCode.UInt32, ObjectArrayElement.UInt32) })
                         Require(requestedArgument?.Identity != ClosedGenericKey.Create(new([new TypeSignature.Primitive(code)]), SignatureList<TypeSignature>.Empty)

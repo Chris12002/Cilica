@@ -315,8 +315,8 @@ public static class ObjectInterfacePlanBuilder
             if (_arrayChoices.TryGetValue(key, out var cached)) return cached;
             var contract = catalog.Interfaces.Single(i => ObjectTypeId.From(i.Source) == declaration.Owner);
             var recipe = ObjectArrayInterfaceRecipes.Select(declaration, contract.ArrayContract, catalog.ObjectBase);
-            if (receiver.ArrayElement!.Narrow && !ObjectArrayInterfaceRecipes.NarrowRecipe(recipe))
-                Fail("Narrow vector interfaces admit Count, collection flags, SyncRoot and nongeneric enumeration; other element operations require later lowering.", declaration.Source.Name);
+            if (receiver.ArrayElement!.Narrow && !ObjectArrayInterfaceRecipes.NarrowRecipe(recipe, receiver))
+                Fail("Narrow vector interfaces admit Count, collection flags, SyncRoot, nongeneric enumeration and exact Char generic enumeration; other element operations require later lowering.", declaration.Source.Name);
             if (!closed || !catalog.Integer64 || recipe is null)
                 Fail("Array interface member requires an explicit runtime helper contract; only Count, indexed reads/writes, IndexOf/Contains, fixed-size Add/Insert/Remove/RemoveAt, generic read-only Clear, nongeneric Clear, collection flags, SyncRoot, generic/nongeneric GetEnumerator and generic CopyTo are admitted.", declaration.Source.Name);
             // Generic helpers preserve the requested element identity, including its
@@ -328,7 +328,8 @@ public static class ObjectInterfacePlanBuilder
                 if (receiver.ArrayElement.Narrow && argument is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean or PrimitiveTypeCode.Byte or PrimitiveTypeCode.Char })
                     Fail("Narrow vector interface helpers require exact Boolean, Byte or Char generic arguments; signed aliases require later lowering.", declaration.Source.Name);
                 if (argument is TypeSignature.Primitive primitive && primitive.Code is not (PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.Object or PrimitiveTypeCode.String)
-                    && recipe is "Enumerate" or "CopyTo")
+                    && recipe is "Enumerate" or "CopyTo"
+                    && !(recipe == "Enumerate" && primitive.Code == PrimitiveTypeCode.Char && receiver.ArrayElement.Kind == ObjectArrayElementKind.Char))
                     Fail("Generic array helpers require exact Int32/UInt32/Int64, reference or inline-value elements; scalar aliases require later lowering.", declaration.Source.Name);
                 var item = Type(argument);
                 view = ObjectTypeId.Vector(catalog.ObjectBase, argument is TypeSignature.Primitive { Code: PrimitiveTypeCode.Boolean } ? ObjectArrayElement.Boolean

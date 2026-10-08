@@ -1,0 +1,7 @@
+{
+  "source_sha256": "c538f688d19a6a974ec292c212ef62f3489a6b1c3a9c6ce864925a145b994c80",
+  "executable_sha256": "c85d7e150654b50bcc503ceccbba3d4793158891ffab9c615b152b616a5309af",
+  "optimization": "O0",
+  "sanitizers": "address,undefined",
+  "source_name": "enumerator.cpp"
+}

@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "dotnet",
+    "/Users/christian/.codex/worktrees/alchemy-replay-baseline/Cilica/artifacts/compatibility-batch-017/build/bin/_Users_christian_.codex_worktrees_alchemy-replay-baseline_Cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+    "-class",
+    "Cilica.Metadata.Tests.ArrayEnumerationTests",
+    "-class",
+    "Cilica.Metadata.Tests.NarrowEnumerationTests",
+    "-class",
+    "Cilica.Metadata.Tests.ObjectArrayEnumerationValidationTests",
+    "-class",
+    "Cilica.Metadata.Tests.LinqPredicateTests",
+    "-parallel",
+    "none",
+    "-culture",
+    "invariant",
+    "-noColor"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 98.659567209
+}

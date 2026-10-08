@@ -1,0 +1,7 @@
+{
+  "source_sha256": "cdc3f3eea9ac00db4d2f065f80d937b56da3b72e75cbf5371a1a472bd117f233",
+  "executable_sha256": "3a5eb428812336b4273e2835a01cc048209a7bb1734ac072bc2b86f290216a4e",
+  "optimization": "O0",
+  "sanitizers": "address,undefined",
+  "source_name": "wide.cpp"
+}

@@ -70,11 +70,13 @@ internal static class ObjectArrayInterfaceRecipes
         if (catalog is null) return null;
         string integer = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int32)]), SignatureList<TypeSignature>.Empty);
         string unsigned = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.UInt32)]), SignatureList<TypeSignature>.Empty);
+        string character = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Char)]), SignatureList<TypeSignature>.Empty);
         string wide = ClosedGenericKey.Create(new([new TypeSignature.Primitive(PrimitiveTypeCode.Int64)]), SignatureList<TypeSignature>.Empty);
         var matches = catalog.Interfaces.Where(i => i.Source.ContentHash == catalog.ObjectBase.ContentHash
             && i.Source.Name == "System.Collections.Generic.IEnumerator`1" && i.Arguments.Length == 1
             && (vector.ArrayElement!.Kind == ObjectArrayElementKind.Int32 ? i.Arguments[0].Identity == integer
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.UInt32 ? i.Arguments[0].Identity == unsigned
+                : vector.ArrayElement.Kind == ObjectArrayElementKind.Char ? i.Arguments[0].Identity == character
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Int64 ? i.Arguments[0].Identity == wide
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Enum32 ? i.Arguments[0].Enum32 == vector.ArrayElement.Type
                 : vector.ArrayElement.Kind == ObjectArrayElementKind.Reference ? i.Arguments[0].Reference == vector.ArrayElement.Type
@@ -85,13 +87,14 @@ internal static class ObjectArrayInterfaceRecipes
     // These managed helpers inspect only array metadata/identity, never an element.
     internal static bool ElementIndependent(string? name) => name is "Count" or "False" or "True" or "Identity";
     // Nongeneric cursors preserve the actual narrow element identity when boxing.
-    internal static bool NarrowRecipe(string? name) => ElementIndependent(name) || name == "EnumerateObjects";
+    internal static bool NarrowRecipe(string? name, ObjectTypeId vector) => ElementIndependent(name) || name == "EnumerateObjects"
+        || name == "Enumerate" && vector.ArrayElement?.Kind == ObjectArrayElementKind.Char;
     internal static bool ExactNarrowContract(ObjectTypeId vector, ObjectInterface contract) => contract.Arguments.IsEmpty
         || contract.Arguments.Length == 1 && contract.Arguments[0].Identity == ClosedGenericKey.Create(
             new([new TypeSignature.Primitive(vector.ArrayElement!.Kind == ObjectArrayElementKind.Boolean ? PrimitiveTypeCode.Boolean : vector.ArrayElement.Kind == ObjectArrayElementKind.Byte ? PrimitiveTypeCode.Byte : PrimitiveTypeCode.Char)]), SignatureList<TypeSignature>.Empty);
     internal static bool Signature(ObjectDispatchMethod method, ObjectInterfaceDispatchPlan plan)
     {
-        if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector || vector.ArrayElement.Narrow && !NarrowRecipe(method.Name))
+        if (method.Parameters.IsDefaultOrEmpty || method.Parameters[0].Class is not { ArrayElement: not null } vector || vector.ArrayElement.Narrow && !NarrowRecipe(method.Name, vector))
             return false;
         var element = Result("Get", vector)!;
         if (element.Kind == IrTypeKind.Value && plan.Values is null && method.Name is "Get" or "Set" or "Add" or "Insert" or "IndexOf" or "Contains" or "Remove")

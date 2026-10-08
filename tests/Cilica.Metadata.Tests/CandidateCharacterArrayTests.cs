@@ -33,6 +33,7 @@ public sealed class CandidateCharacterArrayTests
     }
     [Theory]
     [InlineData("ReadOnlyReference",false)] [InlineData("ReadOnlyReference",true)]
+    [InlineData("CharacterPredicate",false)] [InlineData("CharacterPredicate",true)]
     public async Task Minimal_decoder_compositions_match_dotnet(string name,bool optimized)
     {
         var p = await CoreLibraryBuildTests.TranslateFixtures(typeof(CandidateCharacterArrayProbe),name);
@@ -44,7 +45,6 @@ public sealed class CandidateCharacterArrayTests
     }
     [Theory]
     [InlineData("MissingSection", "CIL3010", "ToCharArray")]
-    [InlineData("CharacterPredicate", "CIL2001", "Narrow vector interfaces admit")]
     public async Task Remaining_candidate_requirements_have_exact_diagnostics(string name, string id, string message)
     {
         using var files=new ResolverFiles();

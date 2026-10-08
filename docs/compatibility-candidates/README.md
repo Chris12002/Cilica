@@ -171,3 +171,11 @@ gate. No new upstream candidate executed; full decoder compatibility is not clai
 passing checks and 14,808 new repeated native/.NET comparisons. The owned Any probe
 now reaches the separate narrow-vector interface gate, retained as an exact
 negative. No upstream candidate executed; earlier skip decisions remain unchanged.
+
+
+## Char-array enumeration and Any
+
+[Batch017](batch-017-results.md) admits exact Char generic enumeration and verifies
+Any with live mutation. All 90 checks pass with 9,588 new native/.NET comparisons
+and four precise GC/cache checks. The next owned decoder gate is ToUpperInvariant;
+no upstream candidate was executed.

@@ -26,7 +26,7 @@ public sealed class NarrowArrayMetadataTests
         var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files); using var lifetime = resolver;
         using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await System.IO.File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
         var input = scope.OpenInput(typeof(NarrowArrayMetadataProbe).Assembly.Location).Value!;
-        foreach (var name in new[] { "UnsupportedGet", "UnsupportedCopy", "UnsupportedEnumeration", "UnsupportedClear", "UnsupportedSignedView" })
+        foreach (var name in new[] { "UnsupportedGet", "UnsupportedCopy", "UnsupportedClear", "UnsupportedSignedView" })
         {
             var result = ValueTranslator.TranslateIntegerObjects(scope, input,
                 (System.Reflection.Metadata.MethodDefinitionHandle)System.Reflection.Metadata.Ecma335.MetadataTokens.EntityHandle(typeof(NarrowArrayMetadataProbe).GetMethod(name)!.MetadataToken), implementation);
