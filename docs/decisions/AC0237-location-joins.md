@@ -86,4 +86,8 @@ artifacts/alchemy-general-location-join-inventory-r2.
 Frozen inputs remain pinned. Core SHA256:
 `9c18b9882eab4b53a1fc1b174dcfae1d29ccafa5a86b5b7f159e0aea7e6e4b86`.
 Manifest SHA256:
-`8e95e8f55891137b93a7fbbc0b6795b4f1f1cc348b03543c7d990f50d3e05c8f`.
+`b874d325bf97252dd865047527023291f37b7dd924b55777e4c0f12d2efb555e`
+(second inventory). The first inventory manifest is
+`021283b499fa07bf297518c291440b2f78ffe40181f2bbc7d1ef5372f8f940e0`.
+Manifest paths/profile receipts vary between builds even when the core DLL is
+identical; each invocation verifies its own exact manifest digest.
