@@ -4182,3 +4182,19 @@ The full-IR audit clears all six remaining type-test failures. Three failing bod
 remain: two constructor initialization paths and one delegate capture. All 15,254
 bodies translate; complete validated closure, production capacity, native engine
 and saved-game replay remain unfinished.
+
+
+### Branched constructor initialization (AC8.98)
+
+A bounded block-state check admits argument branches/loops before a single direct
+base or same-owner constructor call. It preserves receiver identity, evaluation
+order and roots while rejecting receiver escape, ambiguous initialization paths,
+local recovery of initialization faults and repeated/cyclic initialization.
+CIL122/object IR75; native86, layouts, core, grants and production budgets unchanged.
+All 119 selected checks pass, including 2,352 new sanitized native/.NET comparisons
+and exact cached-delegate retention. Converted constructor code guided lifetime
+checks. See ADR AC0242 for design, review and receipts.
+
+The full-IR inventory now leaves one failing delegate capture among 15,254
+translated bodies. Full validated closure, production capacity, native engine and
+saved-game replay remain unfinished.
