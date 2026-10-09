@@ -1,0 +1,33 @@
+{
+  "isolated": {
+    "network": "none",
+    "user": "10001:10001",
+    "read_only_root": true,
+    "cap_drop": "ALL",
+    "no_new_privileges": true,
+    "cpus": 2,
+    "memory": "8g",
+    "pids_limit": 256,
+    "host_mounts": [],
+    "credentials": [],
+    "tmpfs": {
+      "/work": "9g,exec,nosuid,nodev",
+      "/tmp": "1g,exec,nosuid,nodev",
+      "/evidence": "1g,noexec,nosuid,nodev"
+    }
+  },
+  "isolated_total_seconds": 1800,
+  "unity": {
+    "unity": "6000.3.2f1 ARM64",
+    "target": "Mac IL2CPP ARM64",
+    "xcode": "26.1.1",
+    "isolation": "Normal local Mac; no enforced network/credential/filesystem isolation or CPU/memory/PID caps",
+    "watchdog_seconds": 1790,
+    "console_max_bytes": 67108864,
+    "capture_max_bytes": 1073741824,
+    "job_worker_count_hint": 2,
+    "isolated_unity_environment_verified": false
+  },
+  "unity_authorization": "Normal Mac host explicitly approved in approval.txt; no isolation claim; own watchdog required",
+  "profile": "Bounded diagnostic only; no competitive timing without separately coordinated observed quiet window"
+}

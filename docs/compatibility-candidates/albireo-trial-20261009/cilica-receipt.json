@@ -1,0 +1,82 @@
+{
+  "stage": "cilica",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "outcome": "passed",
+  "artifacts": [
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/result.json",
+      "sha256": "4e1606b623977803482d74cf5bd464050b6681e640afec15d93d9a7c6fc4b4fc"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/differential.log",
+      "sha256": "43022e6b6b2cd3e8436f58537aca8e96a4595f65292b45c0d09745f2ff4aecfb"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/oracle-observations.json",
+      "sha256": "4d287b64295a71aafc8e3bed63d8354c50ff8f9119445ce738ee1a74911fe8c9"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/candidate-assembly.sha256",
+      "sha256": "62d3e7f40da9cf2b74ffeccd7ff30c97318b3711ba2901d7756a801974519c47"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/1ef346b711f82b37c146a2af8c34f9aab3e65f15ac14b1e015c22098ef6b5ee5-O0.json",
+      "sha256": "d1dcda567538727e846183917691063e6f0d3af95b03fe85425589854d186b5b"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/1ef346b711f82b37c146a2af8c34f9aab3e65f15ac14b1e015c22098ef6b5ee5-O2.json",
+      "sha256": "14b744290ae8b4a803a8ef1390a1794f3d5437a724e11c7518d4b3cb35d51325"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/3dc19a575a6e515e02a1abf8eac61fe2ae437f2a3581a4880998da3fa3f9fc15-O0.json",
+      "sha256": "fe7b520f30dc54aeb1f6b8ee9f5d4160464bdad8941db4461ccc3bcc5dd08f74"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/3dc19a575a6e515e02a1abf8eac61fe2ae437f2a3581a4880998da3fa3f9fc15-O2.json",
+      "sha256": "a278044a43062b80e82e65ec2b81c946a71ceeaa7479ecc5de678ab473b1f27d"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/68783545c476a486f7f6b38ecf29fdc92c79392428450ec22e8a294b6180c1ee-O0.json",
+      "sha256": "6ba1e1f86ab77118095e8bd065e8a105d57ecbeff0eefb805c21cc1f9e6f99ed"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/68783545c476a486f7f6b38ecf29fdc92c79392428450ec22e8a294b6180c1ee-O2.json",
+      "sha256": "0baa99759d61a229c73ff040b56fa13e062962eafe50b5cb141615cb62a15c93"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/696eba24d1069973dd87c0da07aebe0fb7326249af9cbefed0db777fc966bfb7-O0.json",
+      "sha256": "e771a0deff14d65e8bd4cc5cf53c5e27712b482d5695c7d512d63652dd3c6b97"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/696eba24d1069973dd87c0da07aebe0fb7326249af9cbefed0db777fc966bfb7-O2.json",
+      "sha256": "5dc92e0a8b508dff8e7024b6cd0e3d014708bc2c0e04e57799c3f883d5ddd3d8"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/7083f506b3b51a90b99cb07fb52e398de8113d15cab5a095801b00943b0c51f2-O0.json",
+      "sha256": "592bf4a48fd9b59afee6351eb3c1ba1250b8602a7f8fc82e3f7e9101b9ac2039"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/7083f506b3b51a90b99cb07fb52e398de8113d15cab5a095801b00943b0c51f2-O2.json",
+      "sha256": "7f9da968c815d556df0ba18892dcd9caeb2d5f7204b5c7051ffc964f1664447e"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/c7cca07089ce3be6088d2192b28b91f5524540f301c27ca1d29f2776ff56c584-O0.json",
+      "sha256": "83d145926ed16a8efb6f0d37918dc6c2018aa67a40583aa3811071d4dad2529a"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/c7cca07089ce3be6088d2192b28b91f5524540f301c27ca1d29f2776ff56c584-O2.json",
+      "sha256": "486759e78400ef4df4de88c476b28d3e2a88472fe81a5687058f49da6b76caba"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/cbc29b2564ed81e9a4d2f4e60576558b7b4c522c7cc83c362748423239b859c8-O0.json",
+      "sha256": "a14577a77d560e708db0ce661e824735974e7bc91898be6168403f11fdd0efbe"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/native/cbc29b2564ed81e9a4d2f4e60576558b7b4c522c7cc83c362748423239b859c8-O2.json",
+      "sha256": "3b976d2e78c469058c3eb2a96f15d9353b11ccfcf3d0b4f4440283c6032a0ace"
+    }
+  ],
+  "coverage": "selected-candidate; all32 scenarios and851 exact observations",
+  "cilica_commit": "b8f462870351be165692401d90340c019fadc3ae",
+  "identity_note": "Fingerprint binds the frozen common workload bundle including future Unity wrapper inputs; only the isolated recipe/probe executes during these two stages."
+}

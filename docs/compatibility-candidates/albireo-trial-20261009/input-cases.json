@@ -1,0 +1,174 @@
+{
+  "source": "Unchanged owned Probe.Source switch, transcribed as data; all scenario IDs are fixed",
+  "probe_sha256": "633269ecc3ffd9952a4edadefdc7b269c086e278a98ee0694be62140c196e139",
+  "root": "Cilica.CandidateValidation.AlbireoDecodeProbe.Run(Int32,Int32)",
+  "max_observations_per_scenario": 4096,
+  "cases": [
+    {
+      "scenario": 0,
+      "input": null,
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 1,
+      "input": "",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 2,
+      "input": "MY======",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 3,
+      "input": "MZXQ====",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 4,
+      "input": "MZXW6===",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 5,
+      "input": "MZXW6YQ=",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 6,
+      "input": "MZXW6YTB",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 7,
+      "input": "MZXW6YTBOI======",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 8,
+      "input": "mzxw6ytboi======",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 9,
+      "input": "M",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 10,
+      "input": "======",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 11,
+      "input": "MY",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 12,
+      "input": "A===",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 13,
+      "input": "AAAA",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 14,
+      "input": "0",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 15,
+      "input": "A A",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 16,
+      "input": "A\u0000A",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 17,
+      "input": "\u017fA",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 18,
+      "input": "\u0131A",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 19,
+      "input": "\u0130A",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 20,
+      "input": "\ud800",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 21,
+      "input": "\udc00",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 22,
+      "input": "\ud801\udc28",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 23,
+      "input": "MY====a",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 24,
+      "input": "MY====== ",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 25,
+      "input": "=\u0000=",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 26,
+      "input": "77777777",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 27,
+      "input": "AAAAAAAA",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 28,
+      "input": "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567A",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 29,
+      "input": "abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvwxyz234567a",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 30,
+      "input": "\u00dfA",
+      "observations": "length at -1, then every index0..length-1"
+    },
+    {
+      "scenario": 31,
+      "input": "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",
+      "observations": "length at -1, then every index0..length-1"
+    }
+  ],
+  "profile_scenarios": [
+    2,
+    8,
+    29,
+    31
+  ]
+}

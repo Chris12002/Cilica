@@ -1,0 +1,290 @@
+[
+  {
+    "scenario": 0,
+    "status_code": 1,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": -1,
+    "message": "Value cannot be null. (Parameter 'input')",
+    "parameter": "input"
+  },
+  {
+    "scenario": 1,
+    "status_code": 0,
+    "result_length": 0,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 0,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 2,
+    "status_code": 0,
+    "result_length": 1,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 8,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 3,
+    "status_code": 0,
+    "result_length": 2,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 8,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 4,
+    "status_code": 0,
+    "result_length": 3,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 8,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 5,
+    "status_code": 0,
+    "result_length": 4,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 8,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 6,
+    "status_code": 0,
+    "result_length": 5,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 8,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 7,
+    "status_code": 0,
+    "result_length": 6,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 16,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 8,
+    "status_code": 0,
+    "result_length": 6,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 16,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 9,
+    "status_code": 0,
+    "result_length": 0,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 1,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 10,
+    "status_code": 0,
+    "result_length": 0,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 6,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 11,
+    "status_code": 0,
+    "result_length": 1,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 2,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 12,
+    "status_code": 0,
+    "result_length": 0,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 4,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 13,
+    "status_code": 0,
+    "result_length": 2,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 4,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 14,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 1,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 15,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 3,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 16,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 3,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 17,
+    "status_code": 0,
+    "result_length": 1,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 2,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 18,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 2,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 19,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 2,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 20,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 1,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 21,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 1,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 22,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 2,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 23,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 7,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 24,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 9,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 25,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 3,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 26,
+    "status_code": 0,
+    "result_length": 5,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 8,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 27,
+    "status_code": 0,
+    "result_length": 5,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 8,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 28,
+    "status_code": 0,
+    "result_length": 160,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 257,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 29,
+    "status_code": 0,
+    "result_length": 160,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 257,
+    "message": "",
+    "parameter": ""
+  },
+  {
+    "scenario": 30,
+    "status_code": 2,
+    "result_length": -1,
+    "repeated_result_identity": -1,
+    "source_utf16_length": 2,
+    "message": "input",
+    "parameter": ""
+  },
+  {
+    "scenario": 31,
+    "status_code": 0,
+    "result_length": 160,
+    "repeated_result_identity": 0,
+    "source_utf16_length": 256,
+    "message": "",
+    "parameter": ""
+  }
+]

@@ -1,0 +1,1 @@
+Host Python tarfile.extractall does not support filter='data'; staging stopped before downloads/builds. Each archive member had already been validated as a relative regular file/directory without '..'. Corrected to use validated extraction in a new temporary input directory.

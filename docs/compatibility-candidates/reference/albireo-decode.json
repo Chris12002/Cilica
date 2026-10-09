@@ -56,41 +56,84 @@
     "roots": [
       "Base32.Decode(in string)"
     ],
-    "input_cases": null,
-    "candidate_assemblies": {},
+    "input_cases": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/input-cases.json",
+      "sha256": "26cade640724f20eb46414afe3b940aa3c168c10acb33a1d3630f273b70dd721"
+    },
+    "candidate_assemblies": {
+      "Albireo.SelectedDecode.dll": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760"
+    },
     "owned_inputs": {
       "tools/CompatibilityCandidates/albireo-validation/ApprovedAlbireoExecutionTests.cs": "6bb7f29a056ffed0725a6684cc94fb04b4d2b4a1f66e0ea5a1ae14a445d178a8",
       "tools/CompatibilityCandidates/albireo-validation/Probe.cs": "633269ecc3ffd9952a4edadefdc7b269c086e278a98ee0694be62140c196e139",
       "tools/CompatibilityCandidates/albireo-validation/README.md": "2cf039920eb4b19376821e596bc85ea829bd82b2353e6f55e513791148ba8832",
       "tools/CompatibilityCandidates/albireo-validation/SelectedDecode.csproj": "48e98e735739346a539fb6cd8079a04fdbd1d0becfabd29e8e17f78ed6a0412c",
-      "tools/CompatibilityCandidates/albireo-validation/offline-packages.json": "8b23ddbc500c1724ae26d104eedff9e6024cc4e705e0df061963d739e82beae2"
+      "tools/CompatibilityCandidates/albireo-validation/offline-packages.json": "8b23ddbc500c1724ae26d104eedff9e6024cc4e705e0df061963d739e82beae2",
+      "tools/CompatibilityCandidates/albireo-unity/README.md": "06808bfe8c024ba27414b20fc945e0d9060c95b964df11f32e9631685c9e78cc",
+      "tools/CompatibilityCandidates/albireo-unity/capture-requirements.json": "2a118e62837e5480407772e5be820ef825bc6c114d70d5fd88623ebf07767f10",
+      "tools/CompatibilityCandidates/albireo-unity/stage_bundle.py": "41f8a7936849f32a53a0a10c99fc0eb102d484116e2a4b8cef2fe953d7e1b0bb",
+      "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Assets/AlbireoUnityHarness.cs": "41742b72a021ed50f75ecc7bad25ee80daa5f85ed5142cfd3601021239a9b804",
+      "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Assets/Editor/AlbireoReferenceBuild.cs": "5e5d8b45d1b16e6b431ad95f4b68b2e5d4b314130567f1d06ed6c565449a8931",
+      "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Packages/manifest.json": "c3fe8f046850238f5859d8a2756efd532ac71de6f579b70442a8b04880ce5cbd",
+      "tools/CompatibilityCandidates/albireo-unity/template/package.json": "8281e752f0e4d7f540c645f8641564a8b8b09b250f34f7c9b0de1497252a3eb3",
+      "tools/CompatibilityCandidates/albireo-unity/transcript.py": "ef55daf06a9c23ab59a1a51b8ced5c21cffc8f3e1e9f9ca7d931fb89ffc11825"
     },
     "excluded": [
-      "Encode",
-      "upstream MSBuild projects/targets",
-      "upstream tests",
-      "generators/analyzers",
-      "network access",
-      "host execution of candidate",
+      "Encode execution (whole source compiled/imported)",
+      "upstream MSBuild projects/targets/tests/generators/analyzers",
+      "additional packages",
+      "additional upstream candidates",
       "production compiler/runtime changes"
     ]
   },
   "execution": {
-    "authorization": null,
-    "approved_stages": [],
-    "isolation_plan": null
+    "authorization": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/approval.txt",
+      "sha256": "0fa3d7910f75b0296dab0730497bb1ac30fd66ddb69bc836027ce07fc8fa9b79"
+    },
+    "approved_stages": [
+      "dotnet",
+      "cilica",
+      "unity",
+      "profile"
+    ],
+    "isolation_plan": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/execution-boundaries.json",
+      "sha256": "0ba0680e9ab390c165a94b67910db710bbfc12476f47186a1ec1e13a98f40b86"
+    }
   },
   "unity": {
     "status": "pending",
     "version": "",
     "settings": null,
-    "candidate_assemblies": {},
-    "owned_inputs": {},
-    "reference_commit": "",
-    "reference_roots": [],
-    "reference_input_cases": null,
+    "candidate_assemblies": {
+      "Albireo.SelectedDecode.dll": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760"
+    },
+    "owned_inputs": {
+      "tools/CompatibilityCandidates/albireo-validation/ApprovedAlbireoExecutionTests.cs": "6bb7f29a056ffed0725a6684cc94fb04b4d2b4a1f66e0ea5a1ae14a445d178a8",
+      "tools/CompatibilityCandidates/albireo-validation/Probe.cs": "633269ecc3ffd9952a4edadefdc7b269c086e278a98ee0694be62140c196e139",
+      "tools/CompatibilityCandidates/albireo-validation/README.md": "2cf039920eb4b19376821e596bc85ea829bd82b2353e6f55e513791148ba8832",
+      "tools/CompatibilityCandidates/albireo-validation/SelectedDecode.csproj": "48e98e735739346a539fb6cd8079a04fdbd1d0becfabd29e8e17f78ed6a0412c",
+      "tools/CompatibilityCandidates/albireo-validation/offline-packages.json": "8b23ddbc500c1724ae26d104eedff9e6024cc4e705e0df061963d739e82beae2",
+      "tools/CompatibilityCandidates/albireo-unity/README.md": "06808bfe8c024ba27414b20fc945e0d9060c95b964df11f32e9631685c9e78cc",
+      "tools/CompatibilityCandidates/albireo-unity/capture-requirements.json": "2a118e62837e5480407772e5be820ef825bc6c114d70d5fd88623ebf07767f10",
+      "tools/CompatibilityCandidates/albireo-unity/stage_bundle.py": "41f8a7936849f32a53a0a10c99fc0eb102d484116e2a4b8cef2fe953d7e1b0bb",
+      "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Assets/AlbireoUnityHarness.cs": "41742b72a021ed50f75ecc7bad25ee80daa5f85ed5142cfd3601021239a9b804",
+      "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Assets/Editor/AlbireoReferenceBuild.cs": "5e5d8b45d1b16e6b431ad95f4b68b2e5d4b314130567f1d06ed6c565449a8931",
+      "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Packages/manifest.json": "c3fe8f046850238f5859d8a2756efd532ac71de6f579b70442a8b04880ce5cbd",
+      "tools/CompatibilityCandidates/albireo-unity/template/package.json": "8281e752f0e4d7f540c645f8641564a8b8b09b250f34f7c9b0de1497252a3eb3",
+      "tools/CompatibilityCandidates/albireo-unity/transcript.py": "ef55daf06a9c23ab59a1a51b8ced5c21cffc8f3e1e9f9ca7d931fb89ffc11825"
+    },
+    "reference_commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+    "reference_roots": [
+      "Base32.Decode(in string)"
+    ],
+    "reference_input_cases": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/input-cases.json",
+      "sha256": "26cade640724f20eb46414afe3b940aa3c168c10acb33a1d3630f273b70dd721"
+    },
     "capture": null,
-    "blocker": "Only normal Mac host Unity is demonstrated. Separate exact Albireo host approval, actual isolated DLL/hash and candidate runner/capture adaptation are pending; no isolated Unity environment verified.",
+    "blocker": "Approved exact-input handoff ready; Unity build/capture/correctness/profile pending.",
     "correctness": {
       "status": "not-run",
       "input_fingerprint": "",
@@ -120,21 +163,30 @@
       "id": "decode-closure-validation",
       "status": "open",
       "requirement": "Known owned API composition passes, but the exact pinned Decode closure and semantic behavior remain unverified; identify any additional gaps from representative reference/candidate evidence.",
-      "regressions": [],
+      "regressions": [
+        "tools/CompatibilityCandidates/albireo-validation/ApprovedAlbireoExecutionTests.cs",
+        "tests/Cilica.Metadata.Tests/InvariantUpperTests.cs"
+      ],
       "implementation": null
     }
   ],
   "validation": {
-    "status": "pending",
-    "coverage": "pending",
-    "input_fingerprint": "",
-    "cilica_commit": "",
-    "dotnet": null,
-    "cilica": null,
+    "status": "passed",
+    "coverage": "selected-candidate",
+    "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+    "cilica_commit": "b8f462870351be165692401d90340c019fadc3ae",
+    "dotnet": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/dotnet-receipt.json",
+      "sha256": "30c084f11b632326aab7627ec1974c1b01e8e447a5606195fbff62b8adba5f1a"
+    },
+    "cilica": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/cilica-receipt.json",
+      "sha256": "5fafee06c3700a34ce4f9e0e196e6e8c0e0eb26b3f92a5ad21e620cecadafdaf"
+    },
     "performance": null,
-    "performance_not_applicable": "",
+    "performance_not_applicable": "Correctness-only isolated run with forcedGC/sanitizers; Unity diagnostic profile pending. No cross-runtime speed or full-library claim.",
     "review": null
   },
-  "next_action": "Review prepared Albireo Unity plan. Existing isolated .NET/Cilica permission, if granted, does not approve host Unity. Bind actual whole DLL and owned adapter/project pins before separately approved import/build/verify/profile. Gates remain pending.",
+  "next_action": "Isolated selected Decode validation passed. Await approved Unity exact-DLL capture/correctness/profile and independent reference review before closing batch020.",
   "preparation_plan": "docs/compatibility-candidates/albireo-unity-plan.json"
 }

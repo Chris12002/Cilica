@@ -1,0 +1,26 @@
+{
+  "stage": "dotnet",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "outcome": "passed",
+  "artifacts": [
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/result.json",
+      "sha256": "4e1606b623977803482d74cf5bd464050b6681e640afec15d93d9a7c6fc4b4fc"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/differential.log",
+      "sha256": "43022e6b6b2cd3e8436f58537aca8e96a4595f65292b45c0d09745f2ff4aecfb"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/oracle-observations.json",
+      "sha256": "4d287b64295a71aafc8e3bed63d8354c50ff8f9119445ce738ee1a74911fe8c9"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/isolated/candidate-assembly.sha256",
+      "sha256": "62d3e7f40da9cf2b74ffeccd7ff30c97318b3711ba2901d7756a801974519c47"
+    }
+  ],
+  "coverage": "selected-candidate; all32 scenarios and851 exact observations",
+  "cilica_commit": "b8f462870351be165692401d90340c019fadc3ae",
+  "identity_note": "Fingerprint binds the frozen common workload bundle including future Unity wrapper inputs; only the isolated recipe/probe executes during these two stages."
+}

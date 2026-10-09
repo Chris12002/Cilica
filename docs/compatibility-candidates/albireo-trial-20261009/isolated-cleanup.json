@@ -1,0 +1,11 @@
+{
+  "container": "removed after bounded evidence export",
+  "image_id": "sha256:2e99aa4d3ce4d58c7571533fe2de188b4d098bb9eea5f448d7d37edf9bfb68c0",
+  "image_removal_stdout": "Untagged: cilica-albireo-approved-20261009:input\nDeleted: sha256:2e99aa4d3ce4d58c7571533fe2de188b4d098bb9eea5f448d7d37edf9bfb68c0\nDeleted: sha256:3cf4a8420f74e8490592a69c5b0f12aad0fd91d9af5ae1110e0534f252e35a44\nDeleted: sha256:47f4dc97c7c26813364ae44494c0c4ef3b7c122940dee7aa18fbeaff58f0f000\nDeleted: sha256:665a233f88588e2fe8259b6406fad9762d585b87666ea7342711e2220d7b05ea\nDeleted: sha256:8d1299b7e2edef1d241658a906898b7b59ea182ef678b65f26c10922cef0df59\nDeleted: sha256:c53683a5915fff4c9cff91ee1cef724b303b5dbcb21790ad78fa0924964cfc6f\nDeleted: sha256:058df267015d74cfedf5d1678e23b5eafc03fabf1c4f5e274979961779f41344\n",
+  "disposable_input_directories_removed": [
+    "/tmp/cilica-albireo-approved-20261009",
+    "/tmp/cilica-albireo-approved-20261009-r1"
+  ],
+  "retained": "Pinned source+licence+DLL+oracle handoff and all receipts; shared tooling image/package cache untouched",
+  "unique_work_deleted": false
+}

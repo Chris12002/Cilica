@@ -1,0 +1,83 @@
+{
+  "status": "passed",
+  "elapsed_seconds": 153.529644612,
+  "steps": [
+    {
+      "name": "versions",
+      "argv": [
+        "sh",
+        "-c",
+        "dotnet --info; clang++-18 --version; python3 --version; id; cat /proc/self/status; cat /proc/mounts"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "candidate-restore",
+      "argv": [
+        "dotnet",
+        "restore",
+        "/work/recipe/SelectedDecode.csproj",
+        "--source",
+        "/approved/offline-feed",
+        "-p:CandidateSource=/work/input",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "candidate-build",
+      "argv": [
+        "dotnet",
+        "build",
+        "/work/recipe/SelectedDecode.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--output",
+        "/work/out",
+        "-p:CandidateSource=/work/input"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "cilica-build",
+      "argv": [
+        "dotnet",
+        "build",
+        "tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj",
+        "--artifacts-path",
+        "artifacts/albireo-approved/build",
+        "-p:CustomBeforeDirectoryBuildProps=/work/cilica/tools/CompatibilityCandidates/isolated-build.props",
+        "-p:RestoreSources=/approved/offline-feed",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false",
+        "-m:1"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    },
+    {
+      "name": "differential",
+      "argv": [
+        "dotnet",
+        "artifacts/albireo-approved/build/bin/_work_cilica_tests_Cilica.Metadata.Tests/debug/Cilica.Metadata.Tests.dll",
+        "-explicit",
+        "only",
+        "-method",
+        "Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation",
+        "-culture",
+        "invariant",
+        "-parallel",
+        "none",
+        "-showLiveOutput",
+        "-noColor"
+      ],
+      "cwd": "/work/cilica",
+      "exit_code": 0
+    }
+  ]
+}

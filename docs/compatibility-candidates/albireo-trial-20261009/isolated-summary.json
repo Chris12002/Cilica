@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "candidate_commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+  "cilica_commit": "b8f462870351be165692401d90340c019fadc3ae",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "scenarios": 32,
+  "exact_observations": 851,
+  "repeated_native_dotnet_comparisons": 5106,
+  "exact_budget_successes": 1702,
+  "one_short_budget_checks": 1702,
+  "native_hash_pairs": 14,
+  "execution_seconds": 153.529644612,
+  "supervisor_seconds": 158.0,
+  "sanitizers": [
+    "ASan",
+    "UBSan"
+  ],
+  "collect_before_every_allocation": true,
+  "native_frame_warning_limit_bytes": 2048,
+  "container_removed": true,
+  "warning": "One pre-existing CS0108 CandidateHashAlgorithmOwner.State hides HashAlgorithm.State; no errors.",
+  "production_changes": false,
+  "unity": "Pending separate owned lane execution of approved exact handoff",
+  "candidate_binary_retention": "Verified binary retained with MIT licence outside Git at task/albireo-approved-20261009/handoff; SHA in candidate-assembly.sha256."
+}

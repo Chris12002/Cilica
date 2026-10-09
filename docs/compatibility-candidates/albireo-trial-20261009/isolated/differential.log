@@ -1,0 +1,27 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: translating selected candidate root; no oracle invocation yet.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: translation passed; collecting 32 complete .NET oracle transcripts.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: all 32 oracle scenarios completed; 851 transcript observations including lengths.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 0/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 128/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 256/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 384/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 512/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 640/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 native batch starting after 768/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O0 completed all 851 observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 0/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 128/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 256/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 384/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 512/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 640/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 native batch starting after 768/851 completed observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: O2 completed all 851 observations.
+    Cilica.Metadata.Tests.ApprovedAlbireoExecutionTests.Selected_roots_match_every_transcript_observation [OUTPUT] Stage: retained 14 source/executable hash pairs before native temporary cleanup.
+  Finished:    Cilica.Metadata.Tests (ID = 'dc1d45ced870b386035f94a64caaaaeac4af67408a1f41290d3cca196159ceb9')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 121.624s

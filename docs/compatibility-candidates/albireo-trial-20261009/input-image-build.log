@@ -1,0 +1,27 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  56.14MB
+Step 1/8 : FROM sha256:68b78e3c1c62c8ed6db8421d6f11cd0619829bd8b77ad1368cae9328e3d40f80
+ ---> 68b78e3c1c62
+Step 2/8 : COPY cilica/ /approved/cilica/
+ ---> 058df267015d
+Step 3/8 : COPY offline-feed/ /approved/offline-feed/
+ ---> c53683a5915f
+Step 4/8 : COPY input/ /approved/input/
+ ---> 8d1299b7e2ed
+Step 5/8 : COPY input-provenance.json /approved/input-provenance.json
+ ---> 665a233f8858
+Step 6/8 : COPY runner.py /runner.py
+ ---> 47f4dc97c7c2
+Step 7/8 : USER 10001:10001
+ ---> Running in e8d0d9d46b8f
+ ---> Removed intermediate container e8d0d9d46b8f
+ ---> 3cf4a8420f74
+Step 8/8 : ENTRYPOINT ["python3", "-B", "/runner.py"]
+ ---> Running in 2411064fc783
+ ---> Removed intermediate container 2411064fc783
+ ---> 2e99aa4d3ce4
+Successfully built 2e99aa4d3ce4
+Successfully tagged cilica-albireo-approved-20261009:input

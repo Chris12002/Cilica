@@ -1,0 +1,42 @@
+{
+  "status": "verified-ready-for-approved-unity",
+  "candidate_commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+  "cilica_commit": "b8f462870351be165692401d90340c019fadc3ae",
+  "adapter_commit": "dbfcca2deac3b941e0a857afaf92eab68a04c7d3",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "candidate_dll_sha256": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760",
+  "oracle_observations": 851,
+  "scenarios": 32,
+  "isolated_status": "passed",
+  "isolated_elapsed_seconds": 153.529644612,
+  "container_removed": true,
+  "files": {
+    "Albireo.SelectedDecode.dll": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760",
+    "Base32.cs": "76f394af83466a6e7645ad5947d07c32076439d33c03cc3579b421b6a26f9386",
+    "LICENSE.Albireo.txt": "b5ba4977198cea5e7e96a26b2b9038e11cbfb88584583a0c4e39ab9cd8987542",
+    "approval.txt": "0fa3d7910f75b0296dab0730497bb1ac30fd66ddb69bc836027ce07fc8fa9b79",
+    "execution-boundaries.json": "0ba0680e9ab390c165a94b67910db710bbfc12476f47186a1ec1e13a98f40b86",
+    "expected.json": "d119a4eb11960c4c73988371290099f95b20e0a869f04a06ba494e22dd3ab5a6",
+    "input-cases.json": "26cade640724f20eb46414afe3b940aa3c168c10acb33a1d3630f273b70dd721",
+    "input-provenance.json": "b43b8c752005f4f8c4da9a089dd27142aa430e6a71c8d762fc71d4c8bd40f4ff",
+    "oracle-observations.json": "4d287b64295a71aafc8e3bed63d8354c50ff8f9119445ce738ee1a74911fe8c9",
+    "result.json": "4e1606b623977803482d74cf5bd464050b6681e640afec15d93d9a7c6fc4b4fc",
+    "workflow-manifest.json": "960a55fcb64fed025aec9c51848b06392422f0ed5f8fbadab082c036cd466905"
+  },
+  "owned_inputs": {
+    "tools/CompatibilityCandidates/albireo-validation/ApprovedAlbireoExecutionTests.cs": "6bb7f29a056ffed0725a6684cc94fb04b4d2b4a1f66e0ea5a1ae14a445d178a8",
+    "tools/CompatibilityCandidates/albireo-validation/Probe.cs": "633269ecc3ffd9952a4edadefdc7b269c086e278a98ee0694be62140c196e139",
+    "tools/CompatibilityCandidates/albireo-validation/README.md": "2cf039920eb4b19376821e596bc85ea829bd82b2353e6f55e513791148ba8832",
+    "tools/CompatibilityCandidates/albireo-validation/SelectedDecode.csproj": "48e98e735739346a539fb6cd8079a04fdbd1d0becfabd29e8e17f78ed6a0412c",
+    "tools/CompatibilityCandidates/albireo-validation/offline-packages.json": "8b23ddbc500c1724ae26d104eedff9e6024cc4e705e0df061963d739e82beae2",
+    "tools/CompatibilityCandidates/albireo-unity/README.md": "06808bfe8c024ba27414b20fc945e0d9060c95b964df11f32e9631685c9e78cc",
+    "tools/CompatibilityCandidates/albireo-unity/capture-requirements.json": "2a118e62837e5480407772e5be820ef825bc6c114d70d5fd88623ebf07767f10",
+    "tools/CompatibilityCandidates/albireo-unity/stage_bundle.py": "41f8a7936849f32a53a0a10c99fc0eb102d484116e2a4b8cef2fe953d7e1b0bb",
+    "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Assets/AlbireoUnityHarness.cs": "41742b72a021ed50f75ecc7bad25ee80daa5f85ed5142cfd3601021239a9b804",
+    "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Assets/Editor/AlbireoReferenceBuild.cs": "5e5d8b45d1b16e6b431ad95f4b68b2e5d4b314130567f1d06ed6c565449a8931",
+    "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Packages/manifest.json": "c3fe8f046850238f5859d8a2756efd532ac71de6f579b70442a8b04880ce5cbd",
+    "tools/CompatibilityCandidates/albireo-unity/template/package.json": "8281e752f0e4d7f540c645f8641564a8b8b09b250f34f7c9b0de1497252a3eb3",
+    "tools/CompatibilityCandidates/albireo-unity/transcript.py": "ef55daf06a9c23ab59a1a51b8ced5c21cffc8f3e1e9f9ca7d931fb89ffc11825"
+  },
+  "boundary": "Normal-account Mac Unity authorized only for this exact candidate plan. No additional packages or candidates; Decode-only execution. Diagnostic profile, no speed claim."
+}
