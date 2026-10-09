@@ -252,7 +252,7 @@ public static class ValueModelBuilder
                 }
                 bool scalarEnum = scalarBox == PrimitiveTypeCode.Int32 && EnumScalar(new TypeSignature.Named(type.Definition, SignatureTypeKind.ValueType));
                 values.Add(new(input.Source, input.Attributes, [.. declared]) {
-                    ExternallyVisible = input.ExternallyVisible, Interfaces = [.. contracts], ScalarBox = scalarBox,
+                    ExternallyVisible = input.ExternallyVisible, LexicalOwners = input.LexicalOwners, Interfaces = [.. contracts], ScalarBox = scalarBox,
                     ScalarEnum = scalarEnum, EnumConstants = scalarEnum && enumConstants is not null ? enumConstants(type.Definition) : default });
             }
             ObjectModelBuilder.TypeSnapshot ReadClosedReference(ConstructedType type, TypeReadLimits limits)

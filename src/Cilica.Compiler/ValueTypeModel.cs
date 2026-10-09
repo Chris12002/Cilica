@@ -15,13 +15,14 @@ public sealed record ValueTypeLayout(TypeSource Source, TypeAttributes Attribute
     public ImmutableArray<EnumConstantInput> EnumConstants { get; init; }
     public bool ExternallyVisible { get; init; } = (Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public;
     public ImmutableArray<ObjectTypeId> Interfaces { get; init; } = [];
+    public ImmutableArray<LexicalTypeOwner> LexicalOwners { get; init; } = [];
 }
 
 /// <summary>Detached inline closure plus the existing, separately validated reference catalog.</summary>
 public sealed record ValueTypeCatalog(ImmutableArray<ObjectTypeId> Roots, ObjectTypeId ValueBase,
     ImmutableArray<ValueTypeLayout> Types, ObjectTypeCatalog References)
 {
-    public const string Profile = "value-layout-v4";
+    public const string Profile = "value-layout-v5";
 }
 
 /// <summary>One scalar copy slot. Managed paths preserve FieldDefs; a runtime-owned scalar box has an empty path.</summary>

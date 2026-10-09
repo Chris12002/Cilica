@@ -259,7 +259,8 @@ internal sealed partial class ObjectIrRules
         ObjectLexicalAccess.Consistent(program.Bindings.Select(b => (b.Owner, b.LexicalOwners))
             .Concat(flow.Types.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
             .Concat(flow.Types.Statics.Select(f => (f.Id.Owner, f.LexicalOwners)))
-            .Concat(flow.Types.Delegates.Select(d => (ObjectTypeId.From(d.Source), d.LexicalOwners))));
+            .Concat(flow.Types.Delegates.Select(d => (ObjectTypeId.From(d.Source), d.LexicalOwners)))
+            .Concat((_arrayValueLayouts?.Values.AsEnumerable() ?? []).Select(v => (ObjectTypeId.From(v.Source), v.LexicalOwners))));
         _interfaces = new(program, _bindings, _methods, values ?? boxes?.Catalog);
         _dispatch = new(program, _bindings, _methods, _types, _interfaces);
     }
@@ -497,7 +498,9 @@ internal sealed partial class ObjectIrRules
                     && ObjectLexicalAccess.Visible(Binding(IrMethodId.From(caller.Source)), array.ArrayElement.Type!, e.LexicalOwners)))
             && (array.ArrayElement.Kind != ObjectArrayElementKind.Value || _arrayValueLayouts is null
                 || _arrayValueLayouts.TryGetValue(array.ArrayElement.Type!, out var layout)
-                    && (layout.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == array.ArrayElement.Type));
+                    && (layout.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == array.ArrayElement.Type
+                        || _program.Flow.Types.Integer64 && ObjectLexicalAccess.Visible(Binding(IrMethodId.From(caller.Source)),
+                            array.ArrayElement.Type!, layout.LexicalOwners)));
     }
 
     internal bool CopyCompatible(IrExpression.ArrayCopyCompatible copy, IReadOnlyList<IrType> values) =>

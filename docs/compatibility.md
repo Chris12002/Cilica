@@ -5004,3 +5004,19 @@ constructor initialization and one delegate capture. All 15,254 bodies translate
 before validation; no engine program is admitted or emitted. Production capacity
 and full saved-game replay remain incomplete. See ADR AC0238 for limits, exact
 failure counts, review correction and converted-source guidance.
+
+
+### Direct value-array scope checks (AC8.95)
+
+Inline layouts retain their lexical declaring scopes through scalar lowering.
+Direct arrays of visible internal/nested value types use the same bounded access
+rule as reference types; conflicting or forged scope facts are rejected.
+CIL119/object IR72/value layout model5; physical layouts, native86, core, grants
+and production budgets unchanged. All 119 selected tests pass, including 1,764
+new sanitized native/.NET comparisons.
+
+The full-IR inventory clears the three direct hidden-value-array failures and
+leaves 32 first-body validation failures: 29 generic type tests/casts, two constructor
+prefix checks and one delegate capture. All 15,254 bodies still translate, but
+full logical/scalar closure, production capacity, native engine and saved-game
+replay remain unfinished. See ADR AC0239.

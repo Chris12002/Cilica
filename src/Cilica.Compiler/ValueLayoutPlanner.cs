@@ -52,6 +52,10 @@ public static class ValueLayoutPlanner
             var id = ObjectTypeId.From(type.Source);
             Require(ObjectModelValidator.Identity(id, 0x02) && id != catalog.ValueBase
                 && !references.Contains(id) && types.TryAdd(id, type), "invalid, duplicate or reference/value identity collision.");
+            Require(ObjectLexicalAccess.Valid(id, type.LexicalOwners)
+                && (type.LexicalOwners.IsEmpty || type.LexicalOwners[0].Visibility == (type.Attributes & TypeAttributes.VisibilityMask)
+                    && ObjectLexicalAccess.Public(type.LexicalOwners) == type.ExternallyVisible),
+                "lexical visibility contradicts the value layout.");
             Require(AttributesSupported(type.Attributes), "struct attributes require sealed automatic/sequential managed layout.");
             Require(!type.Interfaces.IsDefault && type.Interfaces.Length <= ObjectModelLimits.MaximumTypes
                 && (catalog.References.Integer64 || type.Interfaces.IsEmpty)
@@ -136,6 +140,11 @@ public static class ValueLayoutPlanner
         // layout space/work when paths are copied below.
         var outstanding = children.ToDictionary(pair => pair.Key, pair => pair.Value.Count);
         var ready = new Queue<ObjectTypeId>(types.Keys.Where(id => outstanding[id] == 0));
+        ObjectLexicalAccess.Consistent(catalog.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners))
+            .Concat(catalog.References.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
+            .Concat(catalog.References.EnumArrays.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
+            .Concat(catalog.References.Statics.Select(f => (f.Id.Owner, f.LexicalOwners)))
+            .Concat(catalog.References.Delegates.Select(d => (ObjectTypeId.From(d.Source), d.LexicalOwners))));
         var plans = new Dictionary<ObjectTypeId, ValueTypePlan>();
         int expandedTotal = 0, pathTotal = 0;
         while (ready.TryDequeue(out var id))
