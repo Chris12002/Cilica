@@ -29,7 +29,7 @@ public sealed class DefaultStaticTests
 
     [Theory]
     [InlineData("mutable")] [InlineData("private")] [InlineData("address")] [InlineData("write")] [InlineData("literal")]
-    public void Unsupported_storage_and_access_cannot_be_treated_as_default(string kind)
+    public void Static_defaults_keep_storage_and_access_boundaries(string kind)
     {
         var b = new ResolutionAssemblyBuilder(new("BadDefaultStatic", new Version(1, 0, 0, 0)));
         b.Type("Test", "Holder");
@@ -49,10 +49,12 @@ public sealed class DefaultStaticTests
         var input = resolver.OpenInput(files.Write("bad.dll", b.Build())).Value!;
         var library = resolver.OpenInput(typeof(object).Assembly.Location).Value!;
         var result = ValueTranslator.TranslateIntegerObjects(resolver, input, root, library);
-        if (kind == "mutable")
+        if (kind is "mutable" or "address")
         {
             Assert.True(result.Success, string.Join("; ", result.Diagnostics));
             Assert.Single(result.Program!.Flow.Flow.Flow.Types.References.Statics);
+            if (kind == "address") Assert.Contains(result.Program.Flow.Flow.Flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values), v => v.Expression is IrExpression.AddressStatic && v.Type.ReadOnly);
+            ValueScalarLowering.LowerExceptions(result.Program);
         }
         else { Assert.False(result.Success); Assert.Null(result.Program); Assert.NotEmpty(result.Diagnostics); }
     }

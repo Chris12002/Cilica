@@ -31,7 +31,7 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "0b4261d59d4714af1e005b184ec5a64369ccc2e5d24726e6cd5b748cdb3cc478",
-    "latestSlice": "AC8.90",
+    "latestSlice": "AC8.91",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -772,6 +772,11 @@
       "prerequisites": ["AC7b.4"],
       "status": "complete-format-range-transport",
       "decision": "docs/decisions/AC0097-format-range-transport.md"
+    },
+    "AC8.91": {
+      "prerequisites": ["AC8.90"],
+      "status": "complete-bounded-static-addresses",
+      "decision": "docs/decisions/AC0235-static-addresses.md"
     },
     "AC8.90": {
       "prerequisites": ["AC8.89"],
@@ -1676,7 +1681,7 @@
     {"id": "NullableBoxingAndConversions", "slice": "AC1b", "status": "partially-implemented", "reason": "AC1b.1–AC1b.3 admit named-struct and selected integer/Boolean/Char/public Int32-enum nullable box/unbox.any, direct operators, representative lifted/checked expressions and exact boxed type tests including nullable targets. AC1b.4 permits proven confined scalar boxes alongside independent interface operations (13 further native probes). Raw scalar/nullable unbox, direct scalar interface views/dispatch and unproven box escapes in those compositions remain unsupported. There are 31 nullable, 18 scalar and 29 boxed type-test native probes plus allocation-budget checks; private replay roots were not rerun."},
     {"id": "NullableKeyOperations", "slice": "AC3", "status": "confirmed-blocker", "reason": "Nullable null/equality/hash selection must not use ordinary nonnull value-key semantics; an isolated owned-core IsNull regression verifies the diagnostic."},
     {"id": "DirectValueReturnToHeapField", "slice": "AC8.86", "status": "bounded-nonnull-destinations", "reason": "Constructor receivers and proven allocations/local copies/joins/loops are admitted; unknown or nullable receivers remain diagnostic to preserve exception order. Nullable, long tuple and reference-bearing field returns have native evidence."},
-    {"id": "StaticInlineValues", "slice": "AC8", "status": "native-validated-bounded", "reason": "AC5b.5 admits whole static inline-value copies, including reference and wide leaves. NullableProbe.StaticInline and seven additional probes execute natively. Static addresses remain unsupported; real Step advances to a nonpublic generic argument."},
+    {"id": "StaticInlineValues", "slice": "AC8", "status": "native-validated-bounded", "reason": "AC5b.5 admits whole static inline-value copies, including reference and wide leaves. NullableProbe.StaticInline and seven additional probes execute natively. AC8.91 adds checked static borrows with native evidence; readonly/narrow/specialized-field boundaries remain explicit. Historical Step evidence precedes the latest body inventory."},
     {"id": "EnumPayloadBounds", "slice": "AC5b", "status": "confirmed-blocker", "reason": "AC5b.1 admits top-level internal Int32 enum storage. AC5b.12 adds lexically visible direct boxed/metadata enum operations. AC5b.13 admits hidden Int32 generic arguments under lexical/opaque checks. AC7a.5 adds nominal Int32 enum vectors and compatible Int32/enum array views; enum interfaces, element borrows and other widths remain rejected; the internal field fixture now stops at its separate member-access gate."}
   ]
 }

@@ -457,16 +457,20 @@ public static partial class ValueProgramDiscovery
                             if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                             calls.Add(offset, callee.Binding.Method);
                         }
-                        else if (integers64 && instruction.OpCode is ("ldsfld" or "stsfld"))
+                        else if (integers64 && instruction.OpCode is ("ldsfld" or "stsfld" or "ldsflda"))
                         {
                             int token = Token(work, instruction, 0x04, 0x0a);
                             var field = BoundField(work, token, offset);
-                            if (IntegerCasts.NarrowStorage(field.Signature) is { } staticWidth) narrowFields.Add(offset, staticWidth);
+                            if (IntegerCasts.NarrowStorage(field.Signature) is { } staticWidth)
+                            {
+                                if (instruction.OpCode == "ldsflda") Fail(work, "Narrow static addresses require storage-width-aware locations before execution.", offset);
+                                narrowFields.Add(offset, staticWidth);
+                            }
                             var owner = SnapshotClosed(field.DeclaringType, work, offset);
                             var declaration = owner.Fields.Single(f => f.Token == MetadataTokens.GetToken(field.Handle));
                             if (EmptyStringField(work, instruction, field, owner, declaration))
                             { literals.Add(offset, []); continue; }
-                            if (instruction.OpCode == "stsfld" || !DefaultStaticFields.IsDefault(owner, declaration))
+                            if (instruction.OpCode != "ldsfld" || !DefaultStaticFields.IsDefault(owner, declaration))
                             {
                                 staticFields.Add(offset, StaticField(work, field, owner, declaration, instruction.OpCode == "stsfld", offset));
                                 if (owner.HasTypeInitializer) initializers.Add(offset, FieldInitializer(field.DeclaringType, work, offset));

@@ -109,7 +109,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
     private static IEnumerable<int> Operands(IrExpression expression) => expression switch {
         IrExpression.Constant or IrExpression.Constant64 or IrExpression.Null or IrExpression.Parameter or IrExpression.Local or IrExpression.StackInput
             or IrExpression.DefaultValue or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.EmptyArray
-            or IrExpression.LoadStatic or IrExpression.AddressLocal or IrExpression.AddressParameter => [],
+            or IrExpression.LoadStatic or IrExpression.AddressStatic or IrExpression.AddressLocal or IrExpression.AddressParameter => [],
         IrExpression.Binary b => [b.Left, b.Right], IrExpression.Binary64 b => [b.Left, b.Right],
         IrExpression.Unary u => [u.Operand], IrExpression.Not64 u => [u.Operand],
         IrExpression.ConvertInteger c => [c.Operand], IrExpression.IntegerCast c => [c.Operand], IrExpression.CheckedNativeIndex c => [c.Operand],

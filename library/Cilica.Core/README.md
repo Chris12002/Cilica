@@ -1535,3 +1535,22 @@ The frozen inventory clears all 11 readonly mismatches: 15,238/15,254 bodies now
 translate individually, leaving 16 failures, including a newly exposed ldvirtftn.
 No full IR program or native engine is produced; replay remains incomplete.
 See ADR AC0234 for exact scope, review and evidence.
+
+
+### Checked static storage borrows (AC8.91)
+
+ldsflda now borrows admitted Int32/Int64/reference/inline-value static storage,
+including closed generic owners and empty values. Scalar expansion preserves the
+same per-instance slots; static references remain GC roots. Every native carrier
+requires an active frame token from the current context, exact slot/type metadata
+and readonly capability. Existing initializer order and sticky faults are reused.
+Readonly static addresses remain readonly even inside initializers; narrow-field
+addresses and the specialized String.Empty address remain diagnostic.
+CIL115/object IR68/native84; grants and production resource limits are unchanged.
+
+All 99 distinct selected checks pass, including 3,528 new sanitized O0/O2
+native/.NET comparisons and native carrier lifetime/type/ownership checks.
+Converted EffectiveSpellCompiler.Failure guided the static readonly regression.
+The frozen inventory clears all eight static-address failures: 15,246/15,254 bodies
+translate individually, with seven address joins and one ldvirtftn failure left.
+No full program/native engine is produced; replay remains incomplete. See ADR AC0235.

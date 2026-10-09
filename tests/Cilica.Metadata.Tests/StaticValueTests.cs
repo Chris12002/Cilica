@@ -67,12 +67,9 @@ public sealed class StaticValueTests
             Types = flow.Types with { References = flow.Types.References with { Statics = flow.Types.References.Statics.Replace(field, changed) } } } } } };
         Assert.Throws<ArgumentException>(() => ValueScalarLowering.LowerExceptions(invalid));
     }
-    [Fact]
-    public void Static_value_addresses_still_require_a_borrow_carrier()
-    {
-        var result = IntegerObjectTranslationTests.Translate("UnsupportedAddress", fixture: typeof(StaticValueProbe));
-        Assert.False(result.Success); Assert.Contains(result.Diagnostics, d => d.Message.Contains("ldsflda", StringComparison.Ordinal));
-    }
+    [Theory] [InlineData(false)] [InlineData(true)]
+    public Task Static_value_addresses_now_match_dotnet(bool optimized) => IntegerObjectTranslationTests.Verify(optimized,
+        [("UnsupportedAddress", StaticValueProbe.UnsupportedAddress)], typeof(StaticValueProbe));
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task Static_reference_leaves_survive_collection_and_release_on_overwrite(bool optimized)

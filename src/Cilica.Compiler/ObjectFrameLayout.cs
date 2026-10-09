@@ -95,7 +95,7 @@ internal sealed class ObjectFrameLayout
             }
         }
         IntegerCount = integers; WideIntegerCount = wideIntegers; CallArgumentCount = arguments; LocationCount = locations;
-        BorrowsFrame = method.Blocks.SelectMany(b => b.Values).Any(v => v.Expression is IrExpression.AddressLocal or IrExpression.AddressParameter);
+        BorrowsFrame = method.Blocks.SelectMany(b => b.Values).Any(v => v.Expression is IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressStatic);
     }
 
     internal string Storage(ObjectRootKind kind, int index, int block = -1) => _storage[(kind, block, index)];

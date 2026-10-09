@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v83";
+    public const string Profile = "object-frames-native-v84";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -145,6 +145,11 @@ public static class ObjectCppEmitter
         if (locations) text.Append("struct LocationArgument { std::uint32_t bits = 0; Object* reference = nullptr; Location location; std::uint64_t wide_bits = 0; };\n");
         foreach (var type in referenceTypes)
             text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
+        text.Append("static constexpr std::array<FieldStorage, ").Append(N(statics.Count)).Append("> static_location_fields = {{")
+            .Append(string.Join(", ", program.Flow.Types.Statics.Select(field => "{StorageKind::" + LocationKind(field.Type)
+                + ", " + ((field.Attributes & System.Reflection.FieldAttributes.InitOnly) != 0 ? "true" : "false")
+                + ", " + (field.Type.Kind == IrTypeKind.Reference ? Predicate(field.Type.Class!) : "nullptr") + "}"))).Append("}};\n")
+            .Append("static const FieldStorage* static_location_field(std::size_t slot) noexcept { return slot < static_location_fields.size() ? &static_location_fields[slot] : nullptr; }\n");
         var cloneTypes = program.Flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression).OfType<IrExpression.ObjectClone>().Select(c => c.Type).ToHashSet();
         foreach (var composed in native.Fields)
         {
@@ -543,7 +548,7 @@ public static class ObjectCppEmitter
                 foreach (var statement in block.Statements)
                 {
                     bool isolatedOperation = statement is IrStatement.StoreField or IrStatement.StoreElement or IrStatement.StoreLocation or IrStatement.InitializeLocation
-                        or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
+                        or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.AddressStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.InitializeExceptionMessage or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionObjectName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
                             or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectClone or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
@@ -708,6 +713,11 @@ public static class ObjectCppEmitter
                                     Check(Value(equal.Left), program.Flow.Types.String!, false, value.ILOffset); Flush();
                                     Check(Value(equal.Right), program.Flow.Types.String!, false, value.ILOffset); Flush();
                                     expression = "string_equals(" + Value(equal.Left) + ", " + Value(equal.Right) + ")"; break;
+                                case IrExpression.AddressStatic addressed:
+                                    Guard("!ensure_static_storage(context)", "context.pending == 0u ? 5u : context.pending", value.ILOffset); Flush();
+                                    code.Append("    f->location_result = static_location(context, f->borrow_token, ").Append(N(statics[addressed.Field].index))
+                                        .Append(", ").Append(value.Type.ReadOnly ? "true" : "false").Append(");\n");
+                                    CheckLocationResult(value.ILOffset); expression = "f->location_result.value"; break;
                                 case IrExpression.LoadStatic loaded:
                                     Guard("!ensure_static_storage(context)", "context.pending == 0u ? 5u : context.pending", value.ILOffset); Flush();
                                     expression = "context.instance.statics[" + N(statics[loaded.Field].index) + "]." + (value.Type == IrType.Int32 ? "bits" : value.Type == IrType.Int64 ? "wide" : "reference"); break;

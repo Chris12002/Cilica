@@ -267,6 +267,7 @@ internal sealed partial class ObjectIrRules
         _dispatch.Validate(); _interfaces.ValidateUsage(_program);
         var used = _program.Flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Statements).Select(s => s switch {
             IrStatement.Define { Value.Expression: IrExpression.LoadStatic read } => read.Field,
+            IrStatement.Define { Value.Expression: IrExpression.AddressStatic address } => address.Field,
             IrStatement.StoreStatic write => write.Field, _ => null }).Where(f => f is not null).ToHashSet();
         Require(used.SetEquals(_statics.Keys), "static catalog contains unused or missing field declarations.");
     }
@@ -293,6 +294,7 @@ internal sealed partial class ObjectIrRules
     {
         IrStatement.InitializeType when _program.Flow.Types.String is { } initializationString => new[] { initializationString },
         IrStatement.Define { Value.Expression: IrExpression.LoadStatic f } when _statics.TryGetValue(f.Field, out var slot) && slot.Type is { Kind: IrTypeKind.Reference, Class: { } type } => new[] { type },
+        IrStatement.Define { Value.Expression: IrExpression.AddressStatic f } when _statics.TryGetValue(f.Field, out var addressSlot) && addressSlot.Type is { Kind: IrTypeKind.Reference, Class: { } addressType } => new[] { addressType },
         IrStatement.StoreStatic f when _statics.TryGetValue(f.Field, out var slot) && slot.Type is { Kind: IrTypeKind.Reference, Class: { } type } => new[] { type },
         IrStatement.Define { Value.Expression: IrExpression.LoadField f } => new[] { f.Field.Owner },
         IrStatement.Define { Value.Expression: IrExpression.AddressField f } => new[] { f.Field.Owner },
@@ -618,6 +620,9 @@ internal sealed partial class ObjectIrRules
             field.OwnerExternallyVisible, field.LexicalOwners, _program.Flow.Types.Integer64)) return false;
         storage = field.Type; return true;
     }
+    internal bool StaticAddress(IrMethod method, ObjectFieldId id, IrType result) =>
+        _program.Flow.Types.Integer64 && StaticField(method, id, false, out var storage)
+        && ManagedLocationRules.Address(storage!, result, (_statics[id].Attributes & FieldAttributes.InitOnly) != 0);
     internal bool StaticStore(IrMethod method, IrStatement.StoreStatic store, IReadOnlyList<IrType> values) =>
         store.Exceptional == IrExceptionTarget.MethodExit && StaticField(method, store.Field, true, out var type)
         && store.Value >= 0 && store.Value < values.Count && _types.Assignable(values[store.Value], type);
@@ -730,7 +735,7 @@ internal sealed partial class ObjectIrRules
                             IrExpression.StringEquals s => !This(s.Left) && !This(s.Right),
                             IrExpression.StringFromCodeUnits s => !This(s.Array),
                             IrExpression.StringConcat s => !This(s.Left) && !This(s.Right),
-                            IrExpression.EmptyArray or IrExpression.LoadStatic => true,
+                            IrExpression.EmptyArray or IrExpression.LoadStatic or IrExpression.AddressStatic => true,
                             IrExpression.NewArray a => !This(a.Length),
                             IrExpression.ArrayLength a => !This(a.Array),
                             IrExpression.LoadElement a => !This(a.Array) && !This(a.Index),

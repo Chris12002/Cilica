@@ -83,6 +83,7 @@ public abstract record IrExpression
     // Vector lengths/indices use bounded Int32 values. Allocation zero-initializes
     // elements; negative length and allocation failure leave via the fault edge.
     public sealed record LoadStatic(ObjectFieldId Field) : IrExpression;
+    public sealed record AddressStatic(ObjectFieldId Field) : IrExpression;
     public sealed record NewArray(ObjectTypeId ArrayType, int Length) : IrExpression;
     // One zero-length vector per exact element descriptor and runtime instance.
     public sealed record EmptyArray(ObjectTypeId ArrayType) : IrExpression;

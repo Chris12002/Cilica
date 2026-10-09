@@ -8,7 +8,7 @@ internal static class ObjectCppLocations
 [[maybe_unused]] static bool integer_array_location_type(const Descriptor* actual, const Descriptor* view) noexcept;
 enum class LocationStatus { complete, invalid, read_only, limit, busy, null_reference, index_bounds, array_type_mismatch };
 enum class LocationNarrow { none, Int8, UInt8, Int16, UInt16 };
-enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field, frame_wide_integer, array_slot };
+enum class LocationOrigin { invalid, frame_integer, frame_reference, heap_field, frame_wide_integer, array_slot, static_slot };
 struct Location {
     // A heap location's owner must be published as a root across allocations.
     // A frame location borrows the registered frame's already-published storage.
@@ -167,6 +167,20 @@ struct LocationStorage {
     }
     return array_component_location_storage(array, type, location.element, location.slot);
 }
+// Static borrows reuse an active frame token. A token from another context or a
+// retired/replaced frame never grants access to this instance's static slots.
+static const FieldStorage* static_location_field(std::size_t slot) noexcept;
+[[gnu::noinline]] static LocationStorage static_location_storage(Context& context, const Location& location, bool write) noexcept {
+    if (location.owner != nullptr || location.declaring != nullptr || location.element != 0
+        || find_borrow(context, location.frame) == nullptr || context.instance.statics == nullptr) return {LocationStatus::invalid};
+    const auto* field = static_location_field(location.slot);
+    if (field == nullptr) return {LocationStatus::invalid};
+    if (write && field->read_only) return {LocationStatus::read_only};
+    auto& slot = context.instance.statics[location.slot];
+    if (field->kind == StorageKind::integer) return {LocationStatus::complete, field->kind, &slot.bits};
+    if (field->kind == StorageKind::wide_integer) return {LocationStatus::complete, field->kind, &slot.wide};
+    return {LocationStatus::complete, field->kind, &slot.reference, field->accepts};
+}
 [[gnu::noinline]] static LocationStorage location_storage(Context& context, const Location& location, bool write) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
     if (location.narrow != LocationNarrow::none && (location.origin != LocationOrigin::frame_integer
@@ -175,6 +189,7 @@ struct LocationStorage {
     if (write && location.read_only) return {LocationStatus::read_only};
     if (location.origin == LocationOrigin::frame_integer || location.origin == LocationOrigin::frame_reference || location.origin == LocationOrigin::frame_wide_integer)
         return frame_location_storage(context, location);
+    if (location.origin == LocationOrigin::static_slot) return static_location_storage(context, location, write);
     if (location.origin == LocationOrigin::array_slot) return array_location_storage(context, location);
     return heap_location_storage(context, location, write);
 }
@@ -184,6 +199,14 @@ struct LocationStorage {
     if (origin != LocationOrigin::frame_integer && origin != LocationOrigin::frame_reference && origin != LocationOrigin::frame_wide_integer) return {LocationStatus::invalid};
     const auto storage = location_storage(context, value, false);
     return storage.status == LocationStatus::complete ? LocationResult{storage.status, value} : LocationResult{storage.status};
+}
+[[maybe_unused, gnu::noinline]] static LocationResult static_location(Context& context, std::uint64_t token,
+    std::size_t slot, bool read_only = false) noexcept {
+    Location value{nullptr, token, slot, nullptr, LocationOrigin::static_slot, read_only};
+    const auto storage = location_storage(context, value, false);
+    if (storage.status != LocationStatus::complete) return {storage.status};
+    value.read_only |= static_location_field(slot)->read_only;
+    return {LocationStatus::complete, value};
 }
 [[maybe_unused, gnu::noinline]] static bool valid_location_argument(Context& context, const Location& location,
     StorageKind kind, ReferencePredicate accepts, bool read_only, LocationNarrow narrow = LocationNarrow::none) noexcept {

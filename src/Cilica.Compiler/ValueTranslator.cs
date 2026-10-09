@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v114";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v115";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -602,6 +602,8 @@ public static class ValueTranslator
                         case "ldsfld" when method.StaticFields.TryGetValue(offset, out var readStatic):
                             Push(offset, readStatic.Type, new IrExpression.LoadStatic(readStatic.Id), true);
                             stack[^1] = NormalizeField(stack[^1], offset); break;
+                        case "ldsflda" when method.StaticFields.TryGetValue(offset, out var addressStatic):
+                            Push(offset, IrType.Location(addressStatic.Type, (addressStatic.Attributes & FieldAttributes.InitOnly) != 0), new IrExpression.AddressStatic(addressStatic.Id), true); break;
                         case "stsfld" when method.StaticFields.TryGetValue(offset, out var writeStatic):
                             Add(new IrStatement.StoreStatic(offset, writeStatic.Id, NormalizeField(Pop(offset, writeStatic.Type), offset)), offset); break;
                         case "ldnull": Push(offset, IrType.NullReference, new IrExpression.Null()); break;

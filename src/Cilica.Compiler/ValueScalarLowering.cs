@@ -351,6 +351,14 @@ public static class ValueScalarLowering
                     var ids = ImmutableArray.CreateBuilder<int>();
                     switch (value.Expression)
                     {
+                        case IrExpression.AddressStatic field when heap.Statics.TryGetValue(field.Field, out var addressedStatics):
+                            for (int i = 0; i < addressedStatics.Length; ++i)
+                            {
+                                int address = Define(expanded.IsEmpty ? IrType.Location(IrType.Int32, value.Type.ReadOnly) : expanded[i], value.ILOffset,
+                                    new IrExpression.AddressStatic(addressedStatics[i].Id), definition.Exceptional);
+                                if (!expanded.IsEmpty) ids.Add(address);
+                            }
+                            break;
                         case IrExpression.LoadStatic field when heap.Statics.TryGetValue(field.Field, out var loadedStatics):
                             for (int i = 0; i < loadedStatics.Length; ++i)
                             {
@@ -526,6 +534,7 @@ public static class ValueScalarLowering
                                 IrExpression.NewDelegate d => d with { Receiver = One(d.Receiver) },
                                 IrExpression.CallDelegate d => d with { Delegate = One(d.Delegate), Arguments = Arguments(d.Arguments, true) },
                                 IrExpression.LoadStatic staticRead => staticRead,
+                                IrExpression.AddressStatic staticAddress => staticAddress,
                                 IrExpression.EmptyArray empty => empty,
                                 IrExpression.NewArray array => array with { Length = One(array.Length) },
                                 IrExpression.NewObject allocated => allocated with { Arguments = Arguments(allocated.Arguments, true) },
