@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/tooling/unity-cli/unity",
+    "projects",
+    "create",
+    "CilicaAlbireo",
+    "--path",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects",
+    "--editor-version",
+    "6000.3.2f1",
+    "--architecture",
+    "arm64",
+    "--template",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/staged/template",
+    "--no-cloud",
+    "--non-interactive",
+    "--format",
+    "json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 11.577529208,
+  "stop_reason": null,
+  "isolation": "normal local account; wall/log bounds only"
+}

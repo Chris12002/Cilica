@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/cilica-reference/library/Cilica.Core/StringInvariantCasing.cs",
+    "sha256": "d8b1ae6c8f538377f7810a586d3cf8967495938878b94277ee47d8045ae7ee51",
+    "bytes": 3563
+  },
+  "line_start": 41,
+  "line_end": 78,
+  "symbol": "Cilica String.ToUpperInvariant at b8f4628",
+  "finding": "Cilica retains unchanged ASCII identity, handles surrogate pairs and explicitly maps U+017F to U+0053 for invariant uppercase.",
+  "decision": "Existing frozen .NET differential trial passes; Unity disagreement is not a Cilica defect.",
+  "excerpt": "        public string ToUpperInvariant()\n        {\n            int length = Length;\n            if (length == 0) return Empty;\n            bool copy = false;\n            for (int i = 0; i < length; ++i)\n            {\n                int unit = this[i];\n                // The pinned TextInfo path allocates for any non-ASCII input,\n                // even when no characters change. Unchanged ASCII keeps identity.\n                if (unit > 127 || (unit >= 'a' && unit <= 'z')) { copy = true; break; }\n            }\n            if (!copy) return this;\n            var units = new int[length];\n            for (int i = 0; i < length; ++i)\n            {\n                int scalar = this[i];\n                if (scalar >= 0xd800 && scalar <= 0xdbff && i + 1 < length)\n                {\n                    int low = this[i + 1];\n                    if (low >= 0xdc00 && low <= 0xdfff)\n                    {\n                        scalar = UpperInvariantScalar(0x10000 + ((scalar - 0xd800) << 10) + low - 0xdc00);\n                        // The pinned simple mappings preserve UTF-16 width.\n                        units[i] = 0xd800 + ((scalar - 0x10000) >> 10);\n                        units[++i] = 0xdc00 + ((scalar - 0x10000) & 1023);\n                        continue;\n                    }\n                }\n                units[i] = UpperInvariantScalar(scalar);\n            }\n            return Cilica.Runtime.StringConstruction.FromCodeUnits(units);\n        }\n        // Ordinal casing deliberately leaves long s unchanged; invariant simple\n        // uppercase maps it to S. Both contracts leave dotless i unchanged.\n        private static int UpperInvariantScalar(int scalar) => scalar == 0x017f\n            ? 0x0053 : Cilica.Runtime.UnicodeOrdinalUpper.Map(scalar);\n    }"
+}

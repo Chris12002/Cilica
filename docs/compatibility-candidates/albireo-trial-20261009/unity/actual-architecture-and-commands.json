@@ -1,0 +1,47 @@
+{
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "dag": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/Player75a3e897.dag.json",
+    "sha256": "69e80ba668af559d0d016837ed7c83a8da5b812a6c5649f79131f00b05a05e7c",
+    "bytes": 3363888
+  },
+  "candidate_compile_commands": [
+    {
+      "dag_node_index": 304,
+      "action": "\"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++\" -std=c++17 -Wswitch -Wno-trigraphs -Wno-tautological-compare -Wno-invalid-offsetof -Wno-implicitly-unsigned-literal -Wno-integer-overflow -Wno-shift-negative-value -Wno-unknown-attributes -Wno-implicit-function-declaration -Wno-null-conversion -Wno-missing-declarations -Wno-unused-value -Wno-pragma-once-outside-header -Wno-unknown-warning-option -Wno-undef-prefix -fvisibility=hidden -msse2 -mcx16 -isysroot \"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk\" -fexceptions -frtti -g -O3 -fno-strict-overflow -ffunction-sections -fdata-sections -fmessage-length=0 -pipe -DBASELIB_INLINE_NAMESPACE=il2cpp_baselib -DIL2CPP_MONO_DEBUGGER_DISABLED -DRUNTIME_IL2CPP -DIL2CPP_ENABLE_WRITE_BARRIERS=1 -DIL2CPP_INCREMENTAL_TIME_SLICE=3 -DHAVE_BDWGC_GC -DNDEBUG -I\".\" -I\"/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/pch\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/external/baselib/Include\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/os/ClassLibraryPAL/brotli/include\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/external/baselib/Platforms/OSX/Include\" -o \"Library/Bee/artifacts/MacStandalonePlayerBuildProgram/po0m5/k57x87vfvpts.o\" -fcolor-diagnostics -stdlib=libc++ -arch x86_64 -mmacosx-version-min=10.12 -c -x c++ \"/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp\" -include-pch \"Library/Bee/artifacts/MacStandalonePlayerBuildProgram/po0m5/pch-cpp-4595144116432606280.pch\""
+    },
+    {
+      "dag_node_index": 676,
+      "action": "\"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++\" -std=c++17 -Wswitch -Wno-trigraphs -Wno-tautological-compare -Wno-invalid-offsetof -Wno-implicitly-unsigned-literal -Wno-integer-overflow -Wno-shift-negative-value -Wno-unknown-attributes -Wno-implicit-function-declaration -Wno-null-conversion -Wno-missing-declarations -Wno-unused-value -Wno-pragma-once-outside-header -Wno-unknown-warning-option -Wno-undef-prefix -fvisibility=hidden -isysroot \"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk\" -fexceptions -frtti -g -O3 -fno-strict-overflow -ffunction-sections -fdata-sections -fmessage-length=0 -pipe -DBASELIB_INLINE_NAMESPACE=il2cpp_baselib -DIL2CPP_MONO_DEBUGGER_DISABLED -DRUNTIME_IL2CPP -DTARGET_ARM64 -DIL2CPP_ENABLE_WRITE_BARRIERS=1 -DIL2CPP_INCREMENTAL_TIME_SLICE=3 -DHAVE_BDWGC_GC -DNDEBUG -I\".\" -I\"/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/pch\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/external/baselib/Include\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/os/ClassLibraryPAL/brotli/include\" -I\"/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/external/baselib/Platforms/OSX/Include\" -o \"Library/Bee/artifacts/MacStandalonePlayerBuildProgram/hqbv9/k57x87vfvpts.o\" -fcolor-diagnostics -stdlib=libc++ -arch arm64 -mmacosx-version-min=11.0 -c -x c++ \"/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp\" -include-pch \"Library/Bee/artifacts/MacStandalonePlayerBuildProgram/hqbv9/pch-cpp-4897490657948502228.pch\""
+    }
+  ],
+  "native_files": [
+    {
+      "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app/Contents/Frameworks/GameAssembly.dylib",
+      "sha256": "ea5a92b436153d7a35645b907056dba43cf08017cca215fa91106cacb9bbd7ad",
+      "slices": [
+        "x86_64",
+        "arm64"
+      ]
+    },
+    {
+      "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app/Contents/Frameworks/UnityPlayer.dylib",
+      "sha256": "51d44dd8a7da29b13691ab9b181aa4a899b8a08ae7511ca813030803c49f6f87",
+      "slices": [
+        "x86_64",
+        "arm64"
+      ]
+    },
+    {
+      "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app/Contents/MacOS/Cilica Albireo Decode reference",
+      "sha256": "9c167f0795c0458b438377fb81fb2fbfbc855009ef8217e81c2569cd702d7aae",
+      "slices": [
+        "x86_64",
+        "arm64"
+      ]
+    }
+  ],
+  "actual_artifact": "universal x86_64+arm64",
+  "process_architecture": "not independently recorded",
+  "planned_vs_observed": "Frozen plan called this ARM64; unchanged builder SetArchitecture(Standalone,1) actually emits universal. Readback1 alone is not ARM64-only proof. No rebuild or template change."
+}

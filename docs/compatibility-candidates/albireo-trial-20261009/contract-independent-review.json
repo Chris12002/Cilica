@@ -1,0 +1,14 @@
+{
+  "reviewer_thread": "01a11bd8-62f0-7412-8d23-69edc92bd0de",
+  "scope": "Read-only source/interface and mutation-test inspection; no execution or editing",
+  "validator_sha256": "628eb568d1f84edb5c367193582dfffa77d68c9f8d6f5cbd8d1dede3ec09efac",
+  "outcome": "no-blocking-gate-bypass-found",
+  "findings": [
+    "Preserves failed Unity status/outcome",
+    "Requires same fingerprint and captured identity",
+    "Binds exact failed Unity and passed .NET/Cilica receipts",
+    "Requires selected-candidate coverage at reference and complete gates",
+    "Forbids comparative profile and validation.performance receipts"
+  ],
+  "qualification": "Completeness and semantic truth of mismatch explanations remain independent reviewer responsibility; hashes/bindings do not inspect arbitrary transcript semantics. The retained two-case/30-match independent review supplies that here."
+}

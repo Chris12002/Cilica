@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib.cpp",
+    "sha256": "0d2aa56e3d03aca8757c8a5df6a534664de3ec2a75e9e4aa84af6a287c7ae058",
+    "bytes": 1235334
+  },
+  "line_start": 28441,
+  "line_end": 28463,
+  "symbol": "String.ToUpperInvariant",
+  "finding": "String casing obtains invariant CultureInfo/TextInfo and dispatches the string uppercase method.",
+  "decision": "Follow the actual invariant path rather than assuming all runtime casing tables agree.",
+  "excerpt": "IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_ToUpperInvariant_mD73F658CDE1280A527231DC305B66CF09B64E5AB (String_t* __this, const RuntimeMethod* method) \n{\n\tstatic bool s_Il2CppMethodInitialized;\n\tif (!s_Il2CppMethodInitialized)\n\t{\n\t\til2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&CultureInfo_t9BA817D41AD55AC8BD07480DD8AC22F8FFA378E0_il2cpp_TypeInfo_var);\n\t\ts_Il2CppMethodInitialized = true;\n\t}\n\t{\n\t\til2cpp_codegen_runtime_class_init_inline(CultureInfo_t9BA817D41AD55AC8BD07480DD8AC22F8FFA378E0_il2cpp_TypeInfo_var);\n\t\tCultureInfo_t9BA817D41AD55AC8BD07480DD8AC22F8FFA378E0* L_0;\n\t\tL_0 = CultureInfo_get_InvariantCulture_mD1E96DC845E34B10F78CB744B0CB5D7D63CEB1E6(NULL);\n\t\tNullCheck(L_0);\n\t\tTextInfo_tD3BAFCFD77418851E7D5CB8D2588F47019E414B4* L_1;\n\t\tL_1 = VirtualFuncInvoker0< TextInfo_tD3BAFCFD77418851E7D5CB8D2588F47019E414B4* >::Invoke(10, L_0);\n\t\tNullCheck(L_1);\n\t\tString_t* L_2;\n\t\tL_2 = VirtualFuncInvoker1< String_t*, String_t* >::Invoke(10, L_1, __this);\n\t\treturn L_2;\n\t}\n}\nIL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_Trim_mCD6D8C6D4CFD15225D12DB7D3E0544CA80FB8DA5 (String_t* __this, const RuntimeMethod* method) \n{"
+}

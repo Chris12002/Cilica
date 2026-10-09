@@ -1,0 +1,15 @@
+{
+  "command": "python3 -m unittest discover -s tools/CompatibilityCandidates -p test_*.py",
+  "environment": "Prepared overlay of repository-owned utilities; no upstream or candidate execution",
+  "tests": 43,
+  "passed": 43,
+  "failed": 0,
+  "gates": {
+    "path": "docs/compatibility-candidates/albireo-trial-20261009/workflow-gate-checks.json",
+    "sha256": "0bbd23dd8038b24de75ad1eef0aac041f1ec02c51368d68f48c5acd41ad6e8b6"
+  },
+  "code_review": {
+    "path": "docs/compatibility-candidates/albireo-trial-20261009/contract-independent-review.json",
+    "sha256": "eb157cddcedf96ce7d629484d33fac1a71a33c8fb9620666b908d73cd45ef3e1"
+  }
+}

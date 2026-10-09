@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "markers": 3,
+  "raw_sha256": "b134fc77425b878799a497be585254dfdf01a1c1ef0c8def337fd92984c2cd53",
+  "settings_verified": true,
+  "candidate_assembly_present": false,
+  "outer_check_fix": "BuildReport includes internal options as well as Development; checked required and forbidden flags, preserved all actual flags. No Editor/player rerun."
+}

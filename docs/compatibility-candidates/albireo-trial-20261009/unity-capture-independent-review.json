@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "method": "Independent read-only hash/bound checks; no runtime execution",
+  "capture_files": 337,
+  "capture_bytes": 114031578,
+  "cpp_files": 119,
+  "capture_manifest_sha256": "de5517a99c78e5093094da368db62f987567f58418a0982ee103786ad6c80bf9",
+  "raw_profile_bytes": 901042,
+  "raw_profile_sha256": "b134fc77425b878799a497be585254dfdf01a1c1ef0c8def337fd92984c2cd53",
+  "marker_samples": 3,
+  "capture_root": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture",
+  "limitation": "Hash/capture integrity only; Unity exact correctness remains failed for cases0/17; no timing or architecture equivalence claim."
+}

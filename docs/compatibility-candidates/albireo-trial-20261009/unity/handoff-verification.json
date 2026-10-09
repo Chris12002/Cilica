@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "candidate_commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+  "adapter_commit": "dbfcca2deac3b941e0a857afaf92eab68a04c7d3",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "files_checked": 11,
+  "owned_inputs_checked": 13,
+  "oracle_observations": 851,
+  "sha256": {
+    "handoff.json": "dd8c7036adbf4c4d4ecb35a4c23837c1f811401b74e3ba3242053ebaaec90925",
+    "Albireo.SelectedDecode.dll": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760",
+    "Base32.cs": "76f394af83466a6e7645ad5947d07c32076439d33c03cc3579b421b6a26f9386",
+    "LICENSE.Albireo.txt": "b5ba4977198cea5e7e96a26b2b9038e11cbfb88584583a0c4e39ab9cd8987542",
+    "approval.txt": "0fa3d7910f75b0296dab0730497bb1ac30fd66ddb69bc836027ce07fc8fa9b79",
+    "execution-boundaries.json": "0ba0680e9ab390c165a94b67910db710bbfc12476f47186a1ec1e13a98f40b86",
+    "expected.json": "d119a4eb11960c4c73988371290099f95b20e0a869f04a06ba494e22dd3ab5a6",
+    "input-cases.json": "26cade640724f20eb46414afe3b940aa3c168c10acb33a1d3630f273b70dd721",
+    "input-provenance.json": "b43b8c752005f4f8c4da9a089dd27142aa430e6a71c8d762fc71d4c8bd40f4ff",
+    "oracle-observations.json": "4d287b64295a71aafc8e3bed63d8354c50ff8f9119445ce738ee1a74911fe8c9",
+    "result.json": "4e1606b623977803482d74cf5bd464050b6681e640afec15d93d9a7c6fc4b4fc",
+    "workflow-manifest.json": "960a55fcb64fed025aec9c51848b06392422f0ed5f8fbadab082c036cd466905"
+  },
+  "candidate_code_executed": false
+}

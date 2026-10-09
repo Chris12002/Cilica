@@ -1,0 +1,37 @@
+[
+  {
+    "name": "cli-version",
+    "command": [
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/tooling/unity-cli/unity",
+      "--version"
+    ],
+    "exit_code": 0,
+    "seconds": 0.119734333,
+    "version": "1.0.0-beta.13"
+  },
+  {
+    "name": "license-status",
+    "command": [
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/tooling/unity-cli/unity",
+      "license",
+      "status",
+      "--format",
+      "json",
+      "--non-interactive"
+    ],
+    "exit_code": 0,
+    "seconds": 0.6234684589999999,
+    "success": true,
+    "error_codes": []
+  },
+  {
+    "name": "xcode-version",
+    "command": [
+      "/usr/bin/xcodebuild",
+      "-version"
+    ],
+    "exit_code": 0,
+    "seconds": 0.32262741699999986,
+    "version": "Xcode 26.1.1\nBuild version 17B100"
+  }
+]

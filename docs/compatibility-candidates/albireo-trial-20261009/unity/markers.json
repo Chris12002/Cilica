@@ -1,0 +1,44 @@
+{
+    "unityVersion": "6000.3.2f1",
+    "rawFile": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/profile/profile.raw",
+    "marker": "Cilica.Albireo.DecodeSelectedRoots",
+    "error": "",
+    "firstFrame": 0,
+    "lastFrame": 6,
+    "threadViews": 350,
+    "sampleCount": 21848,
+    "markerSamples": 3,
+    "samples": [
+        {
+            "frame": 1,
+            "thread": 0,
+            "sample": 166,
+            "children": 6165,
+            "threadName": "Main Thread",
+            "milliseconds": 4.72112512588501,
+            "gcAllocationBytes": 1078016,
+            "gcAllocationSamples": 6144
+        },
+        {
+            "frame": 2,
+            "thread": 0,
+            "sample": 80,
+            "children": 6165,
+            "threadName": "Main Thread",
+            "milliseconds": 4.388792037963867,
+            "gcAllocationBytes": 1078016,
+            "gcAllocationSamples": 6144
+        },
+        {
+            "frame": 3,
+            "thread": 0,
+            "sample": 80,
+            "children": 6165,
+            "threadName": "Main Thread",
+            "milliseconds": 4.468500137329102,
+            "gcAllocationBytes": 1078016,
+            "gcAllocationSamples": 6144
+        }
+    ],
+    "qualification": "Development player diagnostic marker capture; source construction and two Decode calls per Probe.Run. Not pure Decode timing or a competitive comparison."
+}

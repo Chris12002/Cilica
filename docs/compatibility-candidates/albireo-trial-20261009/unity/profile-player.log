@@ -1,0 +1,33 @@
+Found 2 interfaces on host : 0) 127.227.44.216 1) 192.168.100.13
+Player connection [8387387968]  Target information:
+
+Player connection [8387387968]  * "[IP] 127.227.44.216 [Port] 55000 [Flags] 2 [Guid] 2492341012 [EditorId] 2065169784 [Version] 1048832 [Id] OSXPlayer(1,Christians-MacBook-Pro.local) [Debug] 0 [PackageName] OSXPlayer [ProjectName] Cilica Albireo Decode reference" 
+
+Player connection [8387387968]  * "[IP] 192.168.100.13 [Port] 55000 [Flags] 2 [Guid] 2492341012 [EditorId] 2065169784 [Version] 1048832 [Id] OSXPlayer(1,Christians-MacBook-Pro.local) [Debug] 0 [PackageName] OSXPlayer [ProjectName] Cilica Albireo Decode reference" 
+
+Player connection [8387387968] Started UDP target info broadcast (1) on [225.0.0.222:54997].
+
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.3.2f1 (a9779f353c9b)
+[Subsystems] Discovering subsystems at path /Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app/Contents/Resources/Data/UnitySubsystems
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+UnloadTime: 0.340083 ms
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+PlayerConnection::Cleanup##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1791509886595,"processId":92637,"allocatedMemory":2630523,"memoryLabels":[{"Default":14073},{"Permanent":1520},{"Thread":38456},{"Manager":15567},{"VertexData":8},{"Geometry":408},{"Texture":16},{"Shader":78356},{"Material":24},{"GfxDevice":37952},{"Animation":328},{"Audio":3040},{"FontEngine":272},{"Physics":2120},{"Physics2D":16},{"Serialization":248},{"Input":10056},{"JobScheduler":33216},{"TextLib":192},{"Mono":32},{"ScriptingNativeRuntime":248560},{"BaseObject":1609216},{"Resource":496},{"Renderer":3528},{"Transform":6485},{"File":919},{"WebCam":32},{"Culling":32},{"Terrain":11250},{"Wind":24},{"String":2969},{"DynamicArray":31508},{"HashMap":9216},{"Utility":300928},{"PoolAlloc":1368},{"TypeTree":5064},{"ScriptManager":64},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7176},{"Director":8152},{"WebRequest":776},{"VR":47442},{"SceneManager":360},{"Video":2080},{"LazyScriptCache":32},{"Camera":9},{"Secure":1},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57496},{"Hierarchy":992},{"CoreStats":13000},{"Identifiers":12960},{"Gui":32},{"CoreBusinessMetrics":120},{"AssetReference":32}]}

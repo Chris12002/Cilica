@@ -1,0 +1,34 @@
+{
+  "raw_sha256": "b134fc77425b878799a497be585254dfdf01a1c1ef0c8def337fd92984c2cd53",
+  "saved_settings_sha256": {
+    "ProjectSettings/AudioManager.asset": "9543c41dbfc7d3951217c4dd9481ed026eb8e529b85ecf4463969a0fea747729",
+    "ProjectSettings/ClusterInputManager.asset": "40e65dd214bf254955d2c8829ca8ce2130fd3510485560ce012e9a1ddd93e623",
+    "ProjectSettings/DynamicsManager.asset": "64ec0518fea199e8fb62e98ffe2c0809e62ba3ab7fc47d4f017ae80664f954c3",
+    "ProjectSettings/EditorBuildSettings.asset": "41bc588f6ecc03944687d496f024917cabb061e21c148a6471b74581df14f908",
+    "ProjectSettings/EditorSettings.asset": "06753c21648950aee0013b70f79a9035ac52aec6204d44cc2ac55a84034ad9ca",
+    "ProjectSettings/GraphicsSettings.asset": "40de98f4d46d02fb08e268ad3a722a00eed7289f4ef6d2e759984b1b4a85d2af",
+    "ProjectSettings/InputManager.asset": "d0f454ddb880912abcae92e3e12957a7446786ba89e24937e019ff3bbc0d4300",
+    "ProjectSettings/MemorySettings.asset": "1e8379a461b10ae09f3f696911088c16875d63e87ed5f2d95df9e1892703f9fd",
+    "ProjectSettings/MultiplayerManager.asset": "ce4075d7a7dd8ac7ffe55de2427692c63f90dae398208bd80cec0f27cbe09f4b",
+    "ProjectSettings/NavMeshAreas.asset": "7ebbf8f53b8033104e1878b95ca07a28d0954092d81c220f14196a42f651e658",
+    "ProjectSettings/Packages/com.unity.dedicated-server/MultiplayerRolesSettings.asset": "66f5310616983159b47ac6b1dfa249b1ea29385b1cecf077e5d596132fc5f0d8",
+    "ProjectSettings/Physics2DSettings.asset": "1cfc0c8fbceec604fd7cd2a06c04ff05dddee6335b75c92b0f5715ad80ba9490",
+    "ProjectSettings/PresetManager.asset": "29c125923fe6e29f90190d4fce1c82d660e7051546e2c9d02908d18c9cf2436c",
+    "ProjectSettings/ProjectSettings.asset": "d11158ac60f216bea0cacbdbed8c0f642a085aeef8af91629d05494884e20602",
+    "ProjectSettings/ProjectVersion.txt": "abf167726b2257e683c55789d6f0519defb224b01ccb974c1768c2890fae9bce",
+    "ProjectSettings/QualitySettings.asset": "f1f893b1be47ad2442f58338dd7c860dc1986bb317e2f5bb31084454ffabbf4c",
+    "ProjectSettings/SceneTemplateSettings.json": "bb9098b3bfcde78d93e264b96f7b77b5430e64e8c57a7aad7f5a5d9c3945e16a",
+    "ProjectSettings/TagManager.asset": "da4b5eefc927f8b91bcf9e56a186d2b852f49d9cbe91d466638d26c79d6a83ce",
+    "ProjectSettings/TimeManager.asset": "3396f52fdc16d445024e01d7a2d99db6f0a37569d1d73c0302e9ffb857d90287",
+    "ProjectSettings/UnityConnectSettings.asset": "11251dae0356b6f43dd2c67bb511f6b7ecda4e5de425186bba3297e6f3dc1c6f",
+    "ProjectSettings/VFXManager.asset": "2973a6af930e142f62cde00076beda8a3cc3a66d9bfcde7a58ba7d4be2251c26",
+    "ProjectSettings/VersionControlSettings.asset": "e199cdfa6a8f2bf33cfd47e549198f13e3eb2a5099e908fdb4e0f14d939ccc6b",
+    "Library/LastBuild.buildreport": "8736635cfcd0fd0eb1f9636436ea87f7dc1e7b2e972096591fa4ba5803a5837f",
+    "Library/EditorUserBuildSettings.asset": "85cfd2d58f9bc718234549c6b45d0f35bdb1d45396af72aa43e0c6cce68f2e5e"
+  },
+  "inspector_sources": {
+    "ProfileInspection.cs": "c1d25cb3c36f51de09275a70d131dd47a3b29cf256fd38328006845546c3e390",
+    "SettingsReadback.cs": "409fd2dfc5976b1584eabd3578c5c244b2f0e5bba51d6b96cb540a20a964769a"
+  },
+  "candidate_assembly_present": false
+}

@@ -54,6 +54,83 @@ class ReferenceWorkflowTests(unittest.TestCase):
                                performance=self.run_receipt('performance', stamp, 'recorded'))
         return m
 
+    def semantic_completed(self):
+        self.m = reference.create(self.candidate, 'batch-020')
+        m = self.completed(); stamp = reference.fingerprint(m)
+        m['unity']['correctness'].update(status='failed', input_fingerprint=stamp,
+            evidence=self.run_receipt('unity-correctness', stamp, 'failed'))
+        m['validation'].update(performance=None, performance_not_applicable='No comparative claim')
+        mismatch = {'id': 'message', 'affected_cases': [0], 'finding': 'Retained message differs', 'evidence': self.receipt}
+        decision = {'kind': 'semantic-reference-review', 'outcome': 'accepted', 'input_fingerprint': stamp,
+            'mismatches': [mismatch], 'allowed_uses': ['static-reference', 'diagnostic-profile'],
+            'preserve_failed_unity_correctness': True, 'dotnet_conformance_required': True,
+            'reason': 'Independent comparison preserves the .NET target', 'artifacts': [self.receipt],
+            'receipts': {'unity': m['unity']['correctness']['evidence'], 'dotnet': m['validation']['dotnet'], 'cilica': m['validation']['cilica']}}
+        m['exception'] = {'kind': 'semantic-reference-divergence', 'input_fingerprint': stamp,
+            'alternative': '.NET target; Unity reference', 'limits': 'No comparative timing',
+            'mismatches': [mismatch], 'decision': self.evidence('semantic-review.json', json.dumps(decision))}
+        return m
+
+    def test_reviewed_semantic_divergence_preserves_failed_unity_and_passes(self):
+        m = self.semantic_completed()
+        for phase in ['reference', 'complete']:
+            self.assertEqual([], reference.blockers(m, self.root, phase=phase))
+        self.assertEqual('failed', m['unity']['correctness']['status'])
+        self.candidate.update(status='verified', reference_manifest='reference.json')
+        (self.root / 'reference.json').write_text(json.dumps(m))
+        reference.check_batch(self.root, 'batch-020', self.candidate)
+
+    def test_semantic_exception_requires_selected_candidate_pass_even_at_reference_gate(self):
+        for mutate in [lambda m: m['validation'].update(status='pending'),
+                       lambda m: m['validation'].update(coverage='owned-regression'),
+                       lambda m: m['validation'].update(cilica=None),
+                       lambda m: m['execution']['approved_stages'].remove('dotnet')]:
+            m = self.semantic_completed(); mutate(m)
+            for phase in ['reference', 'complete']:
+                self.assertTrue(reference.blockers(m, self.root, phase=phase))
+
+    def test_semantic_review_must_bind_decision_mismatches_and_receipts(self):
+        for field, value in [('outcome', 'rejected'), ('input_fingerprint', 'e' * 64),
+                             ('mismatches', []), ('allowed_uses', ['comparative']),
+                             ('preserve_failed_unity_correctness', False), ('dotnet_conformance_required', False),
+                             ('reason', ''), ('artifacts', []), ('receipts', {})]:
+            m = self.semantic_completed()
+            review = json.loads((self.root / 'semantic-review.json').read_text()); review[field] = value
+            m['exception']['decision'] = self.evidence('semantic-review.json', json.dumps(review))
+            with self.subTest(field=field): self.assertTrue(reference.blockers(m, self.root))
+        m = self.semantic_completed(); m['exception']['decision'] = self.receipt
+        self.assertTrue(reference.blockers(m, self.root))
+
+    def test_semantic_exception_never_authorizes_comparative_timing(self):
+        for mutate in [lambda m: m['profile'].update(kind='comparative'),
+                       lambda m: m['validation'].update(performance=self.run_receipt('performance', reference.fingerprint(m), 'recorded'))]:
+            m = self.semantic_completed(); mutate(m)
+            self.assertTrue(reference.blockers(m, self.root))
+
+    def test_semantic_exception_requires_same_inputs_and_failed_raw_result(self):
+        for mutate in [lambda m: m['unity']['correctness'].update(status='passed'),
+                       lambda m: m['unity']['correctness'].update(status='not-run'),
+                       lambda m: m['unity'].update(status='blocked', blocker='Unavailable'),
+                       lambda m: m['unity'].update(status='captured-unmatched'),
+                       lambda m: m['unity']['candidate_assemblies'].update({'Library.dll': 'e' * 64}),
+                       lambda m: m['scope'].update(input_cases=self.evidence('other-cases.json', 'new cases')),
+                       lambda m: m['unity']['correctness'].update(evidence=None),
+                       lambda m: m.update(exception=None)]:
+            m = self.semantic_completed(); mutate(m)
+            self.assertTrue(reference.blockers(m, self.root))
+
+    def test_semantic_mismatch_records_and_tampered_evidence_rejected(self):
+        for mutate in [lambda m: m['exception'].update(mismatches=[]),
+                       lambda m: m['exception'].update(input_fingerprint='e' * 64),
+                       lambda m: m['exception']['mismatches'][0].update(affected_cases=[]),
+                       lambda m: m['exception']['mismatches'][0].update(affected_cases=[True]),
+                       lambda m: m['exception']['mismatches'][0].update(finding=''),
+                       lambda m: m['exception']['mismatches'][0].update(evidence=None)]:
+            m = self.semantic_completed(); mutate(m)
+            self.assertTrue(reference.blockers(m, self.root))
+        m = self.semantic_completed(); (self.root / 'unity-correctness.json').write_text('{}')
+        self.assertTrue(reference.blockers(m, self.root))
+
     def test_new_handoff_stays_incomplete_and_does_not_execute(self):
         packet = reference.handoff(self.m, self.root)
         self.assertTrue(packet['open_gates'])

@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__15.cpp",
+    "sha256": "6b2d039dd6f833c35ebe782b55914e31610e13b48796c57bba3a4b105613e176",
+    "bytes": 987302
+  },
+  "line_start": 8510,
+  "line_end": 8526,
+  "symbol": "TextInfo.ToUpperInternal(String)",
+  "finding": "Nonempty strings allocate a new string before code-unit conversion; the generated implementation later dispatches the per-character uppercase operation.",
+  "decision": "Cilica preserves its pinned .NET unchanged-ASCII identity fast path; no Unity behavior copied.",
+  "excerpt": "\t\treturn L_2;\n\t}\n\nIL_000e:\n\t{\n\t\tString_t* L_3 = ___0_str;\n\t\tNullCheck(L_3);\n\t\tint32_t L_4;\n\t\tL_4 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_3, NULL);\n\t\tString_t* L_5;\n\t\tL_5 = String_FastAllocateString_m071BD33B9EFB2375443E1550C028861164D0F104(L_4, NULL);\n\t\tV_0 = L_5;\n\t\tString_t* L_6 = ___0_str;\n\t\tV_3 = L_6;\n\t\tString_t* L_7 = V_3;\n\t\tV_1 = (Il2CppChar*)((uintptr_t)L_7);\n\t\tIl2CppChar* L_8 = V_1;"
+}

@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__16.cpp",
+    "sha256": "9afe34b15be596f8a95f53410a99efc5aeab66609c3f21587301729056172e94",
+    "bytes": 982752
+  },
+  "line_start": 3096,
+  "line_end": 3103,
+  "symbol": "TextInfoToUpperData..cctor",
+  "finding": "The1191-character table initializes from exact FieldRVA4E0B9E...; the2382-byte data hash matches that identifier.",
+  "decision": "Read emitted mscorlib only as metadata/data; no assembly loading or extra candidate execution.",
+  "excerpt": "\t}\n\t{\n\t\tCharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_0 = (CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB*)(CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB*)SZArrayNew(CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB_il2cpp_TypeInfo_var, (uint32_t)((int32_t)1191));\n\t\tCharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_1 = L_0;\n\t\tRuntimeFieldHandle_t6E4C45B6D2EA12FC99185805A7E77527899B25C5 L_2 = { reinterpret_cast<intptr_t> (U3CPrivateImplementationDetailsU3E_t9FFB0BEB067161CE52A63D5857FEA61F74F17A50____4E0B9E024FA510B6F03C92D95BB204E78CDC6E3FD2EC8D35787B7BC76F0655A0_FieldInfo_var) };\n\t\tRuntimeHelpers_InitializeArray_m751372AA3F24FBF6DA9B9D687CBFA2DE436CAB9B((RuntimeArray*)L_1, L_2, NULL);\n\t\t((TextInfoToUpperData_tFBD90672D05C6FCC5E42201C4AA643040CB20F66_StaticFields*)il2cpp_codegen_static_fields_for(TextInfoToUpperData_tFBD90672D05C6FCC5E42201C4AA643040CB20F66_il2cpp_TypeInfo_var))->___range_00e0_0586 = L_1;\n\t\tIl2CppCodeGenWriteBarrier((void**)(&((TextInfoToUpperData_tFBD90672D05C6FCC5E42201C4AA643040CB20F66_StaticFields*)il2cpp_codegen_static_fields_for(TextInfoToUpperData_tFBD90672D05C6FCC5E42201C4AA643040CB20F66_il2cpp_TypeInfo_var))->___range_00e0_0586), (void*)L_1);"
+}

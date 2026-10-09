@@ -1,0 +1,19 @@
+{
+    "unity": "6000.3.2f1",
+    "backend": "IL2CPP",
+    "codeGeneration": "OptimizeSpeed",
+    "compilerConfiguration": "Release",
+    "stripping": "Minimal",
+    "architecture": 1,
+    "incrementalGC": true,
+    "connectProfiler": false,
+    "buildReportAvailable": true,
+    "reportResult": "Succeeded",
+    "reportOptions": "ForceOptimizeScriptCompilation, Il2CPP, CompressTextures, StripDebugSymbols, ShaderLivelinkSupport, Development",
+    "reportPlatform": "StandaloneOSX",
+    "reportOutputPath": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app",
+    "reportErrors": 0,
+    "reportWarnings": 0,
+    "reportBytes": 438012278,
+    "qualification": "API readbacks from copied Unity-authored saved settings and copied LastBuild.buildreport; source hashes retained by outer runner. Candidate assembly absent. No player rebuild."
+}

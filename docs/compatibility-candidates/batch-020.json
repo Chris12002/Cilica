@@ -60,7 +60,7 @@
         }
       ],
       "screened_before_download": true,
-      "external_execution": "Not run; connector text-only inspection, no checkout, source staging, restore or build.",
+      "external_execution": "Approved isolated .NET/Cilica passed32cases/851observations; exact DLL Unity capture/player/profile executed on approved normal Mac. No upstream projects/tests/scripts or additional packages.",
       "dependencies": {
         "inspection": "No runtime package/project references in library; SDK imports, package-on-build and checked overflow enabled. Tests netcoreapp2.1 -> library + Microsoft.NET.Test.Sdk15.7.0/MSTest.TestAdapter1.2.1/MSTest.TestFramework1.2.1. Full ten-file tree has no inherited props/targets."
       },
@@ -74,14 +74,13 @@
         "Readonly input byref and capture-free predicate; exact ArgumentException/ArgumentNullException"
       ],
       "unsupported_features": [
-        "Encode Decimal.Ceiling remains outside selected Decode scope.",
-        "Actual candidate closure/execution has not been tested."
+        "Encode execution remains outside approved selected Decode scope."
       ],
       "semantic_failures": [],
-      "semantic_failure_note": "No upstream semantic result. All owned decoder API compositions pass after invariant uppercase; this is not proof of candidate compatibility.",
-      "mapped_status": "mapped-pending-candidate-validation",
-      "status": "mapped-blocked",
-      "next_action": "Read-only Unity handoff for pinned Decode; candidate execution approval and a compatible Unity isolation/alternative decision remain pending. No download or execution in batch020.",
+      "semantic_failure_note": "No .NET/Cilica mismatch. Unity reference differs at cases0/17; recorded separately as runtime-library divergence, not a Cilica defect.",
+      "mapped_status": "selected-decode-dotnet-verified-qualified-unity-reference",
+      "status": "verified",
+      "next_action": "Bounded selected Decode trial complete and verified against .NET at frozen b8f4628. Retain failed Unity equality and the reviewed semantic-reference exception. No new Cilica gap observed; parent chooses any next bounded candidate. No Encode/additional execution authorized.",
       "upstream_tests_inspected": "All three test sources inspected: RFC4648 encode/decode vectors including lowercase; test helper uses strict ASCII Encoding. Not executed.",
       "excluded_scope": [
         "Encode uses Decimal.Ceiling and division; recent bounded peer Decimal support does not cover this complete encoder.",
@@ -91,15 +90,29 @@
         "String.Trim/TrimStart/TrimEnd Char and Char[] plus directional whitespace;19 checks/15042 new comparisons.",
         "Parameterless ToCharArray preserves exact UTF16 payloads/fresh nonempty results/shared empty cache. Minimal readonly in-string -> TrimEnd(Char[]) -> ToCharArray executes O0/O2. All27 focused/adjacent checks pass."
       ],
-      "evidence": "batch-018-results.md; reference/albireo-decode.json",
+      "evidence": "albireo-trial-20261009.md; reference/albireo-decode.json",
       "owned_followup": "Invariant uppercase and owned decoder API composition pass; no further independently reproduced decoder API gate remains.",
       "mapped_requirements": [
         "Exact Char delegate parameters: 51 checks, 14,808 new native/.NET comparisons; current Any interface gate retained.",
         "Char generic enumeration and Any; 9,588 new native/.NET comparisons plus4 exact GC checks.",
         "ToUpperInvariant pinned Unicode16 with exact identity/UTF16 behavior; owned decoder API sequence passes."
       ],
-      "reference_manifest": "docs/compatibility-candidates/reference/albireo-decode.json"
+      "reference_manifest": "docs/compatibility-candidates/reference/albireo-decode.json",
+      "reference_semantic_mismatches": [
+        {
+          "runtime": "unity6000.3.2f1-il2cpp",
+          "scenario": 0,
+          "finding": "ArgumentNullException message layout differs"
+        },
+        {
+          "runtime": "unity6000.3.2f1-il2cpp",
+          "scenario": 17,
+          "finding": "Invariant U+017F remains unchanged; input rejected where .NET/Cilica returns byte144"
+        }
+      ],
+      "validated_cilica_commit": "b8f462870351be165692401d90340c019fadc3ae",
+      "reference_exception": "semantic-reference-divergence: cases0/17; failed Unity equality retained; static/diagnostic use only"
     }
   ],
-  "cleanup": "No new candidate checkout or downloaded source created."
+  "cleanup": "Isolated task container/input image/recoverable staging removed. Verified handoff and external Unity capture/app/partial-attempt evidence retained at recorded locations; no active task processes."
 }

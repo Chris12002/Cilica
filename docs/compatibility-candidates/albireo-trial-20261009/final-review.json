@@ -1,0 +1,26 @@
+{
+  "status": "selected-decode-verified-with-qualified-unity-reference",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "isolated_dotnet_cilica": "passed all32cases/851observations at frozen b8f4628; no new production change required",
+  "unity": "Exact same DLL/workload captured and executed; failed full equivalence at cases0/17; all other30cases match",
+  "independent_review": [
+    "All337captured files/114031578bytes hash verified",
+    "58handoff files verified against exact integration manifest",
+    "14source excerpts verified against original source hashes and lines",
+    "Raw profile901042bytes hash verified; exactly3markers; selected4case outputs match",
+    "Both transcript differences independently reproduced from retained data without execution"
+  ],
+  "architecture": "Actual native app/GameAssembly universal arm64+x86_64, despite earlier ARM64-only plan label. Process architecture not captured. Frozen wrapper unchanged; no architecture-specific claim.",
+  "decision": "Accept .NET/Cilica selected Decode conformance and explicitly reviewed Unity source/diagnostic reference. Keep Unity correctness failed with all cases and raw artifacts. No Cilica semantics or oracle changed.",
+  "performance": "Diagnostic Development mixed wrapper batches only; no competitive timing, live-heap/RSS or pure Decode cost claim. Host apps not stopped.",
+  "remaining": "No observed Cilica implementation gap in the approved32case Decode slice. Encode, broader APIs, latest compiler and full-suite execution untested. No comparative timing or broader execution authorized.",
+  "production_files_changed": false,
+  "semantic_reference_decision": {
+    "path": "docs/compatibility-candidates/albireo-trial-20261009/semantic-reference-review.json",
+    "sha256": "3454e15ae4b267c62cd56cc1b5f68ea44baae65f9dbdf9329f705c712b7d915c"
+  },
+  "workflow_validation": {
+    "path": "docs/compatibility-candidates/albireo-trial-20261009/workflow-validation.json",
+    "sha256": "bb07c26a3cc22126068db035eb9e088de0e71ade9c67e0a5a9875ccb32ba5bbf"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/tooling/unity-cli/unity",
+    "run",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo",
+    "--editor-version",
+    "6000.3.2f1",
+    "--timeout",
+    "1780",
+    "--",
+    "-nographics",
+    "-logFile",
+    "-",
+    "-job-worker-count",
+    "2",
+    "-executeMethod",
+    "AlbireoReferenceBuild.Build",
+    "--cilica-output",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 43.372737375,
+  "stop_reason": null,
+  "isolation": "normal local account; wall/log bounds only"
+}

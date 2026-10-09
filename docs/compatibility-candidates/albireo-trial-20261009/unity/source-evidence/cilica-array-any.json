@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/cilica-reference/library/Cilica.Core/Enumerable.cs",
+    "sha256": "99c80a01fd077bf25759219df492997a4b19e5b53be1235a5c5b9ec7d491ed99",
+    "bytes": 15771
+  },
+  "line_start": 220,
+  "line_end": 233,
+  "symbol": "Cilica Any<TSource>(source,predicate) at b8f4628",
+  "finding": "After source/predicate validation the owned library detects arrays and directly indexes live elements, avoiding the boxed-enumerator path visible in Unity.",
+  "decision": "An existing structural advantage worth a future fresh matched performance check; no new runtime optimization or measured speedup.",
+  "excerpt": "        public static bool Any<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)\n        {\n            if (source == null) throw new ArgumentNullException(\"source\");\n            if (predicate == null) throw new ArgumentNullException(\"predicate\");\n            if (source is TSource[] array)\n            {\n                for (int index = 0; index < array.Length; index++) if (predicate(array[index])) return true;\n            }\n            else\n            {\n                foreach (TSource item in source) if (predicate(item)) return true;\n            }\n            return false;\n        }"
+}

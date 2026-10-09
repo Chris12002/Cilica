@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__2.cpp",
+    "sha256": "e885081861229a7353587e71914290723a7b35a8a2c32c546c6b5462d4580137",
+    "bytes": 1409087
+  },
+  "line_start": 12517,
+  "line_end": 12549,
+  "symbol": "Array.InternalArray__IEnumerable_GetEnumerator<Char>",
+  "finding": "Nonempty char arrays construct and box an InternalEnumerator; the empty path reuses a cached enumerator.",
+  "decision": "Compare against owned array/enumeration regressions; exact selected candidate has already passed .NET/Cilica.",
+  "excerpt": "IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* Array_InternalArray__IEnumerable_GetEnumerator_TisChar_t521A6F19B456D956AF452D926C32709DC03D6B17_mB2C26F08F692EF668476B4DE2FCD55A09A6A7824_gshared (RuntimeArray* __this, const RuntimeMethod* method) \n{\n\til2cpp_rgctx_method_init(method);\n\t{\n\t\tint32_t L_0;\n\t\tL_0 = Array_get_Length_m361285FB7CF44045DC369834D1CD01F72F94EF57(__this, NULL);\n\t\tif (L_0)\n\t\t{\n\t\t\tgoto IL_000e;\n\t\t}\n\t}\n\t{\n\t\til2cpp_codegen_runtime_class_init_inline(il2cpp_rgctx_data(method->rgctx_data, 1));\n\t\tEmptyInternalEnumerator_1_t82B67C6C66B690EBB0125CD41C387203BD387610* L_1 = ((EmptyInternalEnumerator_1_t82B67C6C66B690EBB0125CD41C387203BD387610_StaticFields*)il2cpp_codegen_static_fields_for(il2cpp_rgctx_data(method->rgctx_data, 1)))->___Value;\n\t\treturn (RuntimeObject*)L_1;\n\t}\n\nIL_000e:\n\t{\n\t\tInternalEnumerator_1_tEAA35E63CA159797F6EEA54F7AE61AC0D715EDED L_2;\n\t\tmemset((&L_2), 0, sizeof(L_2));\n\t\tInternalEnumerator_1__ctor_m6C5B822CCF886310378AD785CBB49D435BDD51EE((&L_2), __this, il2cpp_rgctx_method(method->rgctx_data, 3));\n\t\tInternalEnumerator_1_tEAA35E63CA159797F6EEA54F7AE61AC0D715EDED L_3 = L_2;\n\t\tRuntimeObject* L_4 = Box(il2cpp_rgctx_data_no_init(method->rgctx_data, 2), &L_3);\n\t\treturn (RuntimeObject*)L_4;\n\t}\n}\nIL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* Array_InternalArray__IEnumerable_GetEnumerator_TisColor32_t73C5004937BF5BB8AD55323D51AAA40A898EF48B_m2A7F8A4E3F954B8FFAA1DFB8320154A134007ED7_gshared (RuntimeArray* __this, const RuntimeMethod* method) \n{\n\til2cpp_rgctx_method_init(method);\n\t{\n\t\tint32_t L_0;\n\t\tL_0 = Array_get_Length_m361285FB7CF44045DC369834D1CD01F72F94EF57(__this, NULL);"
+}

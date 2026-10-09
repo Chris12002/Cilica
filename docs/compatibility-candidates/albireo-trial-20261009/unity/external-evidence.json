@@ -1,0 +1,30 @@
+{
+  "root": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009",
+  "capture": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture",
+  "capture_manifest": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/manifest.json",
+    "sha256": "de5517a99c78e5093094da368db62f987567f58418a0982ee103786ad6c80bf9",
+    "bytes": 161496
+  },
+  "app": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app",
+  "native_hashes": {
+    "Contents/Frameworks/GameAssembly.dylib": "ea5a92b436153d7a35645b907056dba43cf08017cca215fa91106cacb9bbd7ad",
+    "Contents/Frameworks/UnityPlayer.dylib": "51d44dd8a7da29b13691ab9b181aa4a899b8a08ae7511ca813030803c49f6f87",
+    "Contents/MacOS/Cilica Albireo Decode reference": "9c167f0795c0458b438377fb81fb2fbfbc855009ef8217e81c2569cd702d7aae"
+  },
+  "source_location_count": 14,
+  "logs": [
+    {
+      "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/build/unity-build.log",
+      "sha256": "34320494f1a26c3c8d20f7c38998cd6bead8573b3e7e7cbcccf1ac47773dc10c",
+      "bytes": 338704
+    },
+    {
+      "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/inspection/inspect.log",
+      "sha256": "8d6ecfd738828d6fb653d5d2092b9469368f34329cdf3efbbe93266b1a3031fc",
+      "bytes": 41389
+    }
+  ],
+  "preservation": "Keep original project, app, full capture, partial capture and CLI-created default-state archives. No cleanup performed. Raw Editor/license logs stay local, not in the compact repository handoff.",
+  "active_owned_jobs": false
+}

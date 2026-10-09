@@ -218,3 +218,16 @@ no upstream candidate was executed.
 39 passing checks and 18,564 new native/.NET comparisons. The owned decoder API
 sequence now executes; actual Albireo.Base32 Decode validation requires the
 separately approved bounded execution recipe. No upstream candidate executed.
+
+
+## Approved Albireo trial: .NET pass, qualified Unity reference
+
+[The completed trial](albireo-trial-20261009.md) passes all 32 selected Decode cases
+on .NET/Cilica (851 observations; 5,106 repeated O0/O2 comparisons). The exact DLL
+also built and ran in Unity, producing a retained source capture and three valid
+diagnostic profile markers. Unity differs on null exception formatting and U+017F
+invariant casing; an explicit semantic-reference exception preserves failed Unity
+equality while accepting source/diagnostic use. Batch020 verifies the selected
+Decode slice against .NET. No production change or comparative speed claim was made.
+Batch020 is resumable from
+its input-bound receipts; approval does not extend to another library.

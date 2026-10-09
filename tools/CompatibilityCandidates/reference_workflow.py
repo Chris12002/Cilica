@@ -151,7 +151,10 @@ def blockers(m, root, candidate=None, phase="complete"):
                 need(bool(g.get('reason')), 'Out-of-scope reason required: ' + g['id'])
         # A fully mapped skip still passes through an explicit reference decision.
         skipped = not applicable and bool(gaps)
+        ex = m['exception']
+        semantic_exception = isinstance(ex, dict) and ex.get('kind') == 'semantic-reference-divergence'
         if skipped:
+            need(not semantic_exception, 'Semantic exception requires executed selected-candidate conformance')
             need(m['unity']['status'] == 'not-applicable', 'Mapped skip requires explicit Unity not-applicable status')
             need(m['profile']['status'] == 'not-applicable' and bool(m['profile']['reason']), 'Mapped skip requires profile rationale')
             evidence(m['profile']['decision'], 'mapped-skip review')
@@ -177,7 +180,7 @@ def blockers(m, root, candidate=None, phase="complete"):
             run_evidence(unity['capture'], 'unity-capture', actual)
             if unity['status'] == 'captured':
                 need(actual == expected, 'Unity identity differs: use captured-unmatched with an explicit reference exception')
-                need(m['exception'] is None, 'Matched capture must not carry an exception')
+                need(ex is None or semantic_exception, 'Matched capture permits only a reviewed semantic-reference-divergence exception')
             else:
                 need(actual != expected, 'Use captured for matching Unity inputs')
         elif unity['status'] == 'blocked':
@@ -185,6 +188,7 @@ def blockers(m, root, candidate=None, phase="complete"):
         else:
             need(False, 'Unity reference capture pending (or explicit blocker/alternative required)')
         if unity['status'] in ('blocked', 'captured-unmatched'):
+            need(not semantic_exception, 'Semantic exception requires matching captured inputs')
             ex = m['exception']
             need(isinstance(ex, dict), 'Blocked/unmatched Unity requires an explicit reference exception')
             if isinstance(ex, dict):
@@ -198,7 +202,45 @@ def blockers(m, root, candidate=None, phase="complete"):
             executed('unity')
             run_evidence(correctness['evidence'], 'unity-correctness', actual, outcome=correctness['status'])
             need(correctness['input_fingerprint'] == actual, 'Unity correctness input identity mismatch')
-        need(correctness['status'] != 'failed', 'Unity semantic mismatch requires investigation before closure')
+        need(correctness['status'] != 'failed' or semantic_exception, 'Unity semantic mismatch requires investigation before closure')
+        if semantic_exception:
+            need(unity['status'] == 'captured' and actual == expected, 'Semantic exception requires matching captured inputs')
+            need(correctness['status'] == 'failed', 'Semantic exception must preserve failed Unity correctness')
+            need(ex.get('input_fingerprint') == expected, 'Semantic exception has stale input identity')
+            need(bool(ex.get('alternative')) and bool(ex.get('limits')), 'Semantic exception requires target and use limitations')
+            mismatches = ex.get('mismatches', [])
+            need(isinstance(mismatches, list) and bool(mismatches), 'Semantic exception requires exact mismatch records')
+            mismatch_ids = []
+            for mismatch in mismatches:
+                mismatch_ids.append(mismatch['id'])
+                need(isinstance(mismatch['id'], str) and bool(mismatch['id']), 'Mismatch ID required')
+                cases = mismatch.get('affected_cases')
+                need(isinstance(cases, list) and bool(cases) and all(type(case) is int and case >= 0 for case in cases)
+                     and len(set(cases)) == len(cases), 'Mismatch requires explicit unique case indices')
+                need(bool(mismatch.get('finding')), 'Mismatch semantic finding required')
+                evidence(mismatch.get('evidence'), 'independently explained mismatch')
+            need(len(set(mismatch_ids)) == len(mismatch_ids), 'Duplicate semantic mismatch IDs')
+            try:
+                review = json.loads(read_evidence(root, ex.get('decision')).read_text())
+                need(review.get('kind') == 'semantic-reference-review' and review.get('outcome') == 'accepted',
+                     'Explicit accepted semantic-reference review required')
+                need(review.get('input_fingerprint') == expected, 'Semantic review has stale input identity')
+                need(review.get('mismatches') == mismatches, 'Semantic review must bind every exact mismatch record')
+                need(review.get('allowed_uses') == ['static-reference', 'diagnostic-profile'], 'Semantic reference use must exclude comparative timing')
+                need(review.get('preserve_failed_unity_correctness') is True and review.get('dotnet_conformance_required') is True,
+                     'Semantic review must preserve failure and require .NET conformance')
+                need(bool(review.get('reason')), 'Semantic review rationale required')
+                # Bind the decision to these exact executed receipts, not just an input label.
+                receipts = {'unity': correctness['evidence'], 'dotnet': m['validation']['dotnet'], 'cilica': m['validation']['cilica']}
+                need(review.get('receipts') == receipts, 'Semantic review must bind exact Unity/.NET/Cilica receipts')
+                need(bool(review.get('artifacts')), 'Independent semantic review artifacts required')
+                for artifact in review.get('artifacts', []):
+                    evidence(artifact, 'semantic review artifact')
+            except (ValueError, OSError, TypeError, AttributeError) as error:
+                problems.append('semantic-reference decision: ' + str(error))
+            need(m['validation']['coverage'] == 'selected-candidate', 'Semantic exception requires full selected-candidate conformance')
+            need(not m['validation']['performance'], 'Semantic exception cannot support comparative performance receipts')
+            need(m['profile']['kind'] == 'diagnostic', 'Semantic exception permits diagnostic profiling only')
         inspection = m['inspection']
         need(inspection['status'] == 'inspected', 'Static generated/runtime reference inspection incomplete')
         evidence(inspection['decision'], 'reference-to-implementation design review')
@@ -238,7 +280,7 @@ def blockers(m, root, candidate=None, phase="complete"):
             if phase == 'complete':
                 need(g['status'] == 'closed', 'Gap still open: ' + g['id'])
                 evidence(g.get('implementation'), 'implementation record for ' + g['id'])
-        if phase == 'reference' and not (profile['status'] == 'measured' and profile['kind'] == 'comparative'):
+        if phase == 'reference' and not semantic_exception and not (profile['status'] == 'measured' and profile['kind'] == 'comparative'):
             return list(dict.fromkeys(problems))
         v = m['validation']
         need(v['status'] == 'passed', 'Differential correctness not complete')

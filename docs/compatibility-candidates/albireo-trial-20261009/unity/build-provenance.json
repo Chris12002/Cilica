@@ -1,0 +1,24 @@
+{
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "candidate_dll_sha256": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760",
+  "native_sha256": {
+    "Contents/Frameworks/GameAssembly.dylib": "ea5a92b436153d7a35645b907056dba43cf08017cca215fa91106cacb9bbd7ad",
+    "Contents/Frameworks/UnityPlayer.dylib": "51d44dd8a7da29b13691ab9b181aa4a899b8a08ae7511ca813030803c49f6f87",
+    "Contents/MacOS/Cilica Albireo Decode reference": "9c167f0795c0458b438377fb81fb2fbfbc855009ef8217e81c2569cd702d7aae"
+  },
+  "requested_settings_receipt": {
+    "unity": "6000.3.2f1",
+    "target": "StandaloneOSX",
+    "backend": "IL2CPP",
+    "optimization": "Release/OptimizeSpeed",
+    "stripping": "Minimal",
+    "result": "Succeeded",
+    "valuesKind": "Requested configuration; capture emitted flags/options and API readbacks separately.",
+    "architecture": 1,
+    "development": true,
+    "incrementalGC": true,
+    "automaticProfilerConnection": false
+  },
+  "status": "passed",
+  "boundary": "Normal Mac account; wall/log limits only; no competitive timing claim"
+}

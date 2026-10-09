@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/runtime-reference/codegen/il2cpp-codegen.h",
+    "sha256": "23f523d44670bc1de773110c40bbbe75d247dffdc0b1fc49ff1c5a418cb7296f",
+    "bytes": 62998
+  },
+  "line_start": 717,
+  "line_end": 727,
+  "symbol": "IL2CPP virtual/interface invoke data",
+  "finding": "Class calls select the vtable slot; interface calls use ClassInlines interface lookup.",
+  "decision": "Reference shape only. Cilica precise ownership and validated dispatch remain required.",
+  "excerpt": "IL2CPP_FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_virtual_invoke_data(Il2CppMethodSlot slot, const RuntimeObject* obj)\n{\n    Assert(slot != kInvalidIl2CppMethodSlot && \"il2cpp_codegen_get_virtual_invoke_data got called on a non-virtual method\");\n    return obj->klass->vtable[slot];\n}\n\nIL2CPP_FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_interface_invoke_data(Il2CppMethodSlot slot, RuntimeObject* obj, const RuntimeClass* declaringInterface)\n{\n    Assert(slot != kInvalidIl2CppMethodSlot && \"il2cpp_codegen_get_interface_invoke_data got called on a non-virtual method\");\n    return il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, declaringInterface, slot);\n}"
+}

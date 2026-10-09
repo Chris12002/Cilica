@@ -1,0 +1,22 @@
+{
+  "reference": [],
+  "complete": [],
+  "batch": "passed",
+  "removed-exception": [
+    "Unity semantic mismatch requires investigation before closure"
+  ],
+  "comparative-profile": [
+    "Semantic exception permits diagnostic profiling only",
+    "Comparative timing requires executed Unity output verification",
+    "comparative-output receipt: Evidence requires path and SHA-256"
+  ],
+  "stale-input": [
+    "Unity identity differs: use captured-unmatched with an explicit reference exception",
+    "Semantic exception requires matching captured inputs",
+    "Semantic exception has stale input identity",
+    "Semantic review has stale input identity",
+    "Differential input identity mismatch",
+    "dotnet receipt has stale input identity",
+    "cilica receipt has stale input identity"
+  ]
+}

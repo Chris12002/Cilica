@@ -1,0 +1,13 @@
+{
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "inspection_status": "inspected",
+  "profile_status": "measured",
+  "profile_kind": "diagnostic",
+  "unity_status": "captured",
+  "unity_correctness": "failed",
+  "full_completion": "blocked",
+  "reason": "Unity case0 exception text and case17 invariant casing differ from the pinned .NET/Cilica oracle despite matching input identity.",
+  "profile_qualification": "Selected4cases match oracle and raw3markers are verified, while full32-case equality fails. Mixed Development wrapper batches, not pure Decode timing; universal artifact, process architecture unrecorded, no quiet-host or competitive claim.",
+  "production_changes": "None. Preserve .NET contract; do not change Cilica to emulate Unity.",
+  "next_action": "Integrate exact evidence and keep workflow completion blocked on semantic divergence. No more candidate execution requested."
+}

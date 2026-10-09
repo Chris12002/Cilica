@@ -1,0 +1,84 @@
+{
+  "review": "Independent data-only exact transcript comparison; no candidate invoked",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "unity_player_sha256": "9ef0702042b97d186f93ec45b5f99e013a5ef8318c14fe9149b102879c18ffb3",
+  "expected_sha256": "d119a4eb11960c4c73988371290099f95b20e0a869f04a06ba494e22dd3ab5a6",
+  "matched_scenarios": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "differences": [
+    {
+      "scenario": 0,
+      "dotnet_and_cilica": {
+        "status": 1,
+        "length": -1,
+        "result_identity": -1,
+        "message": "Value cannot be null. (Parameter 'input')",
+        "parameter": "input",
+        "bytes": []
+      },
+      "unity": {
+        "status": 1,
+        "length": -1,
+        "result_identity": -1,
+        "message": "Value cannot be null.\nParameter name: input",
+        "parameter": "input",
+        "bytes": []
+      }
+    },
+    {
+      "scenario": 17,
+      "dotnet_and_cilica": {
+        "status": 0,
+        "length": 1,
+        "result_identity": 0,
+        "message": "",
+        "parameter": "",
+        "bytes": [
+          144
+        ]
+      },
+      "unity": {
+        "status": 2,
+        "length": -1,
+        "result_identity": -1,
+        "message": "input",
+        "parameter": "",
+        "bytes": []
+      }
+    }
+  ],
+  "decision": "Keep Unity correctness failed. Preserve existing .NET-compatible Cilica behavior. Same input identity; this is semantic divergence, not captured-unmatched input. No speed equivalence or normalization.",
+  "production_change_required": false,
+  "profile_selected_cases_match": true,
+  "profile_qualification": "Selected-case output match alone does not prove raw marker capture or make full correctness pass."
+}

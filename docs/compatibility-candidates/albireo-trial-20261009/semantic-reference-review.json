@@ -1,0 +1,74 @@
+{
+  "kind": "semantic-reference-review",
+  "outcome": "accepted",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "mismatches": [
+    {
+      "id": "unity-null-message",
+      "affected_cases": [
+        0
+      ],
+      "finding": "Same ArgumentNullException and parameter, but Unity uses newline Parameter name formatting rather than pinned .NET message layout. No normalization.",
+      "evidence": {
+        "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/differences.json",
+        "sha256": "08c1494e843fc851232f82629005329bd3aca5a3f1dcceef23a96f3651a358b4"
+      }
+    },
+    {
+      "id": "unity-invariant-long-s",
+      "affected_cases": [
+        17
+      ],
+      "finding": "Unity invariant casing leaves U+017F unchanged (exact emitted FieldRVA table entry); pinned .NET/Cilica maps it to S and Decode returns byte144. Keep .NET behavior.",
+      "evidence": {
+        "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-inspection.json",
+        "sha256": "418fd48cec6c5dfa7b64e8a7cb4e8cbbaa93f8980822fe58d4afd74b85392f3f"
+      }
+    }
+  ],
+  "allowed_uses": [
+    "static-reference",
+    "diagnostic-profile"
+  ],
+  "preserve_failed_unity_correctness": true,
+  "dotnet_conformance_required": true,
+  "reason": "Compatibility lane independently rechecked every input/capture hash and all32transcripts, confirming only cases0/17 differ. Exact generated-source excerpts and emitted casing bytes explain both differences. .NET/Cilica passes every selected case at frozen b8f4628. Parent explicitly directs qualified Unity reference use with .NET as target; no Cilica production change is justified. Raw failed equality stays retained.",
+  "receipts": {
+    "unity": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/unity-correctness-envelope.json",
+      "sha256": "5d53645cdd21bdb34ffe744676faddf6a8d9c9ee208c5393397487825e60bc23"
+    },
+    "dotnet": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/dotnet-receipt.json",
+      "sha256": "30c084f11b632326aab7627ec1974c1b01e8e447a5606195fbff62b8adba5f1a"
+    },
+    "cilica": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/cilica-receipt.json",
+      "sha256": "5fafee06c3700a34ce4f9e0e196e6e8c0e0eb26b3f92a5ad21e620cecadafdaf"
+    }
+  },
+  "artifacts": [
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity-transcript-independent-review.json",
+      "sha256": "e029d3ed3ecf6cb5c2baeb281f8e027503d92f943f76d00471b17361a80aeee1"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity-capture-independent-review.json",
+      "sha256": "060e7ec580c192cee85915058d11f82bc5d81ae39682d86d0c415ffb4adedb96"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/differences.json",
+      "sha256": "08c1494e843fc851232f82629005329bd3aca5a3f1dcceef23a96f3651a358b4"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-inspection.json",
+      "sha256": "418fd48cec6c5dfa7b64e8a7cb4e8cbbaa93f8980822fe58d4afd74b85392f3f"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/reference-policy-direction.json",
+      "sha256": "b4b3a8603a87cec978837ee70245180eb185f4a3fe965768b4d3434567e56712"
+    }
+  ],
+  "reviewer_scope": "Compatibility lane data/source review; independent Unity lane source explanation retained. Structured receipt is a reviewed record, not cryptographic proof of human approval.",
+  "historical_decision": "unity/decisions.json remains byte-identical: it recorded blocked full equivalence before the parent qualified-reference decision. It still correctly records failed equality and diagnostic limits."
+}

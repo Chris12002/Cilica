@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__15.cpp",
+    "sha256": "6b2d039dd6f833c35ebe782b55914e31610e13b48796c57bba3a4b105613e176",
+    "bytes": 987302
+  },
+  "line_start": 9053,
+  "line_end": 9081,
+  "symbol": "TextInfo invariant range_00e0_0586",
+  "finding": "The invariant range indexes code_unit-224. Metadata-only inspection proves entry159 for383/U+017F contains383, leaving long s unchanged.",
+  "decision": "Retain semantic mismatch. FieldRVA proof and the unchanged input transcript are independent evidence; no production correction indicated.",
+  "excerpt": "\t\tL_29 = TextInfo_ToUpperAsciiInvariant_mC4BA3A5F8BCCBBEA2C0DCAEF85534ECF8E281AD3(L_28, NULL);\n\t\treturn L_29;\n\t}\n\nIL_017c:\n\t{\n\t\tIl2CppChar L_30 = ___0_c;\n\t\tif ((((int32_t)L_30) < ((int32_t)((int32_t)224))))\n\t\t{\n\t\t\tgoto IL_019a;\n\t\t}\n\t}\n\t{\n\t\tIl2CppChar L_31 = ___0_c;\n\t\tif ((((int32_t)L_31) > ((int32_t)((int32_t)1414))))\n\t\t{\n\t\t\tgoto IL_019a;\n\t\t}\n\t}\n\t{\n\t\til2cpp_codegen_runtime_class_init_inline(TextInfoToUpperData_tFBD90672D05C6FCC5E42201C4AA643040CB20F66_il2cpp_TypeInfo_var);\n\t\tCharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_32 = ((TextInfoToUpperData_tFBD90672D05C6FCC5E42201C4AA643040CB20F66_StaticFields*)il2cpp_codegen_static_fields_for(TextInfoToUpperData_tFBD90672D05C6FCC5E42201C4AA643040CB20F66_il2cpp_TypeInfo_var))->___range_00e0_0586;\n\t\tIl2CppChar L_33 = ___0_c;\n\t\tNullCheck(L_32);\n\t\tint32_t L_34 = ((int32_t)il2cpp_codegen_subtract((int32_t)L_33, ((int32_t)224)));\n\t\tuint16_t L_35 = (uint16_t)(L_32)->GetAt(static_cast<il2cpp_array_size_t>(L_34));\n\t\treturn L_35;\n\t}\n"
+}

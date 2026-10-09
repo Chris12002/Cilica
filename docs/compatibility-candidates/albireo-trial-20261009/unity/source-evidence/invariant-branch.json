@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__15.cpp",
+    "sha256": "6b2d039dd6f833c35ebe782b55914e31610e13b48796c57bba3a4b105613e176",
+    "bytes": 987302
+  },
+  "line_start": 8728,
+  "line_end": 8740,
+  "symbol": "TextInfo.ToUpperInternal(Char) invariant branch",
+  "finding": "Invariant culture jumps over the explicit noninvariant long-s special case to IL_017c.",
+  "decision": "Together with emitted table data this explains case17; Cilica must retain its pinned .NET mapping.",
+  "excerpt": "\t\tNullCheck(L_0);\n\t\tbool L_1;\n\t\tL_1 = CultureData_get_IsInvariantCulture_m297DA69F4C334E0B56A73619750A70BA8FB908E6(L_0, NULL);\n\t\tif (L_1)\n\t\t{\n\t\t\tgoto IL_017c;\n\t\t}\n\t}\n\t{\n\t\tIl2CppChar L_2 = ___0_c;\n\t\tif ((!(((uint32_t)L_2) <= ((uint32_t)((int32_t)498)))))\n\t\t{\n\t\t\tgoto IL_0084;"
+}

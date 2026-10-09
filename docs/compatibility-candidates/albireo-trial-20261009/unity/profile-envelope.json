@@ -1,0 +1,43 @@
+{
+  "stage": "profile",
+  "outcome": "recorded",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "artifacts": [
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/profile.raw",
+      "sha256": "b134fc77425b878799a497be585254dfdf01a1c1ef0c8def337fd92984c2cd53"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/profile-result.json",
+      "sha256": "4e6ce7fcf6fd9087e7808124eb4375e1449701a498603a0b6b7b782504c7940f"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/profile-launch.json",
+      "sha256": "e95496d53dad2b6903c2f0103a2cd4ebe1b969a5fc4198087ccb00dcb02e7946"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/profile-player.log",
+      "sha256": "3936ffcac711a0bc0c1b1dec1ee7c3dfb6f1005fc6622f4c6bf577b0c7b7d4d2"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/markers.json",
+      "sha256": "594c071e50a1c53ba8ca7e094e2b6b51d090cc314df2c6d5d3d952a7dfde3749"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/inspection-inputs.json",
+      "sha256": "e63d02a0251890fdfcc9ed32478a34ff17a45536cf3357bd8bc1d24d64271c59"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/inspection-result.json",
+      "sha256": "428a7db9e51656117689107b431024552d8f319d791d11546fc3a0976558a46a"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/profile-validation.json",
+      "sha256": "8f1bccfbd59d460f4892b7f7e2e566a466069ab6f68b5459e57093d15695e254"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/actual-architecture-and-commands.json",
+      "sha256": "af5f33241cc27b5e34725b44c439d8047a5bb4f2e4546e0e6465a8452573d660"
+    }
+  ]
+}

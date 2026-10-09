@@ -1,0 +1,27 @@
+{
+  "stage": "unity-correctness",
+  "outcome": "failed",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "artifacts": [
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/oracle-expected.json",
+      "sha256": "d119a4eb11960c4c73988371290099f95b20e0a869f04a06ba494e22dd3ab5a6"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/verify-result.json",
+      "sha256": "9ef0702042b97d186f93ec45b5f99e013a5ef8318c14fe9149b102879c18ffb3"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/verify-launch.json",
+      "sha256": "f4bb3a28ebd23a331842bc0ca0b083f407ab92c9214493408efa41eb20aa8170"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/verify-player.log",
+      "sha256": "107b200acb0e21841dff26123a9d9ec0e6f418bcdef0c14e4dea4c7688b05306"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/differences.json",
+      "sha256": "08c1494e843fc851232f82629005329bd3aca5a3f1dcceef23a96f3651a358b4"
+    }
+  ]
+}

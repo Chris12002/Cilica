@@ -1,0 +1,52 @@
+{
+  "command": [
+    "/usr/bin/open",
+    "-W",
+    "-n",
+    "-g",
+    "-a",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app",
+    "--args",
+    "-batchmode",
+    "-nographics",
+    "-logFile",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/verify/player.log",
+    "--cilica-mode",
+    "verify",
+    "--cilica-result",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/verify/result.json",
+    "--cilica-fingerprint",
+    "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb"
+  ],
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "mode": "verify",
+  "start_utc": "2026-10-09T01:36:41.364239+00:00",
+  "wall_bound_seconds": 180,
+  "raw_soft_cap_bytes": 67108864,
+  "console_cap_bytes": 67108864,
+  "launch_route": "LaunchServices open -W -n -g",
+  "quiet_host": false,
+  "qualification": "Development diagnostic; no competitive ratio or pure Decode timing",
+  "player_identities": {
+    "89030": "Fri Oct 9 09:36:41 2026"
+  },
+  "stop_reason": null,
+  "max_observed_raw_bytes": 0,
+  "exit_code": 0,
+  "elapsed_seconds": 2.0625865830000003,
+  "remaining_exact_path_players": {},
+  "artifacts": {
+    "launch.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "player.log": {
+      "bytes": 3061,
+      "sha256": "107b200acb0e21841dff26123a9d9ec0e6f418bcdef0c14e4dea4c7688b05306"
+    },
+    "result.json": {
+      "bytes": 8178,
+      "sha256": "9ef0702042b97d186f93ec45b5f99e013a5ef8318c14fe9149b102879c18ffb3"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "source": {
+    "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__1.cpp",
+    "sha256": "8bc93b9a23a3f77cb0af7cdb058b9fc0af0b08c98f639cc57192b6b6f8707ab8",
+    "bytes": 1623665
+  },
+  "line_start": 17170,
+  "line_end": 17212,
+  "symbol": "ArgumentException.Message",
+  "finding": "Unity appends Environment.NewLine and formatted parameter-name text. Raw case0 message differs from pinned .NET punctuation/layout.",
+  "decision": "Preserve every UTF-16 observation and failed correctness outcome; do not normalize messages.",
+  "excerpt": "IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* ArgumentException_get_Message_m78A896B7D565DAFF78B1987C12FB40374EE1C628 (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* __this, const RuntimeMethod* method) \n{\n\tstatic bool s_Il2CppMethodInitialized;\n\tif (!s_Il2CppMethodInitialized)\n\t{\n\t\til2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral2565F69A6EDDD61DD4960B022D88743E25BCCD32);\n\t\ts_Il2CppMethodInitialized = true;\n\t}\n\tString_t* V_0 = NULL;\n\tString_t* V_1 = NULL;\n\t{\n\t\tString_t* L_0;\n\t\tL_0 = Exception_get_Message_mCFE0D38FDF9001405299AAE43BBE2A9AD806C441(__this, NULL);\n\t\tV_0 = L_0;\n\t\tString_t* L_1 = __this->____paramName;\n\t\tbool L_2;\n\t\tL_2 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_1, NULL);\n\t\tif (L_2)\n\t\t{\n\t\t\tgoto IL_0032;\n\t\t}\n\t}\n\t{\n\t\tString_t* L_3 = __this->____paramName;\n\t\tString_t* L_4;\n\t\tL_4 = SR_Format_m9E8DC9AEFDC34AC67473EFAEAB78C5066C1A0D09(_stringLiteral2565F69A6EDDD61DD4960B022D88743E25BCCD32, L_3, NULL);\n\t\tV_1 = L_4;\n\t\tString_t* L_5 = V_0;\n\t\tString_t* L_6;\n\t\tL_6 = Environment_get_NewLine_m8BF68A4EFDAFFB66500984CE779629811BA98FFF(NULL);\n\t\tString_t* L_7 = V_1;\n\t\tString_t* L_8;\n\t\tL_8 = String_Concat_m8855A6DE10F84DA7F4EC113CADDB59873A25573B(L_5, L_6, L_7, NULL);\n\t\treturn L_8;\n\t}\n\nIL_0032:\n\t{\n\t\tString_t* L_9 = V_0;\n\t\treturn L_9;\n\t}\n}\nIL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* ArgumentException_get_ParamName_mDD26F4E29E4CF030698DB1FD5FF7B815D749E2F1 (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* __this, const RuntimeMethod* method) "
+}

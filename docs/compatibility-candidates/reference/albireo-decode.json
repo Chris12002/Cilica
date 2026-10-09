@@ -103,9 +103,12 @@
     }
   },
   "unity": {
-    "status": "pending",
-    "version": "",
-    "settings": null,
+    "status": "captured",
+    "version": "6000.3.2f1",
+    "settings": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/settings-readback.json",
+      "sha256": "e1ab938464edde3e171be14f7fac24d1991055362bcac92d9cd8d73658ce837a"
+    },
     "candidate_assemblies": {
       "Albireo.SelectedDecode.dll": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760"
     },
@@ -132,42 +135,353 @@
       "path": "docs/compatibility-candidates/albireo-trial-20261009/input-cases.json",
       "sha256": "26cade640724f20eb46414afe3b940aa3c168c10acb33a1d3630f273b70dd721"
     },
-    "capture": null,
-    "blocker": "Approved exact-input handoff ready; Unity build/capture/correctness/profile pending.",
+    "capture": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/unity-capture-envelope.json",
+      "sha256": "154b4ec03bbdccb81090805a571c1fbefc5712e618233aafdfb543dc54de200f"
+    },
+    "blocker": "",
     "correctness": {
-      "status": "not-run",
-      "input_fingerprint": "",
-      "evidence": null
+      "status": "failed",
+      "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+      "evidence": {
+        "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/unity-correctness-envelope.json",
+        "sha256": "5d53645cdd21bdb34ffe744676faddf6a8d9c9ee208c5393397487825e60bc23"
+      },
+      "failure_summary": "Case0 exception message formatting and case17 U+017F invariant casing differ from .NET/Cilica."
+    },
+    "actual_settings_qualification": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/actual-architecture-and-commands.json",
+      "sha256": "af5f33241cc27b5e34725b44c439d8047a5bb4f2e4546e0e6465a8452573d660"
     }
   },
   "inspection": {
-    "status": "pending",
-    "locations": [],
-    "decision": null
+    "status": "inspected",
+    "locations": [
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/decode-prefix.json",
+          "sha256": "2ba12e45350b23ea6e3570b47f9cf9d88aeeedf398085748765c3aa5665e8dea"
+        },
+        "symbol": "Base32.Decode",
+        "finding": "Null is tested before empty, trimming, invariant uppercase and char-array copying. The readonly string input lowers to String_t** and is dereferenced before these calls.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+          "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7",
+          "bytes": 75857
+        },
+        "line_start": 803,
+        "line_end": 850
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/cached-predicate.json",
+          "sha256": "1323e43351389c0dc126024d73a8ae740af15b9f75ca3fbf1de573413ecaaf09"
+        },
+        "symbol": "Base32.Decode predicate/cache/allocation",
+        "finding": "The predicate delegate is cached with a publication barrier; Any validates the char array before checked output-size arithmetic and byte-array allocation.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+          "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7",
+          "bytes": 75857
+        },
+        "line_start": 850,
+        "line_end": 905
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/any-dispatch.json",
+          "sha256": "5778df16e0e63acceb9a1fc1cdf461b269a92f555f45b69343628357f0ec138e"
+        },
+        "symbol": "Enumerable.Any<Char>",
+        "finding": "This Unity Any path uses GetEnumerator, Current, MoveNext and finally Dispose interface calls plus the predicate delegate.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__4.cpp",
+          "sha256": "14e4387bc9d90da401c0a320a59f057afcefc0860802a77c545b01997a5e9340",
+          "bytes": 1362978
+        },
+        "line_start": 20998,
+        "line_end": 21095
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/char-enumerator.json",
+          "sha256": "522294e87fe6fe318cb179403c14c6ef97e293d9d6d5b288d5bbaecf4521ba38"
+        },
+        "symbol": "Array.InternalArray__IEnumerable_GetEnumerator<Char>",
+        "finding": "Nonempty char arrays construct and box an InternalEnumerator; the empty path reuses a cached enumerator.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__2.cpp",
+          "sha256": "e885081861229a7353587e71914290723a7b35a8a2c32c546c6b5462d4580137",
+          "bytes": 1409087
+        },
+        "line_start": 12517,
+        "line_end": 12549
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/uppercase-call.json",
+          "sha256": "a8e72dae9c07b92eb7b78bdcd8abe326c2d45c4395146682bb4c36cbde86faa9"
+        },
+        "symbol": "String.ToUpperInvariant",
+        "finding": "String casing obtains invariant CultureInfo/TextInfo and dispatches the string uppercase method.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib.cpp",
+          "sha256": "0d2aa56e3d03aca8757c8a5df6a534664de3ec2a75e9e4aa84af6a287c7ae058",
+          "bytes": 1235334
+        },
+        "line_start": 28441,
+        "line_end": 28463
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/uppercase-string-allocation.json",
+          "sha256": "537cc0c690e0999f2d35d1a39dcf8f7cf0df116cb5b7464e3eb050e3f6e16ccd"
+        },
+        "symbol": "TextInfo.ToUpperInternal(String)",
+        "finding": "Nonempty strings allocate a new string before code-unit conversion; the generated implementation later dispatches the per-character uppercase operation.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__15.cpp",
+          "sha256": "6b2d039dd6f833c35ebe782b55914e31610e13b48796c57bba3a4b105613e176",
+          "bytes": 987302
+        },
+        "line_start": 8510,
+        "line_end": 8526
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/invariant-branch.json",
+          "sha256": "8f70179f1f41181210915084114a27e8fc008dcdb3af375d4e0147176bb759f8"
+        },
+        "symbol": "TextInfo.ToUpperInternal(Char) invariant branch",
+        "finding": "Invariant culture jumps over the explicit noninvariant long-s special case to IL_017c.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__15.cpp",
+          "sha256": "6b2d039dd6f833c35ebe782b55914e31610e13b48796c57bba3a4b105613e176",
+          "bytes": 987302
+        },
+        "line_start": 8728,
+        "line_end": 8740
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/invariant-table.json",
+          "sha256": "2a8b888d0a3545470a7b88cd8227e79a55fdd71e500d4c72d8799bb819adb641"
+        },
+        "symbol": "TextInfo invariant range_00e0_0586",
+        "finding": "The invariant range indexes code_unit-224. Metadata-only inspection proves entry159 for383/U+017F contains383, leaving long s unchanged.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__15.cpp",
+          "sha256": "6b2d039dd6f833c35ebe782b55914e31610e13b48796c57bba3a4b105613e176",
+          "bytes": 987302
+        },
+        "line_start": 9053,
+        "line_end": 9081
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/casing-table-initializer.json",
+          "sha256": "1a4b785515382d71ac4cc0fddfc0e4e320fdf3ae92f1d1ad7e95d54079c30af5"
+        },
+        "symbol": "TextInfoToUpperData..cctor",
+        "finding": "The1191-character table initializes from exact FieldRVA4E0B9E...; the2382-byte data hash matches that identifier.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__16.cpp",
+          "sha256": "9afe34b15be596f8a95f53410a99efc5aeab66609c3f21587301729056172e94",
+          "bytes": 982752
+        },
+        "line_start": 3096,
+        "line_end": 3103
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/argument-message.json",
+          "sha256": "53af1f1d906e3965d74cfbc95ba9e20a5a10f4757a6e2a9c02ea96107ee57ef8"
+        },
+        "symbol": "ArgumentException.Message",
+        "finding": "Unity appends Environment.NewLine and formatted parameter-name text. Raw case0 message differs from pinned .NET punctuation/layout.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__1.cpp",
+          "sha256": "8bc93b9a23a3f77cb0af7cdb058b9fc0af0b08c98f639cc57192b6b6f8707ab8",
+          "bytes": 1623665
+        },
+        "line_start": 17170,
+        "line_end": 17212
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/dispatch-helper.json",
+          "sha256": "b00e753666eff901b512beb50a814da3199619d5bbb5a7d52aac4f90e1f7a726"
+        },
+        "symbol": "IL2CPP virtual/interface invoke data",
+        "finding": "Class calls select the vtable slot; interface calls use ClassInlines interface lookup.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/capture/runtime-reference/codegen/il2cpp-codegen.h",
+          "sha256": "23f523d44670bc1de773110c40bbbe75d247dffdc0b1fc49ff1c5a418cb7296f",
+          "bytes": 62998
+        },
+        "line_start": 717,
+        "line_end": 727
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/cilica-array-any.json",
+          "sha256": "f42a0ae799c92acabd7c3f8e9128123b28534e4639006c9d72486df2da0e7102"
+        },
+        "symbol": "Cilica Any<TSource>(source,predicate) at b8f4628",
+        "finding": "After source/predicate validation the owned library detects arrays and directly indexes live elements, avoiding the boxed-enumerator path visible in Unity.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/cilica-reference/library/Cilica.Core/Enumerable.cs",
+          "sha256": "99c80a01fd077bf25759219df492997a4b19e5b53be1235a5c5b9ec7d491ed99",
+          "bytes": 15771
+        },
+        "line_start": 220,
+        "line_end": 233
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/cilica-invariant.json",
+          "sha256": "a027edc17200ffb5799efbb36e82c0f37bea640b4c2f0c3c2bcbb3d81bb3210f"
+        },
+        "symbol": "Cilica String.ToUpperInvariant at b8f4628",
+        "finding": "Cilica retains unchanged ASCII identity, handles surrogate pairs and explicitly maps U+017F to U+0053 for invariant uppercase.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/cilica-reference/library/Cilica.Core/StringInvariantCasing.cs",
+          "sha256": "d8b1ae6c8f538377f7810a586d3cf8967495938878b94277ee47d8045ae7ee51",
+          "bytes": 3563
+        },
+        "line_start": 41,
+        "line_end": 78
+      },
+      {
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-evidence/cilica-roots.json",
+          "sha256": "9bfd3ccd853b172f3d8650d7bac619ee3962adbccd9838600cc3167079d0beb2"
+        },
+        "symbol": "Cilica valid_roots / allocate_string at b8f4628",
+        "finding": "The tested frozen baseline validates published root ownership before allocation and charges bounded managed storage.",
+        "gap_ids": [
+          "decode-closure-validation"
+        ],
+        "original": {
+          "path": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/cilica-reference/src/Cilica.Compiler/ObjectCppRuntime.cs",
+          "sha256": "4738d952ae44428dc086d56ec83f5788ba7c0d67fd2436006854ceaba817a464",
+          "bytes": 31131
+        },
+        "line_start": 280,
+        "line_end": 310
+      }
+    ],
+    "decision": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/decisions.json",
+      "sha256": "ce0b50d169efef10d7d4ca1f4e3a3985158c52c4ae6951cb6de60490b754ab5e"
+    }
   },
   "profile": {
-    "status": "pending",
-    "runtime": "",
+    "status": "measured",
+    "runtime": "unity-il2cpp",
     "kind": "diagnostic",
-    "qualification": "",
+    "qualification": "Selected4cases match oracle and raw3markers are verified, while full32-case equality fails. Mixed Development wrapper batches, not pure Decode timing; universal artifact, process architecture unrecorded, no quiet-host or competitive claim.",
     "output_verification": null,
-    "roots": [],
-    "input_fingerprint": "",
-    "evidence": null,
+    "roots": [
+      "Base32.Decode(in string)"
+    ],
+    "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+    "evidence": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/profile-envelope.json",
+      "sha256": "bfadd26fe6d93c8a5798b1bb43975f0c0427c00a45e893ef84cc9558c6b475e8"
+    },
     "reason": "",
-    "decision": null
+    "decision": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/decisions.json",
+      "sha256": "ce0b50d169efef10d7d4ca1f4e3a3985158c52c4ae6951cb6de60490b754ab5e"
+    }
   },
-  "exception": null,
+  "exception": {
+    "kind": "semantic-reference-divergence",
+    "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+    "alternative": "Pinned .NET is Cilica conformance target; same-input Unity remains a qualified generated-code reference.",
+    "limits": "Only static-reference and diagnostic-profile use. Full Unity equality failed at cases0/17. No comparative timing or performance equivalence; no case removal, output normalization or changed oracle.",
+    "mismatches": [
+      {
+        "id": "unity-null-message",
+        "affected_cases": [
+          0
+        ],
+        "finding": "Same ArgumentNullException and parameter, but Unity uses newline Parameter name formatting rather than pinned .NET message layout. No normalization.",
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/differences.json",
+          "sha256": "08c1494e843fc851232f82629005329bd3aca5a3f1dcceef23a96f3651a358b4"
+        }
+      },
+      {
+        "id": "unity-invariant-long-s",
+        "affected_cases": [
+          17
+        ],
+        "finding": "Unity invariant casing leaves U+017F unchanged (exact emitted FieldRVA table entry); pinned .NET/Cilica maps it to S and Decode returns byte144. Keep .NET behavior.",
+        "evidence": {
+          "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/source-inspection.json",
+          "sha256": "418fd48cec6c5dfa7b64e8a7cb4e8cbbaa93f8980822fe58d4afd74b85392f3f"
+        }
+      }
+    ],
+    "decision": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/semantic-reference-review.json",
+      "sha256": "3454e15ae4b267c62cd56cc1b5f68ea44baae65f9dbdf9329f705c712b7d915c"
+    }
+  },
   "gaps": [
     {
       "id": "decode-closure-validation",
-      "status": "open",
-      "requirement": "Known owned API composition passes, but the exact pinned Decode closure and semantic behavior remain unverified; identify any additional gaps from representative reference/candidate evidence.",
+      "status": "closed",
+      "requirement": "Selected unchanged Decode closure passes every pinned .NET case at frozen compiler b8f4628. Existing owned API support suffices; Unity differences are separately explained and explicitly accepted for source/diagnostic reference only.",
       "regressions": [
         "tools/CompatibilityCandidates/albireo-validation/ApprovedAlbireoExecutionTests.cs",
         "tests/Cilica.Metadata.Tests/InvariantUpperTests.cs"
       ],
-      "implementation": null
+      "implementation": {
+        "path": "docs/compatibility-candidates/batch-018-results.md",
+        "sha256": "62da5d0c8d9599906a07971441f060a1fae3c4ebdfc47dd4941fd01354de65bf"
+      }
     }
   ],
   "validation": {
@@ -184,9 +498,12 @@
       "sha256": "5fafee06c3700a34ce4f9e0e196e6e8c0e0eb26b3f92a5ad21e620cecadafdaf"
     },
     "performance": null,
-    "performance_not_applicable": "Correctness-only isolated run with forcedGC/sanitizers; Unity diagnostic profile pending. No cross-runtime speed or full-library claim.",
-    "review": null
+    "performance_not_applicable": "No comparative timing claim: isolated run is correctness-only; qualified Unity diagnostic profile is recorded separately and full Unity equality fails.",
+    "review": {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/final-review.json",
+      "sha256": "4018474cf349f0f5c923bb66719d198f66d576e577e6040ab1ec4fb63c3f396e"
+    }
   },
-  "next_action": "Isolated selected Decode validation passed. Await approved Unity exact-DLL capture/correctness/profile and independent reference review before closing batch020.",
+  "next_action": "Bounded selected Decode trial complete and verified against .NET at frozen b8f4628. Retain failed Unity equality and the reviewed semantic-reference exception. No new Cilica gap observed; parent chooses any next bounded candidate. No Encode/additional execution authorized.",
   "preparation_plan": "docs/compatibility-candidates/albireo-unity-plan.json"
 }

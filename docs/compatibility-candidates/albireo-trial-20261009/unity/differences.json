@@ -1,0 +1,87 @@
+{
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "status": "failed",
+  "well_formed_transcripts": true,
+  "oracle_observations": 851,
+  "unity_observations": 857,
+  "matching_cases": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "matching_observations": 790,
+  "differences": [
+    {
+      "scenario": 0,
+      "oracle": {
+        "transcript_length": 52,
+        "status": 1,
+        "byte_length": -1,
+        "reference_identity": -1,
+        "output_bytes": [],
+        "message": "Value cannot be null. (Parameter 'input')",
+        "parameter": "input"
+      },
+      "unity": {
+        "transcript_length": 54,
+        "status": 1,
+        "byte_length": -1,
+        "reference_identity": -1,
+        "output_bytes": [],
+        "message": "Value cannot be null.\nParameter name: input",
+        "parameter": "input"
+      }
+    },
+    {
+      "scenario": 17,
+      "oracle": {
+        "transcript_length": 7,
+        "status": 0,
+        "byte_length": 1,
+        "reference_identity": 0,
+        "output_bytes": [
+          144
+        ],
+        "message": "",
+        "parameter": ""
+      },
+      "unity": {
+        "transcript_length": 11,
+        "status": 2,
+        "byte_length": -1,
+        "reference_identity": -1,
+        "output_bytes": [],
+        "message": "input",
+        "parameter": ""
+      }
+    }
+  ],
+  "qualification": "Same pinned input DLL and workload; two actual semantic differences. No normalization or revised oracle. Full Unity equivalence failed."
+}

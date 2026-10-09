@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/tooling/unity-cli/unity",
+    "run",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/inspector-projects/AlbireoInspection",
+    "--editor-version",
+    "6000.3.2f1",
+    "--timeout",
+    "1780",
+    "--",
+    "-nographics",
+    "-logFile",
+    "-",
+    "-job-worker-count",
+    "2",
+    "-executeMethod",
+    "SettingsReadback.InspectAll",
+    "--cilica-profile",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/profile/profile.raw",
+    "--cilica-inspection",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/inspection/markers.json",
+    "--cilica-settings",
+    "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/inspection/settings-readback.json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 7.049628667,
+  "stop_reason": null,
+  "isolation": "normal local account; wall/log bounds only"
+}

@@ -1,0 +1,2229 @@
+{
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "candidate_dll_sha256": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760",
+  "bytes": 114031578,
+  "files": [
+    {
+      "path": "project/Library/Bee/200b0aE-inputdata.json",
+      "bytes": 84465,
+      "sha256": "ff95b845447f6fd29108c467116193ad88e572a4c01cb11cc892d0891336f03f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/200b0aE-inputdata.json"
+    },
+    {
+      "path": "project/Library/Bee/200b0aE.dag.json",
+      "bytes": 319616,
+      "sha256": "2ace7ef2edde4517969e708de1c2cc463e4dbf70c568111cee9ea3b653a3ec49",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/200b0aE.dag.json"
+    },
+    {
+      "path": "project/Library/Bee/200b0aESkipCompile-inputdata.json",
+      "bytes": 3057,
+      "sha256": "d541484d11856d21a435e77833eb7136fd85bb86a060ab1a0307087dfd24ce2e",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/200b0aESkipCompile-inputdata.json"
+    },
+    {
+      "path": "project/Library/Bee/200b0aESkipCompile.dag.json",
+      "bytes": 9807,
+      "sha256": "4c4c74293c5f36cf8e217e55e58948edb5d27fb5357b761e57d71d9fc75e2851",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/200b0aESkipCompile.dag.json"
+    },
+    {
+      "path": "project/Library/Bee/200b0aPDevDbg-inputdata.json",
+      "bytes": 33783,
+      "sha256": "10ef87a2664b316cbd4069ca50d291f0e4c1787c2b462e33b26566357a251cdb",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/200b0aPDevDbg-inputdata.json"
+    },
+    {
+      "path": "project/Library/Bee/200b0aPDevDbg.dag.json",
+      "bytes": 111433,
+      "sha256": "3e9d4a86545766286aeb3a1dc8a1b5fa7f0a435533535a81ad4b075b58dc5633",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/200b0aPDevDbg.dag.json"
+    },
+    {
+      "path": "project/Library/Bee/Player75a3e897-inputdata.json",
+      "bytes": 52392,
+      "sha256": "69541431b0faec3a69dcbd34c98156e5fc433532ca4c9a9a557a5cf7f37c9abb",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/Player75a3e897-inputdata.json"
+    },
+    {
+      "path": "project/Library/Bee/Player75a3e897.dag.json",
+      "bytes": 3363888,
+      "sha256": "69e80ba668af559d0d016837ed7c83a8da5b812a6c5649f79131f00b05a05e7c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/Player75a3e897.dag.json"
+    },
+    {
+      "path": "project/Library/Bee/PlayerScriptAssemblies/Assembly-CSharp.dll",
+      "bytes": 10752,
+      "sha256": "c88e70650b36ae9a65bd639cfd833321e025984ee37e8f61b83557f0fe732e4c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/PlayerScriptAssemblies/Assembly-CSharp.dll"
+    },
+    {
+      "path": "project/Library/Bee/PlayerScriptAssemblies/Assembly-CSharp.pdb",
+      "bytes": 16244,
+      "sha256": "1232580d795abbbd25f9bcb358bd2f25a8f878cad696637ec8ffdb6171d00c39",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/PlayerScriptAssemblies/Assembly-CSharp.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.UnityAdditionalFile.txt",
+      "bytes": 102,
+      "sha256": "c45e374cd20f5fdef2a608e4faaddf041f99c036e7fa2acf64b32e09212d71f9",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.UnityAdditionalFile.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.dll",
+      "bytes": 7680,
+      "sha256": "9d55ba59420c7a0aef586b248894365ddd5750522ac7fde49bf68234b3f16843",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.dll.mvfrm.rsp",
+      "bytes": 12097,
+      "sha256": "a69adf09e9c0f0087a064516a064bc2e0ee5afa2afad57b9f83ed6ae1d62e352",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.dll.mvfrm.rsp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.pdb",
+      "bytes": 20884,
+      "sha256": "27a468343cfeb7ff3f47e062e3c60b21d146e97d6d3be49f49fa8fbef33efedf",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.ref.dll",
+      "bytes": 5632,
+      "sha256": "c2a8cede3b184459c61339f6f45e496fb0d25ec736717d845e16ad60fd88890b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.ref.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.rsp",
+      "bytes": 44981,
+      "sha256": "4925a92c3d7d8907a8fe7933fbf23354515c5cf0130d732263035453b37e37a2",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp-Editor.rsp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.UnityAdditionalFile.txt",
+      "bytes": 102,
+      "sha256": "c45e374cd20f5fdef2a608e4faaddf041f99c036e7fa2acf64b32e09212d71f9",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.UnityAdditionalFile.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.dll",
+      "bytes": 4096,
+      "sha256": "898d63ecefe6b30caaed207725cae95ff2444b265948098a261e2c8af7962a9f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.dll.mvfrm.rsp",
+      "bytes": 8613,
+      "sha256": "6bc3cf951d319aa1a82b4110e7ee4cee55c20ca0c2cf6fdefaf3a364a842d53b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.dll.mvfrm.rsp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.pdb",
+      "bytes": 17520,
+      "sha256": "fb9b50a126640d61d771d60148abe8a2fa8df9e6a86079986497b51a0d69ffd1",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.ref.dll",
+      "bytes": 4608,
+      "sha256": "821309b44d9a3ce54531dfe305c11d309a1ead9cea9eaa58250a53aa8b6504e3",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.ref.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.rsp",
+      "bytes": 38246,
+      "sha256": "df064d551cb0e8d192b2b36b4f30ed3ce2efcb5f7a1fb0012863a9214a4b4592",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aE.dag/Assembly-CSharp.rsp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.UnityAdditionalFile.txt",
+      "bytes": 102,
+      "sha256": "c45e374cd20f5fdef2a608e4faaddf041f99c036e7fa2acf64b32e09212d71f9",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.UnityAdditionalFile.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.dll",
+      "bytes": 10752,
+      "sha256": "c88e70650b36ae9a65bd639cfd833321e025984ee37e8f61b83557f0fe732e4c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.dll.mvfrm.rsp",
+      "bytes": 3821,
+      "sha256": "f356352dd20eb72354b7283bbeea3a8238086965a441b8236b280aad017df265",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.dll.mvfrm.rsp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.pdb",
+      "bytes": 16244,
+      "sha256": "1232580d795abbbd25f9bcb358bd2f25a8f878cad696637ec8ffdb6171d00c39",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.ref.dll",
+      "bytes": 5632,
+      "sha256": "d273a41a35bc13e6ca48d8edb28da9fd1984e4e47e35970f0eba1df94e61a116",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.ref.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.rsp",
+      "bytes": 31301,
+      "sha256": "86887f45f2757a52811e600407ab06484f8ec3b0c3f3a5923b31b8728500a088",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/200b0aPDevDbg.dag/Assembly-CSharp.rsp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ApplePrivacyManifestsMerge.txt",
+      "bytes": 27,
+      "sha256": "031cd95b4bfbf845fa600bf86abf15afee12e2969b3c0791b2563c013328aa83",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ApplePrivacyManifestsMerge.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/Albireo.SelectedDecode-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/Albireo.SelectedDecode-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/Assembly-CSharp-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/Assembly-CSharp-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/Mono.Security-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/Mono.Security-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/System-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/System-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/System.Configuration-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/System.Configuration-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/System.Core-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/System.Core-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/System.Xml-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/System.Xml-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AIModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AIModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AccessibilityModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AccessibilityModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AdaptivePerformanceModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AdaptivePerformanceModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AndroidJNIModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AndroidJNIModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AnimationModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AnimationModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AssetBundleModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AssetBundleModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AudioModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.AudioModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.CoreModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.CoreModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.DirectorModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.DirectorModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.GameCenterModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.GameCenterModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.GridModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.GridModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.HierarchyCoreModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.HierarchyCoreModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.IMGUIModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.IMGUIModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.InputForUIModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.InputForUIModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.InputLegacyModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.InputLegacyModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.InputModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.InputModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.JSONSerializeModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.JSONSerializeModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.MultiplayerModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.MultiplayerModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.ParticleSystemModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.ParticleSystemModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.Physics2DModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.Physics2DModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.PhysicsModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.PhysicsModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.PropertiesModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.PropertiesModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.SharedInternalsModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.SharedInternalsModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.SubsystemsModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.SubsystemsModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TerrainModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TerrainModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TextCoreFontEngineModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TextCoreFontEngineModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TextCoreTextEngineModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TextCoreTextEngineModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TextRenderingModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TextRenderingModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TilemapModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.TilemapModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UIElementsModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UIElementsModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UIModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UIModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UnityAnalyticsCommonModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UnityAnalyticsCommonModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UnityAnalyticsModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UnityAnalyticsModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UnityConsentModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UnityConsentModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UnityWebRequestModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.UnityWebRequestModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.VFXModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.VFXModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.VRModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.VRModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.VideoModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.VideoModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.XRModule-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/UnityEngine.XRModule-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/mscorlib-FeaturesChecked.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/Features/mscorlib-FeaturesChecked.txt"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/HashCache/AlbireoReference.app-fe56e336.json",
+      "bytes": 6311,
+      "sha256": "c821608dcf0a7e4d33cf40d3a90a611c21a15d16762635ad95e6e1c75210cb91",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/HashCache/AlbireoReference.app-fe56e336.json"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/Albireo.SelectedDecode.dll",
+      "bytes": 6656,
+      "sha256": "0af47461613a4c0e1a51b0838b2e967ee79176c63f9244d0922a88db8979ab60",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/Albireo.SelectedDecode.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/Assembly-CSharp.dll",
+      "bytes": 10752,
+      "sha256": "f6a70f7b0f1cfcb57c0c4633e1aa90618c5c362fead34d0bd00fa59a574dca5a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/Assembly-CSharp.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/Assembly-CSharp.pdb",
+      "bytes": 16248,
+      "sha256": "8e8025b90a24fd91c0d43ca80a52fc36b37c6a56aa27b1c4015c6f6660136cdb",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/Assembly-CSharp.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/Mono.Security.dll",
+      "bytes": 8704,
+      "sha256": "a990b0e8d274d7d26aae1d460177c944fd5a8cb3aa741fc0fc1e2f1a1821563a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/Mono.Security.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/System.Configuration.dll",
+      "bytes": 5120,
+      "sha256": "412bb797603f5839b178f5b51ba1957d2b32133e0db47dac7a2c3a781350216a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/System.Configuration.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/System.Core.dll",
+      "bytes": 26112,
+      "sha256": "c3b43139854185c08e73ce7d950356837577a29b00f21c551423913e2f152337",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/System.Core.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/System.Xml.dll",
+      "bytes": 14336,
+      "sha256": "49519253d566e42042086548098d69b8e9ec247e856393d2c417684c9b19887a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/System.Xml.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/System.dll",
+      "bytes": 163328,
+      "sha256": "b673ddf9e385298de1cc1473758cb975e72ecdd16e4d1d85858df925b5d7d506",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/System.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AIModule.dll",
+      "bytes": 14336,
+      "sha256": "9291e6e7c63f0a24593131d18ccd1e9bafa529225750fe11e34c45269da5ac8d",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AIModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AIModule.pdb",
+      "bytes": 9536,
+      "sha256": "11668b56fcec2b330935f8f78d81221b80d02a95f79e1ba43d1ea86577ef51de",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AIModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AccessibilityModule.dll",
+      "bytes": 23040,
+      "sha256": "1e5ac34865ab69c0f171f234717f829df11bad42b5f8b6265be9a891adbd09c3",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AccessibilityModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AccessibilityModule.pdb",
+      "bytes": 17100,
+      "sha256": "5a94f673a563189bac024c5cd9a8ec8e83b50ea571221120b8a79f653234a40e",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AccessibilityModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AdaptivePerformanceModule.dll",
+      "bytes": 101376,
+      "sha256": "095b48677e72f90c1da63b363ec45030abbc47035b1086ef78d0ac8cdba2bf8d",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AdaptivePerformanceModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AdaptivePerformanceModule.pdb",
+      "bytes": 47396,
+      "sha256": "bfff973cc1e5700146243dc695be16d6d090daeb9230d67814b9eda54b2130dd",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AdaptivePerformanceModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AndroidJNIModule.dll",
+      "bytes": 62464,
+      "sha256": "529f2c524348e484a2f7bfec21263153806fa7706065b5f61db657ec834b763c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AndroidJNIModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AndroidJNIModule.pdb",
+      "bytes": 30924,
+      "sha256": "9b1f761bb7e0ec1ab2140d909c2b708482e4a88b1ed1ffd563155a44f0ae6f05",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AndroidJNIModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AnimationModule.dll",
+      "bytes": 26624,
+      "sha256": "cdce3dc9147f68d3cf8f5fe17b3916ba38d7fd87f787a8b550b47bac07146816",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AnimationModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AnimationModule.pdb",
+      "bytes": 13852,
+      "sha256": "323103f5c4a571dd97f3ff48dad0f7e58618bc574bf47408868f168c68821f35",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AnimationModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AssetBundleModule.dll",
+      "bytes": 14336,
+      "sha256": "2becd6c1749ad21b15cf6ee27fc783a43919ead0a1bb161b8632e9a04273b252",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AssetBundleModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AssetBundleModule.pdb",
+      "bytes": 9160,
+      "sha256": "60e738a601bc174c851ed1ba2143e59d25b391d24fad730d3a3b447568676425",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AssetBundleModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AudioModule.dll",
+      "bytes": 24576,
+      "sha256": "2b44a5415e6ef72ccaf1028781b43a5d8bb82e9c51c4b08d7c911f08ea45cb2c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AudioModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AudioModule.pdb",
+      "bytes": 12664,
+      "sha256": "d6b296482d678cf90f7f747e3ac2f3740bc8c26c977c5adbef938f1d415c540f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.AudioModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.CoreModule.dll",
+      "bytes": 345088,
+      "sha256": "3dbedc282ec1f96ea95afaf0e49391e1b4028e0064cce55776abd8c111d04668",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.CoreModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.CoreModule.pdb",
+      "bytes": 121404,
+      "sha256": "5eefd66d5b88f1d71f3dada5761ad7e552688e11c451ef2b524fdd498df42685",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.CoreModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.DirectorModule.dll",
+      "bytes": 18944,
+      "sha256": "69c015d4012c0d5a5f46bb14882cf3d1ed7b3747b7d5f4adbe9757106d6cf239",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.DirectorModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.DirectorModule.pdb",
+      "bytes": 11164,
+      "sha256": "f7898f48d067355bd4c7533ffefc1d82f01192a44730a1b2cf3ad09a162f75ee",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.DirectorModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.GameCenterModule.dll",
+      "bytes": 25600,
+      "sha256": "683715854a5e338380a0324efeaee36e5c749221f540d9fd4b0380ea8a1ae6e4",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.GameCenterModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.GameCenterModule.pdb",
+      "bytes": 13024,
+      "sha256": "c05fbe53b3e92c1b00350709156d992bd17fd4674fa0a8081f7fc56ca1d94459",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.GameCenterModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.GridModule.dll",
+      "bytes": 14336,
+      "sha256": "a857f649e4a775d8298918bb8e95d9ce133c198478524d83e57b148b19a2584e",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.GridModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.GridModule.pdb",
+      "bytes": 9368,
+      "sha256": "8cd495ec4e47dd815c6619f05e7ee9667ec86a3a831c0d19d685087611a47b47",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.GridModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.HierarchyCoreModule.dll",
+      "bytes": 24064,
+      "sha256": "79ecf34669e0cd048719e275c1d4a998477aaa822f6dc12ff3bc683cdf56080c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.HierarchyCoreModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.HierarchyCoreModule.pdb",
+      "bytes": 16792,
+      "sha256": "5ff7be0d55e52a78b8acf7521e97e95266840d0ab28957e70ab697194069650b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.HierarchyCoreModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.IMGUIModule.dll",
+      "bytes": 68608,
+      "sha256": "7d48d9299d3597951f21c4fc454911d4fe5edcb2aff65f0449fe0e25318d6082",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.IMGUIModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.IMGUIModule.pdb",
+      "bytes": 31820,
+      "sha256": "cb10b91712c31bd773e23d781417adc6ca483d6186953620ce5d52415828b583",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.IMGUIModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputForUIModule.dll",
+      "bytes": 35840,
+      "sha256": "c453fe59f9691b3b7a0ff65cc3866ea8862052d7ed26e2505bb45822eacb2b29",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputForUIModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputForUIModule.pdb",
+      "bytes": 21676,
+      "sha256": "d0fdafac81b2bddf5737d3ba75197ad9676c74546a2a72f0b616506b5126befa",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputForUIModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputLegacyModule.dll",
+      "bytes": 22528,
+      "sha256": "1c75f215575056114a22077572a20c30cdcbfb72565269dc5305b0b6f5ce4fd7",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputLegacyModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputLegacyModule.pdb",
+      "bytes": 12036,
+      "sha256": "82f0cb4cfa835a586c34088dae26043b60dbd69468ce369b4a71b130393c2497",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputLegacyModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputModule.dll",
+      "bytes": 15360,
+      "sha256": "efafb4503247ff23d358e4929b9c514f32fe83e1f5fda18e0ecd5afd77480e2d",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputModule.pdb",
+      "bytes": 9920,
+      "sha256": "67e4fa11725b5410043d127383b4c145faafa09cb809ca18fcf20557acb60c39",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.InputModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.JSONSerializeModule.dll",
+      "bytes": 14848,
+      "sha256": "bc49866bc598b877832cf7dd6bd72226ca08185c0beabe8dde7933c7286eec2b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.JSONSerializeModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.JSONSerializeModule.pdb",
+      "bytes": 9504,
+      "sha256": "e2dc06a2b130ac7b7edcfb9f393d139fe32787617a083fe7cb4259ae023403cc",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.JSONSerializeModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.MultiplayerModule.dll",
+      "bytes": 4608,
+      "sha256": "2d29718c7f87e8b9727508d19b201c016c96193a7993ecfc000c1ce1aca27d10",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.MultiplayerModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.MultiplayerModule.pdb",
+      "bytes": 9532,
+      "sha256": "dedbe6c9d741a7046369202c9ee46ae21aafa92c23188931438b75458b25da90",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.MultiplayerModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.ParticleSystemModule.dll",
+      "bytes": 19456,
+      "sha256": "11d0a8188ebcf56179b77784c0f589ad0f9bfd850bc34f00ce1878bb19af9ac0",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.ParticleSystemModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.ParticleSystemModule.pdb",
+      "bytes": 10504,
+      "sha256": "21e4a97d095a6232176ccb41e190d070f1af7da65a85b378914101de122e1145",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.ParticleSystemModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.Physics2DModule.dll",
+      "bytes": 76800,
+      "sha256": "6ad31969c59cc1abfd85f9fb259d3f20fb2c9977f41b7810e12d67c9a75ee591",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.Physics2DModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.Physics2DModule.pdb",
+      "bytes": 28368,
+      "sha256": "d444a1c868f1641560dc0f7668870e525a6d71c2a48b5fcc7ef9c59be9240cfd",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.Physics2DModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.PhysicsModule.dll",
+      "bytes": 29696,
+      "sha256": "d9c86721ba24655f7838fc8ea771d22f6ab18ebe4d0c1bd51e22319e85c63867",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.PhysicsModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.PhysicsModule.pdb",
+      "bytes": 14340,
+      "sha256": "682396442aa517110e1f0de8f129b5c918cb965539699b0489c3ba1467616d20",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.PhysicsModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.PropertiesModule.dll",
+      "bytes": 42496,
+      "sha256": "a14eb07481ba1a098808a4ba35c0e5b1916963ad513a6eb298ec28b85542b512",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.PropertiesModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.PropertiesModule.pdb",
+      "bytes": 23440,
+      "sha256": "b11eb2212dd13cd6c00e64dd8685d72ed0d7d4bb8b15de364369382b26d11ef6",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.PropertiesModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.SharedInternalsModule.dll",
+      "bytes": 20480,
+      "sha256": "a1fcd462a2339e0c96b59fcb1f6f830e2d0a496fd1617a9b52b72482f38bc964",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.SharedInternalsModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.SharedInternalsModule.pdb",
+      "bytes": 11612,
+      "sha256": "cec565d39afb483699aec0baba58950e125aff44902eb90ac74b84c9d7bb0e0a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.SharedInternalsModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.SubsystemsModule.dll",
+      "bytes": 22528,
+      "sha256": "6bc285a866ef188e3e2d7bdd404ab0aaae693829298197c08f383a6cac5210a1",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.SubsystemsModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.SubsystemsModule.pdb",
+      "bytes": 12536,
+      "sha256": "c892b1166052ef4dec07f0d920d95824e66eacfacc6902bd3cf21c9ff5d999fa",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.SubsystemsModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TerrainModule.dll",
+      "bytes": 22528,
+      "sha256": "48e2e92f71a1524e40ab4525c801217de51363a69fedd8baa5b4b23d29938222",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TerrainModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TerrainModule.pdb",
+      "bytes": 12688,
+      "sha256": "0cf13ac8f5ec14640b38f19ca0347f00f53c34f60863378b5d96a1d07e41a0fa",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TerrainModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextCoreFontEngineModule.dll",
+      "bytes": 31744,
+      "sha256": "9a5f244d210702cd5f026e30c22f60c640cd0bf5abe7cef0edfbeda77009c4e2",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextCoreFontEngineModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextCoreFontEngineModule.pdb",
+      "bytes": 18008,
+      "sha256": "62d6a8c13455933f173e544546b6efb73e21a2820c20a38045cb65687b0b77c3",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextCoreFontEngineModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextCoreTextEngineModule.dll",
+      "bytes": 267264,
+      "sha256": "21ed6f7aa5154a9b8bda3326e3277e295742831fcf5b2a34e51b3cc43542d17b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextCoreTextEngineModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextCoreTextEngineModule.pdb",
+      "bytes": 122436,
+      "sha256": "26abf07bae3cff25be09ef71e414fe36c8e18338e5acfbcfd038441222c2de06",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextCoreTextEngineModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextRenderingModule.dll",
+      "bytes": 6144,
+      "sha256": "8366cd7608c696b377859def2893062d08d6d80016ff4effa932d38c572076d6",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextRenderingModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextRenderingModule.pdb",
+      "bytes": 9816,
+      "sha256": "8a17eb4b8db67024324a9ca454acec51ee20e887a9e81af226b9eee9672a3247",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TextRenderingModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TilemapModule.dll",
+      "bytes": 23552,
+      "sha256": "dc4aea3ab192d95a56aa40cd34d7090932fdbb975a2d3b5e11ccf5fb94b1964f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TilemapModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TilemapModule.pdb",
+      "bytes": 13400,
+      "sha256": "89cfce04aa3bf619b812c6d372265b35f74be6e107fe1942972a1b89652264c0",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.TilemapModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UIElementsModule.dll",
+      "bytes": 18432,
+      "sha256": "bfa28ac1ca5d14512bc771b4a5c870ccd7f6b60cd116ea99cbd7552bd10c1cbd",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UIElementsModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UIElementsModule.pdb",
+      "bytes": 14404,
+      "sha256": "c1bbc9af9d354fd0760f27c948a834f1e09957153e996d5e1e79e7411f606f9f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UIElementsModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UIModule.dll",
+      "bytes": 15360,
+      "sha256": "106cffa67327c717bd8838e7531022898065e118012b8bd951781c0343b32da8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UIModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UIModule.pdb",
+      "bytes": 9752,
+      "sha256": "4fc566e6f9e3859f9ad2238bbf68bdbc1b2b27e1e13490f540c94c1dc1396da9",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UIModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityAnalyticsCommonModule.dll",
+      "bytes": 22016,
+      "sha256": "c0302355c5c5345861982cf5942c8d4675d889522e243dbd5458f0ac067a3a6d",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityAnalyticsCommonModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityAnalyticsCommonModule.pdb",
+      "bytes": 13064,
+      "sha256": "a1d7a62dcbe7cd7d160c1a3b995e80e08f713805341a986b979581edd82c8533",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityAnalyticsCommonModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityAnalyticsModule.dll",
+      "bytes": 16384,
+      "sha256": "4e2bd5ca2b3a0604dd5c8d49f74fc5fa61aeddeab2a3896850cbc689bdd12587",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityAnalyticsModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityAnalyticsModule.pdb",
+      "bytes": 10448,
+      "sha256": "6ac7e716b9828e6009a2195f45d1c724d58ad08baa87e4f212bb9a4c6bb2b5c1",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityAnalyticsModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityConsentModule.dll",
+      "bytes": 4608,
+      "sha256": "a5f1d59ba35bb83889593c3709b99bbc5913601d60485840fbcb749d83eae328",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityConsentModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityConsentModule.pdb",
+      "bytes": 9728,
+      "sha256": "a5c60432d268c2592a8b2da8046c84c1886ad4cd025e45da1574969ca3efdf8a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityConsentModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityWebRequestModule.dll",
+      "bytes": 15360,
+      "sha256": "7f0c23aa7f03b5e12eb3bdb424ad2e5420b0f70c4cbc26da6e336b25eec2157b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityWebRequestModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityWebRequestModule.pdb",
+      "bytes": 10448,
+      "sha256": "f89d6cf25802e701fde8a8a6e63f01ced0d235c8915ebdce3bf32f554fea9e38",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.UnityWebRequestModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VFXModule.dll",
+      "bytes": 20480,
+      "sha256": "7144b3942f8632553902d8c44dcf30493429b10251e1b4d24e647e51a6e7fc2f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VFXModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VFXModule.pdb",
+      "bytes": 11464,
+      "sha256": "26e9d33409a5472ee5f7f774dc528d10372235853467aafd05467a94ba1caf12",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VFXModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VRModule.dll",
+      "bytes": 14336,
+      "sha256": "973676931fa5378e53faa0e222213f835cd080162e52b220c9c7e1a07fb28fd2",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VRModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VRModule.pdb",
+      "bytes": 9812,
+      "sha256": "998177acee342c191550d715da88db4cb774ac155f2bf6e194e815d2749112e8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VRModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VideoModule.dll",
+      "bytes": 8192,
+      "sha256": "79d1fad273434ef31f8c86c6d085736aab18210c9f7dd74451127f9bbddf4daf",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VideoModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VideoModule.pdb",
+      "bytes": 10368,
+      "sha256": "11264596673d6124c3c716c7f0b12587faddc9b91f875dd794c2e55f33171d21",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.VideoModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.XRModule.dll",
+      "bytes": 25600,
+      "sha256": "bd8f854da49b3e363b9a5e8b32dcf2c957e50e6692aefa934c89517396cb62fc",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.XRModule.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.XRModule.pdb",
+      "bytes": 13272,
+      "sha256": "d15e83ad28ded6e13bbd26d145ae3981c33db5f1df52e1eebfdaf661816a1c2d",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.XRModule.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.dll",
+      "bytes": 54784,
+      "sha256": "ab25c0d52d6562dc316162df8018b1869b68318120b2de055efa4f7b5ed79504",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.pdb",
+      "bytes": 12016,
+      "sha256": "dcd0b27a7fd98af77d48ebad631cf3ca82f54472deaea78493b8ef429474c5e5",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityEngine.pdb"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityLinkerToEditorData.json",
+      "bytes": 5798,
+      "sha256": "18caadfe9dce8361a25af18e2e3b0cf39e929e52814af858a03fe9dd2d9b5f44",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/UnityLinkerToEditorData.json"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/analytics.json",
+      "bytes": 2699,
+      "sha256": "b7f2b0150f5d7560c2a5084961158fbb73e51bbf68a73c0a41eec045f9431c6e",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/analytics.json"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/mscorlib.dll",
+      "bytes": 1777152,
+      "sha256": "6462d61464ff81020ef238e731e800d61b32a9685560ace0118200a7cd3caa47",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/mscorlib.dll"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+      "bytes": 75857,
+      "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Assembly-CSharp.cpp",
+      "bytes": 112493,
+      "sha256": "7bf79ffff5917f4160ac5261723808178afc4a8a30812ab7421edbf17a0bbeca",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Assembly-CSharp.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods.cpp",
+      "bytes": 1269266,
+      "sha256": "7fe17d1e0c90dbee893e1774b11455ac09e38ac6a466f1d39571c0e77eb271ff",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__1.cpp",
+      "bytes": 1601844,
+      "sha256": "438f833ac670e54b8cce13c89c43f105c8c8fcafa4e9835d28fb4bc42ade9dc8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__1.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__2.cpp",
+      "bytes": 1409087,
+      "sha256": "e885081861229a7353587e71914290723a7b35a8a2c32c546c6b5462d4580137",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__2.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__3.cpp",
+      "bytes": 1241426,
+      "sha256": "f7dfbb8aca90ed16c679397fe633b6e47e686d0e2dd7a598eb9ec1ab273c3a55",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__3.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__4.cpp",
+      "bytes": 1362978,
+      "sha256": "14e4387bc9d90da401c0a320a59f057afcefc0860802a77c545b01997a5e9340",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__4.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__5.cpp",
+      "bytes": 1542676,
+      "sha256": "94eda903eab6cb1c0c4d27b47abf7b0348ba082f0b4cf7b611616e8f20afb13f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__5.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__6.cpp",
+      "bytes": 679695,
+      "sha256": "fcb2ee5b8b0f7a0789663e739b59e1f08b2d4023a3af2fd0d2227ed00848d624",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/GenericMethods__6.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics.cpp",
+      "bytes": 2559292,
+      "sha256": "9a216ae17b461cbb460a1703176c1fdcc7943f59e16707c6bae6e00753f3aa02",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__1.cpp",
+      "bytes": 2099455,
+      "sha256": "21fab8fea89245c0347dbe3b62ac4034d217cefc1db77e5dce2648f4ee86e7fe",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__1.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__10.cpp",
+      "bytes": 1174608,
+      "sha256": "927a1460458f320fdc39cd21e6f384e95d7c99795f5491ae3f1ff08f3f47d157",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__10.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__11.cpp",
+      "bytes": 2223867,
+      "sha256": "2eb60c5516868dd2da2d5fdff71162f92690b1f4445c33ecd114e479d5a0313c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__11.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__12.cpp",
+      "bytes": 1842482,
+      "sha256": "5f7ec69d014c62d578263afba106c716bd78518986b0d772568011948073bc10",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__12.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__13.cpp",
+      "bytes": 1080978,
+      "sha256": "f5728e74b36d63e940aceb223cf639f5c68816c337101212774896ddafa5c37a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__13.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__14.cpp",
+      "bytes": 1009401,
+      "sha256": "9279fcf3d83228302bb5264f30b02f799428aa8427c466343ee3cddee814f01e",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__14.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__15.cpp",
+      "bytes": 1519685,
+      "sha256": "99d707d9497b63dec8188c3cebb1f2c20103a78c97f89e152cb183aa4845826b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__15.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__16.cpp",
+      "bytes": 1612336,
+      "sha256": "4b833c081db373443f2ace0811c370a0446449b90e3be216371bb28d52143ffa",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__16.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__17.cpp",
+      "bytes": 1192631,
+      "sha256": "8017ab03a4a4a28d010586ef66e8af05f1bfe33e493f0e212d1bfea9506b7dd1",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__17.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__18.cpp",
+      "bytes": 1933569,
+      "sha256": "8eb88135912bb50cc441e5c13ae2eed29a12ca6345a7deade8e23fff0fbac723",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__18.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__19.cpp",
+      "bytes": 1484518,
+      "sha256": "4a499c7a4c465e24312e197bb410106f86750e5d809fd76f82a3cc5d36dd70f1",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__19.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__2.cpp",
+      "bytes": 1623364,
+      "sha256": "7e583c409e5e6bce5b76449eee646484569f786b476669412fc1396a41922d7e",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__2.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__20.cpp",
+      "bytes": 1142754,
+      "sha256": "8807c4f222be752761e3eaf9d83784b07e2c7d877e58b6feb1a8c7e9d494c989",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__20.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__21.cpp",
+      "bytes": 1077788,
+      "sha256": "b10cf7b417089cc22349b877756630c4b4a24fa61f93de0d36c0a1e651c84b51",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__21.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__22.cpp",
+      "bytes": 1109612,
+      "sha256": "e25264d86eef90580f137c5492dd71630e5ad54285ce59aa8574a4025254e7a3",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__22.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__23.cpp",
+      "bytes": 1395775,
+      "sha256": "5a0a7fe79989b75eb07d9f9ff4b48dea17ed59b187495f1ddd8f72cad9bdc40b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__23.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__24.cpp",
+      "bytes": 1557229,
+      "sha256": "70d7b6ce189166c57bf08494a3a439ebe491aa4a4f54ac74b556a0403f270ea2",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__24.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__25.cpp",
+      "bytes": 1071708,
+      "sha256": "e12fb3cac3d9198000126bc984c30e3896e1ed6ee96e89866b2cce0140a8dd15",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__25.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__26.cpp",
+      "bytes": 480057,
+      "sha256": "0b93941d8b4ead927ac22285003784da4de1b94ad5dd36e410d2363e2e10be02",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__26.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__3.cpp",
+      "bytes": 1024014,
+      "sha256": "92630eabc78293d868f716186158dfe3e7b31d0994797cc2ed95549a74bebefc",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__3.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__4.cpp",
+      "bytes": 972673,
+      "sha256": "9d64699f256e00e3271a6789abcfb52fc96456312270a07f058c7a44db8ea7a4",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__4.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__5.cpp",
+      "bytes": 884270,
+      "sha256": "26ae1bd6b302c701e7b6c8e00d73ea39d23930fdac464db1340f7b5c58b09a6c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__5.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__6.cpp",
+      "bytes": 2562016,
+      "sha256": "bae3aa1fe470eb4c59ce8ceddb86cd560a30e08a267de496d2d3006d5b5af9e1",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__6.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__7.cpp",
+      "bytes": 1884684,
+      "sha256": "3cb31a96e2bb65222b4aad82d3548447cd434018d2ac6b298b4dd3ad9f69ed22",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__7.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__8.cpp",
+      "bytes": 1312839,
+      "sha256": "735cfb8f2a920395f14497da15300cd4dcf2b1daae34ddb337c33d7d4db72f69",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__8.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__9.cpp",
+      "bytes": 1235386,
+      "sha256": "e135ea061358264af8b3f20b7420bee6cf15a85938efc041724a9dfbe5ee4276",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__9.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppCCalculateFieldValues.cpp",
+      "bytes": 1883304,
+      "sha256": "077d658802db392d072488c2a5b14b4f20a2e976f89c670af693b70c1c35024f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppCCalculateFieldValues.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppCCalculateFieldValues1.cpp",
+      "bytes": 133135,
+      "sha256": "8135a3aabb3ab9bccdf554b44719f9753802482ff1a09b20ec579fe068c7448b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppCCalculateFieldValues1.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppCCalculateTypeValues.cpp",
+      "bytes": 1803619,
+      "sha256": "6ff087d8323d7749871fe7356278266ff048afbfcc3b6d61981f29ad7f2c9aad",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppCCalculateTypeValues.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppCodeRegistration.cpp",
+      "bytes": 8054,
+      "sha256": "dfb02001186bf213e87505cf7457cb15ec1a0d015b0ce6f4396b23dec2386861",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppCodeRegistration.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppInteropDataTable.cpp",
+      "bytes": 278868,
+      "sha256": "c0f33e8ec82407ccb8ed92987e74844bd87fa8cd626cc726587414221f0b1b8c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppInteropDataTable.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppInvokerTable.cpp",
+      "bytes": 4359342,
+      "sha256": "258d0bcb25cd785be99dcda46b6f31583afa3326c05d1a479ff79aff186c170b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppInvokerTable.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppReversePInvokeWrapperTable.cpp",
+      "bytes": 1620,
+      "sha256": "77203297b2ce23b0acedccfb1b908d4f50d6b04fc9e2ba7e88a8277bc5de6c4c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppReversePInvokeWrapperTable.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppToEditorData.json",
+      "bytes": 8780,
+      "sha256": "090144a89bb2f37929b04d880c504187b636dbbea0358a8d85df9087faf7589f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppToEditorData.json"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppUnresolvedIndirectCallStubs.cpp",
+      "bytes": 415571,
+      "sha256": "33e370c005b9a6676a622b914ce72931a679baafae1129721932dcf769543bfd",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Il2CppUnresolvedIndirectCallStubs.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Mono.Security.cpp",
+      "bytes": 85308,
+      "sha256": "67327b7776e8261bf4fa82f8c30ca33552f144959cf7dde20b38d09660998c87",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Mono.Security.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System.Configuration.cpp",
+      "bytes": 24952,
+      "sha256": "9bddaa636cf2a258a3d38a433451bf15f0f590fe495236fa59a37b26dfb4428a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System.Configuration.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System.Core.cpp",
+      "bytes": 97459,
+      "sha256": "45200cfd79711a08cdde46161fa8df4fcec024934303cab5c273f3a013e511f9",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System.Core.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System.Xml.cpp",
+      "bytes": 85731,
+      "sha256": "c6e10be0b8d25e1fadb37bec418c3ad5ced37a5c4f3d038bff7966a37faeb2b4",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System.Xml.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System.cpp",
+      "bytes": 694999,
+      "sha256": "85d552f4237ba089583f816e1931b9928a30ccd64a3d3d1c846bd9587aaa8525",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System__1.cpp",
+      "bytes": 1135778,
+      "sha256": "4d73b86d597006bc60c3f9501c2904563afe3ac50c07fbb604c77d4fd7ae1cb4",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System__1.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System__2.cpp",
+      "bytes": 885791,
+      "sha256": "f1a910151ebbf90bacfd1b295c0971e169bd1174554c842579a16041568e2a00",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/System__2.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AIModule.cpp",
+      "bytes": 12044,
+      "sha256": "a84a2c178d5220869e2c46fe14c0dacf8e66dee8d0da1facfcfa950becc9a5cb",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AIModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AccessibilityModule.cpp",
+      "bytes": 331073,
+      "sha256": "b6de58e7f2f57b3f0e823e03863bbfe97c608a9d1d6314cc82bb1e2b9113babf",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AccessibilityModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AdaptivePerformanceModule.cpp",
+      "bytes": 1244558,
+      "sha256": "8e4738662dd542a3c0daf62cba008287a11954cf271fe9b7e603236e8bd3230f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AdaptivePerformanceModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AdaptivePerformanceModule__1.cpp",
+      "bytes": 48523,
+      "sha256": "dc3c3c549b0e8316ae02f6fa9615893958facb7a39385b6e812f59405b522751",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AdaptivePerformanceModule__1.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AndroidJNIModule.cpp",
+      "bytes": 754684,
+      "sha256": "336b9af57e4e0a1a2161e6b93838f9f98f9411dc6520277cff9f229cd9ca0192",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AndroidJNIModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AnimationModule.cpp",
+      "bytes": 180074,
+      "sha256": "d87833c2143484db39be9550d2eb0dcc5bbe8a35aa2079e7541598a338e1cc25",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AnimationModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AssetBundleModule.cpp",
+      "bytes": 25566,
+      "sha256": "33eb8be337636ab04d9ddb62e600c82722e2733ff8b60feac757ff924d083b79",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AssetBundleModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AudioModule.cpp",
+      "bytes": 140005,
+      "sha256": "cf8303dd2fae85b0244a154699a010a84ffd8de80c5eb1dbe50e9430ed763322",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.AudioModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.CoreModule.cpp",
+      "bytes": 1785920,
+      "sha256": "0ae85d5ba86ec35b77d6ba9d8878ae337f3028a33e43759ea1e20963029123b9",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.CoreModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.CoreModule__1.cpp",
+      "bytes": 2047303,
+      "sha256": "db0c0a65aa1d2d421416bb51597eb126d548f829fc39fa8b79e262847f658bfb",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.CoreModule__1.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.CoreModule__2.cpp",
+      "bytes": 504027,
+      "sha256": "dd9db0182d501beb4977dfa6311aac390b7d7bd14bcddd78d5ec06339711f1d3",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.CoreModule__2.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.DirectorModule.cpp",
+      "bytes": 65615,
+      "sha256": "94fa7aa4e01bed91dc0959b64ab554356dd699662763e0f9333c4d504441fdec",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.DirectorModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.GameCenterModule.cpp",
+      "bytes": 205105,
+      "sha256": "71ad50112d558a69b582546e030e5c743fa8a6f8bbf8b9cce022ad6faf6fd0b8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.GameCenterModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.GridModule.cpp",
+      "bytes": 2267,
+      "sha256": "89126278af08aea26ed7af0d7b1e8b3dee2fd7d415017a483b05b7c04922675f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.GridModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.HierarchyCoreModule.cpp",
+      "bytes": 390035,
+      "sha256": "6fa45b921964dd613f056f53cf0f6224e69233472df0a0cf2ab7e837302a8f45",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.HierarchyCoreModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.IMGUIModule.cpp",
+      "bytes": 893480,
+      "sha256": "29b140574a2769029a37c7ecc3021fae794004f06cbb7b3caf75bb31254baf4b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.IMGUIModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.InputForUIModule.cpp",
+      "bytes": 573357,
+      "sha256": "29bf71ebef6199add9903e337bedfd6ab3b2d05bbf2caab8dea37bc0cbff17a4",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.InputForUIModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.InputLegacyModule.cpp",
+      "bytes": 172645,
+      "sha256": "b8af14743c85a7811a6b2646502557f146a8bbb05ecb36ef768666a837a7ac1c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.InputLegacyModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.InputModule.cpp",
+      "bytes": 26731,
+      "sha256": "0980a636d4f18183573bab8d83965009c6360a1eb5847d26a028d1471f77b1b8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.InputModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.JSONSerializeModule.cpp",
+      "bytes": 14245,
+      "sha256": "97964e37eff41ec7c4bdf76730cec92ab374b0220715ecdc62d65555dad58f5d",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.JSONSerializeModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.MultiplayerModule.cpp",
+      "bytes": 5793,
+      "sha256": "cfb925b84d7320a3b8b58c387247ce8b324632b451290e03e2183b813a281023",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.MultiplayerModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.ParticleSystemModule.cpp",
+      "bytes": 51138,
+      "sha256": "1f20e1e3defd63d6df00852ec66b8ffd146b80dfa5c9f68de8d6296250770714",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.ParticleSystemModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.Physics2DModule.cpp",
+      "bytes": 1197699,
+      "sha256": "e86de1e4e7213371d507a9c1e978d71acef4c0b9c560f957d84022a2c98c77bb",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.Physics2DModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.PhysicsModule.cpp",
+      "bytes": 263112,
+      "sha256": "9b0ef1a8f23556aa97cd1be27fc22017c8d2a8f795c360b56dc281f2b2ea0b15",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.PhysicsModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.PropertiesModule.cpp",
+      "bytes": 412670,
+      "sha256": "99f128fc08b41617c927fddc444baf5346a1f0d195860aac230ecec4aa567346",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.PropertiesModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.SharedInternalsModule.cpp",
+      "bytes": 71977,
+      "sha256": "a1c82fecbe0fa24d74db16277552d302ad04379c53483d870e1fec4ac8c1eaca",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.SharedInternalsModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.SubsystemsModule.cpp",
+      "bytes": 108953,
+      "sha256": "c1c9c838ac4fa38b51e9b286437d9b0c7a1f63292752d2b4afe4769739e0f86d",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.SubsystemsModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TerrainModule.cpp",
+      "bytes": 186166,
+      "sha256": "6dbc1353df396236d9833967fd367c6b702b43457525267602e3725f91f06300",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TerrainModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreFontEngineModule.cpp",
+      "bytes": 497669,
+      "sha256": "da4945a0e03eccd7d9b518d5f39cf7f1003647f5f5f07a57eaeaf6e731fcaae5",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreFontEngineModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreTextEngineModule.cpp",
+      "bytes": 1484329,
+      "sha256": "cf0b37dc64d4525587dec0775904da106cb12625a707e426dbef912ada85de11",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreTextEngineModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreTextEngineModule__1.cpp",
+      "bytes": 1689465,
+      "sha256": "88ef7065ad8a36ead550f50293d5b32b3471e774a2dd01d104fdef0652b6f641",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreTextEngineModule__1.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreTextEngineModule__2.cpp",
+      "bytes": 1397345,
+      "sha256": "e22baf07531da44d2a06d36ab8a1ca5f7b0a787834fc7208dae474a11b14a16b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreTextEngineModule__2.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreTextEngineModule__3.cpp",
+      "bytes": 162821,
+      "sha256": "aa92258c39a20106e1affa75ad10ff592f26a671bc9a6ed045a9ffbef1a67609",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextCoreTextEngineModule__3.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextRenderingModule.cpp",
+      "bytes": 34719,
+      "sha256": "e431c4f033aad7264140b967e9b6481acc728f7b77cddf0b015b628742ab43f2",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TextRenderingModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TilemapModule.cpp",
+      "bytes": 148216,
+      "sha256": "117c999186f95c35593dbd3a82c829e2d9bb056dc90d3e3ecc0e6598de7c7ceb",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.TilemapModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UIElementsModule.cpp",
+      "bytes": 155865,
+      "sha256": "ae4a8666a0bd9cc6953f166a6f33da758a8fbbb6712f5227df740f011ea9dc6c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UIElementsModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UIModule.cpp",
+      "bytes": 23224,
+      "sha256": "d3ebbb100589c72c2286f4c6f6acdb46b0067a6634e79945ac422cb30cd4637b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UIModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UnityAnalyticsCommonModule.cpp",
+      "bytes": 331406,
+      "sha256": "ab88e08e969f24254d59283347930e4c1bdf03f28d79ad62368c87807ed9ffe9",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UnityAnalyticsCommonModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UnityAnalyticsModule.cpp",
+      "bytes": 40386,
+      "sha256": "5c3874287b73c31e028e893ac5166d4c940ee32cda0cef37f5394baded580567",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UnityAnalyticsModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UnityConsentModule.cpp",
+      "bytes": 15961,
+      "sha256": "218f43e09f998f70b2a7022e86b9bb78655157597b9b94315f15d5ad610f4d0b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UnityConsentModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UnityWebRequestModule.cpp",
+      "bytes": 22082,
+      "sha256": "29a3e8dfb790d79002c4b74a9a8a9aeda40e2d9fb41ada6c08f978f614c8c2d0",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.UnityWebRequestModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.VFXModule.cpp",
+      "bytes": 99019,
+      "sha256": "ab6f2a8aa4d5bde1639eba6a5b00d04c5d7964206de99610f9250969b087a8b8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.VFXModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.VRModule.cpp",
+      "bytes": 6733,
+      "sha256": "3751cb8c0280b989381a59900840a6a39dd20737836913edb97684362cc16ea7",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.VRModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.VideoModule.cpp",
+      "bytes": 44607,
+      "sha256": "7378d48e3c8dd4d43ecc0f846127a1f76240eaf3566d763f14e61751260c3b4f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.VideoModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.XRModule.cpp",
+      "bytes": 186143,
+      "sha256": "4ea9c387330444643e4c31347eaa71134646992e9d2f9acf10aeb1dcd4317f01",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.XRModule.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.cpp",
+      "bytes": 577,
+      "sha256": "c7dfb515df7d20604de4fbf2843a3efc3dc83eb98515f4928e58efd301f1401b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/UnityEngine.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/__Generated.cpp",
+      "bytes": 2981,
+      "sha256": "3250ee701f381acfc950740f8dd83064c3b93b8b6d03f4223476e572255746e4",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/__Generated.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/analytics.json",
+      "bytes": 1235,
+      "sha256": "d8ed00448c2df867153524f20090cdb9cf1114cd824020496d9d36ddbbe4b8e3",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/analytics.json"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib.cpp",
+      "bytes": 1235334,
+      "sha256": "0d2aa56e3d03aca8757c8a5df6a534664de3ec2a75e9e4aa84af6a287c7ae058",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__1.cpp",
+      "bytes": 1623665,
+      "sha256": "8bc93b9a23a3f77cb0af7cdb058b9fc0af0b08c98f639cc57192b6b6f8707ab8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__1.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__10.cpp",
+      "bytes": 1411487,
+      "sha256": "f2819f5c6a5030cb63339d49bace2db672d7ecd5738d0e8dc356f0712b3ce860",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__10.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__11.cpp",
+      "bytes": 1329662,
+      "sha256": "cec2787f7e7deb0d08339562d73586aaf0460f0245fe5fb1775989521f76b4f2",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__11.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__12.cpp",
+      "bytes": 1230663,
+      "sha256": "c2c7d790761dc0598fb0365beabfeda4aedbaf31eecd9552826fddea5166778a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__12.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__13.cpp",
+      "bytes": 1600487,
+      "sha256": "6efcf887fd98baf631a84d4b63b517fed271b1d3bb24d2db9a3018161ee9a77f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__13.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__14.cpp",
+      "bytes": 1206022,
+      "sha256": "95922d73be18763b0ebd045c8440ed8f5eff7e1d9c5b08ca17cc8bf8ce041a50",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__14.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__15.cpp",
+      "bytes": 987302,
+      "sha256": "6b2d039dd6f833c35ebe782b55914e31610e13b48796c57bba3a4b105613e176",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__15.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__16.cpp",
+      "bytes": 982752,
+      "sha256": "9afe34b15be596f8a95f53410a99efc5aeab66609c3f21587301729056172e94",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__16.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__17.cpp",
+      "bytes": 1251877,
+      "sha256": "50aa07f79d7ff758a16627dff697e28bb5328da59c8dea117191768596d61087",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__17.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__18.cpp",
+      "bytes": 43999,
+      "sha256": "336ae66a7fcde5aab305c9f5b01266b4c7da389099aaa5f76c47a98e64aaeefd",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__18.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__2.cpp",
+      "bytes": 1012391,
+      "sha256": "e75ab6d09db025dffe421edcd8e14a5d0453bda630756fba77164eeb386c7202",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__2.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__3.cpp",
+      "bytes": 1156599,
+      "sha256": "c313996106ceb1caa52359eb3eb69a81dd020c84bb5db41f68f66a1bd6a9f197",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__3.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__4.cpp",
+      "bytes": 1710959,
+      "sha256": "5a143af17b17c2feca08314d04d86256c9af928e133c84e82719e2dde32de5ec",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__4.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__5.cpp",
+      "bytes": 1516535,
+      "sha256": "9a55fba480439170df6cbaa3ce4d5ea9e9ab77036307954aefba51be4e4aa55f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__5.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__6.cpp",
+      "bytes": 1171588,
+      "sha256": "edbe1be6ff35bf6ba61c95d86903b1df731c022baddcaa56185534c01e14839c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__6.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__7.cpp",
+      "bytes": 1559211,
+      "sha256": "e452d9f26a7b0f03e37a63b7af30be83ee2c65a71a67223e217f33c8042d3792",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__7.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__8.cpp",
+      "bytes": 1180234,
+      "sha256": "9f9e5712f301dc498354ce3c5cdbd33f1c06caef14267d0b00ae4260c2125649",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__8.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__9.cpp",
+      "bytes": 1367059,
+      "sha256": "4f69d159ecb615263ade833b362791003d53539cf0e49bec15e700e275555154",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__9.cpp"
+    },
+    {
+      "path": "project/Library/Bee/artifacts/UnityLinkerInputs/EditorToUnityLinkerData.json",
+      "bytes": 93842,
+      "sha256": "b7fb795ca24a463a9645c0da1d6b2814e030b93e85dac763ef72a4866fd20323",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/artifacts/UnityLinkerInputs/EditorToUnityLinkerData.json"
+    },
+    {
+      "path": "project/Library/Bee/buildreport.json",
+      "bytes": 1762961,
+      "sha256": "852679ea05e9743a5b232d42b6064ea76b462985d80eee18a3ef568f45c35cab",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/buildreport.json"
+    },
+    {
+      "path": "project/Library/Bee/fullprofile.json",
+      "bytes": 253418,
+      "sha256": "63a991a6bfe0781e5d64c0f22a2f3ffbc491b02d10659ee10259acbca5988e36",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/fullprofile.json"
+    },
+    {
+      "path": "project/Library/Bee/tundra.log.json",
+      "bytes": 593934,
+      "sha256": "6b75e90fcad8a8ecd711825a1f0301d1e9ea33508bad2ce96ce5e6060dcbd7a6",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/Bee/tundra.log.json"
+    },
+    {
+      "path": "project/ProjectSettings/AudioManager.asset",
+      "bytes": 523,
+      "sha256": "9543c41dbfc7d3951217c4dd9481ed026eb8e529b85ecf4463969a0fea747729",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/AudioManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/ClusterInputManager.asset",
+      "bytes": 114,
+      "sha256": "40e65dd214bf254955d2c8829ca8ce2130fd3510485560ce012e9a1ddd93e623",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/ClusterInputManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/DynamicsManager.asset",
+      "bytes": 1498,
+      "sha256": "64ec0518fea199e8fb62e98ffe2c0809e62ba3ab7fc47d4f017ae80664f954c3",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/DynamicsManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/EditorBuildSettings.asset",
+      "bytes": 190,
+      "sha256": "41bc588f6ecc03944687d496f024917cabb061e21c148a6471b74581df14f908",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/EditorBuildSettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/EditorSettings.asset",
+      "bytes": 1603,
+      "sha256": "06753c21648950aee0013b70f79a9035ac52aec6204d44cc2ac55a84034ad9ca",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/EditorSettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/GraphicsSettings.asset",
+      "bytes": 2433,
+      "sha256": "40de98f4d46d02fb08e268ad3a722a00eed7289f4ef6d2e759984b1b4a85d2af",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/GraphicsSettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/InputManager.asset",
+      "bytes": 5816,
+      "sha256": "d0f454ddb880912abcae92e3e12957a7446786ba89e24937e019ff3bbc0d4300",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/InputManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/MemorySettings.asset",
+      "bytes": 1192,
+      "sha256": "1e8379a461b10ae09f3f696911088c16875d63e87ed5f2d95df9e1892703f9fd",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/MemorySettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/MultiplayerManager.asset",
+      "bytes": 232,
+      "sha256": "ce4075d7a7dd8ac7ffe55de2427692c63f90dae398208bd80cec0f27cbe09f4b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/MultiplayerManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/NavMeshAreas.asset",
+      "bytes": 1361,
+      "sha256": "7ebbf8f53b8033104e1878b95ca07a28d0954092d81c220f14196a42f651e658",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/NavMeshAreas.asset"
+    },
+    {
+      "path": "project/ProjectSettings/Packages/com.unity.dedicated-server/MultiplayerRolesSettings.asset",
+      "bytes": 540,
+      "sha256": "66f5310616983159b47ac6b1dfa249b1ea29385b1cecf077e5d596132fc5f0d8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/Packages/com.unity.dedicated-server/MultiplayerRolesSettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/Physics2DSettings.asset",
+      "bytes": 1862,
+      "sha256": "1cfc0c8fbceec604fd7cd2a06c04ff05dddee6335b75c92b0f5715ad80ba9490",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/Physics2DSettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/PresetManager.asset",
+      "bytes": 146,
+      "sha256": "29c125923fe6e29f90190d4fce1c82d660e7051546e2c9d02908d18c9cf2436c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/PresetManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/ProjectSettings.asset",
+      "bytes": 20517,
+      "sha256": "d11158ac60f216bea0cacbdbed8c0f642a085aeef8af91629d05494884e20602",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/ProjectSettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/ProjectVersion.txt",
+      "bytes": 83,
+      "sha256": "abf167726b2257e683c55789d6f0519defb224b01ccb974c1768c2890fae9bce",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/ProjectVersion.txt"
+    },
+    {
+      "path": "project/ProjectSettings/QualitySettings.asset",
+      "bytes": 9802,
+      "sha256": "f1f893b1be47ad2442f58338dd7c860dc1986bb317e2f5bb31084454ffabbf4c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/QualitySettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/SceneTemplateSettings.json",
+      "bytes": 3535,
+      "sha256": "bb9098b3bfcde78d93e264b96f7b77b5430e64e8c57a7aad7f5a5d9c3945e16a",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/SceneTemplateSettings.json"
+    },
+    {
+      "path": "project/ProjectSettings/TagManager.asset",
+      "bytes": 411,
+      "sha256": "da4b5eefc927f8b91bcf9e56a186d2b852f49d9cbe91d466638d26c79d6a83ce",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/TagManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/TimeManager.asset",
+      "bytes": 305,
+      "sha256": "3396f52fdc16d445024e01d7a2d99db6f0a37569d1d73c0302e9ffb857d90287",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/TimeManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/UnityConnectSettings.asset",
+      "bytes": 1063,
+      "sha256": "11251dae0356b6f43dd2c67bb511f6b7ecda4e5de425186bba3297e6f3dc1c6f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/UnityConnectSettings.asset"
+    },
+    {
+      "path": "project/ProjectSettings/VFXManager.asset",
+      "bytes": 525,
+      "sha256": "2973a6af930e142f62cde00076beda8a3cc3a66d9bfcde7a58ba7d4be2251c26",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/VFXManager.asset"
+    },
+    {
+      "path": "project/ProjectSettings/VersionControlSettings.asset",
+      "bytes": 172,
+      "sha256": "e199cdfa6a8f2bf33cfd47e549198f13e3eb2a5099e908fdb4e0f14d939ccc6b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/ProjectSettings/VersionControlSettings.asset"
+    },
+    {
+      "path": "project/Packages/manifest.json",
+      "bytes": 75,
+      "sha256": "c3fe8f046850238f5859d8a2756efd532ac71de6f579b70442a8b04880ce5cbd",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Packages/manifest.json"
+    },
+    {
+      "path": "project/Packages/packages-lock.json",
+      "bytes": 171,
+      "sha256": "f4d2f92f498fc4de656505d0a7316f7c5de33ee6612a082ff2d99d51d3dce96b",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Packages/packages-lock.json"
+    },
+    {
+      "path": "project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll",
+      "bytes": 7680,
+      "sha256": "9d55ba59420c7a0aef586b248894365ddd5750522ac7fde49bf68234b3f16843",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll"
+    },
+    {
+      "path": "project/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb",
+      "bytes": 20884,
+      "sha256": "27a468343cfeb7ff3f47e062e3c60b21d146e97d6d3be49f49fa8fbef33efedf",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb"
+    },
+    {
+      "path": "project/Library/ScriptAssemblies/Assembly-CSharp.dll",
+      "bytes": 4096,
+      "sha256": "898d63ecefe6b30caaed207725cae95ff2444b265948098a261e2c8af7962a9f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/ScriptAssemblies/Assembly-CSharp.dll"
+    },
+    {
+      "path": "project/Library/ScriptAssemblies/Assembly-CSharp.pdb",
+      "bytes": 17520,
+      "sha256": "fb9b50a126640d61d771d60148abe8a2fa8df9e6a86079986497b51a0d69ffd1",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/ScriptAssemblies/Assembly-CSharp.pdb"
+    },
+    {
+      "path": "project/Library/LastBuild.buildreport",
+      "bytes": 78444,
+      "sha256": "8736635cfcd0fd0eb1f9636436ea87f7dc1e7b2e972096591fa4ba5803a5837f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/LastBuild.buildreport"
+    },
+    {
+      "path": "project/Library/EditorUserBuildSettings.asset",
+      "bytes": 8844,
+      "sha256": "85cfd2d58f9bc718234549c6b45d0f35bdb1d45396af72aa43e0c6cce68f2e5e",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Library/EditorUserBuildSettings.asset"
+    },
+    {
+      "path": "project/Assets/Plugins/Albireo.SelectedDecode.dll",
+      "bytes": 6656,
+      "sha256": "a7fefd9010e223e7e58809c7c34a946e3fb5d7294522ab3cc2ff20d2352d4760",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Assets/Plugins/Albireo.SelectedDecode.dll"
+    },
+    {
+      "path": "runtime-reference/codegen/il2cpp-codegen.h",
+      "bytes": 62998,
+      "sha256": "23f523d44670bc1de773110c40bbbe75d247dffdc0b1fc49ff1c5a418cb7296f",
+      "origin": "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/codegen/il2cpp-codegen.h"
+    },
+    {
+      "path": "runtime-reference/gc/GarbageCollector.h",
+      "bytes": 4099,
+      "sha256": "e2a61b2543eb38bd8a8dbe0c58467569dc2c14eb73c1b538cba9e4d4c432f159",
+      "origin": "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/gc/GarbageCollector.h"
+    },
+    {
+      "path": "runtime-reference/gc/BoehmGC.cpp",
+      "bytes": 20676,
+      "sha256": "671d4cc4378b722ff38e71d4b3e6411b3b71c836302decc6c6db601c961b427d",
+      "origin": "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/gc/BoehmGC.cpp"
+    },
+    {
+      "path": "runtime-reference/vm/Object.cpp",
+      "bytes": 14491,
+      "sha256": "707ce8d83c943bf0e797272f1d58dd47bbda3b2565860c0a6e22bbd40c6448d5",
+      "origin": "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/vm/Object.cpp"
+    },
+    {
+      "path": "runtime-reference/vm/Object.h",
+      "bytes": 2505,
+      "sha256": "4da6b40d5f9619d579b34acb80dce83ca11d3d6d1588f881581eec241ea230da",
+      "origin": "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/vm/Object.h"
+    },
+    {
+      "path": "runtime-reference/il2cpp-object-internals.h",
+      "bytes": 30538,
+      "sha256": "0994ccabbf3bfa6177fdc4fdb58054cdb5e6d3a740459cf798b72ebe10c7cf47",
+      "origin": "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/il2cpp-object-internals.h"
+    },
+    {
+      "path": "runtime-reference/il2cpp-class-internals.h",
+      "bytes": 22210,
+      "sha256": "ef492c3ca59af6c15b999dc522ef8b26d0405792dc60e4fa80e72c45b9e79170",
+      "origin": "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/il2cpp-class-internals.h"
+    },
+    {
+      "path": "build-records/build-provenance.json",
+      "bytes": 1115,
+      "sha256": "9ecfa36cb00c0841b300ebf2155ff8156ed9c2bfb76355cda3ae09e131fa3f19",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/build/build-provenance.json"
+    },
+    {
+      "path": "build-records/create.log.receipt.json",
+      "bytes": 671,
+      "sha256": "6f741f027a2a4955bd6b78759d09c1843e07d47258dc7ab344e2fd0b14ad8536",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/build/create.log.receipt.json"
+    },
+    {
+      "path": "build-records/manifest-restoration.json",
+      "bytes": 2108,
+      "sha256": "67f6a151b58a940ec5e0e439ea00a61a1e5ec20f0b7a46242da90a3f96b15bf8",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/build/manifest-restoration.json"
+    },
+    {
+      "path": "build-records/unity-build.log.receipt.json",
+      "bytes": 738,
+      "sha256": "bf8e770d9a684b5f7eee84b21e869d4b38394ac7e32cfc34b1f8b854e768f5b3",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/build/unity-build.log.receipt.json"
+    },
+    {
+      "path": "build-records/create.log",
+      "bytes": 1166,
+      "sha256": "59461346a56d34b658b886008b5e34e964ecf574785cf9d9cbbb2ec3cd6f857f",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/build/create.log"
+    },
+    {
+      "path": "build-records/unity-build.log",
+      "bytes": 338704,
+      "sha256": "34320494f1a26c3c8d20f7c38998cd6bead8573b3e7e7cbcccf1ac47773dc10c",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/build/unity-build.log"
+    },
+    {
+      "path": "build-records/requested-settings.json",
+      "bytes": 408,
+      "sha256": "6853cd6954df6b26bab501c7f731ec6abd4df4e4392c1b80249b0ff03d02f970",
+      "origin": "/Users/christian/Documents/Codex/2026-10-08/task-3/albireo-unity-trial-20261009/projects/CilicaAlbireo/Build/AlbireoReference.app.settings.json"
+    }
+  ],
+  "symbol_locations": {
+    "AlbireoDecodeProbe_Run": [
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 83,
+        "text": "IL2CPP_EXTERN_C const RuntimeMethod* AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var;",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1467,
+        "text": "IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364 (int32_t ___0_scenario, int32_t ___1_observation, const RuntimeMethod* method) ",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1472,
+        "text": "\t\til2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1657,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1663,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1669,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1802,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1825,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1854,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1879,
+        "text": "\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(L_69, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364_RuntimeMethod_var)));",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Assembly-CSharp.cpp",
+        "line": 803,
+        "text": "IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364 (int32_t ___0_scenario, int32_t ___1_observation, const RuntimeMethod* method) ;",
+        "sha256": "7bf79ffff5917f4160ac5261723808178afc4a8a30812ab7421edbf17a0bbeca"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Assembly-CSharp.cpp",
+        "line": 1454,
+        "text": "\t\t\tL_70 = AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364(L_69, (-1), NULL);",
+        "sha256": "7bf79ffff5917f4160ac5261723808178afc4a8a30812ab7421edbf17a0bbeca"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Assembly-CSharp.cpp",
+        "line": 1517,
+        "text": "\t\t\tL_83 = AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364(L_81, L_82, NULL);",
+        "sha256": "7bf79ffff5917f4160ac5261723808178afc4a8a30812ab7421edbf17a0bbeca"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Assembly-CSharp.cpp",
+        "line": 1756,
+        "text": "\t\tL_7 = AlbireoDecodeProbe_Run_m65DF3D90E7352B0BD44190FC35D204B79F378364(L_6, (-1), NULL);",
+        "sha256": "7bf79ffff5917f4160ac5261723808178afc4a8a30812ab7421edbf17a0bbeca"
+      }
+    ],
+    "Base32_Decode": [
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 85,
+        "text": "IL2CPP_EXTERN_C const RuntimeMethod* Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var;",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 510,
+        "text": "IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77 (String_t** ___0_input, const RuntimeMethod* method) ;",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 771,
+        "text": "IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77 (String_t** ___0_input, const RuntimeMethod* method) ",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 776,
+        "text": "\t\til2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 814,
+        "text": "\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(L_2, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var)));",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 892,
+        "text": "\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(L_21, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var)));",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 900,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 934,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 938,
+        "text": "\t\tif ((int64_t)(((int32_t)((int32_t)L_33|L_34))) > 255LL) IL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 942,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 943,
+        "text": "\t\tif ((int64_t)(((int32_t)il2cpp_codegen_subtract((int32_t)L_35, 5))) > 255LL) IL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 953,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 957,
+        "text": "\t\tif ((int64_t)(((int32_t)((int32_t)L_38|L_39))) > 255LL) IL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 963,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 973,
+        "text": "\t\t\tIL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 974,
+        "text": "\t\tif ((int64_t)(((int32_t)il2cpp_codegen_add((int32_t)L_46, 3))) > 255LL) IL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77_RuntimeMethod_var);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1503,
+        "text": "\t\tL_2 = Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77((&V_0), NULL);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      },
+      {
+        "path": "project/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Albireo.SelectedDecode.cpp",
+        "line": 1506,
+        "text": "\t\tL_3 = Base32_Decode_m1E2CD8EEF0D44D3774CF978107EB150D7C1E7F77((&V_0), NULL);",
+        "sha256": "75569f06d6b1876f4f76382d99c87449b65b57bd4ab79b736bef6fcce4abe0b7"
+      }
+    ]
+  },
+  "cpp_files": 119,
+  "status": "passed"
+}

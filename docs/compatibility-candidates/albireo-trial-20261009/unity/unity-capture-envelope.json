@@ -1,0 +1,43 @@
+{
+  "stage": "unity-capture",
+  "outcome": "passed",
+  "input_fingerprint": "d79e8c4d539d8f1e486b50360ac2f6ec3196d1a851da29e20ec61e08554a87eb",
+  "artifacts": [
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/capture-manifest.json",
+      "sha256": "de5517a99c78e5093094da368db62f987567f58418a0982ee103786ad6c80bf9"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/external-evidence.json",
+      "sha256": "30ce80d0a5a1f2fce3f2bd69eceea4023e0629bc73a73d117ef18b3fc374d066"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/build-provenance.json",
+      "sha256": "9ecfa36cb00c0841b300ebf2155ff8156ed9c2bfb76355cda3ae09e131fa3f19"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/build-command.json",
+      "sha256": "bf8e770d9a684b5f7eee84b21e869d4b38394ac7e32cfc34b1f8b854e768f5b3"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/settings-readback.json",
+      "sha256": "e1ab938464edde3e171be14f7fac24d1991055362bcac92d9cd8d73658ce837a"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/actual-architecture-and-commands.json",
+      "sha256": "af5f33241cc27b5e34725b44c439d8047a5bb4f2e4546e0e6465a8452573d660"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/manifest-restoration.json",
+      "sha256": "67f6a151b58a940ec5e0e439ea00a61a1e5ec20f0b7a46242da90a3f96b15bf8"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/packages-lock.json",
+      "sha256": "f4d2f92f498fc4de656505d0a7316f7c5de33ee6612a082ff2d99d51d3dce96b"
+    },
+    {
+      "path": "docs/compatibility-candidates/albireo-trial-20261009/unity/handoff-verification.json",
+      "sha256": "1184ec807ce54949cfe4eae9743825e3a1ee7e3611c9d2bc2d54f8abdf979764"
+    }
+  ]
+}
