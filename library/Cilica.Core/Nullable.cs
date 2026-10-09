@@ -11,8 +11,8 @@ namespace System
         private T value;
 
         public Nullable(T value) { this.value = value; hasValue = true; }
-        public bool HasValue => hasValue;
-        public T Value
+        public readonly bool HasValue => hasValue;
+        public readonly T Value
         {
             get
             {
@@ -20,8 +20,8 @@ namespace System
                 return value;
             }
         }
-        public T GetValueOrDefault() => value;
-        public T GetValueOrDefault(T defaultValue) => hasValue ? value : defaultValue;
+        public readonly T GetValueOrDefault() => value;
+        public readonly T GetValueOrDefault(T defaultValue) => hasValue ? value : defaultValue;
 
         // Keep inherited/default value semantics from masquerading as nullable
         // semantics. Equality/hash remain explicit gaps; text uses the pinned payload call.

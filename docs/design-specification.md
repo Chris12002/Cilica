@@ -4990,3 +4990,22 @@ grants, native algorithms and budgets are unchanged. All 31 selected checks pass
 including 3,660 new sanitized O0/O2 native/.NET comparisons. The rebuilt-core
 inventory clears both parser blockers and now has 26 body failures; it returns no
 program or native emission. Full closure/replay remain incomplete; see ADR AC0233.
+
+
+### Readonly value receivers (AC8.90)
+
+Bounded metadata reads retain type/member IsReadOnlyAttribute evidence. Ordinary
+value and primitive methods receive readonly borrows, preserved through scalar
+expansion, boxed dispatch and value-key calls. Both IR stages reject writes;
+constructors retain writable receivers and mutable methods still use C# defensive
+copies. Owned primitive readers and nullable accessors are explicitly readonly;
+Nullable.ToString remains mutable to preserve payload override semantics.
+CIL114/object IR67/native83 identify the contract; grants, native algorithms,
+physical layouts and production limits are unchanged.
+
+All 119 distinct selected checks pass, including 2,646 new sanitized O0/O2
+native/.NET comparisons. The converted EffectTarget getter guided the regression.
+The frozen inventory clears all 11 readonly mismatches: 15,238/15,254 bodies now
+translate individually, leaving 16 failures, including a newly exposed ldvirtftn.
+No full IR program or native engine is produced; replay remains incomplete.
+See ADR AC0234 for exact scope, review and evidence.

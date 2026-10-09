@@ -13,4 +13,5 @@ public sealed record MethodDeclarationInput(MethodSource Source, MethodSignature
 {
     public ImmutableArray<LexicalTypeOwner> LexicalOwners { get; init; } = [];
     public bool OwnerAssemblyVisible { get; init; }
+    public bool ReadOnlyReceiver { get; init; }
 }

@@ -53,10 +53,11 @@ public sealed partial class AssemblyResolver
                 return false;
             }
             var owner = reader.GetTypeDefinition(method.GetDeclaringType());
+            bool readOnlyReceiver = TypeMarkers.ReadOnlyReceiver(assembly, handle, Member);
             return new(header.Source, header.Signature, method.Attributes, method.ImplAttributes, header.Arity,
                 assembly.IsReferenceAssembly, Initializer(owner), Initializer(reader.GetTypeDefinition(MetadataTokens.TypeDefinitionHandle(1))),
                 MetadataTokens.GetToken(method.GetDeclaringType()), owner.Attributes, header.Visible,
-                method.RelativeVirtualAddress != 0, reader.GetString(method.Name), work) { LexicalOwners = header.Lexical, OwnerAssemblyVisible = header.AssemblyVisible };
+                method.RelativeVirtualAddress != 0, reader.GetString(method.Name), work) { LexicalOwners = header.Lexical, OwnerAssemblyVisible = header.AssemblyVisible, ReadOnlyReceiver = readOnlyReceiver };
         });
     }
 

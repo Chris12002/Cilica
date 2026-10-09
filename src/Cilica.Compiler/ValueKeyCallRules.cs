@@ -54,7 +54,7 @@ internal sealed partial class ObjectIrRules
                 ObjectStorage.Int32 => IrType.Int32, ObjectStorage.Int64 => IrType.Int64,
                 ObjectStorage.Reference reference => IrType.Reference(reference.Type), _ => IrType.Void })]
             : [IrType.Value(original.Owner)];
-        var expected = fields.Select(t => IrType.Location(t));
+        var expected = fields.Select(t => IrType.Location(t, original.ReadOnlyReceiver));
         if (!hash) expected = expected.Concat(fields);
         return !fields.Contains(IrType.Void) && method.Parameters.SequenceEqual(expected);
     }

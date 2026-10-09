@@ -779,7 +779,7 @@ public static partial class ValueProgramDiscovery
                 Fail(parent, "Aggregate parameter/local storage limit exceeded.", offset, DiagnosticIds.TranslationLimit);
             var kind = primitive is not null ? ObjectMethodKind.PrimitiveInstance : inlineConstructor ? ObjectMethodKind.ValueConstructor : inlineInstance ? ObjectMethodKind.ValueInstance : !instance ? ObjectMethodKind.Static : !constructor ? ObjectMethodKind.Instance : ownerId == ObjectBase() ? ObjectMethodKind.ObjectBaseConstructor : ObjectMethodKind.Constructor;
             var binding = fact?.Binding ?? new ObjectMethodBinding(id, ownerId, kind, input.Attributes, input.OwnerExternallyVisible)
-                { LexicalOwners = integers64 ? input.LexicalOwners : [], OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible, Primitive = primitive };
+                { LexicalOwners = integers64 ? input.LexicalOwners : [], OwnerAssemblyVisible = integers64 && input.OwnerAssemblyVisible, Primitive = primitive, ReadOnlyReceiver = input.ReadOnlyReceiver && kind is (ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance) };
             if (integers64 && !instance && (input.DeclaredName is "TryParse" or "Parse")
                 && (owner == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int32), parent, offset)
                     || owner == Require(resolver.ResolveRuntimeType(library, PrimitiveTypeCode.Int64), parent, offset)))
@@ -846,7 +846,7 @@ public static partial class ValueProgramDiscovery
             // Establish its lexical/closed context before converting signature storage.
             var work = new Work(owner.Assembly, resolved, input, binding, [], IrType.Void, [], parent, offset);
             work = work with {
-                Parameters = [.. (instance ? new[] { primitive is not null ? primitive.ReceiverType : inlineInstance ? IrType.Location(IrType.Value(ownerId)) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
+                Parameters = [.. (instance ? new[] { primitive is not null ? primitive.ReceiverType with { ReadOnly = binding.ReadOnlyReceiver } : inlineInstance ? IrType.Location(IrType.Value(ownerId), binding.ReadOnlyReceiver) : IrType.Reference(ownerId) } : Array.Empty<IrType>()),
                     .. input.Signature.Parameters.Select(t => Storage(t, work, 0, borrow: true))],
                 ReturnType = Storage(input.Signature.ReturnType, work, 0, allowVoid: true),
                 Locals = [.. input.Locals.Select(t => Storage(t, work, 0, borrow: integers64))] };

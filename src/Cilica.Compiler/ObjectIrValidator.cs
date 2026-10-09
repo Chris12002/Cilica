@@ -157,6 +157,7 @@ internal sealed partial class ObjectIrRules
             bool valueConstructor = binding.Kind == ObjectMethodKind.ValueConstructor;
             bool valueInstance = binding.Kind == ObjectMethodKind.ValueInstance;
             bool primitiveInstance = binding.Kind == ObjectMethodKind.PrimitiveInstance;
+            Require(!binding.ReadOnlyReceiver || valueInstance || primitiveInstance, "readonly receiver evidence requires an ordinary value or primitive instance method.");
             Require(!binding.ThrowingIntegerParser || binding.IntegerParser is not null, "throwing integer parser evidence requires a selected parser identity.");
             if (binding.IntegerParser is { } parser)
             {
@@ -202,14 +203,14 @@ internal sealed partial class ObjectIrRules
             if (valueConstructor || valueInstance)
                 Require(values is not null && flow.Types.Integer64 && values.Types.Any(t => ObjectTypeId.From(t.Source) == binding.Owner
                         && (!binding.OwnerExternallyVisible || t.ExternallyVisible))
-                    && method.Parameters.Length > 0 && method.Parameters[0] == IrType.Location(IrType.Value(binding.Owner))
+                    && method.Parameters.Length > 0 && method.Parameters[0] == IrType.Location(IrType.Value(binding.Owner), binding.ReadOnlyReceiver)
                     && method.ReturnType.Kind != IrTypeKind.ManagedLocation && binding.VirtualSlot is null
                     && (valueConstructor ? method.ReturnType == IrType.Void
                         && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final))
                             == (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
                         : (binding.Attributes & MethodAttributes.RTSpecialName) == 0
                             && ((binding.Attributes & MethodAttributes.Virtual) != 0 || (binding.Attributes & (MethodAttributes.NewSlot | MethodAttributes.Final)) == 0)),
-                    "value constructor/instance method requires an exact writable inline receiver and admitted declaration flags; constructors require void and constructor flags.");
+                    "value constructor/instance method requires an exact declared inline receiver capability and admitted declaration flags; constructors require void and constructor flags.");
             else if (primitiveInstance)
             {
                 Require(flow.Types.Integer64 && binding.OwnerExternallyVisible && binding.Owner.Specialization == ""
@@ -217,7 +218,7 @@ internal sealed partial class ObjectIrRules
                     && binding.Primitive!.Source is { } primitiveSource && ObjectTypeId.From(primitiveSource) == binding.Owner
                     && primitiveSource.Name == "System." + binding.Primitive.Code
                     && binding.Primitive.Code is PrimitiveTypeCode.Char or PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64
-                    && method.Parameters.Length > 0 && method.Parameters[0] == binding.Primitive.ReceiverType
+                    && method.Parameters.Length > 0 && method.Parameters[0] == (binding.Primitive.ReceiverType with { ReadOnly = binding.ReadOnlyReceiver })
                     && method.ReturnType.Kind != IrTypeKind.ManagedLocation && binding.VirtualSlot is null
                     && (binding.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) == 0
                     && ((binding.Attributes & MethodAttributes.Virtual) != 0 || (binding.Attributes & (MethodAttributes.NewSlot | MethodAttributes.Final)) == 0),

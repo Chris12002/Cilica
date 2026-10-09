@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v113";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v114";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -757,7 +757,7 @@ public static class ValueTranslator
                                 if (i == 0 && method.BoxedRenderCalls.TryGetValue(offset, out var boxedReceiver))
                                 {
                                     if (skip != 0 || arguments.Length != 1 || target.Binding.Kind != ObjectMethodKind.ValueInstance
-                                        || target.Binding.Owner != boxedReceiver || target.Parameters[0] != IrType.Location(IrType.Value(boxedReceiver)))
+                                        || target.Binding.Owner != boxedReceiver || target.Parameters[0] != IrType.Location(IrType.Value(boxedReceiver), target.Binding.ReadOnlyReceiver))
                                         Error(offset, "Boxed text call requires its exact payload receiver.");
                                     int box = Pop(offset, IrType.Reference(objectBase));
                                     arguments[0] = Define(offset, IrType.Location(IrType.Value(boxedReceiver)), new IrExpression.UnboxLocation(boxedReceiver, box), true);

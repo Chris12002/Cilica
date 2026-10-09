@@ -24,7 +24,8 @@ public sealed class PrimitiveInstanceTests
         {
             Assert.Equal(program.Flow.Flow.Flow.Types.References.ObjectBase.ContentHash, binding.Owner.ContentHash);
             var method = program.Flow.Flow.Flow.Methods.Single(m => IrMethodId.From(m.Source) == binding.Method);
-            Assert.Equal(IrType.Location(binding.Primitive!.Storage), method.Parameters[0]);
+            Assert.True(binding.ReadOnlyReceiver);
+            Assert.Equal(IrType.Location(binding.Primitive!.Storage, readOnly: true), method.Parameters[0]);
             Assert.Contains(method.Blocks.SelectMany(b => b.Values), v => v.Expression is IrExpression.LoadLocation);
         }
         var lowered = ValueScalarLowering.LowerExceptions(program);

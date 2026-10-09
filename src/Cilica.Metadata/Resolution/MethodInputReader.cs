@@ -41,12 +41,17 @@ public sealed partial class AssemblyResolver
             ImmutableArray<TypeSignature> locals = body.LocalSignature.IsNil ? [] : [.. new SignatureDecoder(this, assembly)
                 .Locals(reader.GetStandaloneSignature(body.LocalSignature).Signature)];
             int work = 0;
+            void Member()
+            {
+                if (++work > limits.MaximumInitializerMembers)
+                    throw Failure(DiagnosticIds.TranslationLimit, "Method marker/initializer inspection exceeds the metadata-member translation limit.");
+            }
+            bool readOnlyReceiver = TypeMarkers.ReadOnlyReceiver(assembly, handle, Member);
             bool Initializer(TypeDefinition definition)
             {
                 foreach (var candidate in definition.GetMethods())
                 {
-                    if (++work > limits.MaximumInitializerMembers)
-                        throw Failure(DiagnosticIds.TranslationLimit, "Initializer inspection exceeds the metadata-member translation limit.");
+                    Member();
                     if (reader.StringComparer.Equals(reader.GetMethodDefinition(candidate).Name, ".cctor")) return true;
                 }
                 return false;
@@ -58,7 +63,7 @@ public sealed partial class AssemblyResolver
                     i.AccessesArgument is not null ? i.VariableIndex : i.Operand as int?, [.. i.Targets])
                     { Int64Operand = i.Operand as long? })],
                 MetadataTokens.GetToken(method.GetDeclaringType()), header.Visible)
-            { LexicalOwners = header.Lexical, DeclaredName = reader.GetString(method.Name), MetadataMembersRead = work, OwnerAssemblyVisible = header.AssemblyVisible };
+            { LexicalOwners = header.Lexical, DeclaredName = reader.GetString(method.Name), MetadataMembersRead = work, OwnerAssemblyVisible = header.AssemblyVisible, ReadOnlyReceiver = readOnlyReceiver };
         });
     }
 }

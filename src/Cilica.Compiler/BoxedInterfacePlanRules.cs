@@ -30,12 +30,12 @@ internal sealed class BoxedInterfacePlanRules
         _values.Keys.Where(v => _relations!.Accepts(v, contract));
     internal bool IsReceiver(ObjectTypeId type) => _values.ContainsKey(type);
     internal int ReceiverWidth(ObjectTypeId type) => _plan.BoxedValues is null ? 1 : _layouts[type].Slots.Length;
-    private ImmutableArray<IrType> Receiver(ObjectTypeId type) => _plan.BoxedValues is null
-        ? [IrType.Location(IrType.Value(type))]
+    private ImmutableArray<IrType> Receiver(ObjectTypeId type, bool readOnly) => _plan.BoxedValues is null
+        ? [IrType.Location(IrType.Value(type), readOnly)]
         : [.. _layouts[type].Slots.Select(s => IrType.Location(s.Storage switch {
             ObjectStorage.Int32 => IrType.Int32, ObjectStorage.Int64 => IrType.Int64,
             ObjectStorage.Reference reference => IrType.Reference(reference.Type),
-            _ => throw new ArgumentException("Invalid boxed interface scalar payload.") }))];
+            _ => throw new ArgumentException("Invalid boxed interface scalar payload.") }, readOnly))];
     internal void Method(ObjectDispatchMethod method)
     {
         var original = method.BoxedDeclaration;
@@ -62,7 +62,7 @@ internal sealed class BoxedInterfacePlanRules
             "boxed dispatch requires ordinary public or explicit private value methods.");
         var expected = _plan.BoxedValues is null ? original : ValueScalarLowering.LowerBindings([original])[0];
         Require(ObjectLexicalAccess.SameBinding(method.Binding, expected), "boxed dispatch lowered binding mismatch.");
-        var receiver = Receiver(original.Owner);
+        var receiver = Receiver(original.Owner, original.ReadOnlyReceiver);
         var rules = _signatureRules ??= new IrTypeRules(_plan.Types, _plan.Values, locations: true);
         Require(!method.Parameters.IsDefault && method.Parameters.Length <= IrLimits.MaximumParameters
             && method.Parameters.Length >= receiver.Length && method.Parameters.Take(receiver.Length).SequenceEqual(receiver)

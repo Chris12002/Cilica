@@ -36,6 +36,7 @@ public sealed record MethodInput(MethodSource Source, MethodSignature Signature,
     public string DeclaredName { get; init; } = "";
     public ImmutableArray<LexicalTypeOwner> LexicalOwners { get; init; } = [];
     public bool OwnerAssemblyVisible { get; init; }
+    public bool ReadOnlyReceiver { get; init; }
     public int MetadataMembersRead { get; init; }
 }
 

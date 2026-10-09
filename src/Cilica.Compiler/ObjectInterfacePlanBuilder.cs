@@ -300,13 +300,13 @@ public static class ObjectInterfacePlanBuilder
                     | MethodImplAttributes.InternalCall | MethodImplAttributes.Synchronized)) != MethodImplAttributes.IL)
                 Fail("Boxed interface targets require ordinary managed value-instance bodies.", input.Source.Name);
             if (_methods.ContainsKey(id)) return;
-            var parameters = Parameters(input, owner).SetItem(0, IrType.Location(IrType.Value(owner)));
+            var parameters = Parameters(input, owner).SetItem(0, IrType.Location(IrType.Value(owner), input.ReadOnlyReceiver));
             var returned = Type(input.Signature.ReturnType, true);
             if (parameters.Any(t => !rules.Valid(t, true)) || returned != IrType.Void && !rules.Valid(returned, true))
                 Fail("Boxed interface signature introduced a type outside the prepared catalog.", input.Source.Name);
             Count(parameters.Length);
             var binding = new ObjectMethodBinding(id, owner, ObjectMethodKind.ValueInstance, input.Attributes, input.OwnerExternallyVisible)
-                { LexicalOwners = input.LexicalOwners, OwnerAssemblyVisible = input.OwnerAssemblyVisible };
+                { LexicalOwners = input.LexicalOwners, OwnerAssemblyVisible = input.OwnerAssemblyVisible, ReadOnlyReceiver = input.ReadOnlyReceiver };
             _methods.Add(id, new(binding, input.DeclaredName, parameters, returned) { BoxedDeclaration = binding });
         }
         private IrMethodId ArrayMethod(ObjectInterfaceDeclaration declaration, ObjectTypeId receiver, ObjectTypeCatalog catalog)

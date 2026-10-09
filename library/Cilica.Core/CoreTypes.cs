@@ -61,7 +61,7 @@ namespace System
     {
         // Adapted from pinned Char.ToString/CreateFromChar; see provenance.json.
         // Existing string construction preserves fresh identity and UTF-16 units.
-        public override string ToString() => ToString(this);
+        public override readonly string ToString() => ToString(this);
         public static string ToString(char value) => new string(new[] { value });
     }
     public struct SByte { }
@@ -88,11 +88,11 @@ namespace System
                 throw new NotSupportedException("Only invariant Integer parsing is supported.");
             return Cilica.Library.IntegerParsing.Int32Integer(text, out result);
         }
-        public bool Equals(int value) => this == value;
-        public int CompareTo(int value) => this < value ? -1 : this > value ? 1 : 0;
-        public override int GetHashCode() => this;
-        public override string ToString() => Cilica.Runtime.IntegerText.Int32(this);
-        public string ToString(IFormatProvider provider)
+        public readonly bool Equals(int value) => this == value;
+        public readonly int CompareTo(int value) => this < value ? -1 : this > value ? 1 : 0;
+        public override readonly int GetHashCode() => this;
+        public override readonly string ToString() => Cilica.Runtime.IntegerText.Int32(this);
+        public readonly string ToString(IFormatProvider provider)
         {
             if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
             return Cilica.Runtime.IntegerText.Int32(this);
@@ -100,11 +100,11 @@ namespace System
     }
     public struct UInt32 : IConvertible, IComparable<uint>, IEquatable<uint>
     {
-        public bool Equals(uint value) => this == value;
-        public int CompareTo(uint value) => this < value ? -1 : this > value ? 1 : 0;
-        public override int GetHashCode() => unchecked((int)this);
-        public override string ToString() => Cilica.Runtime.IntegerText.UInt32(this);
-        public string ToString(IFormatProvider provider)
+        public readonly bool Equals(uint value) => this == value;
+        public readonly int CompareTo(uint value) => this < value ? -1 : this > value ? 1 : 0;
+        public override readonly int GetHashCode() => unchecked((int)this);
+        public override readonly string ToString() => Cilica.Runtime.IntegerText.UInt32(this);
+        public readonly string ToString(IFormatProvider provider)
         {
             if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
             return Cilica.Runtime.IntegerText.UInt32(this);
@@ -127,11 +127,11 @@ namespace System
                 ? Cilica.Library.IntegerParsing.Int64None(text, out result)
                 : Cilica.Library.IntegerParsing.Int64Integer(text, out result);
         }
-        public bool Equals(long value) => this == value;
-        public int CompareTo(long value) => this < value ? -1 : this > value ? 1 : 0;
-        public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
-        public override string ToString() => Cilica.Runtime.IntegerText.Int64(this);
-        public string ToString(IFormatProvider provider)
+        public readonly bool Equals(long value) => this == value;
+        public readonly int CompareTo(long value) => this < value ? -1 : this > value ? 1 : 0;
+        public override readonly int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
+        public override readonly string ToString() => Cilica.Runtime.IntegerText.Int64(this);
+        public readonly string ToString(IFormatProvider provider)
         {
             if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
             return Cilica.Runtime.IntegerText.Int64(this);
@@ -139,11 +139,11 @@ namespace System
     }
     public struct UInt64 : IConvertible, IComparable<ulong>, IEquatable<ulong>
     {
-        public bool Equals(ulong value) => this == value;
-        public int CompareTo(ulong value) => this < value ? -1 : this > value ? 1 : 0;
-        public override int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
-        public override string ToString() => Cilica.Runtime.IntegerText.UInt64(this);
-        public string ToString(IFormatProvider provider)
+        public readonly bool Equals(ulong value) => this == value;
+        public readonly int CompareTo(ulong value) => this < value ? -1 : this > value ? 1 : 0;
+        public override readonly int GetHashCode() => unchecked((int)this ^ (int)(this >> 32));
+        public override readonly string ToString() => Cilica.Runtime.IntegerText.UInt64(this);
+        public readonly string ToString(IFormatProvider provider)
         {
             if (provider != Globalization.CultureInfo.InvariantCulture) throw new NotSupportedException("Only the invariant provider is supported.");
             return Cilica.Runtime.IntegerText.UInt64(this);
