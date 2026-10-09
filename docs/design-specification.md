@@ -5205,3 +5205,18 @@ methods: 467,018,483 bytes / 5,495,963 lines. The bounded follow-up completes in
 228,045ms under shared host load. StateLookup emits 1,424,162 bytes. This proves
 source emission with diagnostic aggregate allowances, not native compilation or
 execution. Production aggregate capacity and saved-game replay remain outstanding.
+
+
+### Bounded native translation units (AC8.103)
+
+EmitExceptionModule adds object-exceptions-module-v1: one shared runtime header,
+complete method/frame groups and the existing experimental C boundary. Shared
+inline definitions preserve descriptor/registry/token identity across files;
+implementation symbols have hidden visibility. Sources are bounded to 256 methods
+and 8 MiB each, a 64 MiB header and 1,024 files. Existing single-file emission and
+semantic/runtime budgets remain unchanged. See ADR AC0247 for review and receipts.
+
+Seven new checks plus seventeen adjacent controls pass. The new integer and legacy
+module consumers supply 1,176 repeated O0/O2 native/.NET comparisons with normal/
+forced GC, sanitizers, native-frame and execution-quota checks. Full-engine native
+compilation, production aggregate capacity and saved-game replay remain outstanding.

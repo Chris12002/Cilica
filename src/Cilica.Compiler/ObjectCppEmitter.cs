@@ -68,6 +68,17 @@ public static class ObjectCppEmitter
         return EmitValidated(boxes.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(boxes.Values), program.Exceptions, handlers: true, valueLayouts: boxes.Values.Types);
     }
 
+    /// <summary>Emits one validated exception closure as independently compilable C++20 files.</summary>
+    public static CppModuleArtifact EmitExceptionModule(ScalarManagedExceptionIrProgram program, int methodsPerUnit = 256)
+    {
+        var module = new ObjectCppModuleBuilder(methodsPerUnit);
+        var plans = ObjectRootAssignment.AssignExceptions(program).ToDictionary(p => p.Method);
+        var boxes = program.Flow.Flow;
+        var boundary = EmitValidated(boxes.Flow.Flow, plans, locations: true, ValueLayoutPlanner.Build(boxes.Values),
+            program.Exceptions, handlers: true, valueLayouts: boxes.Values.Types, module: module);
+        return module.Complete(boundary);
+    }
+
     public static CppArtifact EmitDelegates(ScalarDelegateIrProgram program)
     {
         var plans = ObjectRootAssignment.AssignDelegates(program).ToDictionary(p => p.Method);
@@ -75,7 +86,7 @@ public static class ObjectCppEmitter
     }
 
     private static CppArtifact EmitValidated(ObjectIrProgram program, Dictionary<IrMethodId, ObjectMethodRoots> plans, bool locations,
-        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null, bool handlers = false, ImmutableArray<ValueTypeLayout> valueLayouts = default)
+        ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null, bool handlers = false, ImmutableArray<ValueTypeLayout> valueLayouts = default, ObjectCppModuleBuilder? module = null)
     {
         string argumentType = locations ? "LocationArgument" : "Argument";
         // Catalog facts are immutable and shared by every method in this closure.
@@ -137,6 +148,7 @@ public static class ObjectCppEmitter
         var text = new StringBuilder();
         text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <atomic>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <limits>\n#include <type_traits>\n")
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
+            .Append(module is null ? "" : "[[gnu::visibility(\"hidden\")]] ")
             .Append(scope).Append(" {\nstatic constexpr std::size_t frame_root_limit = ").Append(N(ObjectRootAssignment.RootLimit(program.Flow.Types)))
             .Append(";\nstatic constexpr std::size_t exception_resource_capacity = ")
             .Append((exceptions is null ? 0 : ManagedExceptionMessages.Build(exceptions, program.Flow.Types).Values
@@ -306,6 +318,7 @@ public static class ObjectCppEmitter
         if (runtimeOperations.Any(e => e is IrExpression.EnumQuery)) ObjectCppEnums.Append(text, valueLayouts, runtimeIdentities);
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
+            int frameStart = text.Length;
             var layout = layouts[IrMethodId.From(method.Source)];
             text.Append("struct ").Append(FrameType(method)).Append(" {\n    Frame header;\n    const ").Append(argumentType).Append("* incoming = nullptr; ").Append(argumentType).Append(" result;\n")
                 .Append("    std::array<Object*, ").Append(N(layout.RootCount)).Append("> roots{};\n")
@@ -329,6 +342,11 @@ public static class ObjectCppEmitter
             if (layout.BorrowsFrame) text.Append("static constexpr std::array<ReferencePredicate, ").Append(N(layout.RootCount)).Append("> ")
                 .Append(FrameType(method)).Append("_root_types = {")
                 .Append(string.Join(", ", layout.RootTypes.Select(t => Predicate(t.Kind == IrTypeKind.Reference ? t.Class! : program.Flow.Types.ObjectBase)))).Append("};\n");
+            if (module is not null)
+            {
+                module.AddFrame(IrMethodId.From(method.Source), text.ToString(frameStart, text.Length - frameStart));
+                text.Length = frameStart;
+            }
             Header(method); text.Append(";\n");
         }
         if (initializers.Count != 0) {
@@ -367,7 +385,13 @@ public static class ObjectCppEmitter
                 .Append(boxedMap ? "boxed = entry.boxed ? entry.type : nullptr; payload = entry.payload; " : "")
                 .Append("return entry.body; }\n    return nullptr;\n}\n");
         }
-        foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token)) AppendMethod(method);
+        if (module is not null) { module.Begin(text.ToString(), scope, symbol); text.Clear(); }
+        foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
+        {
+            if (module is not null) text.Append(module.TakeFrame(IrMethodId.From(method.Source)));
+            AppendMethod(method);
+            if (module is not null) { module.AddMethod(text.ToString(), method.Source); text.Clear(); }
+        }
         text.Append("}\n// Private experimental boundary; valid disjoint outputs, references remain internal.\n")
             .Append("// Parameters must point to count readable Int32 values; exact arity required, null allowed only for zero arity.\n")
             .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 7 invalid cast, 8 call-depth, 9 execution storage, 10 index bounds, 11 array type mismatch.\n")
@@ -382,11 +406,13 @@ public static class ObjectCppEmitter
         text.Append("    for (std::size_t i = 0; i < count; ++i) (*arguments.value)[i].bits = std::bit_cast<std::uint32_t>(parameters[i]);\n");
         text.Append("    value = ").Append(CppEmitter.Symbol(program.Flow.Entry)).Append("(context, arguments.value->data());\n    }\n    }\n")
             .Append("    if (context.pending == 0u) *result = value;\n    *method = context.method; *il = context.il; *image = context.image;\n    return context.pending;\n}\n");
-        return new(entry.Source, symbol + "_try", text.ToString()) { FaultEntryPoint = symbol + "_try", MayThrow = true };
+        string resultText = text.ToString();
+        if (module is not null) { module.AddBoundary(resultText); resultText = string.Empty; }
+        return new(entry.Source, symbol + "_try", resultText) { FaultEntryPoint = symbol + "_try", MayThrow = true };
 
         void Header(IrMethod method)
         {
-            text.Append("[[maybe_unused]] static ").Append(CType(method.ReturnType)).Append(' ').Append(CppEmitter.Symbol(IrMethodId.From(method.Source)))
+            text.Append(module is null ? "[[maybe_unused]] static " : "[[maybe_unused]] ").Append(CType(method.ReturnType)).Append(' ').Append(CppEmitter.Symbol(IrMethodId.From(method.Source)))
                 .Append("([[maybe_unused]] Context& context, [[maybe_unused]] const ").Append(argumentType).Append("* arguments) noexcept");
         }
 
