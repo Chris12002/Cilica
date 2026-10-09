@@ -53,7 +53,7 @@ namespace Cilica.Fixtures.Execution
             return unchecked(Replace(ref value,replacement,a)+value.Number+Hash(ref value));
         }
         public static int NullToObject(int a,int b)
-        { ReferenceCallBase value=null;return Replace(ref value,new ReferenceCallBase(a),b); }
+        { ReferenceCallBase value=null;try{return Replace(ref value,new ReferenceCallBase(a),b);}catch(NullReferenceException){return unchecked(value.Number+17);} }
         public static int ObjectToNull(int a,int b)
         {
             ReferenceCallBase value=new ReferenceCallBase(a);

@@ -88,7 +88,8 @@ internal static class IrValidator
             IrBlock block = method.Blocks[id];
             Require(block is not null && block.Id == id && block.ILOffset > previousBlockOffset, "blocks need consecutive IDs and increasing IL offsets.");
             Require(!block.Inputs.IsDefault && block.Inputs.Length <= IrLimits.MaximumInputs
-                && block.Inputs.All(t => types.Valid(t, storage: false) && t.Kind != IrTypeKind.ManagedLocation), "invalid block inputs; location joins require later lifetime analysis.");
+                && block.Inputs.All(t => types.Valid(t, storage: false) && (t.Kind != IrTypeKind.ManagedLocation
+                    || locations is not null && types.IntegerCasts)), "invalid block inputs; location joins require the scoped integer-object profile.");
             inputs += block.Inputs.Length;
             Require(inputs <= IrLimits.MaximumInputs, "aggregate block-input limit exceeded.");
             previousBlockOffset = block.ILOffset;

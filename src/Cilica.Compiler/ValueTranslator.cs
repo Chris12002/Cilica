@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v116";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v117";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -1074,18 +1074,17 @@ public static class ValueTranslator
                     var sources = stack.Select(value =>
                     {
                         var expression = valueExpressions[value];
-                        if ((stableConstructorReceiver || method.Binding.Kind is (ObjectMethodKind.ValueConstructor or ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance))
+                        // Preserve constructor-this identity for readonly-field initialization,
+                        // and legacy receiver rematerialization. Integer-object flow
+                        // transfers checked location packets instead: distinct predecessors
+                        // may select different slots without copying the pointed-to value.
+                        if ((stableConstructorReceiver || method.Binding.Kind == ObjectMethodKind.ValueConstructor
+                            || !types.IntegerCasts && method.Binding.Kind is (ObjectMethodKind.ValueInstance or ObjectMethodKind.PrimitiveInstance))
                             && expression is IrExpression.Parameter { Index: 0 }) return expression;
-                        // These addresses identify a stable slot for the whole method.
-                        // Recreate the exact same borrow at the successor instead of
-                        // introducing a native location phi. Never reload its contents.
-                        if (types.IntegerCasts && values[value].Kind == IrTypeKind.ManagedLocation
-                            && expression is (IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.Parameter))
-                            return expression;
                         return null;
                     }).ToImmutableArray();
-                    if (stackTypes.Where((type, index) => type.Kind == IrTypeKind.ManagedLocation && sources[index] is null).Any())
-                        Error(from, "Managed locations other than stable local/parameter slots cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
+                    if (!types.IntegerCasts && stackTypes.Where((type, index) => type.Kind == IrTypeKind.ManagedLocation && sources[index] is null).Any())
+                        Error(from, "Managed locations cannot cross block joins in this profile.", DiagnosticIds.ExecutionUnsupported);
                     if (!incoming[target].IsDefault && !incoming[target].SequenceEqual(stackTypes))
                     {
                         if (exceptions is null || incoming[target].Length != stackTypes.Length) Error(from, "Block receives incompatible stack types or depths.");

@@ -4966,3 +4966,23 @@ Diagnostic string charging measures 352,292 UTF-16 units, above production 262,1
 only the audit copy receives more room. The fixed frozen engine reaches aggregate
 value-IR capacity after discovery/access validation. Neither root emits C++; full
 engine closure and saved-game replay remain incomplete. See ADR AC0229.
+
+
+### Checked branch references (AC8.93)
+
+Integer-object control flow now carries checked managed locations and their owner
+roots across branches, including selections between different variables and
+heap/array/static locations. Readonly widening and exact element types are
+validated at both IR stages; constructor-this identity remains explicit for
+readonly initialization. Self-edge copies use separate source/input slots.
+CIL117/object IR70/native86; runtime representation, grants and production budgets
+are unchanged. Converted EffectOperationInstruction.Run guided the regression.
+
+All 181 distinct selected checks pass, including 6,174 new/promoted sanitized
+O0/O2 native/.NET comparisons. The reviewed slice clears all body-level failures:
+15,254/15,254 frozen bodies translate individually (3,839,228 metadata units,
+63,374 ms). The completed bodies total 61,756 blocks, 294,454 statements and 1,021
+exception regions. This diagnostic run returns no program; production aggregate
+capacity, full logical/scalar validation, native engine and saved-game replay
+remain incomplete. See ADR AC0237 for lifetime reasoning, review corrections and
+exact evidence.

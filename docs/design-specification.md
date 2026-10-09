@@ -5045,3 +5045,23 @@ All 61 distinct selected checks pass, including 2,058 new sanitized O0/O2
 native/.NET comparisons. The frozen inventory clears ForcedMovementOperation.Run:
 15,247/15,254 bodies translate individually, leaving seven address joins. It emits
 no program or native engine; full closure and replay remain incomplete. See ADR AC0236.
+
+
+### Checked branch references (AC8.93)
+
+Integer-object control flow now carries checked managed locations and their owner
+roots across branches, including selections between different variables and
+heap/array/static locations. Readonly widening and exact element types are
+validated at both IR stages; constructor-this identity remains explicit for
+readonly initialization. Self-edge copies use separate source/input slots.
+CIL117/object IR70/native86; runtime representation, grants and production budgets
+are unchanged. Converted EffectOperationInstruction.Run guided the regression.
+
+All 181 distinct selected checks pass, including 6,174 new/promoted sanitized
+O0/O2 native/.NET comparisons. The reviewed slice clears all body-level failures:
+15,254/15,254 frozen bodies translate individually (3,839,228 metadata units,
+63,374 ms). The completed bodies total 61,756 blocks, 294,454 statements and 1,021
+exception regions. This diagnostic run returns no program; production aggregate
+capacity, full logical/scalar validation, native engine and saved-game replay
+remain incomplete. See ADR AC0237 for lifetime reasoning, review corrections and
+exact evidence.

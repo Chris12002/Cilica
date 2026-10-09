@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v85";
+    public const string Profile = "object-frames-native-v86";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -923,6 +923,9 @@ public static class ObjectCppEmitter
                 for (int i = 0; i < edge.Arguments.Length; i++)
                 {
                     code.Append("    ").Append(layout.Storage(ObjectRootKind.BlockInput, i, edge.Target)).Append(" = ").Append(Value(edge.Arguments[i])).Append(";\n");
+                    var type = method.Blocks[edge.Target].Inputs[i];
+                    if (type.Kind == IrTypeKind.ManagedLocation)
+                        PublishLocation(ObjectRootKind.BlockInput, i, type, edge.Target);
                     if ((i + 1) % CopiesPerStep == 0) Flush();
                 }
                 code.Append("    return b").Append(N(edge.Target)).Append(";\n"); Flush(terminal: true);
