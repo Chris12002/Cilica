@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "status": "prepared-not-executed-host-approval-required",
+  "candidate_repository": "https://github.com/kappa7194/base32",
+  "candidate_commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+  "source_git_blob": "bd6584e246151e3e493ed1eb9f17de269cb1ddc1",
+  "license_git_blob": "1b3da92904fd9e9c1f4f327fafa5c7e0c771b150",
+  "license": "MIT; Copyright 2014 Albireo",
+  "candidate_dll_sha256": null,
+  "imported_assembly_scope": "Entire pinned Base32.cs plus unchanged owned Probe.cs compiled to Albireo.SelectedDecode.dll; Encode compiled but excluded from execution. No upstream projects/tests/analyzers/generators.",
+  "execution_root": "Cilica.CandidateValidation.AlbireoDecodeProbe.Run(Int32,Int32) -> Base32.Decode(in String)",
+  "scenario_count": 32,
+  "input_max_utf16": 257,
+  "transcript_max_per_scenario": 4096,
+  "host": {
+    "unity": "6000.3.2f1 ARM64",
+    "target": "Mac IL2CPP ARM64",
+    "xcode": "26.1.1",
+    "isolation": "Normal local Mac; no enforced network/credential/filesystem isolation or CPU/memory/PID caps",
+    "watchdog_seconds": 1790,
+    "console_max_bytes": 67108864,
+    "capture_max_bytes": 1073741824,
+    "job_worker_count_hint": 2,
+    "isolated_unity_environment_verified": false
+  },
+  "profile": {
+    "kind": "diagnostic Development IL2CPP",
+    "scenarios": [
+      2,
+      8,
+      29,
+      31
+    ],
+    "warm_iterations": 8,
+    "samples": 3,
+    "iterations_min": 1,
+    "iterations_max": 128,
+    "profiler_buffer_bytes": 33554432,
+    "raw_soft_max_bytes": 67108864,
+    "scope": "Source construction and owned Probe.Run observation-length logic, including two Decode calls per Run. Not pure Decode timing.",
+    "competitive_timing": false,
+    "marker_inspection_required": true
+  },
+  "approval": {
+    "host_unity": null,
+    "inherited_from_diffplex": false,
+    "inherited_from_isolated_dotnet_cilica": false,
+    "needed": "Separate exact approval for importing/building this whole pinned DLL with owned wrappers, LaunchServices verify/player diagnostic profile on the normal host with stated limits. Pin actual DLL before import."
+  },
+  "unverified": [
+    "Real candidate DLL build/hash",
+    "Unity template import/package resolution",
+    "IL2CPP build and actual emitted configuration",
+    "32-scenario Unity/.NET equivalence including exact exception messages",
+    "Candidate-specific capture matcher",
+    "LaunchServices player route for this adapter",
+    "Raw marker samples/log inspection and soft-bound watchdog",
+    "Any isolated Unity environment"
+  ],
+  "owned_inputs": {
+    "tools/CompatibilityCandidates/albireo-unity/README.md": "06808bfe8c024ba27414b20fc945e0d9060c95b964df11f32e9631685c9e78cc",
+    "tools/CompatibilityCandidates/albireo-unity/capture-requirements.json": "2a118e62837e5480407772e5be820ef825bc6c114d70d5fd88623ebf07767f10",
+    "tools/CompatibilityCandidates/albireo-unity/stage_bundle.py": "41f8a7936849f32a53a0a10c99fc0eb102d484116e2a4b8cef2fe953d7e1b0bb",
+    "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Assets/AlbireoUnityHarness.cs": "41742b72a021ed50f75ecc7bad25ee80daa5f85ed5142cfd3601021239a9b804",
+    "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Assets/Editor/AlbireoReferenceBuild.cs": "5e5d8b45d1b16e6b431ad95f4b68b2e5d4b314130567f1d06ed6c565449a8931",
+    "tools/CompatibilityCandidates/albireo-unity/template/ProjectData~/Packages/manifest.json": "c3fe8f046850238f5859d8a2756efd532ac71de6f579b70442a8b04880ce5cbd",
+    "tools/CompatibilityCandidates/albireo-unity/template/package.json": "8281e752f0e4d7f540c645f8641564a8b8b09b250f34f7c9b0de1497252a3eb3",
+    "tools/CompatibilityCandidates/albireo-unity/transcript.py": "ef55daf06a9c23ab59a1a51b8ced5c21cffc8f3e1e9f9ca7d931fb89ffc11825",
+    "tools/CompatibilityCandidates/albireo-validation/Probe.cs": "633269ecc3ffd9952a4edadefdc7b269c086e278a98ee0694be62140c196e139"
+  }
+}

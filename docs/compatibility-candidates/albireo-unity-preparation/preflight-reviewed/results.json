@@ -1,0 +1,56 @@
+[
+  {
+    "name": "player-development",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/private/tmp/cilica-albireo-unity-plan-20261009/preflight-reviewed/player-development.rsp"
+    ],
+    "exit_code": 0,
+    "seconds": 0.363590792,
+    "compiler_only": true,
+    "candidate_input": "Owned throwing signature stub; no upstream source or DLL",
+    "source_sha256": {
+      "template/ProjectData~/Assets/AlbireoUnityHarness.cs": "41742b72a021ed50f75ecc7bad25ee80daa5f85ed5142cfd3601021239a9b804",
+      "template/ProjectData~/Assets/Editor/AlbireoReferenceBuild.cs": "5e5d8b45d1b16e6b431ad95f4b68b2e5d4b314130567f1d06ed6c565449a8931",
+      "preflight-reviewed/ProbeSignatureOnly.cs": "fa135d380346b1087f0d1dc0a37386f020e75d4c0d91a50ea2abbaf020423c6f"
+    }
+  },
+  {
+    "name": "player-release",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/private/tmp/cilica-albireo-unity-plan-20261009/preflight-reviewed/player-release.rsp"
+    ],
+    "exit_code": 0,
+    "seconds": 0.302023292,
+    "compiler_only": true,
+    "candidate_input": "Owned throwing signature stub; no upstream source or DLL",
+    "source_sha256": {
+      "template/ProjectData~/Assets/AlbireoUnityHarness.cs": "41742b72a021ed50f75ecc7bad25ee80daa5f85ed5142cfd3601021239a9b804",
+      "template/ProjectData~/Assets/Editor/AlbireoReferenceBuild.cs": "5e5d8b45d1b16e6b431ad95f4b68b2e5d4b314130567f1d06ed6c565449a8931",
+      "preflight-reviewed/ProbeSignatureOnly.cs": "fa135d380346b1087f0d1dc0a37386f020e75d4c0d91a50ea2abbaf020423c6f"
+    }
+  },
+  {
+    "name": "editor",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/private/tmp/cilica-albireo-unity-plan-20261009/preflight-reviewed/editor.rsp"
+    ],
+    "exit_code": 0,
+    "seconds": 0.300752292,
+    "compiler_only": true,
+    "candidate_input": "Owned throwing signature stub; no upstream source or DLL",
+    "source_sha256": {
+      "template/ProjectData~/Assets/AlbireoUnityHarness.cs": "41742b72a021ed50f75ecc7bad25ee80daa5f85ed5142cfd3601021239a9b804",
+      "template/ProjectData~/Assets/Editor/AlbireoReferenceBuild.cs": "5e5d8b45d1b16e6b431ad95f4b68b2e5d4b314130567f1d06ed6c565449a8931",
+      "preflight-reviewed/ProbeSignatureOnly.cs": "fa135d380346b1087f0d1dc0a37386f020e75d4c0d91a50ea2abbaf020423c6f"
+    }
+  }
+]

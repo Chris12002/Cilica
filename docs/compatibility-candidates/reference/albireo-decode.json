@@ -90,7 +90,7 @@
     "reference_roots": [],
     "reference_input_cases": null,
     "capture": null,
-    "blocker": "",
+    "blocker": "Only normal Mac host Unity is demonstrated. Separate exact Albireo host approval, actual isolated DLL/hash and candidate runner/capture adaptation are pending; no isolated Unity environment verified.",
     "correctness": {
       "status": "not-run",
       "input_fingerprint": "",
@@ -135,5 +135,6 @@
     "performance_not_applicable": "",
     "review": null
   },
-  "next_action": "Hand off selected Decode roots and proposed32 bounded cases to Unity lane. Preserve pending execution approval; existing proposal excludes host candidate execution. Define adapter/input pins, permitted environment or explicit blocker/alternative before any capture or run."
+  "next_action": "Review prepared Albireo Unity plan. Existing isolated .NET/Cilica permission, if granted, does not approve host Unity. Bind actual whole DLL and owned adapter/project pins before separately approved import/build/verify/profile. Gates remain pending.",
+  "preparation_plan": "docs/compatibility-candidates/albireo-unity-plan.json"
 }

@@ -1,0 +1,53 @@
+[
+  {
+    "name": "player-development",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/tmp/cilica-albireo-unity-plan-20261009/preflight/player-development.rsp"
+    ],
+    "exit_code": 0,
+    "seconds": 0.42192012500000003,
+    "source_sha256": {
+      "Assets/AlbireoUnityHarness.cs": "4b2ee4d9624814844fd11051969568040f1d8e35a69eaae3f51b27497be6e555",
+      "preflight/ProbeSignatureOnly.cs": "fa135d380346b1087f0d1dc0a37386f020e75d4c0d91a50ea2abbaf020423c6f"
+    },
+    "compiler_only": true,
+    "candidate_input": "owned throwing signature stub; no upstream source/DLL supplied"
+  },
+  {
+    "name": "player-release",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/tmp/cilica-albireo-unity-plan-20261009/preflight/player-release.rsp"
+    ],
+    "exit_code": 1,
+    "seconds": 0.28628525000000005,
+    "source_sha256": {
+      "Assets/AlbireoUnityHarness.cs": "4b2ee4d9624814844fd11051969568040f1d8e35a69eaae3f51b27497be6e555",
+      "preflight/ProbeSignatureOnly.cs": "fa135d380346b1087f0d1dc0a37386f020e75d4c0d91a50ea2abbaf020423c6f"
+    },
+    "compiler_only": true,
+    "candidate_input": "owned throwing signature stub; no upstream source/DLL supplied"
+  },
+  {
+    "name": "editor",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/tmp/cilica-albireo-unity-plan-20261009/preflight/editor.rsp"
+    ],
+    "exit_code": 0,
+    "seconds": 0.3004748330000001,
+    "source_sha256": {
+      "Assets/Editor/AlbireoReferenceBuild.cs": "cfb3524769f2e4b53343c6a42bf72f89c38628e75ffebd7e04292bc12764737c",
+      "Assets/AlbireoUnityHarness.cs": "4b2ee4d9624814844fd11051969568040f1d8e35a69eaae3f51b27497be6e555"
+    },
+    "compiler_only": true,
+    "candidate_input": "owned throwing signature stub; no upstream source/DLL supplied"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "mode": "owned metadata inspector; inspected DLL never loaded/invoked",
+  "exit_code": 0,
+  "inspected_dll_sha256": "04a9e39d57a36b6fd37e2f7937282af5e64a00990b08096afb4c3460f30a365f",
+  "inspector_source_sha256": "ddbb9f3587c3442759d7fd9e519eed1c1ebd576338dad5ae7e52c98fe6129297",
+  "defines": [
+    "DEVELOPMENT_BUILD",
+    "ENABLE_PROFILER"
+  ],
+  "limitation": "Does not prove actual Unity Development player marker capture."
+}

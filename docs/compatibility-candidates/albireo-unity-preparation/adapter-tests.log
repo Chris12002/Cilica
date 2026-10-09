@@ -1,0 +1,13 @@
+test_bad_dll_or_license_creates_no_output (test_albireo_unity_adapter.AlbireoStagingTests) ... ok
+test_only_exact_pinned_data_is_copied_without_execution (test_albireo_unity_adapter.AlbireoStagingTests) ... ok
+test_symlink_output_parent_or_input_is_rejected (test_albireo_unity_adapter.AlbireoStagingTests) ... ok
+test_changed_observation_rejects_even_with_new_checksum (test_albireo_unity_adapter.AlbireoTranscriptTests) ... ok
+test_exact_complete_transcript_passes (test_albireo_unity_adapter.AlbireoTranscriptTests) ... ok
+test_missing_reordered_oversized_or_boolean_rows_reject (test_albireo_unity_adapter.AlbireoTranscriptTests) ... ok
+test_pin_fingerprint_runtime_error_and_missing_mode_reject (test_albireo_unity_adapter.AlbireoTranscriptTests) ... ok
+test_profile_requires_all_samples_matching_scope_and_observations (test_albireo_unity_adapter.AlbireoTranscriptTests) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.023s
+
+OK

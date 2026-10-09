@@ -1,0 +1,26 @@
+{
+  "candidate_pin": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+  "imported_assembly": "Albireo.SelectedDecode.dll",
+  "required_generated_symbols": [
+    "AlbireoDecodeProbe_Run",
+    "Base32_Decode"
+  ],
+  "owned_build_entry": "AlbireoReferenceBuild.Build",
+  "profile_marker": "Cilica.Albireo.DecodeSelectedRoots",
+  "static_questions": [
+    "Find Decode call sites for character-set trimming, invariant uppercase and character array copying.",
+    "Find Char predicate Any delegate and array enumeration/indexed-read implementations.",
+    "Inspect checked arithmetic, invalid-input exception order and readonly string parameter lowering.",
+    "Map emitted allocations/root lifetimes to Cilica-owned regressions without copying Unity implementation."
+  ],
+  "capture_adapter": "Performance lane must replace the existing capture.py BenchProbe matcher with these exact generated symbol prefixes and preserve original source/settings/native hashes. No capture performed.",
+  "profile_kind": "diagnostic Development IL2CPP instrumentation; no same-runtime or competitive speed claim",
+  "profile_acceptance": {
+    "closed_raw_max_bytes": 67108864,
+    "watchdog": "Future owned watchdog must monitor raw size as a soft bound; not implemented by this data-only adapter.",
+    "required_marker_samples": 3,
+    "required_marker": "Cilica.Albireo.DecodeSelectedRoots",
+    "inspection": "Retain explicit marker inspection receipt and console/player logs. Reject or qualify skipped frames, paused collection and buffer overflow; nonempty raw bytes are insufficient. Do not silently increase buffer cap.",
+    "settings": "Preserve requested settings separately from actual API readbacks, BuildReport options and emitted compiler flags."
+  }
+}

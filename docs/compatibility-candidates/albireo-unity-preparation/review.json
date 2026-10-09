@@ -1,0 +1,26 @@
+{
+  "status": "prepared; execution pending",
+  "review": "Independent Unity lane reviewed APIs and profiler preparation; final code/source review completed before commit.",
+  "findings_addressed": [
+    "Check raw size after closing profiler as well as sampling frames",
+    "Require future watchdog size monitoring and explicit three-marker/overflow inspection receipt",
+    "Define ENABLE_PROFILER and inspect emitted marker calls",
+    "Distinguish requested settings from actual emitted options/readbacks"
+  ],
+  "passed": {
+    "synthetic_and_existing_workflow_tests": 37,
+    "owned_compile_only_configurations": 3,
+    "emitted_profiler_begin_calls": 1,
+    "emitted_profiler_end_calls": 1,
+    "pending_reference_and_completion_gates_exit": 2
+  },
+  "failed_retained": "Initial release compile fixture CS0649, corrected and all three configurations rerun; earlier receipts retained.",
+  "not_run": [
+    "Upstream source/DLL build or execution",
+    "Unity Editor import/build",
+    "Actual IL2CPP or player verification/profile",
+    "Candidate-specific generated source capture"
+  ],
+  "runtime_production_files_changed": false,
+  "additional_permission": "Separate exact normal-host Unity approval; current offline/DiffPlex scope does not extend to this candidate."
+}

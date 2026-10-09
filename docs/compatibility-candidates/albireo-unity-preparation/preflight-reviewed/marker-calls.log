@@ -1,0 +1,3 @@
+Update IL_0056: call UnityEngine.Profiling.Profiler.BeginSample
+Update IL_0079: call UnityEngine.Profiling.Profiler.EndSample
+begin=1; end=1; metadata-only inspection

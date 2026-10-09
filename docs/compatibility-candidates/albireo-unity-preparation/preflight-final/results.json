@@ -1,0 +1,53 @@
+[
+  {
+    "name": "player-development",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/tmp/cilica-albireo-unity-plan-20261009/preflight-final/player-development.rsp"
+    ],
+    "exit_code": 0,
+    "seconds": 0.350171625,
+    "source_sha256": {
+      "template/ProjectData~/Assets/AlbireoUnityHarness.cs": "75256456d618afdbcb6ebe18bf8fb2746e51ef0a39f8a5a1950724e741a5e3a6",
+      "preflight-final/ProbeSignatureOnly.cs": "fa135d380346b1087f0d1dc0a37386f020e75d4c0d91a50ea2abbaf020423c6f"
+    },
+    "compiler_only": true,
+    "candidate_input": "owned throwing signature stub; no upstream source/DLL supplied"
+  },
+  {
+    "name": "player-release",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/tmp/cilica-albireo-unity-plan-20261009/preflight-final/player-release.rsp"
+    ],
+    "exit_code": 0,
+    "seconds": 0.285787584,
+    "source_sha256": {
+      "template/ProjectData~/Assets/AlbireoUnityHarness.cs": "75256456d618afdbcb6ebe18bf8fb2746e51ef0a39f8a5a1950724e741a5e3a6",
+      "preflight-final/ProbeSignatureOnly.cs": "fa135d380346b1087f0d1dc0a37386f020e75d4c0d91a50ea2abbaf020423c6f"
+    },
+    "compiler_only": true,
+    "candidate_input": "owned throwing signature stub; no upstream source/DLL supplied"
+  },
+  {
+    "name": "editor",
+    "argv": [
+      "/Users/christian/.dotnet/dotnet",
+      "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/csc.dll",
+      "/noconfig",
+      "@/tmp/cilica-albireo-unity-plan-20261009/preflight-final/editor.rsp"
+    ],
+    "exit_code": 0,
+    "seconds": 0.27320904200000007,
+    "source_sha256": {
+      "template/ProjectData~/Assets/Editor/AlbireoReferenceBuild.cs": "cfb3524769f2e4b53343c6a42bf72f89c38628e75ffebd7e04292bc12764737c",
+      "template/ProjectData~/Assets/AlbireoUnityHarness.cs": "75256456d618afdbcb6ebe18bf8fb2746e51ef0a39f8a5a1950724e741a5e3a6"
+    },
+    "compiler_only": true,
+    "candidate_input": "owned throwing signature stub; no upstream source/DLL supplied"
+  }
+]

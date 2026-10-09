@@ -1,0 +1,7 @@
+{
+  "name": "com.cilica.template.albireo-reference",
+  "version": "1.0.0",
+  "displayName": "Cilica Albireo Decode reference (execution approval required)",
+  "type": "template",
+  "unity": "6000.3"
+}

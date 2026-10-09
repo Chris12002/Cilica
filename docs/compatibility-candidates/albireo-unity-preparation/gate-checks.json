@@ -1,0 +1,50 @@
+[
+  {
+    "gate": "reference-gate",
+    "exit_code": 2,
+    "output": {
+      "gate": "reference-gate",
+      "complete": false,
+      "blockers": [
+        "representative input cases: Evidence requires path and SHA-256",
+        "common candidate input requires assembly names and SHA-256 pins",
+        "Unity reference capture pending (or explicit blocker/alternative required)",
+        "Static generated/runtime reference inspection incomplete",
+        "reference-to-implementation design review: Evidence requires path and SHA-256",
+        "Concrete generated/runtime reference locations required",
+        "Representative runtime profile pending",
+        "No concrete reference mapped to gap: decode-closure-validation",
+        "Owned regressions required: decode-closure-validation"
+      ]
+    }
+  },
+  {
+    "gate": "gate",
+    "exit_code": 2,
+    "output": {
+      "gate": "gate",
+      "complete": false,
+      "blockers": [
+        "representative input cases: Evidence requires path and SHA-256",
+        "common candidate input requires assembly names and SHA-256 pins",
+        "Unity reference capture pending (or explicit blocker/alternative required)",
+        "Static generated/runtime reference inspection incomplete",
+        "reference-to-implementation design review: Evidence requires path and SHA-256",
+        "Concrete generated/runtime reference locations required",
+        "Representative runtime profile pending",
+        "No concrete reference mapped to gap: decode-closure-validation",
+        "Owned regressions required: decode-closure-validation",
+        "Gap still open: decode-closure-validation",
+        "implementation record for decode-closure-validation: Evidence requires path and SHA-256",
+        "Differential correctness not complete",
+        "Declare owned-regression versus selected-candidate validation coverage",
+        "Validated Cilica commit required",
+        "Differential input identity mismatch",
+        "dotnet receipt: Evidence requires path and SHA-256",
+        "cilica receipt: Evidence requires path and SHA-256",
+        "Performance check or explicit no-performance-claim rationale required",
+        "final semantic/performance review: Evidence requires path and SHA-256"
+      ]
+    }
+  }
+]
