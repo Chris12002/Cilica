@@ -25,7 +25,7 @@ public sealed record ManagedExceptionTypes(ObjectTypeId Base, ImmutableArray<Obj
 
 public sealed record ManagedExceptionIrProgram(DelegateValueIrProgram Flow, ManagedExceptionTypes Exceptions)
 {
-    public const string Profile = "managed-exceptions-ir-v9";
+    public const string Profile = "managed-exceptions-ir-v10";
 }
 
 public static class ManagedExceptionIrValidator

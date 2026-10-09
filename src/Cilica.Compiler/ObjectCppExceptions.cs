@@ -35,7 +35,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         .Append("[](Object* p) noexcept { delete reinterpret_cast<ExceptionObject*>(p); }, &").Append(parent)
         .Append("_descriptor, nullptr, 0, nullptr, exception_field};\n");
 
-    internal static void AppendHelpers(StringBuilder text, ManagedExceptionTypes types, ObjectTypeCatalog catalog, Func<ObjectTypeId, string> symbol, ImmutableArray<ExceptionCastText> casts, ImmutableArray<ValueTypeLayout> values, bool arrayCopies)
+    internal static void AppendHelpers(StringBuilder text, ManagedExceptionTypes types, ObjectTypeCatalog catalog, Func<ObjectTypeId, string> symbol, ExceptionCastTextPlan casts, ImmutableArray<ValueTypeLayout> values, bool arrayCopies)
     {
         text.Append("[[gnu::noinline]] static bool known_exception(const Descriptor* type) noexcept {\n");
         foreach (var type in types.Types) text.Append("    if (type == &").Append(symbol(type)).Append("_descriptor) return true;\n");
@@ -58,7 +58,7 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
         foreach (var resource in resources)
             text.Append("static constexpr std::uint16_t exception_text_").Append(resource.Value.ToString(CultureInfo.InvariantCulture)).Append("[] = {")
                 .AppendJoin(", ", resource.Key.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture))).Append("};\n");
-        text.Append("struct ExceptionText { const std::uint16_t* units = nullptr; std::uint32_t length = 0; std::size_t cache_id = 0; };\n")
+        text.Append("struct ExceptionText { const std::uint16_t* units = nullptr; std::uint32_t length = 0; std::size_t cache_id = 0; const std::uint16_t* tail = nullptr; std::uint32_t tail_length = 0; };\n")
             .Append("struct ExceptionTextEntry { const Descriptor* type; std::uint32_t kind; ExceptionText text; };\nstatic constexpr ExceptionTextEntry exception_texts[] = {\n");
         foreach (var pair in messages)
             text.Append("    {&").Append(symbol(pair.Key.Type)).Append("_descriptor, ").Append(pair.Key.Kind.ToString(CultureInfo.InvariantCulture))
@@ -66,20 +66,40 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
                 .Append((pair.Value.StartsWith("Exception of type '", StringComparison.Ordinal) ? 0 : resources[pair.Value] + 1).ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
         text.Append("};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_text(const Descriptor* type, std::uint32_t kind) noexcept {\n")
             .Append("    for (const auto& entry : exception_texts) if (entry.type == type && entry.kind == kind) return entry.text;\n    return {};\n}\n");
-        text.Append("struct ExceptionCastTextEntry { const Descriptor* from; const Descriptor* to; bool nullable_target; ExceptionText text; };\n");
-        for (int i = 0; i < casts.Length; ++i)
-            text.Append("static constexpr std::uint16_t cast_text_").Append(i.ToString(CultureInfo.InvariantCulture)).Append("[] = {")
-                .AppendJoin(", ", casts[i].Text.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture))).Append("};\n");
-        text.Append("static constexpr std::array<ExceptionCastTextEntry, ").Append(casts.Length.ToString(CultureInfo.InvariantCulture)).Append("> exception_cast_texts = {{\n");
-        for (int i = 0; i < casts.Length; ++i)
+        text.Append("struct ExceptionCastSourceEntry { const Descriptor* type; ExceptionText text; };\n")
+            .Append("struct ExceptionCastTargetEntry { const Descriptor* type; bool nullable_target; ExceptionText text; };\n");
+        for (int i = 0; i < casts.Sources.Length; ++i)
+            text.Append("static constexpr std::uint16_t cast_source_text_").Append(i.ToString(CultureInfo.InvariantCulture)).Append("[] = {")
+                .AppendJoin(", ", casts.Sources[i].Text.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture))).Append("};\n");
+        for (int i = 0; i < casts.Targets.Length; ++i)
+            text.Append("static constexpr std::uint16_t cast_target_text_").Append(i.ToString(CultureInfo.InvariantCulture)).Append("[] = {")
+                .AppendJoin(", ", casts.Targets[i].Text.Select(ch => ((ushort)ch).ToString(CultureInfo.InvariantCulture))).Append("};\n");
+        text.Append("static constexpr std::array<ExceptionCastSourceEntry, ").Append(casts.Sources.Length.ToString(CultureInfo.InvariantCulture)).Append("> exception_cast_sources = {{\n");
+        for (int i = 0; i < casts.Sources.Length; ++i)
         {
-            var cast = casts[i];
-            text.Append("{&").Append(cast.FromBox ? ObjectCppBoxing.Symbol(cast.From) : symbol(cast.From)).Append("_descriptor, &")
-                .Append(cast.ToBox ? ObjectCppBoxing.Symbol(cast.To) : symbol(cast.To)).Append("_descriptor, ").Append(cast.NullableTarget ? "true" : "false").Append(", {cast_text_")
-                .Append(i.ToString(CultureInfo.InvariantCulture)).Append(", ").Append(cast.Text.Length.ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
+            var source = casts.Sources[i];
+            text.Append("{&").Append(source.Box ? ObjectCppBoxing.Symbol(source.Type) : symbol(source.Type)).Append("_descriptor, {cast_source_text_")
+                .Append(i.ToString(CultureInfo.InvariantCulture)).Append(", ").Append(source.Text.Length.ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
         }
-        text.Append("}};\n[[maybe_unused, gnu::noinline]] static ExceptionText exception_cast_text(const Descriptor* from, const Descriptor* to, bool nullable_target) noexcept {\n")
-            .Append("    for (const auto& entry : exception_cast_texts) if (entry.from == from && entry.to == to && entry.nullable_target == nullable_target) return entry.text;\n    return {};\n}\n");
+        text.Append("}};\nstatic constexpr std::array<ExceptionCastTargetEntry, ").Append(casts.Targets.Length.ToString(CultureInfo.InvariantCulture)).Append("> exception_cast_targets = {{\n");
+        for (int i = 0; i < casts.Targets.Length; ++i)
+        {
+            var target = casts.Targets[i];
+            text.Append("{&").Append(target.Box ? ObjectCppBoxing.Symbol(target.Type) : symbol(target.Type)).Append("_descriptor, ").Append(target.NullableTarget ? "true" : "false")
+                .Append(", {cast_target_text_").Append(i.ToString(CultureInfo.InvariantCulture)).Append(", ").Append(target.Text.Length.ToString(CultureInfo.InvariantCulture)).Append("u}},\n");
+        }
+        text.Append("""
+}};
+[[maybe_unused, gnu::noinline]] static ExceptionText exception_cast_text(const Descriptor* from, const Descriptor* to, bool nullable_target) noexcept {
+    ExceptionText first;
+    for (const auto& entry : exception_cast_sources) if (entry.type == from) { first = entry.text; break; }
+    if (first.units == nullptr) return {};
+    for (const auto& entry : exception_cast_targets)
+        if (entry.type == to && entry.nullable_target == nullable_target)
+            return {first.units, first.length, 0, entry.text.units, entry.text.length};
+    return {};
+}
+""").Append('\n');
         text.Append("[[maybe_unused, gnu::noinline]] static bool argument_exception(const Descriptor* type) noexcept {\n");
         if (types.ArgumentBase is { } argumentBase) text.Append("    return derives_from(type, &").Append(symbol(argumentBase)).Append("_descriptor);\n");
         else text.Append("    (void)type; return false;\n");
@@ -136,7 +156,8 @@ struct ExceptionOrigin { std::uint32_t status = 0; const char* image = nullptr; 
 
     private const string ResourceHelper = """
 [[maybe_unused, gnu::noinline]] static Object* exception_resource(Context& c, const Descriptor& type, ExceptionText text) noexcept {
-    if (text.cache_id == 0) return allocate_string(c, type, text.units, text.length, nullptr, 0);
+    if (text.cache_id != 0 && (text.tail != nullptr || text.tail_length != 0)) { c.pending = 6; return nullptr; }
+    if (text.cache_id == 0) return allocate_string(c, type, text.units, text.length, text.tail, text.tail_length);
     std::size_t count = 0;
     for (auto* value = c.instance.exception_resources; value != nullptr; value = value->literal_next) {
         if (++count > exception_resource_capacity || !traceable_reference(c.instance, reinterpret_cast<Object*>(value)) || value->header.type != &type) { c.pending = 6; return nullptr; }

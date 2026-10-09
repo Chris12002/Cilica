@@ -6,10 +6,12 @@ using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
 
-internal sealed record ExceptionCastText(ObjectTypeId From, bool FromBox, ObjectTypeId To, bool ToBox, bool NullableTarget, string Text);
+internal sealed record ExceptionCastSource(ObjectTypeId Type, bool Box, string Text);
+internal sealed record ExceptionCastTarget(ObjectTypeId Type, bool Box, bool NullableTarget, string Text);
+internal sealed record ExceptionCastTextPlan(ImmutableArray<ExceptionCastSource> Sources, ImmutableArray<ExceptionCastTarget> Targets);
 internal static class ManagedExceptionCastMessages
 {
-    internal static ImmutableArray<ExceptionCastText> Build(IEnumerable<IrMethod> methods, ObjectTypeCatalog catalog, ImmutableArray<ValueTypeLayout> values)
+    internal static ExceptionCastTextPlan Build(IEnumerable<IrMethod> methods, ObjectTypeCatalog catalog, ImmutableArray<ValueTypeLayout> values)
     {
         var bodies = methods.ToArray();
         var copyTargets = bodies.SelectMany(m => m.Blocks).SelectMany(b => b.Statements).Any(s => s is IrStatement.StoreElement { CopyCast: true, ArrayType.ArrayElement.Kind: ObjectArrayElementKind.Reference })
@@ -21,7 +23,7 @@ internal static class ManagedExceptionCastMessages
             IrExpression.UnboxLocation box => (box.Type, true, false), IrExpression.CheckBox box => (box.Type, true, box.NullableTarget),
             IrExpression.AddressBoxSlot box => (box.Type, true, false), _ => ((ObjectTypeId?)null, false, false),
         }).Where(p => p.Item1 is not null).Select(p => (p.Item1!, p.Item2, p.Item3)).Concat(copyTargets).Distinct().ToArray();
-        if (targets.Length == 0) return [];
+        if (targets.Length == 0) return new([], []);
         string Name(TypeSource source)
         {
             string name = source.CastName ?? source.RuntimeName ?? source.Name[(source.Name.LastIndexOf('/') + 1)..];
@@ -51,17 +53,24 @@ internal static class ManagedExceptionCastMessages
         if (!catalog.Integer64 && targets.Any(t => !t.Item2 && interfaces.Contains(t.Item1)))
             throw new ArgumentException("Managed exception cast messages currently require class targets; interface cast messages need a supported lowering.");
         var sources = names.Where(p => !interfaces.Contains(p.Key)).Select(p => (p.Key, Box: false, p.Value)).Concat(boxes.Select(p => (p.Key, Box: true, p.Value)));
-        var result = ImmutableArray.CreateBuilder<ExceptionCastText>(); int units = 0;
-        foreach (var (target, boxed, nullableTarget) in targets)
-        foreach (var (source, sourceBox, sourceName) in sources)
+        // Retain the two independent parts, never the source x target product.
+        // Both are immutable native UTF-16; reading Message joins them once and
+        // caches that single managed allocation on the rooted exception.
+        int units = 0;
+        string Charge(string message)
         {
-            string targetName = boxed ? boxes[target] : names[target];
-            if (nullableTarget) targetName = "System.Nullable`1[" + targetName + "]";
-            string message = "Unable to cast object of type '" + sourceName + "' to type '" + targetName + "'.";
-            if ((units += message.Length) > ObjectStringLimits.MaximumTotalLiteralCodeUnits)
+            if (message.Length > ObjectStringLimits.MaximumTotalLiteralCodeUnits - units)
                 throw new ArgumentException("Cast exception message resources exceed the UTF-16 budget.");
-            result.Add(new(source, sourceBox, target, boxed, nullableTarget, message));
+            units += message.Length; return message;
         }
-        return result.ToImmutable();
+        var sourceTexts = sources.Select(source => new ExceptionCastSource(source.Key, source.Box,
+            Charge("Unable to cast object of type '" + source.Value + "' to type '"))).ToImmutableArray();
+        var targetTexts = targets.Select(target =>
+        {
+            string targetName = target.Item2 ? boxes[target.Item1] : names[target.Item1];
+            if (target.Item3) targetName = "System.Nullable`1[" + targetName + "]";
+            return new ExceptionCastTarget(target.Item1, target.Item2, target.Item3, Charge(targetName + "'."));
+        }).ToImmutableArray();
+        return new(sourceTexts, targetTexts);
     }
 }

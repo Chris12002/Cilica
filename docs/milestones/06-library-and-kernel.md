@@ -4212,3 +4212,19 @@ All 15,254 frozen bodies now pass individual IR validation. Whole-program valida
 next stops at the Cartesian cast-exception message table, which exceeds the
 diagnostic UTF-16 budget. Full validated closure, production capacity, native
 engine and saved-game replay remain incomplete.
+
+
+### Independent cast-message resources (AC8.100)
+
+Cast failure text stores source and target parts independently, then joins them
+once when Message is requested. Exact .NET display names, nullable/boxed and
+array-copy targets, cached identity, allocation-failure origin and total UTF-16
+budget remain checked. 47 selected checks pass, including a 64-target native
+regression and exact transactional message consumers. CIL124/object IR77/native87;
+logical/scalar exception IR10. Layouts, core, grants and production limits are
+unchanged. See ADR AC0244 for design, review, converted reference and receipts.
+
+The full frozen closure clears the cast-message resource gate. Its next diagnostic
+limit is 1,024 phase A roots in GameState.With. All 15,254 bodies pass individual IR
+validation; full root assignment, scalar lowering, production capacity, native
+engine execution and saved-game replay remain incomplete.
