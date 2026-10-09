@@ -256,6 +256,7 @@ internal sealed partial class ObjectIrRules
                 "ordinary selected Object methods require the admitted managed equality/hash/default-text signatures.");
         }
         ValidateGenericArrays();
+        ValidateGenericTypeTests();
         ObjectLexicalAccess.Consistent(program.Bindings.Select(b => (b.Owner, b.LexicalOwners))
             .Concat(flow.Types.Types.Select(t => (ObjectTypeId.From(t.Source), t.LexicalOwners)))
             .Concat(flow.Types.Statics.Select(f => (f.Id.Owner, f.LexicalOwners)))

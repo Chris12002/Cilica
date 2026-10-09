@@ -56,26 +56,7 @@ internal sealed partial class ObjectIrRules
                     "generic array use requires an instruction and parameter index.");
                 var arguments = use.MethodParameter ? evidence.Context.Methods : evidence.Context.Types;
                 Require(use.ParameterIndex < arguments.Length, "generic array variable index is out of range.");
-                var argument = arguments[use.ParameterIndex];
-                ObjectTypeId? element = argument switch {
-                    ClosedTypeShape.Named named => new(named.ContentHash, named.Token),
-                    ClosedTypeShape.Generic generic => new(generic.Definition.ContentHash,
-                        generic.Definition.Token, Specialization: new ClosedGenericEvidence(generic.Arguments, []).Key()),
-                    _ => null };
-                var kind = argument switch {
-                    ClosedTypeShape.Named named => named.Kind,
-                    ClosedTypeShape.Generic generic => generic.Definition.Kind,
-                    _ => (SignatureTypeKind?)null };
-                ObjectArrayElement? storage = null;
-                if (element is not null && kind == SignatureTypeKind.Class && _types.Valid(IrType.Reference(element), true))
-                    storage = ObjectArrayElement.Reference(element);
-                else if (element is not null && kind == SignatureTypeKind.ValueType)
-                {
-                    if (_program.Flow.Types.EnumArrays.Any(e => ObjectTypeId.From(e.Source) == element))
-                        storage = ObjectArrayElement.Enum32(element);
-                    else if (_arrayValueLayouts?.TryGetValue(element, out var value) == true && value.ScalarBox is null)
-                        storage = ObjectArrayElement.Value(element);
-                }
+                var storage = GenericNominalArrayElement(arguments[use.ParameterIndex]);
                 Require(storage is not null, "generic array evidence needs an exact admitted reference, inline value or Int32 enum argument.");
                 var array = ObjectTypeId.Vector(_program.Flow.Types.ObjectBase, storage);
                 Require(_arrays.Contains(array) && operations.TryGetValue(use.ILOffset, out var operation)
@@ -85,4 +66,28 @@ internal sealed partial class ObjectIrRules
             }
         }
     }
+    private ObjectArrayElement? GenericNominalArrayElement(ClosedTypeShape argument)
+    {
+        ObjectTypeId? element = argument switch {
+            ClosedTypeShape.Named named => new(named.ContentHash, named.Token),
+            ClosedTypeShape.Generic generic => new(generic.Definition.ContentHash,
+                generic.Definition.Token, Specialization: new ClosedGenericEvidence(generic.Arguments, []).Key()),
+            _ => null };
+        var kind = argument switch {
+            ClosedTypeShape.Named named => named.Kind,
+            ClosedTypeShape.Generic generic => generic.Definition.Kind,
+            _ => (SignatureTypeKind?)null };
+
+        if (element is not null && kind == SignatureTypeKind.Class && _types.Valid(IrType.Reference(element), true))
+            return ObjectArrayElement.Reference(element);
+        else if (element is not null && kind == SignatureTypeKind.ValueType)
+        {
+            if (_program.Flow.Types.EnumArrays.Any(e => ObjectTypeId.From(e.Source) == element))
+                return ObjectArrayElement.Enum32(element);
+            else if (_arrayValueLayouts?.TryGetValue(element, out var value) == true && value.ScalarBox is null)
+                return ObjectArrayElement.Value(element);
+        }
+        return null;
+    }
+
 }

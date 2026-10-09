@@ -220,6 +220,7 @@ public sealed record IrMethod(MethodSource Source, ImmutableArray<IrType> Parame
 {
     public ImmutableArray<IrExceptionRegion> ExceptionRegions { get; init; } = [];
     public GenericArrayEvidence? GenericArrays { get; init; }
+    public GenericTypeTestEvidence? GenericTypeTests { get; init; }
     // Kept for existing Int32 translation callers; reference contracts use ReferenceIrProgram.Profile.
     public const string Profile = IrProgram.Profile;
 }

@@ -1,8 +1,5 @@
 using System;
 using System.Linq;
-using System.IO;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Cilica.Compiler;
 using Cilica.Fixtures.Execution;
@@ -23,18 +20,12 @@ public sealed class LinqOfTypeTests
             (name, programs[i], typeof(LinqOfTypeProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).Skip(group * 3).Take(3).ToArray());
     }
     [Theory]
-    [InlineData("ReferenceProjection")] [InlineData("NongenericProjection")]
-    public async Task Unimplemented_oftype_shapes_remain_diagnostic(string name)
+    [InlineData(false)] [InlineData(true)]
+    public async Task Reference_projections_match_dotnet(bool optimized)
     {
-        using var files = new ResolverFiles();
-        var (built, _, resolver, implementation, plan) = await CoreLibraryBuildTests.BuildAndMap(files);
-        using var lifetime = resolver;
-        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan, await File.ReadAllBytesAsync(built.ManifestPath, TestContext.Current.CancellationToken), built.ManifestSha256).Value!;
-        var input = resolver.OpenInput(typeof(LinqOfTypeProbe).Assembly.Location).Value!;
-        var method = (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(LinqOfTypeProbe).GetMethod(name)!.MetadataToken);
-        var translated = ValueTranslator.TranslateIntegerObjects(scope, input, method, implementation);
-        Assert.False(translated.Success);
-        Assert.Contains(translated.Diagnostics, d => d.Message.Contains("requested interface contract", StringComparison.Ordinal));
+        string[] names = ["ReferenceProjection", "NongenericProjection"];
+        var programs = await CoreLibraryBuildTests.TranslateFixtures(typeof(LinqOfTypeProbe), names);
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized, names.Select((name, i) =>
+            (name, programs[i], typeof(LinqOfTypeProbe).GetMethod(name)!.CreateDelegate<Func<int, int, int>>())).ToArray());
     }
-
 }

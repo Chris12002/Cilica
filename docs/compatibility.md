@@ -5020,3 +5020,20 @@ leaves 32 first-body validation failures: 29 generic type tests/casts, two const
 prefix checks and one delegate capture. All 15,254 bodies still translate, but
 full logical/scalar closure, production capacity, native engine and saved-game
 replay remain unfinished. See ADR AC0239.
+
+
+### Generic reference casts and type tests (AC8.96)
+
+Original bare-variable and single-vector-variable type-test sites retain their
+closed context, parameter identity and exact operation/offset. Both IR stages
+validate that evidence before allowing a hidden substituted target. Array
+allocation proof remains separate; foreign explicit names and members retain
+access checks. CIL120/object IR73; native86, layouts, core, grants and production
+budgets unchanged. All 104 distinct selected checks pass, including 4,998
+new/promoted sanitized O0/O2 native/.NET comparisons. Converted CastIterator code
+guided the independent implementation; see ADR AC0240 for review and receipts.
+
+The full-IR inventory clears 23 cast/test failures and leaves nine failing bodies:
+six same-assembly type tests from generic callers, two constructor initialization
+paths and one delegate capture. All 15,254 bodies translate. Full validated closure,
+production capacity, native engine and saved-game replay remain incomplete.

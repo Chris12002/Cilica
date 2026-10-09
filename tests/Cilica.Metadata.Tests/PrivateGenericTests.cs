@@ -24,7 +24,7 @@ public sealed class PrivateGenericTests
     }
 
     [Theory]
-    [InlineData("array", true)] [InlineData("array-operand", false)] [InlineData("array-and-cast", false)]
+    [InlineData("array", true)] [InlineData("array-operand", false)] [InlineData("array-and-cast", true)]
     [InlineData("opaque", true)] [InlineData("operand", false)] [InlineData("local", false)]
     [InlineData("catch", false)] [InlineData("signature", false)] [InlineData("unrelated", false)]
     public void Foreign_generic_body_cannot_name_the_private_type_hidden_behind_its_argument(string use, bool admitted)
@@ -32,18 +32,37 @@ public sealed class PrivateGenericTests
         var result = ForeignClosure(use);
         Assert.Equal(admitted, result.Success);
         if (admitted) ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
-        else Assert.Contains(result.Diagnostics, d => d.Message.Contains(use == "catch" ? "Custom exceptions require public or same-assembly internal top-level" : use == "array-and-cast" ? "Invalid reference IR" : "lexical declaring scope", StringComparison.Ordinal));
+        else Assert.Contains(result.Diagnostics, d => d.Message.Contains(use == "catch" ? "Custom exceptions require public or same-assembly internal top-level" : "lexical declaring scope", StringComparison.Ordinal));
     }
 
     [Theory]
     [InlineData(false, "opaque")] [InlineData(true, "opaque")]
     [InlineData(false, "array")] [InlineData(true, "array")]
+    [InlineData(false, "array-and-cast")] [InlineData(true, "array-and-cast")]
     public async Task Foreign_generic_reference_transport_matches_dotnet(bool optimized, string use)
     {
         var result = ForeignClosure(use);
         Assert.True(result.Success, string.Join("; ", result.Diagnostics));
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,
             [("Foreign", result.Program!, (a, b) => unchecked(a + b))]);
+    }
+
+    [Fact]
+    public void Array_access_evidence_does_not_authorize_type_tests()
+    {
+        var program = ForeignClosure("array-and-cast").Program!;
+        var flow = program.Flow.Flow.Flow;
+        var method = flow.Methods.Single(m => m.GenericTypeTests is not null);
+        Assert.NotNull(method.GenericArrays);
+        var invalid = program with { Flow = program.Flow with { Flow = program.Flow.Flow with {
+            Flow = flow with { Methods = flow.Methods.Replace(method, method with { GenericTypeTests = null }) } } } };
+        Assert.Throws<ArgumentException>(() => ValueScalarLowering.LowerExceptions(invalid));
+        var scalar = ValueScalarLowering.LowerExceptions(program);
+        var scalarFlow = scalar.Flow.Flow.Flow.Flow.Flow;
+        var scalarMethod = scalarFlow.Methods.Single(m => IrMethodId.From(m.Source) == IrMethodId.From(method.Source));
+        var scalarInvalid = scalar with { Flow = scalar.Flow with { Flow = scalar.Flow.Flow with { Flow = scalar.Flow.Flow.Flow with {
+            Flow = scalar.Flow.Flow.Flow.Flow with { Flow = scalarFlow with { Methods = scalarFlow.Methods.Replace(scalarMethod, scalarMethod with { GenericTypeTests = null }) } } } } } };
+        Assert.Throws<ArgumentException>(() => ScalarManagedExceptionIrValidator.Validate(scalarInvalid));
     }
 
     private static ManagedExceptionTranslationResult ForeignClosure(string use)

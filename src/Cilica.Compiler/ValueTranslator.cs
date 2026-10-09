@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v119";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v120";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -252,7 +252,7 @@ public static class ValueTranslator
             for (int id = 0; id < blocks.Length; id++)
                 if (blocks[id] is null) Error(input.Instructions[partition.Ranges[id].Start].Offset,
                     "Unreachable blocks require later analysis; remove dead IL before value translation.", DiagnosticIds.ExecutionUnsupported);
-            var translated = new IrMethod(input.Source, method.Parameters, method.ReturnType, [.. blocks], locals.ToImmutable()) { ExceptionRegions = regions, GenericArrays = method.GenericArrays };
+            var translated = new IrMethod(input.Source, method.Parameters, method.ReturnType, [.. blocks], locals.ToImmutable()) { ExceptionRegions = regions, GenericArrays = method.GenericArrays, GenericTypeTests = method.GenericTypeTests };
             if (returnedFields.Count != 0)
                 NonNullFieldReturnProof.Validate(translated, stableConstructorReceiver, stableReferenceReceiver, returnedFields,
                     (offset, message, limit) => Error(offset, message, limit ? DiagnosticIds.TranslationLimit : DiagnosticIds.ExecutionUnsupported));

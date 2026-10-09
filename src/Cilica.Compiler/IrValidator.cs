@@ -69,7 +69,7 @@ internal static class IrValidator
         var types = sharedTypes ?? new IrTypeRules(catalog);
         var locations = locationRules ?? valueRules?.Locations;
         Require(method.Source is not null, "source is missing.");
-        Require(method.GenericArrays is null || objectRules is not null, "generic array evidence requires object validation.");
+        Require(method.GenericArrays is null && method.GenericTypeTests is null || objectRules is not null, "generic declaration evidence requires object validation.");
         Require(method.Source.AssemblyIdentity is not null, "assembly identity is missing.");
         Require(method.Source.ContentHash is { Length: 64 } hash && hash.All(char.IsAsciiHexDigit), "source hash must be SHA-256 hexadecimal.");
         Require(method.Source.Specialization is { } key && (key.Length == 0 || key.Length == 64 && key.All(c => char.IsAsciiDigit(c) || c is >= 'a' and <= 'f')),
@@ -121,10 +121,10 @@ internal static class IrValidator
                     && call.Arguments.Length == target.Parameters.Length && result == target.ReturnType && !call.NullCheckReceiver && !call.VirtualDispatch
                     && call.Arguments.Select((argument, index) => types.Assignable(valueTypes[argument], target.Parameters[index])).All(valid => valid);
             }
-            bool TypeTest(ObjectTypeId target, int operand, IrType result, bool boxed) => objectRules is not null
+            bool TypeTest(ObjectTypeId target, int operand, IrType result, bool boxed, int offset, bool cast) => objectRules is not null
                 && Earlier(operand) && valueTypes[operand].Kind is IrTypeKind.Reference or IrTypeKind.NullReference
                 && (boxed ? valueRules?.TypeTest(target, result) == true || boxedRules?.TypeTest(target, operand, result, valueTypes) == true
-                    : objectRules.TypeTest(method, target) && result == IrType.Reference(target));
+                    : (objectRules.TypeTest(method, target) || objectRules.GenericTypeTest(method, target, offset, cast)) && result == IrType.Reference(target));
             void Offset(int offset)
             {
                 Require(offset >= previousOffset && offset < end, "statement/terminator offset is outside its block or out of order.");
@@ -218,8 +218,8 @@ internal static class IrValidator
                             IrExpression.LoadStatic f => objectRules is not null && objectRules.StaticField(method, f.Field, false, out var staticType) && value.Type == staticType,
                             IrExpression.LoadField f => objectRules is not null && objectRules.Field(method, f.Field, f.Receiver, valueTypes, out var storage)
                                 && value.Type == storage,
-                            IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type, c.BoxedTarget),
-                            IrExpression.IsInstance t => TypeTest(t.Target, t.Operand, value.Type, t.BoxedTarget),
+                            IrExpression.CastClass c => TypeTest(c.Target, c.Operand, value.Type, c.BoxedTarget, value.ILOffset, cast: true),
+                            IrExpression.IsInstance t => TypeTest(t.Target, t.Operand, value.Type, t.BoxedTarget, value.ILOffset, cast: false),
                             IrExpression.DefaultValue d => valueRules is not null && value.Type == IrType.Value(d.Type),
                             IrExpression.BoxValue b => valueRules is not null && Earlier(b.Operand)
                                 && valueRules.Box(b.Type, valueTypes[b.Operand], value.Type),
