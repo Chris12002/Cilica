@@ -5067,3 +5067,17 @@ checks. See ADR AC0242 for design, review and receipts.
 The full-IR inventory now leaves one failing delegate capture among 15,254
 translated bodies. Full validated closure, production capacity, native engine and
 saved-game replay remain unfinished.
+
+
+### Compatible reference method-group parameters (AC8.99)
+
+A delegate may supply a reference to a method accepting an assignable base class
+or interface; result and nonreference signatures remain exact. Existing capture,
+access, receiver, null and runtime array checks stay active. CIL123/object IR76;
+native86, layouts, core, grants and production budgets unchanged. All 49 selected
+checks pass, including 2,352 new sanitized native/.NET comparisons. See ADR AC0243.
+
+All 15,254 frozen bodies now pass individual IR validation. Whole-program validation
+next stops at the Cartesian cast-exception message table, which exceeds the
+diagnostic UTF-16 budget. Full validated closure, production capacity, native
+engine and saved-game replay remain incomplete.

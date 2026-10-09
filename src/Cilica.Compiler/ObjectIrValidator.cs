@@ -369,7 +369,10 @@ internal sealed partial class ObjectIrRules
         var body = _methods[capture.Target];
         int skip = target.Kind == ObjectMethodKind.Instance ? 1 : 0;
         return body.ReturnType == DelegateReturn(capture.Type) && body.Parameters.Length == declaration.ParameterCount + skip
-            && body.Parameters.Skip(skip).SequenceEqual(declaration.Parameters)
+            && body.Parameters.Skip(skip).Select((parameter, index) =>
+                parameter == declaration.Parameters[index] || _program.Flow.Types.Integer64
+                    && parameter.Kind == IrTypeKind.Reference && declaration.Parameters[index].Kind == IrTypeKind.Reference
+                    && _types.Assignable(declaration.Parameters[index], parameter)).All(valid => valid)
             && (skip == 0 ? values[capture.Receiver] == IrType.NullReference
                 : _types.Assignable(values[capture.Receiver], IrType.Reference(target.Owner)));
     }
