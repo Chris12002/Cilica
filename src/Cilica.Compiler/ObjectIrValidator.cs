@@ -350,12 +350,16 @@ internal sealed partial class ObjectIrRules
     internal IrType? DelegateReturn(ObjectTypeId? type) => type is not null && _delegates.TryGetValue(type, out var declaration)
         ? declaration.ReturnType : null;
 
-    internal bool DelegateCapture(IrMethod caller, IrExpression.NewDelegate capture, IrType result, IReadOnlyList<IrType> values)
+    internal bool DelegateCapture(IrMethod caller, IrExpression.NewDelegate capture, IrType result, IReadOnlyList<IrType> values, int ilOffset)
     {
         if (!_allowDelegates || capture.Type is null || capture.Target is null || !_delegates.TryGetValue(capture.Type, out var declaration)
             || result != IrType.Reference(capture.Type) || capture.Receiver < 0 || capture.Receiver >= values.Count
             || !_bindings.TryGetValue(capture.Target, out var target) || target.Kind is not (ObjectMethodKind.Static or ObjectMethodKind.Instance)
-            || (target.Attributes & MethodAttributes.Virtual) != 0 || target.VirtualSlot is not null
+            || (capture.VirtualLookupOffset is int lookup
+                ? !_program.Flow.Types.Integer64 || lookup < 0 || lookup != ilOffset - 6 || target.Kind != ObjectMethodKind.Instance
+                    || (target.Attributes & (MethodAttributes.Virtual | MethodAttributes.Final)) != (MethodAttributes.Virtual | MethodAttributes.Final)
+                    || target.VirtualSlot is null
+                : (target.Attributes & MethodAttributes.Virtual) != 0 || target.VirtualSlot is not null)
             || !Access(Binding(IrMethodId.From(caller.Source)), target)
             || !DelegateVisible(caller, capture.Type, declaration)) return false;
         var body = _methods[capture.Target];

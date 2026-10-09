@@ -1554,3 +1554,20 @@ Converted EffectiveSpellCompiler.Failure guided the static readonly regression.
 The frozen inventory clears all eight static-address failures: 15,246/15,254 bodies
 translate individually, with seven address joins and one ldvirtftn failure left.
 No full program/native engine is produced; replay remains incomplete. See ADR AC0235.
+
+
+### Exact final virtual delegate targets (AC8.92)
+
+Adjacent dup/ldvirtftn/newobj can bind a declaration that itself resolves to a
+final virtual class method. The receiver is evaluated once, the exact target is
+retained and typed signature checks run before scalar lowering. Both IR stages
+validate final-target metadata and adjacency evidence. Like the measured .NET
+oracle, final-method lookup folds to direct binding; null receivers fail delegate
+construction with ArgumentException before allocation. Overridable/interface
+operands, base-slot references to sealed overrides and other pointer patterns
+remain diagnostic. CIL116/object IR69/native85; runtime/grants/budgets unchanged.
+
+All 61 distinct selected checks pass, including 2,058 new sanitized O0/O2
+native/.NET comparisons. The frozen inventory clears ForcedMovementOperation.Run:
+15,247/15,254 bodies translate individually, leaving seven address joins. It emits
+no program or native engine; full closure and replay remain incomplete. See ADR AC0236.

@@ -175,7 +175,7 @@ internal static class IrValidator
                             IrExpression.Compare c => value.Type == IrType.Int32 && BinaryComparison(c.Comparison) && Earlier(c.Left) && Earlier(c.Right)
                                 && types.Comparable(c.Comparison, valueTypes[c.Left], valueTypes[c.Right]),
                             IrExpression.Call c => Call(c, value.Type),
-                            IrExpression.NewDelegate d => objectRules is not null && objectRules.DelegateCapture(method, d, value.Type, valueTypes),
+                            IrExpression.NewDelegate d => objectRules is not null && objectRules.DelegateCapture(method, d, value.Type, valueTypes, value.ILOffset),
                             IrExpression.CallDelegate d => objectRules is not null && objectRules.DelegateCall(method, d.Type, d.Delegate, d.Arguments, value.Type, valueTypes),
                             IrExpression.NewObject n => objectRules is not null && value.Type == objectRules.AllocationType(n.Constructor)
                                 && objectRules.Call(method, n.Constructor, n.Arguments, false, valueTypes, allocation: true),

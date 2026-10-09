@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v115";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v116";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -665,15 +665,26 @@ public static class ValueTranslator
                                 compared = Int32Comparison.NotEqual;
                             Comparison(compared, comparedLeft, comparedRight, offset);
                             Push(offset, IrType.Int32, new IrExpression.Compare(compared, comparedLeft, comparedRight)); break;
-                        case "ldftn" when delegates.Count != 0:
+                        case "ldftn" or "ldvirtftn" when delegates.Count != 0:
                             if (index + 1 >= end || input.Instructions[index + 1] is not { OpCode: "newobj" } next
                                 || !method.DelegateOperands.ContainsKey(next.Offset))
                                 Error(offset, "ldftn requires an adjacent delegate constructor in the same block; escaping method pointers and branch entries into construction are unsupported.", DiagnosticIds.ExecutionUnsupported);
+                            bool virtualLookup = opcode == "ldvirtftn";
+                            int lookupReceiver = -1;
+                            if (virtualLookup)
+                            {
+                                if (!types.IntegerCasts || index <= start || input.Instructions[index - 1].OpCode != "dup")
+                                    Error(offset, "Final virtual delegate capture requires adjacent dup/ldvirtftn/newobj in one block.", DiagnosticIds.ExecutionUnsupported);
+                                lookupReceiver = Pop(offset);
+                            }
                             var construction = input.Instructions[++index];
                             var callableType = method.DelegateOperands[construction.Offset];
                             int capture = Pop(offset);
                             if (!Reference(values[capture])) Error(offset, "Delegate capture requires a reference receiver or null.");
-                            Push(construction.Offset, IrType.Reference(callableType), new IrExpression.NewDelegate(callableType, method.Calls[offset], capture), true);
+                            if (virtualLookup && capture != lookupReceiver)
+                                Error(offset, "Final virtual delegate lookup and capture must use the same receiver.");
+                            Push(construction.Offset, IrType.Reference(callableType), new IrExpression.NewDelegate(callableType, method.Calls[offset], capture)
+                                { VirtualLookupOffset = virtualLookup ? offset : null }, true);
                             break;
                         case "callvirt" when method.DelegateOperands.ContainsKey(offset):
                             var delegateId = method.DelegateOperands[offset]; var declaration = delegates[delegateId];

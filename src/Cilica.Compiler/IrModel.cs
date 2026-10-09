@@ -77,7 +77,12 @@ public abstract record IrExpression
     public sealed record ExceptionInnerException(int Operand) : IrExpression;
     public sealed record ExceptionTypeName(int Operand) : IrExpression;
     public sealed record ExceptionObjectName(int Operand) : IrExpression;
-    public sealed record NewDelegate(ObjectTypeId Type, IrMethodId Target, int Receiver) : IrExpression;
+    public sealed record NewDelegate(ObjectTypeId Type, IrMethodId Target, int Receiver) : IrExpression
+    {
+        // Exact final virtual lookup immediately before construction. Like .NET,
+        // final targets bind directly; the constructor rejects a null receiver.
+        public int? VirtualLookupOffset { get; init; }
+    }
     public sealed record CallDelegate(ObjectTypeId Type, int Delegate, ImmutableArray<int> Arguments) : IrExpression;
     public sealed record NewObject(IrMethodId Constructor, ImmutableArray<int> Arguments) : IrExpression;
     // Vector lengths/indices use bounded Int32 values. Allocation zero-initializes

@@ -272,7 +272,7 @@ public static partial class ValueProgramDiscovery
                             var signature = Require(resolver.ResolveClosedTypeOperand(work.Resolved, MetadataTokens.EntityHandle(Token(work, instruction, 0x01, 0x02, 0x1b))), work, offset);
                             vectors.Add(offset, Vector(signature, work, offset));
                         }
-                        else if (instruction.OpCode == "call" || classes && instruction.OpCode == "newobj" || delegates && instruction.OpCode is ("ldftn" or "callvirt"))
+                        else if (instruction.OpCode == "call" || classes && instruction.OpCode == "newobj" || delegates && instruction.OpCode is ("ldftn" or "ldvirtftn" or "callvirt"))
                         {
                             int token = Token(work, instruction, 0x06, 0x0a, 0x2b);
                             var key = (work.Assembly.ContentHash, token, generics ? work.Binding.Method : null);
@@ -379,7 +379,7 @@ public static partial class ValueProgramDiscovery
                                 // Int32 is also the lowered carrier for Boolean and narrow integers.
                                 // Authenticate declared scalar identity before that distinction is erased.
                                 if (instruction.OpCode == "newobj" && instructionIndex > 0
-                                    && work.Input.Instructions[instructionIndex - 1] is { OpCode: "ldftn" } pointer
+                                    && work.Input.Instructions[instructionIndex - 1] is { OpCode: "ldftn" or "ldvirtftn" } pointer
                                     && calls.TryGetValue(pointer.Offset, out var captured))
                                 {
                                     var signature = _methods[captured].Input.Signature;
@@ -433,6 +433,10 @@ public static partial class ValueProgramDiscovery
                                 continue;
                             }
                             var callee = Discover(target, work, offset);
+                            if (instruction.OpCode == "ldvirtftn" && (!integers64 || callee.Binding.Kind != ObjectMethodKind.Instance
+                                || (callee.Binding.Attributes & (MethodAttributes.Virtual | MethodAttributes.Final)) != (MethodAttributes.Virtual | MethodAttributes.Final)
+                                || callee.Binding.VirtualSlot is null))
+                                Fail(work, "Virtual delegate capture requires an exact final class instance target in the integer-object profile; overridable and interface targets need later binding.", offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.Kind != (constrainedCalls.ContainsKey(offset) ? ObjectMethodKind.ValueInstance : ObjectMethodKind.Instance))
                                 Fail(work, "callvirt requires a class instance method.", offset);
                             if (instruction.OpCode == "callvirt" && callee.Binding.VirtualSlot is not null
@@ -453,7 +457,7 @@ public static partial class ValueProgramDiscovery
                                 && !valueKeyCalls.ContainsKey(offset)
                                 && !(instruction.OpCode == "call" && (ProtectedBaseConstructor(work, callee, offset) || ProtectedStaticCall(work, callee, offset))))
                                 Fail(work, "Calls require the same declaring owner, an accessible public/assembly target, a private target in a proven nongeneric containing type, or a protected static target on a proven base class under the integer-object profile.", offset);
-                            _arguments += instruction.OpCode == "ldftn" ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" && !factoryConstructor ? 1 : 0) + (ordinalPrefixes.Contains(offset) || ordinalComparisons.Contains(offset) || ordinalSorts.ContainsKey(offset) ? 1 : 0);
+                            _arguments += instruction.OpCode is ("ldftn" or "ldvirtftn") ? 0 : callee.Parameters.Length - (instruction.OpCode == "newobj" && !factoryConstructor ? 1 : 0) + (ordinalPrefixes.Contains(offset) || ordinalComparisons.Contains(offset) || ordinalSorts.ContainsKey(offset) ? 1 : 0);
                             if (_arguments > ProgramLimits.MaximumCallArguments) Fail(work, "Aggregate call-argument limit exceeded.", offset, DiagnosticIds.TranslationLimit);
                             calls.Add(offset, callee.Binding.Method);
                         }
