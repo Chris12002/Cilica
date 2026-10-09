@@ -31,7 +31,7 @@
     "fixtureCompilerSdk": "10.0.400",
     "publicProbesRevalidatedOn": "macOS ARM64; O0/O2, ASan/UBSan, forced collection",
     "fixtureSha256": "0b4261d59d4714af1e005b184ec5a64369ccc2e5d24726e6cd5b748cdb3cc478",
-    "latestSlice": "AC8.103",
+    "latestSlice": "AC8.104",
     "nullableEvidence": "AC1b.2 NullableLibraryTests: 31 native probes, 9114 repeated comparisons plus allocation-budget recovery; macOS ARM64 O0/O2, forced GC, ASan/UBSan",
     "scalarBoxEvidence": "AC1b.2 ScalarBoxLibraryTests: 18 native probes, 5292 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v39",
     "boxedTypeTestEvidence": "AC1b.3 BoxTypeTestLibraryTests/BoxTypeTestRawTests: 29 native probes, 8526 repeated comparisons; macOS ARM64 O0/O2, forced GC, ASan/UBSan; native profile v40. Includes nominal identity, nullable targets and exact castclass fault names; malformed operands and detached IR remain checked.",
@@ -58,16 +58,16 @@
     "scope": "Metadata/compiler re-probe plus two leaf executions only; no saved-game replay or full closure admission."
   },
   "latestDiagnosticClosure": {
-    "compilerBase": "1408a1a",
-    "slice": "AC8.102",
-    "directory": "artifacts/alchemy-shared-rule-native-emission",
+    "compilerBase": "251d018",
+    "slice": "AC8.104",
+    "directory": "artifacts/alchemy-boxed-dispatch-module-emission",
     "coreSha256": "9c18b9882eab4b53a1fc1b174dcfae1d29ccafa5a86b5b7f159e0aea7e6e4b86",
     "manifestSha256": "b874d325bf97252dd865047527023291f37b7dd924b55777e4c0f12d2efb555e",
     "inputPolicy": "Original frozen six-image inputs verified; unchanged from AC0243.",
-    "engine": "15254 methods pass complete logical/scalar/root validation and emit 467018483 bytes of independent C++; no native compilation/execution yet.",
-    "stateLookup": "15 methods validate and emit 1424162 bytes; this receipt does not execute them.",
+    "engine": "15254 methods validate and emit 67 native sources plus a shared header, 466820581 total bytes; module manifest eccbe80b7c1720932ff739b72695918eaebbf57eacea07e9981e192d0beaa9e0.",
+    "stateLookup": "15 methods validate and emit two sources plus a header, 1424461 bytes.",
     "capacity": "Explicit diagnostic aggregate allowances; production integer root limit is 2048, measured scalar maximum 1711.",
-    "remaining": "Production application capacity, native build/execution, replay adapter and full saved-game payload/state parity."
+    "remaining": "O0 sanitizer build exceeds the 2 KiB stack guard in allocate_box_storage (12448 bytes); production application capacity, native execution, replay adapter and full saved-game parity remain."
   },
   "slices": {
     "AC0": {
@@ -784,6 +784,12 @@
       "prerequisites": ["AC7b.4"],
       "status": "complete-format-range-transport",
       "decision": "docs/decisions/AC0097-format-range-transport.md"
+    },
+    "AC8.104": {
+      "prerequisites": ["AC8.103"],
+      "status": "complete-boxed-dispatch-eligibility",
+      "decision": "docs/decisions/AC0248-boxed-dispatch-eligibility.md",
+      "evidence": "61 checks and four byte-identical source controls pass. Full diagnostic EngineStep emits 67 native sources; O0/ASan/UBSan finds an excessive 12448-byte allocate_box_storage frame."
     },
     "AC8.103": {
       "prerequisites": ["AC8.102"],

@@ -5220,3 +5220,16 @@ Seven new checks plus seventeen adjacent controls pass. The new integer and lega
 module consumers supply 1,176 repeated O0/O2 native/.NET comparisons with normal/
 forced GC, sanitizers, native-frame and execution-quota checks. Full-engine native
 compilation, production aggregate capacity and saved-game replay remain outstanding.
+
+
+### Boxed dispatch validation eligibility (AC8.104)
+
+Boxed dispatch validation now checks assignment before scanning unrelated interface
+tables, retaining every work-budget charge and all confinement/map checks. Four
+roots emit identical C++ and 61 targeted checks pass. See ADR AC0248.
+
+The frozen diagnostic engine emits through the production module API: 67 source
+files and a 31,833,867-byte shared header, 466,820,581 bytes total, in 137,351ms.
+Its first O0/sanitizer build reports a 12,448-byte allocate_box_storage native frame,
+exceeding the existing 2 KiB guard. That native layout blocker, production aggregate
+capacity and saved-game replay remain outstanding.

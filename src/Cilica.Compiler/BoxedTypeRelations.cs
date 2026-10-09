@@ -109,10 +109,14 @@ internal sealed class BoxedTypeRelations
             {
                 if (++work > ObjectModelLimits.MaximumTypeRelationWork)
                     throw new ArgumentException("Boxed dispatch closure exceeds the type-relation work limit.");
+                // Keep the work charge for every pair, but do not inspect dispatch
+                // tables for an owner this payload cannot implement. Both callers
+                // already validated complete dispatch maps before reaching here.
+                if (!Accepts(type, owner)) continue;
                 bool payloadDispatch = !_scalarBoxes.Contains(type) && !classOwners.Contains(owner) && dispatch is not null
                     && dispatch.Declarations.Where(d => d.Owner == owner).All(d => dispatch.Dispatch
                         .Single(m => m.Declaration == IrMethodId.From(d.Source)).Targets.Any(t => t.Receiver == type));
-                if (Accepts(type, owner) && !proof.Safe(block, value.Id) && !payloadDispatch)
+                if (!proof.Safe(block, value.Id) && !payloadDispatch)
                     throw new ArgumentException(classOwners.Contains(owner)
                         ? "Boxed class method dispatch requires payload receiver lowering before execution."
                         : "Boxed interface method dispatch requires payload receiver lowering before execution.");
