@@ -1,5 +1,5 @@
 {
-  "status": "blocked_on_unity_license",
+  "status": "build_capture_verify_and_profile_completed",
   "editor": "6000.3.2f1",
   "architecture": "arm64",
   "mac_il2cpp_module": "installed via official CLI; success confirmed",
@@ -8,10 +8,10 @@
   "xcode": "26.1.1",
   "dotnet_sdk": "10.0.400",
   "work_directory": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing",
-  "unity_editor_exit_code": 198,
-  "unity_player_executed": false,
-  "generated_cpp_captured": false,
-  "timing_claim": false,
+  "unity_editor_exit_code": 0,
+  "unity_player_executed": true,
+  "generated_cpp_captured": true,
+  "timing_claim": true,
   "dotnet_observations_matched": 523,
   "checksum": 6146,
   "authored_unity_api_compile": {
@@ -23,5 +23,13 @@
     }
   },
   "prior_template_failure": "ProjectVersion.txt must be omitted; corrected before license failure",
-  "license_or_account_changes": false
+  "license_or_account_changes": false,
+  "license_status": {
+    "active": true,
+    "signed_in": true,
+    "auth_mode": "oauth",
+    "verified_by": "unity-cli license status"
+  },
+  "successful_pipeline_evidence": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/run-20261008T141054068341Z",
+  "profile_evidence": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/profile-20261008T142700Z"
 }

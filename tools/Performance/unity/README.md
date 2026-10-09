@@ -1,8 +1,8 @@
 # Local Unity / DiffPlex pipeline
 
-Status: **setup and .NET verification completed; Unity build blocked by license
-activation**. This is the user-approved local Mac workflow. It does not claim
-container isolation, a Unity compatibility pass, generated C++ capture or timing.
+Status: **local Unity build, generated C++ capture, player verification and fresh
+Mac profiling completed**. This is the user-approved local Mac workflow. It does
+not claim container isolation or general Unity compatibility.
 
 The installed editor is Unity 6000.3.2f1 ARM64. Mac IL2CPP support was added using
 Unity's official CLI 1.0.0-beta.13. The benchmark uses the original 14 reviewed
@@ -14,14 +14,15 @@ project, generator, test suite or build script is invoked. Only the original
 The Mac .NET SDK is 10.0.400. Its rebuilt candidate DLL has a new recorded hash;
 it is not represented as the historical Linux DLL. The new DLL passes all 523
 historical observations and checksum 6146. The Unity scripts compile against
-installed Unity API assemblies with zero warnings/errors, but that is a metadata
-compile check, not an Editor build. Five pipeline utility checks pass.
+installed Unity API assemblies with zero warnings/errors. The Editor build,
+generated C++ capture, player verification and fresh Mac profiling all passed;
+five pipeline utility checks also pass.
 
 ## Resume on this machine
 
-Activate the user's existing Unity license in Unity Hub first. The actual Editor
-exited 198 when creating the project; CLI license status also reported inactive.
-No license purchase, entitlement selection, EULA acceptance or sign-in was automated.
+The existing Unity Personal license is active and signed in; this was verified with
+the CLI license-status check. No license purchase, entitlement selection, EULA
+acceptance or sign-in was automated.
 
 From this repository:
 
@@ -34,7 +35,8 @@ python3 tools/Performance/unity/pipeline.py \
 
 This creates/imports the authored template, builds a non-development ARM64 IL2CPP
 player, captures generated C++, and verifies the player against the complete
-historical transcript and a fresh .NET oracle. It does not run clean timings.
+historical transcript and a fresh .NET oracle. The completed profile is retained
+separately under the local evidence directory.
 Every attempt creates a separate evidence directory. An incomplete project is
 preserved there before retrying creation. Existing completed projects keep their
 Unity-generated scene/settings/meta files; only the owned scripts and candidate
