@@ -15,7 +15,7 @@ internal static class ObjectCppBoxing
 
     internal static void Append(StringBuilder text, ImmutableArray<ValueTypePlan> plans, string objectSymbol, Func<ObjectTypeId, string> predicate)
     {
-        text.Append("// Cilica boxed-payload-runtime-v3: private typed payloads, including admitted Int64 slots.\n");
+        text.Append("// Cilica boxed-payload-runtime-v4: private typed payloads, including admitted Int64 slots.\n");
         foreach (var plan in plans)
         {
             string type = Symbol(plan.Type);
@@ -46,7 +46,9 @@ internal static class ObjectCppBoxing
                 .Append("), ").Append(type).Append("_references.data(), ").Append(N(references.Length))
                 .Append(", [](Object* p) noexcept { delete reinterpret_cast<").Append(type).Append("*>(p); }, &").Append(objectSymbol)
                 .Append("_descriptor, ").Append(type).Append("_fields.data(), ").Append(N(indices.Length)).Append(", ").Append(type)
-                .Append("_accessors.data(), field_by_offset, 0, nullptr, nullptr, nullptr, ").Append(type).Append("_storage.data()};\n");
+                .Append("_accessors.data(), field_by_offset, 0, nullptr, nullptr, nullptr, ").Append(type).Append("_storage.data()};\n")
+                .Append("[[gnu::noinline]] static Object* ").Append(type).Append("_allocate(Context& c) noexcept { return allocate<")
+                .Append(type).Append(">(c, ").Append(type).Append("_descriptor); }\n");
         }
         text.Append("[[gnu::noinline]] static bool compatible_scalar_box(const Descriptor* expected, const Descriptor* actual) noexcept {\n");
         foreach (var group in plans.Where(p => p.ScalarBox is not null).GroupBy(p => p.ScalarBox))
@@ -57,13 +59,21 @@ internal static class ObjectCppBoxing
                 .Append(string.Join(" || ", members.Select(p => "actual == &" + Symbol(p.Type) + "_descriptor"))).Append(";\n");
         }
         text.Append("    (void)expected; (void)actual; return false;\n}\n");
-        text.Append("[[gnu::noinline]] static bool known_box(const Descriptor* type) noexcept {\n");
-        foreach (var plan in plans) text.Append("    if (type == &").Append(Symbol(plan.Type)).Append("_descriptor) return true;\n");
-        text.Append("    return false;\n}\n")
-            .Append("[[gnu::noinline]] static Object* allocate_box_storage(Context& c, const Descriptor* type) noexcept {\n");
-        foreach (var plan in plans) text.Append("    if (type == &").Append(Symbol(plan.Type)).Append("_descriptor) return allocate<")
-            .Append(Symbol(plan.Type)).Append(">(c, *type);\n");
-        text.Append("    return nullptr;\n}\n").Append(Helpers).Append('\n');
+        // One small indirect allocation call avoids an O0/sanitizer spill slot
+        // for every typed allocator in a large closure. Exact descriptor identity
+        // is checked before the compiler-owned allocator is called.
+        text.Append("struct BoxAllocator { const Descriptor* type; Object* (*allocate)(Context&) noexcept; };\n")
+            .Append("static constexpr std::array<BoxAllocator, ").Append(N(plans.Length)).Append("> box_allocators = {{\n");
+        foreach (var plan in plans)
+        {
+            string type = Symbol(plan.Type);
+            text.Append("    {&").Append(type).Append("_descriptor, ").Append(type).Append("_allocate},\n");
+        }
+        text.Append("}};\n[[gnu::noinline]] static bool known_box(const Descriptor* type) noexcept {\n")
+            .Append("    for (const auto& entry : box_allocators) if (entry.type == type) return true;\n    return false;\n}\n")
+            .Append("[[gnu::noinline]] static Object* allocate_box_storage(Context& c, const Descriptor* type) noexcept {\n")
+            .Append("    for (const auto& entry : box_allocators) if (entry.type == type) return entry.allocate(c);\n")
+            .Append("    return nullptr;\n}\n").Append(Helpers).Append('\n');
     }
 
     private const string Helpers = """

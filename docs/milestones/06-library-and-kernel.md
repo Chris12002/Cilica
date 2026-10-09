@@ -4285,3 +4285,17 @@ files and a 31,833,867-byte shared header, 466,820,581 bytes total, in 137,351ms
 Its first O0/sanitizer build reports a 12,448-byte allocate_box_storage native frame,
 exceeding the existing 2 KiB guard. That native layout blocker, production aggregate
 capacity and saved-game replay remain outstanding.
+
+
+### Bounded box allocator dispatch (AC8.105)
+
+The boxed runtime now dispatches through an exact descriptor/allocator table and
+small typed allocation helpers. This removes an O0 sanitizer native-stack failure
+without changing allocation, rooting, ownership or quotas. A 240-type reduction
+fails with the previous emitter (7,744-byte frame) and passes with the new table
+under the unchanged 2 KiB guard. Fifteen targeted checks pass. Native 89/private
+boxed-runtime 4; all managed profiles remain unchanged. See ADR AC0249.
+
+The full diagnostic EngineStep module emits 466,933,100 bytes and its native build
+has cleared the previous first-unit stack failure. Complete native execution,
+production application capacity and saved-game replay remain outstanding.
