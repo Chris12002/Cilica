@@ -1,0 +1,19 @@
+  Cilica.Metadata -> /private/tmp/cilica-segment-composition-20261009/src/Cilica.Metadata/bin/Debug/net10.0/Cilica.Metadata.dll
+  Cilica.LibraryBuild -> /private/tmp/cilica-segment-composition-20261009/tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll
+  Cilica.Compiler -> /private/tmp/cilica-segment-composition-20261009/src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll
+  Cilica.Cli -> /private/tmp/cilica-segment-composition-20261009/src/Cilica.Cli/bin/Debug/net10.0/cilica.dll
+  Cilica.Fixtures.Basic -> /private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Basic/bin/Debug/netstandard2.1/Cilica.Fixtures.Basic.dll
+  Cilica.Fixtures.Forwarding -> /private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Forwarding/bin/Debug/netstandard2.1/Cilica.Fixtures.Forwarding.dll
+  Cilica.Fixtures.ControlFlow -> /private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.ControlFlow/bin/Debug/netstandard2.1/Cilica.Fixtures.ControlFlow.dll
+  Cilica.Library -> /private/tmp/cilica-segment-composition-20261009/library/Cilica.Library/bin/Debug/netstandard2.1/Cilica.Library.dll
+/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/SegmentCompositionProbe.cs(3,1): error CS8773: Feature 'file-scoped namespace' is not available in C# 9.0. Please use language version 10.0 or greater. [/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+
+Build FAILED.
+
+/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/SegmentCompositionProbe.cs(3,1): error CS8773: Feature 'file-scoped namespace' is not available in C# 9.0. Please use language version 10.0 or greater. [/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+    1 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:07.80

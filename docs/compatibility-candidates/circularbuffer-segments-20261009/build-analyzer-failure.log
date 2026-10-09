@@ -1,0 +1,25 @@
+  Cilica.Metadata -> /private/tmp/cilica-segment-composition-20261009/src/Cilica.Metadata/bin/Debug/net10.0/Cilica.Metadata.dll
+  Cilica.LibraryBuild -> /private/tmp/cilica-segment-composition-20261009/tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll
+  Cilica.Compiler -> /private/tmp/cilica-segment-composition-20261009/src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll
+  Cilica.Cli -> /private/tmp/cilica-segment-composition-20261009/src/Cilica.Cli/bin/Debug/net10.0/cilica.dll
+  Cilica.Fixtures.Basic -> /private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Basic/bin/Debug/netstandard2.1/Cilica.Fixtures.Basic.dll
+  Cilica.Fixtures.Forwarding -> /private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Forwarding/bin/Debug/netstandard2.1/Cilica.Fixtures.Forwarding.dll
+  Cilica.Fixtures.ControlFlow -> /private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.ControlFlow/bin/Debug/netstandard2.1/Cilica.Fixtures.ControlFlow.dll
+  Cilica.Library -> /private/tmp/cilica-segment-composition-20261009/library/Cilica.Library/bin/Debug/netstandard2.1/Cilica.Library.dll
+/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+  Cilica.Fixtures.Execution -> /private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/bin/Debug/netstandard2.1/Cilica.Fixtures.Execution.dll
+  Kernel -> /private/tmp/cilica-segment-composition-20261009/examples/Primitive/Kernel/bin/Debug/netstandard2.1/Cilica.Examples.Primitive.Kernel.dll
+  Prepare -> /private/tmp/cilica-segment-composition-20261009/examples/Primitive/Prepare/bin/Debug/net10.0/Cilica.Examples.Primitive.Prepare.dll
+  Kernel -> /private/tmp/cilica-segment-composition-20261009/examples/Objects/Kernel/bin/Debug/netstandard2.1/Cilica.Examples.Objects.Kernel.dll
+  Emit -> /private/tmp/cilica-segment-composition-20261009/examples/Objects/Emit/bin/Debug/net10.0/Cilica.Examples.Objects.Emit.dll
+  Prepare -> /private/tmp/cilica-segment-composition-20261009/examples/Objects/Prepare/bin/Debug/net10.0/Cilica.Examples.Objects.Prepare.dll
+/private/tmp/cilica-segment-composition-20261009/tests/Cilica.Metadata.Tests/SegmentCompositionMappingTests.cs(21,82): error xUnit1051: Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken to allow test cancellation to be more responsive. (https://xunit.net/xunit.analyzers/rules/xUnit1051) [/private/tmp/cilica-segment-composition-20261009/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj]
+
+Build FAILED.
+
+/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/private/tmp/cilica-segment-composition-20261009/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+/private/tmp/cilica-segment-composition-20261009/tests/Cilica.Metadata.Tests/SegmentCompositionMappingTests.cs(21,82): error xUnit1051: Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken to allow test cancellation to be more responsive. (https://xunit.net/xunit.analyzers/rules/xUnit1051) [/private/tmp/cilica-segment-composition-20261009/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj]
+    1 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:06.80

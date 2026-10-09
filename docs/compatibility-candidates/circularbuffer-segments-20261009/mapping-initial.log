@@ -1,0 +1,10 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.SegmentCompositionMappingTests.Record_owned_composition_admission_without_executing_upstream [OUTPUT] SegmentList: success=True;
+    Cilica.Metadata.Tests.SegmentCompositionMappingTests.Record_owned_composition_admission_without_executing_upstream [OUTPUT] CopyViews: success=False; Diagnostic { Id = CIL2001, Severity = Error, Message = Array.Copy requires same-block typed vector producers; joined argument stacks require later lowering., Location = Cilica.Fixtures.Execution.SegmentCompositionProbe::CopyViews token 0x060012c0 IL_0049 }
+    Cilica.Metadata.Tests.SegmentCompositionMappingTests.Record_owned_composition_admission_without_executing_upstream [OUTPUT] IteratorViews: success=False; Diagnostic { Id = CIL2001, Severity = Error, Message = This library member has no implemented managed body in the selected bounded core. Reachable via: Cilica.Fixtures.Execution.SegmentCompositionProbe::IteratorViews token 0x060012c2 IL_0021., Location = System.ArraySegment`1::System.Collections.Generic.IEnumerable<T>.GetEnumerator token 0x06000382 specialization 52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9 IL_0000 }
+  Finished:    Cilica.Metadata.Tests (ID = '973203469709489cc5e9a63682fd867e9ac393fa647e0b6c6641ad634b786f38')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.971s

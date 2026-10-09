@@ -1,0 +1,134 @@
+{
+  "kind": "owned-unity-reference-proposal",
+  "status": "awaiting-scoped-host-approval",
+  "not_candidate_execution": true,
+  "candidate_context": {
+    "repository": "joaoportela/CircularBuffer-CSharp",
+    "commit": "9ebb911dfe27a62c2793d0b02c642f79bbbf524b",
+    "new_roots": [
+      "CircularBuffer<int>.ToArraySegments()",
+      "CircularBuffer<int>.ToArray()",
+      "CircularBuffer<int>.GetEnumerator() direct IEnumerator<int> consumption"
+    ]
+  },
+  "owned_inputs": {
+    "tools/CompatibilityCandidates/circularbuffer-segments/stage_owned.py": "9c0abfca4acc6b64d5853084a500e5b6e54ee12b80e38b61c9387fc306fed75f",
+    "tools/CompatibilityCandidates/circularbuffer-segments/SegmentCompositionMappingTests.cs": "5503f31f51e192a10e7cfd1f4b3d9c2d71ca276f0e0f26de205ed93c4fe4f69f",
+    "tools/CompatibilityCandidates/circularbuffer-segments/SegmentReferenceCases.cs": "291f4e70ffad3777a8d6247099c76f797e1e26ad9e3bade1016131f870924bcb",
+    "tools/CompatibilityCandidates/circularbuffer-segments/ReferenceCompile.csproj": "3a496044411c153a9c837015a5669f572438bcd2bb107364e8b61fc336e778c6",
+    "tools/CompatibilityCandidates/circularbuffer-segments/SegmentCompositionControlTests.cs": "881ed86ffbf1a533497bee90a2121f7f07588a7a8e74e874216ed09fc0f71e40",
+    "tools/CompatibilityCandidates/circularbuffer-segments/SegmentCompositionProbe.cs": "416054a4eba7848cdc1a8df9f7bf38316adeacb7793cfe93954c822b6de16c83",
+    "tools/CompatibilityCandidates/circularbuffer-segments/README.md": "b37651049e6f226482356714ba04daf162e928d972ffb0ddc3e30bc4cfc7047a",
+    "tools/CompatibilityCandidates/circularbuffer-segments/template/ProjectData~/Packages/manifest.json": "c3fe8f046850238f5859d8a2756efd532ac71de6f579b70442a8b04880ce5cbd",
+    "tools/CompatibilityCandidates/circularbuffer-segments/template/ProjectData~/Assets/SegmentUnityHarness.cs": "02c00847e00fa75a2d3fe251f7dcd6d634976a5ef37402f74e799e14df9ebef3",
+    "tools/CompatibilityCandidates/circularbuffer-segments/template/ProjectData~/Assets/Editor/SegmentReferenceBuild.cs": "f61031a0faee681066f6f048c12fa27e202750403e0ebbab43028a5ee6b782ef"
+  },
+  "owned_roots": [
+    "SegmentCompositionProbe.SegmentList",
+    "SegmentCompositionProbe.CopyViews",
+    "SegmentCompositionProbe.DirectPropertyCopy",
+    "SegmentCompositionProbe.LocalPropertyCopy",
+    "SegmentCompositionProbe.IteratorViews",
+    "SegmentCompositionProbe.CursorViews"
+  ],
+  "cases": {
+    "scenario_methods": [
+      "SegmentList",
+      "CopyViews",
+      "DirectPropertyCopy",
+      "LocalPropertyCopy",
+      "IteratorViews",
+      "CursorViews"
+    ],
+    "argument_pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        -3,
+        5
+      ],
+      [
+        7,
+        -2
+      ],
+      [
+        -2147483648,
+        1
+      ],
+      [
+        2147483647,
+        -1
+      ],
+      [
+        -1,
+        -2147483648
+      ]
+    ],
+    "observation_count": 48,
+    "layout": "six lengths plus42values; all records as scenario/index/value triples; checksum secondary"
+  },
+  "requested_stages": [
+    "compile same owned .NET reference workload and retain all48observations",
+    "normal-Mac Unity6000.3.2f1 import/build of only owned staged source and built-in JSON module",
+    "capture generated source for DirectPropertyCopy/LocalPropertyCopy/CursorViews and framework paths; retain exact settings/assembly/native hashes",
+    "verify all48observations without normalization",
+    "diagnostic profile3markers,1expected-value+8explicit warm iterations after full transcript, at most128iterations of methods2/3/5 pair3; inspect markers, warnings and closed raw size"
+  ],
+  "bounds": {
+    "command_seconds": 1790,
+    "console_bytes": 67108864,
+    "raw_profile_soft_bytes": 67108864,
+    "export_capture_bytes": 1073741824,
+    "requested_workers": 2,
+    "host_isolation": "Normal user Mac; worker setting is a hint, not CPU/RAM/PID limits. No credential/network isolation. Outer watchdog stops only its own process tree.",
+    "packages": "Existing builtin JSON only; no install/license/account action. Stop manifest expansion."
+  },
+  "architecture": "Value1 previously generated universal arm64+x86_64; require actual binary/command and process architecture evidence. No ARM64-only inference.",
+  "evidence_contract": "Reuse input-bound stage/outcome/raw-artifact envelopes. Reduced owned inputs cannot stand in for selected upstream candidate equivalence; later capture must be clearly unmatched until exact candidate is independently run. .NET remains target; any actual Unity divergence requires its own reviewed exception. CLI fingerprint is declarative until staged source, managed/native assemblies and actual command/settings hashes are bound by executed receipts. Prove ENABLE_PROFILER marker calls survive compilation and inspect exactly3 raw markers with paused/overflow/skipped-warning rejection.",
+  "execution_authorization": null,
+  "prohibited": [
+    "No upstream CircularBuffer source download/build/execution in this proposal",
+    "No generic runner extension, production code edits, comparative timing, new packages or paid/hosted CI",
+    "No reference to prior Albireo or CircularBuffer approvals as permission for these roots"
+  ],
+  "later_candidate_plan": {
+    "status": "not-execution-ready",
+    "source_blob": "7aef4a0935c8b413fda8f360c803c4a12def2d15",
+    "license_blob": "fdddb29aa445bf3d6a5d843d6dd77e10a9f99657",
+    "isolation": "Prior approved network-none nonroot tooling container shape:2CPU/8GiB/256PID,<30min,no mounts/credentials; reverify image/cache and obtain exact new scope approval.",
+    "planned_cases": [
+      "empty cap1",
+      "empty cap4",
+      "single cap1",
+      "partial cap4",
+      "full cap3",
+      "PushBack wrap",
+      "PushFront wrap",
+      "wrapped partial",
+      "PopFront full",
+      "Clear/reuse",
+      "capacity1 overwrite",
+      "mixed push/pop",
+      "deferred iterator observation",
+      "suspended iterator live backing write",
+      "early Dispose",
+      "independent cursors"
+    ],
+    "required_before_approval": [
+      "Confirmed compiler fix and frozen compiler commit",
+      "Authored full byte/value/exception/identity transcript adapter and hashes",
+      "Exact new source/DLL provenance and case manifest",
+      "Independent source/reference review and no overlapping feature ownership"
+    ]
+  },
+  "review": {
+    "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/adapter-independent-review.json",
+    "sha256": "dd3dda226530e5baeeb26586f4adf84d2e235569ed60091b5acd180e5753a058"
+  }
+}

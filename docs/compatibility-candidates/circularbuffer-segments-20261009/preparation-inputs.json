@@ -1,0 +1,22 @@
+{
+  "owned_inputs": {
+    "tools/CompatibilityCandidates/circularbuffer-segments/stage_owned.py": "9c0abfca4acc6b64d5853084a500e5b6e54ee12b80e38b61c9387fc306fed75f",
+    "tools/CompatibilityCandidates/circularbuffer-segments/SegmentCompositionMappingTests.cs": "5503f31f51e192a10e7cfd1f4b3d9c2d71ca276f0e0f26de205ed93c4fe4f69f",
+    "tools/CompatibilityCandidates/circularbuffer-segments/SegmentReferenceCases.cs": "291f4e70ffad3777a8d6247099c76f797e1e26ad9e3bade1016131f870924bcb",
+    "tools/CompatibilityCandidates/circularbuffer-segments/ReferenceCompile.csproj": "3a496044411c153a9c837015a5669f572438bcd2bb107364e8b61fc336e778c6",
+    "tools/CompatibilityCandidates/circularbuffer-segments/SegmentCompositionControlTests.cs": "881ed86ffbf1a533497bee90a2121f7f07588a7a8e74e874216ed09fc0f71e40",
+    "tools/CompatibilityCandidates/circularbuffer-segments/SegmentCompositionProbe.cs": "416054a4eba7848cdc1a8df9f7bf38316adeacb7793cfe93954c822b6de16c83",
+    "tools/CompatibilityCandidates/circularbuffer-segments/README.md": "b37651049e6f226482356714ba04daf162e928d972ffb0ddc3e30bc4cfc7047a",
+    "tools/CompatibilityCandidates/circularbuffer-segments/template/ProjectData~/Packages/manifest.json": "c3fe8f046850238f5859d8a2756efd532ac71de6f579b70442a8b04880ce5cbd",
+    "tools/CompatibilityCandidates/circularbuffer-segments/template/ProjectData~/Assets/SegmentUnityHarness.cs": "02c00847e00fa75a2d3fe251f7dcd6d634976a5ef37402f74e799e14df9ebef3",
+    "tools/CompatibilityCandidates/circularbuffer-segments/template/ProjectData~/Assets/Editor/SegmentReferenceBuild.cs": "f61031a0faee681066f6f048c12fa27e202750403e0ebbab43028a5ee6b782ef"
+  },
+  "owned_mapping": {
+    "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/owned-mapping.json",
+    "sha256": "4a4bc9790a962586bb6ee948fb12d9c866acbc38d4d20ca03a0a69fbf998cffd"
+  },
+  "owned_controls": {
+    "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/owned-native-controls.json",
+    "sha256": "77a5df0e27c9ea830e57ea892405ea95f117df44832af3d6542c7fdbc2945a22"
+  }
+}

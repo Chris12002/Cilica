@@ -1,0 +1,21 @@
+  Cilica.Metadata -> /private/tmp/cilica-segment-controls-20261009/src/Cilica.Metadata/bin/Debug/net10.0/Cilica.Metadata.dll
+  Cilica.LibraryBuild -> /private/tmp/cilica-segment-controls-20261009/tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll
+  Cilica.Compiler -> /private/tmp/cilica-segment-controls-20261009/src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll
+  Cilica.Cli -> /private/tmp/cilica-segment-controls-20261009/src/Cilica.Cli/bin/Debug/net10.0/cilica.dll
+  Cilica.Fixtures.Basic -> /private/tmp/cilica-segment-controls-20261009/tests/Fixtures/Cilica.Fixtures.Basic/bin/Debug/netstandard2.1/Cilica.Fixtures.Basic.dll
+  Cilica.Fixtures.Forwarding -> /private/tmp/cilica-segment-controls-20261009/tests/Fixtures/Cilica.Fixtures.Forwarding/bin/Debug/netstandard2.1/Cilica.Fixtures.Forwarding.dll
+  Cilica.Fixtures.ControlFlow -> /private/tmp/cilica-segment-controls-20261009/tests/Fixtures/Cilica.Fixtures.ControlFlow/bin/Debug/netstandard2.1/Cilica.Fixtures.ControlFlow.dll
+  Cilica.Library -> /private/tmp/cilica-segment-controls-20261009/library/Cilica.Library/bin/Debug/netstandard2.1/Cilica.Library.dll
+  Cilica.Fixtures.Execution -> /private/tmp/cilica-segment-controls-20261009/tests/Fixtures/Cilica.Fixtures.Execution/bin/Debug/netstandard2.1/Cilica.Fixtures.Execution.dll
+  Kernel -> /private/tmp/cilica-segment-controls-20261009/examples/Primitive/Kernel/bin/Debug/netstandard2.1/Cilica.Examples.Primitive.Kernel.dll
+  Prepare -> /private/tmp/cilica-segment-controls-20261009/examples/Primitive/Prepare/bin/Debug/net10.0/Cilica.Examples.Primitive.Prepare.dll
+  Kernel -> /private/tmp/cilica-segment-controls-20261009/examples/Objects/Kernel/bin/Debug/netstandard2.1/Cilica.Examples.Objects.Kernel.dll
+  Emit -> /private/tmp/cilica-segment-controls-20261009/examples/Objects/Emit/bin/Debug/net10.0/Cilica.Examples.Objects.Emit.dll
+  Prepare -> /private/tmp/cilica-segment-controls-20261009/examples/Objects/Prepare/bin/Debug/net10.0/Cilica.Examples.Objects.Prepare.dll
+  Cilica.Metadata.Tests -> /private/tmp/cilica-segment-controls-20261009/tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:08.99

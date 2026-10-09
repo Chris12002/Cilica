@@ -1,0 +1,50 @@
+{
+  "cilica_commit": "1408a1a102c0aaca0c65f236e0fdd9acbafca4b3",
+  "owned_oracle_runtime": ".NET10.0.11",
+  "upstream_executed": false,
+  "native_executed": false,
+  "oracle_pair": [
+    2,
+    7
+  ],
+  "oracle_values": {
+    "SegmentList": 211,
+    "CopyViews": 38,
+    "DirectPropertyCopy": 14,
+    "LocalPropertyCopy": 14,
+    "IteratorViews": 492,
+    "CursorViews": 394
+  },
+  "translation": {
+    "SegmentList": "admitted",
+    "CopyViews": "CIL2001 IL0049 same-block typed vector producers",
+    "DirectPropertyCopy": "CIL2001 IL003b same-block typed vector producers",
+    "LocalPropertyCopy": "admitted",
+    "IteratorViews": "CIL2001 IL0021 reaches unsupported ArraySegment<int>.IEnumerable<int>.GetEnumerator",
+    "CursorViews": "admitted"
+  },
+  "interpretation": "No semantic native failure established: these are admission results. Getter receiver ldloca/ldarga producer forms are absent in VectorCallArguments, while typed-local control admits. IEnumerable consumer widens closure; exact candidate returns IEnumerator directly, whose reduction admits. Do not infer missing segment enumeration is required for the direct candidate path.",
+  "checks": {
+    "mapping_test": "1passed; asserts six owned .NET values and records six translation outcomes",
+    "installed_unity_api_compile": "Player DEVELOPMENT_BUILD+ENABLE_PROFILER and UNITY_EDITOR builds both pass0warnings0errors; no Unity launch/marker runtime claim"
+  },
+  "preparation_failures": [
+    "Initial sandboxed multiprocess restore stalled before assets; task-owned PID stopped, single-process offline restore succeeded.",
+    "Authored fixture used file-scoped namespace incompatible with C#9 fixture convention; corrected and original retained.",
+    "Authored test omitted required cancellation token; corrected, analyzer error retained."
+  ],
+  "evidence": [
+    {
+      "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/mapping-controls.log",
+      "sha256": "08ee3c2fbd364f66b50fc33ed23f76645b784c990a6059016d5baad9852927e7"
+    },
+    {
+      "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/adapter-player-compile.log",
+      "sha256": "449d1af5b187ef4e0dfa50f7410de08faee07f46d74a72069f078cbea4127396"
+    },
+    {
+      "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/adapter-editor-compile.log",
+      "sha256": "9ece1b6176a260ce86965c28f9e7322f4f077af10b086b773cd764323b89bc2d"
+    }
+  ]
+}

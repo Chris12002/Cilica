@@ -1,0 +1,48 @@
+{
+  "cilica_commit": "a7d5a468b7b119a16f98fbe276fd19a1cb835d7b",
+  "tests": 3,
+  "failed": 0,
+  "admitted_methods": [
+    "SegmentList",
+    "LocalPropertyCopy",
+    "CursorViews"
+  ],
+  "pairs": 7,
+  "repetitions": 3,
+  "native_optimizations": [
+    "O0",
+    "O2"
+  ],
+  "repeated_native_dotnet_comparisons": 126,
+  "exact_budget_successes": 42,
+  "one_short_budget_checks": 42,
+  "forced_gc_before_every_allocation": true,
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "native_frame_warning_limit": 2048,
+  "cleanup_and_post_collection_survivors": "Asserted by existing IntegerObjectTranslationTests.VerifyTranslated",
+  "negative_assertions": "CopyViews/DirectPropertyCopy producer-proof CIL2001 and IteratorViews unsupported segment enumerable CIL2001 retained",
+  "native_hash_receipts": [
+    {
+      "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/native-controls/dcbacb5d9124aae6d19e7915e234087121f27801018c4e4602fad7dfb3311d28-O0.json",
+      "sha256": "4b2d4c09bce704c193aca48a8a83530d3806478a1b138673737e2e56b0b195b8"
+    },
+    {
+      "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/native-controls/dcbacb5d9124aae6d19e7915e234087121f27801018c4e4602fad7dfb3311d28-O2.json",
+      "sha256": "1b38af02ce30a05b9d219b3dc1245ebf7937028ed87b2850a9c071772447a3e1"
+    }
+  ],
+  "upstream_execution": false,
+  "production_change": false,
+  "scope_limit": "Owned controls only; no candidate or full-suite equivalence. Mapping report at1408a1a remains historical; these controls frozen at a7d5a46.",
+  "preparation_corrections": [
+    "Initial command stayed in earlier export and selected0tests; retained and excluded.",
+    "New negative tests required explicit ordinal Assert.Contains overload; analyzer failure corrected and retained."
+  ],
+  "evidence": {
+    "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/controls-test.log",
+    "sha256": "df31578bf448f493168c01a3290900224bf0a7cd2d6f179ab7d38b5e5bbec360"
+  }
+}

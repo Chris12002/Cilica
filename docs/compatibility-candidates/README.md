@@ -231,3 +231,14 @@ equality while accepting source/diagnostic use. Batch020 verifies the selected
 Decode slice against .NET. No production change or comparative speed claim was made.
 Batch020 is resumable from
 its input-bound receipts; approval does not extend to another library.
+
+
+## Next selected surface: CircularBuffer segment copies
+
+[Batch021 mapping](circularbuffer-segments-20261009.md) confirms an owned
+Array.Copy property-receiver proof gap at frozen1408a1a. Segment-list construction
+and direct iterator controls pass126repeated O0/O2 native comparisons at a7d5a46;
+upstream execution and the rejected paths remain unverified.
+The owned Unity reference adapter is API-compiled and its bounded host proposal
+awaits scoped approval. This is a new surface, not an extension of prior execution
+approvals. No production or performance-runner files changed.

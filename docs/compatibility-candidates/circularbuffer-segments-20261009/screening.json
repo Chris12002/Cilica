@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-09",
+  "online_first": true,
+  "prior_candidate": "joaoportela/CircularBuffer-CSharp",
+  "pin": "9ebb911dfe27a62c2793d0b02c642f79bbbf524b",
+  "selected_asset": "netstandard2.0",
+  "license": "Unlicense",
+  "screened_urls": [
+    "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/LICENSE",
+    "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.csproj",
+    "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.cs",
+    "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Tests/CircularBuffer.Tests.csproj",
+    "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Tests/CircularBufferTests.cs"
+  ],
+  "result": "Pinned source/project/tests/licence reread online before any new candidate download. No new candidate snapshot created. Existing immutable batch013 tree/build dependency review retained. GitHub tree refresh was unavailable; not claimed refreshed.",
+  "dependency_graph": "Library single source, framework only. Test project references library plus NUnit3.13.3/NUnit3TestAdapter4.5.0/Microsoft.NET.Test.Sdk17.9.0. Upstream tests, examples, CI, packaging and build scripts excluded.",
+  "source_requirements": {
+    "ToArray": "lines270\u2013280: iterate IList<ArraySegment<T>>, call five-argument Array.Copy with struct property receiver addresses",
+    "ToArraySegments": "lines295\u2013298: return two inline-value segments in array-backed IList",
+    "GetEnumerator": "lines305\u2013314: returns IEnumerator<T> directly; nested foreach/finally with live segment array accesses"
+  },
+  "inspected_tests": "ToArray empty/partial/full/wrapped/overwritten/back-and-front; two segment pair/order; generic foreach; pop/clear/reuse. Upstream NUnit/LINQ not executed.",
+  "prior_verified_roots": "batch013 selected Int32 constructor/deque/indexer/Clear only; no carryover approval/equivalence for segment/copy/iterator roots."
+}

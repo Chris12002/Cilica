@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+namespace Cilica.Fixtures.Execution
+{
+// Independently authored API composition, not a copy of a circular-buffer implementation.
+public static class SegmentCompositionProbe
+{
+    private static IList<ArraySegment<int>> Views(int[] values)
+        => new[] { new ArraySegment<int>(values, 1, 2), new ArraySegment<int>(values, 0, 1) };
+    public static int SegmentList(int a, int b)
+    {
+        int[] values = new int[3]; values[0] = a; values[1] = b; values[2] = 7;
+        IList<ArraySegment<int>> views = Views(values);
+        ArraySegment<int> first = views[0], last = views[1];
+        values[1] = a + b;
+        return views.Count * 100 + first.Array[first.Offset] + last.Array[last.Offset];
+    }
+    public static int CopyViews(int a, int b)
+    {
+        int[] values = new int[3]; values[0] = a; values[1] = b; values[2] = 7;
+        int[] copy = new int[3]; int position = 0;
+        foreach (ArraySegment<int> view in Views(values))
+        {
+            Array.Copy(view.Array, view.Offset, copy, position, view.Count);
+            position += view.Count;
+        }
+        values[0] = 99;
+        return copy[0] + 3 * copy[1] + 5 * copy[2];
+    }
+    public static int DirectPropertyCopy(int a, int b)
+    {
+        int[] values = new int[3]; values[0] = a; values[1] = b; values[2] = 7;
+        ArraySegment<int> view = new ArraySegment<int>(values, 1, 2);
+        int[] copy = new int[2];
+        Array.Copy(view.Array, view.Offset, copy, 0, view.Count);
+        return copy[0] + copy[1];
+    }
+    public static int LocalPropertyCopy(int a, int b)
+    {
+        int[] values = new int[3]; values[0] = a; values[1] = b; values[2] = 7;
+        ArraySegment<int> view = new ArraySegment<int>(values, 1, 2);
+        int[] source = view.Array; int offset = view.Offset; int count = view.Count;
+        int[] copy = new int[2]; Array.Copy(source, offset, copy, 0, count);
+        return copy[0] + copy[1];
+    }
+    private static IEnumerator<int> Cursor(int[] values)
+    {
+        foreach (ArraySegment<int> view in Views(values))
+            for (int i = 0; i < view.Count; i++) yield return view.Array[view.Offset + i];
+    }
+    public static int CursorViews(int a, int b)
+    {
+        int[] values = new int[3]; values[0] = a; values[1] = b; values[2] = 7;
+        IEnumerator<int> cursor = Cursor(values); int result = 0;
+        try { while (cursor.MoveNext()) result = result * 7 + cursor.Current; }
+        finally { cursor.Dispose(); }
+        return result;
+    }
+    private static IEnumerable<int> Stream(int[] values)
+    {
+        foreach (ArraySegment<int> view in Views(values))
+            for (int i = 0; i < view.Count; i++) yield return view.Array[view.Offset + i];
+    }
+    public static int IteratorViews(int a, int b)
+    {
+        int[] values = new int[3]; values[0] = a; values[1] = b; values[2] = 7;
+        IEnumerable<int> stream = Stream(values); values[1] = a + b;
+        IEnumerator<int> cursor = stream.GetEnumerator(); int result = 0;
+        try { while (cursor.MoveNext()) result = result * 7 + cursor.Current; }
+        finally { cursor.Dispose(); }
+        return result;
+    }
+}
+
+}

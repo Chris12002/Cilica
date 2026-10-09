@@ -1,0 +1,43 @@
+using System;
+using System.IO;
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+using System.Threading.Tasks;
+using Cilica.Compiler;
+using Cilica.Fixtures.Execution;
+using Xunit;
+namespace Cilica.Metadata.Tests;
+public sealed class SegmentCompositionControlTests
+{
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Admitted_controls_match_dotnet_with_native_lifetime_and_budget_checks(bool optimized)
+    {
+        var programs = await CoreLibraryBuildTests.TranslateFixtures(typeof(SegmentCompositionProbe),
+            ["SegmentList", "LocalPropertyCopy", "CursorViews"]);
+        (int,int)[] pairs = [(0,0),(2,7),(-3,5),(7,-2),(int.MinValue,1),(int.MaxValue,-1),(-1,int.MinValue)];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("SegmentList",programs[0],SegmentCompositionProbe.SegmentList),
+             ("LocalPropertyCopy",programs[1],SegmentCompositionProbe.LocalPropertyCopy),
+             ("CursorViews",programs[2],SegmentCompositionProbe.CursorViews)],pairs);
+    }
+    [Fact]
+    public async Task Rejected_property_and_interface_compositions_retain_distinct_diagnostics()
+    {
+        using var files = new ResolverFiles();
+        var (built,_,resolver,implementation,plan) = await CoreLibraryBuildTests.BuildAndMap(files);
+        using var lifetime = resolver;
+        using var scope = resolver.CreateTrustedLibraryCompilationScope(plan,
+            await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
+        var input = scope.OpenInput(typeof(SegmentCompositionProbe).Assembly.Location).Value!;
+        foreach (string name in new[]{"CopyViews","DirectPropertyCopy","IteratorViews"})
+        {
+            var result = ValueTranslator.TranslateIntegerObjects(scope,input,
+                (MethodDefinitionHandle)MetadataTokens.EntityHandle(typeof(SegmentCompositionProbe).GetMethod(name)!.MetadataToken),implementation);
+            Assert.False(result.Success);
+            string diagnostic = string.Join("; ", result.Diagnostics);
+            Assert.Contains("CIL2001",diagnostic);
+            Assert.Contains(name == "IteratorViews" ? "ArraySegment`1::System.Collections.Generic.IEnumerable<T>.GetEnumerator" : "Array.Copy requires same-block typed vector producers",diagnostic);
+        }
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "reviewer_thread": "01a11bd8-62f0-7412-8d23-69edc92bd0de",
+  "scope": "Read-only owned Unity adapter/proposal interface review; no execution or edits",
+  "outcome": "no-blocking-api-or-runner-issue",
+  "confirmed": [
+    "48scalar observation records",
+    "Profile methods2/3/5 at pair3(7,-2), exact marker and3samples",
+    "No player work in Editor; explicit verify/profile mode",
+    "Requested-versus-actual settings and universal-architecture qualification"
+  ],
+  "corrections_applied": [
+    "Expected-value batch plus8explicit warm batches =9selected iterations after transcript",
+    "Inherited byte/message comment corrected to scalar observations"
+  ],
+  "future_requirements": [
+    "Prove ENABLE_PROFILER emitted marker calls",
+    "Inspect3raw markers, closed64MiB size and paused/overflow/skipped warnings",
+    "Outer own-process raw watchdog and executed input-bound receipts",
+    "CLI fingerprint alone is not proof of actual build inputs"
+  ],
+  "authorization": "No Unity launch or upstream candidate execution authorized by this review."
+}

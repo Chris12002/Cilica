@@ -1,0 +1,150 @@
+{
+  "reference_workflow_version": 1,
+  "batch": "batch-021",
+  "candidate": {
+    "id": "circularbuffer-segments",
+    "repository": "joaoportela/CircularBuffer-CSharp",
+    "commit": "9ebb911dfe27a62c2793d0b02c642f79bbbf524b",
+    "license": "Unlicense; LICENSE inspected at pinned commit",
+    "selected_target": "netstandard2.0",
+    "files": [
+      {
+        "path": "LICENSE",
+        "git_blob_sha1": "fdddb29aa445bf3d6a5d843d6dd77e10a9f99657",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/LICENSE"
+      },
+      {
+        "path": "CircularBuffer/CircularBuffer.csproj",
+        "git_blob_sha1": "8a2d77e3e659eb4a335862ecdc267601a2b7cbbd",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.csproj"
+      },
+      {
+        "path": "CircularBuffer/CircularBuffer.cs",
+        "git_blob_sha1": "7aef4a0935c8b413fda8f360c803c4a12def2d15",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer/CircularBuffer.cs"
+      },
+      {
+        "path": "CircularBuffer.Tests/CircularBuffer.Tests.csproj",
+        "git_blob_sha1": "11c1fe3b9b354b4812e9f59f7a6c8465b83f6ec3",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Tests/CircularBuffer.Tests.csproj"
+      },
+      {
+        "path": "CircularBuffer.Tests/CircularBufferTests.cs",
+        "git_blob_sha1": "0c0224028f73cecc4d95c5c7fff1c949a9fa0300",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Tests/CircularBufferTests.cs"
+      },
+      {
+        "path": "CircularBuffer.Example/CircularBuffer.Example.csproj",
+        "git_blob_sha1": "b450c08c2c6c4cf001b0a437feb6fc4c601bcdb0",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/CircularBuffer.Example/CircularBuffer.Example.csproj"
+      },
+      {
+        "path": "nuget.config",
+        "git_blob_sha1": "765346e5343d46ac83654843869dc06b65b2bdc4",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/nuget.config"
+      },
+      {
+        "path": ".github/workflows/build.yml",
+        "git_blob_sha1": "af09416020c242e2d306d42c3bcbdbb1205e5536",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/.github/workflows/build.yml"
+      },
+      {
+        "path": ".github/workflows/publish.yml",
+        "git_blob_sha1": "b4358856aaf10231f12f682229e0ee9880471181",
+        "url": "https://github.com/joaoportela/CircularBuffer-CSharp/blob/9ebb911dfe27a62c2793d0b02c642f79bbbf524b/.github/workflows/publish.yml"
+      }
+    ]
+  },
+  "screening": {
+    "online_first": true,
+    "evidence": {
+      "path": "docs/compatibility-candidates/circularbuffer-segments-20261009/screening.json",
+      "sha256": "183594c4e8904d8a547fed2479326d7c49d9edd96fb9993e64970b4de6b0a356"
+    }
+  },
+  "scope": {
+    "roots": [
+      "CircularBuffer<int>.ToArraySegments()",
+      "CircularBuffer<int>.ToArray()",
+      "CircularBuffer<int>.GetEnumerator() direct IEnumerator<int> consumption"
+    ],
+    "input_cases": null,
+    "candidate_assemblies": {},
+    "owned_inputs": {},
+    "excluded": [
+      "IEnumerable<int> interface consumer: separately reproduced broad-dispatch blocker, not required for direct selected iterator path.",
+      "Other type instantiations, segment indexer/Slice/CopyTo/equality APIs, general Array aliases, joined stack producers, raw pointers and cross-element conversions.",
+      "Upstream project/test/generator/analyzer/CI execution; all Albireo/Encode scope unchanged."
+    ]
+  },
+  "execution": {
+    "authorization": null,
+    "approved_stages": [],
+    "isolation_plan": null
+  },
+  "unity": {
+    "status": "pending",
+    "version": "",
+    "settings": null,
+    "candidate_assemblies": {},
+    "owned_inputs": {},
+    "reference_commit": "",
+    "reference_roots": [],
+    "reference_input_cases": null,
+    "capture": null,
+    "blocker": "",
+    "correctness": {
+      "status": "not-run",
+      "input_fingerprint": "",
+      "evidence": null
+    }
+  },
+  "inspection": {
+    "status": "pending",
+    "locations": [],
+    "decision": null
+  },
+  "profile": {
+    "status": "pending",
+    "runtime": "",
+    "kind": "diagnostic",
+    "qualification": "",
+    "output_verification": null,
+    "roots": [],
+    "input_fingerprint": "",
+    "evidence": null,
+    "reason": "",
+    "decision": null
+  },
+  "exception": null,
+  "gaps": [
+    {
+      "id": "property-copy-producers",
+      "status": "open",
+      "requirement": "Accept proven same-block typed vector arguments produced by ordinary struct getters, retaining precise address/evaluation semantics and the existing rejection of joins/general Array aliases.",
+      "regressions": [
+        "tools/CompatibilityCandidates/circularbuffer-segments/SegmentCompositionProbe.cs:DirectPropertyCopy versus LocalPropertyCopy"
+      ],
+      "implementation": null
+    },
+    {
+      "id": "enumerable-consumer-closure",
+      "status": "out-of-scope",
+      "requirement": "Interface iterator consumption currently reaches unsupported ArraySegment<T> enumeration despite direct IEnumerator path admitting.",
+      "reason": "New candidate selected direct GetEnumerator/IEnumerator path only; conservative closure diagnosis needs independent design before widening."
+    }
+  ],
+  "validation": {
+    "status": "pending",
+    "coverage": "pending",
+    "input_fingerprint": "",
+    "cilica_commit": "",
+    "dotnet": null,
+    "cilica": null,
+    "performance": null,
+    "performance_not_applicable": "",
+    "review": null
+  },
+  "next_action": "Review owned reference adapter and exact host proposal. After authorized reference capture, design bounded ldloca/ldarga producer proof with fault/root/malformed-IL tests; then separately freeze/review new-root candidate execution. No upstream execution authorized.",
+  "preparation_plan": "docs/compatibility-candidates/circularbuffer-segments-proposal.json"
+}
