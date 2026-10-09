@@ -36,6 +36,9 @@ internal static class ObjectLexicalAccess
         if (caller.Owner == target) return true;
         if (chain.IsDefaultOrEmpty || !Valid(target, chain)) return false;
         if (Public(chain)) return true;
+        // Assembly visibility is independent of closed generic ancestry. Private
+        // nesting below still needs the existing exact declaring-scope proof.
+        if (caller.Owner.ContentHash == target.ContentHash && AssemblyVisible(chain)) return true;
         if (caller.Owner.ContentHash != target.ContentHash || target.Specialization.Length != 0 || caller.Owner.Specialization.Length != 0
             || chain.Any(o => o.GenericArity != 0) || caller.LexicalOwners.Any(o => o.GenericArity != 0)) return false;
         for (int i = 0; i < chain.Length - 1; ++i)

@@ -5037,3 +5037,17 @@ The full-IR inventory clears 23 cast/test failures and leaves nine failing bodie
 six same-assembly type tests from generic callers, two constructor initialization
 paths and one delegate capture. All 15,254 bodies translate. Full validated closure,
 production capacity, native engine and saved-game replay remain incomplete.
+
+
+### Generic callers and assembly-visible types (AC8.97)
+
+Same-image assembly type visibility is checked before private generic nesting
+restrictions. This aligns detached type tests with source access rules without
+relaxing private containment or foreign image checks. CIL121/object IR74; native86,
+layouts, core, grants and production budgets unchanged. All 35 selected checks pass,
+including 1,470 new sanitized native/.NET comparisons. See ADR AC0241.
+
+The full-IR audit clears all six remaining type-test failures. Three failing bodies
+remain: two constructor initialization paths and one delegate capture. All 15,254
+bodies translate; complete validated closure, production capacity, native engine
+and saved-game replay remain unfinished.
