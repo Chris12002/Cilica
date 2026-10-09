@@ -61,7 +61,7 @@ struct BorrowScope {
     BorrowScope(Context& c, const Frame& roots, std::uint32_t* integers, std::size_t count,
         const ReferencePredicate* accepts, std::uint64_t* wide_integers = nullptr, std::size_t wide_count = 0) noexcept : context(c) {
         if (c.instance.marking) { status = LocationStatus::busy; return; }
-        if (!active_root_frame(c, &roots) || roots.count > 1024 || count > 65536 || wide_count > 65536 - count ||
+        if (!active_root_frame(c, &roots) || roots.count > frame_root_limit || count > 65536 || wide_count > 65536 - count ||
             (roots.count != 0 && (roots.slots == nullptr || accepts == nullptr)) || (count != 0 && integers == nullptr)
             || (wide_count != 0 && wide_integers == nullptr)) return;
         for (std::size_t i = 0; i < roots.count; ++i) if (accepts[i] == nullptr) return;

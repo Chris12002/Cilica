@@ -13,6 +13,9 @@ public sealed record ObjectMethodRoots(IrMethodId Method, ImmutableArray<ObjectR
 public static class ObjectRootAssignment
 {
     public const int MaximumRootsPerMethod = 1024;
+    public const int MaximumIntegerRootsPerMethod = 2048;
+    internal static int RootLimit(ObjectTypeCatalog catalog) => catalog.Integer64
+        ? MaximumIntegerRootsPerMethod : MaximumRootsPerMethod;
 
     public static ImmutableArray<ObjectMethodRoots> Assign(ObjectIrProgram program)
     {
@@ -48,6 +51,7 @@ public static class ObjectRootAssignment
     {
         var result = ImmutableArray.CreateBuilder<ObjectMethodRoots>();
         int expandedSlots = 0;
+        int rootLimit = RootLimit(program.Flow.Types);
         foreach (var method in program.Flow.Methods)
         {
             var slots = ImmutableArray.CreateBuilder<ObjectRootSlot>();
@@ -60,8 +64,8 @@ public static class ObjectRootAssignment
                         throw new System.ArgumentException("Scalar location program exceeds the expanded storage limit.", nameof(program));
                 }
                 if (type.Kind is not (IrTypeKind.Reference or IrTypeKind.NullReference or IrTypeKind.ManagedLocation)) return;
-                if (slots.Count == MaximumRootsPerMethod)
-                    throw new System.ArgumentException("Native object method exceeds the 1024 phase A root-slot limit. " + method.Source.Name, nameof(program));
+                if (slots.Count == rootLimit)
+                    throw new System.ArgumentException($"Native object method exceeds the {rootLimit} phase A root-slot limit. " + method.Source.Name, nameof(program));
                 slots.Add(new(slots.Count, kind, index, block, type.Kind == IrTypeKind.ManagedLocation));
             }
             for (int i = 0; i < method.Parameters.Length; i++) Add(ObjectRootKind.Parameter, i, method.Parameters[i]);

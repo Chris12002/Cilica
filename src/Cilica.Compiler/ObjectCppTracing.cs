@@ -106,7 +106,7 @@ using ReferenceVisitor = bool (*)(void*, const ReferenceEdge&) noexcept;
     if (visitor == nullptr) return TraceResult::invalid;
     std::size_t depth = 0;
     for (const Frame* frame = context.top; frame != nullptr; frame = frame->previous) {
-        if (++depth > 64 || frame->count > 1024 || (frame->count != 0 && frame->slots == nullptr)) return TraceResult::invalid;
+        if (++depth > 64 || frame->count > frame_root_limit || (frame->count != 0 && frame->slots == nullptr)) return TraceResult::invalid;
         for (std::size_t i = 0; i < frame->count; ++i) {
             const auto result = visit_edge(context.instance, visitor, state, {ReferenceKind::frame, frame->slots[i], nullptr, frame, i});
             if (result != TraceResult::complete) return result;

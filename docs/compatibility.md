@@ -5097,3 +5097,19 @@ The full frozen closure clears the cast-message resource gate. Its next diagnost
 limit is 1,024 phase A roots in GameState.With. All 15,254 bodies pass individual IR
 validation; full root assignment, scalar lowering, production capacity, native
 engine execution and saved-game replay remain incomplete.
+
+
+### Measured integer-object root capacity (AC8.101)
+
+The integer-object profile now permits 2,048 distinct roots per method; legacy
+catalogs retain 1,024. Both planners, native tracing and borrow registration share
+the selected bound. Execution-byte quotas, aggregate limits, ownership and native
+stack limits remain unchanged. A wide branching constructor, exact/excess root
+boundaries and adjacent controls provide 71 passing checks, including 294 new
+sanitized native/.NET comparisons. CIL125/object IR78/native88. See ADR AC0245.
+
+The diagnostic closure now passes complete logical validation, scalar lowering
+and root assignment for all 15,254 methods: 61,756 blocks, 371,161 scalar statements,
+243,685 scalar roots and at most 1,711 in one method. This establishes the required
+root allowance. Production aggregate capacity, C++ emission, native engine
+execution and saved-game replay remain outstanding.

@@ -62,6 +62,7 @@ public static class ValueRootAssignment
         var layouts = rules.Plans.ToDictionary(p => p.Type);
         var result = ImmutableArray.CreateBuilder<ValueMethodRoots>();
         int total = 0;
+        int rootLimit = ObjectRootAssignment.RootLimit(program.Types.References);
         foreach (var method in program.Methods)
         {
             var roots = ImmutableArray.CreateBuilder<ValueRootSlot>();
@@ -69,8 +70,8 @@ public static class ValueRootAssignment
             int scalars = 0;
             void Root(ObjectRootKind kind, int index, int block, ImmutableArray<ObjectFieldId> path, bool locationOwner = false)
             {
-                if (roots.Count == ObjectRootAssignment.MaximumRootsPerMethod)
-                    throw new ArgumentException("Value method exceeds the 1024 phase A root-slot limit. " + method.Source.Name, nameof(program));
+                if (roots.Count == rootLimit)
+                    throw new ArgumentException($"Value method exceeds the {rootLimit} phase A root-slot limit. " + method.Source.Name, nameof(program));
                 roots.Add(new(roots.Count, kind, index, block, path, locationOwner));
             }
             void Add(ObjectRootKind kind, int index, IrType type, int block = -1)

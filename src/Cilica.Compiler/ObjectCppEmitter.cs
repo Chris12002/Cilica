@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v87";
+    public const string Profile = "object-frames-native-v88";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -135,7 +135,8 @@ public static class ObjectCppEmitter
         var text = new StringBuilder();
         text.Append("// Cilica ").Append(Profile).Append("\n#include <array>\n#include <atomic>\n#include <bit>\n#include <cstddef>\n#include <cstdint>\n#include <new>\n#include <limits>\n#include <type_traits>\n")
             .Append(ObjectCppRuntime.DiagnosticIncludes).Append("namespace ")
-            .Append(scope).Append(" {\nstatic constexpr std::size_t exception_resource_capacity = ")
+            .Append(scope).Append(" {\nstatic constexpr std::size_t frame_root_limit = ").Append(N(ObjectRootAssignment.RootLimit(program.Flow.Types)))
+            .Append(";\nstatic constexpr std::size_t exception_resource_capacity = ")
             .Append((exceptions is null ? 0 : ManagedExceptionMessages.Build(exceptions, program.Flow.Types).Values
                 .Where(message => !message.StartsWith("Exception of type '", StringComparison.Ordinal)).Distinct(StringComparer.Ordinal).Count()).ToString(CultureInfo.InvariantCulture))
             .Append(";\nstatic constexpr std::size_t runtime_type_count = ").Append(N(runtimeIdentities.Count)).Append(";\nstatic constexpr std::size_t static_field_count = ").Append(N(statics.Count)).Append(";\nstatic constexpr std::size_t type_initializer_count = ").Append(N(initializers.Count)).Append(";\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
