@@ -162,8 +162,10 @@ def main():
     root = Path(__file__).resolve().parents[2]
     ledger = json.loads((root / 'docs/compatibility-candidates' / (args.batch + '.json')).read_text())
     candidates = ledger['candidates']
+    from reference_workflow import check_batch
     for candidate in candidates:
         validate(candidate)
+        check_batch(root, args.batch, candidate)
     if args.action in ('status', 'validate'):
         for candidate in candidates:
             print(candidate['id'], candidate['commit'], candidate['status'], candidate['next_action'], sep=' | ')

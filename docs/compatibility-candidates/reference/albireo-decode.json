@@ -1,0 +1,139 @@
+{
+  "reference_workflow_version": 1,
+  "batch": "batch-020",
+  "candidate": {
+    "id": "albireo-base32",
+    "repository": "kappa7194/base32",
+    "commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+    "license": "MIT; Copyright 2014 Albireo",
+    "selected_target": "netstandard2.0",
+    "files": [
+      {
+        "path": "Albireo.Base32.Tests/Albireo.Base32.Tests.csproj",
+        "git_blob_sha1": "4a498fd7cef5bab6ae55d6583d4c5c8c2cb54ac5",
+        "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/Albireo.Base32.Tests.csproj"
+      },
+      {
+        "path": "Albireo.Base32.Tests/Base32Tests.cs",
+        "git_blob_sha1": "9b6283202674dcb37109bb716230024b124171c5",
+        "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/Base32Tests.cs"
+      },
+      {
+        "path": "Albireo.Base32.Tests/DecodeTests.cs",
+        "git_blob_sha1": "3259ebb5e58405997e9974a80fd16f4f508e1171",
+        "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/DecodeTests.cs"
+      },
+      {
+        "path": "Albireo.Base32.Tests/EncodeTests.cs",
+        "git_blob_sha1": "a7f4324318566f458269b3cc148ca6a84b3583ff",
+        "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/EncodeTests.cs"
+      },
+      {
+        "path": "Albireo.Base32/Albireo.Base32.csproj",
+        "git_blob_sha1": "46be76a6b66b56899b1b6f027a59647977f78cd5",
+        "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32/Albireo.Base32.csproj"
+      },
+      {
+        "path": "Albireo.Base32/Base32.cs",
+        "git_blob_sha1": "bd6584e246151e3e493ed1eb9f17de269cb1ddc1",
+        "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32/Base32.cs"
+      },
+      {
+        "path": "LICENSE.txt",
+        "git_blob_sha1": "1b3da92904fd9e9c1f4f327fafa5c7e0c771b150",
+        "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/LICENSE.txt"
+      }
+    ]
+  },
+  "screening": {
+    "online_first": true,
+    "evidence": {
+      "path": "docs/compatibility-candidates/batch-018.json",
+      "sha256": "15a2e7580d43ac8ec9b222f6999e029ee3fdacbd191b2b8bc8e87a2820d33d4e"
+    }
+  },
+  "scope": {
+    "roots": [
+      "Base32.Decode(in string)"
+    ],
+    "input_cases": null,
+    "candidate_assemblies": {},
+    "owned_inputs": {
+      "tools/CompatibilityCandidates/albireo-validation/ApprovedAlbireoExecutionTests.cs": "6bb7f29a056ffed0725a6684cc94fb04b4d2b4a1f66e0ea5a1ae14a445d178a8",
+      "tools/CompatibilityCandidates/albireo-validation/Probe.cs": "633269ecc3ffd9952a4edadefdc7b269c086e278a98ee0694be62140c196e139",
+      "tools/CompatibilityCandidates/albireo-validation/README.md": "2cf039920eb4b19376821e596bc85ea829bd82b2353e6f55e513791148ba8832",
+      "tools/CompatibilityCandidates/albireo-validation/SelectedDecode.csproj": "48e98e735739346a539fb6cd8079a04fdbd1d0becfabd29e8e17f78ed6a0412c",
+      "tools/CompatibilityCandidates/albireo-validation/offline-packages.json": "8b23ddbc500c1724ae26d104eedff9e6024cc4e705e0df061963d739e82beae2"
+    },
+    "excluded": [
+      "Encode",
+      "upstream MSBuild projects/targets",
+      "upstream tests",
+      "generators/analyzers",
+      "network access",
+      "host execution of candidate",
+      "production compiler/runtime changes"
+    ]
+  },
+  "execution": {
+    "authorization": null,
+    "approved_stages": [],
+    "isolation_plan": null
+  },
+  "unity": {
+    "status": "pending",
+    "version": "",
+    "settings": null,
+    "candidate_assemblies": {},
+    "owned_inputs": {},
+    "reference_commit": "",
+    "reference_roots": [],
+    "reference_input_cases": null,
+    "capture": null,
+    "blocker": "",
+    "correctness": {
+      "status": "not-run",
+      "input_fingerprint": "",
+      "evidence": null
+    }
+  },
+  "inspection": {
+    "status": "pending",
+    "locations": [],
+    "decision": null
+  },
+  "profile": {
+    "status": "pending",
+    "runtime": "",
+    "kind": "diagnostic",
+    "qualification": "",
+    "output_verification": null,
+    "roots": [],
+    "input_fingerprint": "",
+    "evidence": null,
+    "reason": "",
+    "decision": null
+  },
+  "exception": null,
+  "gaps": [
+    {
+      "id": "decode-closure-validation",
+      "status": "open",
+      "requirement": "Known owned API composition passes, but the exact pinned Decode closure and semantic behavior remain unverified; identify any additional gaps from representative reference/candidate evidence.",
+      "regressions": [],
+      "implementation": null
+    }
+  ],
+  "validation": {
+    "status": "pending",
+    "coverage": "pending",
+    "input_fingerprint": "",
+    "cilica_commit": "",
+    "dotnet": null,
+    "cilica": null,
+    "performance": null,
+    "performance_not_applicable": "",
+    "review": null
+  },
+  "next_action": "Hand off selected Decode roots and proposed32 bounded cases to Unity lane. Preserve pending execution approval; existing proposal excludes host candidate execution. Define adapter/input pins, permitted environment or explicit blocker/alternative before any capture or run."
+}

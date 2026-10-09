@@ -1,0 +1,34 @@
+test_connector_stage_checks_hashes_before_writing (test_candidate_snapshot.SnapshotSafetyTests) ... ok
+test_connector_stage_resumes_without_overwriting (test_candidate_snapshot.SnapshotSafetyTests) ... ok
+test_incomplete_snapshot_can_resume_but_is_not_verified (test_candidate_snapshot.SnapshotSafetyTests) ... ok
+test_paths_must_be_normalized_relative_unique_and_pinned (test_candidate_snapshot.SnapshotSafetyTests) ... ok
+test_symlinked_file_marker_and_output_parent_are_rejected (test_candidate_snapshot.SnapshotSafetyTests) ... ok
+test_unique_or_modified_content_is_never_removed (test_candidate_snapshot.SnapshotSafetyTests) ... ok
+test_verified_owned_snapshot_can_be_removed (test_candidate_snapshot.SnapshotSafetyTests) ... ok
+test_wrong_owner_and_unfinished_outcome_are_rejected (test_candidate_snapshot.SnapshotSafetyTests) ... ok
+test_batch_boundary_preserves_history_and_gates_future_completion (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_capture_is_neither_inspection_nor_runtime_profile (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_claimed_results_need_scope_approval_and_isolation (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_comparative_profile_requires_executed_matching_outputs (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_every_closed_gap_requires_concrete_reference_and_owned_regression (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_future_snapshot_requires_screening_before_any_candidate_action (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_mapped_skip_cannot_be_promoted_to_verified_without_execution (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_mapped_skip_is_explicit_and_needs_no_execution (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_matching_complete_receipts_pass (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_missing_tampered_traversal_and_symlink_receipts_fail (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_new_handoff_stays_incomplete_and_does_not_execute (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_owned_harness_identity_is_bound_to_capture_profile_and_validation (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_owned_regression_does_not_authorize_candidate_verified_status (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_reference_gate_can_pass_before_implementation_but_cannot_close_gap (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_relabelled_fingerprints_cannot_reuse_stale_execution_receipts (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_small_static_gap_may_omit_profile_only_with_reviewed_reason (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_stale_inputs_and_unrelated_roots_fail (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_unity_blocker_requires_reviewed_alternative_not_fake_capture (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_unity_correctness_is_distinct_and_failure_blocks (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_unmatched_capture_can_guide_but_never_support_matched_timing (test_reference_workflow.ReferenceWorkflowTests) ... ok
+test_wrong_execution_stage_or_missing_raw_artifact_is_rejected (test_reference_workflow.ReferenceWorkflowTests) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.104s
+
+OK

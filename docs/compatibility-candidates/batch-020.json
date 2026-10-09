@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "reference_workflow_version": 1,
+  "batch": "batch-020",
+  "date": "2026-10-09",
+  "previous_batch": "batch-019",
+  "purpose": "Adopt required Unity reference/profile workflow for the next previously screened selected candidate; no new execution.",
+  "observed_compiler_commit": "b9b346f7b0e00ba91199efa3f4cde73d236f79c3",
+  "candidates": [
+    {
+      "id": "albireo-base32",
+      "repository": "kappa7194/base32",
+      "url": "https://github.com/kappa7194/base32",
+      "commit": "1eabd2fcba515d0bd63881fd2a2879555c43648b",
+      "license": "MIT; Copyright 2014 Albireo",
+      "target_frameworks": [
+        "netstandard2.0",
+        "net472",
+        "net46",
+        "net45",
+        "net40"
+      ],
+      "selected_target": "netstandard2.0",
+      "framework_filter": "Earlier netstandard2.0 passes initial2.1 filter; no compatibility inference.",
+      "files": [
+        {
+          "path": "Albireo.Base32.Tests/Albireo.Base32.Tests.csproj",
+          "git_blob_sha1": "4a498fd7cef5bab6ae55d6583d4c5c8c2cb54ac5",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/Albireo.Base32.Tests.csproj"
+        },
+        {
+          "path": "Albireo.Base32.Tests/Base32Tests.cs",
+          "git_blob_sha1": "9b6283202674dcb37109bb716230024b124171c5",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/Base32Tests.cs"
+        },
+        {
+          "path": "Albireo.Base32.Tests/DecodeTests.cs",
+          "git_blob_sha1": "3259ebb5e58405997e9974a80fd16f4f508e1171",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/DecodeTests.cs"
+        },
+        {
+          "path": "Albireo.Base32.Tests/EncodeTests.cs",
+          "git_blob_sha1": "a7f4324318566f458269b3cc148ca6a84b3583ff",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32.Tests/EncodeTests.cs"
+        },
+        {
+          "path": "Albireo.Base32/Albireo.Base32.csproj",
+          "git_blob_sha1": "46be76a6b66b56899b1b6f027a59647977f78cd5",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32/Albireo.Base32.csproj"
+        },
+        {
+          "path": "Albireo.Base32/Base32.cs",
+          "git_blob_sha1": "bd6584e246151e3e493ed1eb9f17de269cb1ddc1",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/Albireo.Base32/Base32.cs"
+        },
+        {
+          "path": "LICENSE.txt",
+          "git_blob_sha1": "1b3da92904fd9e9c1f4f327fafa5c7e0c771b150",
+          "url": "https://github.com/kappa7194/base32/blob/1eabd2fcba515d0bd63881fd2a2879555c43648b/LICENSE.txt"
+        }
+      ],
+      "screened_before_download": true,
+      "external_execution": "Not run; connector text-only inspection, no checkout, source staging, restore or build.",
+      "dependencies": {
+        "inspection": "No runtime package/project references in library; SDK imports, package-on-build and checked overflow enabled. Tests netcoreapp2.1 -> library + Microsoft.NET.Test.Sdk15.7.0/MSTest.TestAdapter1.2.1/MSTest.TestFramework1.2.1. Full ten-file tree has no inherited props/targets."
+      },
+      "roots": [
+        "Base32.Decode(in string)"
+      ],
+      "reachable_requirements": [
+        "String.TrimEnd(char[]) selected by netstandard2.0 params binding",
+        "ToUpperInvariant, ToCharArray and Char predicate Enumerable.Any",
+        "String.IndexOf(Char), byte/char vectors, checked arithmetic and conversions",
+        "Readonly input byref and capture-free predicate; exact ArgumentException/ArgumentNullException"
+      ],
+      "unsupported_features": [
+        "Encode Decimal.Ceiling remains outside selected Decode scope.",
+        "Actual candidate closure/execution has not been tested."
+      ],
+      "semantic_failures": [],
+      "semantic_failure_note": "No upstream semantic result. All owned decoder API compositions pass after invariant uppercase; this is not proof of candidate compatibility.",
+      "mapped_status": "mapped-pending-candidate-validation",
+      "status": "mapped-blocked",
+      "next_action": "Read-only Unity handoff for pinned Decode; candidate execution approval and a compatible Unity isolation/alternative decision remain pending. No download or execution in batch020.",
+      "upstream_tests_inspected": "All three test sources inspected: RFC4648 encode/decode vectors including lowercase; test helper uses strict ASCII Encoding. Not executed.",
+      "excluded_scope": [
+        "Encode uses Decimal.Ceiling and division; recent bounded peer Decimal support does not cover this complete encoder.",
+        "Upstream builds/tests, ASCII test helper and all candidate execution unapproved."
+      ],
+      "implemented_requirements": [
+        "String.Trim/TrimStart/TrimEnd Char and Char[] plus directional whitespace;19 checks/15042 new comparisons.",
+        "Parameterless ToCharArray preserves exact UTF16 payloads/fresh nonempty results/shared empty cache. Minimal readonly in-string -> TrimEnd(Char[]) -> ToCharArray executes O0/O2. All27 focused/adjacent checks pass."
+      ],
+      "evidence": "batch-018-results.md; reference/albireo-decode.json",
+      "owned_followup": "Invariant uppercase and owned decoder API composition pass; no further independently reproduced decoder API gate remains.",
+      "mapped_requirements": [
+        "Exact Char delegate parameters: 51 checks, 14,808 new native/.NET comparisons; current Any interface gate retained.",
+        "Char generic enumeration and Any; 9,588 new native/.NET comparisons plus4 exact GC checks.",
+        "ToUpperInvariant pinned Unicode16 with exact identity/UTF16 behavior; owned decoder API sequence passes."
+      ],
+      "reference_manifest": "docs/compatibility-candidates/reference/albireo-decode.json"
+    }
+  ],
+  "cleanup": "No new candidate checkout or downloaded source created."
+}

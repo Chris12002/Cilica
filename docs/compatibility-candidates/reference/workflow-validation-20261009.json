@@ -1,0 +1,44 @@
+{
+  "kind": "candidate-reference-workflow-validation",
+  "date": "2026-10-09",
+  "checks": {
+    "unit_tests_passed": 29,
+    "unit_command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/CompatibilityCandidates -p test_*.py -v",
+    "cli": [
+      {
+        "action": "handoff",
+        "expected_exit": 0,
+        "actual_exit": 0
+      },
+      {
+        "action": "reference-gate",
+        "expected_exit": 2,
+        "actual_exit": 2
+      },
+      {
+        "action": "gate",
+        "expected_exit": 2,
+        "actual_exit": 2
+      }
+    ],
+    "historical_batches_validate": [
+      "batch-001",
+      "batch-018"
+    ],
+    "new_pending_batch": "batch-020",
+    "init_refuses_overwrite": true,
+    "documentation_links_exist": true
+  },
+  "source_sha256": {
+    "tools/CompatibilityCandidates/reference_workflow.py": "fc797227ae66aef76eb4ec23fcbaa20f381460ae14984243e259fe5f524fbfff",
+    "tools/CompatibilityCandidates/test_reference_workflow.py": "598327bf09323a1446ee467351b5c261d4975bde78b8868a79a7b3f7b0ff8c4d",
+    "tools/CompatibilityCandidates/candidate_snapshot.py": "2ca652b6c6b8dc3965f7e402e7bba3dc8af8634ab52d53de0faabc297ef0d14b",
+    "docs/compatibility-candidates/README.md": "1ae8ec6d4bd9667413d4380a2ae7571f03a8bc809392f7226eb4a49f82fcd50a",
+    "docs/compatibility-candidates/unity-reference-workflow.md": "0dced1dc85ad1c69c94e319f92f4f363e4c925271cbadb241c325835d32ba519",
+    "docs/compatibility-candidates/unity-runner-contract.md": "9b0811845a4c07b804188b9fa7fb040811ea46ad4e0ad4c1ec11254653379e94",
+    "docs/compatibility-candidates/batch-020.json": "bbbf9df9d0fe21da5e150a664310f145b7586cedecd213cbaa3f510080b25e2f",
+    "docs/compatibility-candidates/reference/albireo-decode.json": "7d6487c668f9ab2803053f3133403f9ab626bb802fad9493ed596502076ebadd"
+  },
+  "scope": "Owned workflow utility tests only; no candidate download/build/run or Unity launch. No runtime changes.",
+  "review": "Unity lane identified harness identity, captured-unmatched and comparative verification gaps; corrected with regression tests. Final semantic review still required for each future candidate record."
+}

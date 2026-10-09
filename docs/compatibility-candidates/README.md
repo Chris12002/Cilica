@@ -2,8 +2,8 @@
 
 This workflow turns pinned public projects into independently testable Cilica
 requirements. It is a source-screening and regression workflow, not an automatic
-third-party build farm. The current batch is [batch-015.json](batch-015.json);
-[results](batch-015-results.md) distinguish implemented support, diagnostics and
+third-party build farm. The current batch is [batch-020.json](batch-020.json);
+[reference handoff](reference/albireo-decode.json) and historical results distinguish implemented support, diagnostics and
 tested and excluded candidate roots.
 
 Latest execution follow-ups: [CircularBuffer selected roots verified](circularbuffer-retry-20261008.md)
@@ -19,13 +19,43 @@ Separate [Release performance measurements](diffplex-performance-20261008.md)
 show a large current throughput gap on one verified character-diff workload.
 Correctness trial durations are not performance results.
 
+## Accepted Unity reference/profile flow
+
+The standard flow is now: **screen/pin a library → identify gaps → inspect and
+profile representative Unity IL2CPP code → map references to owned regressions →
+implement Cilica support → .NET differential correctness and appropriate performance
+checks**. Follow the [executable reference workflow](unity-reference-workflow.md)
+and [Unity runner handoff contract](unity-runner-contract.md).
+
+Starting with batch020, every candidate needs a pinned `reference_manifest`.
+`candidate_snapshot.py` checks online-screening evidence and that manifest before
+candidate actions; verified/closed outcomes cannot pass while reference/profile
+or validation evidence is pending. Explicit reviewed reasons cover mapped skips,
+irrelevant profile paths and blocked or unmatched Unity references. Historical
+batches retain their original claims; reopen them in a new batch.
+
+```sh
+python3 tools/CompatibilityCandidates/reference_workflow.py handoff \
+  docs/compatibility-candidates/reference/albireo-decode.json > /tmp/albireo-unity-handoff.json
+python3 tools/CompatibilityCandidates/reference_workflow.py reference-gate \
+  docs/compatibility-candidates/reference/albireo-decode.json
+python3 tools/CompatibilityCandidates/reference_workflow.py gate \
+  docs/compatibility-candidates/reference/albireo-decode.json
+```
+
+The current Albireo gates intentionally fail: no upstream execution or Unity run
+is approved/completed. Handoff creation is read-only and grants no permission.
+Static capture, executed profiling and semantic validation remain distinct.
+The existing Unity runner is DiffPlex-specific and needs a reviewed adapter for
+new libraries; these hooks do not silently execute it or install tools.
+
 ## Resume and coordinate
 
 1. Verify `git status`, branch, HEAD and all active worktrees. Read AGENTS.md and
    applicable local skills. Ask the owning thread about overlapping work before
    selecting a gap. The primary checkout and the active Alchemy compatibility
    worktree differ substantially; never infer freshness from their directory names.
-2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-015`.
+2. Run `python3 tools/CompatibilityCandidates/candidate_snapshot.py status --batch batch-020`.
    The CLI default remains the historical batch 001; use explicit `--batch batch-NNN`
    for current or later batches. Existing immutable screening can be reused at the
    same pin. Start with two candidates and one independently useful feature. Reopen a mapped entry only for a new pin,
@@ -71,6 +101,7 @@ repository-owned harness. If external execution is blocked or unnecessary, recor
 
 ## Implement and verify
 
+Complete the applicable reference/profile gate and map findings to owned tests first.
 Reproduce one exact missing declaration or semantic failure with an independent
 fixture. Check other active branches for existing support before implementing.
 Implement the general requirement, preserving exception/evaluation order, identity,
