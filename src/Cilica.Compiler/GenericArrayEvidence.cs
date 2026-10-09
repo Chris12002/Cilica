@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection.Metadata;
+using System.Linq;
 using Cilica.Metadata.Resolution;
 
 namespace Cilica.Compiler;
@@ -55,13 +56,28 @@ internal sealed partial class ObjectIrRules
                     "generic array use requires an instruction and parameter index.");
                 var arguments = use.MethodParameter ? evidence.Context.Methods : evidence.Context.Types;
                 Require(use.ParameterIndex < arguments.Length, "generic array variable index is out of range.");
-                ObjectTypeId? element = arguments[use.ParameterIndex] switch {
-                    ClosedTypeShape.Named { Kind: SignatureTypeKind.Class } named => new(named.ContentHash, named.Token),
-                    ClosedTypeShape.Generic { Definition.Kind: SignatureTypeKind.Class } generic => new(generic.Definition.ContentHash,
+                var argument = arguments[use.ParameterIndex];
+                ObjectTypeId? element = argument switch {
+                    ClosedTypeShape.Named named => new(named.ContentHash, named.Token),
+                    ClosedTypeShape.Generic generic => new(generic.Definition.ContentHash,
                         generic.Definition.Token, Specialization: new ClosedGenericEvidence(generic.Arguments, []).Key()),
                     _ => null };
-                Require(element is not null && _types.Valid(IrType.Reference(element), true), "generic array evidence needs an exact admitted reference argument.");
-                var array = ObjectTypeId.Vector(_program.Flow.Types.ObjectBase, ObjectArrayElement.Reference(element));
+                var kind = argument switch {
+                    ClosedTypeShape.Named named => named.Kind,
+                    ClosedTypeShape.Generic generic => generic.Definition.Kind,
+                    _ => (SignatureTypeKind?)null };
+                ObjectArrayElement? storage = null;
+                if (element is not null && kind == SignatureTypeKind.Class && _types.Valid(IrType.Reference(element), true))
+                    storage = ObjectArrayElement.Reference(element);
+                else if (element is not null && kind == SignatureTypeKind.ValueType)
+                {
+                    if (_program.Flow.Types.EnumArrays.Any(e => ObjectTypeId.From(e.Source) == element))
+                        storage = ObjectArrayElement.Enum32(element);
+                    else if (_arrayValueLayouts?.TryGetValue(element, out var value) == true && value.ScalarBox is null)
+                        storage = ObjectArrayElement.Value(element);
+                }
+                Require(storage is not null, "generic array evidence needs an exact admitted reference, inline value or Int32 enum argument.");
+                var array = ObjectTypeId.Vector(_program.Flow.Types.ObjectBase, storage);
                 Require(_arrays.Contains(array) && operations.TryGetValue(use.ILOffset, out var operation)
                     && operation.Array == array && operation.Empty == use.Empty
                     && _genericArrays.TryAdd((id, use.ILOffset), array),

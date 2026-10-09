@@ -39,6 +39,7 @@ internal sealed partial class ObjectIrRules
     private readonly HashSet<ObjectTypeId> _contracts;
     private readonly HashSet<ObjectTypeId> _arrays;
     private readonly Dictionary<ObjectTypeId, ValueTypeLayout>? _valueLayouts;
+    private readonly Dictionary<ObjectTypeId, ValueTypeLayout>? _arrayValueLayouts;
     private readonly HashSet<ObjectTypeId> _scalarTypeTargets;
     private readonly bool _enumQueryReady;
     private readonly HashSet<ObjectTypeId> _enumEntryTypes;
@@ -64,6 +65,7 @@ internal sealed partial class ObjectIrRules
         _contracts = flow.Types.Interfaces.Select(t => ObjectTypeId.From(t.Source)).ToHashSet();
         _arrays = flow.Types.Arrays.ToHashSet();
         _valueLayouts = values?.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
+        _arrayValueLayouts = _valueLayouts ?? boxes?.Catalog.Types.ToDictionary(t => ObjectTypeId.From(t.Source));
         _scalarTypeTargets = values is not null
             ? values.Types.Where(t => t.ScalarBox is not null).Select(t => ObjectTypeId.From(t.Source)).ToHashSet()
             : boxes is not null ? boxes.Plans.Where(p => p.ScalarBox is not null).Select(p => p.Type).ToHashSet() : [];
@@ -483,15 +485,20 @@ internal sealed partial class ObjectIrRules
             ObjectArrayElementKind.Value when _valueLayouts?.ContainsKey(array.ArrayElement.Type!) == true => IrType.Value(array.ArrayElement.Type!),
             _ => null } : null;
 
-    internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array, int offset = -1) => array is not null && _arrays.Contains(array)
-        && (array.ArrayElement!.Kind != ObjectArrayElementKind.Reference || TypeTest(caller, array.ArrayElement.Type!)
-            || _genericArrays.TryGetValue((IrMethodId.From(caller.Source), offset), out var authorized) && authorized == array)
-        && (array.ArrayElement.Kind != ObjectArrayElementKind.Enum32
-            || _program.Flow.Types.EnumArrays.Any(e => ObjectTypeId.From(e.Source) == array.ArrayElement.Type
-                && ObjectLexicalAccess.Visible(Binding(IrMethodId.From(caller.Source)), array.ArrayElement.Type!, e.LexicalOwners)))
-        && (array.ArrayElement.Kind != ObjectArrayElementKind.Value || _valueLayouts is null
-            || _valueLayouts.TryGetValue(array.ArrayElement.Type!, out var layout)
-                && (layout.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == array.ArrayElement.Type));
+    internal bool ArrayAllocation(IrMethod caller, ObjectTypeId? array, int offset = -1)
+    {
+        if (array is null || !_arrays.Contains(array)) return false;
+        // The declaration's bare generic variable authorizes this exact newarr or
+        // Empty instruction only. It cannot authorize a cast or explicit type use.
+        if (_genericArrays.TryGetValue((IrMethodId.From(caller.Source), offset), out var authorized) && authorized == array) return true;
+        return (array.ArrayElement!.Kind != ObjectArrayElementKind.Reference || TypeTest(caller, array.ArrayElement.Type!))
+            && (array.ArrayElement.Kind != ObjectArrayElementKind.Enum32
+                || _program.Flow.Types.EnumArrays.Any(e => ObjectTypeId.From(e.Source) == array.ArrayElement.Type
+                    && ObjectLexicalAccess.Visible(Binding(IrMethodId.From(caller.Source)), array.ArrayElement.Type!, e.LexicalOwners)))
+            && (array.ArrayElement.Kind != ObjectArrayElementKind.Value || _arrayValueLayouts is null
+                || _arrayValueLayouts.TryGetValue(array.ArrayElement.Type!, out var layout)
+                    && (layout.ExternallyVisible || Binding(IrMethodId.From(caller.Source)).Owner == array.ArrayElement.Type));
+    }
 
     internal bool CopyCompatible(IrExpression.ArrayCopyCompatible copy, IReadOnlyList<IrType> values) =>
         copy.ArrayType is not null && _arrays.Contains(copy.ArrayType)

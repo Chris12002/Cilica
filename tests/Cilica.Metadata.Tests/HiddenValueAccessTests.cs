@@ -13,18 +13,18 @@ public sealed class HiddenValueAccessTests
     [Theory]
     [InlineData("opaque",true)] [InlineData("box",false)] [InlineData("token",false)]
     [InlineData("local",false)] [InlineData("signature",false)] [InlineData("field",false)]
-    [InlineData("private-field",false)] [InlineData("array",false)]
+    [InlineData("private-field",false)] [InlineData("array",true)] [InlineData("array-explicit",false)]
     public void Foreign_generic_code_cannot_name_hidden_value_or_expose_members(string use,bool admitted)
     {
         var result=ForeignClosure(use);Assert.True(result.Success==admitted,string.Join("; ",result.Diagnostics));
         if(admitted)ScalarManagedExceptionIrValidator.Validate(ValueScalarLowering.LowerExceptions(result.Program!));
-        else Assert.Contains(result.Diagnostics,d=>d.Message.Contains(use=="private-field"?"Fields require":use=="array"?"Invalid reference IR":"lexical declaring scope",StringComparison.Ordinal));
+        else Assert.Contains(result.Diagnostics,d=>d.Message.Contains(use=="private-field"?"Instance field access requires":use=="array"?"Invalid reference IR":"lexical declaring scope",StringComparison.Ordinal));
     }
     [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task Foreign_opaque_value_boxing_preserves_nominal_identity(bool optimized)
+    [InlineData(false, "opaque")] [InlineData(true, "opaque")] [InlineData(false, "array")] [InlineData(true, "array")]
+    public async Task Foreign_opaque_value_boxing_preserves_nominal_identity(bool optimized, string use)
     {
-        var result=ForeignClosure("opaque");Assert.True(result.Success,string.Join("; ",result.Diagnostics));
+        var result=ForeignClosure(use);Assert.True(result.Success,string.Join("; ",result.Diagnostics));
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,[("ForeignValue",result.Program!,(int a,int b)=>unchecked(a+b+1))]);
     }
     private static ManagedExceptionTranslationResult ForeignClosure(string use)
@@ -45,7 +45,7 @@ public sealed class HiddenValueAccessTests
             locals:use=="local"?[7,1,0x11,hiddenCode]:null,emit:il=>{
                 if(use=="token"){il.OpCode(ILOpCode.Ldtoken);il.Token(hidden);il.OpCode(ILOpCode.Pop);}
                 if(use=="field"){il.LoadArgumentAddress(0);il.OpCode(ILOpCode.Ldfld);il.Token(foreignField);il.OpCode(ILOpCode.Pop);}
-                if(use=="array"){il.LoadConstantI4(1);il.OpCode(ILOpCode.Newarr);il.Token(variable);il.OpCode(ILOpCode.Pop);}
+                if(use is "array" or "array-explicit"){il.LoadConstantI4(1);il.OpCode(ILOpCode.Newarr);il.Token(use=="array-explicit"?hidden:variable);il.OpCode(ILOpCode.Pop);}
                 il.LoadArgument(0);il.OpCode(ILOpCode.Box);il.Token(use=="box"?hidden:variable);il.OpCode(ILOpCode.Ret);
             });
         files.Write("OpaqueValueBridge.dll",bridge.Build());

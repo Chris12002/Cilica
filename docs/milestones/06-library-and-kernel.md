@@ -4117,3 +4117,21 @@ exception regions. This diagnostic run returns no program; production aggregate
 capacity, full logical/scalar validation, native engine and saved-game replay
 remain incomplete. See ADR AC0237 for lifetime reasoning, review corrections and
 exact evidence.
+
+
+### Hidden generic value arrays (AC8.94)
+
+Instruction-scoped bare-variable array evidence now covers hidden inline values
+and Int32 enums as well as references. Both IR stages preserve exact closed type,
+array kind and operation identity; scalar allocation retains value visibility
+facts. Explicit foreign names and unrelated type tests remain restricted.
+CIL118/object IR71; native86, layouts, core, grants and production budgets unchanged.
+All 92 selected checks pass, including 2,940 new sanitized native/.NET comparisons.
+
+The bounded full-IR inventory now reaches cross-method/catalog checks. After a
+diagnostic-only string allowance (3,512 distinct literals measured), 35 bodies
+still fail validation: generic type tests/casts, direct hidden value arrays,
+constructor initialization and one delegate capture. All 15,254 bodies translate
+before validation; no engine program is admitted or emitted. Production capacity
+and full saved-game replay remain incomplete. See ADR AC0238 for limits, exact
+failure counts, review correction and converted-source guidance.
