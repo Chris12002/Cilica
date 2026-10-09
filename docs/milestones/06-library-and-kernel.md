@@ -4244,3 +4244,16 @@ and root assignment for all 15,254 methods: 61,756 blocks, 371,161 scalar statem
 243,685 scalar roots and at most 1,711 in one method. This establishes the required
 root allowance. Production aggregate capacity, C++ emission, native engine
 execution and saved-game replay remain outstanding.
+
+
+### Shared exception facts and full native source (AC8.102)
+
+Native emission reuses immutable exception catalog facts across methods. No runtime
+semantics or compatibility profiles change; four comparison programs emit identical
+bytes and 43 selected exception checks pass. See ADR AC0246 for review and receipts.
+
+The diagnostic EngineStep closure now emits complete independent C++ for 15,254
+methods: 467,018,483 bytes / 5,495,963 lines. The bounded follow-up completes in
+228,045ms under shared host load. StateLookup emits 1,424,162 bytes. This proves
+source emission with diagnostic aggregate allowances, not native compilation or
+execution. Production aggregate capacity and saved-game replay remain outstanding.

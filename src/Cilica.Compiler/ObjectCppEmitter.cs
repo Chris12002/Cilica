@@ -78,6 +78,8 @@ public static class ObjectCppEmitter
         ImmutableArray<ValueTypePlan> boxedPayloads = default, ManagedExceptionTypes? exceptions = null, bool handlers = false, ImmutableArray<ValueTypeLayout> valueLayouts = default)
     {
         string argumentType = locations ? "LocationArgument" : "Argument";
+        // Catalog facts are immutable and shared by every method in this closure.
+        var exceptionRules = handlers ? new ManagedExceptionRules(exceptions!, program.Flow.Types) : null;
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
         var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
         if (program.InterfaceDispatch is { } interfacePlan)
@@ -394,7 +396,7 @@ public static class ObjectCppEmitter
         {
             var layout = layouts[IrMethodId.From(method.Source)];
             int currentBlock = 0;
-            var exceptionRules = handlers ? new ManagedExceptionRules(exceptions!, program.Flow.Types) : null;
+
             var output = text;
             var code = new StringBuilder();
             var steps = new List<string>();
