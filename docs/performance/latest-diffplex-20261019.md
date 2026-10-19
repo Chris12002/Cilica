@@ -3,6 +3,10 @@
 Recorded 2026-10-19. This record replaces the retained-code replay as the basis
 for current compiler performance decisions.
 
+The subsequent [internal-reference optimization](internal-references-20261019.md)
+is now the latest result: 15.481 ms to 0.533 ms in a new paired run. This record
+retains the preceding allocation-verification evidence.
+
 ## Branch and input identity
 
 The most recent compiler branch at the start of this work was

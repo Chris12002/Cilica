@@ -1,0 +1,2390 @@
+{
+  "application_exclusive_samples": 2311,
+  "ownership_line_samples": 2213,
+  "fraction": 0.9575941151016876,
+  "qualification": "Single optimized source-line sample; not exact instruction cost",
+  "lines": [
+    {
+      "line": 39757,
+      "samples": 70,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 39757,
+      "samples": 59,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 56058,
+      "samples": 58,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 41225,
+      "samples": 57,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 41637,
+      "samples": 56,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 39589,
+      "samples": 56,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 55960,
+      "samples": 52,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 41225,
+      "samples": 51,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 56058,
+      "samples": 49,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 39757,
+      "samples": 49,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 39589,
+      "samples": 48,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 55960,
+      "samples": 45,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 39589,
+      "samples": 45,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41637,
+      "samples": 43,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 39757,
+      "samples": 40,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41637,
+      "samples": 39,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 55960,
+      "samples": 39,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 41225,
+      "samples": 38,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 56058,
+      "samples": 37,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 39589,
+      "samples": 35,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 55960,
+      "samples": 35,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 56058,
+      "samples": 34,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 41637,
+      "samples": 28,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 41225,
+      "samples": 28,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 42426,
+      "samples": 24,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[27])) {"
+    },
+    {
+      "line": 41965,
+      "samples": 17,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42171,
+      "samples": 15,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[13])) {"
+    },
+    {
+      "line": 41637,
+      "samples": 15,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 60139,
+      "samples": 15,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 39598,
+      "samples": 14,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 60120,
+      "samples": 12,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42171,
+      "samples": 12,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[13])) {"
+    },
+    {
+      "line": 39766,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 39598,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41138,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41204,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 42062,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 42574,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 39757,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 60139,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 60120,
+      "samples": 11,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42190,
+      "samples": 10,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[14])) {"
+    },
+    {
+      "line": 42228,
+      "samples": 10,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[16])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 10,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 39766,
+      "samples": 10,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41204,
+      "samples": 10,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 39598,
+      "samples": 10,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41175,
+      "samples": 9,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 42440,
+      "samples": 9,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[28])) {"
+    },
+    {
+      "line": 41555,
+      "samples": 9,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41175,
+      "samples": 9,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 42062,
+      "samples": 9,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 42426,
+      "samples": 9,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[27])) {"
+    },
+    {
+      "line": 39766,
+      "samples": 9,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41609,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 42004,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 55260,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[25])) {"
+    },
+    {
+      "line": 55352,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[29])) {"
+    },
+    {
+      "line": 41609,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 42171,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[13])) {"
+    },
+    {
+      "line": 42426,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[27])) {"
+    },
+    {
+      "line": 41400,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42228,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[16])) {"
+    },
+    {
+      "line": 42004,
+      "samples": 8,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 41580,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 39625,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 10279,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 10260,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 60120,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 49895,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[37])) {"
+    },
+    {
+      "line": 42574,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42645,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 39757,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41637,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 60139,
+      "samples": 7,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41400,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42350,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[23])) {"
+    },
+    {
+      "line": 731,
+      "samples": 6,
+      "ownership_line": false,
+      "code": "if (visitor == nullptr || !traceable_reference(heap, value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 55613,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[40])) {"
+    },
+    {
+      "line": 39598,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 39625,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 56009,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 39625,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 41555,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42083,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[11])) {"
+    },
+    {
+      "line": 42440,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[28])) {"
+    },
+    {
+      "line": 42574,
+      "samples": 6,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41555,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41147,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 10260,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 10771,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41147,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41175,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 41965,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42574,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 39766,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 10750,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 10771,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 55613,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[40])) {"
+    },
+    {
+      "line": 55260,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[25])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41580,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 42122,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[10])) {"
+    },
+    {
+      "line": 731,
+      "samples": 5,
+      "ownership_line": false,
+      "code": "if (visitor == nullptr || !traceable_reference(heap, value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 56009,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 5,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 42350,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[23])) {"
+    },
+    {
+      "line": 10841,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 10771,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 55352,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[29])) {"
+    },
+    {
+      "line": 60139,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 60120,
+      "samples": 5,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41409,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 42209,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[15])) {"
+    },
+    {
+      "line": 56009,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 41156,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 42004,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 42583,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 39607,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 11701,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 39766,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41965,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42583,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 10260,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 55613,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[40])) {"
+    },
+    {
+      "line": 55260,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[25])) {"
+    },
+    {
+      "line": 11701,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41409,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41147,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 42062,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 42171,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[13])) {"
+    },
+    {
+      "line": 42426,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[27])) {"
+    },
+    {
+      "line": 10260,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 4,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 11701,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 3,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 42083,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[11])) {"
+    },
+    {
+      "line": 42097,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[12])) {"
+    },
+    {
+      "line": 41974,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 42122,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[10])) {"
+    },
+    {
+      "line": 42264,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[18])) {"
+    },
+    {
+      "line": 42645,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 42583,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 10841,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 10860,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 11701,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 11722,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 3,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 41409,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 42062,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 41974,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41784,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41784,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 10841,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 10279,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 40980,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 39634,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 42190,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[14])) {"
+    },
+    {
+      "line": 42209,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[15])) {"
+    },
+    {
+      "line": 42264,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[18])) {"
+    },
+    {
+      "line": 42317,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[22])) {"
+    },
+    {
+      "line": 42350,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[23])) {"
+    },
+    {
+      "line": 10279,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 10750,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 55352,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[29])) {"
+    },
+    {
+      "line": 11722,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41555,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41580,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 39607,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 39634,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 41138,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41974,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 10279,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 51378,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[19])) {"
+    },
+    {
+      "line": 49895,
+      "samples": 3,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[37])) {"
+    },
+    {
+      "line": 39607,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 39634,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 41784,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42364,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[24])) {"
+    },
+    {
+      "line": 602,
+      "samples": 2,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 602,
+      "samples": 2,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 41637,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 38180,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 11759,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 41580,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 41400,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41138,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41204,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 11722,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41609,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 6961,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 44318,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[69])) {"
+    },
+    {
+      "line": 43538,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[31])) {"
+    },
+    {
+      "line": 42795,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 45945,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 61799,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 61844,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[11])) {"
+    },
+    {
+      "line": 41138,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41147,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 2,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 1196,
+      "samples": 2,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 41609,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 41784,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 39757,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 2,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 12054,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 41400,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41204,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 41175,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 41784,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41965,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 42083,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[11])) {"
+    },
+    {
+      "line": 42004,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 42583,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 602,
+      "samples": 2,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 56009,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 44777,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[11])) {"
+    },
+    {
+      "line": 43104,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[12])) {"
+    },
+    {
+      "line": 43149,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[14])) {"
+    },
+    {
+      "line": 10750,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 10860,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 40980,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 55613,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[40])) {"
+    },
+    {
+      "line": 55260,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[25])) {"
+    },
+    {
+      "line": 55554,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[37])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 1140,
+      "samples": 2,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(context.instance, owner) || !known_type(declaring) || !valid_array_storage(owner)) return {LocationStatus::invalid};"
+    },
+    {
+      "line": 1072,
+      "samples": 2,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 60711,
+      "samples": 2,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 11759,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 2232,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "for (const auto* receiver : t_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_02000072_accepts_types) if (receiver == type) return true;"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 11978,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->locations[0] = f->incoming[0].location;"
+    },
+    {
+      "line": 1110,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.origin == LocationOrigin::frame_integer || location.origin == LocationOrigin::frame_reference || location.origin == LocationOrigin::frame_wide_integer)"
+    },
+    {
+      "line": 12054,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 12363,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "}"
+    },
+    {
+      "line": 41156,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 2232,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "for (const auto* receiver : t_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_02000072_accepts_types) if (receiver == type) return true;"
+    },
+    {
+      "line": 55907,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 55994,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "}"
+    },
+    {
+      "line": 10750,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 11722,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 44052,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[55])) {"
+    },
+    {
+      "line": 44430,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[75])) {"
+    },
+    {
+      "line": 43584,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[33])) {"
+    },
+    {
+      "line": 60521,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 12054,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 11625,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (context.pending != 0u && !f->exception_routed) step = cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600024b_steps::dispatch_exception(context, f);"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 41551,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->roots[1] = f->locations[0].owner;"
+    },
+    {
+      "line": 5075,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "for (const auto& entry : cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000591_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch_table) if (entry.type == type) { return entry.body; }"
+    },
+    {
+      "line": 39607,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 39634,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 42054,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->roots[9] = f->roots[0];"
+    },
+    {
+      "line": 42083,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[11])) {"
+    },
+    {
+      "line": 42350,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[23])) {"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 649,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (++count > context.instance.count || !traceable_reference(context.instance, value)"
+    },
+    {
+      "line": 731,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (visitor == nullptr || !traceable_reference(heap, value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 2232,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "for (const auto* receiver : t_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_02000072_accepts_types) if (receiver == type) return true;"
+    },
+    {
+      "line": 813,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "for (Object* value = heap.head; value != nullptr; value = value->next) {"
+    },
+    {
+      "line": 90,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "delete[] array->integers; delete[] array->wide_integers; delete[] array->references; delete array;"
+    },
+    {
+      "line": 2232,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "for (const auto* receiver : t_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_02000072_accepts_types) if (receiver == type) return true;"
+    },
+    {
+      "line": 56120,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (context.pending != 0u && !f->exception_routed) step = cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000021_steps::dispatch_exception(context, f);"
+    },
+    {
+      "line": 55888,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 11701,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 41555,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 41580,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 44581,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 44678,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[8])) {"
+    },
+    {
+      "line": 44777,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[11])) {"
+    },
+    {
+      "line": 45039,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[19])) {"
+    },
+    {
+      "line": 42987,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 44033,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[54])) {"
+    },
+    {
+      "line": 44052,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[55])) {"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 44270,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[67])) {"
+    },
+    {
+      "line": 44288,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[66])) {"
+    },
+    {
+      "line": 44409,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[72])) {"
+    },
+    {
+      "line": 44430,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[75])) {"
+    },
+    {
+      "line": 44450,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[74])) {"
+    },
+    {
+      "line": 1105,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (context.instance.marking) return {LocationStatus::busy};"
+    },
+    {
+      "line": 43032,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[7])) {"
+    },
+    {
+      "line": 43584,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[33])) {"
+    },
+    {
+      "line": 42804,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41018,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 55352,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[29])) {"
+    },
+    {
+      "line": 38214,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 55526,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[39])) {"
+    },
+    {
+      "line": 55554,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[37])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 53210,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 1072,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 59720,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59720,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 1072,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 1072,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 1072,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 1072,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 47926,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 40403,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 40601,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 539,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (++count > context.instance.count || !traceable_reference(context.instance, value)"
+    },
+    {
+      "line": 45403,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 57951,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[10])) {"
+    },
+    {
+      "line": 60674,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41156,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 11722,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 1106,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.narrow != LocationNarrow::none && (location.origin != LocationOrigin::frame_integer"
+    },
+    {
+      "line": 12054,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 41409,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 42091,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "}"
+    },
+    {
+      "line": 42097,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[12])) {"
+    },
+    {
+      "line": 41974,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 42612,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->roots[6] = cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600049e_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3(context, f->arguments.data());"
+    },
+    {
+      "line": 2232,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "for (const auto* receiver : t_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_02000072_accepts_types) if (receiver == type) return true;"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 10841,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[5])) {"
+    },
+    {
+      "line": 10771,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 41555,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 44339,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[71])) {"
+    },
+    {
+      "line": 38214,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 11751,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->roots[2] = f->roots[0];"
+    },
+    {
+      "line": 41609,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[4])) {"
+    },
+    {
+      "line": 39625,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[3])) {"
+    },
+    {
+      "line": 41156,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 41847,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return frame_done;"
+    },
+    {
+      "line": 42086,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (f->roots[11] != nullptr && !t_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_020000d9_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_accepts(f->roots[11]->type)) {"
+    },
+    {
+      "line": 42228,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[16])) {"
+    },
+    {
+      "line": 42612,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->roots[6] = cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600049e_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3(context, f->arguments.data());"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 602,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(heap, edge.value)) return TraceResult::invalid;"
+    },
+    {
+      "line": 55888,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 2232,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "for (const auto* receiver : t_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_02000072_accepts_types) if (receiver == type) return true;"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 1196,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));"
+    },
+    {
+      "line": 39766,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 44678,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[8])) {"
+    },
+    {
+      "line": 44716,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[10])) {"
+    },
+    {
+      "line": 45039,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[19])) {"
+    },
+    {
+      "line": 44033,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[54])) {"
+    },
+    {
+      "line": 7038,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[6])) {"
+    },
+    {
+      "line": 44318,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[69])) {"
+    },
+    {
+      "line": 44389,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[73])) {"
+    },
+    {
+      "line": 44409,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[72])) {"
+    },
+    {
+      "line": 43032,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[7])) {"
+    },
+    {
+      "line": 43584,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[33])) {"
+    },
+    {
+      "line": 42795,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 40999,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 10279,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 55344,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->roots[31] = f->locations[0].owner;"
+    },
+    {
+      "line": 38180,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 55417,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!t_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_02000072_vector_i4_accepts(f->roots[33]->type)) {"
+    },
+    {
+      "line": 41018,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 55542,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->arguments[0].reference = f->roots[39];"
+    },
+    {
+      "line": 52226,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[28])) {"
+    },
+    {
+      "line": 1072,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 53777,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "f->roots[25] = cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000e(context, f->arguments.data());"
+    },
+    {
+      "line": 1140,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (!traceable_reference(context.instance, owner) || !known_type(declaring) || !valid_array_storage(owner)) return {LocationStatus::invalid};"
+    },
+    {
+      "line": 1072,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 59720,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 1072,
+      "samples": 1,
+      "ownership_line": false,
+      "code": "if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 47868,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[2])) {"
+    },
+    {
+      "line": 39360,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[0])) {"
+    },
+    {
+      "line": 59739,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    },
+    {
+      "line": 61781,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[9])) {"
+    },
+    {
+      "line": 61844,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[11])) {"
+    },
+    {
+      "line": 61881,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[12])) {"
+    },
+    {
+      "line": 10279,
+      "samples": 1,
+      "ownership_line": true,
+      "code": "if (!context.instance.owns(f->roots[1])) {"
+    }
+  ]
+}

@@ -3,6 +3,9 @@
 Status: accepted. Recorded 2026-10-19. Supersedes ADR 0025's unconditional pre-allocation root
 verification requirement; managed semantics and public embedding contracts remain.
 
+Later [ADR 0196](0196-internal-reference-verification.md) also makes ordinary
+internal membership scans diagnostic, while retaining the public and GC checks.
+
 ## Decision and trust boundary
 
 Normal generated code no longer scans every published root and searches the

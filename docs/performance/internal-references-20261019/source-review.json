@@ -1,0 +1,37 @@
+{
+  "baseline_revision": "6ede4de47014556045d2dba903f862fd7333b6ad",
+  "candidate_source_hashes": {
+    "src/Cilica.Compiler/ObjectCppRuntime.cs": "b8dcf9480b055a07caa2c85602f6b31161750db706402feb996763b9ce82e6eb",
+    "src/Cilica.Compiler/ObjectCppEmitter.cs": "029e79cc4bf6f006f255c79a04b2574fdaf9faff0c1b248959fabeb5a880a150",
+    "src/Cilica.Compiler/ObjectCppLocations.cs": "d81e398184da39435c2a37503ca5ae96faa95fbdeaa4a42e42e9fd8087cb2828",
+    "src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll": "3d2d05ca7389e5d93ec06be52a9a892a204efcb5755e8d5734a59c644b8ca4bf",
+    "tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll": "b2d8a7bee4aa81c25f9b8882ba14550c4a2c09b67aa68dc0b3066686b36a1cdc",
+    "tools/CompatibilityCandidates/diffplex-benchmark/native-host.cpp.template": "c6ca290a395e736614856c96d6348b17f037dba9c4a2f70b29a4b8c3f2597e8f",
+    "tools/Performance/allocation_verification.py": "1492192940cddcd069e92755f9eeae9afd5a54873b16f98dc5fde5dddc41b899",
+    "tools/Performance/internal_reference_verification.py": "3fee4ebe6174442e97e9e541375f6f7d174c9272d55e43a8319f35549a3ed39a"
+  },
+  "generated_guards": 550,
+  "source_comparison": "Exact runtime and generated guard difference; unrelated guard substitution rejected",
+  "baseline_reemission_matches_previous_candidate": true,
+  "owned_library_tree": "36828c29a7bf3686bbfa93d962eb27d7a323241d",
+  "stress_environment_present": false,
+  "measurement_iterations_per_sample": 64,
+  "invalid_macro_rejected": true,
+  "review": "No new root changes or allocations; collector, host handle admission and result publication stay checked; managed null/type/bounds and borrow lifetime guards retained. Helper flag-list copying reviewed; measure body unchanged.",
+  "core_library_tree": "6b5f7e778ab810f48e4a27650a393c0c72f5e997",
+  "workload_sha256": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+  "targeted_tests": {
+    "focused": 15,
+    "adjacent": 83,
+    "managed_composition": 6,
+    "total": 104
+  },
+  "candidate_revision": "479176ccf767c1ea24c70456ba4b016a77d98d29",
+  "baseline_profile_sha256": "6d7448dcd89a40fff54c37296e09121ebbe2c70e283bfa59739fe67d876f70a9",
+  "profile_command": "clang++ -std=c++20 -O2 -g -DNDEBUG -fno-exceptions -fno-rtti baseline.cpp -o baseline-profile; own process measure 0 128, then sample for 3 seconds at 1 ms after 2 seconds",
+  "local_artifacts": "/Users/christian/Cilica/artifacts/internal-reference-performance-20261019",
+  "binary_bytes": {
+    "baseline": 3477704,
+    "candidate": 3444296
+  }
+}
