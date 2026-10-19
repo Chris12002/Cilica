@@ -90,6 +90,15 @@ feedback before implementation. Explain consequential choices in plain language.
   correctness separately from release timing. Revisit prototype limits using
   measured target budgets rather than treating their original values as permanent.
 
+## Internal reference verification
+
+Generated access and managed borrows trust live internal references by default.
+`CILICA_VERIFY_INTERNAL_REFERENCES=1` restores heap-list membership diagnostics;
+select it in native harnesses that inject arbitrary private pointers. Keep
+`Instance::owns` and `traceable_reference` checked for public handles, exported
+results and GC. Never substitute the internal shortcut at those boundaries.
+Null/bounds/type checks and borrowed frame lifetimes remain required. See ADR 0196.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.

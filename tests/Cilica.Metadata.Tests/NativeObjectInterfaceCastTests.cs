@@ -168,11 +168,11 @@ public sealed class NativeObjectInterfaceCastTests(ITestOutputHelper output)
         File.WriteAllText(cpp, source.ToString(), new UTF8Encoding(false));
         string compiler = Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++";
         var build = await NativeProcess.Run(compiler,
-            ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
+            ["-std=c++20", /* Private forged-pointer probes require diagnostic membership checks. */ "-DCILICA_VERIFY_INTERNAL_REFERENCES=1", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
                 "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", executable], directory);
         Assert.True(build.ExitCode == 0, build.Stderr);
         var measure = await NativeProcess.Run(compiler,
-            ["-std=c++20", "-fno-exceptions", "-fno-rtti", optimized ? "-O2" : "-O0", "-fstack-usage", "-Werror",
+            ["-std=c++20", "-DCILICA_VERIFY_INTERNAL_REFERENCES=1", "-fno-exceptions", "-fno-rtti", optimized ? "-O2" : "-O0", "-fstack-usage", "-Werror",
                 "-Wframe-larger-than=2048", "-c", cpp, "-o", Path.Combine(directory, "measured.o")], directory);
         Assert.True(measure.ExitCode == 0, measure.Stderr);
         var rows = File.ReadAllLines(Path.Combine(directory, "measured.su")).Select(line => line.Split('\t')).ToArray();

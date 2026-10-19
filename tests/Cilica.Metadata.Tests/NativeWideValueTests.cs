@@ -135,7 +135,7 @@ public sealed class NativeWideValueTests
         using var files = new ResolverFiles(); string dir = files.DirectoryPath("wide-values"), cpp = Path.Combine(dir, "probe.cpp"), exe = Path.Combine(dir, "probe");
         File.WriteAllText(cpp, source.ToString());
         var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
-            ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
+            ["-std=c++20", /* Private forged-pointer probes require diagnostic membership checks. */ "-DCILICA_VERIFY_INTERNAL_REFERENCES=1", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
                 "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", exe], dir);
         Assert.True(build.ExitCode == 0, build.Stderr);
         var run = await NativeProcess.Run(exe, [], dir); Assert.True(run.ExitCode == 0, run.Stdout + run.Stderr); Assert.Empty(run.Stderr);

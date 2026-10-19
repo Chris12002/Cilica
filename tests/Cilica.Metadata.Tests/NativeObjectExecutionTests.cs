@@ -31,9 +31,11 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Native_objects_match_dotnet_and_preserve_roots_ownership_faults_and_teardown(bool optimized)
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Native_objects_match_dotnet_and_preserve_roots_ownership_faults_and_teardown(bool optimized, bool verify)
     {
         Case[] cases = [new(nameof(ObjectProbe.Run), ObjectProbe.Run), new(nameof(ObjectProbe.AcrossCalls), ObjectProbe.AcrossCalls),
             new(nameof(ObjectProbe.ReadNull), (a, _) => ObjectProbe.ReadNull(a), 1), new(nameof(ObjectProbe.Checked), ObjectProbe.Checked),
@@ -81,12 +83,15 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
         foreach (var field in node.Fields.Where(f => f.Storage is ObjectStorage.Int32))
             source.Append("    assert(reinterpret_cast<").Append(nodeType).Append("*>(p)->f_").Append(field.Id.Token.ToString("x8", CultureInfo.InvariantCulture)).Append(" == 0u);\n");
         source.Append("  }\n");
-        // Cross-instance and arbitrary-pointer inputs fail before dereferencing; frames pop.
-        source.Append("  { using namespace ").Append(firstScope).Append("; Instance a, b; Context ca(a), cb(b); Object* p = allocate<").Append(nodeType).Append(">(ca, ").Append(nodeType).Append("_descriptor);\n")
-            .Append("    assert(").Append(change).Append("(cb, p, 1) == 0 && cb.pending == 6u && cb.top == nullptr && cb.depth == 0 && b.count == 0);\n")
-            .Append("    Context invalid(b); assert(").Append(change).Append("(invalid, reinterpret_cast<Object*>(std::uintptr_t{1}), 1) == 0 && invalid.pending == 6u && invalid.top == nullptr);\n")
-            .Append("    Context poisoned(b); poisoned.observe = inspect; Object* slots[] = {p}; { Frame header; RootScope frame(poisoned, header, slots, 1); assert(!valid_roots(poisoned));\n")
-            .Append("      assert(allocate<").Append(nodeType).Append(">(poisoned, ").Append(nodeType).Append("_descriptor) == nullptr && poisoned.pending == 6u && b.count == 0); } assert(poisoned.top == nullptr); }\n");
+        // Deliberately forged private inputs are supported only by diagnostic mode.
+        if (verify)
+        {
+            source.Append("  { using namespace ").Append(firstScope).Append("; Instance a, b; Context ca(a), cb(b); Object* p = allocate<").Append(nodeType).Append(">(ca, ").Append(nodeType).Append("_descriptor);\n")
+                .Append("    assert(").Append(change).Append("(cb, p, 1) == 0 && cb.pending == 6u && cb.top == nullptr && cb.depth == 0 && b.count == 0);\n")
+                .Append("    Context invalid(b); assert(").Append(change).Append("(invalid, reinterpret_cast<Object*>(std::uintptr_t{1}), 1) == 0 && invalid.pending == 6u && invalid.top == nullptr);\n")
+                .Append("    Context poisoned(b); poisoned.observe = inspect; Object* slots[] = {p}; { Frame header; RootScope frame(poisoned, header, slots, 1); assert(!valid_roots(poisoned));\n")
+                .Append("      assert(allocate<").Append(nodeType).Append(">(poisoned, ").Append(nodeType).Append("_descriptor) == nullptr && poisoned.pending == 6u && b.count == 0); } assert(poisoned.top == nullptr); }\n");
+        }
         for (int i = 0; i < artifacts.Length; i++)
         {
             var program = programs[i]; string scope = Scope(artifacts[i]), root = CppEmitterSymbol(program.Flow.Entry);
@@ -130,7 +135,7 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
         string cpp = Path.Combine(directory, "objects.cpp"), executable = Path.Combine(directory, "objects");
         File.WriteAllText(cpp, source.ToString(), new UTF8Encoding(false));
         string compiler = Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++";
-        string[] flags = ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
+        string[] flags = ["-std=c++20", "-DCILICA_VERIFY_INTERNAL_REFERENCES=" + (verify ? "1" : "0"), "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
             "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", executable];
         var version = await NativeProcess.Run(compiler, ["--version"], directory); Assert.Equal(0, version.ExitCode); output.WriteLine(version.Stdout);
         var build = await NativeProcess.Run(compiler, flags, directory); Assert.True(build.ExitCode == 0, build.Stdout + build.Stderr);

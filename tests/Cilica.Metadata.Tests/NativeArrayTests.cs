@@ -15,9 +15,11 @@ namespace Cilica.Metadata.Tests;
 public sealed class NativeArrayTests(ITestOutputHelper output)
 {
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(bool optimized)
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(bool optimized, bool verify)
     {
         string[] names = ["Integers", "Zeroes", "NullLength", "NullLoad", "NullStore", "References", "Dispatch", "Virtual", "Covariance",
             "CheckedStore", "FaultOrder", "Rooted", "InterfaceElements", "WidenAndNest", "EmptyIdentity", "Boundaries", "ArrayTypeTest", "ArrayCast"];
@@ -81,6 +83,8 @@ public sealed class NativeArrayTests(ITestOutputHelper output)
                 c.pending = 0; (void){{write}}(c, array, -1, wrong); assert(c.pending == 10 && slots[0] == valid);
                 c.pending = 0; (void){{write}}(c, nullptr, -1, wrong); assert(c.pending == 4);
                 c.pending = 0; (void){{write}}(c, array, 0, nullptr); assert(c.pending == 0 && slots[0] == nullptr);
+                // Private forged-pointer injection requires the diagnostic build.
+                #if CILICA_VERIFY_INTERNAL_REFERENCES
                 Instance foreign; Context other(foreign);
                 Object* foreign_value = allocate<{{Layout(boundary, typeof(ArrayEcho))}}>(other, {{Layout(boundary, typeof(ArrayEcho))}}_descriptor);
                 (void){{write}}(c, array, 0, foreign_value); assert(c.pending == 6 && slots[0] == nullptr);
@@ -91,6 +95,7 @@ public sealed class NativeArrayTests(ITestOutputHelper output)
                 Object* integers = allocate_array(other, {{Vector(boundary, "int")}}_descriptor, 1);
                 c.pending = 0; (void){{read}}(c, integers, 0); assert(c.pending == 6);
                 c.pending = 0; (void){{read}}(c, reinterpret_cast<Object*>(std::uintptr_t{1}), 0); assert(c.pending == 6);
+                #endif
                 const Descriptor* original = array->type; const Descriptor copied = *original;
                 array->type = &copied; c.pending = 0; (void){{write}}(c, array, 0, nullptr); assert(c.pending == 6);
                 array->type = reinterpret_cast<const Descriptor*>(std::uintptr_t{1}); c.pending = 0;
@@ -162,10 +167,10 @@ public sealed class NativeArrayTests(ITestOutputHelper output)
         using var files = new ResolverFiles(); string directory = files.DirectoryPath("native-arrays"), cpp = Path.Combine(directory, "arrays.cpp"), executable = Path.Combine(directory, "arrays");
         File.WriteAllText(cpp, source.ToString(), new UTF8Encoding(false));
         string compiler = Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++";
-        var build = await NativeProcess.Run(compiler, ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror",
+        var build = await NativeProcess.Run(compiler, ["-std=c++20", "-DCILICA_VERIFY_INTERNAL_REFERENCES=" + (verify ? "1" : "0"), "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror",
             optimized ? "-O2" : "-O0", "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", executable], directory);
         Assert.True(build.ExitCode == 0, build.Stderr);
-        var measure = await NativeProcess.Run(compiler, ["-std=c++20", "-fno-exceptions", "-fno-rtti", optimized ? "-O2" : "-O0", "-fstack-usage",
+        var measure = await NativeProcess.Run(compiler, ["-std=c++20", "-DCILICA_VERIFY_INTERNAL_REFERENCES=" + (verify ? "1" : "0"), "-fno-exceptions", "-fno-rtti", optimized ? "-O2" : "-O0", "-fstack-usage",
             "-Werror", "-Wframe-larger-than=2048", "-c", cpp, "-o", Path.Combine(directory, "measured.o")], directory);
         Assert.True(measure.ExitCode == 0, measure.Stderr);
         var rows = File.ReadAllLines(Path.Combine(directory, "measured.su")).Select(line => line.Split('\t')).ToArray();

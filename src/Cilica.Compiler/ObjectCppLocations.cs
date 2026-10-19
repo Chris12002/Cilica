@@ -127,7 +127,7 @@ struct LocationStorage {
 }
 [[gnu::noinline]] static LocationStorage heap_location_storage(Context& context, const Location& location, bool write) noexcept {
     if (location.origin != LocationOrigin::heap_field || location.element != 0 || location.frame != 0 || location.owner == nullptr ||
-        !traceable_reference(context.instance, location.owner) || !known_type(location.declaring)) return {LocationStatus::invalid};
+        !managed_reference(context.instance, location.owner) || !known_type(location.declaring)) return {LocationStatus::invalid};
     const Descriptor& actual = *location.owner->type;
     if (!derives_from(&actual, location.declaring) || location.slot >= location.declaring->field_count ||
         location.slot >= actual.field_count || actual.storage == nullptr) return {LocationStatus::invalid};
@@ -149,7 +149,7 @@ struct LocationStorage {
     return {LocationStatus::complete, component.kind, &array->references[element * type.array_reference_slots + component.offset], component.accepts};
 }
 [[gnu::noinline]] static LocationStorage array_location_storage(Context& context, const Location& location) noexcept {
-    if (location.frame != 0 || location.owner == nullptr || !traceable_reference(context.instance, location.owner)
+    if (location.frame != 0 || location.owner == nullptr || !managed_reference(context.instance, location.owner)
         || !known_type(location.declaring) || !valid_array_storage(location.owner)) return {LocationStatus::invalid};
     const bool integer = integer_array_location_type(location.owner->type, location.declaring);
     if (!integer && (location.owner->type != location.declaring
@@ -217,7 +217,7 @@ static const FieldStorage* static_location_field(std::size_t slot) noexcept;
     const Descriptor* declaring, std::uint32_t index, std::size_t slot, bool read_only = false) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
     if (owner == nullptr) return {LocationStatus::null_reference};
-    if (!traceable_reference(context.instance, owner) || !known_type(declaring) || !valid_array_storage(owner)) return {LocationStatus::invalid};
+    if (!managed_reference(context.instance, owner) || !known_type(declaring) || !valid_array_storage(owner)) return {LocationStatus::invalid};
     const bool integer = integer_array_location_type(owner->type, declaring);
     if (!integer && ((declaring->array_kind != 2 && declaring->array_kind != 3)
         || owner->type->array_kind != declaring->array_kind)) return {LocationStatus::invalid};
@@ -273,7 +273,7 @@ static std::uint32_t normalize_location_integer(std::uint32_t value, LocationNar
     *static_cast<std::uint64_t*>(storage.address) = value; return LocationStatus::complete;
 }
 [[gnu::noinline]] static bool location_reference(const Instance& heap, ReferencePredicate accepts, Object* value) noexcept {
-    return accepts != nullptr && traceable_reference(heap, value) && (value == nullptr || accepts(value->type));
+    return accepts != nullptr && managed_reference(heap, value) && (value == nullptr || accepts(value->type));
 }
 [[maybe_unused, gnu::noinline]] static LocationStatus load_location_reference(Context& context, const Location& location, Object*& result) noexcept {
     const auto storage = location_storage(context, location, false);

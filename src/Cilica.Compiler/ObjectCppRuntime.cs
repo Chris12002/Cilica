@@ -11,6 +11,12 @@ internal static class ObjectCppRuntime
 #if CILICA_VERIFY_ALLOCATION_ROOTS != 0 && CILICA_VERIFY_ALLOCATION_ROOTS != 1
 #error CILICA_VERIFY_ALLOCATION_ROOTS must be 0 or 1
 #endif
+#ifndef CILICA_VERIFY_INTERNAL_REFERENCES
+#define CILICA_VERIFY_INTERNAL_REFERENCES 0
+#endif
+#if CILICA_VERIFY_INTERNAL_REFERENCES != 0 && CILICA_VERIFY_INTERNAL_REFERENCES != 1
+#error CILICA_VERIFY_INTERNAL_REFERENCES must be 0 or 1
+#endif
 #ifndef CILICA_ARENA_ASAN
 #if defined(__SANITIZE_ADDRESS__)
 #define CILICA_ARENA_ASAN 1
@@ -192,6 +198,14 @@ struct Instance {
         while (head != nullptr) { Object* p = head; head = p->next; p->type->destroy(p); }
     }
 };
+// Only generated execution may use this shortcut. Public handles, tracing and
+// collection must use owns/traceable_reference and compare before dereferencing.
+[[maybe_unused]] static bool internal_reference_owned(const Instance& heap, const Object* value) noexcept {
+    return !CILICA_VERIFY_INTERNAL_REFERENCES || heap.owns(value);
+}
+[[maybe_unused]] static bool managed_reference(const Instance& heap, const Object* value) noexcept {
+    return value == nullptr || (internal_reference_owned(heap, value) && value->owner == &heap && known_type(value->type));
+}
 // Argument packets live in the caller's execution storage. Reference arguments
 // also remain in the caller's published roots until the callee publishes its copy.
 static constexpr std::uint32_t frame_done = 0xffffffffu;
@@ -563,7 +577,7 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
     reinterpret_cast<ArrayObject*>(value)->integers[index] = element;
 }
 [[maybe_unused, gnu::noinline]] static bool store_reference_element(Context& context, Object* value, std::uint32_t index, Object* element) noexcept {
-    if (!context.instance.owns(element)) { context.pending = 6u; return false; }
+    if (!internal_reference_owned(context.instance, element)) { context.pending = 6u; return false; }
     if (element != nullptr && !known_type(element->type)) { context.pending = 6u; return false; }
     if (element != nullptr && !value->type->accepts_element(element->type)) { context.pending = 11u; return false; }
     reinterpret_cast<ArrayObject*>(value)->references[index] = element;

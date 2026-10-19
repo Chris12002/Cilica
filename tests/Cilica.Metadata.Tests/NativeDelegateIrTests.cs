@@ -180,7 +180,7 @@ public sealed class NativeDelegateIrTests
         string cpp = Path.Combine(directory, "delegates.cpp"), executable = Path.Combine(directory, "delegates");
         File.WriteAllText(cpp, source.ToString(), new UTF8Encoding(false));
         var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
-            ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
+            ["-std=c++20", /* Private forged-pointer probes require diagnostic membership checks. */ "-DCILICA_VERIFY_INTERNAL_REFERENCES=1", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
                 "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", executable], directory);
         Assert.True(build.ExitCode == 0, build.Stderr);
         var run = await NativeProcess.Run(executable, [], directory);

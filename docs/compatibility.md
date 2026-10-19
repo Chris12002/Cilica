@@ -13,6 +13,17 @@ roots in both modes. Root publication, GC validation and public handle validatio
 remain active; immediate allocation-time rejection of corrupted private roots is
 a verification-mode guarantee. No public ABI or managed capability is added.
 
+
+Internal reference verification update (2026-10-19,
+[ADR 0196](decisions/0196-internal-reference-verification.md)): generated accesses
+and managed storage borrows skip repeated heap-list membership scans by default.
+`CILICA_VERIFY_INTERNAL_REFERENCES=1` restores private forged-pointer diagnostics.
+Null, bounds, type/covariance and borrow-lifetime checks remain; public handles,
+result publication and collector validation stay checked in both modes. Normal
+internal execution requires valid live references, as established by translation,
+rooting and boundary admission. Both diagnostic flags are independent; neither
+changes the native v90 layout or public ABI.
+
 Milestone 6 completion used `integer-managed-objects-cil-v2`,
 `object-layout-v13`, `object-operations-ir-v14`, `scalar-location-ir-v2`,
 `value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v3`,

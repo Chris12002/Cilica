@@ -792,6 +792,20 @@ enables that scan before delivery. Both modes retain identical root publication,
 collection validation and public handle checks. Normal allocation no longer
 promises immediate detection of deliberately corrupted private root slots.
 
+
+Internal reference membership verification is also diagnostic
+([ADR 0196](decisions/0196-internal-reference-verification.md)). Generated receiver,
+argument, field, array, cast and type-test guards, reference-array stores and
+managed storage borrows default `CILICA_VERIFY_INTERNAL_REFERENCES` to 0. These
+paths trust that a non-null internal reference points to live managed storage;
+set the flag to 1 to restore allocation-list membership checks before header
+access. Null, bounds, descriptor/type compatibility, readonly storage and borrowed
+frame-lifetime checks remain. Borrow helpers also retain owner-header checks.
+Host handle admission/result publication and GC tracing continue to use checked
+membership independently of either diagnostic flag. Private raw-pointer calls
+are not an embedding API; forged internal pointer detection requires verification.
+No runtime layout, ABI or semantic profile version changes.
+
 ## 9. Exceptions
 
 The primitive profile currently propagates division/remainder and checked-arithmetic faults

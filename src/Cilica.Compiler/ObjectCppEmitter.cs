@@ -489,7 +489,7 @@ public static class ObjectCppEmitter
             void Check(string value, ObjectTypeId type, bool nullCheck, int offset)
             {
                 if (nullCheck) Guard(value + " == nullptr", "4u", offset);
-                Guard("!context.instance.owns(" + value + ")", "6u", offset);
+                Guard("!internal_reference_owned(context.instance, " + value + ")", "6u", offset);
                 if (type != program.Flow.Types.ObjectBase)
                     Guard(value + " != nullptr && !" + Matches(value, type), "6u", offset);
             }
@@ -497,7 +497,7 @@ public static class ObjectCppEmitter
             {
                 string value = Value(receiver);
                 Guard(value + " == nullptr", "4u", offset);
-                Guard("!context.instance.owns(" + value + ")", "6u", offset);
+                Guard("!internal_reference_owned(context.instance, " + value + ")", "6u", offset);
                 Guard("!" + (view is null ? "array_type(" + value + "->type)" : Matches(value, view)), "6u", offset);
                 Flush();
                 if (index is { } element)
@@ -794,13 +794,13 @@ public static class ObjectCppEmitter
                                     Check(Value(field.Receiver), field.Field.Owner, true, value.ILOffset);
                                     expression = Field(field.Field, field.Receiver); break;
                                 case IrExpression.CastClass cast:
-                                    Guard("!context.instance.owns(" + Value(cast.Operand) + ")", "6u", value.ILOffset);
+                                    Guard("!internal_reference_owned(context.instance, " + Value(cast.Operand) + ")", "6u", value.ILOffset);
                                     string castMismatch = Value(cast.Operand) + " != nullptr && !" + TypeTestMatch(Value(cast.Operand), cast.Target, cast.BoxedTarget);
                                     if (handlers) CastFault(castMismatch, Value(cast.Operand), cast.BoxedTarget ? ObjectCppBoxing.Symbol(cast.Target) : TypeSymbol(cast.Target), value.ILOffset);
                                     else Guard(castMismatch, "7u", value.ILOffset);
                                     expression = Value(cast.Operand); break;
                                 case IrExpression.IsInstance test:
-                                    Guard("!context.instance.owns(" + Value(test.Operand) + ")", "6u", value.ILOffset);
+                                    Guard("!internal_reference_owned(context.instance, " + Value(test.Operand) + ")", "6u", value.ILOffset);
                                     expression = Value(test.Operand) + " != nullptr && " + TypeTestMatch(Value(test.Operand), test.Target, test.BoxedTarget)
                                         + " ? " + Value(test.Operand) + " : nullptr"; break;
                                 case IrExpression.Null: expression = "nullptr"; break;

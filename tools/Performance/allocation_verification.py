@@ -87,7 +87,7 @@ def prepare_fresh(args):
     })
 
 
-def compile_pair(args, original, candidate, metadata):
+def compile_pair(args, original, candidate, metadata, verification_flags=None):
     out = Path(args.output).resolve()
     out.mkdir(parents=True, exist_ok=False)
     # An opt-in stress switch is outside the timed region and identical in both.
@@ -106,7 +106,7 @@ def compile_pair(args, original, candidate, metadata):
     commands = {}
     flags = ["-std=c++20", "-O2", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror"]
     for name in ["baseline", "candidate", "verification", "sanitized"]:
-        extra = ["-DCILICA_VERIFY_ALLOCATION_ROOTS=1"] if name == "verification" else []
+        extra = (list(verification_flags) if verification_flags is not None else ["-DCILICA_VERIFY_ALLOCATION_ROOTS=1"]) if name == "verification" else []
         extra += ["-fsanitize=address,undefined", "-fno-sanitize-recover=all"] if name == "sanitized" else ["-DNDEBUG"]
         commands[name] = [compiler, *flags, *extra, str(paths["baseline" if name == "baseline" else "candidate"]), "-o", str(out / name)]
         run(commands[name], out / (name + "-build.log"))
@@ -139,7 +139,7 @@ def validate(out):
     (out / "validation.json").write_text(json.dumps({"transcripts": 4, "observations_each": 523, "checksum": 6146, "stress_runs": 2}) + "\n")
 
 
-def measure(out):
+def measure(out, iterations=8):
     verify_artifacts(out)
     if not (out / "validation.json").exists():
         raise ValueError("Validate before measuring")
@@ -152,12 +152,12 @@ def measure(out):
     for repeat in range(3):
         for name in (["baseline", "candidate"] if repeat % 2 == 0 else ["candidate", "baseline"]):
             loads.append({"name": name, "repeat": repeat, "before": os.getloadavg()})
-            rows = [json.loads(line) for line in run([str(out / name), "measure", "0", "8"], out / f"{name}-{repeat}.jsonl").splitlines()]
+            rows = [json.loads(line) for line in run([str(out / name), "measure", "0", str(iterations)], out / f"{name}-{repeat}.jsonl").splitlines()]
             loads[-1]["after"] = os.getloadavg()
             if len(rows) != 8:
                 raise ValueError(f"Expected warmup plus seven samples: {name}")
             for row in rows[1:]:
-                if row["iterations"] != 8 or row["checksum"] != 6146 * row["iterations"]:
+                if row["iterations"] != iterations or row["checksum"] != 6146 * row["iterations"]:
                     raise ValueError(f"Timed checksum mismatch: {name}")
                 results[name].append(row["ns"] / row["iterations"])
             print(f"Measured {name}, process {repeat + 1}", flush=True)

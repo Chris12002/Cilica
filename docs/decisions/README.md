@@ -155,3 +155,4 @@ and historical evidence are unchanged.
 | ADR | Title | Status |
 | --- | --- | --- |
 | [0195](0195-allocation-root-verification.md) | Separate allocation root verification from normal execution | Allocation scan is diagnostic; roots, GC and boundary validation retained |
+| [0196](0196-internal-reference-verification.md) | Trust internal references during generated execution | Membership scans are diagnostic; managed checks, GC and public handles remain |
