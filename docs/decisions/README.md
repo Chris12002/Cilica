@@ -148,3 +148,4 @@ and historical evidence are unchanged.
 | [AC0005](AC0005-boxed-type-tests.md) | Exact boxed type tests | Accepted; AC1b.3 complete; raw scalar/nullable borrows and primitive interface contracts remain open |
 | [AC0006](AC0006-confined-scalar-box-uses.md) | Confined scalar boxes beside interface operations | Accepted; AC1b.4 complete; escaping boxes, primitive interface contracts and raw borrows remain open |
 | [AC0250](AC0250-bounded-clone-field-copies.md) | Bounded native shallow-clone copies | Accepted; AC8.106 retains the 2 KiB native-frame guard and typed ownership/GC contracts |
+| [AC0251](AC0251-string-array-join.md) | Exact string-array joining | Accepted; AC8.107 preserves managed joining; captured adapter receiver proof remains diagnostic |

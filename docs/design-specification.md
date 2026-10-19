@@ -5263,3 +5263,19 @@ native/.NET comparisons, separate translation units, wide allocation recovery,
 forced GC and ASan/UBSan. Native profile 90 is the only profile change. See
 [ADR AC0250](decisions/AC0250-bounded-clone-field-copies.md) for the Unity reference,
 review and frozen-module evidence; full native execution/replay remain open.
+
+### Exact string-array joining (AC8.107)
+
+The exact Join(string,string[]) overload checks null with parameter `value`
+before Length and delegates to managed JoinStorage. Empty/singleton identity,
+UTF-16, separators/entries, fresh multi-item output, checked lengths and existing
+GC/ownership remain intact. Twenty distinct focused checks pass, including 3,072
+additional repeated native/.NET comparisons at O0/O2 with sanitizers, forced GC
+and exact allocation recovery. Compiler profiles, grants and limits are unchanged.
+
+The next captured Alchemy adapter diagnostic is CIL2001 in Run IL_013b. A class
+getter result survives a null-check branch on the evaluation stack, where the
+current within-block Object.ToString receiver proof cannot follow it. The same
+getter stored in a typed local translates. See [ADR AC0251](decisions/AC0251-string-array-join.md)
+for pins, the production diagnostic and the owned reduction. Extending that proof
+is proposed; no full adapter/native gameplay acceptance is established.

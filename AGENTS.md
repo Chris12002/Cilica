@@ -947,3 +947,14 @@ All 33 focused clone/module/boxed checks pass, including 354 additional repeated
 native/.NET comparisons, O0/O2, forced GC, sanitizers and wide quota recovery.
 Native profile 90; managed profiles, grants and production limits are unchanged.
 See ADR AC0250. Full engine linking/execution and saved-game replay remain open.
+
+### Exact string-array joining (AC8.107)
+
+Join(string,string[]) validates null with parameter value and reuses the existing
+managed JoinStorage helper. Twenty distinct focused checks pass across the main
+run and corrected quota follow-up, including 3,072 new repeated O0/O2 native/.NET
+comparisons with forced GC and sanitizers. No compiler/profile/grant/limit changes.
+The unchanged captured Alchemy reference adapter next fails CIL2001 at Run
+IL_013b: implicit rejection-text concatenation loses the class receiver proof
+across its null-check stack edge. A local/explicit call translates; do not rewrite
+the adapter or relax Object receiver guards. See ADR AC0251 for pins and scope.

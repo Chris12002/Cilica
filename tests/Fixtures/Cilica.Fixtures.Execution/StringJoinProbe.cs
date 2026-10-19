@@ -23,6 +23,13 @@ namespace Cilica.Fixtures.Execution
     }
     public static class StringJoinProbe
     {
+        private static string[] retainedArray;
+        public static int ArrayQuota(int a,int b)
+        {
+            if(a<0){retainedArray=null;return 0;}
+            if(a==0){retainedArray=new[]{"alpha","beta",null};return 1;}
+            return Hash(string.Join("|",retainedArray));
+        }
         private static int Hash(string value){int h=17;for(int i=0;i<value.Length;i++)h=unchecked(h*31+value[i]);return h;}
         private static string Text(int n)=> (n&3)==0?null:(n&3)==1?"":(n&3)==2?"A\0\ud800":"\udfffB";
         private static string Separator(int n)=>(n&3)==0?null:(n&3)==1?"":(n&3)==2?"|":"\0\ud800x";
@@ -30,6 +37,41 @@ namespace Cilica.Fixtures.Execution
         {
             var values=new string[a&3];for(int i=0;i<values.Length;i++)values[i]=Text(b+i);
             return Hash(string.Join(Separator(b),(IEnumerable<string>)values));
+        }
+        public static int ExactArray(int a,int b)
+        {
+            var values=new string[a&7];for(int i=0;i<values.Length;i++)values[i]=Text(b+i);
+            return Hash(string.Join(Separator(b),values));
+        }
+        public static int ArrayIdentity(int a,int b)
+        {
+            string text=string.Concat("dynamic",a.ToString());string value=(b&1)==0?text:null;
+            var values=new[]{value};string single=string.Join(Separator(b),values);
+            values[0]="changed";
+            string many=string.Join("",new[]{"",text,null});
+            string empty=string.Join(null,new string[]{null,""});
+            string zero=string.Join(Separator(b),new string[0]);
+            return (ReferenceEquals(single,value??"")?1:0)+(ReferenceEquals(many,text)?7:0)
+                +(ReferenceEquals(empty,"")?31:0)+(ReferenceEquals(zero,"")?127:0)+Hash(single)+Hash(many);
+        }
+        private static string TracedSeparator(JoinTrace trace,int a)
+        {trace.Add(1);if((a&4)!=0)throw new InvalidOperationException("separator");return Separator(a);}
+        private static string[] TracedArray(JoinTrace trace,int a,int b)
+        {trace.Add(2);if((a&8)!=0)throw new InvalidOperationException("array");return (a&2)!=0?null:new[]{Text(b),Text(b+1)};}
+        public static int ArrayOrder(int a,int b)
+        {
+            var trace=new JoinTrace();int result;
+            try{result=Hash(string.Join(TracedSeparator(trace,a),TracedArray(trace,a,b)));}
+            catch(ArgumentNullException e){result=unchecked(Hash(e.Message)*31+Hash(e.ParamName));}
+            catch(InvalidOperationException e){result=Hash(e.Message);}
+            return unchecked(result*31+trace.Value);
+        }
+        public static int ArrayGrowth(int a,int b)
+        {
+            var values=new string[32+(a&7)];for(int i=0;i<values.Length;i++)values[i]=string.Concat("abcdef0123456789",Text(b+i));
+            string joined=string.Join(Separator(b),values);
+            for(int i=0;i<8;i++)values[i]=string.Concat("pressure",Text(a+i));
+            return Hash(joined);
         }
         public static int List(int a,int b)
         {
@@ -75,5 +117,7 @@ namespace Cilica.Fixtures.Execution
         }
         public static int UnsupportedGeneric(int a,int b)=>Hash(string.Join<int>(",",new[]{a,b}));
         public static int UnsupportedChar(int a,int b)=>Hash(string.Join(',',new[]{"a","b"}));
+        public static int UnsupportedRange(int a,int b)=>Hash(string.Join(",",new[]{"a","b"},a&1,1));
+        public static int UnsupportedObject(int a,int b)=>Hash(string.Join(",",new object[]{a,b}));
     }
 }

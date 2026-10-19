@@ -4315,3 +4315,18 @@ The frozen 15,254-method module refresh emits 67 sources and a shared header,
 for the native tail checks and receipts. Full linking/execution, production
 aggregate capacity, the reference adapter's array Join overload and saved-game
 replay remain unverified.
+
+### Exact string-array joining (AC8.107)
+
+The exact string-array Join overload reuses managed JoinStorage after checking a
+null array with parameter `value`. Twenty distinct focused checks pass across
+the main run and quota follow-up, including 3,072 new repeated O0/O2 native/.NET
+comparisons with sanitizers, forced GC, identity/fault order and allocation
+recovery. No compiler/profile/grant/production-budget change. See [ADR AC0251](../decisions/AC0251-string-array-join.md).
+
+The retained Unity reference source and its five captured DLLs next stop at Run
+IL_013b with CIL2001. Implicit rejection-message concatenation retains a class
+receiver across a null-check stack edge, outside current receiver proof. The
+production compiler and an owned reduction confirm the gap; typed-local/direct
+controls translate. This new root is not the older frozen engine/native module,
+and no full application emission or execution is claimed.

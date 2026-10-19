@@ -1,10 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// Bounded adaptation of pinned String.Concat overloads using existing UTF-16 construction.
+// Bounded adaptation of pinned String.Concat/Join overloads using existing UTF-16 construction.
 namespace System
 {
     public sealed partial class String
     {
+        // params is lowered by the input compiler; bind the exact array signature.
+        public static string Join(string separator, string[] value)
+        {
+            if (value == null) throw new ArgumentNullException("value");
+            return Cilica.Runtime.StringConcatenation.JoinStorage(separator, value, value.Length);
+        }
         public static string Join(string separator, Collections.Generic.IEnumerable<string> values)
         {
             if (values is Collections.Generic.List<string> list)

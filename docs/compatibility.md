@@ -5203,3 +5203,22 @@ and was not rerun in this slice. The frozen diagnostic engine is regenerated;
 full linking/execution and gameplay remain unverified. See [ADR AC0250](decisions/AC0250-bounded-clone-field-copies.md)
 for review and native tail evidence. String.Join(string,string[]) remains a
 separate reference-adapter gap.
+
+### Exact string-array joining (AC8.107)
+
+`String.Join(string,string[])` now validates a null array with parameter `value`
+and uses the existing managed storage helper. Null/empty separators and entries,
+empty/singleton identity, independent multi-item results, exact UTF-16, argument
+order and allocation recovery match .NET. Twenty distinct selected checks pass
+across the main run and corrected quota follow-up; four new roots add 3,072
+repeated O0/O2 native/.NET comparisons with forced GC and ASan/UBSan. No compiler,
+native-profile, grant or production-limit changes. Other Join overloads remain
+diagnostic; the separate 47-probe public baseline is unchanged and was not rerun.
+
+The captured Alchemy adapter's unchanged source and five pinned DLLs next fail
+discovery at Run IL_013b, CIL2001: an implicit concatenation keeps a sealed class
+receiver on the stack across its null check, outside the current within-block
+receiver proof. The production compiler reproduces the same diagnostic; an owned
+reduction fails while typed-local and direct ToString controls translate. This
+new root is distinct from the older frozen EngineStep inputs. It emits/executes
+no native application. See [ADR AC0251](decisions/AC0251-string-array-join.md).

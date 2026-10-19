@@ -1571,3 +1571,13 @@ All 61 distinct selected checks pass, including 2,058 new sanitized O0/O2
 native/.NET comparisons. The frozen inventory clears ForcedMovementOperation.Run:
 15,247/15,254 bodies translate individually, leaving seven address joins. It emits
 no program or native engine; full closure and replay remain incomplete. See ADR AC0236.
+
+### Exact string-array joining (AC8.107)
+
+String.Join(string,string[]) rejects a null array with parameter `value` and uses
+the existing managed JoinStorage helper. Twenty distinct focused checks pass,
+including 3,072 new repeated O0/O2 native/.NET comparisons, exact UTF-16/identity,
+argument faults, forced GC, sanitizers and buffer/result allocation recovery.
+Range, Char, object, generic and span Join remain diagnostic. Compiler profiles,
+grants and production limits are unchanged. See ADR AC0251 for source provenance,
+review and the captured Alchemy adapter's next receiver-proof gap.

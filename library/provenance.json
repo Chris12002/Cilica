@@ -816,13 +816,14 @@
       "algorithms": [
         "String.Concat(string[]) and string-span empty/single shortcuts, Int64 total, overflow, exact copies and defensive snapshot/retry.",
         "Three/four-string overloads preserve ordered null/empty reduction, original identity for a sole contributing string, and Int64 total length before copying.",
-        "AC8.78 adds String.Join(string,IEnumerable<string>): List/array storage shortcuts, null separator and entries, empty/single identity, cursor order and finally disposal."
+        "AC8.78 adds String.Join(string,IEnumerable<string>): List/array storage shortcuts, null separator and entries, empty/single identity, cursor order and finally disposal.",
+        "AC8.107 adds exact String.Join(string,string[]): reject a null array with parameter value, then join the whole storage through the existing managed helper."
       ],
       "changes": [
         "Replace direct string allocation with a managed Int32 UTF-16 buffer and existing exact-granted FromCodeUnits construction.",
         "Keep snapshot/retry in an ordinary private runtime helper; concurrent source mutation remains unvalidated."
       ],
-      "scope": "Concat string arrays and three/four-string overloads, plus Join(string,IEnumerable<string>). Existing bounded resource limits and additional temporary storage apply; enumerable Join uses the owned chunk builder instead of stack-based ValueStringBuilder. Other Join overloads and object/enumerable Concat remain diagnostic; concurrent mutation remains unvalidated."
+      "scope": "Concat string arrays and three/four-string overloads, plus Join(string,IEnumerable<string>) and Join(string,string[]). Existing bounded resource limits and additional temporary storage apply; enumerable Join uses the owned chunk builder instead of stack-based ValueStringBuilder. Range, Char, object, generic and span Join overloads and object/enumerable Concat remain diagnostic; concurrent mutation remains unvalidated."
     },
     {
       "path": "library/Cilica.Core/HashSet.cs",

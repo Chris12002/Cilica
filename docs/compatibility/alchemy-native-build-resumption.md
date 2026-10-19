@@ -11,6 +11,8 @@ Follow-up: [AC8.106](../decisions/AC0250-bounded-clone-field-copies.md) implemen
 bounded clone-copy helpers and validates the owned regression. The sections
 below preserve the original investigation checkpoint and its proposed slices;
 the ADR and gap ledger record subsequent acceptance and engine compile evidence.
+AC8.107 subsequently implements the exact array Join overload; [ADR AC0251](../decisions/AC0251-string-array-join.md)
+records its native validation and the captured adapter's next receiver-proof gap.
 
 ## Where the previous build stopped
 
