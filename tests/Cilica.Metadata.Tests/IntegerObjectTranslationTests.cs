@@ -57,7 +57,7 @@ public sealed class IntegerObjectTranslationTests
     }
 
     internal static async Task VerifyTranslated(bool optimized, (string Name, ManagedExceptionIrProgram Program, Func<int, int, int> Oracle)[] probes,
-        (int First, int Second)[]? pairs = null, bool persistentRoots = false, int expectedStaticRoots = 0)
+        (int First, int Second)[]? pairs = null, bool persistentRoots = false, int expectedStaticRoots = 0, string[]? nativeFlags = null)
     {
         pairs ??= (from first in new[] { 0, 1, -1, 127, 32768, int.MinValue, int.MaxValue }
                    from second in new[] { 0, 1, 2, 3, -1, int.MinValue, int.MaxValue } select (first, second)).ToArray();
@@ -108,7 +108,7 @@ public sealed class IntegerObjectTranslationTests
         NativeEvidence.Record(cpp, optimized);
         var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
             ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
-                "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", exe], dir);
+                "-Wframe-larger-than=2048", .. nativeFlags ?? [], "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", exe], dir);
         Assert.True(build.ExitCode == 0, build.Stderr);
         NativeEvidence.Record(cpp, optimized, exe);
         var run = await NativeProcess.Run(exe, [], dir); Assert.True(run.ExitCode == 0, run.Stdout + run.Stderr); Assert.Empty(run.Stderr);

@@ -17,6 +17,17 @@ internal static class ObjectCppRuntime
 #if CILICA_VERIFY_INTERNAL_REFERENCES != 0 && CILICA_VERIFY_INTERNAL_REFERENCES != 1
 #error CILICA_VERIFY_INTERNAL_REFERENCES must be 0 or 1
 #endif
+// Unoptimized builds retain small helpers to bound sanitizer spills.
+#ifndef CILICA_DIRECT_CONTROL_FLOW
+#if defined(__OPTIMIZE__)
+#define CILICA_DIRECT_CONTROL_FLOW 1
+#else
+#define CILICA_DIRECT_CONTROL_FLOW 0
+#endif
+#endif
+#if CILICA_DIRECT_CONTROL_FLOW != 0 && CILICA_DIRECT_CONTROL_FLOW != 1
+#error CILICA_DIRECT_CONTROL_FLOW must be 0 or 1
+#endif
 #ifndef CILICA_ARENA_ASAN
 #if defined(__SANITIZE_ADDRESS__)
 #define CILICA_ARENA_ASAN 1
@@ -225,7 +236,7 @@ struct Instance {
 }
 // Argument packets live in the caller's execution storage. Reference arguments
 // also remain in the caller's published roots until the callee publishes its copy.
-static constexpr std::uint32_t frame_done = 0xffffffffu;
+[[maybe_unused]] static constexpr std::uint32_t frame_done = 0xffffffffu;
 struct Argument { std::uint32_t bits = 0; Object* reference = nullptr; std::uint64_t wide_bits = 0; };
 struct Frame {
     Frame* previous = nullptr;

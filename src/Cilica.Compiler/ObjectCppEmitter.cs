@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v92";
+    public const string Profile = "object-frames-native-v93";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -446,7 +446,7 @@ public static class ObjectCppEmitter
             void Flush(bool terminal = false)
             {
                 if (code.Length == 0) return;
-                if (!terminal) code.Append("    return ").Append(N(steps.Count + 1)).Append("u;\n");
+                if (!terminal) code.Append("    CILICA_STEP_RETURN(").Append(N(steps.Count + 1)).Append("u);\n");
                 steps.Add(code.ToString()); code.Clear();
             }
             void Label(string label) { Flush(); labels.Add(label, steps.Count); }
@@ -456,7 +456,7 @@ public static class ObjectCppEmitter
             {
                 IrTypeKind.Int32 => "bits", IrTypeKind.Int64 => "wide_bits", IrTypeKind.ManagedLocation => "location", _ => "reference",
             };
-            string Exit() => inStep ? "return frame_done;" : method.ReturnType.Kind switch { IrTypeKind.Void => "return;", IrTypeKind.Reference => "return nullptr;", _ => "return 0;" };
+            string Exit() => inStep ? "CILICA_STEP_RETURN(frame_done);" : method.ReturnType.Kind switch { IrTypeKind.Void => "return;", IrTypeKind.Reference => "return nullptr;", _ => "return 0;" };
             void Fault(string status, int offset)
             {
                 code.Append("        context.pending = ").Append(status).Append("; context.image = \"").Append(method.Source.ContentHash.ToLowerInvariant())
@@ -897,9 +897,9 @@ public static class ObjectCppEmitter
                     case IrThrow thrown:
                         code.Append("    (void)raise_exception(context, ").Append(Value(thrown.Value)).Append(", \"").Append(method.Source.ContentHash)
                             .Append("\", ").Append(N(method.Source.Token)).Append("u, ").Append(N(thrown.ILOffset)).Append("u);\n");
-                        Guard("context.pending == 0u", "6u", thrown.ILOffset); code.Append("    return frame_done;\n"); Flush(terminal: true); break;
+                        Guard("context.pending == 0u", "6u", thrown.ILOffset); code.Append("    CILICA_STEP_RETURN(frame_done);\n"); Flush(terminal: true); break;
                     case IrRethrow:
-                        code.Append("    rethrow_exception(context, f, ").Append(N(exceptionRules!.CatchAt(method, block.Id))).Append("u);\n    return frame_done;\n"); Flush(terminal: true); break;
+                        code.Append("    rethrow_exception(context, f, ").Append(N(exceptionRules!.CatchAt(method, block.Id))).Append("u);\n    CILICA_STEP_RETURN(frame_done);\n"); Flush(terminal: true); break;
                     case IrLeave leave:
                         code.Append("    return leave_exception_scope(context, f, ").Append(N(leave.Edge.Target)).Append("u);\n"); Flush(terminal: true); break;
                     case IrEndFinally:
@@ -909,14 +909,14 @@ public static class ObjectCppEmitter
                             .Append(Value(ended.Value)).Append(" != 0u);\n"); Flush(terminal: true); break;
                     case IrReturn returned:
                         code.Append("    f->result.").Append(PacketMember(method.ReturnType)).Append(" = ")
-                            .Append(Value(returned.Value)).Append(";\n    return frame_done;\n"); Flush(terminal: true); break;
-                    case IrVoidReturn: code.Append("    return frame_done;\n"); Flush(terminal: true); break;
+                            .Append(Value(returned.Value)).Append(";\n    CILICA_STEP_RETURN(frame_done);\n"); Flush(terminal: true); break;
+                    case IrVoidReturn: code.Append("    CILICA_STEP_RETURN(frame_done);\n"); Flush(terminal: true); break;
                     case IrJump jump: Edge(jump.Edge); break;
                     case IrBranch branch:
                         string taken = "taken" + N(block.Id), other = "other" + N(block.Id);
-                        code.Append("    return (").Append(CppEmitter.Comparison(branch.Comparison, branch.Left, branch.Right,
+                        code.Append("    if (").Append(CppEmitter.Comparison(branch.Comparison, branch.Left, branch.Right,
                             values[branch.Left].Type.Kind is IrTypeKind.Reference or IrTypeKind.NullReference, Value,
-                            wide: values[branch.Left].Type == IrType.Int64)).Append(") ? ").Append(taken).Append(" : ").Append(other).Append(";\n");
+                            wide: values[branch.Left].Type == IrType.Int64)).Append(") { CILICA_STEP_RETURN(").Append(taken).Append("); } else { CILICA_STEP_RETURN(").Append(other).Append("); }\n");
                         Flush(terminal: true);
                         Label(taken); Edge(branch.Taken); Label(other); Edge(branch.NotTaken); break;
                 }
@@ -926,11 +926,9 @@ public static class ObjectCppEmitter
             code.Append("namespace ").Append(stepScope).Append(" {\n");
             foreach (var label in labels) code.Append("[[maybe_unused]] static constexpr std::uint32_t ").Append(label.Key).Append(" = ").Append(N(label.Value)).Append("u;\n");
             if (handlers) ObjectCppExceptionFlow.Append(code, method, layout, FrameType(method), TypeSymbol);
-            for (int i = 0; i < steps.Count; i++)
-                code.Append("[[gnu::noinline]] static std::uint32_t s").Append(N(i)).Append("([[maybe_unused]] Context& context, [[maybe_unused]] ")
-                    .Append(FrameType(method)).Append("* f) noexcept {\n").Append(steps[i]).Append("}\n");
-            code.Append("static constexpr std::uint32_t (*table[])(Context&, ").Append(FrameType(method)).Append("*) noexcept = {")
-                .Append(string.Join(", ", Enumerable.Range(0, steps.Count).Select(i => "s" + N(i)))).Append("};\n}\n");
+            bool direct = ObjectCppControlFlow.Eligible(method, steps.Count);
+            ObjectCppControlFlow.AppendHelpers(code, steps, FrameType(method), direct);
+            code.Append("}\n");
             inStep = false;
             Header(method, leafField is null ? "" : "_framed"); code.Append(" {\n");
             if (handlers)
@@ -952,9 +950,7 @@ public static class ObjectCppEmitter
                 Guard("borrowed.status != LocationStatus::complete", "borrowed.status == LocationStatus::limit ? 9u : 6u", method.Blocks[0].ILOffset);
                 code.Append("    f->borrow_token = borrowed.frame.token;\n");
             }
-            if (handlers) code.Append("    std::uint32_t step = 0;\n    while (step != frame_done) {\n        f->exception_routed = false;\n        step = ").Append(stepScope)
-                .Append("::table[step](context, f);\n        if (context.pending != 0u && !f->exception_routed) step = ").Append(stepScope).Append("::dispatch_exception(context, f);\n    }\n");
-            else code.Append("    std::uint32_t step = 0;\n    while (step != frame_done && context.pending == 0u) step = ").Append(stepScope).Append("::table[step](context, f);\n");
+            ObjectCppControlFlow.AppendDriver(code, steps, labels, stepScope, handlers, direct);
             code.Append("    ").Append(method.ReturnType.Kind switch
                 {
                     IrTypeKind.Void => "return;",
@@ -991,7 +987,7 @@ public static class ObjectCppEmitter
                         PublishLocation(ObjectRootKind.BlockInput, i, type, edge.Target);
                     if ((i + 1) % CopiesPerStep == 0) Flush();
                 }
-                code.Append("    return b").Append(N(edge.Target)).Append(";\n"); Flush(terminal: true);
+                code.Append("    CILICA_STEP_RETURN(b").Append(N(edge.Target)).Append(");\n"); Flush(terminal: true);
             }
         }
     }

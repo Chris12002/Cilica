@@ -5347,3 +5347,9 @@ current within-block Object.ToString receiver proof cannot follow it. The same
 getter stored in a typed local translates. See [ADR AC0251](decisions/AC0251-string-array-join.md)
 for pins, the production diagnostic and the owned reduction. Extending that proof
 is proposed; no full adapter/native gameplay acceptance is established.
+
+Native v93 renders eligible optimized methods as direct native branches while
+retaining original frames, roots and fault checks. Local exception regions,
+dynamic exception terminators and methods over 512 steps keep the dispatcher.
+O0 defaults to that dispatcher; CILICA_DIRECT_CONTROL_FLOW=0 selects it explicitly.
+See [ADR 0199](decisions/0199-direct-native-control-flow.md).

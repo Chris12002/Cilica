@@ -5258,3 +5258,9 @@ receiver proof. The production compiler reproduces the same diagnostic; an owned
 reduction fails while typed-local and direct ToString controls translate. This
 new root is distinct from the older frozen EngineStep inputs. It emits/executes
 no native application. See [ADR AC0251](decisions/AC0251-string-array-join.md).
+
+Native v93 renders eligible optimized methods as direct native branches while
+retaining original frames, roots and fault checks. Local exception regions,
+dynamic exception terminators and methods over 512 steps keep the dispatcher.
+O0 defaults to that dispatcher; CILICA_DIRECT_CONTROL_FLOW=0 selects it explicitly.
+See [ADR 0199](decisions/0199-direct-native-control-flow.md).

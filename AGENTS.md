@@ -1007,3 +1007,9 @@ The unchanged captured Alchemy reference adapter next fails CIL2001 at Run
 IL_013b: implicit rejection-text concatenation loses the class receiver proof
 across its null-check stack edge. A local/explicit call translates; do not rewrite
 the adapter or relax Object receiver guards. See ADR AC0251 for pins and scope.
+
+Native v93 renders eligible optimized methods as direct native branches while
+retaining original frames, roots and fault checks. Local exception regions,
+dynamic exception terminators and methods over 512 steps keep the dispatcher.
+O0 defaults to that dispatcher; CILICA_DIRECT_CONTROL_FLOW=0 selects it explicitly.
+See [ADR 0199](docs/decisions/0199-direct-native-control-flow.md).
