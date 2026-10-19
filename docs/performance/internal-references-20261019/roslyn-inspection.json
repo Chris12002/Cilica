@@ -1,0 +1,178 @@
+{
+  "compiler_revision": "479176ccf767c1ea24c70456ba4b016a77d98d29",
+  "inspection_checkout_revision": "5c73e5db15b8de7c609e3b153417d3ae94389556",
+  "pdb_identity_matches_dll": true,
+  "roslyn_build_options": {
+    "version": "2",
+    "compiler-version": "5.9.0-1.26379.115+14fbf8d5271c98133561eb55185fdb05b286f578",
+    "language": "C#",
+    "source-file-count": "16",
+    "output-kind": "DynamicallyLinkedLibrary",
+    "optimization": "release",
+    "platform": "AnyCpu",
+    "runtime-version": "10.0.11-servicing.26373.116+e2f47b0110ed922f21a1522da67279133ce28f32",
+    "language-version": "14.0",
+    "define": "TRACE,RELEASE,NETSTANDARD,NETSTANDARD2_0,NETSTANDARD1_0_OR_GREATER,NETSTANDARD1_1_OR_GREATER,NETSTANDARD1_2_OR_GREATER,NETSTANDARD1_3_OR_GREATER,NETSTANDARD1_4_OR_GREATER,NETSTANDARD1_5_OR_GREATER,NETSTANDARD1_6_OR_GREATER,NETSTANDARD2_0_OR_GREATER"
+  },
+  "roslyn_source_requested_revision": "14fbf8d5271c98133561eb55185fdb05b286f578",
+  "roslyn_source_match": "Requested commit unavailable from GitHub upload-pack; comparative source only",
+  "roslyn_source_inspected_revision": "e4e2833be7abbc54776788ca35d5c4d2697b0261",
+  "rea_version": "6.7.0",
+  "rea_repo_inspected_revision": "3ea0d9489e52500ed76555926f1b78419f71c3cb",
+  "node_version": "24.19.0",
+  "hashes": {
+    "/Users/christian/Cilica/artifacts/internal-reference-performance-20261019/candidate.cpp": "9f7dc20db942fd56db9a8d901ea44c6511dd76b3cf3d0ad7da3a473602b0af9d",
+    "/Users/christian/Cilica/artifacts/roslyn-il-investigation-20261019/DiffPlex.Benchmark.il": "f8c040b5aeecbafc169290ec5f82190dd064909c752eaaf8bc479f36c00eeacc",
+    "/Users/christian/Cilica/artifacts/roslyn-il-investigation-20261019/candidate-sample.txt": "62aba3c1baa42672b3dd4368c9963e08287e2f30bce526c7452e68ed36a3369c",
+    "/Users/christian/Cilica/artifacts/roslyn-il-investigation-20261019/rea-roslyn-members.json": "d147de5bde0eceb444c794014046e50060b030404ab61dbf8fbdbe13f03080d8",
+    "/Users/christian/Cilica/artifacts/roslyn-il-investigation-20261019/rea-diffplex-members.json": "098eb5576cb3128b859e9a1e8b823e4d370b6148e51e2aeb6c4af1613e6c8902",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Assets/Plugins/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/ManagedStripped/DiffPlex.Benchmark.dll": "04f32322af7e34087220aaa7f8cc8709a16cdada93be786b920eec2c55abf0ed",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/run-20261008T141054068341Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/DiffPlex.Benchmark.cpp": "48042b2faab63fd80d29282aceb3a69b476dbf66c05c07eba867456f918b28da"
+  },
+  "methods": [
+    {
+      "token": "06000011",
+      "type": "DiffPlex.Differ",
+      "name": "BuildPieceHashes",
+      "rva": 10072,
+      "signature": "000401151235020E081248021218",
+      "ilBytes": 186,
+      "maxStack": 3,
+      "localsInitialized": true,
+      "instruction_count": 75,
+      "il_sha256": "55e59e85d7cb28fda7f76040ee597b2c0ae2d65ada047e9bee7e81beccb0dd79",
+      "cilica_step_count": 114,
+      "cilica_step_start_line": 54842
+    },
+    {
+      "token": "06000021",
+      "type": "DiffPlex.Chunkers.CharacterChunker",
+      "name": "Chunk",
+      "rva": 10304,
+      "signature": "2001151239010E0E",
+      "ilBytes": 49,
+      "maxStack": 4,
+      "localsInitialized": true,
+      "instruction_count": 26,
+      "il_sha256": "820f3e08fc989dce9cbec1de06a88b84dd315502df5c73f03f5c7d0980b07c0e",
+      "cilica_step_count": 33,
+      "cilica_step_start_line": 55821
+    },
+    {
+      "token": "0600004a",
+      "type": "DiffPlex.Model.ModificationData",
+      "name": "get_HashedPieces",
+      "rva": 11293,
+      "signature": "20001D08",
+      "ilBytes": 7,
+      "maxStack": 8,
+      "localsInitialized": false,
+      "instruction_count": 3,
+      "il_sha256": "8fe624a5d7cbebf5b84555022f36c9231f0343cd12fa7d6ed299927474c4a14b",
+      "cilica_step_count": 5,
+      "cilica_step_start_line": 59668
+    }
+  ],
+  "rea": {
+    "roslyn": {
+      "evidence_id": "ev_d3fd80371a87a0672a7e95dea455c3a2650c4bd3a9c2bb00557a5aec75effdc5",
+      "subject": {
+        "name": "Microsoft.CodeAnalysis.CSharp.dll",
+        "digest": {
+          "sha256": "9cb11b3f5d9b465e9f53d19e0e2059225fdf464be70aa9eb4930b83b60c67562"
+        },
+        "local_path": "/Users/christian/.dotnet/sdk/10.0.400/Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll",
+        "format": "pe",
+        "architecture": "arm64"
+      },
+      "selection": {
+        "type_names": [
+          "Microsoft.CodeAnalysis.CSharp.CodeGen.CodeGenerator"
+        ],
+        "unmatched_type_names": []
+      },
+      "coverage": {
+        "state": "complete",
+        "issues": []
+      },
+      "counts": {
+        "types": 1,
+        "methods": 292,
+        "call_edges": 3117,
+        "field_accesses": 1211
+      },
+      "key_methods": [
+        {
+          "token": "0x0600967b",
+          "name": "CanUseCallOnRefTypeReceiver",
+          "il_size": 355,
+          "decoded_instructions": 143,
+          "truncated_instructions": 0
+        },
+        {
+          "token": "0x06009680",
+          "name": "EmitInstanceCallExpression",
+          "il_size": 449,
+          "decoded_instructions": 181,
+          "truncated_instructions": 0
+        },
+        {
+          "token": "0x06009716",
+          "name": "<EmitInstanceCallExpression>g__determineEmitReceiverStrategy|164_0",
+          "il_size": 295,
+          "decoded_instructions": 124,
+          "truncated_instructions": 0
+        }
+      ]
+    },
+    "diffplex": {
+      "evidence_id": "ev_cdc46dff4a0d16305bcbc0478e393bb25f37cb9413f5c7dea530e434c5e1c8f7",
+      "subject": {
+        "name": "DiffPlex.Benchmark.dll",
+        "digest": {
+          "sha256": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8"
+        },
+        "local_path": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll",
+        "format": "pe",
+        "architecture": "x86"
+      },
+      "selection": {
+        "type_names": [
+          "DiffPlex.Differ",
+          "DiffPlex.Chunkers.CharacterChunker",
+          "DiffPlex.Model.ModificationData"
+        ],
+        "unmatched_type_names": []
+      },
+      "coverage": {
+        "state": "complete",
+        "issues": []
+      },
+      "counts": {
+        "types": 3,
+        "methods": 29,
+        "call_edges": 132,
+        "field_accesses": 12
+      },
+      "key_methods": []
+    }
+  },
+  "current_candidate_sample": {
+    "application_exclusive_samples": 2117,
+    "collector_membership_line_samples": 956,
+    "fraction": 0.45158242796410014,
+    "sample_seconds": 3,
+    "interval_ms": 1,
+    "warmup_before_capture_seconds": 2,
+    "workload_command": [
+      "measure",
+      "0",
+      "2048"
+    ],
+    "qualification": "Separate O2-g diagnostic build, single optimized source-line sample; no release timing claim"
+  },
+  "review": "REA member token/RVA/IL sizes agree with System.Reflection.Metadata and ILSpy. Input and Unity plugin hashes match; stripped DLL differs. Getter has five outlined step symbols at O2. Static structure is not a speedup measurement."
+}

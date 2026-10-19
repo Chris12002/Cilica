@@ -378,6 +378,33 @@ IL2CPP C++, NativeAOT diagnostic records, and each final native disassembly.
 Include the build IDs and a mapping of methods to symbols or inlined ranges.
 Generic sharing and inlining make that mapping potentially many-to-many.
 
+Start the chain at Roslyn's actual emitted IL. Preserve the Release input DLL,
+its SHA-256/MVID, matching portable PDB and its compiler-version/options record,
+plus the build recipe (optimization, target framework, language version and
+conditional symbols). Read IL from that exact DLL rather than reconstructing it
+from decompiled C#. Match methods by assembly hash, token and signature; use RVA
+and IL offsets to join disassembler output to Cilica's generated method/offset
+comments. Keep pre-link input and Unity's stripped assembly identities separate.
+
+For each sampled path, distinguish source operations, Roslyn lowering, selected
+core-library implementation, Cilica IR/emission, native compiler output and runtime
+bookkeeping. Inspect property/accessor calls, constrained calls, boxing, temporary
+locals/addresses, closures, iterators, exception regions and loop branches. An IL
+`callvirt` to a nonvirtual accessor must preserve null behavior but does not by
+itself require dynamic dispatch. Compare with final native symbols/disassembly
+before concluding that an emitted abstraction costs time. JIT and NativeAOT
+optimizations require their own runtime/compiler evidence; Roslyn emits IL and
+cannot explain those backends' final machine code by itself.
+
+When the lowering choice is unclear, inspect Roslyn's lowering/code-generation
+source at the compiler revision recorded in the PDB. REA's managed artifact/member
+inspection can independently index the compiler assembly and its calls/CIL without
+executing the inspected assembly. Read repository source directly; REA does not
+currently provide general C# repository-source navigation. If the recorded revision
+is unavailable publicly, record that gap and label another pinned source revision
+as comparative evidence, never an exact source match. No global MCP registration
+or long-running native-analysis service is necessary for static managed inspection.
+
 Describe equivalent logical operations rather than diffing symbol names or
 raw addresses. Compare control-flow blocks, call sites, guards, initialization,
 frame setup, copies, allocations and exception paths. Correlate these observations

@@ -117,3 +117,73 @@ Remaining performance costs must be profiled on this candidate. Exceptions/cache
 validation and some boxed/delegate checks still perform membership scans; generated
 step dispatch, borrow bookkeeping and collection also remain. This result does
 not establish .NET/IL2CPP parity or performance on other workloads/platforms.
+
+## Follow-up: Roslyn IL and source inspection
+
+The investigation now includes the exact input IL and Roslyn's lowering decisions.
+[Inspection identities and mappings](internal-references-20261019/roslyn-inspection.json)
+record the DLL/PDB/source/tool hashes. Full IL, REA output and sampling artifacts
+are local in `artifacts/roslyn-il-investigation-20261019`.
+
+The portable PDB's GUID/stamp matches the input DLL's CodeView record. Its options
+identify release optimization, C# 14, AnyCPU and Roslyn
+`5.9.0-1.26379.115+14fbf8d5271c98133561eb55185fdb05b286f578`.
+The Unity project plugin DLL has the same SHA-256 as the Cilica/.NET input;
+Unity's managed-stripped DLL has a different hash and is recorded separately.
+ILSpy 9.1.0 produces the readable IL. Independent System.Reflection.Metadata and
+REA inspections agree on the selected methods' tokens, RVAs and IL sizes.
+
+| Input method | Token | IL bytes / instructions | Cilica generated steps | Observation |
+| --- | --- | ---: | ---: | --- |
+| `CharacterChunker.Chunk` | `06000021` | 49 / 26 | 33 | The input loop calls `Char.ToString` at IL_001c and stores a reference at IL_0021; investigate string creation/library costs separately from added dispatch |
+| `Differ.BuildPieceHashes` | `06000011` | 186 / 75 | 114 | The input includes interface calls, repeated getters and a local address for `TryGetValue`; actual implementations and borrow machinery need separate attribution |
+| `ModificationData.get_HashedPieces` | `0600004a` | 7 / 3 | 5 | The IL is receiver load, field load, return; Unity emits a force-inline field accessor, while Cilica keeps storage/root setup and a step-table driver |
+
+These are static counts, not relative execution costs. All five Cilica getter
+step symbols survive in the O2 diagnostic binary. Cilica already calls this
+getter by its direct generated symbol; the finding is avoidable-looking frame/
+step machinery, not evidence of incorrect dynamic-dispatch resolution.
+Inlining or a simpler accessor path still needs an implementation experiment,
+null/fault-order and rooting validation, and paired release measurements.
+
+REA 6.7.0 ran locally through its CLI using Node 24.19.0, without global setup,
+MCP registration or an analysis service. `inspect-managed-members` selected
+Roslyn's `Microsoft.CodeAnalysis.CSharp.CodeGen.CodeGenerator`: 292 methods,
+3,117 call edges and 1,211 field accesses, with complete selected coverage.
+The corresponding DiffPlex selection contains 29 methods and also reports
+complete selected coverage. These counts are scoped to selected types, not the
+entire compiler. Both operations inspect assembly bytes without executing the
+inspected program. Reproduce the selections with:
+
+```sh
+rea inspect-managed-members /path/to/Microsoft.CodeAnalysis.CSharp.dll \
+  --type Microsoft.CodeAnalysis.CSharp.CodeGen.CodeGenerator --json
+rea inspect-managed-members /path/to/DiffPlex.Benchmark.dll \
+  --type DiffPlex.Differ --type DiffPlex.Chunkers.CharacterChunker \
+  --type DiffPlex.Model.ModificationData --json
+ilspycmd --disable-updatecheck --ilcode /path/to/DiffPlex.Benchmark.dll
+```
+
+For source inspection, GitHub rejected the PDB-recorded commit as unavailable.
+The public Roslyn checkout is instead pinned to
+`e4e2833be7abbc54776788ca35d5c4d2697b0261`; this is comparative source evidence,
+not an exact source match to our input compiler. Its
+[property rewriter](https://github.com/dotnet/roslyn/blob/e4e2833be7abbc54776788ca35d5c4d2697b0261/src/Compilers/CSharp/Portable/Lowering/LocalRewriter/LocalRewriter_PropertyAccess.cs#L91)
+turns property reads into accessor calls. Its
+[call-emission decision](https://github.com/dotnet/roslyn/blob/e4e2833be7abbc54776788ca35d5c4d2697b0261/src/Compilers/CSharp/Portable/CodeGen/EmitExpression.cs#L1921)
+uses `callvirt` for reference receivers unless the selected conditions permit
+`call`, including the known non-null/nonvirtual case. Thus an IL `callvirt` is
+not by itself a demand for a virtual lookup. REA also identifies the installed
+compiler's `CanUseCallOnRefTypeReceiver`, `EmitInstanceCallExpression` and generated
+receiver-strategy helper, with fully decoded bodies in this selection. Source
+navigation itself was direct repository inspection; REA's managed tools operate
+on assemblies. Roslyn source does not describe .NET JIT machine-code optimization.
+
+A separate current-candidate sample attributes 956 of 2,117 exclusive application
+samples (45.16%) to the checked membership lines in collector `visit_edge` and
+`visit_object_references`. The capture uses an O2-g binary and repeated verified
+DiffPlex operations; it is a single source-line sampling observation, not a new
+release timing. Together with the IL evidence this suggests two distinct next
+experiments: reduce collector membership lookup cost while preserving its checked
+contract, and reduce proven tiny-method/frame overhead. No further optimization
+is implemented or speedup claimed by this inspection.

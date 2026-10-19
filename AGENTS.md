@@ -86,6 +86,11 @@ feedback before implementation. Explain consequential choices in plain language.
   report does not establish that its generated code represents the latest compiler.
   Retained-code replays are diagnostic experiments, not acceptance evidence for
   current-branch performance.
+- Include Roslyn's emitted Release IL in performance investigations. Retain exact
+  input DLL/PDB hashes, compiler options/version and method tokens/IL offsets;
+  trace those through Cilica IR/C++, comparator output and native code. Separate
+  source/library work from generated/runtime overhead. Consult matching Roslyn
+  source when lowering needs explanation; disclose unavailable revision matches.
 - Review correctness and speed together. Sanitizer/stress builds validate
   correctness separately from release timing. Revisit prototype limits using
   measured target budgets rather than treating their original values as permanent.
