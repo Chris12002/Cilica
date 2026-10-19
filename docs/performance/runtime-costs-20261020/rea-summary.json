@@ -1,0 +1,848 @@
+{
+  "evidence_id": "ev_5afeac2fda64447d7e3d25007743193c044959df4d7c2c1690a29dc14590c4a5",
+  "subject": {
+    "name": "Cilica.Core.dll",
+    "digest": {
+      "sha256": "10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3"
+    },
+    "local_path": "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/core/Cilica.Core.dll",
+    "format": "pe",
+    "architecture": "x86"
+  },
+  "coverage": {
+    "state": "complete",
+    "issues": []
+  },
+  "methods": [
+    {
+      "token": "0x0600024b",
+      "declaring_type": "Cilica.Runtime.StringKeyOperations",
+      "name": "Rotate",
+      "signature": {
+        "raw_length": 4,
+        "raw_sha256": "55d3a380d3023f658e30e45e21d1622670ada3fe8d80c8930f2a6b77aad56ee8",
+        "resolved_sha256": "55d3a380d3023f658e30e45e21d1622670ada3fe8d80c8930f2a6b77aad56ee8",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default",
+        "generic_parameter_count": null,
+        "parameter_count": 1,
+        "return_type": "u4",
+        "parameter_types": [
+          "u4"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "tiny",
+        "rva": 44832,
+        "file_offset": 37152,
+        "max_stack": 8,
+        "init_locals": false,
+        "local_var_sig_token": null,
+        "il_size": 9,
+        "il_sha256": "190b2bcfb02492a9c538315ad906a6cc75c117f23785779d8dac82c5c82cf68a",
+        "normalized_il_sha256": "8b83962ba7ea5adb3a00cd2557cf60c457f472b140de9c6bf232562ec19339ab",
+        "instruction_count": 8,
+        "decoded_instruction_count": 8,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 2,
+          "ldc.i4.5": 1,
+          "shl": 1,
+          "ldc.i4.s": 1,
+          "shr.un": 1,
+          "or": 1,
+          "ret": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 4,
+            "opcode": "ldc.i4.s",
+            "operand_kind": "constant",
+            "operand": "27"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x0600024c",
+      "declaring_type": "Cilica.Runtime.StringKeyOperations",
+      "name": "Pair",
+      "signature": {
+        "raw_length": 5,
+        "raw_sha256": "9fb2b33f2fdb75cbe423f26239fd89691198a2cb98b973ad355310d87a99337d",
+        "resolved_sha256": "9fb2b33f2fdb75cbe423f26239fd89691198a2cb98b973ad355310d87a99337d",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default",
+        "generic_parameter_count": null,
+        "parameter_count": 2,
+        "return_type": "u4",
+        "parameter_types": [
+          "string",
+          "i4"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "fat",
+        "rva": 44844,
+        "file_offset": 37164,
+        "max_stack": 4,
+        "init_locals": true,
+        "local_var_sig_token": "0x11000007",
+        "il_size": 37,
+        "il_sha256": "9103bbab00b1d6927ffc566eefffd75db46ab6e2d3250d1f8d15ff2d96d7389c",
+        "normalized_il_sha256": "48e6abde51fcbf44dd41d01db66754f63f35899e6fc7c59c97d85c8221433158",
+        "instruction_count": 22,
+        "decoded_instruction_count": 22,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 3,
+          "ldarg.1": 3,
+          "callvirt": 3,
+          "ldc.i4.1": 2,
+          "add": 2,
+          "blt.s": 1,
+          "ldc.i4.0": 1,
+          "br.s": 1,
+          "stloc.0": 1,
+          "ldloc.0": 1,
+          "ldc.i4.s": 1,
+          "shl": 1,
+          "or": 1,
+          "ret": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 2,
+            "opcode": "callvirt",
+            "operand_kind": "method",
+            "operand": "0x060002c5"
+          },
+          {
+            "il_offset": 11,
+            "opcode": "callvirt",
+            "operand_kind": "method",
+            "operand": "0x060002c4"
+          },
+          {
+            "il_offset": 16,
+            "opcode": "blt.s",
+            "operand_kind": "branch",
+            "operand": "21"
+          },
+          {
+            "il_offset": 19,
+            "opcode": "br.s",
+            "operand_kind": "branch",
+            "operand": "30"
+          },
+          {
+            "il_offset": 25,
+            "opcode": "callvirt",
+            "operand_kind": "method",
+            "operand": "0x060002c5"
+          },
+          {
+            "il_offset": 32,
+            "opcode": "ldc.i4.s",
+            "operand_kind": "constant",
+            "operand": "16"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x0600024d",
+      "declaring_type": "Cilica.Runtime.StringKeyOperations",
+      "name": "Hash",
+      "signature": {
+        "raw_length": 5,
+        "raw_sha256": "3c1dbbeac65d66c30fd0bfc361504af97930bfa1f223a6a301b76f9cd44e3049",
+        "resolved_sha256": "3c1dbbeac65d66c30fd0bfc361504af97930bfa1f223a6a301b76f9cd44e3049",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default",
+        "generic_parameter_count": null,
+        "parameter_count": 1,
+        "return_type": "i4",
+        "parameter_types": [
+          "string&"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "fat",
+        "rva": 44896,
+        "file_offset": 37216,
+        "max_stack": 4,
+        "init_locals": true,
+        "local_var_sig_token": "0x1100007f",
+        "il_size": 108,
+        "il_sha256": "41a2e2221d48e30f78a147b611ee7bb538bcbe4c5887657f0a987162e99a62a4",
+        "normalized_il_sha256": "8cd4c9925008aa2d33ce601b4fcd9b17a9c9e79180122f7c893d61d2435fb885",
+        "instruction_count": 68,
+        "decoded_instruction_count": 68,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 5,
+          "ldind.ref": 5,
+          "brtrue.s": 1,
+          "ldc.i4.0": 3,
+          "ret": 2,
+          "ldc.i4": 2,
+          "stloc.0": 2,
+          "ldloc.0": 4,
+          "stloc.1": 3,
+          "callvirt": 1,
+          "stloc.2": 2,
+          "stloc.3": 2,
+          "br.s": 1,
+          "ldloc.2": 3,
+          "ldc.i4.4": 2,
+          "sub": 1,
+          "call": 6,
+          "add": 6,
+          "ldloc.3": 4,
+          "xor": 3,
+          "ldloc.1": 5,
+          "ldc.i4.2": 2,
+          "bgt.s": 1,
+          "ble.s": 1,
+          "mul": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 2,
+            "opcode": "brtrue.s",
+            "operand_kind": "branch",
+            "operand": "6"
+          },
+          {
+            "il_offset": 6,
+            "opcode": "ldc.i4",
+            "operand_kind": "constant",
+            "operand": "352654597"
+          },
+          {
+            "il_offset": 16,
+            "opcode": "callvirt",
+            "operand_kind": "method",
+            "operand": "0x060002c4"
+          },
+          {
+            "il_offset": 24,
+            "opcode": "br.s",
+            "operand_kind": "branch",
+            "operand": "72"
+          },
+          {
+            "il_offset": 31,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0600024b"
+          },
+          {
+            "il_offset": 41,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0600024c"
+          },
+          {
+            "il_offset": 49,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0600024b"
+          },
+          {
+            "il_offset": 61,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0600024c"
+          },
+          {
+            "il_offset": 74,
+            "opcode": "bgt.s",
+            "operand_kind": "branch",
+            "operand": "26"
+          },
+          {
+            "il_offset": 78,
+            "opcode": "ble.s",
+            "operand_kind": "branch",
+            "operand": "98"
+          },
+          {
+            "il_offset": 81,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0600024b"
+          },
+          {
+            "il_offset": 91,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0600024c"
+          },
+          {
+            "il_offset": 100,
+            "opcode": "ldc.i4",
+            "operand_kind": "constant",
+            "operand": "1566083941"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x060002a1",
+      "declaring_type": "System.Char",
+      "name": "ToString",
+      "signature": {
+        "raw_length": 3,
+        "raw_sha256": "df29f5ab2554df47369dafce3bc8630f16eabc3f72c21bbd24c5e73c286f650f",
+        "resolved_sha256": "df29f5ab2554df47369dafce3bc8630f16eabc3f72c21bbd24c5e73c286f650f",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default has-this",
+        "generic_parameter_count": null,
+        "parameter_count": 0,
+        "return_type": "string",
+        "parameter_types": [],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "tiny",
+        "rva": 53776,
+        "file_offset": 46096,
+        "max_stack": 8,
+        "init_locals": false,
+        "local_var_sig_token": null,
+        "il_size": 8,
+        "il_sha256": "6d8f70666046ca1426bdeee9c806efce89a76ffb7a94c9580e75806a2391d720",
+        "normalized_il_sha256": "5d124a7761e884d7a332548231963b3b04799191aa2d7ca053a1c505a751ce14",
+        "instruction_count": 4,
+        "decoded_instruction_count": 4,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 1,
+          "ldind.u2": 1,
+          "call": 1,
+          "ret": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 2,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x060002a2"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x060002a2",
+      "declaring_type": "System.Char",
+      "name": "ToString",
+      "signature": {
+        "raw_length": 4,
+        "raw_sha256": "a2737d715759e3eaa5abc7eed0bdf16d9ed139c56c0baa5db733c790e2541d0d",
+        "resolved_sha256": "a2737d715759e3eaa5abc7eed0bdf16d9ed139c56c0baa5db733c790e2541d0d",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default",
+        "generic_parameter_count": null,
+        "parameter_count": 1,
+        "return_type": "string",
+        "parameter_types": [
+          "char"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "tiny",
+        "rva": 53785,
+        "file_offset": 46105,
+        "max_stack": 8,
+        "init_locals": false,
+        "local_var_sig_token": null,
+        "il_size": 16,
+        "il_sha256": "61f1c57f9e69bc905f85f0df8152fd9333bbebf613f707bf3db22e505fb34227",
+        "normalized_il_sha256": "87c160e2fb99dc4d58ded1b6cf16d61d3f212b82f75ad338926078a660d59769",
+        "instruction_count": 8,
+        "decoded_instruction_count": 8,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldc.i4.1": 1,
+          "newarr": 1,
+          "dup": 1,
+          "ldc.i4.0": 1,
+          "ldarg.0": 1,
+          "stelem.i2": 1,
+          "newobj": 1,
+          "ret": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 1,
+            "opcode": "newarr",
+            "operand_kind": "type",
+            "operand": "0x0200007b"
+          },
+          {
+            "il_offset": 10,
+            "opcode": "newobj",
+            "operand_kind": "method",
+            "operand": "0x060002be"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x0600049b",
+      "declaring_type": "System.Collections.Generic.Dictionary`2",
+      "name": "Hash",
+      "signature": {
+        "raw_length": 5,
+        "raw_sha256": "d038971343e7c748f16017374cd66b142a34d1d575fb1f145c4167032c61b423",
+        "resolved_sha256": "d038971343e7c748f16017374cd66b142a34d1d575fb1f145c4167032c61b423",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default has-this",
+        "generic_parameter_count": null,
+        "parameter_count": 1,
+        "return_type": "u4",
+        "parameter_types": [
+          "var:0"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "tiny",
+        "rva": 67936,
+        "file_offset": 60256,
+        "max_stack": 8,
+        "init_locals": false,
+        "local_var_sig_token": null,
+        "il_size": 9,
+        "il_sha256": "5b4641e077d7be82451ae0c6452b50a7d261d94923aaca2f0d7990606965f1c3",
+        "normalized_il_sha256": "c5149c63e8baaa5d0b1f3fe3fff471efe7d7115bc47e809ea2ad41da5acead8f",
+        "instruction_count": 4,
+        "decoded_instruction_count": 4,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 1,
+          "ldarga.s": 1,
+          "call": 1,
+          "ret": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 1,
+            "opcode": "ldarga.s",
+            "operand_kind": "variable",
+            "operand": "1"
+          },
+          {
+            "il_offset": 3,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0a000248"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x0600049c",
+      "declaring_type": "System.Collections.Generic.Dictionary`2",
+      "name": "HashKey",
+      "signature": {
+        "raw_length": 6,
+        "raw_sha256": "bbdf7f429b9972b3788132042a13e2f3e874dfe8a0aad3b680f0245ac906177f",
+        "resolved_sha256": "bbdf7f429b9972b3788132042a13e2f3e874dfe8a0aad3b680f0245ac906177f",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default has-this",
+        "generic_parameter_count": null,
+        "parameter_count": 1,
+        "return_type": "u4",
+        "parameter_types": [
+          "var:0&"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "tiny",
+        "rva": 67946,
+        "file_offset": 60266,
+        "max_stack": 8,
+        "init_locals": false,
+        "local_var_sig_token": null,
+        "il_size": 33,
+        "il_sha256": "863484bbf731e6c9ac2f3a9e1540f718caf90177c855366431332ab2d27582aa",
+        "normalized_il_sha256": "951e397fbe733828bf7bdfc7610d88bbf9a200e5e394a34571080b0c28c85ca8",
+        "instruction_count": 12,
+        "decoded_instruction_count": 12,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 2,
+          "ldfld": 2,
+          "brfalse.s": 1,
+          "ldarg.1": 2,
+          "ldobj": 1,
+          "callvirt": 1,
+          "ret": 2,
+          "call": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 1,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a00023d"
+          },
+          {
+            "il_offset": 6,
+            "opcode": "brfalse.s",
+            "operand_kind": "branch",
+            "operand": "26"
+          },
+          {
+            "il_offset": 9,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a00023d"
+          },
+          {
+            "il_offset": 15,
+            "opcode": "ldobj",
+            "operand_kind": "type",
+            "operand": "0x1b000057"
+          },
+          {
+            "il_offset": 20,
+            "opcode": "callvirt",
+            "operand_kind": "method",
+            "operand": "0x0a000249"
+          },
+          {
+            "il_offset": 27,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0a00002d"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x0600049e",
+      "declaring_type": "System.Collections.Generic.Dictionary`2",
+      "name": "Find",
+      "signature": {
+        "raw_length": 12,
+        "raw_sha256": "a9c60a216f62acb34b5d4ca2a96b08155f6178bf5c272086fde956f1ccce89d9",
+        "resolved_sha256": "9a4d380e865ea74e78cd9ce99db0c50de8d6fca4f42408bd8369127fb16be8ed",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default has-this",
+        "generic_parameter_count": null,
+        "parameter_count": 1,
+        "return_type": "class:80<var:0,var:1>",
+        "parameter_types": [
+          "var:0"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "fat",
+        "rva": 68004,
+        "file_offset": 60324,
+        "max_stack": 3,
+        "init_locals": true,
+        "local_var_sig_token": "0x110000af",
+        "il_size": 129,
+        "il_sha256": "9b9574e407fe9691c7b2be9a9ff1bb70fb0368375c168a1c9d9fb3cf35eab639",
+        "normalized_il_sha256": "8938543058c10bd2968e0df99e39101ec3bde9af686f1892ca69543c5baa2398",
+        "instruction_count": 67,
+        "decoded_instruction_count": 67,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.1": 3,
+          "call": 3,
+          "ldarg.0": 8,
+          "ldfld": 9,
+          "brtrue.s": 1,
+          "ldnull": 2,
+          "ret": 3,
+          "stloc.0": 1,
+          "ldloc.0": 2,
+          "ldlen": 3,
+          "conv.i4": 3,
+          "rem.un": 1,
+          "ldelem.i4": 1,
+          "ldc.i4.1": 2,
+          "sub": 1,
+          "stloc.1": 2,
+          "ldc.i4.0": 1,
+          "stloc.2": 2,
+          "br.s": 1,
+          "ldloc.1": 2,
+          "ldelem.ref": 1,
+          "stloc.3": 1,
+          "ldloc.3": 4,
+          "bne.un.s": 1,
+          "brfalse.s": 1,
+          "ldloc.2": 1,
+          "add": 1,
+          "dup": 1,
+          "ble.s": 1,
+          "ldstr": 1,
+          "newobj": 1,
+          "throw": 1,
+          "blt.un.s": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 1,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0a00024a"
+          },
+          {
+            "il_offset": 7,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000240"
+          },
+          {
+            "il_offset": 12,
+            "opcode": "brtrue.s",
+            "operand_kind": "branch",
+            "operand": "16"
+          },
+          {
+            "il_offset": 18,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0a00024b"
+          },
+          {
+            "il_offset": 25,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000240"
+          },
+          {
+            "il_offset": 32,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000240"
+          },
+          {
+            "il_offset": 46,
+            "opcode": "br.s",
+            "operand_kind": "branch",
+            "operand": "116"
+          },
+          {
+            "il_offset": 49,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000241"
+          },
+          {
+            "il_offset": 58,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000022"
+          },
+          {
+            "il_offset": 64,
+            "opcode": "bne.un.s",
+            "operand_kind": "branch",
+            "operand": "83"
+          },
+          {
+            "il_offset": 68,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000024"
+          },
+          {
+            "il_offset": 74,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0a00024c"
+          },
+          {
+            "il_offset": 79,
+            "opcode": "brfalse.s",
+            "operand_kind": "branch",
+            "operand": "83"
+          },
+          {
+            "il_offset": 84,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000023"
+          },
+          {
+            "il_offset": 96,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000241"
+          },
+          {
+            "il_offset": 103,
+            "opcode": "ble.s",
+            "operand_kind": "branch",
+            "operand": "116"
+          },
+          {
+            "il_offset": 105,
+            "opcode": "ldstr",
+            "operand_kind": "string",
+            "operand": "0x700007d0"
+          },
+          {
+            "il_offset": 110,
+            "opcode": "newobj",
+            "operand_kind": "method",
+            "operand": "0x06000315"
+          },
+          {
+            "il_offset": 118,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000241"
+          },
+          {
+            "il_offset": 125,
+            "opcode": "blt.un.s",
+            "operand_kind": "branch",
+            "operand": "48"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x0600049f",
+      "declaring_type": "System.Collections.Generic.Dictionary`2",
+      "name": "TryGetValue",
+      "signature": {
+        "raw_length": 8,
+        "raw_sha256": "10454851651c4fd8cb0c73c4ac82d4ffe973cf99a90a1a6d8c742936b8c5a9ae",
+        "resolved_sha256": "10454851651c4fd8cb0c73c4ac82d4ffe973cf99a90a1a6d8c742936b8c5a9ae",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default has-this",
+        "generic_parameter_count": null,
+        "parameter_count": 2,
+        "return_type": "bool",
+        "parameter_types": [
+          "var:0",
+          "var:1&"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "fat",
+        "rva": 68148,
+        "file_offset": 60468,
+        "max_stack": 2,
+        "init_locals": true,
+        "local_var_sig_token": "0x110000b0",
+        "il_size": 34,
+        "il_sha256": "50fac47d2cef83956f89d8bd7846256d97011d5d744116c5f8fe009a81370aea",
+        "normalized_il_sha256": "39ff45f5d76b68bf9114b9a05bc50c95e027e3b1f726f9a5991e3038eab5f241",
+        "instruction_count": 16,
+        "decoded_instruction_count": 16,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 1,
+          "ldarg.1": 1,
+          "call": 1,
+          "stloc.0": 1,
+          "ldloc.0": 2,
+          "brfalse.s": 1,
+          "ldarg.2": 2,
+          "ldfld": 1,
+          "stobj": 1,
+          "ldc.i4.1": 1,
+          "ret": 2,
+          "initobj": 1,
+          "ldc.i4.0": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 2,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x0a00024d"
+          },
+          {
+            "il_offset": 9,
+            "opcode": "brfalse.s",
+            "operand_kind": "branch",
+            "operand": "25"
+          },
+          {
+            "il_offset": 13,
+            "opcode": "ldfld",
+            "operand_kind": "field",
+            "operand": "0x0a000025"
+          },
+          {
+            "il_offset": 18,
+            "opcode": "stobj",
+            "operand_kind": "type",
+            "operand": "0x1b00006c"
+          },
+          {
+            "il_offset": 26,
+            "opcode": "initobj",
+            "operand_kind": "type",
+            "operand": "0x1b00006c"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    }
+  ]
+}

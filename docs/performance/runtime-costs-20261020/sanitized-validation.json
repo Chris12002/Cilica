@@ -1,0 +1,19 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-fno-exceptions",
+    "-fno-rtti",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "-fstack-usage",
+    "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/sanitized.cpp",
+    "-o",
+    "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/sanitized"
+  ],
+  "observations": 523,
+  "checksum": 6146,
+  "forced_collection_cold_runs": 1,
+  "scope": "Diagnostic DiffPlex only; no exceptions, malformed private pointer, recursion, stack budget, or general compatibility acceptance"
+}

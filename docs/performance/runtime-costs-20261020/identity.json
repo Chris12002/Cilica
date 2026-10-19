@@ -1,0 +1,16 @@
+{
+  "fresh_emission_matches_v92": true,
+  "hashes": {
+    "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/baseline.cpp": "686580c8f18f873141a87a3217ed3644417186769784dfd313c2b549a6f9b84c",
+    "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/core/Cilica.Core.dll": "10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3",
+    "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/core/build-options.json": "86b21fa412e69e3abfbee63558172779f424a94673d041ad2c66cae1cbb03cd5",
+    "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/core/library-build.json": "7e6b816a554047ca860cd0a91447eb30c8d558b03e427b4a8e51cd712c128636",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.runtimeconfig.json": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8"
+  },
+  "dotnet": ".NET SDK:\n Version:           10.0.400\n Commit:            14fbf8d527\n Workload version:  10.0.400-manifests.330ea142\n MSBuild version:   18.9.6+14fbf8d52\n\nRuntime Environment:\n OS Name:     Mac OS X\n OS Version:  15.7\n OS Platform: Darwin\n RID:         osx-arm64\n Base Path:   /Users/christian/.dotnet/sdk/10.0.400/\n\n.NET workloads installed:\nThere are no installed workloads to display.\nConfigured to use workload sets when installing new manifests.\nNo workload sets are installed. Run \"dotnet workload restore\" to install a workload set.\n\nHost:\n  Version:      10.0.11\n  Architecture: arm64\n  Commit:       e2f47b0110\n\n.NET SDKs installed:\n  9.0.306 [/Users/christian/.dotnet/sdk]\n  10.0.400 [/Users/christian/.dotnet/sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  DOTNET_ROOT                              [/Users/christian/.dotnet]\n\nglobal.json file:\n  /Users/christian/Cilica/global.json\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download\n"
+}

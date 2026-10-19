@@ -24,6 +24,15 @@ public sealed class ApprovedDiffPlexBenchmarkEmissionTests(ITestOutputHelper out
             var assembly=context.LoadFromAssemblyPath(path);
             var method=assembly.GetType("Cilica.CandidateBenchmark.BenchProbe")!.GetMethod("Run")!;
             using var files=new ResolverFiles();var(built,_,resolver,implementation,plan)=await CoreLibraryBuildTests.BuildAndMapContracts(files, includeNetStandard20:true);using var lifetime=resolver;
+            // Optional investigation evidence: keep the exact owned core whose
+            // metadata tokens appear in generated symbols before temp cleanup.
+            if (Environment.GetEnvironmentVariable("CILICA_BENCH_CORE_CAPTURE") is { Length: > 0 } capture)
+            {
+                Assert.True(Path.IsPathFullyQualified(capture) && !Directory.Exists(capture));
+                Directory.CreateDirectory(capture);
+                foreach (string file in Directory.GetFiles(Path.GetDirectoryName(built.AssemblyPath)!))
+                    File.Copy(file, Path.Combine(capture, Path.GetFileName(file)));
+            }
             using var scope=resolver.CreateTrustedLibraryCompilationScope(plan,await File.ReadAllBytesAsync(built.ManifestPath,TestContext.Current.CancellationToken),built.ManifestSha256).Value!;
             var input=scope.OpenInput(path).Value!;
             output.WriteLine("Emitting benchmark C++ only; timing belongs to separate Release processes.");

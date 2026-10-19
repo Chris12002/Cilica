@@ -126,3 +126,7 @@ The next investigation should broaden direct native emission to hot library
 helpers and address remaining frame/borrow/type-helper costs. This slice supplies
 a tested proof/fallback pattern, but neither a general optimizing backend nor a
 projected speedup for those future changes.
+
+Follow-up: the [combined runtime-cost investigation](runtime-costs-20261020.md)
+measures broader dispatch, borrow, type-lookup and string-construction costs.
+Its prototypes are diagnostic experiments, not additional accepted optimizations.

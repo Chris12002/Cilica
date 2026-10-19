@@ -1,0 +1,437 @@
+[
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a",
+    "count": 398,
+    "name": "0600004a"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600049d_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 284,
+    "name": "System.Collections.Generic.Dictionary`2.CheckKey"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000591_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch",
+    "count": 283,
+    "name": "System.Collections.Generic.IEqualityComparer`1.GetHashCode"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600024b",
+    "count": 283,
+    "name": "Cilica.Runtime.StringKeyOperations.Rotate"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600024c",
+    "count": 283,
+    "name": "Cilica.Runtime.StringKeyOperations.Pair"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600024d",
+    "count": 283,
+    "name": "Cilica.Runtime.StringKeyOperations.Hash"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060003df",
+    "count": 283,
+    "name": "System.OrdinalCaseSensitiveComparer.GetHashCode"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600049c_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 283,
+    "name": "System.Collections.Generic.Dictionary`2.HashKey"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004d",
+    "count": 266,
+    "name": "0600004d"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600048f_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch",
+    "count": 264,
+    "name": "System.Collections.Generic.IReadOnlyCollection`1.get_Count"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600007b_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47",
+    "count": 264,
+    "name": "Cilica.Runtime.ArrayInterface`1.Count"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060002e8",
+    "count": 260,
+    "name": "System.String.CopyCharacters"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000490_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch",
+    "count": 256,
+    "name": "System.Collections.Generic.IReadOnlyList`1.get_Item"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000512_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_dispatch",
+    "count": 256,
+    "name": "System.Collections.Generic.IDictionary`2.TryGetValue"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600007c_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47",
+    "count": 256,
+    "name": "Cilica.Runtime.ArrayInterface`1.Get"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060002a1",
+    "count": 256,
+    "name": "System.Char.ToString"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060002a2",
+    "count": 256,
+    "name": "System.Char.ToString"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600049e_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 256,
+    "name": "System.Collections.Generic.Dictionary`2.Find"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600049f_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 256,
+    "name": "System.Collections.Generic.Dictionary`2.TryGetValue"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600049b_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 255,
+    "name": "System.Collections.Generic.Dictionary`2.Hash"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000590_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch",
+    "count": 228,
+    "name": "System.Collections.Generic.IEqualityComparer`1.Equals"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060003de",
+    "count": 228,
+    "name": "System.OrdinalCaseSensitiveComparer.Equals"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600049a_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 228,
+    "name": "System.Collections.Generic.Dictionary`2.Equal"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060002a6",
+    "count": 67,
+    "name": "System.Int32.Equals"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060004ff_g_c10d504ac99f0543bd9fd82cf118bcbec008a289e0a91db2dba3a46b4d74fc60_dispatch",
+    "count": 56,
+    "name": "System.Collections.Generic.ICollection`1.get_Count"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000497_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 56,
+    "name": "System.Collections.Generic.Dictionary`2.get_Count"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000288",
+    "count": 40,
+    "name": "System.Object..ctor"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600050c_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_dispatch",
+    "count": 28,
+    "name": "System.Collections.Generic.IDictionary`2.set_Item"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600004b_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 28,
+    "name": "Cilica.Runtime.DictionaryEntry`2..ctor"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060004a2_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 28,
+    "name": "System.Collections.Generic.Dictionary`2.set_Item"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060004ca_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 28,
+    "name": "System.Collections.Generic.Dictionary`2.Insert"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000047",
+    "count": 7,
+    "name": "06000047"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010",
+    "count": 5,
+    "name": "06000010"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600004d",
+    "count": 4,
+    "name": "Cilica.Runtime.DictionaryPrimes.GetPrime"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000041",
+    "count": 4,
+    "name": "06000041"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000045",
+    "count": 4,
+    "name": "06000045"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004c",
+    "count": 4,
+    "name": "0600004c"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600004c",
+    "count": 3,
+    "name": "Cilica.Runtime.DictionaryPrimes.ExpandPrime"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060004cb_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 3,
+    "name": "System.Collections.Generic.Dictionary`2.Resize"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000042",
+    "count": 3,
+    "name": "06000042"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000046",
+    "count": 3,
+    "name": "06000046"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600001d_dispatch",
+    "count": 2,
+    "name": "0600001d"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060002ea",
+    "count": 2,
+    "name": "System.String.IsNullOrEmpty"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000563_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 2,
+    "name": "System.Collections.Generic.List`1.Add"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000e",
+    "count": 2,
+    "name": "0600000e"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000011",
+    "count": 2,
+    "name": "06000011"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000021",
+    "count": 2,
+    "name": "06000021"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000038",
+    "count": 2,
+    "name": "06000038"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003d",
+    "count": 2,
+    "name": "0600003d"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003e",
+    "count": 2,
+    "name": "0600003e"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003f",
+    "count": 2,
+    "name": "0600003f"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000040",
+    "count": 2,
+    "name": "06000040"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000043",
+    "count": 2,
+    "name": "06000043"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000044",
+    "count": 2,
+    "name": "06000044"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000048",
+    "count": 2,
+    "name": "06000048"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000049",
+    "count": 2,
+    "name": "06000049"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004b",
+    "count": 2,
+    "name": "0600004b"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004e",
+    "count": 2,
+    "name": "0600004e"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004f",
+    "count": 2,
+    "name": "0600004f"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000050",
+    "count": 2,
+    "name": "06000050"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000051",
+    "count": 2,
+    "name": "06000051"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060004ff_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_dispatch",
+    "count": 1,
+    "name": "System.Collections.Generic.ICollection`1.get_Count"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600026c",
+    "count": 1,
+    "name": "Cilica.Runtime.OrdinalComparerCache..cctor"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060003d3",
+    "count": 1,
+    "name": "System.StringComparer..ctor"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060003d5",
+    "count": 1,
+    "name": "System.StringComparer.get_Ordinal"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_060003dc",
+    "count": 1,
+    "name": "System.OrdinalCaseSensitiveComparer..ctor"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000492_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 1,
+    "name": "System.Collections.Generic.Dictionary`2..ctor"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000494_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 1,
+    "name": "System.Collections.Generic.Dictionary`2.NormalizeComparer"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000496_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 1,
+    "name": "System.Collections.Generic.Dictionary`2.Initialize"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000558_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1..ctor"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600055e_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1.get_Count"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_0600055f_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1.get_Capacity"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000560_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1.set_Capacity"
+  },
+  {
+    "symbol": "cilica_m_10a99465bbb826b4dda27ab513e4e156da93ea25030d80f2cefed778b24bb5c3_06000565_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1.Grow"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000006",
+    "count": 1,
+    "name": "06000006"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000c",
+    "count": 1,
+    "name": "0600000c"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000f",
+    "count": 1,
+    "name": "0600000f"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000012",
+    "count": 1,
+    "name": "06000012"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000022",
+    "count": 1,
+    "name": "06000022"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000039",
+    "count": 1,
+    "name": "06000039"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003a",
+    "count": 1,
+    "name": "0600003a"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003b",
+    "count": 1,
+    "name": "0600003b"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003c",
+    "count": 1,
+    "name": "0600003c"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000052",
+    "count": 1,
+    "name": "06000052"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000053",
+    "count": 1,
+    "name": "06000053"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055",
+    "count": 1,
+    "name": "06000055"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000056",
+    "count": 1,
+    "name": "06000056"
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "diagnostic_only": true,
+  "methods": 144,
+  "static_edges": 10662,
+  "dynamic_edges": 0,
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-DNDEBUG",
+    "-fno-exceptions",
+    "-fno-rtti",
+    "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/CFG_BT.cpp",
+    "-o",
+    "/Users/christian/Cilica/artifacts/runtime-cost-investigation-20261020/CFG_BT"
+  ],
+  "source_sha256": "da1f2ee49260d569d66f52f053ed1a2dc8481b570e915c1d897f44953aba4004",
+  "binary_sha256": "306e355a670fdc81691dfb2f512fa76dad9a1fe297ed3b96e448c5d922403ac0"
+}

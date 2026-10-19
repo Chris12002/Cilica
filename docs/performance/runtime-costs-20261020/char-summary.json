@@ -1,0 +1,23 @@
+{
+  "base": {
+    "median_ns": 365646.15625,
+    "min_ns": 355459.3125,
+    "max_ns": 381026.3671875,
+    "samples": 21,
+    "speedup_vs_base": 1.0
+  },
+  "CFG_BT": {
+    "median_ns": 185656.4140625,
+    "min_ns": 179445.4765625,
+    "max_ns": 207693.19921875,
+    "samples": 21,
+    "speedup_vs_base": 1.969477640168724
+  },
+  "CFG_BT_char": {
+    "median_ns": 135182.453125,
+    "min_ns": 131479.16796875,
+    "max_ns": 139518.5546875,
+    "samples": 21,
+    "speedup_vs_base": 2.7048344500147197
+  }
+}
