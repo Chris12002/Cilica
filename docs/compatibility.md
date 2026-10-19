@@ -5168,3 +5168,21 @@ boxed-runtime 4; all managed profiles remain unchanged. See ADR AC0249.
 The full diagnostic EngineStep module emits 466,933,100 bytes and its native build
 has cleared the previous first-unit stack failure. Complete native execution,
 production application capacity and saved-game replay remain outstanding.
+
+### Native-build resumption investigation (2026-10-19)
+
+The historical Linux attempt stops during unit 21 with no exit receipt or
+diagnostic. Separate Apple Clang17 ARM64 O0/ASan/UBSan compilation passes units
+21–60, then unit 61 rejects PhysicalDamagePayload's 2,672-byte clone frame under
+the existing 2,048-byte guard. An owned ten-reference/ten-Int32 clone reproduces
+the exact failure with the current production compiler. A generated-output-only
+experiment splitting field copies into helpers of at most eight assignments
+compiles under unchanged guards; no compiler fix or execution is accepted.
+
+The retained Unity adapter also requires `String.Join(string,string[])`, which
+an owned current-compiler reduction rejects with CIL3010; its enumerable control
+translates. This is distinct from the frozen engine's clone-frame blocker.
+The old native consumer passes null state and tests its entry exception, not a
+game turn. Profiles, production quotas and the 46-control/one-gap public baseline
+are unchanged. See the [investigation](compatibility/alchemy-native-build-resumption.md)
+for reference locations, receipts, proposed slices and review limits.
