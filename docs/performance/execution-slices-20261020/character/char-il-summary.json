@@ -1,0 +1,141 @@
+{
+  "artifact": {
+    "path": "/Users/christian/Cilica/artifacts/character-construction-20261020/core/Cilica.Core.dll",
+    "sha256": "655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1",
+    "byte_length": 161280,
+    "format": "pe"
+  },
+  "module": {
+    "name": "Cilica.Core.dll",
+    "generation": 0,
+    "mvid": "379e146e-ab0a-4d2a-b99d-a779bf6dfcb0",
+    "enc_id": null,
+    "enc_base_id": null,
+    "token": "0x00000001",
+    "row_offset": 71004
+  },
+  "identity_scope": {
+    "token_identity": "build-local",
+    "requires_artifact_sha256": "655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1",
+    "requires_mvid": "379e146e-ab0a-4d2a-b99d-a779bf6dfcb0"
+  },
+  "methods": [
+    {
+      "token": "0x060002a2",
+      "row_offset": 86098,
+      "declaring_type_token": "0x0200007b",
+      "declaring_type": "System.Char",
+      "name": "ToString",
+      "rva": 53776,
+      "impl_flags": 0,
+      "flags": 198,
+      "signature": {
+        "raw_length": 3,
+        "raw_sha256": "df29f5ab2554df47369dafce3bc8630f16eabc3f72c21bbd24c5e73c286f650f",
+        "resolved_sha256": "df29f5ab2554df47369dafce3bc8630f16eabc3f72c21bbd24c5e73c286f650f",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default has-this",
+        "generic_parameter_count": null,
+        "parameter_count": 0,
+        "return_type": "string",
+        "parameter_types": [],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "tiny",
+        "rva": 53776,
+        "file_offset": 46096,
+        "max_stack": 8,
+        "init_locals": false,
+        "local_var_sig_token": null,
+        "il_size": 8,
+        "il_sha256": "985e939eb8d4eaa9632de7a9f99a52e03b583c13531d2af7040ceaef0ec4d51e",
+        "normalized_il_sha256": "e6f936d889bee90792cd3d5e5565125f273b859c9a6f998ad5cc82c5d0493825",
+        "instruction_count": 4,
+        "decoded_instruction_count": 4,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 1,
+          "ldind.u2": 1,
+          "call": 1,
+          "ret": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 2,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x060002a3"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    },
+    {
+      "token": "0x060002a3",
+      "row_offset": 86112,
+      "declaring_type_token": "0x0200007b",
+      "declaring_type": "System.Char",
+      "name": "ToString",
+      "rva": 53785,
+      "impl_flags": 0,
+      "flags": 150,
+      "signature": {
+        "raw_length": 4,
+        "raw_sha256": "a2737d715759e3eaa5abc7eed0bdf16d9ed139c56c0baa5db733c790e2541d0d",
+        "resolved_sha256": "a2737d715759e3eaa5abc7eed0bdf16d9ed139c56c0baa5db733c790e2541d0d",
+        "kind": "method",
+        "parse_status": "decoded",
+        "calling_convention": "default",
+        "generic_parameter_count": null,
+        "parameter_count": 1,
+        "return_type": "string",
+        "parameter_types": [
+          "char"
+        ],
+        "field_type": null,
+        "issue": null
+      },
+      "body": {
+        "status": "present",
+        "header_format": "tiny",
+        "rva": 53785,
+        "file_offset": 46105,
+        "max_stack": 8,
+        "init_locals": false,
+        "local_var_sig_token": null,
+        "il_size": 7,
+        "il_sha256": "4652ae063d62a2419c2180c433a9c406c42cb5b43fd64edf1f735f684327d20c",
+        "normalized_il_sha256": "3cd79140a6c6c6cd91e170f471483f982bb4dd7f1ef7421815e57abb6773a575",
+        "instruction_count": 3,
+        "decoded_instruction_count": 3,
+        "truncated_instructions": 0,
+        "opcode_counts": {
+          "ldarg.0": 1,
+          "call": 1,
+          "ret": 1
+        },
+        "anchors": [
+          {
+            "il_offset": 1,
+            "opcode": "call",
+            "operand_kind": "method",
+            "operand": "0x06000234"
+          }
+        ],
+        "exception_regions": [],
+        "issue": null
+      }
+    }
+  ],
+  "operation": "inspect_managed_members",
+  "provider": {
+    "id": "rea-dotnet-static",
+    "name": "REA managed static analysis provider",
+    "version": "1"
+  }
+}

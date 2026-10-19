@@ -19,6 +19,7 @@ public sealed class NativeDirectControlFlowTests
         await IntegerObjectTranslationTests.VerifyTranslated(true, probes.Select(p => {
             var translated = IntegerObjectTranslationTests.Translate(p.Name);
             Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
+            Assert.Contains("goto cilica_step_0u;", ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(translated.Program!)).Text, StringComparison.Ordinal);
             return (p.Name, translated.Program!, p.Oracle);
         }).ToArray(), nativeFlags: ["-DCILICA_DIRECT_CONTROL_FLOW=" + direct]);
     }

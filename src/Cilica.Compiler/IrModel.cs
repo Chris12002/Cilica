@@ -121,6 +121,7 @@ public abstract record IrExpression
     public sealed record StringConcat(int Left, int Right) : IrExpression;
     // Fresh immutable snapshot of the low UTF-16 units in an Int32 vector; empty is canonical.
     public sealed record StringFromCodeUnits(int Array) : IrExpression;
+    public sealed record StringFromCharacter(int Character) : IrExpression;
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
     // Boxed targets test exact payload identity and retain the Object view.
     // Nullable<T> tests and cast faults use T's descriptor and name.

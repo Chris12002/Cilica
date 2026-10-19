@@ -97,6 +97,7 @@ internal sealed partial class ObjectIrRules
                             IrExpression.StringCodeUnit s => !This(s.Operand) && !This(s.Index),
                             IrExpression.StringEquals s => !This(s.Left) && !This(s.Right),
                             IrExpression.StringFromCodeUnits s => !This(s.Array),
+                            IrExpression.StringFromCharacter s => !This(s.Character),
                             IrExpression.StringConcat s => !This(s.Left) && !This(s.Right),
                             IrExpression.EmptyArray or IrExpression.LoadStatic or IrExpression.AddressStatic => true,
                             IrExpression.NewArray a => !This(a.Length),

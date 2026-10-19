@@ -5270,3 +5270,9 @@ scratch allocation failure retain bounded list lookup. Root pop retires lifetime
 registrations before storage reuse. CILICA_VERIFY_BORROW_LIFETIMES=1 restores
 full chain diagnostics; extents, types, readonly and public ownership stay checked.
 See [ADR 0200](decisions/0200-cached-borrow-registration.md).
+
+Native v95 and object IR v79 add exact granted private character-string allocation.
+Owned Char.ToString now creates one fresh string without temporary arrays; all
+UTF-16 units, roots, identity and managed allocation failures are preserved.
+Integer-object CIL v126 records the intrinsic; public layouts/ABI are unchanged.
+See [ADR 0201](decisions/0201-direct-character-string-allocation.md).

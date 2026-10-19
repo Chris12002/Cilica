@@ -129,7 +129,7 @@ internal sealed class BoxedUseProof(IEnumerable<IrMethod> methods)
         IrExpression.AddressArraySlot a => [a.Array, a.Index],
         IrExpression.IntegerTextFind t => [t.Index], IrExpression.IntegerTextPublish t => [t.Index, t.Text],
         IrExpression.StringLength t => [t.Operand], IrExpression.StringCodeUnit t => [t.Operand, t.Index],
-        IrExpression.StringEquals t => [t.Left, t.Right], IrExpression.StringConcat t => [t.Left, t.Right], IrExpression.StringFromCodeUnits t => [t.Array],
+        IrExpression.StringEquals t => [t.Left, t.Right], IrExpression.StringConcat t => [t.Left, t.Right], IrExpression.StringFromCodeUnits t => [t.Array], IrExpression.StringFromCharacter t => [t.Character],
         IrExpression.LoadField f => [f.Receiver], IrExpression.AddressField f => [f.Receiver],
         IrExpression.CastClass c => [c.Operand], IrExpression.IsInstance c => [c.Operand],
         IrExpression.ValueField v => [v.Operand], IrExpression.WithValueField v => [v.Operand, v.Value],

@@ -1,0 +1,23 @@
+{
+  "method": "Diagnostic allocation call counts only; not timing evidence",
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-DNDEBUG",
+    "-fno-exceptions",
+    "-fno-rtti",
+    "-fstack-usage",
+    "-Wframe-larger-than=2048",
+    "-Werror",
+    "/Users/christian/Cilica/artifacts/character-construction-20261020/counted.cpp",
+    "-o",
+    "/Users/christian/Cilica/artifacts/character-construction-20261020/counted"
+  ],
+  "source_sha256": "99464f8a098b918b119aa947b0f794496487a894eae45fa4e63cbe8193ea4a98",
+  "counts": "arrays=27 strings=264",
+  "maximum_native_frame_bytes": 400,
+  "stack_usage_kinds": [
+    "static"
+  ]
+}

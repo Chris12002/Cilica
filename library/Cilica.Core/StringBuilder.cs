@@ -90,5 +90,7 @@ namespace Cilica.Runtime
     {
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
         internal static extern string FromCodeUnits(int[] values);
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+        internal static extern string FromCharacter(char value);
     }
 }

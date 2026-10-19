@@ -19,17 +19,20 @@ public static partial class ValueProgramDiscovery
             if (_metadata.Remaining == 0) Fail(work, "String construction metadata budget exhausted.", offset, DiagnosticIds.TranslationLimit);
             var input = Require(resolver.ReadMethodDeclarationInput(library, target.Handle, new(MaximumMembers: _metadata.Remaining)), work, offset);
             if (!_metadata.TryConsume(input.MetadataMembersRead)) Fail(work, "String construction metadata budget exceeded.", offset, DiagnosticIds.TranslationLimit);
-            if (input.DeclaredName != "FromCodeUnits" || input.IsReferenceAssembly || input.HasBody || input.HasTypeInitializer || input.HasModuleInitializer || input.OwnerGenericArity != 0
+            bool character = input.DeclaredName == "FromCharacter";
+            if ((!character && input.DeclaredName != "FromCodeUnits") || input.IsReferenceAssembly || input.HasBody || input.HasTypeInitializer || input.HasModuleInitializer || input.OwnerGenericArity != 0
                 || input.Signature.Header != 0 || input.Signature.GenericArity != 0
                 || input.Attributes != (MethodAttributes.Assembly | MethodAttributes.Static | MethodAttributes.HideBySig)
                 || input.Implementation != MethodImplAttributes.InternalCall
                 || input.Signature.ReturnType is not TypeSignature.Primitive { Code: PrimitiveTypeCode.String }
                 || input.Signature.Parameters.Count != 1
-                || input.Signature.Parameters[0] is not TypeSignature.Vector { Element: TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } })
+                || (character
+                    ? input.Signature.Parameters[0] is not TypeSignature.Primitive { Code: PrimitiveTypeCode.Char }
+                    : input.Signature.Parameters[0] is not TypeSignature.Vector { Element: TypeSignature.Primitive { Code: PrimitiveTypeCode.Int32 } }))
                 Fail(work, "Invalid selected string construction declaration.", offset);
-            _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, LibraryIntrinsicCapability.StringFromCodeUnits), work, offset);
+            _ = Require(resolver.AuthorizeLibraryIntrinsic(library, target.Handle, character ? LibraryIntrinsicCapability.StringFromCharacter : LibraryIntrinsicCapability.StringFromCodeUnits), work, offset);
             _ = Storage(input.Signature.Parameters[0], work, offset);
-            return new(ValueIntrinsic.StringFromCodeUnits, IncludeString(work, offset), 1);
+            return new(character ? ValueIntrinsic.StringFromCharacter : ValueIntrinsic.StringFromCodeUnits, IncludeString(work, offset), 1);
         }
     }
 }

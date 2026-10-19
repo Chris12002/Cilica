@@ -1,0 +1,12 @@
+{
+  "method": "Final paired comparison reuses exact independently emitted and validated release binaries from first and last slice; no code rewriting or recompilation",
+  "baseline_provenance": "/Users/christian/Cilica/artifacts/direct-control-flow-20261020/native/provenance.json",
+  "candidate_provenance": "/Users/christian/Cilica/artifacts/character-construction-20261020/native/provenance.json",
+  "hashes": {
+    "candidate": "378ae64ab6f3d952177a842beca89e7ff3022abd83254921cd78cbaff6abbcb9",
+    "expected.json": "1a816a2d4476db245185516dabf0a5777ad978d519373b5f1a618b785a5f8592",
+    "candidate.cpp": "f13c98b396dba6d1c31cb5a0c631991af39845d91ccab2f06057753da3aa48c1",
+    "baseline": "bd44556ca23847e64b0f6549f2a479f803dc1ebccfd191bf29c4bc46bc29c574",
+    "baseline.cpp": "43ff2f65a8d89cebe42c4eb3a0b99e573a84ca4d47d784f92b2709453d2674a9"
+  }
+}

@@ -62,7 +62,7 @@ namespace System
         // Adapted from pinned Char.ToString/CreateFromChar; see provenance.json.
         // Existing string construction preserves fresh identity and UTF-16 units.
         public override readonly string ToString() => ToString(this);
-        public static string ToString(char value) => new string(new[] { value });
+        public static string ToString(char value) => Cilica.Runtime.StringConstruction.FromCharacter(value);
     }
     public struct SByte { }
     public struct Byte { }

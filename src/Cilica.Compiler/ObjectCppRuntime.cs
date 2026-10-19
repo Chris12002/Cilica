@@ -426,6 +426,11 @@ struct RootScope {
     if (array->length == 0) return string_literal(context, descriptor, 0, nullptr, 0);
     return allocate_string(context, descriptor, nullptr, array->length, nullptr, 0, nullptr, 0, nullptr, 0, array->integers);
 }
+// The UTF-16 value is native scalar storage and remains valid across collection.
+[[maybe_unused, gnu::noinline]] static Object* string_from_character(Context& context, const Descriptor& descriptor, std::uint32_t character) noexcept {
+    const auto unit = static_cast<std::uint16_t>(character);
+    return allocate_string(context, descriptor, &unit, 1, nullptr, 0);
+}
 // Private bounded decimal cache. Formatting stays in managed code; publication
 // copies its text so numeric cache identity never aliases a string literal.
 [[maybe_unused, gnu::noinline]] static Object* integer_text_find(Context& context, const Descriptor& descriptor, std::uint32_t index) noexcept {

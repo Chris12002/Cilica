@@ -203,6 +203,8 @@ internal static class IrValidator
                                 && objectRules.StringOperand(text.Left, valueTypes) && objectRules.StringOperand(text.Right, valueTypes),
                             IrExpression.StringFromCodeUnits text => types.IntegerCasts && objectRules is not null && value.Type == objectRules.StringType
                                 && Earlier(text.Array) && types.Assignable(valueTypes[text.Array], IrType.Reference(ObjectTypeId.Vector(catalog!.ObjectBase, ObjectArrayElement.Int32))),
+                            IrExpression.StringFromCharacter text => types.IntegerCasts && objectRules is not null && value.Type == objectRules.StringType
+                                && Earlier(text.Character) && valueTypes[text.Character] == IrType.Int32,
                             IrExpression.StringConcat text => objectRules is not null && value.Type == objectRules.StringType
                                 && objectRules.StringOperand(text.Left, valueTypes) && objectRules.StringOperand(text.Right, valueTypes),
                             IrExpression.EmptyArray a => types.IntegerCasts && objectRules is not null && objectRules.ArrayAllocation(method, a.ArrayType, value.ILOffset)
@@ -263,7 +265,7 @@ internal static class IrValidator
                             _ => false,
                         }, "expression, parameter or operand is invalid.");
                         bool throwing = value.Expression is IrExpression.NewException or IrExpression.InitializeExceptionMessage or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionObjectName or IrExpression.ExceptionParameterName or IrExpression.NewDelegate or IrExpression.CallDelegate or IrExpression.Call or IrExpression.NewObject or IrExpression.LoadStatic or IrExpression.AddressStatic or IrExpression.LoadField
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectClone or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectClone or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringFromCharacter or IrExpression.StringConcat
                             or IrExpression.CastClass or IrExpression.IsInstance or IrExpression.NewArray or IrExpression.EmptyArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement
                             or IrExpression.AddressField or IrExpression.AddressElement or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.BoxValue or IrExpression.UnboxValue or IrExpression.UnboxLocation

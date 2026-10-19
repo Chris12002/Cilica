@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v125";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v126";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -514,6 +514,8 @@ public static class ValueTranslator
                         case "call" when method.Intrinsics.TryGetValue(offset, out var stringConstruction) && stringConstruction.Kind == ValueIntrinsic.StringFromCodeUnits:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringFromCodeUnits(
                                 Pop(offset, IrType.Reference(ObjectTypeId.Vector(objectBase, ObjectArrayElement.Int32)))), true); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var characterConstruction) && characterConstruction.Kind == ValueIntrinsic.StringFromCharacter:
+                            Push(offset, IrType.Reference(stringType!), new IrExpression.StringFromCharacter(Pop(offset, IrType.Int32)), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var cache) && cache.Kind is ValueIntrinsic.IntegerTextFind or ValueIntrinsic.IntegerTextPublish:
                             int cacheText = cache.Kind == ValueIntrinsic.IntegerTextPublish ? Pop(offset, IrType.Reference(stringType!)) : -1;
                             int cacheIndex = Pop(offset, IrType.Int32);

@@ -1,0 +1,201 @@
+0000000100015578 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)>:
+100015578: b9404808    	ldr	w8, [x0, #0x48]
+10001557c: 34000068    	cbz	w8, 0x100015588 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x10>
+100015580: d2800000    	mov	x0, #0x0                ; =0
+100015584: d65f03c0    	ret
+100015588: a9bc5ff8    	stp	x24, x23, [sp, #-0x40]!
+10001558c: a90157f6    	stp	x22, x21, [sp, #0x10]
+100015590: a9024ff4    	stp	x20, x19, [sp, #0x20]
+100015594: a9037bfd    	stp	x29, x30, [sp, #0x30]
+100015598: 9100c3fd    	add	x29, sp, #0x30
+10001559c: f9402808    	ldr	x8, [x0, #0x50]
+1000155a0: b40001e8    	cbz	x8, 0x1000155dc <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x64>
+1000155a4: 528000c9    	mov	w9, #0x6                ; =6
+1000155a8: b9004809    	str	w9, [x0, #0x48]
+1000155ac: d0000149    	adrp	x9, 0x10003f000 <initialization_message(Context&, ExceptionObject*)::suffix+0xc>
+1000155b0: 911b6129    	add	x9, x9, #0x6d8
+1000155b4: f9002c09    	str	x9, [x0, #0x58]
+1000155b8: b0000149    	adrp	x9, 0x10003e000 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600007b_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb(Context&, LocationArgument const*)+0x284>
+1000155bc: fd438520    	ldr	d0, [x9, #0x708]
+1000155c0: fd003000    	str	d0, [x0, #0x60]
+1000155c4: d2800000    	mov	x0, #0x0                ; =0
+1000155c8: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+1000155cc: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+1000155d0: a94157f6    	ldp	x22, x21, [sp, #0x10]
+1000155d4: a8c45ff8    	ldp	x24, x23, [sp], #0x40
+1000155d8: d65f03c0    	ret
+1000155dc: f9400808    	ldr	x8, [x0, #0x10]
+1000155e0: b40000a8    	cbz	x8, 0x1000155f4 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x7c>
+1000155e4: f101011f    	cmp	x8, #0x40
+1000155e8: 540002c3    	b.lo	0x100015640 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0xc8>
+1000155ec: 52800109    	mov	w9, #0x8                ; =8
+1000155f0: 17ffffee    	b	0x1000155a8 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x30>
+1000155f4: aa0103f3    	mov	x19, x1
+1000155f8: aa0003f4    	mov	x20, x0
+1000155fc: 97ffaf4c    	bl	0x10000132c <prepare_exceptions(Context&)>
+100015600: 34000160    	cbz	w0, 0x10001562c <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0xb4>
+100015604: aa0003e8    	mov	x8, x0
+100015608: d2800000    	mov	x0, #0x0                ; =0
+10001560c: b9004a88    	str	w8, [x20, #0x48]
+100015610: d0000148    	adrp	x8, 0x10003f000 <initialization_message(Context&, ExceptionObject*)::suffix+0xc>
+100015614: 911b6108    	add	x8, x8, #0x6d8
+100015618: f9002e88    	str	x8, [x20, #0x58]
+10001561c: b0000148    	adrp	x8, 0x10003e000 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600007b_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb(Context&, LocationArgument const*)+0x284>
+100015620: fd438500    	ldr	d0, [x8, #0x708]
+100015624: fd003280    	str	d0, [x20, #0x60]
+100015628: 17ffffe8    	b	0x1000155c8 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x50>
+10001562c: aa1403e0    	mov	x0, x20
+100015630: f9400a88    	ldr	x8, [x20, #0x10]
+100015634: aa1303e1    	mov	x1, x19
+100015638: f101011f    	cmp	x8, #0x40
+10001563c: 54fffd82    	b.hs	0x1000155ec <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x74>
+100015640: f9401c15    	ldr	x21, [x0, #0x38]
+100015644: f9401408    	ldr	x8, [x0, #0x28]
+100015648: eb150109    	subs	x9, x8, x21
+10001564c: 54000062    	b.hs	0x100015658 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0xe0>
+100015650: 52800129    	mov	w9, #0x9                ; =9
+100015654: 17ffffd5    	b	0x1000155a8 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x30>
+100015658: 4b1503ea    	neg	w10, w21
+10001565c: 92400953    	and	x19, x10, #0x7
+100015660: eb130129    	subs	x9, x9, x19
+100015664: 54ffff63    	b.lo	0x100015650 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0xd8>
+100015668: f107613f    	cmp	x9, #0x1d8
+10001566c: 54ffff23    	b.lo	0x100015650 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0xd8>
+100015670: f9401809    	ldr	x9, [x0, #0x30]
+100015674: b50001a9    	cbnz	x9, 0x1000156a8 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x130>
+100015678: f0000149    	adrp	x9, 0x100040000 <_strcmp+0x100040000>
+10001567c: f9400529    	ldr	x9, [x9, #0x8]
+100015680: aa0003f4    	mov	x20, x0
+100015684: aa0803e0    	mov	x0, x8
+100015688: aa0103f6    	mov	x22, x1
+10001568c: aa0903e1    	mov	x1, x9
+100015690: 9400a360    	bl	0x10003e410 <_strcmp+0x10003e410>
+100015694: aa1603e1    	mov	x1, x22
+100015698: aa0003e9    	mov	x9, x0
+10001569c: aa1403e0    	mov	x0, x20
+1000156a0: f9001a89    	str	x9, [x20, #0x30]
+1000156a4: b4fffd69    	cbz	x9, 0x100015650 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0xd8>
+1000156a8: 8b1302a8    	add	x8, x21, x19
+1000156ac: 8b090113    	add	x19, x8, x9
+1000156b0: 6f00e400    	movi.2d	v0, #0000000000000000
+1000156b4: aa1303f6    	mov	x22, x19
+1000156b8: 3c828ec0    	str	q0, [x22, #0x28]!
+1000156bc: f9002e7f    	str	xzr, [x19, #0x58]
+1000156c0: b900627f    	str	wzr, [x19, #0x60]
+1000156c4: 3c838260    	stur	q0, [x19, #0x38]
+1000156c8: 3c845260    	stur	q0, [x19, #0x45]
+1000156cc: 9104e269    	add	x9, x19, #0x138
+1000156d0: f900b27f    	str	xzr, [x19, #0x160]
+1000156d4: b9016a7f    	str	wzr, [x19, #0x168]
+1000156d8: f900ca7f    	str	xzr, [x19, #0x190]
+1000156dc: b9019a7f    	str	wzr, [x19, #0x198]
+1000156e0: 3906727f    	strb	wzr, [x19, #0x19c]
+1000156e4: b901a27f    	str	wzr, [x19, #0x1a0]
+1000156e8: 9106a26a    	add	x10, x19, #0x1a8
+1000156ec: ad000260    	stp	q0, q0, [x19]
+1000156f0: b900227f    	str	wzr, [x19, #0x20]
+1000156f4: a9077e7f    	stp	xzr, xzr, [x19, #0x70]
+1000156f8: f900367f    	str	xzr, [x19, #0x68]
+1000156fc: b900827f    	str	wzr, [x19, #0x80]
+100015700: b901327f    	str	wzr, [x19, #0x130]
+100015704: ad088260    	stp	q0, q0, [x19, #0x110]
+100015708: ad078260    	stp	q0, q0, [x19, #0xf0]
+10001570c: ad068260    	stp	q0, q0, [x19, #0xd0]
+100015710: ad058260    	stp	q0, q0, [x19, #0xb0]
+100015714: ad048260    	stp	q0, q0, [x19, #0x90]
+100015718: ad000120    	stp	q0, q0, [x9]
+10001571c: f801d13f    	stur	xzr, [x9, #0x1d]
+100015720: a917fe7f    	stp	xzr, xzr, [x19, #0x178]
+100015724: b9018a7f    	str	wzr, [x19, #0x188]
+100015728: f900ba7f    	str	xzr, [x19, #0x170]
+10001572c: ad000140    	stp	q0, q0, [x10]
+100015730: 91076108    	add	x8, x8, #0x1d8
+100015734: f9001c08    	str	x8, [x0, #0x38]
+100015738: f9402009    	ldr	x9, [x0, #0x40]
+10001573c: eb09011f    	cmp	x8, x9
+100015740: 54000049    	b.ls	0x100015748 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x1d0>
+100015744: f9002008    	str	x8, [x0, #0x40]
+100015748: 9101c277    	add	x23, x19, #0x70
+10001574c: a940a408    	ldp	x8, x9, [x0, #0x8]
+100015750: a9005e68    	stp	x8, x23, [x19]
+100015754: 52800028    	mov	w8, #0x1                ; =1
+100015758: a9010668    	stp	x8, x1, [x19, #0x10]
+10001575c: 91000528    	add	x8, x9, #0x1
+100015760: a900a013    	stp	x19, x8, [x0, #0x8]
+100015764: b9400028    	ldr	w8, [x1]
+100015768: b9007a68    	str	w8, [x19, #0x78]
+10001576c: b9404809    	ldr	w9, [x0, #0x48]
+100015770: 350000c9    	cbnz	w9, 0x100015788 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x210>
+100015774: b9019a7f    	str	wzr, [x19, #0x198]
+100015778: 12003d01    	and	w1, w8, #0xffff
+10001577c: 290f8668    	stp	w8, w1, [x19, #0x7c]
+100015780: b9404808    	ldr	w8, [x0, #0x48]
+100015784: 34000268    	cbz	w8, 0x1000157d0 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x258>
+100015788: aa0003f4    	mov	x20, x0
+10001578c: aa1303e1    	mov	x1, x19
+100015790: 97ffce75    	bl	0x100009164 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060003e3_steps::dispatch_exception(Context&, cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060003e3_storage*)>
+100015794: aa1403e0    	mov	x0, x20
+100015798: f9401669    	ldr	x9, [x19, #0x28]
+10001579c: f9400c08    	ldr	x8, [x0, #0x18]
+1000157a0: b4000308    	cbz	x8, 0x100015800 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x288>
+1000157a4: 5280082a    	mov	w10, #0x41              ; =65
+1000157a8: 14000003    	b	0x1000157b4 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x23c>
+1000157ac: f9400108    	ldr	x8, [x8]
+1000157b0: b4000288    	cbz	x8, 0x100015800 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x288>
+1000157b4: f100054a    	subs	x10, x10, #0x1
+1000157b8: 54000240    	b.eq	0x100015800 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x288>
+1000157bc: f940050b    	ldr	x11, [x8, #0x8]
+1000157c0: eb13017f    	cmp	x11, x19
+1000157c4: 54ffff41    	b.ne	0x1000157ac <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x234>
+1000157c8: f900051f    	str	xzr, [x8, #0x8]
+1000157cc: 17fffff8    	b	0x1000157ac <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x234>
+1000157d0: aa0003f4    	mov	x20, x0
+1000157d4: 940001d0    	bl	0x100015f14 <string_from_character(Context&, Descriptor const&, unsigned int)>
+1000157d8: aa0003e8    	mov	x8, x0
+1000157dc: aa1403e0    	mov	x0, x20
+1000157e0: f90002e8    	str	x8, [x23]
+1000157e4: b9404a8a    	ldr	w10, [x20, #0x48]
+1000157e8: b40001a8    	cbz	x8, 0x10001581c <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x2a4>
+1000157ec: 35fffcea    	cbnz	w10, 0x100015788 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x210>
+1000157f0: aa0803e9    	mov	x9, x8
+1000157f4: f90002c8    	str	x8, [x22]
+1000157f8: f9400c08    	ldr	x8, [x0, #0x18]
+1000157fc: b5fffd48    	cbnz	x8, 0x1000157a4 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x22c>
+100015800: f9400268    	ldr	x8, [x19]
+100015804: f940080a    	ldr	x10, [x0, #0x10]
+100015808: d100054a    	sub	x10, x10, #0x1
+10001580c: a900a808    	stp	x8, x10, [x0, #0x8]
+100015810: f9001c15    	str	x21, [x0, #0x38]
+100015814: aa0903e0    	mov	x0, x9
+100015818: 17ffff6c    	b	0x1000155c8 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x50>
+10001581c: 528000a8    	mov	w8, #0x5                ; =5
+100015820: 7100015f    	cmp	w10, #0x0
+100015824: 1a8a0108    	csel	w8, w8, w10, eq
+100015828: b9004808    	str	w8, [x0, #0x48]
+10001582c: d0000148    	adrp	x8, 0x10003f000 <initialization_message(Context&, ExceptionObject*)::suffix+0xc>
+100015830: 911b6108    	add	x8, x8, #0x6d8
+100015834: f9002c08    	str	x8, [x0, #0x58]
+100015838: b0000148    	adrp	x8, 0x10003e000 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600007b_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb(Context&, LocationArgument const*)+0x284>
+10001583c: fd438900    	ldr	d0, [x8, #0x710]
+100015840: fd003000    	str	d0, [x0, #0x60]
+100015844: 17ffffd1    	b	0x100015788 <cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3(Context&, LocationArgument const*)+0x210>
+
+0000000100015f14 <string_from_character(Context&, Descriptor const&, unsigned int)>:
+100015f14: d10083ff    	sub	sp, sp, #0x20
+100015f18: a9017bfd    	stp	x29, x30, [sp, #0x10]
+100015f1c: 910043fd    	add	x29, sp, #0x10
+100015f20: 781fe3a1    	sturh	w1, [x29, #-0x2]
+100015f24: f90003ff    	str	xzr, [sp]
+100015f28: 90000161    	adrp	x1, 0x100041000 <t_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_02000099_descriptor+0x58>
+100015f2c: 912e2021    	add	x1, x1, #0xb88
+100015f30: d1000ba2    	sub	x2, x29, #0x2
+100015f34: 52800023    	mov	w3, #0x1                ; =1
+100015f38: d2800004    	mov	x4, #0x0                ; =0
+100015f3c: 52800005    	mov	w5, #0x0                ; =0
+100015f40: d2800006    	mov	x6, #0x0                ; =0
+100015f44: 52800007    	mov	w7, #0x0                ; =0
+100015f48: 97ffc746    	bl	0x100007c60 <allocate_string(Context&, Descriptor const&, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned int const*)>
+100015f4c: a9417bfd    	ldp	x29, x30, [sp, #0x10]
+100015f50: 910083ff    	add	sp, sp, #0x20
+100015f54: d65f03c0    	ret
+
