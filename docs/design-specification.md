@@ -376,6 +376,14 @@ spills, so target native-stack measurements are part of this checkpoint.
 The separate primitive backend retains its earlier storage model. No collector,
 performance or additional target guarantee follows from execution frames.
 
+Native v92 adds a direct path for structurally proven field getters
+([ADR 0198](decisions/0198-proven-leaf-field-getters.md)). Valid nested calls read
+one scalar/reference field without reserving an execution frame or publishing
+duplicate roots. They cannot allocate or call managed code, and caller roots
+retain receivers/results. Cold entry, exceptional states and failed checks retain
+the original framed path and fault ordering. A valid leaf read can now succeed
+without spare arena capacity; the existing depth boundary remains checked.
+
 The object boundary now uses a fixed-size native signature with an Int32 input
 pointer and exact element count, including for wide managed entry methods
 ([ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md)). Its

@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v91";
+    public const string Profile = "object-frames-native-v92";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -425,9 +425,9 @@ public static class ObjectCppEmitter
         if (module is not null) { module.AddBoundary(resultText); resultText = string.Empty; }
         return new(entry.Source, symbol + "_try", resultText) { FaultEntryPoint = symbol + "_try", MayThrow = true };
 
-        void Header(IrMethod method)
+        void Header(IrMethod method, string suffix = "")
         {
-            text.Append(module is null ? "[[maybe_unused]] static " : "[[maybe_unused]] ").Append(CType(method.ReturnType)).Append(' ').Append(CppEmitter.Symbol(IrMethodId.From(method.Source)))
+            text.Append(suffix.Length != 0 ? "[[maybe_unused, gnu::noinline]] static " : module is null ? "[[maybe_unused]] static " : "[[maybe_unused]] ").Append(CType(method.ReturnType)).Append(' ').Append(CppEmitter.Symbol(IrMethodId.From(method.Source))).Append(suffix)
                 .Append("([[maybe_unused]] Context& context, [[maybe_unused]] const ").Append(argumentType).Append("* arguments) noexcept");
         }
 
@@ -436,6 +436,7 @@ public static class ObjectCppEmitter
         void AppendMethod(IrMethod method)
         {
             var layout = layouts[IrMethodId.From(method.Source)];
+            var leafField = ObjectCppLeafMethods.FieldGetter(method);
             int currentBlock = 0;
 
             var output = text;
@@ -931,7 +932,7 @@ public static class ObjectCppEmitter
             code.Append("static constexpr std::uint32_t (*table[])(Context&, ").Append(FrameType(method)).Append("*) noexcept = {")
                 .Append(string.Join(", ", Enumerable.Range(0, steps.Count).Select(i => "s" + N(i)))).Append("};\n}\n");
             inStep = false;
-            Header(method); code.Append(" {\n");
+            Header(method, leafField is null ? "" : "_framed"); code.Append(" {\n");
             if (handlers)
             {
                 code.Append("    if (context.pending != 0u) ").Append(Exit()).Append('\n');
@@ -961,6 +962,24 @@ public static class ObjectCppEmitter
                     IrTypeKind.Int64 => "return std::bit_cast<std::int64_t>(f->result.wide_bits);",
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
+            if (leafField is { } selectedField)
+            {
+                Header(method); code.Append(" {\n    // Proven leaf getter: no allocation, managed call or escaping borrow.\n")
+                    .Append("    if (context.depth != 0u && context.depth < 64u && context.pending == 0u && context.exception == nullptr) {\n")
+                    .Append("        Object* receiver = arguments[0].reference;\n")
+                    .Append("        if (receiver != nullptr && internal_reference_owned(context.instance, receiver)");
+                foreach (var type in new[] { method.Parameters[0].Class!, selectedField.Owner }.Distinct())
+                    if (type != program.Flow.Types.ObjectBase)
+                        code.Append(" && ").Append(Predicate(type)).Append("(receiver->type)");
+                string load = "*static_cast<" + StorageType(fields[selectedField].Storage) + "*>(field_address(receiver, " + N(native.Indices[selectedField]) + "))";
+                code.Append(") {\n            return ").Append(method.ReturnType.Kind switch
+                {
+                    IrTypeKind.Int32 => "std::bit_cast<std::int32_t>(" + load + ")",
+                    IrTypeKind.Int64 => "std::bit_cast<std::int64_t>(" + load + ")",
+                    _ => load,
+                }).Append(";\n        }\n    }\n    return ")
+                    .Append(CppEmitter.Symbol(IrMethodId.From(method.Source))).Append("_framed(context, arguments);\n}\n");
+            }
             void Edge(IrEdge edge)
             {
                 // Inputs and source values have distinct slots, including on self edges.

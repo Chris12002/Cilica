@@ -34,6 +34,14 @@ outside the managed quota. Object headers, public ABI and managed capabilities
 are unchanged. This supersedes the historical allocation-free/list-scan marking
 implementation below; standalone visitors remain allocation-free.
 
+Leaf getter update (2026-10-20,
+[ADR 0198](decisions/0198-proven-leaf-field-getters.md)): native v92 emits a direct
+path for validated single-field reads on normal nested calls. Caller roots suffice
+because this path cannot allocate or call managed code. It consumes no execution
+arena storage; failed checks and cold entry retain the original framed behavior.
+Null/type diagnostics, inherited-field provenance, fault origins and public boundary
+checks remain. Managed layouts, IR profiles, grants and the public ABI do not change.
+
 Milestone 6 completion used `integer-managed-objects-cil-v2`,
 `object-layout-v13`, `object-operations-ir-v14`, `scalar-location-ir-v2`,
 `value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v3`,

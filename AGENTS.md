@@ -109,6 +109,11 @@ inventory validation. Native scratch failure falls back to the checked list;
 disable the index before reporting/sweeping and all exits. It is never a root or
 permission to trust arbitrary headers. Native v91; see ADR 0197.
 
+Native v92 skips callee frame/step execution for proven single-field getters on
+valid nested calls. The path cannot allocate or call managed code; caller roots
+retain its references. Cold/fault paths stay framed. Preserve this structural
+proof when extending the optimization; see ADR 0198.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.
