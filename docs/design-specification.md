@@ -784,6 +784,14 @@ and reject stale host handles. Later generational collection, write barriers
 and root-liveness improvements must pass the same stress suite. Finalizers,
 weak references and concurrent collection are separately staged features.
 
+Allocation root verification is now separate from ordinary execution
+([ADR 0195](decisions/0195-allocation-root-verification.md)). Generated C++ defaults
+`CILICA_VERIFY_ALLOCATION_ROOTS` to 0; set it to 1 at native compilation to scan
+all published roots before each allocation. A private allocation observer also
+enables that scan before delivery. Both modes retain identical root publication,
+collection validation and public handle checks. Normal allocation no longer
+promises immediate detection of deliberately corrupted private root slots.
+
 ## 9. Exceptions
 
 The primitive profile currently propagates division/remainder and checked-arithmetic faults

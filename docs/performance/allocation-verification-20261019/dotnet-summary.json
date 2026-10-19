@@ -1,0 +1,33 @@
+{
+  "median_ns": 5105.70068359375,
+  "min_ns": 5028.6865234375,
+  "max_ns": 5281.866455078125,
+  "samples": 21,
+  "command": [
+    "dotnet",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+    "measure",
+    "0",
+    "32768"
+  ],
+  "env": {
+    "DOTNET_TieredCompilation": "0",
+    "DOTNET_ReadyToRun": "0"
+  },
+  "host_sha256": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9",
+  "assembly_sha256": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+  "runtime_config": {
+    "runtimeOptions": {
+      "tfm": "net10.0",
+      "framework": {
+        "name": "Microsoft.NETCore.App",
+        "version": "10.0.0"
+      },
+      "configProperties": {
+        "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
+        "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
+      }
+    }
+  },
+  "runtimes": "Microsoft.AspNetCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.AspNetCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.NETCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\nMicrosoft.NETCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\n"
+}

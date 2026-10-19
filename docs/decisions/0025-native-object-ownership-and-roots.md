@@ -8,6 +8,9 @@ optimization. [The current performance priority](../design-specification.md#curr
 requires reviewing expensive internal verification separately from managed
 semantics and public boundary guarantees. The checks remain implemented until
 a reviewed change establishes their replacement or diagnostic-only role.
+[ADR 0195](0195-allocation-root-verification.md) subsequently moves the full
+pre-allocation root scan into explicit verification mode or private observation;
+the original decision below records the historical checkpoint.
 
 ## Context
 

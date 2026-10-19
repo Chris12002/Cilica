@@ -85,7 +85,7 @@ public sealed class NativeObjectExecutionTests(ITestOutputHelper output)
         source.Append("  { using namespace ").Append(firstScope).Append("; Instance a, b; Context ca(a), cb(b); Object* p = allocate<").Append(nodeType).Append(">(ca, ").Append(nodeType).Append("_descriptor);\n")
             .Append("    assert(").Append(change).Append("(cb, p, 1) == 0 && cb.pending == 6u && cb.top == nullptr && cb.depth == 0 && b.count == 0);\n")
             .Append("    Context invalid(b); assert(").Append(change).Append("(invalid, reinterpret_cast<Object*>(std::uintptr_t{1}), 1) == 0 && invalid.pending == 6u && invalid.top == nullptr);\n")
-            .Append("    Context poisoned(b); Object* slots[] = {p}; { Frame header; RootScope frame(poisoned, header, slots, 1); assert(!valid_roots(poisoned));\n")
+            .Append("    Context poisoned(b); poisoned.observe = inspect; Object* slots[] = {p}; { Frame header; RootScope frame(poisoned, header, slots, 1); assert(!valid_roots(poisoned));\n")
             .Append("      assert(allocate<").Append(nodeType).Append(">(poisoned, ").Append(nodeType).Append("_descriptor) == nullptr && poisoned.pending == 6u && b.count == 0); } assert(poisoned.top == nullptr); }\n");
         for (int i = 0; i < artifacts.Length; i++)
         {

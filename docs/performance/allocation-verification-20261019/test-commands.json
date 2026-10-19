@@ -1,0 +1,34 @@
+[
+  [
+    "dotnet",
+    "test",
+    "tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj",
+    "--no-restore",
+    "--filter",
+    "FullyQualifiedName~NativeAllocationVerificationTests",
+    "-v",
+    "minimal"
+  ],
+  [
+    "dotnet",
+    "test",
+    "tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj",
+    "--no-build",
+    "--no-restore",
+    "--filter",
+    "FullyQualifiedName~NativeObjectExecutionTests|FullyQualifiedName~NativeTracingTests|FullyQualifiedName~NativeArrayTests|FullyQualifiedName~NativeStringTests|FullyQualifiedName~EmbeddingHandleTests|FullyQualifiedName~CoreLibraryBuildTests.Built_core|FullyQualifiedName~NativeValueArrayTests|FullyQualifiedName~NativeBoxedPayloadTests|FullyQualifiedName~NativeFrameBudgetTests",
+    "-v",
+    "minimal"
+  ],
+  [
+    "dotnet",
+    "test",
+    "tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj",
+    "--no-build",
+    "--no-restore",
+    "--filter",
+    "FullyQualifiedName~StaticStorageTests|FullyQualifiedName~TypeInitializationExceptionTests|FullyQualifiedName~NativeExceptionRuntimeTests",
+    "-v",
+    "minimal"
+  ]
+]

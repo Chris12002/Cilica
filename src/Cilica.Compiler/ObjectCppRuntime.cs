@@ -5,6 +5,12 @@ internal static class ObjectCppRuntime
 {
     // Define once even when several independently emitted closures share a TU.
     internal const string DiagnosticIncludes = """
+#ifndef CILICA_VERIFY_ALLOCATION_ROOTS
+#define CILICA_VERIFY_ALLOCATION_ROOTS 0
+#endif
+#if CILICA_VERIFY_ALLOCATION_ROOTS != 0 && CILICA_VERIFY_ALLOCATION_ROOTS != 1
+#error CILICA_VERIFY_ALLOCATION_ROOTS must be 0 or 1
+#endif
 #ifndef CILICA_ARENA_ASAN
 #if defined(__SANITIZE_ADDRESS__)
 #define CILICA_ARENA_ASAN 1
@@ -288,6 +294,16 @@ struct RootScope {
             if (!context.instance.owns(f->slots[i])) return false;
     return true;
 }
+// Compiler-published roots remain registered in every build. A full ownership
+// scan diagnoses runtime corruption; collection validates its own root walk.
+// Private observers retain validation before delivery, even in normal builds.
+[[maybe_unused]] static bool allocation_safepoint(Context& context) noexcept {
+    if ((CILICA_VERIFY_ALLOCATION_ROOTS || context.observe != nullptr) && !valid_roots(context)) {
+        context.pending = 6u; return false;
+    }
+    if (context.observe != nullptr) context.observe(context);
+    return true;
+}
 [[maybe_unused]] static bool collect_for_allocation(Context&, bool&) noexcept;
 [[maybe_unused]] static bool allocation_room(Context&, std::size_t, bool&) noexcept;
 // Buffers are filled before publication and exposed only through const units.
@@ -295,8 +311,7 @@ struct RootScope {
 [[maybe_unused, gnu::noinline]] static Object* allocate_string(Context& context, const Descriptor& descriptor,
     const std::uint16_t* left, std::uint32_t first, const std::uint16_t* right, std::uint32_t second,
     const std::uint16_t* extra = nullptr, std::uint32_t third = 0, const std::uint16_t* tail = nullptr, std::uint32_t fourth = 0, const std::uint32_t* code_units = nullptr) noexcept {
-    if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
-    if (context.observe != nullptr) context.observe(context);
+    if (!allocation_safepoint(context)) return nullptr;
     Instance& heap = context.instance;
     if (first > 0x7fffffffu || second > 0x7fffffffu - first) return nullptr;
     if (third > 0x7fffffffu - first - second || fourth > 0x7fffffffu - first - second - third) return nullptr;
@@ -391,8 +406,7 @@ struct RootScope {
     return result;
 }
 template<class T> static Object* allocate(Context& context, const Descriptor& descriptor) noexcept {
-    if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
-    if (context.observe != nullptr) context.observe(context);
+    if (!allocation_safepoint(context)) return nullptr;
     Instance& heap = context.instance;
     bool attempted = false;
     for (;;) {
@@ -451,8 +465,7 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
 [[maybe_unused, gnu::noinline]] static Object* allocate_array(Context& context, const Descriptor& descriptor, std::uint32_t length) noexcept {
     if (!known_type(&descriptor) || descriptor.array_kind == 0) { context.pending = 6u; return nullptr; }
     if (length > 0x7fffffffu) { context.pending = 2u; return nullptr; }
-    if (!valid_roots(context)) { context.pending = 6u; return nullptr; }
-    if (context.observe != nullptr) context.observe(context);
+    if (!allocation_safepoint(context)) return nullptr;
     Instance& heap = context.instance;
     const std::size_t stride = array_stride(descriptor);
     if (std::size_t{length} > (std::numeric_limits<std::size_t>::max() - sizeof(ArrayObject)) / stride) return nullptr;
@@ -487,8 +500,7 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
 [[maybe_unused, gnu::noinline]] static bool ensure_static_storage(Context& context) noexcept {
     if (context.instance.marking) { context.pending = 6; return false; }
     if (context.instance.statics != nullptr) return true;
-    if (!valid_roots(context)) { context.pending = 6; return false; }
-    if (context.observe != nullptr) context.observe(context);
+    if (!allocation_safepoint(context)) return false;
     constexpr auto charged = static_field_count * sizeof(StaticSlot);
     bool attempted = false;
     for (;;) {
@@ -502,8 +514,7 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
 [[maybe_unused, gnu::noinline]] static bool ensure_initialization_storage(Context& context) noexcept {
     if (context.instance.marking) { context.pending = 6; return false; }
     if (context.instance.initializers != nullptr) return true;
-    if (!valid_roots(context)) { context.pending = 6; return false; }
-    if (context.observe != nullptr) context.observe(context);
+    if (!allocation_safepoint(context)) return false;
     constexpr auto charged = type_initializer_count * sizeof(InitializationSlot);
     bool attempted = false;
     for (;;) {

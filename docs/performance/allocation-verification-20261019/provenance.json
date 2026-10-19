@@ -1,0 +1,77 @@
+{
+  "method": "Exact production allocation change replayed on retained generated C++; not full current-compiler DiffPlex emission",
+  "benchmark_compiler_revision": "49dd0b1",
+  "source_sha256": "4c5e4f743f67590ba849e3d0b91414b7229a09ee03f5bfab583c08550b5ae1da",
+  "checkout_revision": "f72a91a6e2502801d9ff5a87d2fe1ddd36bbdf7e",
+  "runtime_sha256": "0040c7fd3792c2eefcd8a6a79be134bbefe30656588922573d0374c552aa38a4",
+  "compiler": "Apple clang version 17.0.0 (clang-1700.4.4.1)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "commands": {
+    "baseline": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/allocation-verification-20261019/replay/baseline.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/allocation-verification-20261019/replay/baseline"
+    ],
+    "candidate": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/allocation-verification-20261019/replay/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/allocation-verification-20261019/replay/candidate"
+    ],
+    "verification": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DCILICA_VERIFY_ALLOCATION_ROOTS=1",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/allocation-verification-20261019/replay/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/allocation-verification-20261019/replay/verification"
+    ],
+    "sanitized": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/christian/Cilica/artifacts/allocation-verification-20261019/replay/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/allocation-verification-20261019/replay/sanitized"
+    ]
+  },
+  "hashes": {
+    "baseline.cpp": "0d02cbdb4f27bacb7d4a2b1065dd820e0d4678442289af0a92bf7fd25a0e0dbf",
+    "candidate.cpp": "a493713da40e7f7f49bcbed38612b32b40a7855feaba6ee1f9f02587471bef8e",
+    "baseline": "d1c1ef1b885936f1f71c588b4abb8e00d5dbca6e6d779c90fa7a2ac8599765f1",
+    "candidate": "9a878ba4d58000498f27eb6d3ec911f4a7416d08034316091771328d9ef0a653",
+    "verification": "aee4fcc030524cd52d3ea3b4197d6a32d2ac99155c1b7d5401252cfeec6fada6",
+    "sanitized": "3d3335384becaeae266b6991620168b05d8d57ee1d4e9cdcaeffdbc8972a58df",
+    "expected.json": "1a816a2d4476db245185516dabf0a5777ad978d519373b5f1a618b785a5f8592"
+  }
+}

@@ -1,0 +1,19 @@
+  Cilica.Library -> /Users/christian/Cilica/library/Cilica.Library/bin/Debug/netstandard2.1/Cilica.Library.dll
+  Cilica.Fixtures.ControlFlow -> /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.ControlFlow/bin/Debug/netstandard2.1/Cilica.Fixtures.ControlFlow.dll
+  Cilica.Fixtures.Basic -> /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Basic/bin/Debug/netstandard2.1/Cilica.Fixtures.Basic.dll
+  Cilica.Fixtures.Execution -> /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/bin/Debug/netstandard2.1/Cilica.Fixtures.Execution.dll
+  Cilica.Fixtures.Forwarding -> /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Forwarding/bin/Debug/netstandard2.1/Cilica.Fixtures.Forwarding.dll
+  Cilica.Metadata -> /Users/christian/Cilica/src/Cilica.Metadata/bin/Debug/net10.0/Cilica.Metadata.dll
+  Cilica.LibraryBuild -> /Users/christian/Cilica/tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll
+  Cilica.Compiler -> /Users/christian/Cilica/src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll
+  Cilica.Cli -> /Users/christian/Cilica/src/Cilica.Cli/bin/Debug/net10.0/cilica.dll
+  Kernel -> /Users/christian/Cilica/examples/Primitive/Kernel/bin/Debug/netstandard2.1/Cilica.Examples.Primitive.Kernel.dll
+  Kernel -> /Users/christian/Cilica/examples/Objects/Kernel/bin/Debug/netstandard2.1/Cilica.Examples.Objects.Kernel.dll
+  Emit -> /Users/christian/Cilica/examples/Objects/Emit/bin/Debug/net10.0/Cilica.Examples.Objects.Emit.dll
+  Prepare -> /Users/christian/Cilica/examples/Primitive/Prepare/bin/Debug/net10.0/Cilica.Examples.Primitive.Prepare.dll
+  Prepare -> /Users/christian/Cilica/examples/Objects/Prepare/bin/Debug/net10.0/Cilica.Examples.Objects.Prepare.dll
+  Cilica.Metadata.Tests -> /Users/christian/Cilica/tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll
+Test run for /Users/christian/Cilica/tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     4, Skipped:     0, Total:     4, Duration: 4 s - Cilica.Metadata.Tests.dll (net10.0)

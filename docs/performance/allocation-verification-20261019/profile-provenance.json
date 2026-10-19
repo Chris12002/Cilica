@@ -1,0 +1,7 @@
+{
+  "binary_sha256": "7fc364cb2130f0363b45ba0f8caf78da63c96e03ea8b66fbc7a460555e947918",
+  "flags": "-std=c++20 -O2 -g -DNDEBUG -fno-exceptions -fno-rtti -Wall -Wextra -Werror",
+  "sample_seconds": 3,
+  "interval_ms": 1,
+  "timing_claim": false
+}

@@ -6,6 +6,13 @@ the evidence and limits of earlier checkpoints; the current native profile retai
 at milestone 4, with bounded value/generic/delegate/exception capabilities documented
 separately. Historical checkpoint sections retain their original stage-specific limits.
 
+Allocation verification update (2026-10-19, [ADR 0195](decisions/0195-allocation-root-verification.md)):
+generated C++ defaults `CILICA_VERIFY_ALLOCATION_ROOTS` to 0. Set it to 1 to retain
+full pre-allocation root ownership scans. Private observers still receive checked
+roots in both modes. Root publication, GC validation and public handle validation
+remain active; immediate allocation-time rejection of corrupted private roots is
+a verification-mode guarantee. No public ABI or managed capability is added.
+
 Milestone 6 completion used `integer-managed-objects-cil-v2`,
 `object-layout-v13`, `object-operations-ir-v14`, `scalar-location-ir-v2`,
 `value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v3`,
