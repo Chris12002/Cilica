@@ -937,3 +937,13 @@ baseline. Roslyn receiver-replacement shapes that cross managed-location joins
 remain explicitly diagnostic. Integer CIL v58; object IR v41, native v67, layout
 v25 and limits unchanged. See ADR AC0140 and artifacts/alchemy-constrained-reference.
 Full engine/fingerprint execution and saved-game replay remain open.
+
+### Bounded shallow-clone copies (AC8.106)
+
+Clones above four scalar storage fields use noinline typed copy helpers with at
+most four assignments each; allocation/root/header rules remain unchanged.
+An owned 20-field regression reproduces the previous 2,672-byte O0 stack failure.
+All 33 focused clone/module/boxed checks pass, including 354 additional repeated
+native/.NET comparisons, O0/O2, forced GC, sanitizers and wide quota recovery.
+Native profile 90; managed profiles, grants and production limits are unchanged.
+See ADR AC0250. Full engine linking/execution and saved-game replay remain open.

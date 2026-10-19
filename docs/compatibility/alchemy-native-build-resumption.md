@@ -7,6 +7,11 @@ shallow-clone frame for `AlchemyGameEngine.PhysicalDamagePayload`, exceeding the
 2,048-byte guard. A separate reference-adapter gap is
 `String.Join(string,string[])`.
 
+Follow-up: [AC8.106](../decisions/AC0250-bounded-clone-field-copies.md) implements
+bounded clone-copy helpers and validates the owned regression. The sections
+below preserve the original investigation checkpoint and its proposed slices;
+the ADR and gap ledger record subsequent acceptance and engine compile evidence.
+
 ## Where the previous build stopped
 
 The AC8.105 build directory is

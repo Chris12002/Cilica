@@ -5186,3 +5186,20 @@ The old native consumer passes null state and tests its entry exception, not a
 game turn. Profiles, production quotas and the 46-control/one-gap public baseline
 are unchanged. See the [investigation](compatibility/alchemy-native-build-resumption.md)
 for reference locations, receipts, proposed slices and review limits.
+
+### Bounded shallow-clone field copies (AC8.106)
+
+Typed clones with more than four scalar storage fields use noinline copy helpers
+of at most four assignments. The owned ten-reference/ten-Int32 regression now
+passes the unchanged 2 KiB guard at O0 and O2; the previous emitter fails O0 with
+a 2,672-byte frame. Allocation, rooted source lifetime, payload copy order and
+fresh identity/ownership/collector headers are preserved. No new library members,
+grants, managed profiles or production quotas. Native profile becomes v90.
+
+All 33 focused checks pass, including 354 additional repeated native/.NET
+comparisons, forced GC, ASan/UBSan, wide quota recovery, inherited/value fields
+and separate native files. The existing 47-probe public baseline is unchanged
+and was not rerun in this slice. The frozen diagnostic engine is regenerated;
+full linking/execution and gameplay remain unverified. See [ADR AC0250](decisions/AC0250-bounded-clone-field-copies.md)
+for review and native tail evidence. String.Join(string,string[]) remains a
+separate reference-adapter gap.

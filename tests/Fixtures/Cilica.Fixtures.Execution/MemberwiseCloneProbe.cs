@@ -28,9 +28,49 @@ namespace Cilica.Fixtures.Execution
     { public T Item;public GenericClonePayload(T item) { Item=item; } public GenericClonePayload<T> Copy()=>(GenericClonePayload<T>)MemberwiseClone(); }
     public class OpenClonePayload
     { public OpenClonePayload Copy()=>(OpenClonePayload)MemberwiseClone(); }
+    public sealed class WideClonePayload
+    {
+        public CloneCell R0, R1, R2, R3, R4, R5, R6, R7, R8, R9;
+        public int I0, I1, I2, I3, I4, I5, I6, I7, I8, I9;
+        public WideClonePayload(int a,int b)
+        {
+            unchecked
+            {
+                R0=new CloneCell(a);R1=new CloneCell(a+1);R2=new CloneCell(a+2);R3=new CloneCell(a+3);R4=new CloneCell(a+4);
+                R5=new CloneCell(a+5);R6=new CloneCell(a+6);R7=new CloneCell(a+7);R8=new CloneCell(a+8);R9=new CloneCell(a+9);
+                I0=b;I1=b+1;I2=b+2;I3=b+3;I4=b+4;I5=b+5;I6=b+6;I7=b+7;I8=b+8;I9=b+9;
+            }
+        }
+        public WideClonePayload Copy()=>(WideClonePayload)MemberwiseClone();
+    }
     public static class MemberwiseCloneProbe
     {
         private static ClonePayload retained;
+        private static WideClonePayload retainedWide;
+        public static int WideQuota(int a,int b)
+        {
+            if(a<0) { retainedWide=null;return 0; }
+            if(a==0) { retainedWide=new WideClonePayload(b,b);return 1; }
+            return retainedWide.Copy().I0;
+        }
+        public static int WideFields(int a,int b)
+        {
+            var source=new WideClonePayload(a,b);var copy=source.Copy();
+            if(ReferenceEquals(source,copy) || !ReferenceEquals(source.R0,copy.R0) || !ReferenceEquals(source.R1,copy.R1)
+                || !ReferenceEquals(source.R2,copy.R2) || !ReferenceEquals(source.R3,copy.R3) || !ReferenceEquals(source.R4,copy.R4)
+                || !ReferenceEquals(source.R5,copy.R5) || !ReferenceEquals(source.R6,copy.R6) || !ReferenceEquals(source.R7,copy.R7)
+                || !ReferenceEquals(source.R8,copy.R8) || !ReferenceEquals(source.R9,copy.R9))return -1;
+            copy.I0=a;copy.R9.Number=b;
+            unchecked
+            {
+                int hash=source.I0;
+                hash=hash*31+copy.I0;hash=hash*31+copy.I1;hash=hash*31+copy.I2;hash=hash*31+copy.I3;hash=hash*31+copy.I4;
+                hash=hash*31+copy.I5;hash=hash*31+copy.I6;hash=hash*31+copy.I7;hash=hash*31+copy.I8;hash=hash*31+copy.I9;
+                hash=hash*31+copy.R0.Number;hash=hash*31+copy.R1.Number;hash=hash*31+copy.R2.Number;hash=hash*31+copy.R3.Number;
+                hash=hash*31+copy.R4.Number;hash=hash*31+copy.R5.Number;hash=hash*31+copy.R6.Number;hash=hash*31+copy.R7.Number;
+                hash=hash*31+copy.R8.Number;return hash*31+source.R9.Number;
+            }
+        }
         public static int Quota(int a,int b)
         {
             if(a<0) { retained=null;return 0; }

@@ -5247,3 +5247,19 @@ boxed-runtime 4; all managed profiles remain unchanged. See ADR AC0249.
 The full diagnostic EngineStep module emits 466,933,100 bytes and its native build
 has cleared the previous first-unit stack failure. Complete native execution,
 production application capacity and saved-game replay remain outstanding.
+
+### Bounded shallow-clone field copies (AC8.106)
+
+Clones with more than four scalar storage fields use noinline typed copy helpers
+with at most four assignments, reusing the existing copy-step bound. Allocation
+still precedes field reads; source roots and fresh destination headers are
+preserved. Helpers cannot allocate or call managed code. This removes an O0
+sanitizer stack failure without copying raw object representations or changing
+managed frames, admission, GC, ownership or resource quotas.
+
+The new 20-field reduction reproduces the previous 2,672-byte failure against the
+2 KiB guard. All 33 focused checks pass, including 354 additional repeated O0/O2
+native/.NET comparisons, separate translation units, wide allocation recovery,
+forced GC and ASan/UBSan. Native profile 90 is the only profile change. See
+[ADR AC0250](decisions/AC0250-bounded-clone-field-copies.md) for the Unity reference,
+review and frozen-module evidence; full native execution/replay remain open.

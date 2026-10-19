@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v89";
+    public const string Profile = "object-frames-native-v90";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -207,13 +207,28 @@ public static class ObjectCppEmitter
                 .Append(", ").Append(type).Append("_accessors.data(), field_by_offset, 0, nullptr, nullptr, nullptr, ").Append(type).Append("_storage.data() };\n");
             if (cloneTypes.Contains(composed.Key))
             {
+                // Sanitized O0 field access can spill for every assignment. Keep
+                // each copy helper small; no allocation/callback may occur here.
+                if (composed.Value.Length > CopiesPerStep)
+                    for (int offset = 0; offset < composed.Value.Length; offset += CopiesPerStep)
+                    {
+                        text.Append("[[gnu::noinline]] static void ").Append(type).Append("_clone_copy_").Append(N(offset / CopiesPerStep))
+                            .Append('(').Append(type).Append("* target, const ").Append(type).Append("* source) noexcept {\n");
+                        foreach (var field in composed.Value.Skip(offset).Take(CopiesPerStep))
+                            text.Append("    target->").Append(Member(field)).Append(" = source->").Append(Member(field)).Append(";\n");
+                        text.Append("}\n");
+                    }
                 text.Append("[[maybe_unused, gnu::noinline]] static Object* ").Append(type).Append("_clone(Context& context, Object* original) noexcept {\n")
                     .Append("    Object* created = allocate<").Append(type).Append(">(context, ").Append(type).Append("_descriptor);\n")
                     .Append("    if (created == nullptr) return nullptr;\n")
                     .Append("    [[maybe_unused]] auto* source = reinterpret_cast<").Append(type).Append("*>(original);\n")
                     .Append("    [[maybe_unused]] auto* target = reinterpret_cast<").Append(type).Append("*>(created);\n");
-                foreach (var field in composed.Value)
-                    text.Append("    target->").Append(Member(field)).Append(" = source->").Append(Member(field)).Append(";\n");
+                if (composed.Value.Length > CopiesPerStep)
+                    for (int offset = 0; offset < composed.Value.Length; offset += CopiesPerStep)
+                        text.Append("    ").Append(type).Append("_clone_copy_").Append(N(offset / CopiesPerStep)).Append("(target, source);\n");
+                else
+                    foreach (var field in composed.Value)
+                        text.Append("    target->").Append(Member(field)).Append(" = source->").Append(Member(field)).Append(";\n");
                 text.Append("    return created;\n}\n");
             }
         }
