@@ -1,5 +1,8 @@
 # Allocation root verification: first performance slice
 
+Historical retained-code replay. Use the
+[fresh latest-compiler result](latest-diffplex-20261019.md) for current performance decisions.
+
 Measured 2026-10-19 on Apple M4 Pro, macOS 15.7.3 ARM64, Apple Clang 17.
 The runtime change is [ADR 0195](../decisions/0195-allocation-root-verification.md).
 

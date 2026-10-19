@@ -1,0 +1,15 @@
+{
+  "baseline": {
+    "median_ns": 143511182.25,
+    "min_ns": 120395489.5,
+    "max_ns": 164282807.25,
+    "samples": 21
+  },
+  "candidate": {
+    "median_ns": 15350479.25,
+    "min_ns": 13263083.375,
+    "max_ns": 16251203.125,
+    "samples": 21
+  },
+  "speedup": 9.34897079841986
+}

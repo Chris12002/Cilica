@@ -1,0 +1,15 @@
+{
+  "base_branch": "codex/alchemy-replay-baseline",
+  "base_revision": "b8918ac25f06d103ac8acbb74fd19045d2e06ea6",
+  "workload_assembly": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll",
+  "workload_sha256": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+  "upstream_source_revision": "f500e73f28e28813f942f1f16dec5a34b40e48e3",
+  "native_profile": "object-frames-native-v90",
+  "method": "Fresh C++ emission from latest compiler and newly built owned core; fixed managed input DLL for comparability",
+  "library_trees": {
+    "library/Cilica.Core": "6b5f7e778ab810f48e4a27650a393c0c72f5e997",
+    "library/Cilica.Library": "57361b97238417e21412178245840ca826eea499"
+  },
+  "baseline_emission_command": "CILICA_APPROVED_DIFFPLEX_PIN=f500e73f28e28813f942f1f16dec5a34b40e48e3 CILICA_DIFFPLEX_ASSEMBLY=<pinned DLL> CILICA_BENCH_TEMPLATE=<checkout>/tools/CompatibilityCandidates/diffplex-benchmark/native-host.cpp.template CILICA_BENCH_CPP=<output> dotnet tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll -explicit only -method Cilica.Metadata.Tests.ApprovedDiffPlexBenchmarkEmissionTests.Emit_approved_benchmark -culture invariant -noColor",
+  "candidate_emission_command": "Same command at 8b0f018 compiler/runtime source, separate output path."
+}

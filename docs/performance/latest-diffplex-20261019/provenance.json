@@ -1,0 +1,82 @@
+{
+  "method": "Fresh baseline and candidate C++ emitted independently; exact runtime-only difference verified",
+  "baseline_revision": "b8918ac25f06d103ac8acbb74fd19045d2e06ea6",
+  "baseline_emission_sha256": "9bb036abe12b1b2b5badd895eeb294aa27f5385415c4b1c0a4985a7675425d70",
+  "candidate_emission_sha256": "f6fce111aefa33825426321222b9c1be6a402edc04ba392ec52ca9ebd1223279",
+  "baseline_profile": "// Cilica object-frames-native-v90",
+  "candidate_profile": "// Cilica object-frames-native-v90",
+  "checkout_revision": "8b0f0181c5a5b1d0cad0c411b47af268073c716c",
+  "runtime_sha256": "0c0c11ffe2388bb05297294f18708bd990fb9e042bbf2e12049515d1e54df087",
+  "platform": "macOS-15.7.3-arm64-arm-64bit",
+  "machine": "arm64",
+  "compiler": "Apple clang version 17.0.0 (clang-1700.4.4.1)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "commands": {
+    "baseline": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/latest-runtime-performance-20261019/native/baseline.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/latest-runtime-performance-20261019/native/baseline"
+    ],
+    "candidate": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/latest-runtime-performance-20261019/native/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/latest-runtime-performance-20261019/native/candidate"
+    ],
+    "verification": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DCILICA_VERIFY_ALLOCATION_ROOTS=1",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/latest-runtime-performance-20261019/native/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/latest-runtime-performance-20261019/native/verification"
+    ],
+    "sanitized": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/christian/Cilica/artifacts/latest-runtime-performance-20261019/native/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/latest-runtime-performance-20261019/native/sanitized"
+    ]
+  },
+  "hashes": {
+    "baseline.cpp": "7700b0b95ae6abe0df1cb6637e7d90996aced40929c05e5cae10e97b3363c167",
+    "candidate.cpp": "6edd0e5bfb2e4343f07f234b993bef4d2a655bc3b34fffda3853547d6b7e71bb",
+    "baseline": "090892450a6be3dfb35248f7dc812f4b277466d001a5aeddbf3bd6cd3f04635b",
+    "candidate": "84f7a0a2b7894c4ec1207aa803cdcc7f9d14990e9fad3487c5d0835024535ef2",
+    "verification": "4f371f2901bb63d8793738ecb5d76cc6aa020ac84c0a7d3f3fc1b4537e0c8e9a",
+    "sanitized": "d4c0eb9d15cbff012410426772d8538670f1e1589d8af0615a18be66263157f3",
+    "expected.json": "1a816a2d4476db245185516dabf0a5777ad978d519373b5f1a618b785a5f8592"
+  }
+}

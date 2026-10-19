@@ -1,0 +1,8 @@
+{
+  "exact_runtime_only_diff": true,
+  "baseline_header": "// Cilica object-frames-native-v90",
+  "candidate_header": "// Cilica object-frames-native-v90",
+  "baseline_sha256": "9bb036abe12b1b2b5badd895eeb294aa27f5385415c4b1c0a4985a7675425d70",
+  "candidate_sha256": "f6fce111aefa33825426321222b9c1be6a402edc04ba392ec52ca9ebd1223279",
+  "candidate_compiler_sha256": "bcbc0265778f4b9642e1f24a0296296d5969ed7a0befb76535d88bfeb5c09551"
+}

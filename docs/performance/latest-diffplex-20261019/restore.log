@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  Restored /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Basic/Cilica.Fixtures.Basic.csproj (in 46 ms).
+  Restored /Users/christian/Cilica/src/Cilica.Metadata/Cilica.Metadata.csproj (in 48 ms).
+  Restored /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.ControlFlow/Cilica.Fixtures.ControlFlow.csproj (in 46 ms).
+  Restored /Users/christian/Cilica/tools/Cilica.LibraryBuild/Cilica.LibraryBuild.csproj (in 47 ms).
+  Restored /Users/christian/Cilica/examples/Primitive/Kernel/Kernel.csproj (in 46 ms).
+  Restored /Users/christian/Cilica/library/Cilica.Library/Cilica.Library.csproj (in 46 ms).
+  Restored /Users/christian/Cilica/src/Cilica.Compiler/Cilica.Compiler.csproj (in 48 ms).
+  Restored /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Forwarding/Cilica.Fixtures.Forwarding.csproj (in 47 ms).
+  Restored /Users/christian/Cilica/examples/Objects/Prepare/Prepare.csproj (in 47 ms).
+  Restored /Users/christian/Cilica/examples/Objects/Kernel/Kernel.csproj (in 46 ms).
+  Restored /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj (in 47 ms).
+  Restored /Users/christian/Cilica/examples/Objects/Emit/Emit.csproj (in 47 ms).
+  Restored /Users/christian/Cilica/examples/Primitive/Prepare/Prepare.csproj (in 47 ms).
+  Restored /Users/christian/Cilica/src/Cilica.Cli/Cilica.Cli.csproj (in 2 ms).
+  Restored /Users/christian/Cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj (in 68 ms).

@@ -1,0 +1,29 @@
+  Cilica.Library -> /Users/christian/Cilica/library/Cilica.Library/bin/Debug/netstandard2.1/Cilica.Library.dll
+  Cilica.Fixtures.ControlFlow -> /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.ControlFlow/bin/Debug/netstandard2.1/Cilica.Fixtures.ControlFlow.dll
+  Cilica.Fixtures.Basic -> /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Basic/bin/Debug/netstandard2.1/Cilica.Fixtures.Basic.dll
+  Cilica.Fixtures.Forwarding -> /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Forwarding/bin/Debug/netstandard2.1/Cilica.Fixtures.Forwarding.dll
+/Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+  Cilica.Fixtures.Execution -> /Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/bin/Debug/netstandard2.1/Cilica.Fixtures.Execution.dll
+  Cilica.Metadata -> /Users/christian/Cilica/src/Cilica.Metadata/bin/Debug/net10.0/Cilica.Metadata.dll
+  Cilica.LibraryBuild -> /Users/christian/Cilica/tools/Cilica.LibraryBuild/bin/Debug/net10.0/Cilica.LibraryBuild.dll
+  Cilica.Compiler -> /Users/christian/Cilica/src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll
+  Cilica.Cli -> /Users/christian/Cilica/src/Cilica.Cli/bin/Debug/net10.0/cilica.dll
+  Kernel -> /Users/christian/Cilica/examples/Primitive/Kernel/bin/Debug/netstandard2.1/Cilica.Examples.Primitive.Kernel.dll
+  Kernel -> /Users/christian/Cilica/examples/Objects/Kernel/bin/Debug/netstandard2.1/Cilica.Examples.Objects.Kernel.dll
+  Emit -> /Users/christian/Cilica/examples/Objects/Emit/bin/Debug/net10.0/Cilica.Examples.Objects.Emit.dll
+  Prepare -> /Users/christian/Cilica/examples/Primitive/Prepare/bin/Debug/net10.0/Cilica.Examples.Primitive.Prepare.dll
+  Prepare -> /Users/christian/Cilica/examples/Objects/Prepare/bin/Debug/net10.0/Cilica.Examples.Objects.Prepare.dll
+/Users/christian/.dotnet/sdk/10.0.400/Microsoft.Common.CurrentVersion.targets(5455,5): error MSB3030: Could not copy the file "/LICENSE.TXT" because it was not found. [/Users/christian/Cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj]
+/Users/christian/.dotnet/sdk/10.0.400/Microsoft.Common.CurrentVersion.targets(5455,5): error MSB3030: Could not copy the file "/build/netstandard2.0/ref/netstandard.dll" because it was not found. [/Users/christian/Cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj]
+/Users/christian/.dotnet/sdk/10.0.400/Microsoft.Common.CurrentVersion.targets(5455,5): error MSB3030: Could not copy the file "/THIRD-PARTY-NOTICES.TXT" because it was not found. [/Users/christian/Cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj]
+
+Build FAILED.
+
+/Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/Users/christian/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+/Users/christian/.dotnet/sdk/10.0.400/Microsoft.Common.CurrentVersion.targets(5455,5): error MSB3030: Could not copy the file "/LICENSE.TXT" because it was not found. [/Users/christian/Cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj]
+/Users/christian/.dotnet/sdk/10.0.400/Microsoft.Common.CurrentVersion.targets(5455,5): error MSB3030: Could not copy the file "/build/netstandard2.0/ref/netstandard.dll" because it was not found. [/Users/christian/Cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj]
+/Users/christian/.dotnet/sdk/10.0.400/Microsoft.Common.CurrentVersion.targets(5455,5): error MSB3030: Could not copy the file "/THIRD-PARTY-NOTICES.TXT" because it was not found. [/Users/christian/Cilica/tests/Cilica.Metadata.Tests/Cilica.Metadata.Tests.csproj]
+    1 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:07.02

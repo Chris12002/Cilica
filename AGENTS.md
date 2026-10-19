@@ -81,6 +81,11 @@ feedback before implementation. Explain consequential choices in plain language.
   on representative workloads, with correct outputs, exact revisions and build
   settings. Use DiffPlex as the immediate execution benchmark and compare with
   ordinary .NET and Unity IL2CPP where available. Keep NativeAOT results distinct.
+- Regenerate benchmark C++ with the compiler branch being changed. Check branch
+  ancestry and compiler/library revisions before measuring; a recent benchmark
+  report does not establish that its generated code represents the latest compiler.
+  Retained-code replays are diagnostic experiments, not acceptance evidence for
+  current-branch performance.
 - Review correctness and speed together. Sanitizer/stress builds validate
   correctness separately from release timing. Revisit prototype limits using
   measured target budgets rather than treating their original values as permanent.

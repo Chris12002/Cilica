@@ -1,0 +1,6 @@
+{
+  "src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll": "a68e69bfaa3958af9f45de04b8ecc18120a6414dcef9a7ba3e7e3bee15c0ce18",
+  "src/Cilica.Metadata/bin/Debug/net10.0/Cilica.Metadata.dll": "ad40625fd63e88adbf147f8d8d1e27b17ba88e29179d1a57cd2f2da9abcaafe1",
+  "src/Cilica.Compiler/ObjectCppRuntime.cs": "4738d952ae44428dc086d56ec83f5788ba7c0d67fd2436006854ceaba817a464",
+  "artifacts/latest-runtime-performance-20261019/baseline.cpp": "9bb036abe12b1b2b5badd895eeb294aa27f5385415c4b1c0a4985a7675425d70"
+}

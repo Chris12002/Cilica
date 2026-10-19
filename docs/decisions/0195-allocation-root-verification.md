@@ -61,6 +61,14 @@ Full generated C++, binaries, logs and raw measurements are retained locally in
 (138.849 ms to 15.031 ms median). The remaining gap to the fresh ordinary .NET
 comparator is about 2,944x; this slice does not establish competitive performance.
 
+The change is now integrated on `codex/runtime-performance`, based on latest
+compiler tip `b8918ac` (native profile 90). Independently emitted baseline and
+candidate C++ differ only in the intended runtime blocks. All 89 targeted tests,
+both emission runs, four full DiffPlex transcript checks and two forced-collection
+operations pass. Fresh paired timings improve from 143.511 ms to 15.350 ms,
+**9.349x**. The [latest-compiler record](../performance/latest-diffplex-20261019.md)
+supersedes the replay as current performance evidence.
+
 ## Review
 
 The change adds no dereference of an unknown pointer, changes no object layout,

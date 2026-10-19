@@ -1300,7 +1300,10 @@ checks or implement a new execution mode.
 
 Accept performance changes using comparable before/after release measurements
 with validated outputs, raw samples, exact revisions, inputs, toolchains and
-compiler flags. Report remaining gaps and memory/stack trade-offs. Run targeted
+compiler flags. Generate both workloads from the branch under change and record
+their emitting compiler and owned-library inputs. An isolated replay on retained
+generated C++ cannot establish current-branch performance. Report remaining gaps
+and memory/stack trade-offs. Run targeted
 differential, GC-stress and sanitizer checks separately; their overhead must not
 dictate production architecture without a measured target constraint. An
 optimization slice requires both correctness evidence and a demonstrated benefit

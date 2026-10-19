@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Replay the allocation-verification change on the retained macOS DiffPlex build.
+"""Measure allocation verification on fresh or historical DiffPlex C++.
 
-This is a runtime-only experiment, not fresh DiffPlex compilation from this branch.
+prepare-fresh consumes independently emitted before/after C++ and checks their
+exact runtime-only difference. prepare retains the original historical replay.
 No downloads, services or hosted work. Each child process has a finite timeout.
 """
 import argparse
@@ -41,8 +42,6 @@ def prepare(args):
     source = Path(args.source).resolve()
     if digest(source) != PIN:
         raise ValueError("Source is not the reviewed retained macOS DiffPlex build")
-    out = Path(args.output).resolve()
-    out.mkdir(parents=True, exist_ok=False)
     runtime = (ROOT / "src/Cilica.Compiler/ObjectCppRuntime.cs").read_text()
     # Extract the actual production macro and helper, not a separately authored
     # approximation. All other generated runtime and method bodies stay pinned.
@@ -58,6 +57,39 @@ def prepare(args):
         "    if (!valid_roots(context)) { context.pending = 6; return false; }\n    if (context.observe != nullptr) context.observe(context);",
         "    if (!allocation_safepoint(context)) return false;", 2)
     candidate = macro + candidate
+    compile_pair(args, original, candidate, {
+        "method": "Exact production allocation change replayed on retained generated C++; not full current-compiler DiffPlex emission",
+        "benchmark_compiler_revision": "49dd0b1", "source_sha256": PIN,
+    })
+
+
+def prepare_fresh(args):
+    original = Path(args.source).read_text()
+    candidate = Path(args.candidate_source).read_text()
+    runtime_path = "src/Cilica.Compiler/ObjectCppRuntime.cs"
+    baseline = subprocess.check_output(["git", "rev-parse", args.baseline_revision], cwd=ROOT, text=True).strip()
+    old_runtime = subprocess.check_output(["git", "show", baseline + ":" + runtime_path], cwd=ROOT, text=True)
+    new_runtime = (ROOT / runtime_path).read_text()
+    expected = original
+    for name in ["DiagnosticIncludes", "Text"]:
+        marker = 'internal const string ' + name + ' = """\n'
+        before = old_runtime.split(marker, 1)[1].split('\n""";', 1)[0]
+        after = new_runtime.split(marker, 1)[1].split('\n""";', 1)[0]
+        expected = replace_exact(expected, before, after, 1)
+    if expected != candidate:
+        raise ValueError("Fresh generated C++ differs beyond the intended runtime change")
+    compile_pair(args, original, candidate, {
+        "method": "Fresh baseline and candidate C++ emitted independently; exact runtime-only difference verified",
+        "baseline_revision": baseline,
+        "baseline_emission_sha256": digest(Path(args.source)),
+        "candidate_emission_sha256": digest(Path(args.candidate_source)),
+        "baseline_profile": original.splitlines()[0], "candidate_profile": candidate.splitlines()[0],
+    })
+
+
+def compile_pair(args, original, candidate, metadata):
+    out = Path(args.output).resolve()
+    out.mkdir(parents=True, exist_ok=False)
     # An opt-in stress switch is outside the timed region and identical in both.
     anchor = "Instance heap;Context c(heap);int work="
     replacement = 'Instance heap;if(std::getenv("CILICA_BENCH_GC_STRESS"))heap.collect_before_allocation=true;Context c(heap);int work='
@@ -78,16 +110,14 @@ def prepare(args):
         extra += ["-fsanitize=address,undefined", "-fno-sanitize-recover=all"] if name == "sanitized" else ["-DNDEBUG"]
         commands[name] = [compiler, *flags, *extra, str(paths["baseline" if name == "baseline" else "candidate"]), "-o", str(out / name)]
         run(commands[name], out / (name + "-build.log"))
-    metadata = {
-        "method": "Exact production allocation change replayed on retained generated C++; not full current-compiler DiffPlex emission",
-        "benchmark_compiler_revision": "49dd0b1", "source_sha256": PIN,
+    metadata.update({
         "checkout_revision": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
         "runtime_sha256": digest(ROOT / "src/Cilica.Compiler/ObjectCppRuntime.cs"),
         "platform": platform.platform(), "machine": platform.machine(),
         "compiler": subprocess.check_output([compiler, "--version"], text=True),
         "commands": commands,
         "hashes": {name: digest(out / name) for name in ["baseline.cpp", "candidate.cpp", "baseline", "candidate", "verification", "sanitized", "expected.json"]},
-    }
+    })
     (out / "provenance.json").write_text(json.dumps(metadata, indent=2) + "\n")
     print("Prepared four binaries; validation and timing are separate phases.", flush=True)
 
@@ -95,8 +125,9 @@ def prepare(args):
 def validate(out):
     verify_artifacts(out)
     expected = json.loads((out / "expected.json").read_text())
+    normal_env = {key: value for key, value in os.environ.items() if key != "CILICA_BENCH_GC_STRESS"}
     for name in ["baseline", "candidate", "verification", "sanitized"]:
-        observed = json.loads(run([str(out / name), "verify", "0"], out / (name + "-verify.json"), timeout=600))
+        observed = json.loads(run([str(out / name), "verify", "0"], out / (name + "-verify.json"), timeout=600, environment=normal_env))
         if observed != expected:
             raise ValueError(f"Transcript mismatch: {name}")
         print(f"{name}: 523 observations and checksum match", flush=True)
@@ -114,7 +145,7 @@ def measure(out):
         raise ValueError("Validate before measuring")
     if (out / "summary.json").exists():
         raise ValueError("Use a fresh prepared directory for another measurement")
-    if os.environ.get("CILICA_BENCH_GC_STRESS"):
+    if "CILICA_BENCH_GC_STRESS" in os.environ:
         raise ValueError("Remove the GC stress environment variable before timing")
     results = {"baseline": [], "candidate": []}
     loads = []
@@ -146,15 +177,22 @@ def verify_artifacts(out):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("phase", choices=["prepare", "validate", "measure"])
+    parser.add_argument("phase", choices=["prepare", "prepare-fresh", "validate", "measure"])
     parser.add_argument("--output", required=True)
     parser.add_argument("--source")
     parser.add_argument("--expected")
+    parser.add_argument("--candidate-source")
+    parser.add_argument("--baseline-revision")
     args = parser.parse_args()
-    if args.phase == "prepare":
+    if args.phase in ["prepare", "prepare-fresh"]:
         if not args.source or not args.expected:
             parser.error("prepare requires --source and --expected")
-        prepare(args)
+        if args.phase == "prepare-fresh":
+            if not args.candidate_source or not args.baseline_revision:
+                parser.error("prepare-fresh requires --candidate-source and --baseline-revision")
+            prepare_fresh(args)
+        else:
+            prepare(args)
     elif args.phase == "validate":
         validate(Path(args.output).resolve())
     else:

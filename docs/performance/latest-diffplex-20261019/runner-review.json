@@ -1,0 +1,6 @@
+{
+  "valid_fresh_pair_accepted": true,
+  "unrelated_generated_change_rejected": true,
+  "empty_stress_environment_rejected": true,
+  "review_did_not_compile_or_measure": true
+}
