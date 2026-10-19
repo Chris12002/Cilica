@@ -1,6 +1,6 @@
 namespace Cilica.Compiler;
 
-/// <summary>Bounded allocation-free marking and scoped reachability diagnostics and atomic mark/sweep.</summary>
+/// <summary>Bounded marking with optional native scratch, scoped diagnostics and atomic mark/sweep.</summary>
 internal static class ObjectCppMarking
 {
     internal const string Text = """
@@ -28,6 +28,7 @@ struct MarkState {
     MarkState(const MarkState&) = delete;
     MarkState& operator=(const MarkState&) = delete;
     ~MarkState() noexcept {
+        heap.membership_size = 0;
         // Topology was validated before any scratch write, and cannot change
         // during the pass. Never retain a mark snapshot across managed execution.
         if (prepared) for (Object* value = heap.head; value != nullptr; value = value->next) {
@@ -36,6 +37,32 @@ struct MarkState {
         heap.marking = false;
     }
 };
+// The inventory is already validated, and allocation/topology changes are
+// forbidden while marking. Scratch failure preserves the checked linear path.
+// At most half the slots are occupied, so every unsuccessful lookup terminates.
+[[gnu::noinline]] static void prepare_membership(Instance& heap) noexcept {
+    if (heap.count == 0) return;
+    constexpr auto maximum = std::numeric_limits<std::size_t>::max() / sizeof(Object*);
+    if (heap.count > maximum / 2) return;
+    std::size_t size = 8;
+    while (size / 2 < heap.count) {
+        if (size > maximum / 2) return;
+        size *= 2;
+    }
+    if (size > heap.membership_capacity) {
+        auto** slots = new (std::nothrow) Object*[size];
+        if (slots == nullptr) return;
+        delete[] heap.membership_slots;
+        heap.membership_slots = slots; heap.membership_capacity = size;
+    }
+    for (std::size_t i = 0; i < size; ++i) heap.membership_slots[i] = nullptr;
+    for (Object* value = heap.head; value != nullptr; value = value->next) {
+        std::size_t slot = Instance::membership_hash(value) & (size - 1);
+        while (heap.membership_slots[slot] != nullptr) slot = (slot + 1) & (size - 1);
+        heap.membership_slots[slot] = value;
+    }
+    heap.membership_size = size;
+}
 [[maybe_unused, gnu::noinline]] static bool mark_edge(void* opaque, const ReferenceEdge& edge) noexcept {
     auto& state = *static_cast<MarkState*>(opaque);
     if (state.edges == state.edge_limit) return false;
@@ -64,6 +91,7 @@ struct MarkState {
         bytes += value->allocation_bytes;
     }
     if (count != heap.count || bytes != heap.bytes) return {MarkStatus::invalid};
+    prepare_membership(heap);
     state.prepared = true;
     for (Object* value = heap.head; value != nullptr; value = value->next) {
         value->marked = false; value->mark_next = nullptr;
@@ -82,6 +110,7 @@ struct MarkState {
     if (context.instance.marking) return {MarkStatus::busy};
     MarkState state(context.instance, limits.edges);
     auto report = mark_graph(context, limits, state);
+    context.instance.membership_size = 0;
     if (report.status != MarkStatus::complete) return report;
     if (visitor != nullptr) for (Object* value = context.instance.head; value != nullptr; value = value->next)
         if (!visitor(opaque, value, value->marked)) return {MarkStatus::stopped};
@@ -93,6 +122,7 @@ struct MarkState {
     if (heap.marking) return {MarkStatus::busy};
     MarkState state(heap, limits.edges);
     auto report = mark_graph(context, limits, state);
+    heap.membership_size = 0;
     if (report.status != MarkStatus::complete) return report;
     Object** link = &heap.head;
     while (*link != nullptr) {

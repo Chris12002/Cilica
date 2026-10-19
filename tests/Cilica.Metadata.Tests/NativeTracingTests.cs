@@ -223,6 +223,7 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
             }
             static void clean_marks(const Instance& heap) {
                 assert(!heap.marking);
+                assert(heap.membership_size == 0);
                 for (Object* value = heap.head; value != nullptr; value = value->next)
                     assert(!value->marked && value->mark_next == nullptr);
             }
@@ -235,6 +236,7 @@ public sealed class NativeTracingTests(ITestOutputHelper output)
             static bool classify(void* opaque, Object* value, bool live) noexcept {
                 auto& report = *static_cast<Classification*>(opaque);
                 assert(report.context.instance.marking && value->marked == live);
+                assert(report.context.instance.membership_size == 0);
                 assert(live == (std::find(report.expected.values.begin(), report.expected.values.end(), value) != report.expected.values.end()));
                 assert(std::find(report.delivered.begin(), report.delivered.end(), value) == report.delivered.end());
                 report.delivered.push_back(value);

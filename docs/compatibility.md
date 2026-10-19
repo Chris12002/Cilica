@@ -24,6 +24,16 @@ internal execution requires valid live references, as established by translation
 rooting and boundary admission. Both diagnostic flags are independent; neither
 changes the native v90 layout or public ABI.
 
+Collector lookup update (2026-10-20,
+[ADR 0197](decisions/0197-scoped-collector-membership-index.md)): native v91 adds
+private instance scratch for an address index active only during validated
+marking. Collector membership remains checked in both diagnostic modes. Failed
+native scratch allocation falls back to list searches; invalid/incomplete traces
+still cannot sweep. Default-bound scratch retains at most 64 KiB on 64-bit hosts,
+outside the managed quota. Object headers, public ABI and managed capabilities
+are unchanged. This supersedes the historical allocation-free/list-scan marking
+implementation below; standalone visitors remain allocation-free.
+
 Milestone 6 completion used `integer-managed-objects-cil-v2`,
 `object-layout-v13`, `object-operations-ir-v14`, `scalar-location-ir-v2`,
 `value-arrays-ir-v2`, `value-location-scalars-v4`, `boxed-value-ir-v3`,

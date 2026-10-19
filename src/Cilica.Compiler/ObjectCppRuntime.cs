@@ -179,18 +179,35 @@ struct Instance {
     Object* invariant_culture = nullptr;
     Object** runtime_types = nullptr;
     Object* head = nullptr;
+    // Native scratch, not managed storage or a root. Only a fully validated,
+    // immutable marking inventory may activate this address index.
+    Object** membership_slots = nullptr;
+    std::size_t membership_capacity = 0, membership_size = 0;
     std::size_t bytes = 0, count = 0;
     std::size_t limit = 1048576, object_limit = 4096;
     Instance() noexcept = default;
     Instance(const Instance&) = delete;
     Instance& operator=(const Instance&) = delete;
+    static std::size_t membership_hash(const Object* value) noexcept {
+        const auto address = reinterpret_cast<std::uintptr_t>(value);
+        return static_cast<std::size_t>((address >> 3) ^ (address >> 17));
+    }
     bool owns(const Object* value) const noexcept {
         if (value == nullptr) return true;
         // Compare addresses before reading a pointer supplied at a native boundary.
+        if (membership_size != 0) {
+            std::size_t slot = membership_hash(value) & (membership_size - 1);
+            while (membership_slots[slot] != nullptr) {
+                if (membership_slots[slot] == value) return true;
+                slot = (slot + 1) & (membership_size - 1);
+            }
+            return false;
+        }
         for (const Object* p = head; p != nullptr; p = p->next) if (p == value) return true;
         return false;
     }
     ~Instance() noexcept {
+        delete[] membership_slots;
         delete[] runtime_types;
         delete[] initializers;
         delete[] statics;

@@ -104,6 +104,11 @@ select it in native harnesses that inject arbitrary private pointers. Keep
 results and GC. Never substitute the internal shortcut at those boundaries.
 Null/bounds/type checks and borrowed frame lifetimes remain required. See ADR 0196.
 
+During marking only, checked membership uses an address index built after full
+inventory validation. Native scratch failure falls back to the checked list;
+disable the index before reporting/sweeping and all exits. It is never a root or
+permission to trust arbitrary headers. Native v91; see ADR 0197.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.

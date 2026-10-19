@@ -806,6 +806,16 @@ membership independently of either diagnostic flag. Private raw-pointer calls
 are not an embedding API; forged internal pointer detection requires verification.
 No runtime layout, ABI or semantic profile version changes.
 
+Collector membership now uses a scoped address index after full inventory
+validation ([ADR 0197](decisions/0197-scoped-collector-membership-index.md)).
+The index accelerates checked tracing without changing reference admission. It
+is disabled before reporting/sweeping and on all exits. A reusable native buffer
+uses at most 64 KiB at the default 4,096-object bound on 64-bit targets, outside
+the managed quota; failed allocation falls back to the checked allocation list.
+Object headers and public ABI are unchanged; native v91 records the additional
+private instance scratch fields. Standalone visitors remain allocation-free;
+marking now optionally allocates native scratch, with an allocation-free fallback.
+
 ## 9. Exceptions
 
 The primitive profile currently propagates division/remainder and checked-arithmetic faults
