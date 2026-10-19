@@ -1,0 +1,8 @@
+{
+  "revision": "d08c129230b3ef5a34a6bf23dc9a55f9b35671ff",
+  "hashes": {
+    "src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll": "ed89d439e85e79bd7ec377ec5b8e5895280c2051d0df3bff875bc93de51ccc31",
+    "tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll": "6bfbb39202a421c5e9199758931531d41babf0c3f981a2bca6c8d2bcd6f067c0",
+    "artifacts/leaf-getter-performance-20261020/baseline.cpp": "eb1e5ede4ac4d95b22234e3eb8cd615abb367fd7aad25f11e49808e8fcea5405"
+  }
+}

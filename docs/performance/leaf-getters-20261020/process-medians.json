@@ -1,0 +1,20 @@
+[
+  {
+    "process_pair": 1,
+    "baseline": 379395.1875,
+    "candidate": 364681.640625,
+    "ratio": 1.0403462780571666
+  },
+  {
+    "process_pair": 2,
+    "baseline": 374060.546875,
+    "candidate": 362554.046875,
+    "ratio": 1.0317373370927154
+  },
+  {
+    "process_pair": 3,
+    "baseline": 369742.84375,
+    "candidate": 363075.515625,
+    "ratio": 1.018363474919323
+  }
+]

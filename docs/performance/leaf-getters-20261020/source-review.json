@@ -1,0 +1,50 @@
+{
+  "baseline_revision": "d08c129230b3ef5a34a6bf23dc9a55f9b35671ff",
+  "candidate_revision": "834c06c90364888f6b51ebe9e80e6b9c4915aa90",
+  "source_hashes": {
+    "src/Cilica.Compiler/ObjectCppEmitter.cs": "421737df7c39835d62bddc6caff801b4bc7a1513e9e76ea9341ca8bfc405ec0e",
+    "src/Cilica.Compiler/ObjectCppLeafMethods.cs": "d00ba940e5806a78b7e44aa94a1e4d6e18c3d2e133b55a6faa21afe22d1e3699",
+    "src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll": "6543f66a272e82865328b20d4aa7865f549b8e08166397d5c1796ff757fa7f05",
+    "tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll": "67998ead0cbca52e1d5263665696fcd7d102874e15751167de7a8c76638f3d92",
+    "tools/Performance/leaf_getters.py": "a2c94f7de574a7478f3e2705e95b862b085444d00fe38829e02d5c88f924650a",
+    "tools/Performance/allocation_verification.py": "1492192940cddcd069e92755f9eeae9afd5a54873b16f98dc5fde5dddc41b899",
+    "tools/CompatibilityCandidates/diffplex-benchmark/native-host.cpp.template": "c6ca290a395e736614856c96d6348b17f037dba9c4a2f70b29a4b8c3f2597e8f"
+  },
+  "library_trees": {
+    "d08c129": {
+      "library/Cilica.Core": "6b5f7e778ab810f48e4a27650a393c0c72f5e997",
+      "library/Cilica.Library": "57361b97238417e21412178245840ca826eea499"
+    },
+    "HEAD": {
+      "library/Cilica.Core": "6b5f7e778ab810f48e4a27650a393c0c72f5e997",
+      "library/Cilica.Library": "57361b97238417e21412178245840ca826eea499"
+    }
+  },
+  "targeted_tests": {
+    "authored": 7,
+    "existing": 40,
+    "distinct_total": 47
+  },
+  "source_comparison": "19 new leaf wrappers and renamed noinline fallbacks only; all existing method bodies and runtime unchanged after exact normalization.",
+  "inputs": {
+    "/Users/christian/Cilica/artifacts/roslyn-il-investigation-20261019/DiffPlex.Benchmark.il": "f8c040b5aeecbafc169290ec5f82190dd064909c752eaaf8bc479f36c00eeacc",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8"
+  },
+  "roslyn_build_options": {
+    "version": "2",
+    "compiler-version": "5.9.0-1.26379.115+14fbf8d5271c98133561eb55185fdb05b286f578",
+    "language": "C#",
+    "source-file-count": "16",
+    "output-kind": "DynamicallyLinkedLibrary",
+    "optimization": "release",
+    "platform": "AnyCpu",
+    "runtime-version": "10.0.11-servicing.26373.116+e2f47b0110ed922f21a1522da67279133ce28f32",
+    "language-version": "14.0",
+    "define": "TRACE,RELEASE,NETSTANDARD,NETSTANDARD2_0,NETSTANDARD1_0_OR_GREATER,NETSTANDARD1_1_OR_GREATER,NETSTANDARD1_2_OR_GREATER,NETSTANDARD1_3_OR_GREATER,NETSTANDARD1_4_OR_GREATER,NETSTANDARD1_5_OR_GREATER,NETSTANDARD1_6_OR_GREATER,NETSTANDARD2_0_OR_GREATER"
+  },
+  "roslyn_source_match": "Requested commit unavailable from GitHub upload-pack; comparative source only",
+  "roslyn_source_requested_revision": "14fbf8d5271c98133561eb55185fdb05b286f578",
+  "roslyn_source_inspected_revision": "e4e2833be7abbc54776788ca35d5c4d2697b0261",
+  "baseline_reemission_matches_previous_candidate": true
+}

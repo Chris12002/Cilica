@@ -1,0 +1,18 @@
+{
+  "runs": {
+    "focused-tests.log": [
+      "Cilica.Metadata.Tests  Total: 26, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 17.197s"
+    ],
+    "final-tests.log": [
+      "Cilica.Metadata.Tests  Total: 27, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 11.722s"
+    ],
+    "baseline-emission.log": [
+      "Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 1.089s"
+    ],
+    "candidate-emission.log": [
+      "Cilica.Metadata.Tests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 1.019s"
+    ]
+  },
+  "distinct_tests": 47,
+  "note": "Six authored cases were rerun after adding wrong-type coverage and a seventh separate-module case. The 26+27 run totals overlap by six; 47 distinct checks."
+}

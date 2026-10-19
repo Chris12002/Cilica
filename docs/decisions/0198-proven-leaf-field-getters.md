@@ -1,6 +1,6 @@
 # ADR 0198: Direct native paths for proven field getters
 
-Status: implemented; release measurement pending. Recorded 2026-10-20.
+Status: accepted. Recorded 2026-10-20.
 
 ## Decision
 
@@ -59,5 +59,9 @@ distinct checks pass. Initial test-only compile/name-lookup issues were correcte
 
 Fresh DiffPlex emission identifies 19 eligible getters. Full-source normalization
 removes only the reviewed wrappers and restores fallback names/profile; the result
-matches the independently emitted baseline byte for byte. Release timing remains
-an acceptance gate separate from correctness.
+matches the independently emitted baseline byte for byte. Paired release medians
+improve from 372.992 to 363.076 microseconds/op (1.0273x). All three process pairs
+favor the candidate, with overlapping sample ranges; the benefit is modest.
+Four full transcripts and two forced-GC operations pass. ARM64 caller disassembly
+confirms wrapper inlining and immediate caller-root publication. See the
+[performance record](../performance/leaf-getters-20261020.md).

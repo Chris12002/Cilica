@@ -1,0 +1,99 @@
+{
+  "baseline": {
+    "getter_symbols": [
+      "0000000100011224 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL18dispatch_exceptionERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "00000001000113a8 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL16search_exceptionERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageEjjj",
+      "000000010003efd0 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closureL82cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004aERNS_7ContextEPKNS_16LocationArgumentE",
+      "000000010003f240 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s0ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "000000010003f254 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s1ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "000000010003f2b8 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s2ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "000000010003f2cc (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s3ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "000000010003f350 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s4ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE"
+    ],
+    "binary_bytes": 3461112
+  },
+  "candidate": {
+    "getter_symbols": [
+      "0000000100010d28 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL18dispatch_exceptionERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "0000000100010eac (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL16search_exceptionERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageEjjj",
+      "000000010003ec24 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closureL89cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_framedERNS_7ContextEPKNS_16LocationArgumentE",
+      "000000010003ee94 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s0ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "000000010003eea8 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s1ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "000000010003ef0c (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s2ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "000000010003ef20 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s3ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE",
+      "000000010003efa4 (__TEXT,__text) non-external __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure88cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_stepsL2s4ERNS_7ContextEPNS_90cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a_storageE"
+    ],
+    "binary_bytes": 3463208
+  },
+  "get_HashedPieces_callers": [
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000c_steps",
+      "60"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000c_steps",
+      "65"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000f_steps",
+      "4"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000f_steps",
+      "9"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010_steps",
+      "26"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010_steps",
+      "30"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010_steps",
+      "60"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010_steps",
+      "65"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010_steps",
+      "89"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010_steps",
+      "92"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000011_steps",
+      "74"
+    ],
+    [
+      "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000011_steps",
+      "81"
+    ]
+  ],
+  "caller_disassembly_blocks": 2,
+  "get_HashedPieces_il": {
+    "token": "0600004a",
+    "size_bytes": 7,
+    "operations": [
+      "IL_0000 ldarg.0",
+      "IL_0001 ldfld",
+      "IL_0006 ret"
+    ],
+    "caller_token": "06000011",
+    "caller_il_offsets": [
+      "IL_0087",
+      "IL_0092"
+    ],
+    "candidate_caller_steps": [
+      74,
+      81
+    ]
+  },
+  "finding": "Clang inlines the getter wrapper into BuildPieceHashes s74/s81: context/null/type checks, field_address then ldr, root-slot store. Guard failure calls the retained framed implementation. Five fallback step functions remain.",
+  "disassembly_sha256": "f55295f06f061c6d7f071cbeeb5b9641779ccf3e71e6435c51d21ee87dac3598"
+}

@@ -3,6 +3,9 @@
 Recorded 2026-10-20 on macOS 15.7.3 ARM64, Apple M4 Pro. Extends the
 [internal-reference result](internal-references-20261019.md).
 
+The subsequent [leaf-getter result](leaf-getters-20261020.md) is the latest paired
+measurement: 372.992 to 363.076 microseconds/op, a modest 2.66% time reduction.
+
 ## Result
 
 | Fresh release build | Median per operation | Sample range | Samples |

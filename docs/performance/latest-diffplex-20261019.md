@@ -3,8 +3,9 @@
 Recorded 2026-10-19. This record replaces the retained-code replay as the basis
 for current compiler performance decisions.
 
-The subsequent [collector membership optimization](gc-membership-20261020.md)
-is now the latest result: 531.794 to 365.227 microseconds/op in a new paired run.
+The subsequent [leaf-getter optimization](leaf-getters-20261020.md)
+is now the latest result: 372.992 to 363.076 microseconds/op in a new paired run.
+It follows the [collector membership optimization](gc-membership-20261020.md).
 It follows the [internal-reference optimization](internal-references-20261019.md).
 This record retains the preceding allocation-verification evidence.
 
