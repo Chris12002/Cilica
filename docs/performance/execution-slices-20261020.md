@@ -15,6 +15,7 @@ review. No generated-method substitutions are used.
 | Slice | Before µs/diff | After µs/diff | Speedup |
 | --- | ---: | ---: | ---: |
 | Direct native control flow, v92 → v93 | 365.333 | 243.936 | 1.4977x |
+| Borrow lookup, v93 → v94 | 246.020 | 231.181 | 1.0642x |
 
 ## Direct flow
 
@@ -46,3 +47,15 @@ comparative revision, not an exact match to the unavailable compiler commit.
 The preceding .NET non-tiered measurement is 5.303 µs/diff; Unity's 24.368 µs
 measurement is historical (October 8). Neither is presented as a fresh per-slice
 comparator. Current native changes still leave a substantial gap to .NET.
+
+## Borrow lookup
+
+Baseline de4b886, fresh v94 candidate. Paired medians are 246.020 to 231.181
+microseconds/diff (1.0642x). Four full transcripts and two forced-GC
+operations pass; diagnostic verification rechecks both lifetime chains.
+[Summary](execution-slices-20261020/borrow/summary.json) and
+[provenance](execution-slices-20261020/borrow/provenance.json) retain the details.
+Raw output is in `artifacts/borrow-lookup-20261020`. Forty-five distinct focused
+checks pass across the final corrected runs; retained logs show the initial host
+stack-harness failure and its separate passing rerun. The 2 KiB bound is unchanged.
+See [ADR 0200](../decisions/0200-cached-borrow-registration.md).

@@ -1013,3 +1013,9 @@ retaining original frames, roots and fault checks. Local exception regions,
 dynamic exception terminators and methods over 512 steps keep the dispatcher.
 O0 defaults to that dispatcher; CILICA_DIRECT_CONTROL_FLOW=0 selects it explicitly.
 See [ADR 0199](docs/decisions/0199-direct-native-control-flow.md).
+
+Native v94 caches exact borrow registration tokens per context; collisions or
+scratch allocation failure retain bounded list lookup. Root pop retires lifetime
+registrations before storage reuse. CILICA_VERIFY_BORROW_LIFETIMES=1 restores
+full chain diagnostics; extents, types, readonly and public ownership stay checked.
+See [ADR 0200](docs/decisions/0200-cached-borrow-registration.md).

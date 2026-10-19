@@ -1,0 +1,16 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.NativeExecutionFrameTests.Wide_finite_and_mutual_recursion_obey_memory_depth_and_native_stack_bounds(optimized: False) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-910f8200d7764c2c91a05b5e36c69367/execution-frames/frames.cpp:36846:14: error: stack frame size (2064) exceeds limit (2048) in 'execute(void*)' [-Werror,-Wframe-larger-than]
+       36846 | static void* execute(void*) {
+             |              ^
+      1 error generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/NativeExecutionFrameTests.cs(93,0): at Cilica.Metadata.Tests.NativeExecutionFrameTests.Wide_finite_and_mutual_recursion_obey_memory_depth_and_native_stack_bounds(Boolean optimized)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '4e58f81b8725ee07fbc48ca23ad01bdd6fd1fd0402542b2f4a4dbe678a6ceeb2')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 34, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 14.881s

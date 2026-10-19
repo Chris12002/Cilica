@@ -36,7 +36,12 @@ public sealed class NativeExecutionFrameTests(ITestOutputHelper output)
             source.Append(artifact.Text).Append(NativeObjectAdapters.Emit(program, artifact));
             string scope = artifact.EntryPoint[..^4] + "_closure", root = Symbol(program.Flow.Entry);
             int expected = Oracle(mutual)(40, 3);
-            checks.Append(CultureInfo.InvariantCulture, $$"""
+            // Keep each independent host scenario in its own bounded function.
+            // Context bookkeeping must not accumulate across the two closures at O0.
+            string check = mutual ? "check_mutual" : "check_finite";
+            checks.Append(check).Append("();\n");
+            source.Append("#include <cassert>\n[[gnu::noinline]] static void ").Append(check).Append("() ");
+            source.Append(CultureInfo.InvariantCulture, $$"""
                 { using namespace {{scope}};
                   Instance heap; Context generous(heap, 8 * 1048576);
                   assert({{root}}(generous, 40, 3) == {{expected}} && generous.pending == 0);
@@ -64,7 +69,7 @@ public sealed class NativeExecutionFrameTests(ITestOutputHelper output)
                   const std::int32_t parameters[] = {63, 3};
                   assert({{artifact.EntryPoint}}(&value, &method, &il, &image, parameters, 2) == 9u && value == 123 && method != 0 && image != nullptr);
                 }
-                """);
+                """).Append('\n');
         }
         source.Append("#include <cassert>\n#include <cstdio>\n#include <pthread.h>\nstatic void* execute(void*) {\n")
             .Append("#if defined(__APPLE__)\nconst auto stack_size = pthread_get_stacksize_np(pthread_self());\n")

@@ -18,6 +18,12 @@ internal static class ObjectCppRuntime
 #error CILICA_VERIFY_INTERNAL_REFERENCES must be 0 or 1
 #endif
 // Unoptimized builds retain small helpers to bound sanitizer spills.
+#ifndef CILICA_VERIFY_BORROW_LIFETIMES
+#define CILICA_VERIFY_BORROW_LIFETIMES 0
+#endif
+#if CILICA_VERIFY_BORROW_LIFETIMES != 0 && CILICA_VERIFY_BORROW_LIFETIMES != 1
+#error CILICA_VERIFY_BORROW_LIFETIMES must be 0 or 1
+#endif
 #ifndef CILICA_DIRECT_CONTROL_FLOW
 #if defined(__OPTIMIZE__)
 #define CILICA_DIRECT_CONTROL_FLOW 1
@@ -249,6 +255,7 @@ struct Context {
     Frame* top = nullptr;
     std::size_t depth = 0;
     BorrowFrame* borrows = nullptr;
+    BorrowFrame** borrow_cache = nullptr;
     const std::size_t execution_limit;
     std::byte* execution = nullptr;
     std::size_t used = 0, peak = 0;
@@ -262,7 +269,7 @@ struct Context {
         : instance(heap), execution_limit(bytes) {}
     Context(const Context&) = delete;
     Context& operator=(const Context&) = delete;
-    ~Context() noexcept { ::operator delete(execution); }
+    ~Context() noexcept { delete[] borrow_cache; ::operator delete(execution); }
 };
 static void retire_borrows(Context&, const Frame&) noexcept;
 [[maybe_unused]] static void poison_storage(void* address, std::size_t bytes) noexcept {

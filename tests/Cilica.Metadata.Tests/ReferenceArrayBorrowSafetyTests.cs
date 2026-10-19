@@ -85,7 +85,7 @@ public sealed class ReferenceArrayBorrowSafetyTests
         using var files=new ResolverFiles();string directory=files.DirectoryPath("reference-array-borrows"),cpp=Path.Combine(directory,"borrow.cpp"),exe=Path.Combine(directory,"borrow");
         await File.WriteAllTextAsync(cpp,source,TestContext.Current.CancellationToken);
         var build=await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX")??"clang++",
-            ["-std=c++20","-fno-exceptions","-fno-rtti","-Wall","-Wextra","-Werror",optimized?"-O2":"-O0","-Wframe-larger-than=2048","-fsanitize=address,undefined","-fno-sanitize-recover=all",cpp,"-o",exe],directory);
+            ["-std=c++20", "-DCILICA_VERIFY_INTERNAL_REFERENCES=1","-fno-exceptions","-fno-rtti","-Wall","-Wextra","-Werror",optimized?"-O2":"-O0","-Wframe-larger-than=2048","-fsanitize=address,undefined","-fno-sanitize-recover=all",cpp,"-o",exe],directory);
         Assert.True(build.ExitCode==0,build.Stderr);
         var run=await NativeProcess.Run(exe,[],directory);Assert.True(run.ExitCode==0,run.Stdout+run.Stderr);Assert.Empty(run.Stderr);
     }

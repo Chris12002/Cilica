@@ -73,7 +73,13 @@ struct BorrowScope {
         const auto token = issue_borrow_token();
         if (token == 0) { status = LocationStatus::limit; return; }
         frame = {c.borrows, &roots, roots.slots, roots.count, accepts, integers, count, token, wide_integers, wide_count};
-        c.borrows = &frame; status = LocationStatus::complete;
+        c.borrows = &frame;
+        if (c.borrow_cache == nullptr) c.borrow_cache = new(std::nothrow) BorrowFrame*[64]{};
+        if (c.borrow_cache != nullptr) {
+            auto& cached = c.borrow_cache[token % 64];
+            if (cached == nullptr) cached = &frame;
+        }
+        status = LocationStatus::complete;
     }
     // Keep per-frame array access and sanitizer instrumentation out of the
     // generated method driver, whose native stack must remain bounded at O0.
@@ -82,7 +88,14 @@ struct BorrowScope {
             storage->wide_integers.data(), storage->wide_integers.size()) {}
     BorrowScope(const BorrowScope&) = delete;
     BorrowScope& operator=(const BorrowScope&) = delete;
-    ~BorrowScope() noexcept { if (status == LocationStatus::complete) context.borrows = frame.previous; }
+    ~BorrowScope() noexcept {
+        if (status != LocationStatus::complete) return;
+        if (context.borrow_cache != nullptr) {
+            auto& cached = context.borrow_cache[frame.token % 64];
+            if (cached == &frame) cached = nullptr;
+        }
+        context.borrows = frame.previous;
+    }
 };
 // Even a registration whose native scope ends later cannot authenticate a root
 // frame after it has been popped, including replacement at the same address.
@@ -93,13 +106,21 @@ static void retire_borrows(Context& context, const Frame& roots) noexcept {
 }
 [[gnu::noinline]] static const BorrowFrame* find_borrow(const Context& context, std::uint64_t token) noexcept {
     if (token == 0) return nullptr;
-    const BorrowFrame* found = nullptr;
-    std::size_t count = 0;
-    for (const BorrowFrame* frame = context.borrows; frame != nullptr; frame = frame->previous) {
-        if (++count > 64) return nullptr;
-        if (frame->token == token) found = frame;
+    const BorrowFrame* found = context.borrow_cache == nullptr ? nullptr : context.borrow_cache[token % 64];
+    // The cache is only an accelerator. Full tokens authenticate a context's
+    // registration; collisions preserve the original bounded list lookup.
+    if (CILICA_VERIFY_BORROW_LIFETIMES || found == nullptr || found->token != token) {
+        found = nullptr;
+        std::size_t count = 0;
+        for (const BorrowFrame* frame = context.borrows; frame != nullptr; frame = frame->previous) {
+            if (++count > 64) return nullptr;
+            if (frame->token == token) found = frame;
+        }
     }
-    if (found == nullptr || found->roots == nullptr || !active_root_frame(context, found->roots)) return nullptr;
+    if (found == nullptr || found->roots == nullptr) return nullptr;
+    // Registration checked membership; every RootScope pop retires it before
+    // storage can be reused. Diagnostic mode also re-walks the active root list.
+    if (CILICA_VERIFY_BORROW_LIFETIMES && !active_root_frame(context, found->roots)) return nullptr;
     // Only read the root frame after authenticating its active registration.
     if (found->roots->slots != found->references || found->roots->count != found->reference_count) return nullptr;
     return found;

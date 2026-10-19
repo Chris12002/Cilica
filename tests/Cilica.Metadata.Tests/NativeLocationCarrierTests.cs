@@ -16,9 +16,9 @@ namespace Cilica.Metadata.Tests;
 public sealed class NativeLocationCarrierTests
 {
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Scalar_carriers_authenticate_lifetimes_types_and_owners_before_native_access(bool optimized)
+    [InlineData(false, false)] [InlineData(false, true)]
+    [InlineData(true, false)] [InlineData(true, true)]
+    public async Task Scalar_carriers_authenticate_lifetimes_types_and_owners_before_native_access(bool optimized, bool verifyBorrows)
     {
         using var resolver = AssemblyResolver.Create([Path.GetDirectoryName(typeof(object).Assembly.Location)!]).Value!;
         var input = resolver.OpenInput(typeof(LocationProbe).Assembly.Location).Value!;
@@ -109,6 +109,30 @@ public sealed class NativeLocationCarrierTests
                 roots.reset();
                 { RootScope reused(c, frame, nullptr, 0);
                   assert(store_location_integer(c, expired, 99) == LocationStatus::invalid && integer == 13); }
+            }
+            [[gnu::noinline]] static void cache_collisions_and_non_top_registration() {
+                Instance heap; Context c(heap); std::uint32_t a = 3, b = 4, result = 0;
+                Frame parent, child; RootScope outer(c, parent, nullptr, 0);
+                RootScope inner(c, child, nullptr, 0);
+                // Registration need not refer to the top root frame.
+                BorrowScope first(c, parent, &a, 1, nullptr);
+                assert(first.status == LocationStatus::complete);
+                const auto saved = frame_location(c, first.frame.token, LocationOrigin::frame_integer, 0).value;
+                bool collision = false;
+                for (int i = 0; i < 128; ++i) {
+                    BorrowScope second(c, child, &b, 1, nullptr);
+                    assert(second.status == LocationStatus::complete);
+                    const auto current = frame_location(c, second.frame.token, LocationOrigin::frame_integer, 0).value;
+                    collision |= first.frame.token % 64 == second.frame.token % 64;
+                    assert(load_location_integer(c, saved, result) == LocationStatus::complete && result == a);
+                    assert(load_location_integer(c, current, result) == LocationStatus::complete && result == b);
+                    auto** cache = c.borrow_cache; c.borrow_cache = nullptr;
+                    assert(load_location_integer(c, current, result) == LocationStatus::complete && result == b);
+                    c.borrow_cache = cache;
+                    auto forged = saved; forged.frame = second.frame.token + 64;
+                    assert(load_location_integer(c, forged, result) == LocationStatus::invalid);
+                }
+                assert(collision && load_location_integer(c, saved, result) == LocationStatus::complete);
             }
             [[gnu::noinline]] static void registration_limits() {
                 Instance heap; Context c(heap); Frame unpublished; std::uint32_t integer = 1;
@@ -274,7 +298,7 @@ public sealed class NativeLocationCarrierTests
                 assert(c.pending == 2 && c.method == 19 && c.il == 23 && c.image == image);
             }
             int main() {
-                local_slots_and_nested_borrow(); frame_reuse_and_context_isolation(); registration_limits();
+                local_slots_and_nested_borrow(); frame_reuse_and_context_isolation(); cache_collisions_and_non_top_registration(); registration_limits();
                 exact_registration_bounds(); exact_depth_bound();
                 heap_fields_and_reference_checks(); frame_reference_collection(); rooted_location_collection(); errors_preserve_faults_and_exhaustion_is_terminal();
             }
@@ -283,7 +307,7 @@ public sealed class NativeLocationCarrierTests
         string cpp = Path.Combine(directory, "locations.cpp"), executable = Path.Combine(directory, "locations");
         File.WriteAllText(cpp, source.ToString(), new UTF8Encoding(false));
         var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
-            ["-std=c++20", /* Private forged-pointer probes require diagnostic membership checks. */ "-DCILICA_VERIFY_INTERNAL_REFERENCES=1", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
+            ["-std=c++20", "-DCILICA_VERIFY_BORROW_LIFETIMES=" + (verifyBorrows ? "1" : "0"), /* Private forged-pointer probes require diagnostic membership checks. */ "-DCILICA_VERIFY_INTERNAL_REFERENCES=1", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
              "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", executable], directory);
         Assert.True(build.ExitCode == 0, build.Stderr);
         var run = await NativeProcess.Run(executable, [], directory);
