@@ -12,7 +12,10 @@ The output should answer both how a library performs and why it performs that wa
 Cilica remains an independent compiler and runtime. Comparator output supplies
 evidence and optimization hypotheses; it does not become Cilica's implementation.
 Follow the priorities in the [design specification](design-specification.md):
-startup, embedding overhead, size, memory and collection pauses, then throughput.
+as of 2026-10-19, execution latency and steady-state throughput for supported,
+correct workloads come first, with DiffPlex as the immediate benchmark. Startup,
+embedding overhead, size, memory and collection pauses remain measured trade-offs.
+Historical prototype performance disclaimers do not defer this work.
 
 ## Existing foundation and scope
 

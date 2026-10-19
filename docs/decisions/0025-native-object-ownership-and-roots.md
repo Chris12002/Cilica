@@ -2,6 +2,13 @@
 
 Status: accepted for the straight-line native checkpoint. Recorded 2026-10-02.
 
+Policy update, 2026-10-19: "no performance claim" below describes this historical
+checkpoint, not an instruction to preserve linear ownership scans or defer
+optimization. [The current performance priority](../design-specification.md#current-performance-priority-2026-10-19)
+requires reviewing expensive internal verification separately from managed
+semantics and public boundary guarantees. The checks remain implemented until
+a reviewed change establishes their replacement or diagnostic-only role.
+
 ## Context
 
 ADR 0024 supplies validated object operations. Executing them requires target

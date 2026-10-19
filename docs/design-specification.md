@@ -12,6 +12,11 @@ first application integration. The portfolio value comes from implementing
 language semantics, memory management, interoperability and cross-platform
 execution, supported by reproducible evidence of correctness.
 
+Current engineering priority (2026-10-19): for supported capabilities whose
+correctness is established, execution performance is the primary objective.
+Correctness remains an acceptance condition. Historical prototype disclaimers
+do not justify deferring measured bottlenecks; section 15 governs current work.
+
 Cilica compiles supported .NET assemblies into readable C++, then builds native
 libraries or WebAssembly modules. Applications embed those outputs through a
 stable API. Its four independently useful deliverables are:
@@ -1254,24 +1259,44 @@ The proposed [benchmarking and improvement plan](benchmarking-and-improvement-pl
 extends the existing local execution-frame harness with NativeAOT and Unity
 IL2CPP adapters, artifact inspection and measured optimization experiments.
 It separates library execution from host costs and treats standalone IL2CPP
-extraction as an optional feasibility investigation. These comparisons and their
-resulting improvements remain planned, not measured capabilities.
+extraction as an optional feasibility investigation. The plan itself does not
+establish measured capabilities: attribute each comparison or improvement to
+its retained evidence, exact workload, compiler revision and target.
 
-Performance priorities follow the primary use: embedded engines in Expo apps on
-iOS and Android. In order, optimise:
+### Current performance priority (2026-10-19)
 
-1. Cold start, from application launch to a runtime ready for its first call.
-2. Per-call latency across the JavaScript, native and managed boundary,
-   including serialization.
-3. Binary size of the compiled library and runtime.
-4. Peak memory and collection pauses, which cause visible stutter.
-5. Steady-state throughput, which matters for heavy work such as AI search.
+Execution latency and steady-state throughput are the primary engineering
+priority for supported workloads with established correctness. Address measured
+runtime and generated-code bottlenecks before broadening capability coverage.
+DiffPlex is the immediate representative workload; compare equivalent operations
+with ordinary .NET and Unity IL2CPP, and NativeAOT where separately available.
+State the actual backend and build configuration for every result. Competitive
+execution is the objective; do not accept a large slowdown merely because a
+prototype made "no performance claim" or chose not to target parity.
 
-Optimisation effort goes first to bridge design, startup work and code size,
-then to code-generator throughput. The throughput goal on native targets is a
-measured factor of NativeAOT, not parity. On the web, where NativeAOT has no
-official target, Cilica aims to compare favourably with the .NET options that
-do run in browsers. These are aims, not claims, until baselines exist.
+This supersedes the earlier startup-first ordering and the throughput deferral
+in ADR 0029. Startup, bridge overhead, binary size, memory and collection pauses
+remain measured trade-offs, not automatic reasons to postpone execution work.
+Historical disclaimers remain limits on past evidence, not current work policy.
+No numerical parity or speedup is established by this priority change.
+
+Preserve managed semantics, live-object retention and public embedding boundary
+guarantees. Repeated internal ownership proofs, corruption diagnostics, helper
+dispatch and prototype frame thresholds are implementation choices to review,
+not requirements to preserve unchanged. Establish where compiler validation and
+boundary checks provide the required guarantee, then move expensive redundant
+verification into an explicit diagnostic mode. A change to a diagnostic contract
+must update its tests and documentation; do not silently disable a check whose
+correctness role has not been established. This policy does not itself remove
+checks or implement a new execution mode.
+
+Accept performance changes using comparable before/after release measurements
+with validated outputs, raw samples, exact revisions, inputs, toolchains and
+compiler flags. Report remaining gaps and memory/stack trade-offs. Run targeted
+differential, GC-stress and sanitizer checks separately; their overhead must not
+dictate production architecture without a measured target constraint. An
+optimization slice requires both correctness evidence and a demonstrated benefit
+in its stated metric; passing correctness tests alone does not complete it.
 
 ## 16. Milestones and exit gates
 

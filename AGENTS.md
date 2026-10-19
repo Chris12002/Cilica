@@ -65,6 +65,26 @@ feedback before implementation. Explain consequential choices in plain language.
 - Do not change example game rules to conceal compiler or runtime defects.
 - Keep application-specific game logic out of compiler/runtime packages.
 
+## Performance priority
+
+- For supported capabilities with established correctness, execution performance
+  is the primary engineering priority. Preserve correct results while removing
+  measured costs; do not defer known bottlenecks to add more capabilities.
+- Historical "no performance claim" statements limit what past evidence proves;
+  they do not authorize postponing optimization or preserving slow mechanisms.
+- Treat internal ownership scans, diagnostic checks, helper dispatch and frame
+  limits as revisable implementation choices. Distinguish public boundary and
+  managed-semantic guarantees from private corruption diagnostics. Expensive
+  internal verification should have an explicit diagnostic mode unless normal
+  execution requires it for correctness; establish that distinction before removal.
+- For performance changes, retain comparable before/after release measurements
+  on representative workloads, with correct outputs, exact revisions and build
+  settings. Use DiffPlex as the immediate execution benchmark and compare with
+  ordinary .NET and Unity IL2CPP where available. Keep NativeAOT results distinct.
+- Review correctness and speed together. Sanitizer/stress builds validate
+  correctness separately from release timing. Revisit prototype limits using
+  measured target budgets rather than treating their original values as permanent.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.

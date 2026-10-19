@@ -3,6 +3,13 @@
 Status: retain the two-statement baseline; reject the four-statement candidate.
 Recorded 2026-10-02.
 
+Policy update, 2026-10-19: the throughput deferrals below are superseded by
+[the current performance priority](../design-specification.md#current-performance-priority-2026-10-19).
+Execution performance is now the primary objective for supported capabilities
+with established correctness. The experiment and rejection below remain
+historical evidence; their implementation choices are open to measured revision.
+This update does not adopt the rejected candidate or change runtime code.
+
 ## Context and decision
 
 ADR 0027 used two ordinary IR statements per non-inlined native helper to bound
