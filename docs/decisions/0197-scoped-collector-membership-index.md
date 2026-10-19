@@ -1,6 +1,6 @@
 # ADR 0197: Index validated allocation addresses during collection
 
-Status: implemented; release measurement pending. Recorded 2026-10-20.
+Status: accepted. Recorded 2026-10-20.
 
 ## Motivation
 
@@ -59,5 +59,8 @@ disabled, cover initial/growth allocation failure, cache reuse, foreign/forged/
 interior pointers, invalid roots and child edges, budget/visitor stops, reclamation,
 empty heaps and subsequent allocations. Existing tracing tests assert inactive
 lookup state after every pass and before classification callbacks. Twelve focused
-and 42 adjacent checks pass. Release acceptance requires fresh paired DiffPlex
-emissions and measurements; no speedup is claimed by these correctness checks.
+and 42 adjacent checks pass, along with seven separate-module checks (61 total).
+Fresh paired DiffPlex medians improve from 531.794 to 365.227 microseconds/op,
+1.4561x faster. Four full transcripts and two forced-GC operations pass. The
+[performance report](../performance/gc-membership-20261020.md) retains exact
+revisions, inputs, raw timings, source comparison and remaining costs.

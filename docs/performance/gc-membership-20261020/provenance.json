@@ -1,0 +1,89 @@
+{
+  "method": "Independently emitted baseline/candidate; exact runtime-only and profile difference verified",
+  "baseline_revision": "6910eccaccec8efb4e96b0f788d7719b3fb63553",
+  "baseline_emission_sha256": "9f7dc20db942fd56db9a8d901ea44c6511dd76b3cf3d0ad7da3a473602b0af9d",
+  "candidate_emission_sha256": "eb1e5ede4ac4d95b22234e3eb8cd615abb367fd7aad25f11e49808e8fcea5405",
+  "baseline_profile": "// Cilica object-frames-native-v90",
+  "candidate_profile": "// Cilica object-frames-native-v91",
+  "measurement_iterations_per_sample": 64,
+  "changed_source_hashes": {
+    "ObjectCppRuntime.cs": "45e3c0bd155f02368807631df2c9bd0cadea009170b1a74a22644f19b80a1c85",
+    "ObjectCppMarking.cs": "a9f0afecc4302b741bb5375aebb31c103aae1bd4eb3b86cc7139465f95858ab7",
+    "ObjectCppEmitter.cs": "645e250424a75586100461e6fdbb4fe585766d4ad81374cfedbca872a4693729"
+  },
+  "checkout_revision": "c29cb36f0b403ae12038e08d282ef42d6a8dde4f",
+  "runtime_sha256": "45e3c0bd155f02368807631df2c9bd0cadea009170b1a74a22644f19b80a1c85",
+  "platform": "macOS-15.7.3-arm64-arm-64bit",
+  "machine": "arm64",
+  "compiler": "Apple clang version 17.0.0 (clang-1700.4.4.1)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "commands": {
+    "baseline": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/gc-membership-performance-20261020/native/baseline.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/gc-membership-performance-20261020/native/baseline"
+    ],
+    "candidate": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/gc-membership-performance-20261020/native/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/gc-membership-performance-20261020/native/candidate"
+    ],
+    "verification": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DCILICA_VERIFY_INTERNAL_REFERENCES=1",
+      "-DCILICA_VERIFY_ALLOCATION_ROOTS=1",
+      "-DNDEBUG",
+      "/Users/christian/Cilica/artifacts/gc-membership-performance-20261020/native/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/gc-membership-performance-20261020/native/verification"
+    ],
+    "sanitized": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/christian/Cilica/artifacts/gc-membership-performance-20261020/native/candidate.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/gc-membership-performance-20261020/native/sanitized"
+    ]
+  },
+  "hashes": {
+    "baseline.cpp": "d44c7f4adb055e129692d499b50531e5019d09ecd8171792be2250aa3018927a",
+    "candidate.cpp": "e7dbc91afc935756e160dd295d16789a1929f3c3fa5f0a4f68ded1e3a5e1e9c8",
+    "baseline": "532d701f675046b006c57004e964c102a4654b94289b561c730205657ebf08ff",
+    "candidate": "380c7285d287521b718ba2f85b179e712c38481c01a768052ab36f7c6b40a3db",
+    "verification": "bb3f06c18e1728fa3832586970b01b4c662bdea023438c96a2cbd7c71a423918",
+    "sanitized": "c81c19f997786143a8c3cec254dce9aaff739605d62d32d28e2ea1c7d5329db2",
+    "expected.json": "1a816a2d4476db245185516dabf0a5777ad978d519373b5f1a618b785a5f8592"
+  }
+}

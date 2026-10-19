@@ -1,8 +1,11 @@
 # DiffPlex: internal reference membership verification
 
-Recorded 2026-10-19 on macOS 15.7.3 ARM64, Apple M4 Pro. This is the current
-performance result on `codex/runtime-performance`, extending the
+Recorded 2026-10-19 on macOS 15.7.3 ARM64, Apple M4 Pro. This records the
+internal-reference result on `codex/runtime-performance`, extending the
 [allocation-verification result](latest-diffplex-20261019.md).
+
+The subsequent [collector membership index](gc-membership-20261020.md) is the
+latest paired result: 531.794 to 365.227 microseconds/op (1.4561x faster).
 
 ## Result
 

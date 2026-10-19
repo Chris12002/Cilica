@@ -1,0 +1,53 @@
+{
+  "baseline_revision": "6910eccaccec8efb4e96b0f788d7719b3fb63553",
+  "candidate_revision": "c29cb36f0b403ae12038e08d282ef42d6a8dde4f",
+  "source_hashes": {
+    "src/Cilica.Compiler/ObjectCppRuntime.cs": "45e3c0bd155f02368807631df2c9bd0cadea009170b1a74a22644f19b80a1c85",
+    "src/Cilica.Compiler/ObjectCppMarking.cs": "a9f0afecc4302b741bb5375aebb31c103aae1bd4eb3b86cc7139465f95858ab7",
+    "src/Cilica.Compiler/ObjectCppEmitter.cs": "645e250424a75586100461e6fdbb4fe585766d4ad81374cfedbca872a4693729",
+    "src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll": "6d5ecd013479f93d17ea1c4940394d1a4d32c403cd232ed29d4cfba3f86a1261",
+    "tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll": "dec19967c1eb476a93c269b631c3b0078fdabeff17de531871d78efdbe14f561",
+    "tools/Performance/gc_membership.py": "bf3c435fc736e918702a7d1466e999e964ac8dc6593dffd29f3bfae154a40426",
+    "tools/Performance/allocation_verification.py": "1492192940cddcd069e92755f9eeae9afd5a54873b16f98dc5fde5dddc41b899",
+    "tools/CompatibilityCandidates/diffplex-benchmark/native-host.cpp.template": "c6ca290a395e736614856c96d6348b17f037dba9c4a2f70b29a4b8c3f2597e8f"
+  },
+  "library_trees": {
+    "6910ecc": {
+      "library/Cilica.Core": "6b5f7e778ab810f48e4a27650a393c0c72f5e997",
+      "library/Cilica.Library": "57361b97238417e21412178245840ca826eea499"
+    },
+    "HEAD": {
+      "library/Cilica.Core": "6b5f7e778ab810f48e4a27650a393c0c72f5e997",
+      "library/Cilica.Library": "57361b97238417e21412178245840ca826eea499"
+    }
+  },
+  "targeted_tests": {
+    "focused": 12,
+    "adjacent": 42,
+    "module": 7,
+    "total": 61
+  },
+  "review": "Checked overflow and half-load termination; address comparison before header access; activation only after full inventory validation; disabled before reporting/sweep and all exits; fallback on scratch allocation failure; no root elision, object-header or public ABI change.",
+  "inputs": {
+    "/Users/christian/Cilica/artifacts/roslyn-il-investigation-20261019/DiffPlex.Benchmark.il": "f8c040b5aeecbafc169290ec5f82190dd064909c752eaaf8bc479f36c00eeacc",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8"
+  },
+  "roslyn_build_options": {
+    "version": "2",
+    "compiler-version": "5.9.0-1.26379.115+14fbf8d5271c98133561eb55185fdb05b286f578",
+    "language": "C#",
+    "source-file-count": "16",
+    "output-kind": "DynamicallyLinkedLibrary",
+    "optimization": "release",
+    "platform": "AnyCpu",
+    "runtime-version": "10.0.11-servicing.26373.116+e2f47b0110ed922f21a1522da67279133ce28f32",
+    "language-version": "14.0",
+    "define": "TRACE,RELEASE,NETSTANDARD,NETSTANDARD2_0,NETSTANDARD1_0_OR_GREATER,NETSTANDARD1_1_OR_GREATER,NETSTANDARD1_2_OR_GREATER,NETSTANDARD1_3_OR_GREATER,NETSTANDARD1_4_OR_GREATER,NETSTANDARD1_5_OR_GREATER,NETSTANDARD1_6_OR_GREATER,NETSTANDARD2_0_OR_GREATER"
+  },
+  "roslyn_source_match": "Requested commit unavailable from GitHub upload-pack; comparative source only",
+  "roslyn_source_requested_revision": "14fbf8d5271c98133561eb55185fdb05b286f578",
+  "roslyn_source_inspected_revision": "e4e2833be7abbc54776788ca35d5c4d2697b0261",
+  "baseline_reemission_matches_previous_candidate": true,
+  "source_comparison": "Exact two runtime Text fragments and native profile only; all managed methods and descriptors unchanged."
+}

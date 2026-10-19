@@ -1,0 +1,12 @@
+{
+  "revision": "6910eccaccec8efb4e96b0f788d7719b3fb63553",
+  "hashes": {
+    "src/Cilica.Compiler/bin/Debug/net10.0/Cilica.Compiler.dll": "9380c0e1686e1ac67f585d2c77a5b19428e0fb4260cae3b7df87a20e97a4dbd7",
+    "tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll": "b8819d9b47e5db5ddf3d7d6224a3c2714a771cccc61205593220d5d59d418e2d",
+    "artifacts/gc-membership-performance-20261020/baseline.cpp": "9f7dc20db942fd56db9a8d901ea44c6511dd76b3cf3d0ad7da3a473602b0af9d"
+  },
+  "library_trees": {
+    "library/Cilica.Core": "6b5f7e778ab810f48e4a27650a393c0c72f5e997",
+    "library/Cilica.Library": "57361b97238417e21412178245840ca826eea499"
+  }
+}
