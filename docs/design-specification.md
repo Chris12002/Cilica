@@ -381,7 +381,11 @@ Native v92 adds a direct path for structurally proven field getters
 one scalar/reference field without reserving an execution frame or publishing
 duplicate roots. They cannot allocate or call managed code, and caller roots
 retain receivers/results. Cold entry, exceptional states and failed checks retain
-the original framed path and fault ordering. A valid leaf read can now succeed
+the original framed path and fault ordering.
+Native v96 additionally emits typed scalar kernels with native locals for bounded
+side-effect-free methods. Direct calls avoid packets; depth remains counted and
+cold/fault paths replay through the original frame. See
+[ADR 0203](decisions/0203-typed-scalar-kernels.md). A valid leaf read can now succeed
 without spare arena capacity; the existing depth boundary remains checked.
 
 The object boundary now uses a fixed-size native signature with an Int32 input

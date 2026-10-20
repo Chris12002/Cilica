@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v95";
+    public const string Profile = "object-frames-native-v96";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -92,6 +92,7 @@ public static class ObjectCppEmitter
         // Catalog facts are immutable and shared by every method in this closure.
         var exceptionRules = handlers ? new ManagedExceptionRules(exceptions!, program.Flow.Types) : null;
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
+        var typedMethods = ObjectCppTypedMethods.Analyze(methods.Values);
         var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
         if (program.InterfaceDispatch is { } interfacePlan)
             foreach (var declaration in interfacePlan.Declarations)
@@ -154,6 +155,7 @@ public static class ObjectCppEmitter
             .Append((exceptions is null ? 0 : ManagedExceptionMessages.Build(exceptions, program.Flow.Types).Values
                 .Where(message => !message.StartsWith("Exception of type '", StringComparison.Ordinal)).Distinct(StringComparer.Ordinal).Count()).ToString(CultureInfo.InvariantCulture))
             .Append(";\nstatic constexpr std::size_t runtime_type_count = ").Append(N(runtimeIdentities.Count)).Append(";\nstatic constexpr std::size_t static_field_count = ").Append(N(statics.Count)).Append(";\nstatic constexpr std::size_t type_initializer_count = ").Append(N(initializers.Count)).Append(";\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
+        text.Append(ObjectCppTypedMethods.Runtime);
         if (exceptions is not null) ObjectCppExceptions.AppendStorage(text);
         if (handlers) text.Append(ObjectCppExceptionFlow.Storage);
         if (program.Flow.Types.Integer64) text.Append(Int64CppLowering.Runtime);
@@ -363,6 +365,7 @@ public static class ObjectCppEmitter
                 text.Length = frameStart;
             }
             Header(method); text.Append(";\n");
+            if (typedMethods.ContainsKey(IrMethodId.From(method.Source))) ObjectCppTypedMethods.Declare(text, method, module is not null);
         }
         if (initializers.Count != 0) {
             text.Append(ObjectCppInitialization.Text.Replace("$ARGUMENT", argumentType, StringComparison.Ordinal));
@@ -437,6 +440,7 @@ public static class ObjectCppEmitter
         {
             var layout = layouts[IrMethodId.From(method.Source)];
             var leafField = ObjectCppLeafMethods.FieldGetter(method);
+            bool typed = typedMethods.ContainsKey(IrMethodId.From(method.Source));
             int currentBlock = 0;
 
             var output = text;
@@ -509,6 +513,8 @@ public static class ObjectCppEmitter
             }
             string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false, int offset = 0)
             {
+                if (!dispatch && receiver is null && typedMethods.ContainsKey(target))
+                    return CppEmitter.Symbol(target) + "_typed(context" + (args.IsEmpty ? "" : ", " + string.Join(", ", args.Select(Value))) + ")";
                 var parameters = signatures[target].Parameters;
                 int start = receiver is null ? 0 : 1;
                 if (receiver is not null) code.Append("    f->arguments[0].reference = ").Append(receiver).Append(";\n");
@@ -932,7 +938,7 @@ public static class ObjectCppEmitter
             ObjectCppControlFlow.AppendHelpers(code, steps, FrameType(method), direct);
             code.Append("}\n");
             inStep = false;
-            Header(method, leafField is null ? "" : "_framed"); code.Append(" {\n");
+            Header(method, leafField is null && !typed ? "" : "_framed"); code.Append(" {\n");
             if (handlers)
             {
                 code.Append("    if (context.pending != 0u) ").Append(Exit()).Append('\n');
@@ -960,6 +966,7 @@ public static class ObjectCppEmitter
                     IrTypeKind.Int64 => "return std::bit_cast<std::int64_t>(f->result.wide_bits);",
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
+            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null);
             if (leafField is { } selectedField)
             {
                 Header(method); code.Append(" {\n    // Proven leaf getter: no allocation, managed call or escaping borrow.\n")
