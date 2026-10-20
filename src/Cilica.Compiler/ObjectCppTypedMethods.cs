@@ -175,7 +175,7 @@ struct TypedCallDepth {
         Header(text, method, false, module); text.Append(";\n");
     }
 
-    internal static void Append(StringBuilder text, IrMethod method, string argumentType, bool module, ObjectTypeId objectBase, Func<ObjectTypeId, string> predicate, Plan plan, ObjectTypeCatalog catalog, ObjectNativeLayout native, Func<ObjectTypeId, string> typeSymbol)
+    internal static void Append(StringBuilder text, IrMethod method, string argumentType, bool module, ObjectTypeId objectBase, Func<ObjectTypeId, string> predicate, Plan plan, ObjectTypeCatalog catalog, ObjectNativeLayout native, Func<ObjectTypeId, string> typeSymbol, Dictionary<ObjectFieldId, ObjectTypeId[]> fieldAccess, Func<ObjectFieldId, string> fieldSymbol)
     {
         var id = IrMethodId.From(method.Source);
         var fields = catalog.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
@@ -226,7 +226,7 @@ struct TypedCallDepth {
                     case IrExpression.LoadField field:
                         Check("v" + N(field.Receiver), field.Field.Owner, true);
                         string storage = fields[field.Field].Storage switch { ObjectStorage.Int32 => "std::uint32_t", ObjectStorage.Int64 => "std::uint64_t", _ => "Object*" };
-                        expression = "*static_cast<" + storage + "*>(field_address(v" + N(field.Receiver) + ", " + N(native.Indices[field.Field]) + "))"; break;
+                        expression = "*static_cast<" + storage + "*>(" + ObjectCppFieldAccess.Address(field.Field, "v" + N(field.Receiver), native, fieldAccess, typeSymbol, fieldSymbol) + ")"; break;
                     case IrExpression.ArrayLength length:
                         CheckArray("v" + N(length.Array), null, null);
                         expression = "array_length(v" + N(length.Array) + ")"; break;

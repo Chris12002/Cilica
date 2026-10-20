@@ -35,7 +35,8 @@ public sealed class NativeLeafGetterTests
             + "_" + flow.Methods.Single(m => m.Source.Token == typeof(LeafGetterBase).GetMethod(name)!.MetadataToken && m.Source.ContentHash == flow.Entry.ContentHash).Source.Token.ToString("x8", CultureInfo.InvariantCulture);
         string getter = Method("GetNumber");
         Assert.Contains(getter + "_framed(", artifact.Text, StringComparison.Ordinal);
-        Assert.DoesNotContain(Method("AddOne") + "_framed(", artifact.Text, StringComparison.Ordinal);
+        // AddOne is a typed kernel since v99, but is not a single-field leaf.
+        Assert.Contains(Method("AddOne") + "_kernel(", artifact.Text, StringComparison.Ordinal);
         Assert.DoesNotContain(Method("Mutate") + "_framed(", artifact.Text, StringComparison.Ordinal);
         var node = flow.Types.Types.Single(t => t.Source.Name.EndsWith("LeafGetterDerived", StringComparison.Ordinal));
         string type = "t_" + node.Source.ContentHash + "_" + node.Source.Token.ToString("x8", CultureInfo.InvariantCulture);

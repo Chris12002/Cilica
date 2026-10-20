@@ -434,6 +434,12 @@ Free-list links are outside poisoned objects in ASan builds. Slabs are not roots
 and are released at instance teardown. See
 [ADR 0212](decisions/0212-bounded-string-header-pool.md).
 
+Native v106 uses exact descriptor guards to inline typed member access for fields
+with at most four actual native layouts. Inherited members use the composed derived
+structure, preserving C++ pointer provenance. Larger sets and O0 retain the original
+accessor. Receiver checks and managed semantics remain unchanged. See
+[ADR 0213](decisions/0213-proven-native-field-access.md).
+
 The object boundary now uses a fixed-size native signature with an Int32 input
 pointer and exact element count, including for wide managed entry methods
 ([ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md)). Its

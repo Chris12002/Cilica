@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v105";
+    public const string Profile = "object-frames-native-v106";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -102,6 +102,7 @@ public static class ObjectCppEmitter
             signatures.Add(IrMethodId.From(declaration.Source), (declaration.Parameters, declaration.ReturnType));
         var bindings = program.Bindings.ToDictionary(b => b.Method);
         var native = new ObjectNativeLayout(program.Flow.Types);
+        var fieldAccess = ObjectCppFieldAccess.Analyze(native, type => exceptions?.Types.Contains(type) != true);
         var delegateDeclarations = program.Flow.Types.Delegates;
         var delegates = delegateDeclarations.IsEmpty ? null : new ObjectCppDelegates(program);
         if (boxedPayloads.IsDefault) boxedPayloads = [];
@@ -236,6 +237,7 @@ public static class ObjectCppEmitter
                 text.Append("    return created;\n}\n");
             }
         }
+        ObjectCppFieldAccess.Append(text, native, fieldAccess, TypeSymbol, FieldSymbol);
         if (program.Flow.Types.String is { } stringType)
         {
             text.Append("[[maybe_unused]] static constexpr Descriptor ").Append(TypeSymbol(stringType)).Append("_descriptor = { sizeof(StringObject), alignof(StringObject), nullptr, 0, destroy_string, &")
@@ -586,7 +588,7 @@ public static class ObjectCppEmitter
             {
                 string value = Value(receiver);
                 string storage = StorageType(fields[field].Storage);
-                return "*static_cast<" + storage + "*>(field_address(" + value + ", " + N(native.Indices[field]) + "))";
+                return "*static_cast<" + storage + "*>(" + ObjectCppFieldAccess.Address(field, value, native, fieldAccess, TypeSymbol, FieldSymbol) + ")";
             }
             for (int i = 0; i < method.Parameters.Length; i++)
             {
@@ -992,7 +994,7 @@ public static class ObjectCppEmitter
                     IrTypeKind.Int64 => "return std::bit_cast<std::int64_t>(f->result.wide_bits);",
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
-            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate, typedMethods, program.Flow.Types, native, TypeSymbol);
+            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate, typedMethods, program.Flow.Types, native, TypeSymbol, fieldAccess, FieldSymbol);
             if (characterMethods.TryGetValue(IrMethodId.From(method.Source), out var localPlan) && localPlan.Target is not null)
                 ObjectCppCharacterMethods.AppendLocal(code, method, localPlan, module is not null);
             if (leafField is { } selectedField)
@@ -1004,7 +1006,7 @@ public static class ObjectCppEmitter
                 foreach (var type in new[] { method.Parameters[0].Class!, selectedField.Owner }.Distinct())
                     if (type != program.Flow.Types.ObjectBase)
                         code.Append(" && ").Append(Predicate(type)).Append("(receiver->type)");
-                string load = "*static_cast<" + StorageType(fields[selectedField].Storage) + "*>(field_address(receiver, " + N(native.Indices[selectedField]) + "))";
+                string load = "*static_cast<" + StorageType(fields[selectedField].Storage) + "*>(" + ObjectCppFieldAccess.Address(selectedField, "receiver", native, fieldAccess, TypeSymbol, FieldSymbol) + ")";
                 code.Append(") {\n            return ").Append(method.ReturnType.Kind switch
                 {
                     IrTypeKind.Int32 => "std::bit_cast<std::int32_t>(" + load + ")",
