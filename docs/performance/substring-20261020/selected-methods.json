@@ -1,0 +1,42 @@
+[
+  {
+    "token": "06000235",
+    "type": "Cilica.Runtime.StringConstruction",
+    "name": "FromSlice",
+    "rva": 0,
+    "signature": "00030E0E0808",
+    "ilBytes": null,
+    "maxStack": null,
+    "localsInitialized": null
+  },
+  {
+    "token": "060002d5",
+    "type": "System.String",
+    "name": "Substring",
+    "rva": 55112,
+    "signature": "20010E08",
+    "ilBytes": 49,
+    "maxStack": 3,
+    "localsInitialized": true
+  },
+  {
+    "token": "060002d6",
+    "type": "System.String",
+    "name": "Substring",
+    "rva": 55173,
+    "signature": "20020E0808",
+    "ilBytes": 57,
+    "maxStack": 8,
+    "localsInitialized": false
+  },
+  {
+    "token": "060002d9",
+    "type": "System.String",
+    "name": "CopySubstring",
+    "rva": 55351,
+    "signature": "20020E0808",
+    "ilBytes": 9,
+    "maxStack": 8,
+    "localsInitialized": false
+  }
+]

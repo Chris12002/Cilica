@@ -64,7 +64,7 @@ internal static class ObjectCppLocalCharacterCalls
                         or IrExpression.AddressArraySlot or IrExpression.ArrayCopyCompatible
                         or IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit
                         or IrExpression.StringEquals or IrExpression.StringConcat or IrExpression.StringFromCharacter
-                        or IrExpression.StringFromCodeUnits or IrExpression.CastClass or IrExpression.IsInstance => true,
+                        or IrExpression.StringFromCodeUnits or IrExpression.StringFromSlice or IrExpression.CastClass or IrExpression.IsInstance => true,
                     _ => false,
                 },
                 IrStatement.StoreLocal s => s.Value != address,

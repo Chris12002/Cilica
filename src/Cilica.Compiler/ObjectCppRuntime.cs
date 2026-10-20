@@ -494,6 +494,13 @@ CILICA_PRIMITIVE_READ static std::uint32_t string_code_unit(Object* value, std::
     if (array->length == 0) return string_literal(context, descriptor, 0, nullptr, 0);
     return allocate_string(context, descriptor, nullptr, array->length, nullptr, 0, nullptr, 0, nullptr, 0, array->integers);
 }
+// The checked source is retained by the calling IR frame. The collector is
+// non-moving, so its payload remains stable through allocation and retry.
+CILICA_ALLOCATION_HELPER static Object* string_from_slice(Context& context, const Descriptor& descriptor, Object* source, std::uint32_t start, std::uint32_t length) noexcept {
+    if (length == 0) return string_literal(context, descriptor, 0, nullptr, 0);
+    const auto* text = reinterpret_cast<StringObject*>(source);
+    return allocate_string(context, descriptor, text->units + start, length, nullptr, 0);
+}
 // The UTF-16 value is native scalar storage and remains valid across collection.
 CILICA_ALLOCATION_HELPER static Object* string_from_character(Context& context, const Descriptor& descriptor, std::uint32_t character) noexcept {
     const auto unit = static_cast<std::uint16_t>(character);

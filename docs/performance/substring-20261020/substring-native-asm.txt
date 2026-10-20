@@ -1,0 +1,405 @@
+000000010001d250 <String.CopySubstring[060002d9](Context&, LocationArgument const*)>:
+10001d250:     	sub	sp, sp, #0x80
+10001d254:     	stp	x28, x27, [sp, #0x20]
+10001d258:     	stp	x26, x25, [sp, #0x30]
+10001d25c:     	stp	x24, x23, [sp, #0x40]
+10001d260:     	stp	x22, x21, [sp, #0x50]
+10001d264:     	stp	x20, x19, [sp, #0x60]
+10001d268:     	stp	x29, x30, [sp, #0x70]
+10001d26c:     	add	x29, sp, #0x70
+10001d270:     	ldr	w8, [x0, #0x48]
+10001d274:     	cbz	w8, 0x10001d280 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x30>
+10001d278:     	mov	x21, #0x0               ; =0
+10001d27c:     	b	0x10001d2ac <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x5c>
+10001d280:     	ldr	x8, [x0, #0x50]
+10001d284:     	cbz	x8, 0x10001d2d0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x80>
+10001d288:     	mov	x21, #0x0               ; =0
+10001d28c:     	mov	w8, #0x6                ; =6
+10001d290:     	str	w8, [x0, #0x48]
+10001d294:     	adrp	x8, 0x100049000 <_strcmp+0x100049000>
+10001d298:     	add	x8, x8, #0xc47
+10001d29c:     	str	x8, [x0, #0x58]
+10001d2a0:     	adrp	x8, 0x100048000 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003b_framed(Context&, LocationArgument const*)+0x1b4>
+10001d2a4:     	ldr	d0, [x8, #0xd28]
+10001d2a8:     	str	d0, [x0, #0x60]
+10001d2ac:     	mov	x0, x21
+10001d2b0:     	ldp	x29, x30, [sp, #0x70]
+10001d2b4:     	ldp	x20, x19, [sp, #0x60]
+10001d2b8:     	ldp	x22, x21, [sp, #0x50]
+10001d2bc:     	ldp	x24, x23, [sp, #0x40]
+10001d2c0:     	ldp	x26, x25, [sp, #0x30]
+10001d2c4:     	ldp	x28, x27, [sp, #0x20]
+10001d2c8:     	add	sp, sp, #0x80
+10001d2cc:     	ret
+10001d2d0:     	ldr	x8, [x0, #0x10]
+10001d2d4:     	cbz	x8, 0x10001d2ec <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x9c>
+10001d2d8:     	cmp	x8, #0x40
+10001d2dc:     	b.lo	0x10001d334 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0xe4>
+10001d2e0:     	mov	x21, #0x0               ; =0
+10001d2e4:     	mov	w8, #0x8                ; =8
+10001d2e8:     	b	0x10001d290 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x40>
+10001d2ec:     	mov	x19, x1
+10001d2f0:     	mov	x20, x0
+10001d2f4:     	bl	0x1000013b0 <prepare_exceptions(Context&)>
+10001d2f8:     	cbz	w0, 0x10001d320 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0xd0>
+10001d2fc:     	mov	x21, #0x0               ; =0
+10001d300:     	str	w0, [x20, #0x48]
+10001d304:     	adrp	x8, 0x100049000 <_strcmp+0x100049000>
+10001d308:     	add	x8, x8, #0xc47
+10001d30c:     	str	x8, [x20, #0x58]
+10001d310:     	adrp	x8, 0x100048000 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003b_framed(Context&, LocationArgument const*)+0x1b4>
+10001d314:     	ldr	d0, [x8, #0xd28]
+10001d318:     	str	d0, [x20, #0x60]
+10001d31c:     	b	0x10001d2ac <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x5c>
+10001d320:     	mov	x0, x20
+10001d324:     	ldr	x8, [x20, #0x10]
+10001d328:     	mov	x1, x19
+10001d32c:     	cmp	x8, #0x40
+10001d330:     	b.hs	0x10001d2e0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x90>
+10001d334:     	ldr	x24, [x0, #0x38]
+10001d338:     	ldr	x8, [x0, #0x28]
+10001d33c:     	subs	x9, x8, x24
+10001d340:     	b.hs	0x10001d350 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x100>
+10001d344:     	mov	x21, #0x0               ; =0
+10001d348:     	mov	w8, #0x9                ; =9
+10001d34c:     	b	0x10001d290 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x40>
+10001d350:     	neg	w10, w24
+10001d354:     	and	x19, x10, #0x7
+10001d358:     	subs	x9, x9, x19
+10001d35c:     	b.lo	0x10001d344 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0xf4>
+10001d360:     	cmp	x9, #0x1e8
+10001d364:     	b.lo	0x10001d344 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0xf4>
+10001d368:     	ldr	x9, [x0, #0x30]
+10001d36c:     	cbnz	x9, 0x10001d3a0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x150>
+10001d370:     	adrp	x9, 0x10004c000 <_strcmp+0x10004c000>
+10001d374:     	ldr	x9, [x9, #0x8]
+10001d378:     	mov	x20, x0
+10001d37c:     	mov	x0, x8
+10001d380:     	mov	x21, x1
+10001d384:     	mov	x1, x9
+10001d388:     	bl	0x100048934 <_strcmp+0x100048934>
+10001d38c:     	mov	x1, x21
+10001d390:     	mov	x9, x0
+10001d394:     	mov	x0, x20
+10001d398:     	str	x9, [x20, #0x30]
+10001d39c:     	cbz	x9, 0x10001d344 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0xf4>
+10001d3a0:     	add	x10, x24, x19
+10001d3a4:     	add	x19, x10, x9
+10001d3a8:     	movi.2d	v0, #0000000000000000
+10001d3ac:     	mov	x25, x19
+10001d3b0:     	str	q0, [x25, #0x28]!
+10001d3b4:     	str	xzr, [x19, #0x58]
+10001d3b8:     	str	wzr, [x19, #0x60]
+10001d3bc:     	stur	q0, [x19, #0x38]
+10001d3c0:     	stur	q0, [x19, #0x45]
+10001d3c4:     	add	x9, x19, #0x148
+10001d3c8:     	str	xzr, [x19, #0x170]
+10001d3cc:     	str	wzr, [x19, #0x178]
+10001d3d0:     	str	xzr, [x19, #0x1a0]
+10001d3d4:     	str	wzr, [x19, #0x1a8]
+10001d3d8:     	strb	wzr, [x19, #0x1ac]
+10001d3dc:     	str	wzr, [x19, #0x1b0]
+10001d3e0:     	add	x11, x19, #0x1b8
+10001d3e4:     	stp	q0, q0, [x19]
+10001d3e8:     	str	wzr, [x19, #0x20]
+10001d3ec:     	stur	q0, [x19, #0x68]
+10001d3f0:     	stur	q0, [x19, #0x78]
+10001d3f4:     	stur	q0, [x19, #0x88]
+10001d3f8:     	stp	q0, q0, [x19, #0xa0]
+10001d3fc:     	stp	q0, q0, [x19, #0xc0]
+10001d400:     	stp	q0, q0, [x19, #0xe0]
+10001d404:     	stp	q0, q0, [x19, #0x100]
+10001d408:     	stp	q0, q0, [x19, #0x120]
+10001d40c:     	str	wzr, [x19, #0x140]
+10001d410:     	stur	xzr, [x9, #0x1d]
+10001d414:     	stp	q0, q0, [x9]
+10001d418:     	stp	xzr, xzr, [x19, #0x188]
+10001d41c:     	str	wzr, [x19, #0x198]
+10001d420:     	str	xzr, [x19, #0x180]
+10001d424:     	stp	q0, q0, [x11]
+10001d428:     	add	x9, x10, #0x1e8
+10001d42c:     	str	x9, [x0, #0x38]
+10001d430:     	ldr	x10, [x0, #0x40]
+10001d434:     	cmp	x9, x10
+10001d438:     	b.ls	0x10001d440 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x1f0>
+10001d43c:     	str	x9, [x0, #0x40]
+10001d440:     	ldp	x10, x9, [x0, #0x8]
+10001d444:     	add	x11, x9, #0x1
+10001d448:     	str	x19, [x0, #0x8]
+10001d44c:     	ldr	x9, [x1, #0x8]
+10001d450:     	mov	x12, x19
+10001d454:     	str	x9, [x12, #0x70]!
+10001d458:     	stp	x10, x12, [x19]
+10001d45c:     	mov	w10, #0x3               ; =3
+10001d460:     	stp	x10, x1, [x19, #0x10]
+10001d464:     	str	x11, [x0, #0x10]
+10001d468:     	ldr	w11, [x1, #0x50]
+10001d46c:     	str	w11, [x19, #0x88]
+10001d470:     	ldr	w10, [x1, #0xa0]
+10001d474:     	str	w10, [x19, #0x8c]
+10001d478:     	ldr	w12, [x0, #0x48]
+10001d47c:     	cbnz	w12, 0x10001d4e0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x290>
+10001d480:     	cbz	x9, 0x10001d4c0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x270>
+10001d484:     	ldr	x12, [x9]
+10001d488:     	adrp	x13, 0x10004d000 <t_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_020000e5_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_descriptor+0x58>
+10001d48c:     	add	x13, x13, #0xb88
+10001d490:     	cmp	x12, x13
+10001d494:     	b.eq	0x10001d4c0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x270>
+10001d498:     	mov	w8, #0x0                ; =0
+10001d49c:     	mov	w12, #0x6               ; =6
+10001d4a0:     	str	w12, [x0, #0x48]
+10001d4a4:     	adrp	x9, 0x100049000 <_strcmp+0x100049000>
+10001d4a8:     	add	x9, x9, #0xc47
+10001d4ac:     	str	x9, [x0, #0x58]
+10001d4b0:     	mov	w9, #0x2d9              ; =729
+10001d4b4:     	movk	w9, #0x600, lsl #16
+10001d4b8:     	stp	w9, w8, [x0, #0x60]
+10001d4bc:     	b	0x10001d4e0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x290>
+10001d4c0:     	str	wzr, [x19, #0x1a8]
+10001d4c4:     	str	x9, [x19, #0x78]
+10001d4c8:     	str	w11, [x19, #0x90]
+10001d4cc:     	ldr	w12, [x0, #0x48]
+10001d4d0:     	cbnz	w12, 0x10001d4e0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x290>
+10001d4d4:     	str	w10, [x19, #0x94]
+10001d4d8:     	ldr	w12, [x0, #0x48]
+10001d4dc:     	cbz	w12, 0x10001d524 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x2d4>
+10001d4e0:     	mov	x20, x0
+10001d4e4:     	mov	x1, x19
+10001d4e8:     	bl	0x100005d58 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000050_steps::dispatch_exception(Context&, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000050_storage*)>
+10001d4ec:     	ldr	x21, [x19, #0x28]
+10001d4f0:     	ldr	x8, [x20, #0x18]
+10001d4f4:     	cbz	x8, 0x10001d61c <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3cc>
+10001d4f8:     	mov	w9, #0x41               ; =65
+10001d4fc:     	b	0x10001d508 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x2b8>
+10001d500:     	ldr	x8, [x8]
+10001d504:     	cbz	x8, 0x10001d61c <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3cc>
+10001d508:     	subs	x9, x9, #0x1
+10001d50c:     	b.eq	0x10001d61c <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3cc>
+10001d510:     	ldr	x10, [x8, #0x8]
+10001d514:     	cmp	x10, x19
+10001d518:     	b.ne	0x10001d500 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x2b0>
+10001d51c:     	str	xzr, [x8, #0x8]
+10001d520:     	b	0x10001d500 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x2b0>
+10001d524:     	cbz	x9, 0x10001d544 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x2f4>
+10001d528:     	ldr	x13, [x9]
+10001d52c:     	adrp	x12, 0x10004d000 <t_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_020000e5_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_descriptor+0x58>
+10001d530:     	add	x12, x12, #0xb88
+10001d534:     	cmp	x13, x12
+10001d538:     	b.eq	0x10001d550 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x300>
+10001d53c:     	mov	w8, #0x3                ; =3
+10001d540:     	b	0x10001d49c <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x24c>
+10001d544:     	mov	w8, #0x3                ; =3
+10001d548:     	mov	w12, #0x4               ; =4
+10001d54c:     	b	0x10001d4a0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x250>
+10001d550:     	ldr	w13, [x9, #0x38]
+10001d554:     	mov	w8, #0x3                ; =3
+10001d558:     	mov	w12, #0xa               ; =10
+10001d55c:     	mov	x28, x11
+10001d560:     	subs	w11, w13, w11
+10001d564:     	b.lo	0x10001d4a0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x250>
+10001d568:     	cmp	w10, w11
+10001d56c:     	b.hi	0x10001d4a0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x250>
+10001d570:     	mov	x27, x10
+10001d574:     	str	x24, [sp, #0x10]
+10001d578:     	mov	x20, x0
+10001d57c:     	cbz	w27, 0x10001d5e0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x390>
+10001d580:     	ldr	x8, [x9, #0x40]
+10001d584:     	str	x8, [sp, #0x8]
+10001d588:     	ldr	x21, [x20, #0x68]
+10001d58c:     	cbz	x21, 0x10001d5a4 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x354>
+10001d590:     	mov	x0, x20
+10001d594:     	bl	0x100003ae4 <valid_roots(Context const&)>
+10001d598:     	cbz	w0, 0x10001d634 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3e4>
+10001d59c:     	mov	x0, x20
+10001d5a0:     	blr	x21
+10001d5a4:     	tbnz	w27, #0x1f, 0x10001d63c <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3ec>
+10001d5a8:     	ldr	x23, [x20]
+10001d5ac:     	mov	x8, x27
+10001d5b0:     	lsl	x24, x27, #1
+10001d5b4:     	add	x9, x24, #0x58
+10001d5b8:     	cmp	w8, #0x1
+10001d5bc:     	mov	w8, #0x58               ; =88
+10001d5c0:     	csel	x26, x8, x9, eq
+10001d5c4:     	strb	wzr, [sp, #0x1f]
+10001d5c8:     	ldrb	w8, [x23, #0x10]
+10001d5cc:     	tbz	w8, #0x0, 0x10001d660 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x410>
+10001d5d0:     	ldr	w8, [x20, #0x48]
+10001d5d4:     	cbz	w8, 0x10001d770 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x520>
+10001d5d8:     	mov	x21, #0x0               ; =0
+10001d5dc:     	b	0x10001d5f8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3a8>
+10001d5e0:     	mov	x0, x20
+10001d5e4:     	mov	x1, #0x0                ; =0
+10001d5e8:     	mov	x2, #0x0                ; =0
+10001d5ec:     	mov	w3, #0x0                ; =0
+10001d5f0:     	bl	0x10000767c <string_literal(Context&, Descriptor const&, unsigned long, unsigned short const*, unsigned int)>
+10001d5f4:     	mov	x21, x0
+10001d5f8:     	str	x21, [x19, #0x80]
+10001d5fc:     	ldr	w8, [x20, #0x48]
+10001d600:     	cbz	x21, 0x10001d644 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3f4>
+10001d604:     	mov	x0, x20
+10001d608:     	ldr	x24, [sp, #0x10]
+10001d60c:     	cbnz	w8, 0x10001d4e0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x290>
+10001d610:     	str	x21, [x25]
+10001d614:     	ldr	x8, [x20, #0x18]
+10001d618:     	cbnz	x8, 0x10001d4f8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x2a8>
+10001d61c:     	ldr	x8, [x19]
+10001d620:     	ldr	x9, [x20, #0x10]
+10001d624:     	sub	x9, x9, #0x1
+10001d628:     	stp	x8, x9, [x20, #0x8]
+10001d62c:     	str	x24, [x20, #0x38]
+10001d630:     	b	0x10001d2ac <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x5c>
+10001d634:     	mov	w8, #0x6                ; =6
+10001d638:     	b	0x10001d640 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3f0>
+10001d63c:     	ldr	w8, [x20, #0x48]
+10001d640:     	str	xzr, [x19, #0x80]
+10001d644:     	mov	w9, #0x5                ; =5
+10001d648:     	cmp	w8, #0x0
+10001d64c:     	csel	w12, w9, w8, eq
+10001d650:     	mov	w8, #0x3                ; =3
+10001d654:     	mov	x0, x20
+10001d658:     	ldr	x24, [sp, #0x10]
+10001d65c:     	b	0x10001d4a0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x250>
+10001d660:     	mov	x22, x23
+10001d664:     	b	0x10001d684 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x434>
+10001d668:     	add	x1, sp, #0x1f
+10001d66c:     	mov	x0, x20
+10001d670:     	bl	0x100003a70 <collect_for_allocation(Context&, bool&)>
+10001d674:     	tbz	w0, #0x0, 0x10001d5d8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x388>
+10001d678:     	ldr	x22, [x20]
+10001d67c:     	ldrb	w8, [x22, #0x10]
+10001d680:     	tbnz	w8, #0x0, 0x10001d5d0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x380>
+10001d684:     	ldrb	w8, [x22, #0x11]
+10001d688:     	cmp	w8, #0x1
+10001d68c:     	b.ne	0x10001d6a8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x458>
+10001d690:     	ldrb	w8, [sp, #0x1f]
+10001d694:     	tbnz	w8, #0x0, 0x10001d6a8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x458>
+10001d698:     	add	x1, sp, #0x1f
+10001d69c:     	mov	x0, x20
+10001d6a0:     	bl	0x100003a70 <collect_for_allocation(Context&, bool&)>
+10001d6a4:     	cbz	w0, 0x10001d5d8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x388>
+10001d6a8:     	ldr	x8, [x22, #0xa8]
+10001d6ac:     	ldr	x9, [x22, #0xb8]
+10001d6b0:     	subs	x8, x9, x8
+10001d6b4:     	ccmp	x26, x8, #0x2, hs
+10001d6b8:     	b.hi	0x10001d6cc <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x47c>
+10001d6bc:     	ldr	x8, [x22, #0xb0]
+10001d6c0:     	ldr	x9, [x22, #0xc0]
+10001d6c4:     	cmp	x8, x9
+10001d6c8:     	b.lo	0x10001d708 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x4b8>
+10001d6cc:     	add	x1, sp, #0x1f
+10001d6d0:     	mov	x0, x20
+10001d6d4:     	bl	0x100003a70 <collect_for_allocation(Context&, bool&)>
+10001d6d8:     	mov	x21, #0x0               ; =0
+10001d6dc:     	cbz	w0, 0x10001d5f8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3a8>
+10001d6e0:     	ldr	x8, [x22, #0xa8]
+10001d6e4:     	ldr	x9, [x22, #0xb8]
+10001d6e8:     	subs	x8, x9, x8
+10001d6ec:     	b.lo	0x10001d5f8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3a8>
+10001d6f0:     	cmp	x26, x8
+10001d6f4:     	b.hi	0x10001d5f8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3a8>
+10001d6f8:     	ldr	x8, [x22, #0xb0]
+10001d6fc:     	ldr	x9, [x22, #0xc0]
+10001d700:     	cmp	x8, x9
+10001d704:     	b.hs	0x10001d5d8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x388>
+10001d708:     	mov	x0, x23
+10001d70c:     	bl	0x100007a6c <acquire_string_header(Instance&)>
+10001d710:     	cbz	x0, 0x10001d668 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x418>
+10001d714:     	mov	x21, x0
+10001d718:     	cbz	w27, 0x10001d738 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x4e8>
+10001d71c:     	cmp	w27, #0x1
+10001d720:     	b.eq	0x10001d780 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x530>
+10001d724:     	mov	x0, x24
+10001d728:     	adrp	x1, 0x10004c000 <_strcmp+0x10004c000>
+10001d72c:     	ldr	x1, [x1, #0x8]
+10001d730:     	bl	0x100048928 <_strcmp+0x100048928>
+10001d734:     	cbnz	x0, 0x10001d784 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x534>
+10001d738:     	ldrb	w8, [x21, #0x3e]
+10001d73c:     	tbz	w8, #0x0, 0x10001d754 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x504>
+10001d740:     	ldr	x8, [x21, #0x8]
+10001d744:     	ldr	x9, [x8, #0x38]
+10001d748:     	str	x9, [x21, #0x58]
+10001d74c:     	str	x21, [x8, #0x38]
+10001d750:     	b	0x10001d75c <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x50c>
+10001d754:     	mov	x0, x21
+10001d758:     	bl	0x10004891c <_strcmp+0x10004891c>
+10001d75c:     	add	x1, sp, #0x1f
+10001d760:     	mov	x0, x20
+10001d764:     	bl	0x100003a70 <collect_for_allocation(Context&, bool&)>
+10001d768:     	cbnz	w0, 0x10001d678 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x428>
+10001d76c:     	b	0x10001d5d8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x388>
+10001d770:     	mov	x21, #0x0               ; =0
+10001d774:     	mov	w8, #0x6                ; =6
+10001d778:     	str	w8, [x20, #0x48]
+10001d77c:     	b	0x10001d5f8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3a8>
+10001d780:     	add	x0, x21, #0x3c
+10001d784:     	cmp	w27, #0x4
+10001d788:     	b.lo	0x10001d7a4 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x554>
+10001d78c:     	lsl	x10, x28, #1
+10001d790:     	ldr	x8, [sp, #0x8]
+10001d794:     	add	x8, x10, x8
+10001d798:     	sub	x8, x0, x8
+10001d79c:     	cmp	x8, #0x40
+10001d7a0:     	b.hs	0x10001d810 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x5c0>
+10001d7a4:     	mov	x8, #0x0                ; =0
+10001d7a8:     	lsl	x10, x8, #1
+10001d7ac:     	add	x9, x10, x28, lsl #1
+10001d7b0:     	ldr	x11, [sp, #0x8]
+10001d7b4:     	add	x9, x11, x9
+10001d7b8:     	add	x10, x0, x10
+10001d7bc:     	sub	x8, x27, x8
+10001d7c0:     	ldrh	w11, [x9], #0x2
+10001d7c4:     	strh	w11, [x10], #0x2
+10001d7c8:     	subs	x8, x8, #0x1
+10001d7cc:     	b.ne	0x10001d7c0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x570>
+10001d7d0:     	str	w27, [x21, #0x38]
+10001d7d4:     	str	x0, [x21, #0x40]
+10001d7d8:     	adrp	x8, 0x10004d000 <t_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_020000e5_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_descriptor+0x58>
+10001d7dc:     	add	x8, x8, #0xb88
+10001d7e0:     	stp	x8, x23, [x21]
+10001d7e4:     	ldr	x8, [x23, #0x88]
+10001d7e8:     	str	x8, [x21, #0x10]
+10001d7ec:     	str	x26, [x21, #0x30]
+10001d7f0:     	str	x21, [x23, #0x88]
+10001d7f4:     	ldur	q0, [x23, #0xa8]
+10001d7f8:     	mov	w8, #0x1                ; =1
+10001d7fc:     	dup.2d	v1, x8
+10001d800:     	mov.d	v1[0], x26
+10001d804:     	add.2d	v0, v0, v1
+10001d808:     	stur	q0, [x23, #0xa8]
+10001d80c:     	b	0x10001d5f8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x3a8>
+10001d810:     	cmp	w27, #0x20
+10001d814:     	b.hs	0x10001d820 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x5d0>
+10001d818:     	mov	x8, #0x0                ; =0
+10001d81c:     	b	0x10001d860 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x610>
+10001d820:     	and	x8, x27, #0x7fffffe0
+10001d824:     	add	x9, x0, #0x20
+10001d828:     	ldr	x11, [sp, #0x8]
+10001d82c:     	add	x10, x10, x11
+10001d830:     	add	x10, x10, #0x20
+10001d834:     	mov	x11, x8
+10001d838:     	ldp	q0, q1, [x10, #-0x20]
+10001d83c:     	ldp	q2, q3, [x10], #0x40
+10001d840:     	stp	q0, q1, [x9, #-0x20]
+10001d844:     	stp	q2, q3, [x9], #0x40
+10001d848:     	subs	x11, x11, #0x20
+10001d84c:     	b.ne	0x10001d838 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x5e8>
+10001d850:     	cmp	x8, x27
+10001d854:     	b.eq	0x10001d7d0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x580>
+10001d858:     	tst	x27, #0x1c
+10001d85c:     	b.eq	0x10001d7a8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x558>
+10001d860:     	mov	x11, x8
+10001d864:     	and	x8, x27, #0x7ffffffc
+10001d868:     	lsl	x10, x11, #1
+10001d86c:     	add	x9, x10, x28, lsl #1
+10001d870:     	ldr	x12, [sp, #0x8]
+10001d874:     	add	x9, x12, x9
+10001d878:     	add	x10, x0, x10
+10001d87c:     	sub	x11, x11, x8
+10001d880:     	ldr	d0, [x9], #0x8
+10001d884:     	str	d0, [x10], #0x8
+10001d888:     	adds	x11, x11, #0x4
+10001d88c:     	b.ne	0x10001d880 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x630>
+10001d890:     	cmp	x8, x27
+10001d894:     	b.eq	0x10001d7d0 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x580>
+10001d898:     	b	0x10001d7a8 <String.CopySubstring[060002d9](Context&, LocationArgument const*)+0x558>
+

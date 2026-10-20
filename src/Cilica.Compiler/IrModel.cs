@@ -122,6 +122,8 @@ public abstract record IrExpression
     // Fresh immutable snapshot of the low UTF-16 units in an Int32 vector; empty is canonical.
     public sealed record StringFromCodeUnits(int Array) : IrExpression;
     public sealed record StringFromCharacter(int Character) : IrExpression;
+    // Fresh immutable copy of a checked range; source remains rooted across allocation.
+    public sealed record StringFromSlice(int Source, int Start, int Length) : IrExpression;
     public sealed record LoadField(ObjectFieldId Field, int Receiver) : IrExpression;
     // Boxed targets test exact payload identity and retain the Object view.
     // Nullable<T> tests and cast faults use T's descriptor and name.

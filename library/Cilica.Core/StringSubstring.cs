@@ -35,9 +35,7 @@ namespace System
         }
         private string CopySubstring(int startIndex, int length)
         {
-            var units = new int[length];
-            for (int i = 0; i < length; ++i) units[i] = this[startIndex + i];
-            return Cilica.Runtime.StringConstruction.FromCodeUnits(units);
+            return Cilica.Runtime.StringConstruction.FromSlice(this, startIndex, length);
         }
     }
 }

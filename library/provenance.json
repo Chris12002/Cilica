@@ -1695,7 +1695,7 @@
         "Overflow-safe range checks preserve start-before-length fault order, exact parameter/message text and boxed Int32 actual values, using the existing invariant numeric-text policy.",
         "Managed nonvirtual String bodies use normal call/callvirt receiver, lexical access and fault lowering; runtime-owned storage remains accessed by existing helpers."
       ],
-      "scope": "Bounded strings and existing allocation quotas; temporary Int32 copy buffer uses the existing exact FromCodeUnits grant. Ambient-culture numeric error formatting remains unsupported."
+      "scope": "Bounded strings and existing allocation quotas; direct rooted substring copies use the exact private FromSlice grant without a temporary vector. Ambient-culture numeric error formatting remains unsupported."
     },
     {
       "path": "library/Cilica.Core/StringCharacters.cs",

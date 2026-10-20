@@ -326,7 +326,7 @@ internal sealed partial class ObjectIrRules
         IrStatement.Define { Value.Expression: IrExpression.StringFromCodeUnits } when _program.Flow.Types.String is { } created =>
             new[] { created, ObjectTypeId.Vector(_program.Flow.Types.ObjectBase, ObjectArrayElement.Int32) },
         IrStatement.Define { Value.Expression: IrExpression.StringLiteral or IrExpression.StringLength or IrExpression.StringCodeUnit
-            or IrExpression.StringEquals or IrExpression.StringConcat or IrExpression.StringFromCharacter or IrExpression.IntegerTextFind or IrExpression.IntegerTextPublish } when _program.Flow.Types.String is { } text => new[] { text },
+            or IrExpression.StringEquals or IrExpression.StringConcat or IrExpression.StringFromCharacter or IrExpression.StringFromSlice or IrExpression.IntegerTextFind or IrExpression.IntegerTextPublish } when _program.Flow.Types.String is { } text => new[] { text },
         IrStatement.Define { Value.Expression: IrExpression.Call c } when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         IrStatement.Invoke c when _interfaces.Has(c.Target) => _interfaces.SignatureTypes(c.Target),
         IrStatement.Define { Value.Expression: IrExpression.Call c } when _abstractMethods.Contains(c.Target) => AbstractSignatureTypes(c.Target),

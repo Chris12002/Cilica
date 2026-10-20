@@ -1400,10 +1400,11 @@ are not durable game persistence contracts.
 
 ## 15. Correctness and measurements
 
-The [v104 DiffPlex investigation](performance/v104-profile-20261020.md) reproduces
-the 8.35x .NET gap and ranks bounded small-string allocation, proven field access
-and local output borrows as the next targets. Its generated-code experiments
-are measured proposals; production remains native v104.
+The [v116 substring slice](performance/substring-20261020.md) reduces measured
+line-diff execution by 27.5%, preserving full outputs and existing semantic
+checks. Character diff remains effectively unchanged. The remaining approved
+work is recorded in [the four-target roadmap](performance/next-targets-20261020.md).
+Earlier profile reports retain their historical scope and measurements.
 
 Differential tests run the same program on .NET and Cilica and compare results,
 mutations, exception ordering/types, dispatch, generics and specified identity.
@@ -5501,3 +5502,11 @@ Owned Char.ToString now creates one fresh string without temporary arrays; all
 UTF-16 units, roots, identity and managed allocation failures are preserved.
 Integer-object CIL v126 records the intrinsic; public layouts/ABI are unchanged.
 See [ADR 0201](decisions/0201-direct-character-string-allocation.md).
+
+Native v116 and object IR v80 add exact private rooted substring construction.
+Owned Substring keeps managed range checks and identity shortcuts, then copies
+UTF-16 directly into final storage without a temporary array. Both IR stages
+validate all operands and fault edges; native null/type/range checks precede
+pointer arithmetic. The ordinary source frame survives the non-moving collector's
+allocation/retry. Integer-object CIL v127 records the intrinsic; ABI and object
+layout are unchanged. See [ADR 0224](decisions/0224-direct-substring-construction.md).

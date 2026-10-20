@@ -1110,3 +1110,11 @@ prefix/suffix transition, separator precedence, whitespace/trim/empty identities
 rooting and quota accounting. No-match input has no cache allocation; longer inputs
 rescan only the uncached suffix. Char Split is unchanged. Native v115 and grants
 are unchanged; see ADR 0223 and docs/performance/splitcache-20261020.md.
+
+Native v116 directly constructs nonempty substrings through exact private
+StringConstruction.FromSlice. Preserve public range/fault/identity shortcuts,
+source frame roots through non-moving GC and allocator retry, native overflow-safe
+bounds before pointer arithmetic, and canonical empty handling. It is allocating,
+not a no-safepoint kernel. No shared string view or temporary array is introduced.
+Object IR v80 and integer-object CIL v127; public ABI/layout/quotas unchanged.
+See ADR 0224 and docs/performance/next-targets-20261020.md for the saved targets.

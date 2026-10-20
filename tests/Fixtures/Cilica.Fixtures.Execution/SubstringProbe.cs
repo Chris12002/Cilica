@@ -45,6 +45,11 @@ namespace Cilica.Fixtures.Execution
             string source = null;
             try { return Hash(a < 0 ? source.Substring(b) : source.Substring(a, b)); } catch (Exception e) { return Fault(e); }
         }
+        public static int Caught(int a, int b)
+        {
+            try { return "ABC".Substring(a, b).Length; }
+            catch (OutOfMemoryException) { return 77; }
+        }
         public static int Composed(int a, int b)
         {
             string source = Text(a);

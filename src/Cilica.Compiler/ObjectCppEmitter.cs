@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v115";
+    public const string Profile = "object-frames-native-v116";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -661,7 +661,7 @@ public static class ObjectCppEmitter
                         or IrStatement.Define { Value.Expression: IrExpression.LoadStatic or IrExpression.AddressStatic or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.ArrayLength or IrExpression.ArrayCopyCompatible or IrExpression.LoadElement or IrExpression.LoadField or IrExpression.CastClass or IrExpression.IsInstance
                             or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressField or IrExpression.AddressArraySlot or IrExpression.LoadLocation
                             or IrExpression.NewException or IrExpression.InitializeExceptionMessage or IrExpression.ExceptionMessage or IrExpression.ExceptionInnerException or IrExpression.ExceptionTypeName or IrExpression.ExceptionObjectName or IrExpression.ExceptionParameterName or IrExpression.BoxScalars or IrExpression.CheckBox or IrExpression.AddressBoxSlot or IrExpression.NewDelegate or IrExpression.CallDelegate
-                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectClone or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringFromCharacter or IrExpression.StringConcat
+                            or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.RuntimeTypeHash or IrExpression.ObjectClone or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery or IrExpression.IntegerTextPublish or IrExpression.IntegerTextFind or IrExpression.StringLength or IrExpression.StringCodeUnit or IrExpression.StringEquals or IrExpression.StringFromCodeUnits or IrExpression.StringFromCharacter or IrExpression.StringFromSlice or IrExpression.StringConcat
                             or IrExpression.Call { VirtualDispatch: true } }
                         or IrStatement.InitializeType or IrStatement.StoreStatic or IrStatement.Invoke { VirtualDispatch: true } or IrStatement.InvokeDelegate;
                     // Array/field access, type tests and virtual calls include ownership/type checks.
@@ -842,6 +842,12 @@ public static class ObjectCppEmitter
                                     expression = "string_from_code_units(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + Value(units.Array) + ")"; break;
                                 case IrExpression.StringFromCharacter character:
                                     expression = "string_from_character(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, " + Value(character.Character) + ")"; break;
+                                case IrExpression.StringFromSlice slice:
+                                    Check(Value(slice.Source), program.Flow.Types.String!, true, value.ILOffset); Flush();
+                                    Guard(Value(slice.Start) + " > string_length(" + Value(slice.Source) + ") || "
+                                        + Value(slice.Length) + " > string_length(" + Value(slice.Source) + ") - " + Value(slice.Start), "10u", value.ILOffset); Flush();
+                                    expression = "string_from_slice(context, " + TypeSymbol(program.Flow.Types.String!) + "_descriptor, "
+                                        + Value(slice.Source) + ", " + Value(slice.Start) + ", " + Value(slice.Length) + ")"; break;
                                 case IrExpression.StringConcat concat:
                                     Check(Value(concat.Left), program.Flow.Types.String!, false, value.ILOffset); Flush();
                                     Check(Value(concat.Right), program.Flow.Types.String!, false, value.ILOffset); Flush();
@@ -899,7 +905,7 @@ public static class ObjectCppEmitter
                                 string constructorCall = Call(created.Constructor, created.Arguments, Value(value.Id));
                                 code.Append("    ").Append(constructorCall).Append(";\n"); Pending();
                             }
-                            else if (value.Expression is IrExpression.ObjectClone or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringFromCharacter or IrExpression.StringConcat or IrExpression.EnumEntry { Name: true } or IrExpression.EnumQuery { Message: true })
+                            else if (value.Expression is IrExpression.ObjectClone or IrExpression.EmptyArray or IrExpression.NewArray or IrExpression.StringLiteral or IrExpression.InvariantCulture or IrExpression.RuntimeTypeLiteral or IrExpression.ObjectDefaultText or IrExpression.ObjectGetType or IrExpression.IntegerTextPublish or IrExpression.StringFromCodeUnits or IrExpression.StringFromCharacter or IrExpression.StringFromSlice or IrExpression.StringConcat or IrExpression.EnumEntry { Name: true } or IrExpression.EnumQuery { Message: true })
                                 Guard(Value(value.Id) + " == nullptr", "context.pending == 0u ? 5u : context.pending", value.ILOffset);
                             else if (value.Expression is (IrExpression.LoadElement or IrExpression.LoadStatic) && value.Type.Kind == IrTypeKind.Reference)
                             {

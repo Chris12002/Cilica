@@ -5276,3 +5276,15 @@ Owned Char.ToString now creates one fresh string without temporary arrays; all
 UTF-16 units, roots, identity and managed allocation failures are preserved.
 Integer-object CIL v126 records the intrinsic; public layouts/ABI are unchanged.
 See [ADR 0201](decisions/0201-direct-character-string-allocation.md).
+
+### Direct substring construction (native v116)
+
+Owned Substring now copies directly into final rooted UTF-16 storage using the
+exact private FromSlice grant. Public overloads, range/message ordering, full-range
+identity and canonical empty results retain their existing contract. Nonempty
+copies need one managed allocation instead of an Int32 temporary plus a string.
+No new public API is admitted. Object IR v80 and integer-object CIL v127 record
+this operation. Both detached validators, forced-GC O0/O2 sanitizer probes,
+allocation recovery, shared modules and full DiffPlex outputs pass; see
+[ADR 0224](decisions/0224-direct-substring-construction.md) and
+[measurements](performance/substring-20261020.md).

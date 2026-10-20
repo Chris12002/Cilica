@@ -46,7 +46,7 @@ public sealed record DelegateValueTranslationResult(DelegateValueIrProgram? Prog
 /// <summary>Translates bounded static CIL value operations into the shared copy/borrow IR.</summary>
 public static class ValueTranslator
 {
-    public const string IntegerObjectProfile = "integer-managed-objects-cil-v126";
+    public const string IntegerObjectProfile = "integer-managed-objects-cil-v127";
     public static ManagedExceptionTranslationResult TranslateIntegerObjects(AssemblyResolver resolver, ResolvedAssembly assembly,
         MethodDefinitionHandle entry, ResolvedAssembly runtimeLibrary, MethodReadLimits? limits = null)
     {
@@ -516,6 +516,10 @@ public static class ValueTranslator
                                 Pop(offset, IrType.Reference(ObjectTypeId.Vector(objectBase, ObjectArrayElement.Int32)))), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var characterConstruction) && characterConstruction.Kind == ValueIntrinsic.StringFromCharacter:
                             Push(offset, IrType.Reference(stringType!), new IrExpression.StringFromCharacter(Pop(offset, IrType.Int32)), true); break;
+                        case "call" when method.Intrinsics.TryGetValue(offset, out var sliceConstruction) && sliceConstruction.Kind == ValueIntrinsic.StringFromSlice:
+                            int sliceLength = Pop(offset, IrType.Int32), sliceStart = Pop(offset, IrType.Int32);
+                            int sliceSource = Pop(offset, IrType.Reference(stringType!));
+                            Push(offset, IrType.Reference(stringType!), new IrExpression.StringFromSlice(sliceSource, sliceStart, sliceLength), true); break;
                         case "call" when method.Intrinsics.TryGetValue(offset, out var cache) && cache.Kind is ValueIntrinsic.IntegerTextFind or ValueIntrinsic.IntegerTextPublish:
                             int cacheText = cache.Kind == ValueIntrinsic.IntegerTextPublish ? Pop(offset, IrType.Reference(stringType!)) : -1;
                             int cacheIndex = Pop(offset, IrType.Int32);

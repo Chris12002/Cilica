@@ -1,0 +1,18 @@
+[
+  {
+    "file": "core.il",
+    "line": 23618,
+    "text": "\t.method assembly hidebysig static \n\t\tstring FromSlice (\n\t\t\tstring source,\n\t\t\tint32 start,\n\t\t\tint32 length\n\t\t) cil managed internalcall \n\t{\n\t} // end of method StringConstruction::FromSlice"
+  },
+  {
+    "file": "core.il",
+    "line": 36169,
+    "text": "\t.method private hidebysig \n\t\tinstance string CopySubstring (\n\t\t\tint32 startIndex,\n\t\t\tint32 length\n\t\t) cil managed \n\t{\n\t\t// Method begins at RVA 0xd837\n\t\t// Header size: 1\n\t\t// Code size: 9 (0x9)\n\t\t.maxstack 8\n\n\t\tIL_0000: ldarg.0\n\t\tIL_0001: ldarg.1\n\t\tIL_0002: ldarg.2\n\t\tIL_0003: call string Cilica.Runtime.StringConstruction::FromSlice(string, int32, int32)\n\t\tIL_0008: ret\n\t} // end of method String::CopySubstring"
+  },
+  {
+    "file": "artifacts/section-timing-20261020/Build/Control_BackUpThisFolder_ButDontShipItWithYourGame/il2cppOutput/mscorlib.cpp",
+    "sha256": "6da2f3624d4ce5a413b58e674671e9f7c46167b1fb3ed5afdab8a28280343a1e",
+    "line": 28952,
+    "text": "IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_InternalSubString_m81B31C2405FA023026DD1F063F44EB3F5F1047C5 (String_t* __this, int32_t ___0_startIndex, int32_t ___1_length, const RuntimeMethod* method) \n{\n\tIl2CppChar* V_0 = NULL;\n\tIl2CppChar* V_1 = NULL;\n\tIl2CppChar* V_2 = NULL;\n\t{\n\t\tint32_t L_0 = ___1_length;\n\t\tString_t* L_1;\n\t\tL_1 = String_FastAllocateString_m071BD33B9EFB2375443E1550C028861164D0F104(L_0, NULL);\n\t\tString_t* L_2 = L_1;\n\t\tNullCheck(L_2);\n\t\tIl2CppChar* L_3 = (Il2CppChar*)(&L_2->____firstChar);\n\t\tV_0 = L_3;\n\t\tIl2CppChar* L_4 = V_0;\n\t\tIl2CppChar* L_5 = (Il2CppChar*)(&__this->____firstChar);\n\t\tV_2 = L_5;\n\t\tIl2CppChar* L_6 = V_2;\n\t\tV_1 = (Il2CppChar*)((uintptr_t)L_6);\n\t\tIl2CppChar* L_7 = V_1;\n\t\tint32_t L_8 = ___0_startIndex;\n\t\tint32_t L_9 = ___1_length;\n\t\tString_wstrcpy_m7F8C35DCD0E2D5AAC35B153EF73E6B0F1501406B((Il2CppChar*)((uintptr_t)L_4), ((Il2CppChar*)il2cpp_codegen_add((intptr_t)L_7, ((intptr_t)il2cpp_codegen_multiply(((intptr_t)L_8), 2)))), L_9, NULL);\n\t\tV_2 = (Il2CppChar*)((uintptr_t)0);\n\t\tV_0 = (Il2CppChar*)((uintptr_t)0);\n\t\treturn L_2;\n\t}\n}\nIL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_ToLower_m6191ABA3DC514ED47C10BDA23FD0DDCEAE7ACFBD (String_t* __this, const RuntimeMethod* method) \n{"
+  }
+]

@@ -1,0 +1,19 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.SubstringConstructionTests.Slice_source_survives_collection_and_one_allocation_preserves_fault_origins(optimized: False) [FAIL]
+      Assertion failed: (cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002d9(bad, args) == nullptr && bad.pending == 10 && allocations == 0), function main, file slice.cpp, line 11592.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/SubstringConstructionTests.cs(103,0): at Cilica.Metadata.Tests.SubstringConstructionTests.Slice_source_survives_collection_and_one_allocation_preserves_fault_origins(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.SubstringConstructionTests.Slice_source_survives_collection_and_one_allocation_preserves_fault_origins(optimized: True) [FAIL]
+      Assertion failed: (cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002d9(bad, args) == nullptr && bad.pending == 10 && allocations == 0), function main, file slice.cpp, line 11592.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/SubstringConstructionTests.cs(103,0): at Cilica.Metadata.Tests.SubstringConstructionTests.Slice_source_survives_collection_and_one_allocation_preserves_fault_origins(Boolean optimized)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = 'ebfa90e8dbded546ca204c1a7a2bca3a0eefe3451eec720feef837e75c407c4a')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 25, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 21.543s

@@ -639,6 +639,13 @@
   {
     "Namespace": "Cilica.Runtime",
     "Type": "StringConstruction",
+    "Member": "FromSlice",
+    "ParameterCount": 3,
+    "Capability": "StringFromSlice"
+  },
+  {
+    "Namespace": "Cilica.Runtime",
+    "Type": "StringConstruction",
     "Member": "FromCharacter",
     "ParameterCount": 1,
     "Capability": "StringFromCharacter"
