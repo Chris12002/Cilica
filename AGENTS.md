@@ -123,6 +123,8 @@ and Unity IL2CPP builds with REA (https://github.com/morluto/rea) before designi
    from the current branch and match every output against the .NET oracle.
 2. Time paired release runs: Cilica, ordinary .NET (default and non-tiered) and
    IL2CPP where available; NativeAOT separately. Same DLL, checksum and host load.
+   Default tiered .NET needs a warm-up of at least 3 s to finish Dynamic PGO
+   (the pinned 300 ms host is not steady); use the aot-host reference host.
 3. Profile Cilica (sampling plus untimed counters). Separate library/source work
    from generated-code and runtime overhead; rank costs by measured share.
 4. Deconstruct the hot methods with REA: Roslyn IL, IL2CPP, NativeAOT and Cilica.

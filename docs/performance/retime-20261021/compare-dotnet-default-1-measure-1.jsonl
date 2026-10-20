@@ -1,0 +1,8 @@
+{"warmIterations":835616,"warm_ms":5000.134}
+{"sample":0,"iterations":8192,"ns":46037800,"checksum":25575424,"allocated_bytes":103812200,"gen0":13,"gen1":0,"gen2":0}
+{"sample":1,"iterations":8192,"ns":46061600,"checksum":25575424,"allocated_bytes":103809320,"gen0":12,"gen1":1,"gen2":0}
+{"sample":2,"iterations":8192,"ns":46094200,"checksum":25575424,"allocated_bytes":103809320,"gen0":13,"gen1":0,"gen2":0}
+{"sample":3,"iterations":8192,"ns":46177800,"checksum":25575424,"allocated_bytes":103809320,"gen0":12,"gen1":1,"gen2":0}
+{"sample":4,"iterations":8192,"ns":46179100,"checksum":25575424,"allocated_bytes":103809320,"gen0":13,"gen1":0,"gen2":0}
+{"sample":5,"iterations":8192,"ns":45870600,"checksum":25575424,"allocated_bytes":103809320,"gen0":12,"gen1":0,"gen2":0}
+{"sample":6,"iterations":8192,"ns":45802800,"checksum":25575424,"allocated_bytes":103809320,"gen0":12,"gen1":1,"gen2":0}

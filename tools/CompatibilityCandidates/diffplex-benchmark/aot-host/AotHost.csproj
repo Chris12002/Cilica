@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- NativeAOT reference only; never a Cilica implementation path. Report its timings separately. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Optimize>true</Optimize>
+    <NuGetAudit>false</NuGetAudit>
+    <PublishAot>true</PublishAot>
+    <StripSymbols>false</StripSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AotHost.cs" />
+    <Reference Include="DiffPlex.Benchmark">
+      <HintPath>$(DiffPlexAssembly)</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

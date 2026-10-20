@@ -1406,6 +1406,9 @@ checks. Character diff remains effectively unchanged. The remaining approved
 work is recorded in [the four-target roadmap](performance/next-targets-20261020.md).
 [Native scalar locals](performance/scalar-locals-20261020.md) (v117) then reduce
 character time 7.35% and line time 9.51% against v116 in one paired batch.
+A [quiet-host six-backend retime](performance/retime-20261021.md) puts v117 at 8.06×
+default tiered .NET (Dynamic PGO) and 3.82× FullOpts .NET on characters, and 5.77×
+and 4.85× on lines. NativeAOT is reported separately.
 Earlier profile reports retain their historical scope and measurements.
 
 The [compact dictionary investigation](performance/dictionary-compact-20261020.md)
