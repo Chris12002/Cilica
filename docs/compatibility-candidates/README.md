@@ -19,6 +19,11 @@ Separate [Release performance measurements](diffplex-performance-20261008.md)
 show a large current throughput gap on one verified character-diff workload.
 Correctness trial durations are not performance results.
 
+[Benchmark candidate review: RangeTree and GenericPriorityQueue](benchmark-shortlist-20261021.md)
+records two unpinned integer-only proposals and an optional binary-trees workload.
+It distinguishes likely admission gaps from verified APIs; neither proposal has
+entered a batch or been compiled or benchmarked with Cilica.
+
 ## Accepted Unity reference/profile flow
 
 The standard flow is now: **screen/pin a library → identify gaps → inspect and
