@@ -47,7 +47,7 @@ public sealed class NativeInlineStringTests
             int main() {
                 // Exhaust the entire UTF-16 code-unit domain, including NUL and unpaired surrogates.
                 for (std::uint32_t unit = 0; unit < 65536; ++unit) {
-                    Instance heap; Context c(heap); objects = buffers = 0;
+                    Instance heap; heap.string_pool_limit = 0; Context c(heap); objects = buffers = 0;
                     Object* first = string_from_character(c, {{descriptor}}, unit);
                     check(first, static_cast<std::uint16_t>(unit));
                     assert(objects == 1 && buffers == 0);
@@ -57,7 +57,7 @@ public sealed class NativeInlineStringTests
                     assert(heap.bytes == 2 * sizeof(StringObject) && heap.count == 2);
                 }
                 {
-                    Instance heap; Context c(heap); Object* slots[5]{}; Frame frame;
+                    Instance heap; heap.string_pool_limit = 0; Context c(heap); Object* slots[5]{}; Frame frame;
                     RootScope roots(c, frame, slots, 5); heap.collect_before_allocation = true;
                     const std::uint16_t unit = 0xdfff; const std::uint32_t wide = 0x1dfff;
                     slots[0] = allocate_string(c, {{descriptor}}, &unit, 1, nullptr, 0);
@@ -71,7 +71,7 @@ public sealed class NativeInlineStringTests
                     assert(collect(c).status == MarkStatus::complete && heap.count == 0 && heap.bytes == 0);
                 }
                 {
-                    Instance heap; Context c(heap); fail_buffers = true; objects = buffers = 0;
+                    Instance heap; heap.string_pool_limit = 0; Context c(heap); fail_buffers = true; objects = buffers = 0;
                     Object* value = string_from_character(c, {{descriptor}}, 0);
                     check(value, 0); assert(objects == 1 && buffers == 0);
                     const std::uint16_t units[] = {0, 0xffff};
@@ -84,7 +84,7 @@ public sealed class NativeInlineStringTests
                     assert(value->allocation_bytes == sizeof(StringObject) + sizeof(units));
                 }
                 {
-                    Instance heap; Context c(heap); fail_object_once = true;
+                    Instance heap; heap.string_pool_limit = 0; Context c(heap); fail_object_once = true;
                     Object* value = string_from_character(c, {{descriptor}}, 65);
                     check(value, 65); assert(heap.count == 1 && heap.bytes == sizeof(StringObject));
                     assert(c.pending == 0 && c.top == nullptr && c.depth == 0 && c.used == 0);

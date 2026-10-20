@@ -164,15 +164,21 @@ struct StringObject {
     Object header;
     std::uint32_t length = 0;
     std::uint16_t inline_unit = 0;
+    bool pooled = false;
     const std::uint16_t* units = nullptr;
     StringObject* literal_next = nullptr;
     std::size_t literal_id = 0;
 };
 static_assert(std::is_standard_layout_v<StringObject> && offsetof(StringObject, header) == 0);
+// Free-list links live outside the object so ASan can poison every freed byte.
+struct StringSlot { StringObject value; StringSlot* next = nullptr; };
+struct StringSlab { StringSlab* next = nullptr; StringSlot slots[256]{}; };
+static_assert(std::is_standard_layout_v<StringSlot> && offsetof(StringSlot, value) == 0);
+[[maybe_unused]] static void release_string_header(StringObject*) noexcept;
 [[maybe_unused]] static void destroy_string(Object* value) noexcept {
     auto* text = reinterpret_cast<StringObject*>(value);
     if (text->units != &text->inline_unit) delete[] text->units;
-    delete text;
+    release_string_header(text);
 }
 struct Handle { std::uint64_t token = 0; };
 struct HandleSlot { Object* value = nullptr; std::uint64_t token = 0; };
@@ -190,6 +196,9 @@ struct Instance {
     bool collect_before_allocation = false;
     HandleSlot* handles = nullptr;
     std::size_t handle_count = 0, handle_limit = handle_capacity;
+    StringSlab* string_slabs = nullptr;
+    StringSlot* free_strings = nullptr;
+    std::size_t string_pool_bytes = 0, string_pool_limit = 16u * sizeof(StringSlab);
     StringObject* literals = nullptr;
     StringObject* exception_resources = nullptr;
     StringObject* integer_texts = nullptr;
@@ -232,8 +241,50 @@ struct Instance {
         delete[] statics;
         delete[] handles;
         while (head != nullptr) { Object* p = head; head = p->next; p->type->destroy(p); }
+        while (string_slabs != nullptr) {
+            auto* slab = string_slabs; string_slabs = slab->next;
+#if CILICA_ARENA_ASAN
+            __asan_unpoison_memory_region(slab, sizeof(StringSlab));
+#endif
+            delete slab;
+        }
     }
 };
+// Slabs are native reserve, never roots or additional managed heap capacity.
+// At the reserve cap (or on slab failure), ordinary allocation remains available.
+[[maybe_unused]] static StringObject* acquire_string_header(Instance& heap) noexcept {
+    if (heap.free_strings == nullptr && heap.string_pool_bytes <= heap.string_pool_limit
+        && sizeof(StringSlab) <= heap.string_pool_limit - heap.string_pool_bytes) {
+        auto* slab = new (std::nothrow) StringSlab{};
+        if (slab != nullptr) {
+            slab->next = heap.string_slabs; heap.string_slabs = slab;
+            heap.string_pool_bytes += sizeof(StringSlab);
+            for (auto& slot : slab->slots) {
+                slot.next = heap.free_strings; heap.free_strings = &slot;
+#if CILICA_ARENA_ASAN
+                __asan_poison_memory_region(&slot.value, sizeof(StringObject));
+#endif
+            }
+        }
+    }
+    if (heap.free_strings == nullptr) return new (std::nothrow) StringObject{};
+    auto* slot = heap.free_strings; heap.free_strings = slot->next;
+#if CILICA_ARENA_ASAN
+    __asan_unpoison_memory_region(&slot->value, sizeof(StringObject));
+#endif
+    slot->value = StringObject{};
+    slot->value.pooled = true; slot->value.header.owner = &heap;
+    return &slot->value;
+}
+[[maybe_unused]] static void release_string_header(StringObject* value) noexcept {
+    if (!value->pooled) { delete value; return; }
+    auto& heap = *value->header.owner;
+    auto* slot = reinterpret_cast<StringSlot*>(value);
+    slot->next = heap.free_strings; heap.free_strings = slot;
+#if CILICA_ARENA_ASAN
+    __asan_poison_memory_region(value, sizeof(StringObject));
+#endif
+}
 // Only generated execution may use this shortcut. Public handles, tracing and
 // collection must use owns/traceable_reference and compare before dereferencing.
 [[maybe_unused]] static bool internal_reference_owned(const Instance& heap, const Object* value) noexcept {
@@ -372,10 +423,10 @@ struct RootScope {
     bool attempted = false;
     for (;;) {
         if (!allocation_room(context, charged, attempted)) return nullptr;
-        auto* value = new (std::nothrow) StringObject{};
+        auto* value = acquire_string_header(heap);
         if (value == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
         auto* units = length == 0 ? nullptr : length == 1 ? &value->inline_unit : new (std::nothrow) std::uint16_t[length];
-        if (length != 0 && units == nullptr) { delete value; if (collect_for_allocation(context, attempted)) continue; return nullptr; }
+        if (length != 0 && units == nullptr) { release_string_header(value); if (collect_for_allocation(context, attempted)) continue; return nullptr; }
         for (std::uint32_t i = 0; i < first; ++i) units[i] = code_units == nullptr ? left[i] : static_cast<std::uint16_t>(code_units[i]);
         for (std::uint32_t i = 0; i < second; ++i) units[first + i] = right[i];
         for (std::uint32_t i = 0; i < third; ++i) units[first + second + i] = extra[i];

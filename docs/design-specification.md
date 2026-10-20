@@ -427,6 +427,13 @@ boundaries retain original carrier construction and dispatch. Caller registratio
 storage layout and public checks are unchanged. See
 [ADR 0211](decisions/0211-proven-local-character-reads.md).
 
+Native v105 acquires string headers from bounded per-instance slabs, recycling
+only after collection. Reserve exhaustion or slab failure falls back to ordinary
+allocation; managed quotas, live identity and public ownership checks remain.
+Free-list links are outside poisoned objects in ASan builds. Slabs are not roots
+and are released at instance teardown. See
+[ADR 0212](decisions/0212-bounded-string-header-pool.md).
+
 The object boundary now uses a fixed-size native signature with an Int32 input
 pointer and exact element count, including for wide managed entry methods
 ([ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md)). Its
