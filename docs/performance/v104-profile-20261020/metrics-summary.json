@@ -1,0 +1,25 @@
+{
+  "baseline": {
+    "gc_calls": 21,
+    "gc_live": 7329,
+    "gc_dead": 78687,
+    "peak_objects": 4096,
+    "peak_bytes": 473136,
+    "field_calls": 1442048,
+    "string_size": 88,
+    "slab_news": 0
+  },
+  "string_pool": {
+    "gc_calls": 21,
+    "gc_live": 7329,
+    "gc_dead": 78687,
+    "peak_objects": 4096,
+    "peak_bytes": 473136,
+    "field_calls": 1442048,
+    "string_size": 88,
+    "slab_news": 5,
+    "slabs": 14,
+    "reserved_native_bytes": 315504,
+    "max_native_bytes": 360576
+  }
+}

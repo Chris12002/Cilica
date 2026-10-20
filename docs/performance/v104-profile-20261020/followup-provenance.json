@@ -1,0 +1,54 @@
+{
+  "diagnostic_only": true,
+  "revision": "742082a514a5e72023d619b00cd87a43c1dbf338",
+  "variants": {
+    "inline_fields": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/inline_fields.cpp",
+        "-o",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/inline_fields"
+      ],
+      "cpp_sha256": "31ac6afc6ad90600c0652a87ac2dbe2edec595c8d36e5842e49fbef15caff798",
+      "max_frame_bytes": 432
+    },
+    "local_out": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/local_out.cpp",
+        "-o",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/local_out"
+      ],
+      "cpp_sha256": "657850b63b6461ef47ec58c473d165ffbbbbd8fd8931a2cd8d7043eee6c79910",
+      "max_frame_bytes": 432
+    },
+    "pool_inline_out": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/pool_inline_out.cpp",
+        "-o",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/pool_inline_out"
+      ],
+      "cpp_sha256": "77849f1563a57d63467adcc6801ae7666cd42fc06ab83cbe9ee66f104bbe64c0",
+      "max_frame_bytes": 432
+    }
+  }
+}

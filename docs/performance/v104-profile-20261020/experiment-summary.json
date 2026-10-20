@@ -1,0 +1,37 @@
+{
+  "baseline": {
+    "median_ns": 43148.6015625,
+    "min_ns": 41740.8828125,
+    "max_ns": 44659.9921875,
+    "samples": 21,
+    "time_reduction": 0.0
+  },
+  "field_offsets": {
+    "median_ns": 42069.3359375,
+    "min_ns": 40444.17578125,
+    "max_ns": 43598.9609375,
+    "samples": 21,
+    "time_reduction": 0.02501276022669474
+  },
+  "string_pool": {
+    "median_ns": 37625.32421875,
+    "min_ns": 35597.16796875,
+    "max_ns": 44592.125,
+    "samples": 21,
+    "time_reduction": 0.12800594095151907
+  },
+  "array_entry_ablation": {
+    "median_ns": 43081.37890625,
+    "min_ns": 41036.94921875,
+    "max_ns": 45131.0234375,
+    "samples": 21,
+    "time_reduction": 0.0015579336019182488
+  },
+  "pool_fields": {
+    "median_ns": 35812.828125,
+    "min_ns": 34173.828125,
+    "max_ns": 36424.8046875,
+    "samples": 21,
+    "time_reduction": 0.17001184677733439
+  }
+}

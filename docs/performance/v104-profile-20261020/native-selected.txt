@@ -1,0 +1,6 @@
+baseline
+0000000100005f30 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::field_address(cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Object*, unsigned long)>:
+100005f30: f9400008    	ldr	x8, [x0]
+100005f34: f9402108    	ldr	x8, [x8, #0x40]
+100005f38: f8617901    	ldr	x1, [x8, x1, lsl #3]
+100005f3c: d61f0020    	br	x1

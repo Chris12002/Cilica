@@ -1,0 +1,7 @@
+{
+  "clang": "Apple clang version 17.0.0 (clang-1700.4.4.1)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "dotnet_sdk": "10.0.400",
+  "dotnet_runtimes": "Microsoft.AspNetCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.AspNetCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.NETCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\nMicrosoft.NETCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]",
+  "cpu": "Apple M4 Pro",
+  "macos": "15.7.3"
+}

@@ -1,0 +1,32 @@
+{
+  "baseline/0000000100005f30 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::field_address(cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Object*, unsigned long)>:": {
+    "instructions": 4,
+    "bytes": 16,
+    "field_address_calls": 0,
+    "indirect_calls": 1
+  },
+  "baseline/0000000100007a70 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::allocate_string(cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Context&, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Descriptor const&, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned int const*)>:": {
+    "instructions": 200,
+    "bytes": 800,
+    "field_address_calls": 0,
+    "indirect_calls": 0
+  },
+  "baseline/0000000100020940 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049f_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_kernel(cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Context&, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Object*, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Object*, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Object*&)>:": {
+    "instructions": 179,
+    "bytes": 716,
+    "field_address_calls": 11,
+    "indirect_calls": 0
+  },
+  "inline_fields/00000001000078d8 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::allocate_string(cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Context&, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Descriptor const&, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned short const*, unsigned int, unsigned int const*)>:": {
+    "instructions": 200,
+    "bytes": 800,
+    "field_address_calls": 0,
+    "indirect_calls": 0
+  },
+  "inline_fields/0000000100020604 <cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049f_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_kernel(cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Context&, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Object*, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Object*, cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closure::Object*&)>:": {
+    "instructions": 143,
+    "bytes": 572,
+    "field_address_calls": 0,
+    "indirect_calls": 0
+  }
+}

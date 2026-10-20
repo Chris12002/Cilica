@@ -1,0 +1,70 @@
+{
+  "diagnostic_only": true,
+  "revision": "742082a514a5e72023d619b00cd87a43c1dbf338",
+  "variants": {
+    "field_offsets": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/field_offsets.cpp",
+        "-o",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/field_offsets"
+      ],
+      "cpp_sha256": "4dc087a720e51a8318346537e8024a37599650398066f1b9ad7171052a29849c",
+      "max_frame_bytes": 432
+    },
+    "string_pool": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/string_pool.cpp",
+        "-o",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/string_pool"
+      ],
+      "cpp_sha256": "bebd516afaa32c21e44aa90defeeff8a6c559acdb0c2133e80fbdc37ffbc87fb",
+      "max_frame_bytes": 432
+    },
+    "array_entry_ablation": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/array_entry_ablation.cpp",
+        "-o",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/array_entry_ablation"
+      ],
+      "cpp_sha256": "f65e466b4d85235d8c678c3e210196e6ec052587e10a165cb9be6e729ca9c77d",
+      "max_frame_bytes": 432
+    },
+    "pool_fields": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/pool_fields.cpp",
+        "-o",
+        "/Users/christian/Cilica/artifacts/v104-profile-20261020/pool_fields"
+      ],
+      "cpp_sha256": "caf0cc54f89ef7462a08132ca9868a92b99fc86cde5228695a383b28dc0b5635",
+      "max_frame_bytes": 432
+    }
+  }
+}

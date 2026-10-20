@@ -1340,6 +1340,11 @@ are not durable game persistence contracts.
 
 ## 15. Correctness and measurements
 
+The [v104 DiffPlex investigation](performance/v104-profile-20261020.md) reproduces
+the 8.35x .NET gap and ranks bounded small-string allocation, proven field access
+and local output borrows as the next targets. Its generated-code experiments
+are measured proposals; production remains native v104.
+
 Differential tests run the same program on .NET and Cilica and compare results,
 mutations, exception ordering/types, dispatch, generics and specified identity.
 Do not compare unspecified details such as raw addresses or assume universally
