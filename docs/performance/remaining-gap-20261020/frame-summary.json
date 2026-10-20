@@ -1,0 +1,30 @@
+{
+  "baseline": {
+    "median_ns": 171963.37890625,
+    "min_ns": 163336.26171875,
+    "max_ns": 227871.74609375,
+    "samples": 21,
+    "speedup_vs_base": 1.0
+  },
+  "all_inline_types_hash_flat": {
+    "median_ns": 127813.15234375,
+    "min_ns": 125611.81640625,
+    "max_ns": 131236.00390625,
+    "samples": 21,
+    "speedup_vs_base": 1.345427882443265
+  },
+  "native_frames": {
+    "median_ns": 150999.18359375,
+    "min_ns": 147937.3359375,
+    "max_ns": 153685.38671875,
+    "samples": 21,
+    "speedup_vs_base": 1.1388364811885494
+  },
+  "combined_native_frames": {
+    "median_ns": 115110.02734375,
+    "min_ns": 112115.88671875,
+    "max_ns": 120116.53515625,
+    "samples": 21,
+    "speedup_vs_base": 1.4939044223551468
+  }
+}

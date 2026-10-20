@@ -1,0 +1,98 @@
+{
+  "revision": "8b552e4",
+  "diagnostic_only": true,
+  "notes": {
+    "borrow_inline": "Permit inlining only in the Location runtime component; all checks retained",
+    "types": "Replace descriptor sets >=8 with collision-checked native address hash membership; no descriptor dereference",
+    "all_inline": "Remove noinline attributes throughout emitted runtime; all checks and managed frames retained"
+  },
+  "commands": {
+    "borrow_inline": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/borrow_inline.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/borrow_inline"
+    ],
+    "types": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/types.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/types"
+    ],
+    "all_inline": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/all_inline.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/all_inline"
+    ],
+    "borrow_inline_types": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/borrow_inline_types.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/borrow_inline_types"
+    ],
+    "all_inline_types": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/all_inline_types.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/all_inline_types"
+    ]
+  },
+  "hashes": {
+    "borrow_inline": {
+      "borrow_inline.cpp": "b8eca9e348f428b2f59f8a64265abaffc4c6b0770632207df0034ed43b98ff61",
+      "borrow_inline": "dfaf35dc11f8de6df8f776cbeb0b2cf750af027f372bc8d1802d958d1a7b6bef"
+    },
+    "types": {
+      "types.cpp": "a299a23cf4cad867a21101dee5818dec23184bf7f5155e0ab9ca86743eb511a3",
+      "types": "9820d83f727d7d62d2461649c210f2f85a258e5b475f0e2966678c0af048f0d7"
+    },
+    "all_inline": {
+      "all_inline.cpp": "ca01b636bd18cf4da858f9277c7ee526850fcd18cc7b39e92ac999609b29b3dd",
+      "all_inline": "947a1fab452aea5c5cb46c5d95a17bfb25182fbed781f26706390f5ee98352f2"
+    },
+    "borrow_inline_types": {
+      "borrow_inline_types.cpp": "f854b5bda57115ed5bda2a0d11acf5401d89c8390b83ac1e5d74fb80ad9cf6df",
+      "borrow_inline_types": "477655c9ad5e4ba9a4f78855046b555ce1d785b6d6e7d42d405be459a5dd997f"
+    },
+    "all_inline_types": {
+      "all_inline_types.cpp": "3e154479885aace0919f3e97c6044768446c22c51f5c264a0869eb1c7232ee3d",
+      "all_inline_types": "21c74c6c3838a00817dce83e1a44a8af07e4a05b75ef23f9c5a363770295a32a"
+    }
+  },
+  "borrow_inline_max_frame": 400,
+  "types_max_frame": 400,
+  "all_inline_max_frame": 400,
+  "borrow_inline_types_max_frame": 400,
+  "all_inline_types_max_frame": 400
+}

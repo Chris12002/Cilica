@@ -1,0 +1,37 @@
+{
+  "baseline": {
+    "median_ns": 177243.0,
+    "min_ns": 165440.7578125,
+    "max_ns": 534627.765625,
+    "samples": 21,
+    "speedup_vs_base": 1.0
+  },
+  "registration_ablation": {
+    "median_ns": 173384.9296875,
+    "min_ns": 164412.43359375,
+    "max_ns": 288833.8203125,
+    "samples": 21,
+    "speedup_vs_base": 1.022251474332017
+  },
+  "resolved_ablation": {
+    "median_ns": 183099.28515625,
+    "min_ns": 176473.95703125,
+    "max_ns": 217319.01171875,
+    "samples": 21,
+    "speedup_vs_base": 0.9680157945387254
+  },
+  "borrow_ablation": {
+    "median_ns": 177164.0625,
+    "min_ns": 170653.3203125,
+    "max_ns": 189482.5859375,
+    "samples": 21,
+    "speedup_vs_base": 1.0004455615822199
+  },
+  "combined_ablation": {
+    "median_ns": 132655.2734375,
+    "min_ns": 127932.2890625,
+    "max_ns": 150895.99609375,
+    "samples": 21,
+    "speedup_vs_base": 1.3361172564580128
+  }
+}

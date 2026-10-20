@@ -109,3 +109,10 @@ traces that method into string_from_character and the existing allocator. The
 application's Chunk call at 06000021 IL_001c is unchanged. This matches the
 previously inspected IL2CPP strategy of allocating one String and storing its
 first UTF-16 unit, while retaining Cilica's own compiler, allocator and GC.
+
+## Follow-up profiling
+
+The [remaining-gap investigation](remaining-gap-20261020.md) freshly reproduces
+the committed v95 baseline and ranks borrow/type/frame/hash costs against Roslyn
+IL, .NET native output and retained IL2CPP C++. Its experimental results are
+diagnostic evidence, not additional implemented optimizations.

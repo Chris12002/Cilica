@@ -1,0 +1,4391 @@
+{
+  "timing-net_no_tiering-1.jsonl": [
+    {
+      "warmIterations": 55744,
+      "warm_ms": 300.0362
+    },
+    {
+      "sample": 0,
+      "iterations": 16384,
+      "ns": 89131300,
+      "checksum": 100696064,
+      "allocated_bytes": 233047616,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 1,
+      "iterations": 16384,
+      "ns": 85105800,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 2,
+      "gen2": 0
+    },
+    {
+      "sample": 2,
+      "iterations": 16384,
+      "ns": 87604700,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 3,
+      "iterations": 16384,
+      "ns": 86793900,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 4,
+      "iterations": 16384,
+      "ns": 85097100,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 5,
+      "iterations": 16384,
+      "ns": 85003400,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 27,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 6,
+      "iterations": 16384,
+      "ns": 86416600,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    }
+  ],
+  "timing-net_no_tiering-2.jsonl": [
+    {
+      "warmIterations": 56520,
+      "warm_ms": 300.0065
+    },
+    {
+      "sample": 0,
+      "iterations": 16384,
+      "ns": 87412900,
+      "checksum": 100696064,
+      "allocated_bytes": 233047616,
+      "gen0": 27,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 1,
+      "iterations": 16384,
+      "ns": 85656500,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 27,
+      "gen1": 2,
+      "gen2": 0
+    },
+    {
+      "sample": 2,
+      "iterations": 16384,
+      "ns": 85094700,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 3,
+      "iterations": 16384,
+      "ns": 85529600,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 4,
+      "iterations": 16384,
+      "ns": 88131900,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 5,
+      "iterations": 16384,
+      "ns": 85667100,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 6,
+      "iterations": 16384,
+      "ns": 89791700,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    }
+  ],
+  "timing-net_no_tiering-0.jsonl": [
+    {
+      "warmIterations": 56808,
+      "warm_ms": 300.0154
+    },
+    {
+      "sample": 0,
+      "iterations": 16384,
+      "ns": 85021700,
+      "checksum": 100696064,
+      "allocated_bytes": 233047616,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 1,
+      "iterations": 16384,
+      "ns": 86286800,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 2,
+      "gen2": 0
+    },
+    {
+      "sample": 2,
+      "iterations": 16384,
+      "ns": 83919000,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 3,
+      "iterations": 16384,
+      "ns": 85389800,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 4,
+      "iterations": 16384,
+      "ns": 86276700,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 27,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 5,
+      "iterations": 16384,
+      "ns": 86488100,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 6,
+      "iterations": 16384,
+      "ns": 85368100,
+      "checksum": 100696064,
+      "allocated_bytes": 233046016,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    }
+  ],
+  "timing-baseline-1.jsonl": [
+    {
+      "warmIterations": 1824,
+      "warm_ms": 300.05
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 42344958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 42001917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 44109459,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 43409375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 42249750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 42319500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 43686792,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "timing-net_default-1.jsonl": [
+    {
+      "warmIterations": 18384,
+      "warm_ms": 300.1202
+    },
+    {
+      "sample": 0,
+      "iterations": 16384,
+      "ns": 231464500,
+      "checksum": 100696064,
+      "allocated_bytes": 232894360,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 1,
+      "iterations": 16384,
+      "ns": 48998400,
+      "checksum": 100696064,
+      "allocated_bytes": 232892776,
+      "gen0": 27,
+      "gen1": 2,
+      "gen2": 0
+    },
+    {
+      "sample": 2,
+      "iterations": 16384,
+      "ns": 43848900,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 3,
+      "iterations": 16384,
+      "ns": 43490600,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 4,
+      "iterations": 16384,
+      "ns": 42696300,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 5,
+      "iterations": 16384,
+      "ns": 43111400,
+      "checksum": 100696064,
+      "allocated_bytes": 232676824,
+      "gen0": 28,
+      "gen1": 2,
+      "gen2": 0
+    },
+    {
+      "sample": 6,
+      "iterations": 16384,
+      "ns": 43337100,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    }
+  ],
+  "timing-baseline-0.jsonl": [
+    {
+      "warmIterations": 1816,
+      "warm_ms": 300.488
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 40783542,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 41441167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 41071333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 41343750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 44496125,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 43093000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 41390208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "timing-net_default-0.jsonl": [
+    {
+      "warmIterations": 19016,
+      "warm_ms": 300.1554
+    },
+    {
+      "sample": 0,
+      "iterations": 16384,
+      "ns": 317154800,
+      "checksum": 100696064,
+      "allocated_bytes": 233047600,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 1,
+      "iterations": 16384,
+      "ns": 49870500,
+      "checksum": 100696064,
+      "allocated_bytes": 232892776,
+      "gen0": 28,
+      "gen1": 2,
+      "gen2": 0
+    },
+    {
+      "sample": 2,
+      "iterations": 16384,
+      "ns": 42629500,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 27,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 3,
+      "iterations": 16384,
+      "ns": 43001000,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 4,
+      "iterations": 16384,
+      "ns": 42101300,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 5,
+      "iterations": 16384,
+      "ns": 43267200,
+      "checksum": 100696064,
+      "allocated_bytes": 232676824,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 6,
+      "iterations": 16384,
+      "ns": 43392700,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 2,
+      "gen2": 0
+    }
+  ],
+  "timing-net_default-2.jsonl": [
+    {
+      "warmIterations": 15696,
+      "warm_ms": 300.1022
+    },
+    {
+      "sample": 0,
+      "iterations": 16384,
+      "ns": 323324700,
+      "checksum": 100696064,
+      "allocated_bytes": 233047600,
+      "gen0": 28,
+      "gen1": 2,
+      "gen2": 0
+    },
+    {
+      "sample": 1,
+      "iterations": 16384,
+      "ns": 47798700,
+      "checksum": 100696064,
+      "allocated_bytes": 232892776,
+      "gen0": 28,
+      "gen1": 2,
+      "gen2": 0
+    },
+    {
+      "sample": 2,
+      "iterations": 16384,
+      "ns": 41873500,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 3,
+      "iterations": 16384,
+      "ns": 42973000,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 4,
+      "iterations": 16384,
+      "ns": 42767100,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 27,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 5,
+      "iterations": 16384,
+      "ns": 44951900,
+      "checksum": 100696064,
+      "allocated_bytes": 232689160,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    },
+    {
+      "sample": 6,
+      "iterations": 16384,
+      "ns": 42478300,
+      "checksum": 100696064,
+      "allocated_bytes": 232676776,
+      "gen0": 28,
+      "gen1": 1,
+      "gen2": 0
+    }
+  ],
+  "timing-baseline-2.jsonl": [
+    {
+      "warmIterations": 1808,
+      "warm_ms": 300.373
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 43603250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 44896541,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 41851334,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 42366667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 42313167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 42705959,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 42416875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline_types-1.jsonl": [
+    {
+      "warmIterations": 2184,
+      "warm_ms": 300.197
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 35141167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 34820958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 34788959,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 34872833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 34905542,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 35216875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 35201208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline-0.jsonl": [
+    {
+      "warmIterations": 1688,
+      "warm_ms": 300.34
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 43709292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 45323541,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 43378917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 44773375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 44712583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 41855250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 43988000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-borrow_inline_types-1.jsonl": [
+    {
+      "warmIterations": 2072,
+      "warm_ms": 300.372
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 37438333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 37487208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 36522167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 36938167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 37888083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 36034333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 36251708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline-2.jsonl": [
+    {
+      "warmIterations": 1872,
+      "warm_ms": 300.201
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 40085834,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 39469417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 39981625,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 40698500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 41857209,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 40736250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 40944750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-baseline-1.jsonl": [
+    {
+      "warmIterations": 1800,
+      "warm_ms": 300.376
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 42841708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 42583292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 42425666,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 42725334,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 42195458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 42125583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 42829584,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-baseline-0.jsonl": [
+    {
+      "warmIterations": 1792,
+      "warm_ms": 300.523
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 42138958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 42202750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 42765292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 41644959,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 43431667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 41725417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 43938166,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-borrow_inline_types-0.jsonl": [
+    {
+      "warmIterations": 1944,
+      "warm_ms": 300.592
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 40790250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 39284750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 39606916,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 38790666,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 39432084,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 39677292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 38125625,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline_types-2.jsonl": [
+    {
+      "warmIterations": 2184,
+      "warm_ms": 300.728
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 35140709,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 35248750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 35256916,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 34546875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 35010166,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 34352959,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 34801791,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline-1.jsonl": [
+    {
+      "warmIterations": 1864,
+      "warm_ms": 301.261
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 41610083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 41004667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 41288250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 41196208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 40802791,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 40783958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 40412000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-borrow_inline_types-2.jsonl": [
+    {
+      "warmIterations": 2128,
+      "warm_ms": 300.434
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 35785583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 35959042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 35747292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 35178333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 36560000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 36839666,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 36546209,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline_types-0.jsonl": [
+    {
+      "warmIterations": 2104,
+      "warm_ms": 300.124
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 35169750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 36589458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 36747500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 35576708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 36198083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 35556083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 37576583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-baseline-2.jsonl": [
+    {
+      "warmIterations": 1792,
+      "warm_ms": 300.953
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 42461875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 43030708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 42976375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 41933458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 42664417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 42564375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 43658334,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-hash_flat-2.jsonl": [
+    {
+      "warmIterations": 1968,
+      "warm_ms": 300.67
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 38146084,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 38342541,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 37486458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 38172083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 36849291,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 37754709,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 38148375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-hash_snapshot-0.jsonl": [
+    {
+      "warmIterations": 1936,
+      "warm_ms": 300.716
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 38982917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 38438958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 39064250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 38625666,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 38834375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 38241500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 38793375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline_types_hash_flat-1.jsonl": [
+    {
+      "warmIterations": 2368,
+      "warm_ms": 300.393
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 32354916,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 32291667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 32213959,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 32386917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 32135458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 31646459,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 34269417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-hash_snapshot-2.jsonl": [
+    {
+      "warmIterations": 1944,
+      "warm_ms": 300.897
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 39967625,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 39075750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 39434375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 39364833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 38687500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 38941166,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 39475584,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-hash_flat-0.jsonl": [
+    {
+      "warmIterations": 2000,
+      "warm_ms": 300.615
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 38308041,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 37709333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 37654583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 38651834,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 39051959,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 37721875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 37234250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-borrow_inline-2.jsonl": [
+    {
+      "warmIterations": 1800,
+      "warm_ms": 300.287
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 42568375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 41594834,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 40261417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 41067167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 40807667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 42685375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 42432250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-borrow_inline-0.jsonl": [
+    {
+      "warmIterations": 1776,
+      "warm_ms": 300.102
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 43544666,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 43038084,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 43151917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 42894042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 47301916,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 46794000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45466458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-types-1.jsonl": [
+    {
+      "warmIterations": 2032,
+      "warm_ms": 301.038
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 36364417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 37380416,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 37498459,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 37366042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 36989042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 38016708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 38047500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-hash_flat-1.jsonl": [
+    {
+      "warmIterations": 2032,
+      "warm_ms": 300.047
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 37594583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 37743208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 38047292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 37430416,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 37064584,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 37291042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 37403375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline_types_hash_flat-0.jsonl": [
+    {
+      "warmIterations": 2320,
+      "warm_ms": 300.546
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 32729458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 32209709,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 32163167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 32164833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 32908375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 33311291,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 33951208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-hash_snapshot-1.jsonl": [
+    {
+      "warmIterations": 1976,
+      "warm_ms": 300.63
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 38462583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 38446375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 38777250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 38638416,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 38918292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 38093875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 38220500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-all_inline_types_hash_flat-2.jsonl": [
+    {
+      "warmIterations": 2352,
+      "warm_ms": 300.254
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 32900208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 32548375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 31862291,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 32654042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 31825042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 32183792,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 32551458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-borrow_inline-1.jsonl": [
+    {
+      "warmIterations": 1824,
+      "warm_ms": 300.398
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 42423083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 41804500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 42006958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 41821709,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 41692875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 41651958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 41572792,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-types-0.jsonl": [
+    {
+      "warmIterations": 1888,
+      "warm_ms": 300.9
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 40365584,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 40415291,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 41585416,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 40975208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 40490833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 40361750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 41113125,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "variant-types-2.jsonl": [
+    {
+      "warmIterations": 2048,
+      "warm_ms": 301.16
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 36836292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 36550708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 36398500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 36839250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 36846834,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 36739250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 36838458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "ablation-resolved_ablation-1.jsonl": [
+    {
+      "warmIterations": 1632,
+      "warm_ms": 301.071
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 46873417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 45339209,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 45323083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 46226208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 46201792,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 45177333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45821458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-borrow_ablation-1.jsonl": [
+    {
+      "warmIterations": 1720,
+      "warm_ms": 300.694
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 43900667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 44809458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 46182709,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 44151667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 45842084,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 46409334,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 47655917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-resolved_ablation-0.jsonl": [
+    {
+      "warmIterations": 1592,
+      "warm_ms": 301.351
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 50099250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 48428667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 48291125,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 50128584,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 55633667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 50491334,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 47400417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-borrow_ablation-0.jsonl": [
+    {
+      "warmIterations": 1624,
+      "warm_ms": 300.516
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 48507542,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 46281625,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 47744334,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 45823042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 46406750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 45957166,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45186584,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-borrow_ablation-2.jsonl": [
+    {
+      "warmIterations": 1704,
+      "warm_ms": 300.161
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 43961417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 44178792,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 43773042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 43687250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 44655375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 44989250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45354000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-resolved_ablation-2.jsonl": [
+    {
+      "warmIterations": 1520,
+      "warm_ms": 300.684
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 47707916,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 47355958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 48138916,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 46188708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 46051958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 46686791,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45997167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-baseline-2.jsonl": [
+    {
+      "warmIterations": 1696,
+      "warm_ms": 301.201
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 42352834,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 43590833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 43898458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 45248958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 43736458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 44570417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 44097084,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "ablation-baseline-0.jsonl": [
+    {
+      "warmIterations": 1712,
+      "warm_ms": 300.491
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 44503042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 44880667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 45252250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 48934459,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 47207083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 46049500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45419000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "ablation-combined_ablation-1.jsonl": [
+    {
+      "warmIterations": 2248,
+      "warm_ms": 300.489
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 33782667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 33433333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 33145583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 33461375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 33978708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 34666334,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 34737875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-registration_ablation-1.jsonl": [
+    {
+      "warmIterations": 1720,
+      "warm_ms": 301.088
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 43527958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 44386542,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 44733791,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 43545417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 43980084,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 44294917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 44486417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "ablation-combined_ablation-0.jsonl": [
+    {
+      "warmIterations": 2232,
+      "warm_ms": 300.555
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 33959750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 33287833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 32887208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 34650917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 35115833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 34409208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 34253792,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-baseline-1.jsonl": [
+    {
+      "warmIterations": 1128,
+      "warm_ms": 300.742
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 136864708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 69775667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 64066875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 70728583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 48107834,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 45381125,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45374208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "ablation-combined_ablation-2.jsonl": [
+    {
+      "warmIterations": 2288,
+      "warm_ms": 300.833
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 32750666,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 38629375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 36993708,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 35333542,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 33951459,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 33279625,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 14704
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 33458417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 14704
+    }
+  ],
+  "ablation-registration_ablation-2.jsonl": [
+    {
+      "warmIterations": 1776,
+      "warm_ms": 300.884
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 43223459,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 45293875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 42089583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 42762166,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 45554458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 44373291,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 44904292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "ablation-registration_ablation-0.jsonl": [
+    {
+      "warmIterations": 1256,
+      "warm_ms": 300.339
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 55548167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 73941458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 56432875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 65587167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 44150375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 44062042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45647583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-combined_native_frames-2.jsonl": [
+    {
+      "warmIterations": 2592,
+      "warm_ms": 300.463
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 29468167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 28701667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 28702250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 29217000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 28950500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 29253583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 30154917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-native_frames-2.jsonl": [
+    {
+      "warmIterations": 1984,
+      "warm_ms": 300.29
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 38875208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 38655791,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 38789417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 38052167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 38261542,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 38532833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 37962167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-native_frames-0.jsonl": [
+    {
+      "warmIterations": 1984,
+      "warm_ms": 301.007
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 38960500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 38804583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 38749417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 38549791,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 38778000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 39274875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 38851000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-combined_native_frames-0.jsonl": [
+    {
+      "warmIterations": 2560,
+      "warm_ms": 300.206
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 29556083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 29469333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 29826375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 29771000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 29704125,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 29886667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 29406292,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-native_frames-1.jsonl": [
+    {
+      "warmIterations": 1976,
+      "warm_ms": 300.57
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 38557375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 38746416,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 39343459,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 38618000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 38427541,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 37871958,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 38179542,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-combined_native_frames-1.jsonl": [
+    {
+      "warmIterations": 2608,
+      "warm_ms": 300.601
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 29006458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 29637792,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 30749833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 29740167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 28788875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 29137459,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 29457792,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-baseline-2.jsonl": [
+    {
+      "warmIterations": 1776,
+      "warm_ms": 300.989
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 43461208,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 43914875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 42623458,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 48101583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 54643959,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 58335167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 50067584,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-baseline-0.jsonl": [
+    {
+      "warmIterations": 1776,
+      "warm_ms": 300.075
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 44670375,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 44643583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 44364667,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 43970000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 43364917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 44138333,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 45624042,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-all_inline_types_hash_flat-1.jsonl": [
+    {
+      "warmIterations": 2368,
+      "warm_ms": 300.565
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 32687833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 33133000,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 32720167,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 33594750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 32739500,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 33596417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 33564917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-baseline-1.jsonl": [
+    {
+      "warmIterations": 1768,
+      "warm_ms": 300.581
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 41814083,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 42390041,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 44444750,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 43972917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 43595917,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 44022625,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 43439875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-all_inline_types_hash_flat-0.jsonl": [
+    {
+      "warmIterations": 2296,
+      "warm_ms": 300.003
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 32442334,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 32782250,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 32842833,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 32159791,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 32612416,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 32392541,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 32555791,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    }
+  ],
+  "frame-all_inline_types_hash_flat-2.jsonl": [
+    {
+      "warmIterations": 2288,
+      "warm_ms": 300.211
+    },
+    {
+      "sample": 0,
+      "iterations": 256,
+      "ns": 32444417,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 1,
+      "iterations": 256,
+      "ns": 33434875,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 2,
+      "iterations": 256,
+      "ns": 32694542,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 3,
+      "iterations": 256,
+      "ns": 32912041,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 4,
+      "iterations": 256,
+      "ns": 33138959,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 135376,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 5,
+      "iterations": 256,
+      "ns": 32576583,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 274288,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12664
+    },
+    {
+      "sample": 6,
+      "iterations": 256,
+      "ns": 32156625,
+      "checksum": 1573376,
+      "managed_heap_bytes_after": 413200,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12664
+    }
+  ]
+}

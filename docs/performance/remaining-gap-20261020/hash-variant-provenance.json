@@ -1,0 +1,53 @@
+{
+  "hash_snapshot": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/hash_snapshot.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/hash_snapshot"
+    ],
+    "source_sha256": "6e8fe88cc091213c5c3f425648e77e534807de1ec7465ba3d0d86aeafb00f098",
+    "binary_sha256": "4c6a727082684f68cfcdacbbbbd76e39d13a3e07cf851da2e144b739be0af23e",
+    "max_native_frame_bytes": 400
+  },
+  "hash_flat": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/hash_flat.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/hash_flat"
+    ],
+    "source_sha256": "c1b98ec5d90472e26a8207c96a7f48125f36f913d1babc7ff42da98f48c7ce55",
+    "binary_sha256": "f43cb9fe24438e166d7ce87ab948cbc6e448525e1ce464ed982c31674afeb408",
+    "max_native_frame_bytes": 400
+  },
+  "all_inline_types_hash_flat": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/all_inline_types_hash_flat.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/all_inline_types_hash_flat"
+    ],
+    "source_sha256": "b54970c8acaa8b4c4dc2070fe3dcf01ee85a021e581c0c1e80e584af8ae78af4",
+    "binary_sha256": "d8d2e5fad9325eb8c993638483657d11850de45f71cc5dca244243ed06b8b9ae",
+    "max_native_frame_bytes": 400
+  }
+}

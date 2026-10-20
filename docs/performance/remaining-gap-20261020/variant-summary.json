@@ -1,0 +1,65 @@
+{
+  "baseline": {
+    "median_ns": 166340.984375,
+    "min_ns": 162675.62109375,
+    "max_ns": 171633.4609375,
+    "samples": 21,
+    "speedup_vs_base": 1.0
+  },
+  "borrow_inline": {
+    "median_ns": 165715.16796875,
+    "min_ns": 157271.16015625,
+    "max_ns": 184773.109375,
+    "samples": 21,
+    "speedup_vs_base": 1.0037764582079054
+  },
+  "types": {
+    "median_ns": 146017.25,
+    "min_ns": 142048.50390625,
+    "max_ns": 162443.03125,
+    "samples": 21,
+    "speedup_vs_base": 1.1391872150379492
+  },
+  "all_inline": {
+    "median_ns": 160922.6875,
+    "min_ns": 154177.41015625,
+    "max_ns": 177045.08203125,
+    "samples": 21,
+    "speedup_vs_base": 1.0336701863433644
+  },
+  "borrow_inline_types": {
+    "median_ns": 144289.71484375,
+    "min_ns": 137415.36328125,
+    "max_ns": 159336.9140625,
+    "samples": 21,
+    "speedup_vs_base": 1.152826343548666
+  },
+  "all_inline_types": {
+    "median_ns": 137381.8359375,
+    "min_ns": 134191.24609375,
+    "max_ns": 146783.52734375,
+    "samples": 21,
+    "speedup_vs_base": 1.2107931389901834
+  },
+  "hash_snapshot": {
+    "median_ns": 151536.62109375,
+    "min_ns": 148804.19921875,
+    "max_ns": 156123.53515625,
+    "samples": 21,
+    "speedup_vs_base": 1.0976949543575418
+  },
+  "hash_flat": {
+    "median_ns": 147351.07421875,
+    "min_ns": 143942.54296875,
+    "max_ns": 152546.71484375,
+    "samples": 21,
+    "speedup_vs_base": 1.1288752746251347
+  },
+  "all_inline_types_hash_flat": {
+    "median_ns": 126386.390625,
+    "min_ns": 123618.98046875,
+    "max_ns": 133864.91015625,
+    "samples": 21,
+    "speedup_vs_base": 1.3161305070302145
+  }
+}

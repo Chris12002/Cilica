@@ -1,0 +1,36 @@
+{
+  "native_frames": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/native_frames.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/native_frames"
+    ],
+    "source_sha256": "10d91d365d73fe13a5eda3a2a181bfc7fd2a47791055e36dc7af0eae79ecb6a0",
+    "binary_sha256": "19a29fdd9f304fc0d5d7b4c6e16ca6770767800df25d5e1c9c7273dedc27399f",
+    "max_native_frame_bytes": 2608
+  },
+  "combined_native_frames": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/combined_native_frames.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/combined_native_frames"
+    ],
+    "source_sha256": "36ecb8b54828505edf80fdf2988a03701f54a4d8ba0c5f83253faf7dd72da790",
+    "binary_sha256": "8ddf9d3a785d3075192667239f88b3f9d412ed605cc8a4dd7040a37909a27608",
+    "max_native_frame_bytes": 2608
+  }
+}

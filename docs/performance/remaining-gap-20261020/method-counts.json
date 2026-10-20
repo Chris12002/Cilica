@@ -1,0 +1,437 @@
+[
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004a",
+    "count": 398,
+    "name": "DiffPlex.Model.ModificationData.get_HashedPieces"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049e_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 284,
+    "name": "System.Collections.Generic.Dictionary`2.CheckKey"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000592_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch",
+    "count": 283,
+    "name": "System.Collections.Generic.IEqualityComparer`1.GetHashCode"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600024c",
+    "count": 283,
+    "name": "Cilica.Runtime.StringKeyOperations.Rotate"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600024d",
+    "count": 283,
+    "name": "Cilica.Runtime.StringKeyOperations.Pair"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600024e",
+    "count": 283,
+    "name": "Cilica.Runtime.StringKeyOperations.Hash"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060003e0",
+    "count": 283,
+    "name": "System.OrdinalCaseSensitiveComparer.GetHashCode"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049d_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 283,
+    "name": "System.Collections.Generic.Dictionary`2.HashKey"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004d",
+    "count": 266,
+    "name": "DiffPlex.Model.ModificationData.get_Modifications"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000490_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch",
+    "count": 264,
+    "name": "System.Collections.Generic.IReadOnlyCollection`1.get_Count"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600007b_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47",
+    "count": 264,
+    "name": "Cilica.Runtime.ArrayInterface`1.Count"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000491_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch",
+    "count": 256,
+    "name": "System.Collections.Generic.IReadOnlyList`1.get_Item"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000513_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_dispatch",
+    "count": 256,
+    "name": "System.Collections.Generic.IDictionary`2.TryGetValue"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600007c_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47",
+    "count": 256,
+    "name": "Cilica.Runtime.ArrayInterface`1.Get"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a2",
+    "count": 256,
+    "name": "System.Char.ToString"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a3",
+    "count": 256,
+    "name": "System.Char.ToString"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049f_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 256,
+    "name": "System.Collections.Generic.Dictionary`2.Find"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060004a0_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 256,
+    "name": "System.Collections.Generic.Dictionary`2.TryGetValue"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049c_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 255,
+    "name": "System.Collections.Generic.Dictionary`2.Hash"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000591_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_dispatch",
+    "count": 228,
+    "name": "System.Collections.Generic.IEqualityComparer`1.Equals"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060003df",
+    "count": 228,
+    "name": "System.OrdinalCaseSensitiveComparer.Equals"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049b_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 228,
+    "name": "System.Collections.Generic.Dictionary`2.Equal"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002a7",
+    "count": 67,
+    "name": "System.Int32.Equals"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000500_g_a78075da83fa71d202d1dc9e7e95561f4281565f2849224aa2c16f44c85384d8_dispatch",
+    "count": 56,
+    "name": "System.Collections.Generic.ICollection`1.get_Count"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000498_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 56,
+    "name": "System.Collections.Generic.Dictionary`2.get_Count"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000289",
+    "count": 40,
+    "name": "System.Object..ctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600050d_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_dispatch",
+    "count": 28,
+    "name": "System.Collections.Generic.IDictionary`2.set_Item"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600004b_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 28,
+    "name": "Cilica.Runtime.DictionaryEntry`2..ctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060004a3_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 28,
+    "name": "System.Collections.Generic.Dictionary`2.set_Item"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060004cb_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 28,
+    "name": "System.Collections.Generic.Dictionary`2.Insert"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000047",
+    "count": 7,
+    "name": "DiffPlex.Model.EditLengthResult.get_LastEdit"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010",
+    "count": 5,
+    "name": "DiffPlex.Differ.BuildModificationData"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000041",
+    "count": 4,
+    "name": "DiffPlex.Model.EditLengthResult.get_EndX"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000045",
+    "count": 4,
+    "name": "DiffPlex.Model.EditLengthResult.get_EndY"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004c",
+    "count": 4,
+    "name": "DiffPlex.Model.ModificationData.get_RawData"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600004d",
+    "count": 4,
+    "name": "Cilica.Runtime.DictionaryPrimes.GetPrime"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002e9",
+    "count": 4,
+    "name": "System.String.CopyCharacters"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000042",
+    "count": 3,
+    "name": "DiffPlex.Model.EditLengthResult.set_EndX"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000046",
+    "count": 3,
+    "name": "DiffPlex.Model.EditLengthResult.set_EndY"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600004c",
+    "count": 3,
+    "name": "Cilica.Runtime.DictionaryPrimes.ExpandPrime"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060004cc_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 3,
+    "name": "System.Collections.Generic.Dictionary`2.Resize"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600001d_dispatch",
+    "count": 2,
+    "name": "DiffPlex.IChunker.Chunk"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000e",
+    "count": 2,
+    "name": "DiffPlex.Differ.CalculateEditLength"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000011",
+    "count": 2,
+    "name": "DiffPlex.Differ.BuildPieceHashes"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000021",
+    "count": 2,
+    "name": "DiffPlex.Chunkers.CharacterChunker.Chunk"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000038",
+    "count": 2,
+    "name": "DiffPlex.Model.DiffBlock..ctor"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003d",
+    "count": 2,
+    "name": "DiffPlex.Model.EditLengthResult.get_EditLength"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003e",
+    "count": 2,
+    "name": "DiffPlex.Model.EditLengthResult.set_EditLength"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003f",
+    "count": 2,
+    "name": "DiffPlex.Model.EditLengthResult.get_StartX"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000040",
+    "count": 2,
+    "name": "DiffPlex.Model.EditLengthResult.set_StartX"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000043",
+    "count": 2,
+    "name": "DiffPlex.Model.EditLengthResult.get_StartY"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000044",
+    "count": 2,
+    "name": "DiffPlex.Model.EditLengthResult.set_StartY"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000048",
+    "count": 2,
+    "name": "DiffPlex.Model.EditLengthResult.set_LastEdit"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000049",
+    "count": 2,
+    "name": "DiffPlex.Model.EditLengthResult..ctor"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004b",
+    "count": 2,
+    "name": "DiffPlex.Model.ModificationData.set_HashedPieces"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004e",
+    "count": 2,
+    "name": "DiffPlex.Model.ModificationData.set_Modifications"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600004f",
+    "count": 2,
+    "name": "DiffPlex.Model.ModificationData.get_Pieces"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000050",
+    "count": 2,
+    "name": "DiffPlex.Model.ModificationData.set_Pieces"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000051",
+    "count": 2,
+    "name": "DiffPlex.Model.ModificationData..ctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060002eb",
+    "count": 2,
+    "name": "System.String.IsNullOrEmpty"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000564_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 2,
+    "name": "System.Collections.Generic.List`1.Add"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000500_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_dispatch",
+    "count": 1,
+    "name": "System.Collections.Generic.ICollection`1.get_Count"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000006",
+    "count": 1,
+    "name": "DiffPlex.Differ.CreateCharacterDiffs"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000c",
+    "count": 1,
+    "name": "DiffPlex.Differ.CreateDiffs"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000f",
+    "count": 1,
+    "name": "DiffPlex.Differ.BuildModificationData"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000012",
+    "count": 1,
+    "name": "DiffPlex.Differ..ctor"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000022",
+    "count": 1,
+    "name": "DiffPlex.Chunkers.CharacterChunker..ctor"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000039",
+    "count": 1,
+    "name": "DiffPlex.Model.DiffResult.get_PiecesOld"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003a",
+    "count": 1,
+    "name": "DiffPlex.Model.DiffResult.get_PiecesNew"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003b",
+    "count": 1,
+    "name": "DiffPlex.Model.DiffResult.get_DiffBlocks"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003c",
+    "count": 1,
+    "name": "DiffPlex.Model.DiffResult..ctor"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000052",
+    "count": 1,
+    "name": "Cilica.CandidateBenchmark.BenchProbe.BuildInputs"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000053",
+    "count": 1,
+    "name": "Cilica.CandidateBenchmark.BenchProbe.Diff"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055",
+    "count": 1,
+    "name": "Cilica.CandidateBenchmark.BenchProbe.Run"
+  },
+  {
+    "symbol": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000056",
+    "count": 1,
+    "name": "Cilica.CandidateBenchmark.BenchProbe..cctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600026d",
+    "count": 1,
+    "name": "Cilica.Runtime.OrdinalComparerCache..cctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060003d4",
+    "count": 1,
+    "name": "System.StringComparer..ctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060003d6",
+    "count": 1,
+    "name": "System.StringComparer.get_Ordinal"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_060003dd",
+    "count": 1,
+    "name": "System.OrdinalCaseSensitiveComparer..ctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000493_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 1,
+    "name": "System.Collections.Generic.Dictionary`2..ctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000495_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 1,
+    "name": "System.Collections.Generic.Dictionary`2.NormalizeComparer"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000497_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3",
+    "count": 1,
+    "name": "System.Collections.Generic.Dictionary`2.Initialize"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000559_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1..ctor"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600055f_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1.get_Count"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000560_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1.get_Capacity"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000561_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1.set_Capacity"
+  },
+  {
+    "symbol": "cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_06000566_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb",
+    "count": 1,
+    "name": "System.Collections.Generic.List`1.Grow"
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "registration_ablation": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/registration_ablation.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/registration_ablation"
+    ],
+    "source_sha256": "7a21b839069911ca0c9948f61c05b210a5c3e58bde264b7fa39b4733c4ace12e",
+    "binary_sha256": "6a69ca94d4230676b24c1eefa81eaecb5eaf4dd64c87001b1a552a41c6e0adab"
+  },
+  "resolved_ablation": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/resolved_ablation.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/resolved_ablation"
+    ],
+    "source_sha256": "15b9c6b5336557d24d56b228fab451c24c445f0f6735ff6cb7302fe7a6f6adfa",
+    "binary_sha256": "b522dc986f9e2d02d279441a7d48260a2cf258f47857ff6f93177a94a23e4f75"
+  },
+  "borrow_ablation": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/borrow_ablation.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/borrow_ablation"
+    ],
+    "source_sha256": "1c96ad7cda43419f50bb2f3687361a690dcd485d28ad82014912c98e0e3cc794",
+    "binary_sha256": "2a74aae94b66192a970980869ebd313a2237e6d9661cafa83e9f40b2c1eb8115"
+  },
+  "combined_ablation": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/combined_ablation.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/remaining-gap-20261020/combined_ablation"
+    ],
+    "source_sha256": "17ef8c03341b55e1a82667ef2533a8d41066c24b168a9f0d6f0b09cca448497a",
+    "binary_sha256": "cb11fb9bb11b9c52b824146a815a28f3b6eebba0435a560af93b5820df12c147"
+  }
+}
