@@ -404,6 +404,15 @@ Own reference locals/parameters can change without changing caller state. Kernel
 chains retain depth accounting and caller roots, with an acyclic depth-eight,
 512-expanded-statement proof budget. See
 [ADR 0206](decisions/0206-typed-dictionary-lookup.md).
+Native v103 carries the validated IR's declared reference types through that
+closed kernel graph. Entry wrappers retain reference/borrow checks and validate
+incoming array storage. Normal kernels trust declared field/array result types
+and representation invariants; null/bounds checks and exact dispatch stay active.
+`CILICA_VERIFY_INTERNAL_REFERENCES=1` restores repeated internal type/array checks.
+Detected malformed backing storage sets invalid-state fault 6 before fallback,
+because ordinary framed array reads also trust that storage. No unknown calls,
+external reference writes or safepoints may invalidate the proof. See
+[ADR 0210](decisions/0210-preserved-kernel-reference-types.md).
 Native v101 separately recognizes bounded character-construction helpers that do
 allocate. Their direct paths retain real GC frames, borrowed-owner roots and
 managed depth; faults preserve their original origins without replaying allocation.
@@ -843,6 +852,9 @@ paths trust that a non-null internal reference points to live managed storage;
 set the flag to 1 to restore allocation-list membership checks before header
 access. Null, bounds, descriptor/type compatibility, readonly storage and borrowed
 frame-lifetime checks remain. Borrow helpers also retain owner-header checks.
+The v103 closed typed kernels can discharge repeated type/array representation
+checks using validated IR and checked entry inputs, as described in ADR 0210;
+diagnostic mode restores those internal checks.
 Host handle admission/result publication and GC tracing continue to use checked
 membership independently of either diagnostic flag. Private raw-pointer calls
 are not an embedding API; forged internal pointer detection requires verification.

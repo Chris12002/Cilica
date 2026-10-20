@@ -7,7 +7,13 @@ using System.Text;
 
 namespace Cilica.Compiler;
 
-/// <summary>Closed proofs for side-effect-free native kernels. Failure retries the original framed method.</summary>
+/// <summary>
+/// Closed proofs for side-effect-free native kernels over validated, type-safe IR.
+/// Entry wrappers check incoming references and borrows. Kernels preserve declared
+/// types through native locals, typed storage reads and the closed call graph.
+/// No allocation, external write or unknown call can invalidate those facts.
+/// Failure retries the original framed method.
+/// </summary>
 internal static class ObjectCppTypedMethods
 {
     internal const string Runtime = """
@@ -282,7 +288,10 @@ struct TypedCallDepth {
                     text.Append("        if (").Append(argument).Append(".origin != LocationOrigin::frame_").Append(kind).Append(") goto typed_fallback;\n");
                 text.Append("        ").Append(Type(type.Element)).Append(" resolved").Append(N(i)).Append(" = *static_cast<").Append(Type(type)).Append(">(storage").Append(N(i)).Append(".address);\n");
                 if (type.Element.Kind == IrTypeKind.Reference)
+                {
                     text.Append("        if (!location_reference(context.instance, ").Append(accepts).Append(", resolved").Append(N(i)).Append(")) goto typed_fallback;\n");
+                    CheckInputArray("resolved" + N(i), type.Element);
+                }
                 text.Append("        ").Append(Type(type)).Append(" borrow").Append(N(i)).Append(" = &resolved").Append(N(i)).Append(";\n");
                 for (int j = 0; j < i; j++)
                     if (method.Parameters[j].Kind == IrTypeKind.ManagedLocation && method.Parameters[j].Element == type.Element)
@@ -293,6 +302,7 @@ struct TypedCallDepth {
                 text.Append("        if (!internal_reference_owned(context.instance, ").Append(argument).Append(")");
                 if (type.Class != objectBase) text.Append(" || (").Append(argument).Append(" != nullptr && !").Append(predicate(type.Class!)).Append('(').Append(argument).Append("->type))");
                 text.Append(") goto typed_fallback;\n");
+                CheckInputArray(argument, type);
             }
         }
         text.Append("        ").Append(Type(method.ReturnType)).Append(" result = 0;\n        if (").Append(Symbol(method)).Append("_kernel(context");
@@ -316,17 +326,29 @@ struct TypedCallDepth {
         text.Append(");\n}\n");
         void Check(string value, ObjectTypeId type, bool nonnull)
         {
-            text.Append("    if (");
-            if (nonnull) text.Append(value).Append(" == nullptr || ");
-            text.Append("!internal_reference_owned(context.instance, ").Append(value).Append(") || (").Append(value).Append(" != nullptr && !")
-                .Append(predicate(type)).Append('(').Append(value).Append("->type))) return false;\n");
+            if (nonnull) text.Append("    if (").Append(value).Append(" == nullptr) return false;\n");
+            // The IR validator proves field/array/call compatibility. Inputs are
+            // checked at the wrapper and managed storage preserves declared types.
+            // Retain corruption diagnostics without re-proving every native read.
+            text.Append("#if CILICA_VERIFY_INTERNAL_REFERENCES\n")
+                .Append("    if (!internal_reference_owned(context.instance, ").Append(value).Append(") || (").Append(value).Append(" != nullptr && !")
+                .Append(predicate(type)).Append('(').Append(value).Append("->type))) return false;\n#endif\n");
         }
         void CheckArray(string value, ObjectTypeId? type, string? index)
         {
             Check(value, type ?? objectBase, true);
-            text.Append("    if (!valid_array_storage(").Append(value).Append(")");
-            if (index is not null) text.Append(" || ").Append(index).Append(" >= array_length(").Append(value).Append(')');
-            text.Append(") return false;\n");
+            text.Append("#if CILICA_VERIFY_INTERNAL_REFERENCES\n")
+                .Append("    if (!valid_array_storage(").Append(value).Append(")) { context.pending = 6u; return false; }\n#endif\n");
+            if (index is not null)
+                text.Append("    if (").Append(index).Append(" >= array_length(").Append(value).Append(")) return false;\n");
+        }
+        void CheckInputArray(string value, IrType type)
+        {
+            if (type.Class?.ArrayElement is not null)
+                // Malformed private storage is not a managed fault to replay:
+                // ordinary framed array reads also trust the backing allocation.
+                text.Append("        if (").Append(value).Append(" != nullptr && !valid_array_storage(").Append(value)
+                    .Append(")) { context.pending = 6u; goto typed_fallback; }\n");
         }
         void Call(CallSite call, string result)
         {

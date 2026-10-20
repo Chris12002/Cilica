@@ -1,0 +1,15 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ReferenceArrayTranslationTests.Unimplemented_element_storage_still_produces_diagnostics(name: "WideElements") [FAIL]
+      Assert.False() Failure
+      Expected: False
+      Actual:   True
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ReferenceArrayTranslationTests.cs(27,0): at Cilica.Metadata.Tests.ReferenceArrayTranslationTests.Unimplemented_element_storage_still_produces_diagnostics(String name)
+           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+           at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Finished:    Cilica.Metadata.Tests (ID = '4e58f81b8725ee07fbc48ca23ad01bdd6fd1fd0402542b2f4a4dbe678a6ceeb2')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 67, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 26.263s

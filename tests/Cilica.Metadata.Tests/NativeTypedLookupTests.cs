@@ -11,8 +11,9 @@ namespace Cilica.Metadata.Tests;
 public sealed class NativeTypedLookupTests
 {
     [Theory]
-    [InlineData(false,0)] [InlineData(false,1)] [InlineData(true,0)] [InlineData(true,1)]
-    public async Task Fields_reference_results_dispatch_staged_aliases_and_fault_replay_match_dotnet(bool optimized,int enabled)
+    [InlineData(false,0,0)] [InlineData(false,1,0)] [InlineData(true,0,0)] [InlineData(true,1,0)]
+    [InlineData(false,1,1)] [InlineData(true,1,1)]
+    public async Task Fields_reference_results_dispatch_staged_aliases_and_fault_replay_match_dotnet(bool optimized,int enabled,int verify)
     {
         var run=IntegerObjectTranslationTests.Translate(nameof(TypedLookupProbe.Run),fixture:typeof(TypedLookupProbe));
         var fault=IntegerObjectTranslationTests.Translate(nameof(TypedLookupProbe.Fault),fixture:typeof(TypedLookupProbe));
@@ -24,7 +25,71 @@ public sealed class NativeTypedLookupTests
         Assert.DoesNotContain(effect+"_kernel",artifact.Text,StringComparison.Ordinal);
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,
             [("LookupRun",run.Program!,TypedLookupProbe.Run),("LookupFault",fault.Program!,TypedLookupProbe.Fault)],
-            nativeFlags:["-DCILICA_TYPED_INTERNALS="+enabled,"-DCILICA_VERIFY_INTERNAL_REFERENCES=1","-DCILICA_VERIFY_BORROW_LIFETIMES=1","-Wframe-larger-than=16384"]);
+            nativeFlags:["-DCILICA_TYPED_INTERNALS="+enabled,"-DCILICA_VERIFY_INTERNAL_REFERENCES="+verify,"-DCILICA_VERIFY_BORROW_LIFETIMES=1","-Wframe-larger-than=16384"]);
+    }
+    [Theory]
+    [InlineData(false,0)] [InlineData(false,1)] [InlineData(true,0)] [InlineData(true,1)]
+    public async Task Kernel_entry_keeps_type_and_array_storage_checks_while_diagnostics_check_internal_reads(bool optimized,int verify)
+    {
+        var translated=IntegerObjectTranslationTests.Translate(nameof(TypedLookupProbe.Run),fixture:typeof(TypedLookupProbe));
+        Assert.True(translated.Success,string.Join("; ",translated.Diagnostics));
+        var program=translated.Program!;
+        var artifact=ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(program));
+        string hash=artifact.Source.ContentHash;
+        string cell="t_"+hash+"_"+typeof(TypedLookupCell).MetadataToken.ToString("x8",CultureInfo.InvariantCulture);
+        string other="t_"+hash+"_"+typeof(PureTypedLookup).MetadataToken.ToString("x8",CultureInfo.InvariantCulture);
+        var array=program.Flow.Flow.Flow.Types.References.Arrays.Single(a=>a.ArrayElement!.Type?.Token==typeof(TypedLookupCell).MetadataToken);
+        string descriptor=$"t_{array.ContentHash}_{array.Token:x8}_vector_ref_{cell}";
+        string find=Symbol(hash,nameof(TypedLookupProbe.Find)),read=Symbol(hash,nameof(TypedLookupProbe.ArrayRead));
+        string source=artifact.Text+$$"""
+            #include <cassert>
+            using namespace {{artifact.EntryPoint[..^4]}}_closure;
+            int main() {
+                Instance heap; heap.collect_before_allocation=true; Context c(heap);
+                Object* slots[3]{}; Frame frame; RootScope roots(c,frame,slots,3);
+                slots[0]=allocate<{{cell}}>(c,{{cell}}_descriptor);
+                slots[1]=allocate<{{other}}>(c,{{other}}_descriptor);
+                slots[2]=allocate_array(c,{{descriptor}}_descriptor,1);
+                assert(slots[0] && slots[1] && slots[2] && c.pending==0);
+                auto* array=reinterpret_cast<ArrayObject*>(slots[2]);
+                array->references[0]=slots[0];
+                // Valid warm calls use native kernels without arena space.
+                {
+                    Context warm(heap,0); Frame f; RootScope scope(warm,f,slots,3);
+                    assert({{find}}_typed(warm,slots[0],0)==slots[0] && warm.pending==0);
+                    assert({{read}}_typed(warm,slots[2],0)==1 && warm.pending==0 && warm.used==0);
+                }
+                // Wrong known descriptors must be rejected before field/element reads.
+                (void){{find}}_typed(c,slots[1],0); assert(c.pending==6); c.pending=0;
+                (void){{read}}_typed(c,slots[0],0); assert(c.pending==6); c.pending=0;
+                // Even normal execution checks array storage at a typed entry boundary.
+                auto* saved=array->references; array->references=nullptr;
+                (void){{read}}_typed(c,slots[2],0); assert(c.pending==6); c.pending=0;
+                if (CILICA_VERIFY_INTERNAL_REFERENCES) {
+                    std::uint32_t result=0;
+                    assert(!{{read}}_kernel(c,slots[2],0,result) && c.pending==6); c.pending=0;
+                }
+                array->references=saved;
+                // Private storage corruption is diagnostic; do not execute the
+                // trusted kernel with corrupted elements in the normal mode.
+                if (CILICA_VERIFY_INTERNAL_REFERENCES) {
+                    array->references[0]=slots[1]; std::uint32_t result=0;
+                    assert(!{{read}}_kernel(c,slots[2],0,result) && c.pending==0);
+                    array->references[0]=reinterpret_cast<Object*>(std::uintptr_t{1});
+                    assert(!{{read}}_kernel(c,slots[2],0,result) && c.pending==0);
+                    array->references[0]=slots[0];
+                }
+                assert(collect(c).status==MarkStatus::complete && heap.count==3);
+                assert(c.depth==1 && c.used==0 && c.borrows==nullptr);
+            }
+            """;
+        using var files=new ResolverFiles();string dir=files.DirectoryPath("typed-reference-proof"),cpp=Path.Combine(dir,"probe.cpp"),exe=Path.Combine(dir,"probe");
+        File.WriteAllText(cpp,source);
+        var build=await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX")??"clang++",
+            ["-std=c++20",optimized?"-O2":"-O0","-DCILICA_TYPED_INTERNALS=1","-DCILICA_VERIFY_INTERNAL_REFERENCES="+verify,
+             "-fno-exceptions","-fno-rtti","-Wall","-Wextra","-Werror","-fsanitize=address,undefined","-fno-sanitize-recover=all",cpp,"-o",exe],dir);
+        Assert.True(build.ExitCode==0,build.Stderr);
+        var run=await NativeProcess.Run(exe,[],dir);Assert.True(run.ExitCode==0,run.Stdout+run.Stderr);Assert.Empty(run.Stderr);
     }
     [Fact]
     public async Task Lookup_kernels_link_and_execute_across_translation_units()

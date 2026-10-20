@@ -141,6 +141,12 @@ owner/descriptor/shape checks and exact per-type, per-instance identity.
 Internal-reference diagnostic mode restores heap scans. GC cache traversal and
 public handles remain checked in both modes; see ADR 0209.
 
+Native v103 preserves validated reference types inside the closed non-allocating
+kernel graph. Entry type/borrow/array-storage checks, null/bounds checks and exact
+dispatch remain. Internal-reference diagnostics restore repeated internal checks.
+Invalid array storage faults before replay. Extending kernel eligibility must
+preserve the no-safepoint/no-external-reference-write proof; see ADR 0210.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.
