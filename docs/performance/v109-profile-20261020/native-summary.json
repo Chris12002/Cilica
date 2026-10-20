@@ -1,0 +1,50 @@
+{
+  "baseline": {
+    "instruction_bytes": 271808,
+    "executable_bytes": 569336,
+    "read_accessor_call_sites": 393,
+    "storage_check_call_sites": 9,
+    "lookup_body_bytes": 2336,
+    "lookup_call_sites": 44
+  },
+  "reads": {
+    "instruction_bytes": 267688,
+    "executable_bytes": 568536,
+    "read_accessor_call_sites": 0,
+    "storage_check_call_sites": 9,
+    "lookup_body_bytes": 2084,
+    "lookup_call_sites": 17
+  },
+  "reads_array": {
+    "instruction_bytes": 268236,
+    "executable_bytes": 568360,
+    "read_accessor_call_sites": 0,
+    "storage_check_call_sites": 0,
+    "lookup_body_bytes": 2084,
+    "lookup_call_sites": 17
+  },
+  "depth_value": {
+    "instruction_bytes": 270336,
+    "executable_bytes": 569336,
+    "read_accessor_call_sites": 372,
+    "storage_check_call_sites": 9,
+    "lookup_body_bytes": 2052,
+    "lookup_call_sites": 41
+  },
+  "compact": {
+    "instruction_bytes": 273048,
+    "executable_bytes": 574760,
+    "read_accessor_call_sites": 393,
+    "storage_check_call_sites": 9,
+    "lookup_body_bytes": 2336,
+    "lookup_call_sites": 44
+  },
+  "gc_fuse": {
+    "instruction_bytes": 271812,
+    "executable_bytes": 569336,
+    "read_accessor_call_sites": 393,
+    "storage_check_call_sites": 9,
+    "lookup_body_bytes": 2336,
+    "lookup_call_sites": 44
+  }
+}

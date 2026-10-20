@@ -1,0 +1,92 @@
+{
+  "variants": {
+    "reads": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/reads.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/reads"
+      ],
+      "cpp_sha256": "cb26df62d9e3011c7ea95320a3f814de0d9612cb56723eb518268d3f3f8eb15e",
+      "bytes": 568536,
+      "max_frame_bytes": 432
+    },
+    "depth_value": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/depth_value.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/depth_value"
+      ],
+      "cpp_sha256": "70ab523fefcbea6f8bfe289e6b164dfe15aea88665df14e9dac987cb90ebeddd",
+      "bytes": 569336,
+      "max_frame_bytes": 432
+    },
+    "array_inline": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/array_inline.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/array_inline"
+      ],
+      "cpp_sha256": "02ff0aa64b4c08e0b35c028c9ecec174ca5b1d0ab2e0712a78b6476fb34edb7d",
+      "bytes": 585696,
+      "max_frame_bytes": 432
+    },
+    "compact": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/compact.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/compact"
+      ],
+      "cpp_sha256": "6c2cbd75432978bc5357b03d0458b260415bdac95ffc88ea8e536a3b2cf32e0c",
+      "bytes": 574760,
+      "max_frame_bytes": 432
+    },
+    "reads_depth": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/reads_depth.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/reads_depth"
+      ],
+      "cpp_sha256": "dee49eaa5755d4ba1b84c71542cf8e2d7dbe4445af4861ce79381288b8d8f6d3",
+      "bytes": 568536,
+      "max_frame_bytes": 432
+    }
+  },
+  "edits": {
+    "compact_descriptors": 78
+  }
+}

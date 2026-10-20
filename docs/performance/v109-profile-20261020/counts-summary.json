@@ -1,0 +1,27 @@
+{
+  "warmed_diffs": 256,
+  "per_diff": {
+    "array_validations": 721.4921875,
+    "objects": 39.0,
+    "hash_type_calls": 1214.9375,
+    "hash_type_probes": 2329.0859375,
+    "steps": 0.0,
+    "frames": 143.00390625,
+    "frame_bytes": 141386.875,
+    "type_calls": 6498.0,
+    "type_comparisons": 6766.0,
+    "active_visits": 226.0,
+    "borrow_visits": 0.0,
+    "arrays": 17.0,
+    "strings": 256.0,
+    "array_length": 3932.0,
+    "int": 972.0,
+    "wide": 0.0,
+    "ref": 755.0,
+    "string_length": 1367.0,
+    "char": 539.0,
+    "retire_calls": 635.0,
+    "retire_visits": 1224.0
+  },
+  "note": "Instrumented logical invocations, not hardware retired calls or timed code"
+}

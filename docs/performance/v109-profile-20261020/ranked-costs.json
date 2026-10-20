@@ -1,0 +1,110 @@
+{
+  "all_samples": 4920,
+  "categories": {
+    "dictionary_and_entry_constructor": {
+      "samples": 965,
+      "all_samples_percent": 19.61382113821138,
+      "members": {
+        "System.Collections.Generic.Dictionary`2.TryGetValue": 628,
+        "System.Collections.Generic.Dictionary`2.Insert": 140,
+        "System.Collections.Generic.Dictionary`2.set_Item": 61,
+        "Cilica.Runtime.DictionaryEntry`2..ctor": 59,
+        "System.Collections.Generic.Dictionary`2.Resize": 41,
+        "System.Collections.Generic.Dictionary`2.HashKey": 16,
+        "System.Collections.Generic.Dictionary`2.get_Count": 7,
+        "System.Collections.Generic.Dictionary`2.Initialize": 5,
+        "System.Collections.Generic.Dictionary`2.NormalizeComparer": 5,
+        "System.Collections.Generic.Dictionary`2.CheckKey": 2,
+        "System.Collections.Generic.Dictionary`2..ctor": 1
+      }
+    },
+    "borrow_location_registration": {
+      "samples": 507,
+      "all_samples_percent": 10.304878048780488,
+      "members": {
+        "frame_location_storage": 117,
+        "location_storage": 95,
+        "BorrowScope::BorrowScope": 55,
+        "find_borrow": 57,
+        "array_location_storage": 48,
+        "frame_location": 46,
+        "active_root_frame": 33,
+        "location_reference": 13,
+        "store_location_integer": 17,
+        "load_location_reference": 9,
+        "array_location": 16,
+        "valid_location_argument": 1
+      }
+    },
+    "native_allocator": {
+      "samples": 396,
+      "all_samples_percent": 8.048780487804878,
+      "members": {
+        "tiny_malloc_from_free_list": 96,
+        "tiny_free_no_lock": 69,
+        "_szone_free": 34,
+        "free_tiny": 33,
+        "tiny_malloc_should_clear": 30,
+        "szone_malloc_should_clear": 29,
+        "_free": 13,
+        "malloc_type_malloc": 12,
+        "DYLD-STUB$$malloc_type_malloc": 8,
+        "small_malloc_from_free_list": 7,
+        "DYLD-STUB$$free": 7,
+        "_tiny_check_and_zero_inline_meta_from_freelist": 7,
+        "get_tiny_previous_free_msize": 7,
+        "tiny_free_list_add_ptr": 7,
+        "DYLD-STUB$$operator new": 6,
+        "rack_get_thread_index": 5,
+        "operator new": 5,
+        "free_small": 5,
+        "DYLD-STUB$$operator new[]": 4,
+        "small_free_list_remove_ptr_no_clear": 3,
+        "small_free_list_add_ptr": 2,
+        "small_malloc_should_clear": 2,
+        "tiny_free_list_remove_ptr": 2,
+        "szone_malloc_type_malloc": 1,
+        "small_free_list_find_by_ptr": 1,
+        "small_free_list_remove_ptr": 1
+      }
+    },
+    "character_and_string_creation": {
+      "samples": 385,
+      "all_samples_percent": 7.82520325203252,
+      "members": {
+        "System.Char.ToString": 206,
+        "allocate_string": 179
+      }
+    },
+    "collector": {
+      "samples": 376,
+      "all_samples_percent": 7.642276422764228,
+      "members": {
+        "mark_graph": 138,
+        "prepare_membership": 116,
+        "collect": 84,
+        "visit_object_references": 15,
+        "visit_edge": 13,
+        "mark_edge": 9,
+        "visit_roots": 1
+      }
+    },
+    "array_storage_validation": {
+      "samples": 270,
+      "all_samples_percent": 5.487804878048781,
+      "members": {
+        "valid_array_storage": 270
+      }
+    },
+    "descriptor_predicates": {
+      "samples": 233,
+      "all_samples_percent": 4.735772357723577,
+      "members": {
+        "t_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_02000072_accepts": 210,
+        "t_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0200008a_accepts": 20,
+        "t_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_02000014_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_accepts": 2,
+        "t_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0200000e_accepts": 1
+      }
+    }
+  }
+}
