@@ -1,0 +1,62 @@
+[
+  {
+    "token": "0600000e",
+    "type": "DiffPlex.Differ",
+    "name": "CalculateEditLength",
+    "rva": 8840,
+    "signature": "000812441D0808081D0808081D081D08",
+    "ilBytes": 665,
+    "maxStack": 4,
+    "localsInitialized": true
+  },
+  {
+    "token": "0600000f",
+    "type": "DiffPlex.Differ",
+    "name": "BuildModificationData",
+    "rva": 9520,
+    "signature": "00020112481248",
+    "ilBytes": 54,
+    "maxStack": 8,
+    "localsInitialized": true
+  },
+  {
+    "token": "06000010",
+    "type": "DiffPlex.Differ",
+    "name": "BuildModificationData",
+    "rva": 9588,
+    "signature": "00080112480808124808081D081D08",
+    "ilBytes": 472,
+    "maxStack": 8,
+    "localsInitialized": true
+  },
+  {
+    "token": "06000011",
+    "type": "DiffPlex.Differ",
+    "name": "BuildPieceHashes",
+    "rva": 10072,
+    "signature": "000401151235020E081248021218",
+    "ilBytes": 186,
+    "maxStack": 3,
+    "localsInitialized": true
+  },
+  {
+    "token": "06000021",
+    "type": "DiffPlex.Chunkers.CharacterChunker",
+    "name": "Chunk",
+    "rva": 10304,
+    "signature": "2001151239010E0E",
+    "ilBytes": 49,
+    "maxStack": 4,
+    "localsInitialized": true
+  },
+  {
+    "token": "06000029",
+    "type": "DiffPlex.Chunkers.LineChunker",
+    "name": "Chunk",
+    "rva": 10719,
+    "signature": "2001151239010E0E",
+    "ilBytes": 14,
+    "maxStack": 8,
+    "localsInitialized": false
+  }
+]

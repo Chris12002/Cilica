@@ -1,0 +1,68 @@
+[
+  {
+    "file": "artifacts/dotnet-speed-20261020/runtime-string.cs",
+    "sha256": "9c5640a1e916ec6d4eee3942b7b5afe00ed5aa7d41c47b879d3d3c2b8593f2ab",
+    "line": 3176,
+    "text": "\tprivate string InternalSubString(int startIndex, int length)\n\t{\n\t\tstring text = FastAllocateString(length);\n\t\tnuint elementCount = (uint)length;\n\t\tBuffer.Memmove(ref text._firstChar, ref Unsafe.Add(ref _firstChar, (nint)(uint)startIndex), elementCount);\n\t\treturn text;\n\t}\n\n\tpublic string ToLower()\n\t{\n\t\treturn ToLower(null);\n\t}\n\n\tpublic string ToLower(CultureInfo? culture)"
+  },
+  {
+    "file": "artifacts/dotnet-speed-20261020/runtime-string.cs",
+    "sha256": "9c5640a1e916ec6d4eee3942b7b5afe00ed5aa7d41c47b879d3d3c2b8593f2ab",
+    "line": 2854,
+    "text": "\t\tSpan<int> scratchBuffer = stackalloc int[128];\n\t\tValueListBuilder<int> sepListBuilder = new ValueListBuilder<int>(scratchBuffer);\n\t\tscratchBuffer = stackalloc int[128];\n\t\tValueListBuilder<int> lengthListBuilder = new ValueListBuilder<int>(scratchBuffer);\n\t\tMakeSeparatorListAny(this.AsSpan(), separators, ref sepListBuilder, ref lengthListBuilder);\n\t\tReadOnlySpan<int> sepList = sepListBuilder.AsSpan();\n\t\tReadOnlySpan<int> lengthList = lengthListBuilder.AsSpan();\n\t\tif (sepList.Length == 0)\n\t\t{\n\t\t\treturn CreateSplitArrayOfThisAsSoleValue(options, count);\n\t\t}\n\t\tstring[] result = ((options != StringSplitOptions.None) ? SplitWithPostProcessing(sepList, lengthList, 0, count, options) : SplitWithoutPostProcessing(sepList, lengthList, 0, count));\n\t\tsepListBuilder.Dispose();\n\t\tlengthListBuilder.Dispose();\n\t\treturn result;\n\t}\n\n\tprivate string[] CreateSplitArrayOfThisAsSoleValue(StringSplitOptions options, int count)\n\t{\n\t\tif (count != 0)\n\t\t{\n\t\t\tstring text = this;\n\t\t\tif ((options & StringSplitOptions.TrimEntries) != StringSplitOptions.None)\n\t\t\t{"
+  },
+  {
+    "file": "artifacts/dotnet-speed-20261020/runtime-string.cs",
+    "sha256": "9c5640a1e916ec6d4eee3942b7b5afe00ed5aa7d41c47b879d3d3c2b8593f2ab",
+    "line": 3099,
+    "text": "\tinternal static void MakeSeparatorListAny(ReadOnlySpan<char> source, ReadOnlySpan<string> separators, ref ValueListBuilder<int> sepListBuilder, ref ValueListBuilder<int> lengthListBuilder)\n\t{\n\t\tfor (int i = 0; i < source.Length; i++)\n\t\t{\n\t\t\tfor (int j = 0; j < separators.Length; j++)\n\t\t\t{\n\t\t\t\tstring text = separators[j];\n\t\t\t\tif (!IsNullOrEmpty(text))\n\t\t\t\t{\n\t\t\t\t\tint length = text.Length;\n\t\t\t\t\tif (source[i] == text[0] && length <= source.Length - i && (length == 1 || source.Slice(i, length).SequenceEqual(text.AsSpan())))\n\t\t\t\t\t{\n\t\t\t\t\t\tsepListBuilder.Append(i);\n\t\t\t\t\t\tlengthListBuilder.Append(length);\n\t\t\t\t\t\ti += length - 1;\n\t\t\t\t\t\tbreak;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\n\tinternal static void CheckStringSplitOptions(StringSplitOptions options)\n\t{\n\t\tif ((options & ~(StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) != StringSplitOptions.None)\n\t\t{\n\t\t\tThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidFlag, ExceptionArgument.options);\n\t\t}\n\t}\n\n\tpublic string Substring(int startIndex)\n\t{\n\t\tif (startIndex == 0)\n\t\t{\n\t\t\treturn this;\n\t\t}\n\t\tint num = Length - startIndex;\n\t\tif (num == 0)\n\t\t{\n\t\t\treturn Empty;"
+  },
+  {
+    "file": "artifacts/dotnet-speed-20261020/runtime-dictionary.cs",
+    "sha256": "d4912c85cbf40f893ca6b323746c47ca3b2a7a2da83bfb60290902b569b5fdc9",
+    "line": 355,
+    "text": "\tprivate struct Entry\n\t{\n\t\tpublic uint hashCode;\n\n\t\tpublic int next;\n\n\t\tpublic TKey key;\n\n\t\tpublic TValue value;\n\t}\n\n\tpublic struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDisposable, IEnumerator, IDictionaryEnumerator\n\t{\n\t\tprivate readonly Dictionary<TKey, TValue> _dictionary;\n"
+  },
+  {
+    "file": "artifacts/dotnet-speed-20261020/runtime-dictionary.cs",
+    "sha256": "d4912c85cbf40f893ca6b323746c47ca3b2a7a2da83bfb60290902b569b5fdc9",
+    "line": 1049,
+    "text": "\t\t\t\tIEqualityComparer<string> stringComparer = NonRandomizedStringEqualityComparer.GetStringComparer(_comparer);\n\t\t\t\tif (stringComparer != null)\n\t\t\t\t{\n\t\t\t\t\t_comparer = (IEqualityComparer<TKey>)stringComparer;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\telse if (comparer != null && comparer != EqualityComparer<TKey>.Default)\n\t\t{"
+  },
+  {
+    "file": "artifacts/dotnet-speed-20261020/runtime-dictionary.cs",
+    "sha256": "d4912c85cbf40f893ca6b323746c47ca3b2a7a2da83bfb60290902b569b5fdc9",
+    "line": 1880,
+    "text": "\tprivate ref int GetBucket(uint hashCode)\n\t{\n\t\tint[] buckets = _buckets;\n\t\treturn ref buckets[HashHelpers.FastMod(hashCode, (uint)buckets.Length, _fastModMultiplier)];\n\t}\n}\nYou are not using the latest version of the tool, please update.\nLatest version is '11.1.0.9782' (yours is '9.1.0.7988')"
+  },
+  {
+    "file": "library/Cilica.Core/StringSubstring.cs",
+    "sha256": "426793e5a6d3a3c2e5c9665e18ce53441a39de18a7235e92a1da3e9f80bfa5de",
+    "line": 36,
+    "text": "        private string CopySubstring(int startIndex, int length)\n        {\n            var units = new int[length];\n            for (int i = 0; i < length; ++i) units[i] = this[startIndex + i];\n            return Cilica.Runtime.StringConstruction.FromCodeUnits(units);\n        }\n    }"
+  },
+  {
+    "file": "library/Cilica.Core/Dictionary.cs",
+    "sha256": "7ff34a584f8c6e8a0fcc4635b36adb98f069b27c4a66efd9142aaa5fcf6ec824",
+    "line": 8,
+    "text": "    public sealed class DictionaryEntry<TKey, TValue>\n    {\n        public uint Hash;\n        public int Next;\n        public TKey Key;\n        public TValue Value;\n        public DictionaryEntry(uint hash, int next, TKey key, TValue value)\n        { Hash = hash; Next = next; Key = key; Value = value; }\n    }\n    internal static class DictionaryPrimes"
+  },
+  {
+    "file": "library/Cilica.Core/Dictionary.cs",
+    "sha256": "7ff34a584f8c6e8a0fcc4635b36adb98f069b27c4a66efd9142aaa5fcf6ec824",
+    "line": 600,
+    "text": "            var added = new Cilica.Runtime.DictionaryEntry<TKey, TValue>(hash, buckets[bucket] - 1, key, value);\n            entries[count] = added;\n            buckets[bucket] = count + 1;\n            count++;\n            version++;\n            return true;\n        }\n        private void Resize()"
+  },
+  {
+    "file": "library/Cilica.Core/StringKeyOperations.cs",
+    "sha256": "a9a6c85451e47fdc59c2d3adee85b4a688e69679f14aa384384082d1a399bfc3",
+    "line": 11,
+    "text": "        private static uint Pair(string value, int index)\n        {\n            uint first = value[index];\n            uint second = index + 1 < value.Length ? value[index + 1] : 0u;\n            return first | (second << 16);\n        }\n        internal static int Hash(ref string value)\n        {\n            if (value == null) return 0;\n            uint first = (5381u << 16) + 5381u, second = first;\n            int remaining = value.Length, index = 0;\n            while (remaining > 2)\n            {\n                remaining -= 4;\n                first = (Rotate(first) + first) ^ Pair(value, index);\n                second = (Rotate(second) + second) ^ Pair(value, index + 2);\n                index += 4;\n            }\n            if (remaining > 0) second = (Rotate(second) + second) ^ Pair(value, index);\n            return unchecked((int)(first + second * 1566083941u));\n        }\n    }\n}"
+  },
+  {
+    "file": "src/Cilica.Compiler/ObjectCppRuntime.cs",
+    "sha256": "262d86bf5ce935087392d21a84cbfa1f94a3144a8047dcaa8b105d550e68f90f",
+    "line": 492,
+    "text": "[[maybe_unused, gnu::noinline]] static Object* string_from_code_units(Context& context, const Descriptor& descriptor, Object* source) noexcept {\n    const auto* array = reinterpret_cast<ArrayObject*>(source);\n    if (array->length == 0) return string_literal(context, descriptor, 0, nullptr, 0);\n    return allocate_string(context, descriptor, nullptr, array->length, nullptr, 0, nullptr, 0, nullptr, 0, array->integers);\n}\n// The UTF-16 value is native scalar storage and remains valid across collection.\nCILICA_ALLOCATION_HELPER static Object* string_from_character(Context& context, const Descriptor& descriptor, std::uint32_t character) noexcept {"
+  }
+]

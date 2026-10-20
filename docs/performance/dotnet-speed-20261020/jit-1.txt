@@ -1,0 +1,4440 @@
+; Assembly listing for method System.Collections.Generic.Dictionary`2[System.__Canon,System.__Canon]:TryInsert(System.__Canon,System.__Canon,byte):bool:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 5 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x80]!
+            stp     x19, x20, [sp, #0x30]
+            stp     x21, x22, [sp, #0x40]
+            stp     x23, x24, [sp, #0x50]
+            stp     x25, x26, [sp, #0x60]
+            stp     x27, x28, [sp, #0x70]
+            mov     fp, sp
+            str     x0, [fp, #0x28]
+            mov     x19, x0
+            mov     x20, x1
+            mov     x21, x2
+            mov     w22, w3
+
+G_M000_IG02:                ;; offset=0x0030
+            cbz     x20, G_M000_IG22
+            ldr     x0, [x19, #0x08]
+            cbnz    x0, G_M000_IG04
+
+G_M000_IG03:                ;; offset=0x003C
+            mov     x0, x19
+            mov     w1, wzr
+            movz    x2, #0x58C0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+
+G_M000_IG04:                ;; offset=0x0058
+            ldp     x23, x24, [x19, #0x10]
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x30]
+            cbz     x11, G_M000_IG16
+
+G_M000_IG05:                ;; offset=0x0070
+            mov     x0, x24
+            mov     x1, x20
+            ldr     x2, [x11]
+            blr     x2
+            sxtw    w25, w0
+            mov     w26, wzr
+            ldr     x0, [x19, #0x08]
+            ldr     x1, [x19, #0x30]
+            mov     w2, w25
+            mul     x1, x1, x2
+            lsr     x1, x1, #32
+            add     x1, x1, #1
+            ldr     w2, [x0, #0x08]
+            mov     w3, w2
+            mul     x1, x1, x3
+            lsr     x1, x1, #32
+            cmp     w1, w2
+            bhs     G_M000_IG27
+            add     x0, x0, #16
+            ubfiz   x1, x1, #2, #32
+            add     x27, x0, x1
+            ldr     w0, [x27]
+            sub     w28, w0, #1
+            ldr     w2, [x23, #0x08]
+            str     w2, [fp, #0x24]
+            cmp     w2, w28
+            bhi     G_M000_IG10
+
+G_M000_IG06:                ;; offset=0x00DC
+            ldr     w2, [fp, #0x24]
+
+G_M000_IG07:                ;; offset=0x00E0
+            ldr     w22, [x19, #0x40]
+            cmp     w22, #0
+            ble     G_M000_IG17
+            ldr     w14, [x19, #0x3C]
+            sxtw    w28, w14
+            cmp     w14, w2
+            bhs     G_M000_IG27
+            mov     w15, #24
+            mov     x12, #16
+            umaddl  x14, w14, w15, x12
+            add     x14, x23, x14
+            ldr     w14, [x14, #0x14]
+            neg     w14, w14
+            sub     w14, w14, #3
+            sub     w15, w22, #1
+            stp     w14, w15, [x19, #0x3C]
+            b       G_M000_IG19
+
+G_M000_IG08:                ;; offset=0x0124
+            movz    x1, #0x70F0
+            movk    x1, #974 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG12
+
+G_M000_IG09:                ;; offset=0x013C
+            ldr     x3, [fp, #0x18]
+            ldr     w28, [x3, #0x14]
+            add     w26, w26, #1
+            ldr     w2, [fp, #0x24]
+            cmp     w2, w26
+            blo     G_M000_IG26
+            cmp     w2, w28
+            bls     G_M000_IG07
+
+G_M000_IG10:                ;; offset=0x015C
+            mov     w0, #24
+            mov     x1, #16
+            umaddl  x28, w28, w0, x1
+            add     x3, x23, x28
+            str     x3, [fp, #0x18]
+            ldr     w0, [x3, #0x10]
+            cmp     w0, w25
+            bne     G_M000_IG09
+
+G_M000_IG11:                ;; offset=0x017C
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x38]
+            cbz     x11, G_M000_IG08
+
+G_M000_IG12:                ;; offset=0x0190
+            ldr     x1, [x23, x28]
+            mov     x0, x24
+            mov     x2, x20
+            ldr     x4, [x11]
+            blr     x4
+            cbz     w0, G_M000_IG09
+
+G_M000_IG13:                ;; offset=0x01A8
+            uxtb    w0, w22
+            cmp     w0, #1
+            bne     G_M000_IG20
+            ldr     x3, [fp, #0x18]
+            add     x14, x3, #8
+            mov     x15, x21
+            bl      CORINFO_HELP_ASSIGN_REF
+
+G_M000_IG14:                ;; offset=0x01C4
+            mov     w0, #1
+
+G_M000_IG15:                ;; offset=0x01C8
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG16:                ;; offset=0x01E4
+            movz    x1, #0x70D8
+            movk    x1, #974 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG05
+
+G_M000_IG17:                ;; offset=0x01FC
+            ldr     w0, [x19, #0x38]
+            sxtw    w28, w0
+            cmp     w2, w28
+            bne     G_M000_IG18
+            movz    x1, #0x6DA8
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            sxtw    w1, w0
+            mov     x0, x19
+            mov     w2, wzr
+            movz    x3, #0x6DC0
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            ldr     x14, [x19, #0x08]
+            ldr     x15, [x19, #0x30]
+            mov     w12, w25
+            mul     x15, x15, x12
+            lsr     x15, x15, #32
+            add     x15, x15, #1
+            ldr     w12, [x14, #0x08]
+            mov     wip0, w12
+            mul     x15, x15, xip0
+            lsr     x15, x15, #32
+            cmp     w15, w12
+            bhs     G_M000_IG27
+            add     x14, x14, #16
+            ubfiz   x15, x15, #2, #32
+            add     x27, x14, x15
+
+G_M000_IG18:                ;; offset=0x027C
+            add     w14, w28, #1
+            str     w14, [x19, #0x38]
+            ldr     x23, [x19, #0x10]
+
+G_M000_IG19:                ;; offset=0x0288
+            ldr     w14, [x23, #0x08]
+            cmp     w28, w14
+            bhs     G_M000_IG27
+            mov     w14, #24
+            mov     x15, #16
+            umaddl  x14, w28, w14, x15
+            add     x1, x23, x14
+            str     w25, [x1, #0x10]
+            ldr     w14, [x27]
+            sub     w14, w14, #1
+            str     w14, [x1, #0x14]
+            mov     x14, x1
+            mov     x15, x20
+            bl      CORINFO_HELP_ASSIGN_REF
+            add     x14, x1, #8
+            mov     x15, x21
+            bl      CORINFO_HELP_ASSIGN_REF
+            add     w1, w28, #1
+            str     w1, [x27]
+            ldr     w1, [x19, #0x44]
+            add     w1, w1, #1
+            str     w1, [x19, #0x44]
+            cmp     w26, #100
+            bls     G_M000_IG14
+            mov     x1, x24
+            movz    x0, #0x3FA8
+            movk    x0, #964 LSL #16
+            movk    x0, #1 LSL #32
+            movz    x2, #0x6DD8
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            cbz     x0, G_M000_IG14
+            ldr     w1, [x23, #0x08]
+            mov     x0, x19
+            mov     w2, #1
+            movz    x3, #0x6DC0
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            b       G_M000_IG14
+
+G_M000_IG20:                ;; offset=0x0334
+            uxtb    w0, w22
+            cmp     w0, #2
+            beq     G_M000_IG23
+            mov     w0, wzr
+
+G_M000_IG21:                ;; offset=0x0344
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG22:                ;; offset=0x0360
+            mov     w0, #4
+            movz    x1, #0x6D78
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            brk     #0
+
+G_M000_IG23:                ;; offset=0x037C
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x2, [x1, #0x40]
+            cbz     x2, G_M000_IG24
+            mov     x0, x2
+            b       G_M000_IG25
+
+G_M000_IG24:                ;; offset=0x0398
+            movz    x1, #0x7198
+            movk    x1, #974 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+
+G_M000_IG25:                ;; offset=0x03A8
+            mov     x1, x20
+            movz    x2, #0x6D30
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            brk     #0
+
+G_M000_IG26:                ;; offset=0x03C4
+            movz    x0, #0x6D90
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG27:                ;; offset=0x03DC
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 996
+
+; Assembly listing for method System.String:GetNonRandomizedHashCode():int:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x20]!
+            mov     fp, sp
+            str     xzr, [fp, #0x18]
+
+G_M000_IG02:                ;; offset=0x000C
+            ldrsb   wzr, [x0]
+            add     x1, x0, #12
+            str     x1, [fp, #0x18]
+            movz    w1, #0x1505
+            movk    w1, #0x1505 LSL #16
+            sxtw    w2, w1
+            ldr     x3, [fp, #0x18]
+            ldr     w0, [x0, #0x08]
+            cmp     w0, #2
+            ble     G_M000_IG04
+            align   [0 bytes for IG03]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG03:                ;; offset=0x0034
+            sub     w0, w0, #4
+            ror     w4, w2, #27
+            add     w2, w4, w2
+            ldp     w4, w5, [x3]
+            eor     w2, w2, w4
+            ror     w4, w1, #27
+            add     w1, w4, w1
+            eor     w1, w1, w5
+            add     x3, x3, #8
+            cmp     w0, #2
+            bgt     G_M000_IG03
+
+G_M000_IG04:                ;; offset=0x0060
+            cmp     w0, #0
+            ble     G_M000_IG06
+
+G_M000_IG05:                ;; offset=0x0068
+            ror     w0, w1, #27
+            add     w1, w0, w1
+            ldr     w0, [x3]
+            eor     w1, w1, w0
+
+G_M000_IG06:                ;; offset=0x0078
+            movz    w0, #0x8B65
+            movk    w0, #0x5D58 LSL #16
+            madd    w0, w1, w0, w2
+
+G_M000_IG07:                ;; offset=0x0084
+            ldp     fp, lr, [sp], #0x20
+            ret     lr
+
+; Total bytes of code 140
+
+; Assembly listing for method System.Collections.Generic.Dictionary`2[System.__Canon,System.__Canon]:FindValue(System.__Canon):byref:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 2 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x60]!
+            stp     x19, x20, [sp, #0x18]
+            stp     x21, x22, [sp, #0x28]
+            stp     x23, x24, [sp, #0x38]
+            stp     x25, x26, [sp, #0x48]
+            str     x27, [sp, #0x58]
+            mov     fp, sp
+            str     x0, [fp, #0x10]
+            mov     x19, x0
+            mov     x20, x1
+
+G_M000_IG02:                ;; offset=0x0028
+            cbz     x20, G_M000_IG14
+            ldr     x0, [x19, #0x08]
+            cbz     x0, G_M000_IG05
+
+G_M000_IG03:                ;; offset=0x0034
+            ldr     x21, [x19, #0x18]
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x30]
+            cbz     x11, G_M000_IG06
+
+G_M000_IG04:                ;; offset=0x004C
+            mov     x0, x21
+            mov     x1, x20
+            ldr     x2, [x11]
+            blr     x2
+            sxtw    w22, w0
+            ldr     x0, [x19, #0x08]
+            ldr     x1, [x19, #0x30]
+            mov     w2, w22
+            mul     x1, x1, x2
+            lsr     x1, x1, #32
+            add     x1, x1, #1
+            ldr     w2, [x0, #0x08]
+            mov     w3, w2
+            mul     x1, x1, x3
+            lsr     x1, x1, #32
+            cmp     w1, w2
+            bhs     G_M000_IG16
+            add     x0, x0, #16
+            ubfiz   x1, x1, #2, #32
+            add     x0, x0, x1
+            ldr     w23, [x0]
+            ldr     x24, [x19, #0x10]
+            mov     w25, wzr
+            sub     w23, w23, #1
+            ldr     w26, [x24, #0x08]
+            cmp     w26, w23
+            bhi     G_M000_IG08
+
+G_M000_IG05:                ;; offset=0x00B8
+            mov     x0, xzr
+            b       G_M000_IG12
+
+G_M000_IG06:                ;; offset=0x00C0
+            movz    x1, #0x70D8
+            movk    x1, #974 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG04
+
+G_M000_IG07:                ;; offset=0x00D8
+            ldr     w23, [x27, #0x14]
+            add     w25, w25, #1
+            cmp     w26, w25
+            blo     G_M000_IG15
+            cmp     w26, w23
+            bls     G_M000_IG05
+
+G_M000_IG08:                ;; offset=0x00F0
+            mov     w0, #24
+            mov     x1, #16
+            umaddl  x0, w23, w0, x1
+            add     x27, x24, x0
+            ldr     w0, [x27, #0x10]
+            cmp     w0, w22
+            bne     G_M000_IG07
+
+G_M000_IG09:                ;; offset=0x010C
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x38]
+            cbz     x11, G_M000_IG13
+
+G_M000_IG10:                ;; offset=0x0120
+            ldr     x1, [x27]
+            mov     x0, x21
+            mov     x2, x20
+            ldr     x3, [x11]
+            blr     x3
+            cbz     w0, G_M000_IG07
+
+G_M000_IG11:                ;; offset=0x0138
+            add     x0, x27, #8
+
+G_M000_IG12:                ;; offset=0x013C
+            ldr     x27, [sp, #0x58]
+            ldp     x25, x26, [sp, #0x48]
+            ldp     x23, x24, [sp, #0x38]
+            ldp     x21, x22, [sp, #0x28]
+            ldp     x19, x20, [sp, #0x18]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG13:                ;; offset=0x0158
+            movz    x1, #0x70F0
+            movk    x1, #974 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG10
+
+G_M000_IG14:                ;; offset=0x0170
+            mov     w0, #4
+            movz    x1, #0x6D78
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            brk     #0
+
+G_M000_IG15:                ;; offset=0x018C
+            movz    x0, #0x6D90
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG16:                ;; offset=0x01A4
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 428
+
+; Assembly listing for method System.Collections.Generic.Dictionary`2[System.Guid,System.__Canon]:TryInsert(System.Guid,System.__Canon,byte):bool:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 8 single block inlinees; 2 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x80]!
+            stp     x19, x20, [sp, #0x30]
+            stp     x21, x22, [sp, #0x40]
+            stp     x23, x24, [sp, #0x50]
+            stp     x25, x26, [sp, #0x60]
+            stp     x27, x28, [sp, #0x70]
+            mov     fp, sp
+            stp     x1, x2, [fp, #0x20]
+            mov     x19, x0
+            mov     x20, x3
+            mov     w21, w4
+
+G_M000_IG02:                ;; offset=0x002C
+            ldr     x0, [x19, #0x08]
+            cbnz    x0, G_M000_IG04
+
+G_M000_IG03:                ;; offset=0x0034
+            mov     x0, x19
+            mov     w1, wzr
+            movz    x2, #0x7900
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+
+G_M000_IG04:                ;; offset=0x0050
+            ldp     x22, x23, [x19, #0x10]
+            cbnz    x23, G_M000_IG06
+
+G_M000_IG05:                ;; offset=0x0058
+            ldp     w1, w2, [fp, #0x20]
+            eor     w1, w1, w2
+            ldr     w2, [fp, #0x28]
+            eor     w1, w1, w2
+            ldr     w2, [fp, #0x2C]
+            eor     w24, w1, w2
+            b       G_M000_IG07
+            align   [0 bytes for IG14]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG06:                ;; offset=0x0074
+            ldp     x1, x2, [fp, #0x20]
+            mov     x0, x23
+            movz    x11, #32
+            movk    x11, #682 LSL #16
+            movk    x11, #1 LSL #32
+            ldr     xip0, [x11]
+            blr     xip0
+            sxtw    w24, w0
+
+G_M000_IG07:                ;; offset=0x0094
+            mov     w25, wzr
+            ldr     x1, [x19, #0x08]
+            ldr     x2, [x19, #0x30]
+            mov     w3, w24
+            mul     x2, x2, x3
+            lsr     x2, x2, #32
+            add     x2, x2, #1
+            ldr     w3, [x1, #0x08]
+            mov     w4, w3
+            mul     x2, x2, x4
+            lsr     x2, x2, #32
+            cmp     w2, w3
+            bhs     G_M000_IG29
+            add     x1, x1, #16
+            ubfiz   x2, x2, #2, #32
+            add     x26, x1, x2
+            ldr     w1, [x26]
+            sub     w27, w1, #1
+            cbz     x23, G_M000_IG13
+
+G_M000_IG08:                ;; offset=0x00E0
+            ldr     w28, [x22, #0x08]
+            cmp     w28, w27
+            bls     G_M000_IG17
+            b       G_M000_IG10
+
+G_M000_IG09:                ;; offset=0x00F0
+            ldr     w27, [x5, #0x0C]
+            add     w25, w25, #1
+            cmp     w28, w25
+            blo     G_M000_IG28
+            cmp     w28, w27
+            bls     G_M000_IG17
+
+G_M000_IG10:                ;; offset=0x0108
+            ubfiz   x1, x27, #5, #32
+            add     x1, x1, #16
+            add     x5, x22, x1
+            str     x5, [fp, #0x18]
+            ldr     w1, [x5, #0x08]
+            cmp     w1, w24
+            bne     G_M000_IG09
+
+G_M000_IG11:                ;; offset=0x0124
+            ldp     x1, x2, [x5, #0x10]
+            ldp     x3, x4, [fp, #0x20]
+            mov     x0, x23
+            movz    x11, #24
+            movk    x11, #682 LSL #16
+            movk    x11, #1 LSL #32
+            ldr     xip0, [x11]
+            blr     xip0
+            ldr     x5, [fp, #0x18]
+            cbz     w0, G_M000_IG09
+
+G_M000_IG12:                ;; offset=0x014C
+            uxtb    w23, w21
+            cmp     w23, #1
+            beq     G_M000_IG24
+            cmp     w23, #2
+            bne     G_M000_IG22
+            b       G_M000_IG27
+
+G_M000_IG13:                ;; offset=0x0164
+            ldr     w28, [x22, #0x08]
+            cmp     w28, w27
+            bls     G_M000_IG17
+
+G_M000_IG14:                ;; offset=0x0170
+            ubfiz   x0, x27, #5, #32
+            add     x0, x0, #16
+            add     x0, x22, x0
+            ldr     w1, [x0, #0x08]
+            cmp     w1, w24
+            bne     G_M000_IG16
+
+G_M000_IG15:                ;; offset=0x0188
+            ldr     q16, [x0, #0x10]
+            ldr     q17, [fp, #0x20]
+            cmeq    v16.16b, v16.16b, v17.16b
+            uminp   v16.4s, v16.4s, v16.4s
+            umov    x1, v16.d[0]
+            cmn     x1, #1
+            beq     G_M000_IG21
+
+G_M000_IG16:                ;; offset=0x01A4
+            ldr     w27, [x0, #0x0C]
+            add     w25, w25, #1
+            cmp     w28, w25
+            blo     G_M000_IG28
+            cmp     w28, w27
+            bhi     G_M000_IG14
+
+G_M000_IG17:                ;; offset=0x01BC
+            ldr     w21, [x19, #0x40]
+            cmp     w21, #0
+            bgt     G_M000_IG19
+            ldr     w0, [x19, #0x38]
+            sxtw    w23, w0
+            cmp     w28, w23
+            bne     G_M000_IG18
+            movz    x1, #0x6DA8
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            sxtw    w1, w0
+            mov     x0, x19
+            mov     w2, wzr
+            movz    x3, #0xC600
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            ldr     x14, [x19, #0x08]
+            ldr     x15, [x19, #0x30]
+            mov     w12, w24
+            mul     x15, x15, x12
+            lsr     x15, x15, #32
+            add     x15, x15, #1
+            ldr     w12, [x14, #0x08]
+            mov     wip0, w12
+            mul     x15, x15, xip0
+            lsr     x15, x15, #32
+            cmp     w15, w12
+            bhs     G_M000_IG29
+            add     x14, x14, #16
+            ubfiz   x15, x15, #2, #32
+            add     x26, x14, x15
+
+G_M000_IG18:                ;; offset=0x0248
+            add     w14, w23, #1
+            str     w14, [x19, #0x38]
+            ldr     x22, [x19, #0x10]
+            b       G_M000_IG20
+
+G_M000_IG19:                ;; offset=0x0258
+            ldr     w14, [x19, #0x3C]
+            sxtw    w23, w14
+            cmp     w14, w28
+            bhs     G_M000_IG29
+            ubfiz   x14, x14, #5, #32
+            add     x14, x14, #16
+            add     x14, x22, x14
+            ldr     w14, [x14, #0x0C]
+            neg     w14, w14
+            sub     w14, w14, #3
+            sub     w15, w21, #1
+            stp     w14, w15, [x19, #0x3C]
+
+G_M000_IG20:                ;; offset=0x0288
+            ldr     w14, [x22, #0x08]
+            cmp     w23, w14
+            bhs     G_M000_IG29
+            ubfiz   x14, x23, #5, #32
+            add     x14, x14, #16
+            add     x14, x22, x14
+            str     w24, [x14, #0x08]
+            ldr     w15, [x26]
+            sub     w15, w15, #1
+            str     w15, [x14, #0x0C]
+            ldr     q16, [fp, #0x20]
+            str     q16, [x14, #0x10]
+            mov     x15, x20
+            bl      CORINFO_HELP_ASSIGN_REF
+            add     w0, w23, #1
+            str     w0, [x26]
+            ldr     w0, [x19, #0x44]
+            add     w0, w0, #1
+            str     w0, [x19, #0x44]
+            b       G_M000_IG25
+
+G_M000_IG21:                ;; offset=0x02D8
+            uxtb    w23, w21
+            cmp     w23, #1
+            beq     G_M000_IG24
+            cmp     w23, #2
+            beq     G_M000_IG27
+
+G_M000_IG22:                ;; offset=0x02EC
+            mov     w0, wzr
+
+G_M000_IG23:                ;; offset=0x02F0
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG24:                ;; offset=0x030C
+            ubfiz   x14, x27, #5, #32
+            add     x14, x14, #16
+            add     x14, x22, x14
+            mov     x15, x20
+            bl      CORINFO_HELP_ASSIGN_REF
+
+G_M000_IG25:                ;; offset=0x0320
+            mov     w0, #1
+
+G_M000_IG26:                ;; offset=0x0324
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG27:                ;; offset=0x0340
+            ldp     x0, x1, [fp, #0x20]
+            movz    x2, #0xC5E8
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            brk     #0
+
+G_M000_IG28:                ;; offset=0x035C
+            movz    x0, #0x6D90
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG29:                ;; offset=0x0374
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 892
+
+; Assembly listing for method DiffPlex.Chunkers.LineChunker:.ctor():this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; partially interruptible
+; No PGO data
+; 0 inlinees with PGO data; 1 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x20]!
+            str     x19, [sp, #0x18]
+            mov     fp, sp
+            mov     x19, x0
+
+G_M000_IG02:                ;; offset=0x0010
+            movz    x0, #0x1848
+            movk    x0, #977 LSL #16
+            movk    x0, #1 LSL #32
+            mov     x1, #3
+            bl      CORINFO_HELP_NEWARR_1_PTR
+            movz    x14, #0x1328
+            movk    x14, #517 LSL #16
+            movk    x14, #1 LSL #32
+            str     x14, [x0, #0x10]
+            movz    x14, #0x1348
+            movk    x14, #517 LSL #16
+            movk    x14, #1 LSL #32
+            str     x14, [x0, #0x18]
+            movz    x14, #0x1360
+            movk    x14, #517 LSL #16
+            movk    x14, #1 LSL #32
+            str     x14, [x0, #0x20]
+            add     x14, x19, #8
+            mov     x15, x0
+            bl      CORINFO_HELP_ASSIGN_REF
+
+G_M000_IG03:                ;; offset=0x0060
+            ldr     x19, [sp, #0x18]
+            ldp     fp, lr, [sp], #0x20
+            ret     lr
+
+; Total bytes of code 108
+
+; Assembly listing for method DiffPlex.Differ:CreateDiffs(System.String,System.String,bool,bool,DiffPlex.IChunker):DiffPlex.Model.DiffResult:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 21 single block inlinees; 1 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x70]!
+            stp     x19, x20, [sp, #0x20]
+            stp     x21, x22, [sp, #0x30]
+            stp     x23, x24, [sp, #0x40]
+            stp     x25, x26, [sp, #0x50]
+            stp     x27, x28, [sp, #0x60]
+            mov     fp, sp
+            mov     x20, x1
+            mov     x21, x2
+            mov     w22, w3
+            mov     x19, x5
+
+G_M000_IG02:                ;; offset=0x002C
+            cbz     x20, G_M000_IG20
+            cbz     x21, G_M000_IG21
+            cbz     x19, G_M000_IG22
+            tst     w4, #255
+            beq     G_M000_IG04
+
+G_M000_IG03:                ;; offset=0x0040
+            movz    x0, #0x40C0
+            movk    x0, #0x1800 LSL #16
+            movk    x0, #3 LSL #32
+            ldr     x23, [x0]
+            b       G_M000_IG05
+            align   [0 bytes for IG11]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG04:                ;; offset=0x0054
+            movz    x0, #0x40B8
+            movk    x0, #0x1800 LSL #16
+            movk    x0, #3 LSL #32
+            ldr     x23, [x0]
+
+G_M000_IG05:                ;; offset=0x0064
+            movz    x0, #0xC0F8
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x24, x0
+            mov     x2, x23
+            mov     w1, wzr
+            movz    x3, #0xF108
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            movz    x0, #0xACA8
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x23, x0
+            movz    x0, #0xAF30
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            ldapr   w0, [x0]
+            tbz     w0, #0, G_M000_IG23
+
+G_M000_IG06:                ;; offset=0x00BC
+            movz    x14, #0x4340
+            movk    x14, #0x1800 LSL #16
+            movk    x14, #3 LSL #32
+            ldr     x15, [x14]
+            add     x14, x23, #8
+            bl      CORINFO_HELP_ASSIGN_REF
+            movz    x0, #0xB268
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x25, x0
+            add     x14, x25, #16
+            mov     x15, x20
+            bl      CORINFO_HELP_ASSIGN_REF
+            movz    x0, #0xB268
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x20, x0
+            add     x14, x20, #16
+            mov     x15, x21
+            bl      CORINFO_HELP_ASSIGN_REF
+            uxtb    w2, w22
+            mov     x0, x24
+            mov     x1, x25
+            mov     x3, x19
+            movz    x4, #0xF120
+            movk    x4, #961 LSL #16
+            movk    x4, #1 LSL #32
+            ldr     x4, [x4]
+            blr     x4
+            uxtb    w2, w22
+            mov     x0, x24
+            mov     x1, x20
+            mov     x3, x19
+            movz    x4, #0xF120
+            movk    x4, #961 LSL #16
+            movk    x4, #1 LSL #32
+            ldr     x4, [x4]
+            blr     x4
+            mov     x0, x25
+            mov     x1, x20
+            movz    x2, #0xF138
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            ldr     x0, [x25, #0x08]
+            ldr     w19, [x0, #0x08]
+            ldr     x0, [x20, #0x08]
+            ldr     w21, [x0, #0x08]
+            mov     w22, wzr
+            mov     w24, wzr
+            b       G_M000_IG08
+
+G_M000_IG07:                ;; offset=0x0194
+            add     w22, w22, #1
+            add     w24, w24, #1
+
+G_M000_IG08:                ;; offset=0x019C
+            cmp     w22, w19
+            ccmp    w24, w21, z, lt
+            bge     G_M000_IG09
+            ldr     x0, [x25, #0x18]
+            ldr     w1, [x0, #0x08]
+            cmp     w22, w1
+            bhs     G_M000_IG24
+            add     x0, x0, #16
+            ldrb    w0, [x0, w22, UXTW #2]
+            cbnz    w0, G_M000_IG09
+            ldr     x0, [x20, #0x18]
+            ldr     w1, [x0, #0x08]
+            cmp     w24, w1
+            bhs     G_M000_IG24
+            add     x0, x0, #16
+            ldrb    w0, [x0, w24, UXTW #2]
+            cbz     w0, G_M000_IG07
+
+G_M000_IG09:                ;; offset=0x01E0
+            sxtw    w26, w22
+            sxtw    w27, w24
+            cmp     w26, w19
+            bge     G_M000_IG12
+
+G_M000_IG10:                ;; offset=0x01F0
+            ldr     x0, [x25, #0x18]
+
+G_M000_IG11:                ;; offset=0x01F4
+            mov     x1, x0
+            ldr     w2, [x1, #0x08]
+            cmp     w22, w2
+            bhs     G_M000_IG24
+            add     x1, x1, #16
+            ldrb    w1, [x1, w22, UXTW #2]
+            cbz     w1, G_M000_IG12
+            add     w22, w22, #1
+            cmp     w22, w19
+            blt     G_M000_IG11
+
+G_M000_IG12:                ;; offset=0x021C
+            cmp     w27, w21
+            bge     G_M000_IG15
+
+G_M000_IG13:                ;; offset=0x0224
+            ldr     x0, [x20, #0x18]
+            align   [0 bytes for IG14]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG14:                ;; offset=0x0228
+            mov     x1, x0
+            ldr     w2, [x1, #0x08]
+            cmp     w24, w2
+            bhs     G_M000_IG24
+            add     x1, x1, #16
+            ldrb    w1, [x1, w24, UXTW #2]
+            cbz     w1, G_M000_IG15
+            add     w24, w24, #1
+            cmp     w24, w21
+            blt     G_M000_IG14
+
+G_M000_IG15:                ;; offset=0x0250
+            sub     w28, w22, w26
+            sub     w1, w24, w27
+            str     w1, [fp, #0x1C]
+            cmp     w28, #0
+            ccmp    w1, #0, 0, le
+            ble     G_M000_IG17
+            movz    x0, #0x1C30
+            movk    x0, #981 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x2, x0
+            stp     w26, w28, [x2, #0x08]
+            str     w27, [x2, #0x10]
+            ldr     w26, [fp, #0x1C]
+            str     w26, [x2, #0x14]
+            ldp     w26, w0, [x23, #0x10]
+            add     w0, w0, #1
+            str     w0, [x23, #0x14]
+            ldr     x0, [x23, #0x08]
+            ldr     w1, [x0, #0x08]
+            cmp     w1, w26
+            bhi     G_M000_IG16
+            mov     x0, x23
+            mov     x1, x2
+            movz    x2, #0x7B10
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            b       G_M000_IG17
+
+G_M000_IG16:                ;; offset=0x02C8
+            add     w1, w26, #1
+            str     w1, [x23, #0x10]
+            mov     w1, w26
+            bl      CORINFO_HELP_ARRADDR_ST
+
+G_M000_IG17:                ;; offset=0x02D8
+            cmp     w22, w19
+            ccmp    w24, w21, z, lt
+            blt     G_M000_IG08
+
+G_M000_IG18:                ;; offset=0x02E4
+            ldr     x19, [x25, #0x20]
+            movz    x0, #0x1AD8
+            movk    x0, #981 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            ldr     x1, [x20, #0x20]
+            add     x14, x0, #8
+            mov     x15, x19
+            bl      CORINFO_HELP_ASSIGN_REF
+            add     x14, x0, #16
+            mov     x15, x1
+            bl      CORINFO_HELP_ASSIGN_REF
+            add     x14, x0, #24
+            mov     x15, x23
+            bl      CORINFO_HELP_ASSIGN_REF
+
+G_M000_IG19:                ;; offset=0x0320
+            ldp     x27, x28, [sp, #0x60]
+            ldp     x25, x26, [sp, #0x50]
+            ldp     x23, x24, [sp, #0x40]
+            ldp     x21, x22, [sp, #0x30]
+            ldp     x19, x20, [sp, #0x20]
+            ldp     fp, lr, [sp], #0x70
+            ret     lr
+
+G_M000_IG20:                ;; offset=0x033C
+            movz    x0, #0xB1F8
+            movk    x0, #976 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x19, x0
+            mov     w0, #1
+            movz    x1, #0x72F0
+            movk    x1, #980 LSL #16
+            movk    x1, #1 LSL #32
+            movz    x2, #0x7090
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x1, x0
+            mov     x0, x19
+            movz    x2, #0xF0F0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x0, x19
+            bl      CORINFO_HELP_THROW
+            brk     #0
+
+G_M000_IG21:                ;; offset=0x039C
+            movz    x0, #0xB1F8
+            movk    x0, #976 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x19, x0
+            mov     w0, #17
+            movz    x1, #0x72F0
+            movk    x1, #980 LSL #16
+            movk    x1, #1 LSL #32
+            movz    x2, #0x7090
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x1, x0
+            mov     x0, x19
+            movz    x2, #0xF0F0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x0, x19
+            bl      CORINFO_HELP_THROW
+            brk     #0
+
+G_M000_IG22:                ;; offset=0x03FC
+            movz    x0, #0xB1F8
+            movk    x0, #976 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x19, x0
+            mov     w0, #33
+            movz    x1, #0x72F0
+            movk    x1, #980 LSL #16
+            movk    x1, #1 LSL #32
+            movz    x2, #0x7090
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x1, x0
+            mov     x0, x19
+            movz    x2, #0xF0F0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x0, x19
+            bl      CORINFO_HELP_THROW
+            brk     #0
+
+G_M000_IG23:                ;; offset=0x045C
+            movz    x0, #0xACA8
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_GET_GCSTATIC_BASE
+            b       G_M000_IG06
+
+G_M000_IG24:                ;; offset=0x0470
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 1144
+
+; Assembly listing for method DiffPlex.Differ:BuildPieceHashes(System.Collections.Generic.IDictionary`2[System.String,int],DiffPlex.Model.ModificationData,bool,DiffPlex.IChunker) (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; partially interruptible
+; No PGO data
+; 0 inlinees with PGO data; 13 single block inlinees; 1 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x60]!
+            stp     x19, x20, [sp, #0x20]
+            stp     x21, x22, [sp, #0x30]
+            stp     x23, x24, [sp, #0x40]
+            stp     x25, x26, [sp, #0x50]
+            mov     fp, sp
+            str     xzr, [fp, #0x18]
+            mov     x19, x0
+            mov     x20, x1
+            mov     w21, w2
+
+G_M000_IG02:                ;; offset=0x0028
+            ldr     x1, [x20, #0x10]
+            cbz     x1, G_M000_IG11
+
+G_M000_IG03:                ;; offset=0x0030
+            ldr     w1, [x1, #0x08]
+            cbz     w1, G_M000_IG11
+            ldr     x1, [x20, #0x10]
+            mov     x0, x3
+            movz    x22, #80
+            movk    x22, #682 LSL #16
+            movk    x22, #1 LSL #32
+            mov     x11, x22
+            ldr     xip0, [x11]
+            blr     xip0
+            mov     x23, x0
+            add     x14, x20, #32
+            mov     x15, x23
+            bl      CORINFO_HELP_ASSIGN_REF
+            mov     x0, x23
+            add     x11, x22, #8
+            ldr     xip0, [x11]
+            blr     xip0
+            sxtw    x1, w0
+            movz    x0, #0x5310
+            movk    x0, #963 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWARR_1_VC
+            mov     x15, x0
+            add     x14, x20, #8
+            bl      CORINFO_HELP_ASSIGN_REF
+            mov     x0, x23
+            add     x11, x22, #16
+            ldr     xip0, [x11]
+            blr     xip0
+            sxtw    x1, w0
+            movz    x0, #0xD020
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWARR_1_VC
+            mov     x15, x0
+            add     x14, x20, #24
+            bl      CORINFO_HELP_ASSIGN_REF
+            mov     w24, wzr
+            mov     x0, x23
+            add     x11, x22, #24
+            ldr     xip0, [x11]
+            blr     xip0
+            cmp     w0, #0
+            ble     G_M000_IG10
+            uxtb    w21, w21
+
+G_M000_IG04:                ;; offset=0x00E8
+            mov     x0, x23
+            mov     w1, w24
+            add     x11, x22, #32
+            ldr     xip0, [x11]
+            blr     xip0
+            mov     x25, x0
+            cbz     w21, G_M000_IG06
+
+G_M000_IG05:                ;; offset=0x0104
+            mov     x0, x25
+            movz    x1, #0xF288
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            ldr     wzr, [x0]
+            blr     x1
+            mov     x25, x0
+
+G_M000_IG06:                ;; offset=0x0124
+            add     x2, fp, #24
+            mov     x0, x19
+            mov     x1, x25
+            add     x11, x22, #40
+            ldr     xip0, [x11]
+            blr     xip0
+            cbnz    w0, G_M000_IG08
+
+G_M000_IG07:                ;; offset=0x0140
+            ldr     x26, [x20, #0x08]
+            mov     x0, x19
+            add     x11, x22, #48
+            ldr     xip0, [x11]
+            blr     xip0
+            ldr     w11, [x26, #0x08]
+            cmp     w24, w11
+            bhs     G_M000_IG18
+            add     x11, x26, #16
+            str     w0, [x11, w24, UXTW #2]
+            mov     x0, x19
+            add     x11, x22, #56
+            ldr     xip0, [x11]
+            blr     xip0
+            sxtw    w2, w0
+            mov     x0, x19
+            mov     x1, x25
+            add     x11, x22, #64
+            ldr     xip0, [x11]
+            blr     xip0
+            b       G_M000_IG09
+
+G_M000_IG08:                ;; offset=0x0194
+            ldr     x0, [x20, #0x08]
+            ldr     w11, [x0, #0x08]
+            cmp     w24, w11
+            bhs     G_M000_IG18
+            add     x0, x0, #16
+            ldr     w11, [fp, #0x18]
+            str     w11, [x0, w24, UXTW #2]
+
+G_M000_IG09:                ;; offset=0x01B0
+            add     w24, w24, #1
+            mov     x0, x23
+            add     x11, x22, #24
+            ldr     xip0, [x11]
+            blr     xip0
+            cmp     w0, w24
+            bgt     G_M000_IG04
+
+G_M000_IG10:                ;; offset=0x01CC
+            ldp     x25, x26, [sp, #0x50]
+            ldp     x23, x24, [sp, #0x40]
+            ldp     x21, x22, [sp, #0x30]
+            ldp     x19, x20, [sp, #0x20]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG11:                ;; offset=0x01E4
+            movz    x0, #0xDA88
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            ldapr   w0, [x0]
+            tbz     w0, #0, G_M000_IG15
+
+G_M000_IG12:                ;; offset=0x01F8
+            movz    x19, #0x4348
+            movk    x19, #0x1800 LSL #16
+            movk    x19, #3 LSL #32
+            ldr     x15, [x19]
+            add     x14, x20, #32
+            bl      CORINFO_HELP_ASSIGN_REF
+            movz    x0, #0xDC48
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            ldapr   w0, [x0]
+            tbz     w0, #0, G_M000_IG16
+
+G_M000_IG13:                ;; offset=0x0224
+            ldr     x15, [x19, #0x08]
+            add     x14, x20, #8
+            bl      CORINFO_HELP_ASSIGN_REF
+            movz    x0, #0xDD28
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            ldapr   w0, [x0]
+            tbz     w0, #0, G_M000_IG17
+
+G_M000_IG14:                ;; offset=0x0244
+            ldr     x15, [x19, #0x10]
+            add     x14, x20, #24
+            bl      CORINFO_HELP_ASSIGN_REF
+            b       G_M000_IG10
+
+G_M000_IG15:                ;; offset=0x0254
+            movz    x0, #0xD9F0
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_GET_GCSTATIC_BASE
+            b       G_M000_IG12
+
+G_M000_IG16:                ;; offset=0x0268
+            movz    x0, #0xDBC0
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_GET_GCSTATIC_BASE
+            b       G_M000_IG13
+
+G_M000_IG17:                ;; offset=0x027C
+            movz    x0, #0xDCA0
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_GET_GCSTATIC_BASE
+            b       G_M000_IG14
+
+G_M000_IG18:                ;; offset=0x0290
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 664
+
+; Assembly listing for method DiffPlex.Chunkers.LineChunker:Chunk(System.String):System.Collections.Generic.IReadOnlyList`1[System.String]:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 1 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x10]!
+            mov     fp, sp
+
+G_M000_IG02:                ;; offset=0x0008
+            ldr     x2, [x0, #0x08]
+            ldrsb   wzr, [x1]
+            mov     x0, x1
+            mov     x1, xzr
+            movn    w3, #0x8000 LSL #16
+            mov     w4, wzr
+            movz    x5, #0xF2B8
+            movk    x5, #961 LSL #16
+            movk    x5, #1 LSL #32
+            ldr     x5, [x5]
+
+G_M000_IG03:                ;; offset=0x0030
+            ldp     fp, lr, [sp], #0x10
+            br      x5
+
+; Total bytes of code 56
+
+; Assembly listing for method System.String:SplitInternal(System.String,System.String[],int,int):System.String[]:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; partially interruptible
+; No PGO data
+; 0 inlinees with PGO data; 18 single block inlinees; 12 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            sub     sp, sp, #128
+            stp     x19, x20, [sp, #0x50]
+            stp     x21, x22, [sp, #0x60]
+            stp     fp, lr, [sp, #0x70]
+            add     fp, sp, #112
+            sub     x9, fp, #96
+            movi    v16.16b, #0
+            stp     q16, q16, [x9]
+            stp     q16, q16, [x9, #0x20]
+            movz    x5, #0x4AD
+            movk    x5, #0xAA3 LSL #16
+            str     x5, [fp, #-0x68]
+            mov     x19, x0
+            mov     w21, w3
+            mov     w20, w4
+
+G_M000_IG02:                ;; offset=0x003C
+            tbnz    w21, #31, G_M000_IG29
+            tst     w20, #0xFFFFFFFC
+            bne     G_M000_IG30
+            cmp     x1, #0
+            cset    x0, ne
+            cbnz    w0, G_M000_IG04
+
+G_M000_IG03:                ;; offset=0x0054
+            cbz     x2, G_M000_IG26
+            ldr     w3, [x2, #0x08]
+            cbz     w3, G_M000_IG26
+
+G_M000_IG04:                ;; offset=0x0060
+            cmp     w21, #1
+            ble     G_M000_IG19
+            ldr     w3, [x19, #0x08]
+            cbz     w3, G_M000_IG19
+            cbnz    w0, G_M000_IG18
+            ldp     x0, xzr, [sp], #-0x200
+            mov     x0, sp
+            str     xzr, [fp, #-0x40]
+            str     wzr, [fp, #-0x38]
+            str     x0, [fp, #-0x30]
+            mov     w0, #128
+            str     w0, [fp, #-0x28]
+            ldp     x0, xzr, [sp], #-0x200
+            mov     x0, sp
+            str     xzr, [fp, #-0x60]
+            str     wzr, [fp, #-0x58]
+            str     x0, [fp, #-0x50]
+            mov     w0, #128
+            str     w0, [fp, #-0x48]
+            add     x0, x19, #12
+            sxtw    w1, w3
+            cbz     x2, G_M000_IG05
+            add     x3, x2, #16
+            ldr     w4, [x2, #0x08]
+            b       G_M000_IG06
+
+G_M000_IG05:                ;; offset=0x00C4
+            mov     x3, xzr
+            mov     w4, wzr
+
+G_M000_IG06:                ;; offset=0x00CC
+            mov     x2, x3
+            mov     w3, w4
+            sub     x4, fp, #64
+            sub     x5, fp, #96
+            movz    x6, #0xF498
+            movk    x6, #961 LSL #16
+            movk    x6, #1 LSL #32
+            ldr     x6, [x6]
+            blr     x6
+            ldr     w2, [fp, #-0x38]
+            ldr     w3, [fp, #-0x28]
+            cmp     w2, w3
+            bhi     G_M000_IG32
+            ldr     x1, [fp, #-0x30]
+            ldr     w4, [fp, #-0x58]
+            ldr     w3, [fp, #-0x48]
+            cmp     w4, w3
+            bhi     G_M000_IG32
+            ldr     x3, [fp, #-0x50]
+            cbz     w2, G_M000_IG13
+            cbz     w20, G_M000_IG07
+            mov     x0, x19
+            mov     w7, w20
+            mov     w6, w21
+            mov     w5, wzr
+            movz    x8, #0xF4C8
+            movk    x8, #961 LSL #16
+            movk    x8, #1 LSL #32
+            ldr     x8, [x8]
+            blr     x8
+            mov     x22, x0
+            b       G_M000_IG08
+
+G_M000_IG07:                ;; offset=0x014C
+            mov     x0, x19
+            mov     w6, w21
+            mov     w5, wzr
+            movz    x7, #0xF4B0
+            movk    x7, #961 LSL #16
+            movk    x7, #1 LSL #32
+            ldr     x7, [x7]
+            blr     x7
+            mov     x22, x0
+
+G_M000_IG08:                ;; offset=0x0170
+            ldr     x19, [fp, #-0x40]
+            cbz     x19, G_M000_IG10
+            str     xzr, [fp, #-0x40]
+            movz    x0, #0xF598
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            ldapr   w0, [x0]
+            tbz     w0, #0, G_M000_IG34
+
+G_M000_IG09:                ;; offset=0x0190
+            movz    x0, #0x4360
+            movk    x0, #0x1800 LSL #16
+            movk    x0, #3 LSL #32
+            ldr     x0, [x0]
+            mov     x1, x19
+            mov     w2, wzr
+            movz    x3, #0xF9B0
+            movk    x3, #0x41B LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            ldr     wzr, [x0]
+            blr     x3
+
+G_M000_IG10:                ;; offset=0x01C0
+            ldr     x20, [fp, #-0x60]
+            cbz     x20, G_M000_IG12
+            str     xzr, [fp, #-0x60]
+            movz    x0, #0xF598
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            ldapr   w0, [x0]
+            tbz     w0, #0, G_M000_IG35
+
+G_M000_IG11:                ;; offset=0x01E0
+            movz    x0, #0x4360
+            movk    x0, #0x1800 LSL #16
+            movk    x0, #3 LSL #32
+            ldr     x0, [x0]
+            mov     x1, x20
+            mov     w2, wzr
+            movz    x3, #0xF9B0
+            movk    x3, #0x41B LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            ldr     wzr, [x0]
+            blr     x3
+
+G_M000_IG12:                ;; offset=0x0210
+            b       G_M000_IG27
+
+G_M000_IG13:                ;; offset=0x0214
+            mov     x22, x19
+            tbz     w20, #1, G_M000_IG14
+            mov     x0, x19
+            movz    x1, #0xF288
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            mov     x22, x0
+
+G_M000_IG14:                ;; offset=0x0238
+            tbz     w20, #0, G_M000_IG16
+            ldr     w0, [x22, #0x08]
+            cbnz    w0, G_M000_IG16
+            movz    x0, #0xDA88
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            ldapr   w0, [x0]
+            tbz     w0, #0, G_M000_IG33
+
+G_M000_IG15:                ;; offset=0x0258
+            movz    x0, #0x4348
+            movk    x0, #0x1800 LSL #16
+            movk    x0, #3 LSL #32
+            ldr     x22, [x0]
+            b       G_M000_IG17
+
+G_M000_IG16:                ;; offset=0x026C
+            movz    x0, #0x1848
+            movk    x0, #977 LSL #16
+            movk    x0, #1 LSL #32
+            mov     x1, #1
+            bl      CORINFO_HELP_NEWARR_1_PTR
+            add     x14, x0, #16
+            mov     x15, x22
+            bl      CORINFO_HELP_ASSIGN_REF
+            mov     x22, x0
+
+G_M000_IG17:                ;; offset=0x0290
+            b       G_M000_IG27
+
+G_M000_IG18:                ;; offset=0x0294
+            ldr     w0, [x1, #0x08]
+            cbz     w0, G_M000_IG20
+            mov     x0, x19
+            mov     w2, w21
+            mov     w3, w20
+            movz    x4, #0xF480
+            movk    x4, #961 LSL #16
+            movk    x4, #1 LSL #32
+            ldr     x4, [x4]
+            blr     x4
+            mov     x22, x0
+            b       G_M000_IG27
+
+G_M000_IG19:                ;; offset=0x02C4
+            cbz     w21, G_M000_IG22
+
+G_M000_IG20:                ;; offset=0x02C8
+            mov     x22, x19
+            tbz     w20, #1, G_M000_IG21
+            mov     x0, x19
+            movz    x1, #0xF288
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            ldr     wzr, [x0]
+            blr     x1
+            mov     x22, x0
+
+G_M000_IG21:                ;; offset=0x02F0
+            tbz     w20, #0, G_M000_IG24
+            ldr     w0, [x22, #0x08]
+            cbnz    w0, G_M000_IG24
+
+G_M000_IG22:                ;; offset=0x02FC
+            movz    x0, #0xDA88
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            ldapr   w0, [x0]
+            tbz     w0, #0, G_M000_IG31
+
+G_M000_IG23:                ;; offset=0x0310
+            movz    x0, #0x4348
+            movk    x0, #0x1800 LSL #16
+            movk    x0, #3 LSL #32
+            ldr     x22, [x0]
+            b       G_M000_IG25
+
+G_M000_IG24:                ;; offset=0x0324
+            movz    x0, #0x1848
+            movk    x0, #977 LSL #16
+            movk    x0, #1 LSL #32
+            mov     x1, #1
+            bl      CORINFO_HELP_NEWARR_1_PTR
+            add     x14, x0, #16
+            mov     x15, x22
+            bl      CORINFO_HELP_ASSIGN_REF
+            mov     x22, x0
+
+G_M000_IG25:                ;; offset=0x0348
+            b       G_M000_IG27
+
+G_M000_IG26:                ;; offset=0x034C
+            mov     x1, xzr
+            mov     w2, wzr
+            mov     x0, x19
+            mov     w3, w21
+            mov     w4, w20
+            movz    x5, #0xC858
+            movk    x5, #961 LSL #16
+            movk    x5, #1 LSL #32
+            ldr     x5, [x5]
+            blr     x5
+            mov     x22, x0
+
+G_M000_IG27:                ;; offset=0x0378
+            mov     x0, x22
+            movz    xip0, #0x4AD
+            movk    xip0, #0xAA3 LSL #16
+            ldr     xip1, [fp, #-0x68]
+            cmp     xip0, xip1
+            beq     G_M000_IG28
+            bl      CORINFO_HELP_FAIL_FAST
+
+G_M000_IG28:                ;; offset=0x0394
+            sub     sp, fp, #112
+            ldp     fp, lr, [sp, #0x70]
+            ldp     x21, x22, [sp, #0x60]
+            ldp     x19, x20, [sp, #0x50]
+            add     sp, sp, #128
+            ret     lr
+
+G_M000_IG29:                ;; offset=0x03AC
+            mov     w0, #963
+            movz    x1, #679 LSL #16
+            movk    x1, #1 LSL #32
+            movz    x2, #0x7090
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x1, x0
+            mov     w0, w21
+            movz    x2, #0xD620
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            brk     #0
+
+G_M000_IG30:                ;; offset=0x03EC
+            mov     w0, #69
+            mov     w1, #83
+            movz    x2, #0xF468
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            brk     #0
+
+G_M000_IG31:                ;; offset=0x040C
+            movz    x0, #0xD9F0
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_GET_GCSTATIC_BASE
+            b       G_M000_IG23
+
+G_M000_IG32:                ;; offset=0x0420
+            movz    x0, #0xD9B0
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG33:                ;; offset=0x0438
+            movz    x0, #0xD9F0
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_GET_GCSTATIC_BASE
+            b       G_M000_IG15
+
+G_M000_IG34:                ;; offset=0x044C
+            movz    x0, #0xF4B8
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_GET_GCSTATIC_BASE
+            b       G_M000_IG09
+
+G_M000_IG35:                ;; offset=0x0460
+            movz    x0, #0xF4B8
+            movk    x0, #0x41B LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_GET_GCSTATIC_BASE
+            b       G_M000_IG11
+
+; Total bytes of code 1140
+
+; Assembly listing for method System.String:MakeSeparatorListAny(System.ReadOnlySpan`1[char],System.ReadOnlySpan`1[System.String],byref,byref) (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 8 single block inlinees; 6 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x60]!
+            stp     x19, x20, [sp, #0x10]
+            stp     x21, x22, [sp, #0x20]
+            stp     x23, x24, [sp, #0x30]
+            stp     x25, x26, [sp, #0x40]
+            stp     x27, x28, [sp, #0x50]
+            mov     fp, sp
+            mov     x21, x0
+            mov     w20, w1
+            mov     x22, x2
+            mov     w19, w3
+            mov     x23, x4
+            mov     x24, x5
+
+G_M000_IG02:                ;; offset=0x0034
+            mov     w25, wzr
+            cmp     w25, w20
+            bge     G_M000_IG08
+
+G_M000_IG03:                ;; offset=0x0040
+            mov     w26, wzr
+            cmp     w26, w19
+            bge     G_M000_IG07
+
+G_M000_IG04:                ;; offset=0x004C
+            ldr     x2, [x22, w26, UXTW #3]
+            cbz     x2, G_M000_IG06
+
+G_M000_IG05:                ;; offset=0x0054
+            ldr     w27, [x2, #0x08]
+            cbz     w27, G_M000_IG06
+            cmp     w25, w20
+            bhs     G_M000_IG15
+            ldrh    w0, [x21, w25, UXTW #2]
+            ldrh    w1, [x2, #0x0C]
+            cmp     w0, w1
+            bne     G_M000_IG06
+            sub     w0, w20, w25
+            cmp     w0, w27
+            blt     G_M000_IG06
+            cmp     w27, #1
+            beq     G_M000_IG09
+            mov     w0, w25
+            mov     w1, w27
+            add     x3, x0, x1
+            cmp     x3, w20, UXTW
+            bhi     G_M000_IG14
+            lsl     x0, x0, #1
+            add     x0, x21, x0
+            add     x3, x2, #12
+            lsl     x2, x1, #1
+            mov     x1, x3
+            movz    x3, #0xEE98
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            cbnz    w0, G_M000_IG09
+
+G_M000_IG06:                ;; offset=0x00C8
+            add     w26, w26, #1
+            cmp     w26, w19
+            blt     G_M000_IG04
+
+G_M000_IG07:                ;; offset=0x00D4
+            add     w25, w25, #1
+            cmp     w25, w20
+            blt     G_M000_IG03
+
+G_M000_IG08:                ;; offset=0x00E0
+            ldp     x27, x28, [sp, #0x50]
+            ldp     x25, x26, [sp, #0x40]
+            ldp     x23, x24, [sp, #0x30]
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG09:                ;; offset=0x00FC
+            ldr     w26, [x23, #0x08]
+            ldr     x28, [x23, #0x10]
+            ldr     w0, [x23, #0x18]
+            cmp     w26, w0
+            blo     G_M000_IG10
+            mov     x0, x23
+            mov     w1, w25
+            movz    x2, #0xF5A0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            b       G_M000_IG11
+
+G_M000_IG10:                ;; offset=0x0130
+            str     w25, [x28, w26, UXTW #2]
+            add     w0, w26, #1
+            str     w0, [x23, #0x08]
+
+G_M000_IG11:                ;; offset=0x013C
+            ldr     w26, [x24, #0x08]
+            ldr     x28, [x24, #0x10]
+            ldr     w0, [x24, #0x18]
+            cmp     w26, w0
+            blo     G_M000_IG12
+            mov     x0, x24
+            mov     w1, w27
+            movz    x2, #0xF5A0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            b       G_M000_IG13
+
+G_M000_IG12:                ;; offset=0x0170
+            str     w27, [x28, w26, UXTW #2]
+            add     w0, w26, #1
+            str     w0, [x24, #0x08]
+
+G_M000_IG13:                ;; offset=0x017C
+            add     w0, w25, w27
+            sub     w25, w0, #1
+            b       G_M000_IG07
+
+G_M000_IG14:                ;; offset=0x0188
+            movz    x0, #0xD9B0
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG15:                ;; offset=0x01A0
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 424
+
+; Assembly listing for method System.String:SplitWithoutPostProcessing(System.ReadOnlySpan`1[int],System.ReadOnlySpan`1[int],int,int):System.String[]:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; partially interruptible
+; No PGO data
+; 0 inlinees with PGO data; 1 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x80]!
+            stp     x19, x20, [sp, #0x30]
+            stp     x21, x22, [sp, #0x40]
+            stp     x23, x24, [sp, #0x50]
+            stp     x25, x26, [sp, #0x60]
+            stp     x27, x28, [sp, #0x70]
+            mov     fp, sp
+            mov     x19, x0
+            mov     x20, x1
+            mov     w23, w2
+            mov     x24, x3
+            mov     w21, w4
+            mov     w22, w5
+
+G_M000_IG02:                ;; offset=0x0034
+            mov     w25, wzr
+            mov     w26, wzr
+            sub     w6, w6, #1
+            cmp     w23, w6
+            csel    w27, w23, w6, lt
+            add     w28, w27, #1
+            sxtw    x1, w28
+            movz    x0, #0x1848
+            movk    x0, #977 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWARR_1_PTR
+            str     x0, [fp, #0x18]
+            mov     w4, wzr
+            cmp     w27, #0
+            ble     G_M000_IG20
+
+G_M000_IG03:                ;; offset=0x0070
+            cmp     w27, w23
+            ccmp    w27, w21, 0, le
+            bgt     G_M000_IG14
+            mov     x23, xzr
+            str     w27, [fp, #0x24]
+            b       G_M000_IG09
+
+G_M000_IG04:                ;; offset=0x0088
+            add     w2, w26, #1
+            str     w2, [fp, #0x2C]
+            ldr     w2, [x20, x23]
+            sub     w2, w2, w25
+            mov     x0, x19
+            mov     w1, w25
+            movz    x6, #0xEB38
+            movk    x6, #961 LSL #16
+            movk    x6, #1 LSL #32
+            ldr     x6, [x6]
+            blr     x6
+            cmp     w26, w28
+            bhs     G_M000_IG26
+            ldr     x25, [fp, #0x18]
+            add     x14, x25, #16
+            add     x14, x14, x26,  LSL #3
+            mov     x15, x0
+            bl      CORINFO_HELP_ASSIGN_REF
+            ldr     w3, [x20, x23]
+            cbnz    w21, G_M000_IG06
+
+G_M000_IG05:                ;; offset=0x00D8
+            sxtw    w4, w22
+            b       G_M000_IG07
+
+G_M000_IG06:                ;; offset=0x00E0
+            ldr     w4, [x24, x23]
+
+G_M000_IG07:                ;; offset=0x00E4
+            add     w2, w3, w4
+            sxtw    w26, w2
+            add     x23, x23, #4
+            ldr     w2, [fp, #0x24]
+            sub     w2, w2, #1
+            str     w2, [fp, #0x24]
+            cbz     w2, G_M000_IG11
+
+G_M000_IG08:                ;; offset=0x0100
+            mov     w25, w26
+            ldr     w26, [fp, #0x2C]
+
+G_M000_IG09:                ;; offset=0x0108
+            ldr     w2, [x19, #0x08]
+            cmp     w2, w25
+            bgt     G_M000_IG04
+
+G_M000_IG10:                ;; offset=0x0114
+            str     w26, [fp, #0x2C]
+            mov     w26, w25
+
+G_M000_IG11:                ;; offset=0x011C
+            ldr     w0, [x19, #0x08]
+            cmp     w0, w26
+            ble     G_M000_IG21
+
+G_M000_IG12:                ;; offset=0x0128
+            tbnz    w27, #31, G_M000_IG21
+            mov     x0, x19
+            mov     w1, w26
+            movz    x2, #0xF5B8
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x15, x0
+            ldr     w26, [fp, #0x2C]
+            cmp     w26, w28
+            bhs     G_M000_IG26
+            ldr     x25, [fp, #0x18]
+            add     x14, x25, #16
+            add     x14, x14, x26,  LSL #3
+            bl      CORINFO_HELP_ASSIGN_REF
+            b       G_M000_IG24
+
+G_M000_IG13:                ;; offset=0x016C
+            mov     w25, w2
+            ldr     w26, [fp, #0x2C]
+
+G_M000_IG14:                ;; offset=0x0174
+            ldr     w2, [x19, #0x08]
+            cmp     w2, w25
+            ble     G_M000_IG19
+            add     w2, w26, #1
+            str     w2, [fp, #0x2C]
+            cmp     w4, w23
+            bhs     G_M000_IG26
+            str     w4, [fp, #0x28]
+            ldr     w2, [x20, w4, UXTW #2]
+            sub     w2, w2, w25
+            mov     x0, x19
+            mov     w1, w25
+            movz    x6, #0xEB38
+            movk    x6, #961 LSL #16
+            movk    x6, #1 LSL #32
+            ldr     x6, [x6]
+            blr     x6
+            cmp     w26, w28
+            bhs     G_M000_IG26
+            ldr     x25, [fp, #0x18]
+            add     x14, x25, #16
+            add     x14, x14, x26,  LSL #3
+            mov     x15, x0
+            bl      CORINFO_HELP_ASSIGN_REF
+            ldr     w26, [fp, #0x28]
+            ldr     w3, [x20, w26, UXTW #2]
+            cbnz    w21, G_M000_IG16
+
+G_M000_IG15:                ;; offset=0x01E0
+            sxtw    w4, w22
+            b       G_M000_IG17
+
+G_M000_IG16:                ;; offset=0x01E8
+            cmp     w26, w21
+            bhs     G_M000_IG26
+            ldr     w4, [x24, w26, UXTW #2]
+
+G_M000_IG17:                ;; offset=0x01F4
+            add     w0, w3, w4
+            sxtw    w2, w0
+            add     w26, w26, #1
+            cmp     w26, w27
+            mov     w4, w26
+            blt     G_M000_IG13
+
+G_M000_IG18:                ;; offset=0x020C
+            mov     w26, w2
+            b       G_M000_IG11
+
+G_M000_IG19:                ;; offset=0x0214
+            str     w26, [fp, #0x2C]
+            mov     w26, w25
+            b       G_M000_IG11
+
+G_M000_IG20:                ;; offset=0x0220
+            str     w26, [fp, #0x2C]
+            mov     w26, w25
+            b       G_M000_IG11
+
+G_M000_IG21:                ;; offset=0x022C
+            ldr     w26, [fp, #0x2C]
+            cmp     w26, w27
+            beq     G_M000_IG23
+
+G_M000_IG22:                ;; offset=0x0238
+            ldr     x25, [fp, #0x18]
+            b       G_M000_IG24
+
+G_M000_IG23:                ;; offset=0x0240
+            cmp     w27, w28
+            bhs     G_M000_IG26
+            ldr     x25, [fp, #0x18]
+            add     x0, x25, #16
+            movz    x1, #8
+            movk    x1, #517 LSL #16
+            movk    x1, #1 LSL #32
+            str     x1, [x0, w27, UXTW #3]
+
+G_M000_IG24:                ;; offset=0x0260
+            mov     x0, x25
+
+G_M000_IG25:                ;; offset=0x0264
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG26:                ;; offset=0x0280
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 648
+
+; Assembly listing for method System.String:Substring(int,int):System.String:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; partially interruptible
+; No PGO data
+; 0 inlinees with PGO data; 1 single block inlinees; 1 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x30]!
+            stp     x19, x20, [sp, #0x10]
+            stp     x21, x22, [sp, #0x20]
+            mov     fp, sp
+            mov     x19, x0
+            mov     w20, w1
+
+G_M000_IG02:                ;; offset=0x0018
+            mov     w0, w20
+            add     x0, x0, w2, UXTW
+            ldr     w1, [x19, #0x08]
+            cmp     x0, w1, UXTW
+            bhi     G_M000_IG09
+            cbz     w2, G_M000_IG07
+
+G_M000_IG03:                ;; offset=0x0030
+            cmp     w1, w2
+            beq     G_M000_IG05
+            mov     w21, w2
+            sxtw    x0, w2
+            movz    x1, #0x68B0
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            mov     x22, x0
+            add     x1, x19, #12
+            ubfiz   x0, x20, #1, #32
+            add     x1, x1, x0
+            ldrsb   wzr, [x22]
+            add     x0, x22, #12
+            lsl     x2, x21, #1
+            movz    x3, #0x68C8
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            mov     x0, x22
+
+G_M000_IG04:                ;; offset=0x0088
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x30
+            ret     lr
+
+G_M000_IG05:                ;; offset=0x0098
+            mov     x0, x19
+
+G_M000_IG06:                ;; offset=0x009C
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x30
+            ret     lr
+
+G_M000_IG07:                ;; offset=0x00AC
+            movz    x0, #8
+            movk    x0, #517 LSL #16
+            movk    x0, #1 LSL #32
+
+G_M000_IG08:                ;; offset=0x00B8
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x30
+            ret     lr
+
+G_M000_IG09:                ;; offset=0x00C8
+            mov     x0, x19
+            mov     w1, w20
+            movz    x3, #0xE718
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            brk     #0
+
+; Total bytes of code 232
+
+; Assembly listing for method System.Collections.Generic.Dictionary`2[System.__Canon,int]:FindValue(System.__Canon):byref:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 2 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x60]!
+            stp     x19, x20, [sp, #0x18]
+            stp     x21, x22, [sp, #0x28]
+            stp     x23, x24, [sp, #0x38]
+            stp     x25, x26, [sp, #0x48]
+            str     x27, [sp, #0x58]
+            mov     fp, sp
+            str     x0, [fp, #0x10]
+            mov     x19, x0
+            mov     x20, x1
+
+G_M000_IG02:                ;; offset=0x0028
+            cbz     x20, G_M000_IG14
+            ldr     x0, [x19, #0x08]
+            cbz     x0, G_M000_IG05
+
+G_M000_IG03:                ;; offset=0x0034
+            ldr     x21, [x19, #0x18]
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x28]
+            cbz     x11, G_M000_IG06
+
+G_M000_IG04:                ;; offset=0x004C
+            mov     x0, x21
+            mov     x1, x20
+            ldr     x2, [x11]
+            blr     x2
+            sxtw    w22, w0
+            ldr     x0, [x19, #0x08]
+            ldr     x1, [x19, #0x30]
+            mov     w2, w22
+            mul     x1, x1, x2
+            lsr     x1, x1, #32
+            add     x1, x1, #1
+            ldr     w2, [x0, #0x08]
+            mov     w3, w2
+            mul     x1, x1, x3
+            lsr     x1, x1, #32
+            cmp     w1, w2
+            bhs     G_M000_IG16
+            add     x0, x0, #16
+            ubfiz   x1, x1, #2, #32
+            add     x0, x0, x1
+            ldr     w23, [x0]
+            ldr     x24, [x19, #0x10]
+            mov     w25, wzr
+            sub     w23, w23, #1
+            ldr     w26, [x24, #0x08]
+            cmp     w26, w23
+            bhi     G_M000_IG08
+
+G_M000_IG05:                ;; offset=0x00B8
+            mov     x0, xzr
+            b       G_M000_IG12
+
+G_M000_IG06:                ;; offset=0x00C0
+            movz    x1, #0x97B0
+            movk    x1, #0x426 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG04
+
+G_M000_IG07:                ;; offset=0x00D8
+            ldr     w23, [x27, #0x0C]
+            add     w25, w25, #1
+            cmp     w26, w25
+            blo     G_M000_IG15
+            cmp     w26, w23
+            bls     G_M000_IG05
+
+G_M000_IG08:                ;; offset=0x00F0
+            mov     w0, #24
+            mov     x1, #16
+            umaddl  x0, w23, w0, x1
+            add     x27, x24, x0
+            ldr     w0, [x27, #0x08]
+            cmp     w0, w22
+            bne     G_M000_IG07
+
+G_M000_IG09:                ;; offset=0x010C
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x30]
+            cbz     x11, G_M000_IG13
+
+G_M000_IG10:                ;; offset=0x0120
+            ldr     x1, [x27]
+            mov     x0, x21
+            mov     x2, x20
+            ldr     x3, [x11]
+            blr     x3
+            cbz     w0, G_M000_IG07
+
+G_M000_IG11:                ;; offset=0x0138
+            add     x0, x27, #16
+
+G_M000_IG12:                ;; offset=0x013C
+            ldr     x27, [sp, #0x58]
+            ldp     x25, x26, [sp, #0x48]
+            ldp     x23, x24, [sp, #0x38]
+            ldp     x21, x22, [sp, #0x28]
+            ldp     x19, x20, [sp, #0x18]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG13:                ;; offset=0x0158
+            movz    x1, #0x97C8
+            movk    x1, #0x426 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG10
+
+G_M000_IG14:                ;; offset=0x0170
+            mov     w0, #4
+            movz    x1, #0x6D78
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            brk     #0
+
+G_M000_IG15:                ;; offset=0x018C
+            movz    x0, #0x6D90
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG16:                ;; offset=0x01A4
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 428
+
+; Assembly listing for method System.Collections.Generic.Dictionary`2[System.__Canon,int]:TryInsert(System.__Canon,int,byte):bool:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 5 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x80]!
+            stp     x19, x20, [sp, #0x30]
+            stp     x21, x22, [sp, #0x40]
+            stp     x23, x24, [sp, #0x50]
+            stp     x25, x26, [sp, #0x60]
+            stp     x27, x28, [sp, #0x70]
+            mov     fp, sp
+            str     x0, [fp, #0x28]
+            mov     x19, x0
+            mov     x20, x1
+            mov     w21, w2
+            mov     w22, w3
+
+G_M000_IG02:                ;; offset=0x0030
+            cbz     x20, G_M000_IG22
+            ldr     x0, [x19, #0x08]
+            cbnz    x0, G_M000_IG04
+
+G_M000_IG03:                ;; offset=0x003C
+            mov     x0, x19
+            mov     w1, wzr
+            movz    x2, #0xF1B0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+
+G_M000_IG04:                ;; offset=0x0058
+            ldp     x23, x24, [x19, #0x10]
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x28]
+            cbz     x11, G_M000_IG16
+
+G_M000_IG05:                ;; offset=0x0070
+            mov     x0, x24
+            mov     x1, x20
+            ldr     x2, [x11]
+            blr     x2
+            sxtw    w25, w0
+            mov     w26, wzr
+            ldr     x0, [x19, #0x08]
+            ldr     x1, [x19, #0x30]
+            mov     w2, w25
+            mul     x1, x1, x2
+            lsr     x1, x1, #32
+            add     x1, x1, #1
+            ldr     w2, [x0, #0x08]
+            mov     w3, w2
+            mul     x1, x1, x3
+            lsr     x1, x1, #32
+            cmp     w1, w2
+            bhs     G_M000_IG27
+            add     x0, x0, #16
+            ubfiz   x1, x1, #2, #32
+            add     x27, x0, x1
+            ldr     w0, [x27]
+            sub     w28, w0, #1
+            ldr     w2, [x23, #0x08]
+            str     w2, [fp, #0x24]
+            cmp     w2, w28
+            bhi     G_M000_IG10
+
+G_M000_IG06:                ;; offset=0x00DC
+            ldr     w2, [fp, #0x24]
+
+G_M000_IG07:                ;; offset=0x00E0
+            ldr     w22, [x19, #0x40]
+            cmp     w22, #0
+            ble     G_M000_IG17
+            ldr     w14, [x19, #0x3C]
+            sxtw    w28, w14
+            cmp     w14, w2
+            bhs     G_M000_IG27
+            mov     w15, #24
+            mov     x12, #16
+            umaddl  x14, w14, w15, x12
+            add     x14, x23, x14
+            ldr     w14, [x14, #0x0C]
+            neg     w14, w14
+            sub     w14, w14, #3
+            sub     w15, w22, #1
+            stp     w14, w15, [x19, #0x3C]
+            b       G_M000_IG19
+
+G_M000_IG08:                ;; offset=0x0124
+            movz    x1, #0x97C8
+            movk    x1, #0x426 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG12
+
+G_M000_IG09:                ;; offset=0x013C
+            ldr     x3, [fp, #0x18]
+            ldr     w28, [x3, #0x0C]
+            add     w26, w26, #1
+            ldr     w2, [fp, #0x24]
+            cmp     w2, w26
+            blo     G_M000_IG26
+            cmp     w2, w28
+            bls     G_M000_IG07
+
+G_M000_IG10:                ;; offset=0x015C
+            mov     w0, #24
+            mov     x1, #16
+            umaddl  x28, w28, w0, x1
+            add     x3, x23, x28
+            str     x3, [fp, #0x18]
+            ldr     w0, [x3, #0x08]
+            cmp     w0, w25
+            bne     G_M000_IG09
+
+G_M000_IG11:                ;; offset=0x017C
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x30]
+            cbz     x11, G_M000_IG08
+
+G_M000_IG12:                ;; offset=0x0190
+            ldr     x1, [x23, x28]
+            mov     x0, x24
+            mov     x2, x20
+            ldr     x4, [x11]
+            blr     x4
+            cbz     w0, G_M000_IG09
+
+G_M000_IG13:                ;; offset=0x01A8
+            uxtb    w0, w22
+            cmp     w0, #1
+            bne     G_M000_IG20
+            ldr     x3, [fp, #0x18]
+            str     w21, [x3, #0x10]
+
+G_M000_IG14:                ;; offset=0x01BC
+            mov     w0, #1
+
+G_M000_IG15:                ;; offset=0x01C0
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG16:                ;; offset=0x01DC
+            movz    x1, #0x97B0
+            movk    x1, #0x426 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG05
+
+G_M000_IG17:                ;; offset=0x01F4
+            ldr     w0, [x19, #0x38]
+            sxtw    w28, w0
+            cmp     w2, w28
+            bne     G_M000_IG18
+            movz    x1, #0x6DA8
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            sxtw    w1, w0
+            mov     x0, x19
+            mov     w2, wzr
+            movz    x3, #0xF810
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            ldr     x14, [x19, #0x08]
+            ldr     x15, [x19, #0x30]
+            mov     w12, w25
+            mul     x15, x15, x12
+            lsr     x15, x15, #32
+            add     x15, x15, #1
+            ldr     w12, [x14, #0x08]
+            mov     wip0, w12
+            mul     x15, x15, xip0
+            lsr     x15, x15, #32
+            cmp     w15, w12
+            bhs     G_M000_IG27
+            add     x14, x14, #16
+            ubfiz   x15, x15, #2, #32
+            add     x27, x14, x15
+
+G_M000_IG18:                ;; offset=0x0274
+            add     w14, w28, #1
+            str     w14, [x19, #0x38]
+            ldr     x23, [x19, #0x10]
+
+G_M000_IG19:                ;; offset=0x0280
+            ldr     w14, [x23, #0x08]
+            cmp     w28, w14
+            bhs     G_M000_IG27
+            mov     w14, #24
+            mov     x15, #16
+            umaddl  x14, w28, w14, x15
+            add     x1, x23, x14
+            str     w25, [x1, #0x08]
+            ldr     w14, [x27]
+            sub     w14, w14, #1
+            str     w14, [x1, #0x0C]
+            mov     x14, x1
+            mov     x15, x20
+            bl      CORINFO_HELP_ASSIGN_REF
+            str     w21, [x1, #0x10]
+            add     w1, w28, #1
+            str     w1, [x27]
+            ldr     w1, [x19, #0x44]
+            add     w1, w1, #1
+            str     w1, [x19, #0x44]
+            cmp     w26, #100
+            bls     G_M000_IG14
+            mov     x1, x24
+            movz    x0, #0x3FA8
+            movk    x0, #964 LSL #16
+            movk    x0, #1 LSL #32
+            movz    x2, #0x6DD8
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            cbz     x0, G_M000_IG14
+            ldr     w1, [x23, #0x08]
+            mov     x0, x19
+            mov     w2, #1
+            movz    x3, #0xF810
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            b       G_M000_IG14
+
+G_M000_IG20:                ;; offset=0x0324
+            uxtb    w0, w22
+            cmp     w0, #2
+            beq     G_M000_IG23
+            mov     w0, wzr
+
+G_M000_IG21:                ;; offset=0x0334
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG22:                ;; offset=0x0350
+            mov     w0, #4
+            movz    x1, #0x6D78
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            brk     #0
+
+G_M000_IG23:                ;; offset=0x036C
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x2, [x1, #0x38]
+            cbz     x2, G_M000_IG24
+            mov     x0, x2
+            b       G_M000_IG25
+
+G_M000_IG24:                ;; offset=0x0388
+            movz    x1, #0x99B0
+            movk    x1, #0x426 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+
+G_M000_IG25:                ;; offset=0x0398
+            mov     x1, x20
+            movz    x2, #0x6D30
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            brk     #0
+
+G_M000_IG26:                ;; offset=0x03B4
+            movz    x0, #0x6D90
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG27:                ;; offset=0x03CC
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 980
+
+; Assembly listing for method DiffPlex.Differ:BuildModificationData(DiffPlex.Model.ModificationData,DiffPlex.Model.ModificationData) (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 2 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x50]!
+            stp     x19, x20, [sp, #0x18]
+            stp     x21, x22, [sp, #0x28]
+            stp     x23, x24, [sp, #0x38]
+            str     x25, [sp, #0x48]
+            mov     fp, sp
+            mov     x19, x0
+            mov     x20, x1
+
+G_M000_IG02:                ;; offset=0x0020
+            ldr     x1, [x19, #0x08]
+            ldr     w21, [x1, #0x08]
+            ldr     x1, [x20, #0x08]
+            ldr     w22, [x1, #0x08]
+            add     w1, w22, w21
+            add     w1, w1, #1
+            add     w1, w1, #1
+            sxtw    x23, w1
+            mov     x1, x23
+            movz    x24, #0x5310
+            movk    x24, #963 LSL #16
+            movk    x24, #1 LSL #32
+            mov     x0, x24
+            bl      CORINFO_HELP_NEWARR_1_VC
+            mov     x25, x0
+            mov     x1, x23
+            mov     x0, x24
+            bl      CORINFO_HELP_NEWARR_1_VC
+            mov     x7, x0
+            mov     x6, x25
+            mov     w2, w21
+            mov     x3, x20
+            mov     x0, x19
+            mov     w5, w22
+            mov     w1, wzr
+            mov     w4, wzr
+            movz    x8, #0xF918
+            movk    x8, #961 LSL #16
+            movk    x8, #1 LSL #32
+            ldr     x8, [x8]
+
+G_M000_IG03:                ;; offset=0x0098
+            ldr     x25, [sp, #0x48]
+            ldp     x23, x24, [sp, #0x38]
+            ldp     x21, x22, [sp, #0x28]
+            ldp     x19, x20, [sp, #0x18]
+            ldp     fp, lr, [sp], #0x50
+            br      x8
+
+; Total bytes of code 176
+
+; Assembly listing for method DiffPlex.Differ:BuildModificationData(DiffPlex.Model.ModificationData,int,int,DiffPlex.Model.ModificationData,int,int,int[],int[]) (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 35 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x60]!
+            stp     x19, x20, [sp, #0x18]
+            stp     x21, x22, [sp, #0x28]
+            stp     x23, x24, [sp, #0x38]
+            stp     x25, x26, [sp, #0x48]
+            str     x27, [sp, #0x58]
+            mov     fp, sp
+            mov     x23, x0
+            mov     w21, w1
+            mov     w19, w2
+            mov     x24, x3
+            mov     w22, w4
+            mov     w20, w5
+            mov     x25, x6
+            mov     x26, x7
+
+G_M000_IG02:                ;; offset=0x003C
+            b       G_M000_IG04
+            align   [0 bytes for IG06]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG03:                ;; offset=0x0040
+            add     w21, w21, #1
+            add     w22, w22, #1
+
+G_M000_IG04:                ;; offset=0x0048
+            cmp     w21, w19
+            bge     G_M000_IG07
+
+G_M000_IG05:                ;; offset=0x0050
+            cmp     w22, w20
+            bge     G_M000_IG06
+            ldr     x0, [x23, #0x08]
+            ldr     w3, [x0, #0x08]
+            cmp     w21, w3
+            bhs     G_M000_IG22
+            add     x0, x0, #16
+            ubfiz   x3, x21, #2, #32
+            add     x0, x0, x3
+            ldr     x3, [x24, #0x08]
+            ldr     w1, [x3, #0x08]
+            cmp     w22, w1
+            bhs     G_M000_IG22
+            add     x3, x3, #16
+            ldr     w3, [x3, w22, UXTW #2]
+            ldr     w0, [x0]
+            cmp     w0, w3
+            beq     G_M000_IG03
+
+G_M000_IG06:                ;; offset=0x0098
+            cmp     w22, w20
+            bge     G_M000_IG07
+            ldr     x0, [x23, #0x08]
+            sub     w3, w19, #1
+            ldr     w1, [x0, #0x08]
+            cmp     w3, w1
+            bhs     G_M000_IG22
+            add     x0, x0, #16
+            ubfiz   x1, x3, #2, #32
+            add     x0, x0, x1
+            ldr     x1, [x24, #0x08]
+            sub     w2, w20, #1
+            ldr     w4, [x1, #0x08]
+            cmp     w2, w4
+            bhs     G_M000_IG22
+            add     x1, x1, #16
+            ldr     w1, [x1, w2, UXTW #2]
+            ldr     w0, [x0]
+            cmp     w0, w1
+            bne     G_M000_IG07
+            sxtw    w19, w3
+            sxtw    w20, w2
+            cmp     w21, w19
+            blt     G_M000_IG06
+
+G_M000_IG07:                ;; offset=0x00F8
+            sub     w0, w19, w21
+            sub     w27, w20, w22
+            cmp     w0, #0
+            ble     G_M000_IG17
+
+G_M000_IG08:                ;; offset=0x0108
+            cmp     w27, #0
+            ble     G_M000_IG19
+            ldr     x0, [x23, #0x08]
+            ldr     x3, [x24, #0x08]
+            mov     w1, w21
+            mov     w2, w19
+            mov     w4, w22
+            mov     w5, w20
+            mov     x6, x25
+            mov     x7, x26
+            movz    x8, #0xF930
+            movk    x8, #961 LSL #16
+            movk    x8, #1 LSL #32
+            ldr     x8, [x8]
+            blr     x8
+            mov     x27, x0
+            ldr     w2, [x27, #0x08]
+            cmp     w2, #0
+            ble     G_M000_IG21
+            ldr     w2, [x27, #0x1C]
+            cmp     w2, #1
+            bne     G_M000_IG10
+
+G_M000_IG09:                ;; offset=0x0160
+            ldr     w5, [x27, #0x0C]
+            sub     w5, w5, #1
+            cmp     w5, w21
+            bgt     G_M000_IG15
+
+G_M000_IG10:                ;; offset=0x0170
+            cmp     w2, #3
+            bne     G_M000_IG11
+            ldr     w5, [x27, #0x14]
+            sub     w5, w5, #1
+            cmp     w5, w22
+            bgt     G_M000_IG14
+
+G_M000_IG11:                ;; offset=0x0188
+            cmp     w2, #2
+            bne     G_M000_IG12
+            ldr     w0, [x27, #0x10]
+            cmp     w0, w19
+            blt     G_M000_IG13
+
+G_M000_IG12:                ;; offset=0x019C
+            cmp     w2, #4
+            bne     G_M000_IG16
+            ldr     w2, [x27, #0x18]
+            cmp     w2, w20
+            bge     G_M000_IG16
+            ldr     x0, [x24, #0x18]
+            add     w5, w2, #1
+            str     w5, [x27, #0x18]
+            ldr     w5, [x0, #0x08]
+            cmp     w2, w5
+            bhs     G_M000_IG22
+            add     x5, x0, #16
+            mov     w0, #1
+            strb    w0, [x5, w2, UXTW #2]
+            b       G_M000_IG16
+            align   [0 bytes for IG18]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG13:                ;; offset=0x01D8
+            ldr     x5, [x23, #0x18]
+            sxtw    w2, w0
+            add     w0, w2, #1
+            str     w0, [x27, #0x10]
+            ldr     w0, [x5, #0x08]
+            cmp     w2, w0
+            bhs     G_M000_IG22
+            add     x5, x5, #16
+            mov     w0, #1
+            strb    w0, [x5, w2, UXTW #2]
+            b       G_M000_IG16
+
+G_M000_IG14:                ;; offset=0x0204
+            ldr     x0, [x24, #0x18]
+            sxtw    w2, w5
+            str     w2, [x27, #0x14]
+            ldr     w5, [x0, #0x08]
+            cmp     w2, w5
+            bhs     G_M000_IG22
+            add     x5, x0, #16
+            mov     w0, #1
+            strb    w0, [x5, w2, UXTW #2]
+            b       G_M000_IG16
+
+G_M000_IG15:                ;; offset=0x022C
+            ldr     x0, [x23, #0x18]
+            sxtw    w2, w5
+            str     w2, [x27, #0x0C]
+            ldr     w5, [x0, #0x08]
+            cmp     w2, w5
+            bhs     G_M000_IG22
+            add     x5, x0, #16
+            mov     w0, #1
+            strb    w0, [x5, w2, UXTW #2]
+
+G_M000_IG16:                ;; offset=0x0250
+            ldr     w2, [x27, #0x0C]
+            ldr     w5, [x27, #0x14]
+            mov     x0, x23
+            mov     w1, w21
+            mov     x3, x24
+            mov     w4, w22
+            mov     x6, x25
+            mov     x7, x26
+            movz    x8, #0xF918
+            movk    x8, #961 LSL #16
+            movk    x8, #1 LSL #32
+            ldr     x8, [x8]
+            blr     x8
+            ldr     w22, [x27, #0x18]
+            ldr     w21, [x27, #0x10]
+            b       G_M000_IG04
+
+G_M000_IG17:                ;; offset=0x0290
+            cmp     w27, #0
+            ble     G_M000_IG21
+            cmp     w22, w20
+            bge     G_M000_IG21
+            ldr     x0, [x24, #0x18]
+
+G_M000_IG18:                ;; offset=0x02A4
+            mov     x1, x0
+            ldr     w2, [x1, #0x08]
+            cmp     w22, w2
+            bhs     G_M000_IG22
+            add     x1, x1, #16
+            mov     w2, #1
+            strb    w2, [x1, w22, UXTW #2]
+            add     w22, w22, #1
+            cmp     w22, w20
+            blt     G_M000_IG18
+            b       G_M000_IG21
+
+G_M000_IG19:                ;; offset=0x02D0
+            cmp     w21, w19
+            bge     G_M000_IG21
+            ldr     x0, [x23, #0x18]
+            align   [4 bytes for IG20]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG20:                ;; offset=0x02E0
+            mov     x1, x0
+            ldr     w2, [x1, #0x08]
+            cmp     w21, w2
+            bhs     G_M000_IG22
+            add     x1, x1, #16
+            mov     w2, #1
+            strb    w2, [x1, w21, UXTW #2]
+            add     w21, w21, #1
+            cmp     w21, w19
+            blt     G_M000_IG20
+
+G_M000_IG21:                ;; offset=0x0308
+            ldr     x27, [sp, #0x58]
+            ldp     x25, x26, [sp, #0x48]
+            ldp     x23, x24, [sp, #0x38]
+            ldp     x21, x22, [sp, #0x28]
+            ldp     x19, x20, [sp, #0x18]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG22:                ;; offset=0x0324
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 812
+
+; Assembly listing for method DiffPlex.Differ:CalculateEditLength(int[],int,int,int[],int,int,int[],int[]):DiffPlex.Model.EditLengthResult (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 18 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x60]!
+            stp     x19, x20, [sp, #0x10]
+            stp     x21, x22, [sp, #0x20]
+            stp     x23, x24, [sp, #0x30]
+            stp     x25, x26, [sp, #0x40]
+            stp     x27, x28, [sp, #0x50]
+            mov     fp, sp
+            mov     w19, w1
+            mov     w20, w4
+
+G_M000_IG02:                ;; offset=0x0024
+            cbz     x0, G_M000_IG32
+            cbz     x3, G_M000_IG33
+            ldr     w1, [x0, #0x08]
+            cbnz    w1, G_M000_IG04
+
+G_M000_IG03:                ;; offset=0x0034
+            ldr     w4, [x3, #0x08]
+            cbz     w4, G_M000_IG30
+
+G_M000_IG04:                ;; offset=0x003C
+            sub     w2, w2, w19
+            sub     w4, w5, w20
+            add     w5, w4, w2
+            add     w5, w5, #1
+            add     w5, w5, w5,  LSR #31
+            asr     w5, w5, #1
+            sub     w8, w2, w4
+            mvn     w9, w8
+            and     w9, w9, #1
+            add     w10, w5, #1
+            ldr     w11, [x6, #0x08]
+            cmp     w10, w11
+            bhs     G_M000_IG35
+            add     x6, x6, #16
+            mov     w13, w10
+            str     wzr, [x6, x13, LSL #2]
+            ldr     w14, [x7, #0x08]
+            cmp     w10, w14
+            bhs     G_M000_IG35
+            add     x7, x7, #16
+            add     w10, w2, #1
+            str     w10, [x7, x13, LSL #2]
+            mov     w21, wzr
+            cmp     w21, w5
+            ble     G_M000_IG22
+            b       G_M000_IG34
+
+G_M000_IG05:                ;; offset=0x00A4
+            add     wip0, w12, #1
+            cmp     wip0, w11
+            bhs     G_M000_IG35
+            ldr     w22, [x6, wip0, UXTW #2]
+            mov     w23, #3
+
+G_M000_IG06:                ;; offset=0x00B8
+            sub     w24, w22, w13
+            sxtw    w25, w22
+            sxtw    w26, w24
+            cmp     w25, w2
+            bge     G_M000_IG08
+            align   [0 bytes for IG07]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG07:                ;; offset=0x00CC
+            cmp     w24, w4
+            bge     G_M000_IG08
+            add     w15, w22, w19
+            cmp     w15, w1
+            bhs     G_M000_IG35
+            add     xip0, x0, #16
+            ldr     w15, [xip0, w15, UXTW #2]
+            add     wip0, w24, w20
+            ldr     w27, [x3, #0x08]
+            cmp     wip0, w27
+            bhs     G_M000_IG35
+            add     x27, x3, #16
+            ldr     wip0, [x27, wip0, UXTW #2]
+            cmp     w15, wip0
+            bne     G_M000_IG08
+            add     w22, w22, #1
+            add     w24, w24, #1
+            cmp     w22, w2
+            blt     G_M000_IG07
+
+G_M000_IG08:                ;; offset=0x0118
+            cmp     w12, w11
+            bhs     G_M000_IG35
+            str     w22, [x6, w12, UXTW #2]
+            cbnz    w9, G_M000_IG10
+
+G_M000_IG09:                ;; offset=0x0128
+            sub     w12, w13, w8
+            add     w15, w10, #1
+            cmp     w12, w15
+            blt     G_M000_IG10
+            sub     w15, w21, #1
+            cmp     w12, w15
+            bgt     G_M000_IG10
+            add     w12, w12, w5
+            cmp     w12, w14
+            bhs     G_M000_IG35
+            ldr     w12, [x7, w12, UXTW #2]
+            sub     w15, w12, w13
+            cmp     w12, w22
+            ccmp    w15, w24, 0, le
+            ble     G_M000_IG26
+
+G_M000_IG10:                ;; offset=0x0164
+            add     w13, w13, #2
+            cmp     w13, w21
+            ble     G_M000_IG23
+
+G_M000_IG11:                ;; offset=0x0170
+            sxtw    w13, w10
+            cmp     w13, w21
+            bgt     G_M000_IG21
+
+G_M000_IG12:                ;; offset=0x017C
+            add     w12, w13, w5
+            cmp     w10, w13
+            beq     G_M000_IG15
+
+G_M000_IG13:                ;; offset=0x0188
+            cmp     w13, w21
+            beq     G_M000_IG14
+            add     w15, w12, #1
+            cmp     w15, w14
+            bhs     G_M000_IG35
+            ldr     w15, [x7, w15, UXTW #2]
+            sub     wip0, w12, #1
+            cmp     wip0, w14
+            bhs     G_M000_IG35
+            ldr     wip0, [x7, wip0, UXTW #2]
+            cmp     w15, wip0
+            ble     G_M000_IG15
+
+G_M000_IG14:                ;; offset=0x01B8
+            sub     wip0, w12, #1
+            cmp     wip0, w14
+            bhs     G_M000_IG35
+            ldr     w27, [x7, wip0, UXTW #2]
+            mov     w23, #4
+            b       G_M000_IG16
+            align   [0 bytes for IG17]
+            align   [0 bytes]
+            align   [0 bytes]
+            align   [0 bytes]
+
+G_M000_IG15:                ;; offset=0x01D0
+            add     w15, w12, #1
+            cmp     w15, w14
+            bhs     G_M000_IG35
+            ldr     w15, [x7, w15, UXTW #2]
+            sub     w27, w15, #1
+            mov     w23, #2
+
+G_M000_IG16:                ;; offset=0x01E8
+            add     w15, w13, w8
+            sub     w28, w27, w15
+            sxtw    w24, w27
+            sxtw    w22, w28
+            cmp     w24, #0
+            ble     G_M000_IG18
+
+G_M000_IG17:                ;; offset=0x0200
+            cmp     w28, #0
+            ble     G_M000_IG18
+            add     wip0, w19, w27
+            sub     wip0, wip0, #1
+            cmp     wip0, w1
+            bhs     G_M000_IG35
+            add     x25, x0, #16
+            ldr     wip0, [x25, wip0, UXTW #2]
+            add     w26, w20, w28
+            sub     w25, w26, #1
+            ldr     w26, [x3, #0x08]
+            cmp     w25, w26
+            bhs     G_M000_IG35
+            add     x26, x3, #16
+            ldr     w25, [x26, w25, UXTW #2]
+            cmp     wip0, w25
+            bne     G_M000_IG18
+            sub     w27, w27, #1
+            sub     w28, w28, #1
+            cmp     w27, #0
+            bgt     G_M000_IG17
+
+G_M000_IG18:                ;; offset=0x0254
+            cmp     w12, w14
+            bhs     G_M000_IG35
+            str     w27, [x7, w12, UXTW #2]
+            cbz     w9, G_M000_IG20
+
+G_M000_IG19:                ;; offset=0x0264
+            cmp     w10, w15
+            ccmp    w15, w21, 0, le
+            bgt     G_M000_IG20
+            add     w12, w15, w5
+            cmp     w12, w11
+            bhs     G_M000_IG35
+            ldr     w12, [x6, w12, UXTW #2]
+            sub     w15, w12, w15
+            cmp     w12, w27
+            ccmp    w15, w28, nc, ge
+            bge     G_M000_IG28
+
+G_M000_IG20:                ;; offset=0x0290
+            add     w13, w13, #2
+            cmp     w13, w21
+            ble     G_M000_IG12
+
+G_M000_IG21:                ;; offset=0x029C
+            add     w21, w21, #1
+            cmp     w21, w5
+            bgt     G_M000_IG34
+
+G_M000_IG22:                ;; offset=0x02A8
+            neg     w10, w21
+            sxtw    w13, w10
+            cmp     w13, w21
+            bgt     G_M000_IG11
+
+G_M000_IG23:                ;; offset=0x02B8
+            add     w12, w13, w5
+            cmp     w10, w13
+            beq     G_M000_IG05
+
+G_M000_IG24:                ;; offset=0x02C4
+            cmp     w13, w21
+            beq     G_M000_IG25
+            sub     w15, w12, #1
+            cmp     w15, w11
+            bhs     G_M000_IG35
+            ldr     w15, [x6, w15, UXTW #2]
+            add     wip0, w12, #1
+            cmp     wip0, w11
+            bhs     G_M000_IG35
+            ldr     wip0, [x6, wip0, UXTW #2]
+            cmp     w15, wip0
+            blt     G_M000_IG05
+
+G_M000_IG25:                ;; offset=0x02F4
+            sub     w15, w12, #1
+            cmp     w15, w11
+            bhs     G_M000_IG35
+            ldr     w15, [x6, w15, UXTW #2]
+            add     w22, w15, #1
+            mov     w23, #1
+            b       G_M000_IG06
+
+G_M000_IG26:                ;; offset=0x0310
+            movz    x0, #0x1560
+            movk    x0, #0x427 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            lsl     w1, w21, #1
+            sub     w1, w1, #1
+            add     w2, w25, w19
+            stp     w1, w2, [x0, #0x08]
+            add     w1, w26, w20
+            add     w2, w22, w19
+            stp     w2, w1, [x0, #0x10]
+            add     w1, w24, w20
+            stp     w1, w23, [x0, #0x18]
+
+G_M000_IG27:                ;; offset=0x0344
+            ldp     x27, x28, [sp, #0x50]
+            ldp     x25, x26, [sp, #0x40]
+            ldp     x23, x24, [sp, #0x30]
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG28:                ;; offset=0x0360
+            movz    x0, #0x1560
+            movk    x0, #0x427 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            lsl     w1, w21, #1
+            add     w2, w27, w19
+            stp     w1, w2, [x0, #0x08]
+            add     w1, w28, w20
+            add     w2, w24, w19
+            stp     w2, w1, [x0, #0x10]
+            add     w1, w22, w20
+            stp     w1, w23, [x0, #0x18]
+
+G_M000_IG29:                ;; offset=0x0390
+            ldp     x27, x28, [sp, #0x50]
+            ldp     x25, x26, [sp, #0x40]
+            ldp     x23, x24, [sp, #0x30]
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG30:                ;; offset=0x03AC
+            movz    x0, #0x1560
+            movk    x0, #0x427 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+
+G_M000_IG31:                ;; offset=0x03BC
+            ldp     x27, x28, [sp, #0x50]
+            ldp     x25, x26, [sp, #0x40]
+            ldp     x23, x24, [sp, #0x30]
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG32:                ;; offset=0x03D8
+            movz    x0, #0xB1F8
+            movk    x0, #976 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x19, x0
+            mov     w0, #49
+            movz    x1, #0x72F0
+            movk    x1, #980 LSL #16
+            movk    x1, #1 LSL #32
+            movz    x2, #0x7090
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x1, x0
+            mov     x0, x19
+            movz    x2, #0xF0F0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x0, x19
+            bl      CORINFO_HELP_THROW
+            brk     #0
+
+G_M000_IG33:                ;; offset=0x0438
+            movz    x0, #0xB1F8
+            movk    x0, #976 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x19, x0
+            mov     w0, #53
+            movz    x1, #0x72F0
+            movk    x1, #980 LSL #16
+            movk    x1, #1 LSL #32
+            movz    x2, #0x7090
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x1, x0
+            mov     x0, x19
+            movz    x2, #0xF0F0
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x0, x19
+            bl      CORINFO_HELP_THROW
+            brk     #0
+
+G_M000_IG34:                ;; offset=0x0498
+            movz    x0, #0xA200
+            movk    x0, #963 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_NEWSFAST
+            mov     x19, x0
+            mov     w0, #57
+            movz    x1, #0x72F0
+            movk    x1, #980 LSL #16
+            movk    x1, #1 LSL #32
+            movz    x2, #0x7090
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x1, x0
+            mov     x0, x19
+            movz    x2, #0xF948
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            mov     x0, x19
+            bl      CORINFO_HELP_THROW
+            brk     #0
+
+G_M000_IG35:                ;; offset=0x04F8
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 1280
+
+; Assembly listing for method System.Collections.Generic.Dictionary`2[System.Text.Json.Serialization.Metadata.JsonTypeInfo+ParameterLookupKey,System.__Canon]:TryInsert(System.Text.Json.Serialization.Metadata.JsonTypeInfo+ParameterLookupKey,System.__Canon,byte):bool:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 15 single block inlinees; 3 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x80]!
+            stp     x19, x20, [sp, #0x30]
+            stp     x21, x22, [sp, #0x40]
+            stp     x23, x24, [sp, #0x50]
+            stp     x25, x26, [sp, #0x60]
+            stp     x27, x28, [sp, #0x70]
+            mov     fp, sp
+            mov     x19, x0
+            mov     x21, x1
+            mov     x20, x2
+            mov     x22, x3
+            mov     w23, w4
+
+G_M000_IG02:                ;; offset=0x0030
+            ldr     x0, [x19, #0x08]
+            cbnz    x0, G_M000_IG04
+
+G_M000_IG03:                ;; offset=0x0038
+            mov     x0, x19
+            mov     w1, wzr
+            movz    x2, #0xD6F8
+            movk    x2, #0x45F LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+
+G_M000_IG04:                ;; offset=0x0054
+            ldp     x24, x25, [x19, #0x10]
+            cbnz    x25, G_M000_IG06
+
+G_M000_IG05:                ;; offset=0x005C
+            cbz     x20, G_M000_IG32
+            ldr     w1, [x20, #0x08]
+            add     x0, x20, #12
+            movz    w2, #0x5989
+            movk    w2, #0x2180 LSL #16
+            movz    w3, #0xD1A3
+            movk    w3, #0xFAF0 LSL #16
+            movz    x4, #0xD7E8
+            movk    x4, #0x45F LSL #16
+            movk    x4, #1 LSL #32
+            ldr     x4, [x4]
+            blr     x4
+            sxtw    w26, w0
+            b       G_M000_IG07
+
+G_M000_IG06:                ;; offset=0x0094
+            mov     x1, x21
+            mov     x2, x20
+            mov     x0, x25
+            movz    x11, #352
+            movk    x11, #682 LSL #16
+            movk    x11, #1 LSL #32
+            ldr     xip0, [x11]
+            blr     xip0
+            sxtw    w26, w0
+
+G_M000_IG07:                ;; offset=0x00B8
+            mov     w27, wzr
+            ldr     x1, [x19, #0x08]
+            ldr     x2, [x19, #0x30]
+            mov     w3, w26
+            mul     x2, x2, x3
+            lsr     x2, x2, #32
+            add     x2, x2, #1
+            ldr     w3, [x1, #0x08]
+            mov     w4, w3
+            mul     x2, x2, x4
+            lsr     x2, x2, #32
+            cmp     w2, w3
+            bhs     G_M000_IG35
+            add     x1, x1, #16
+            ubfiz   x2, x2, #2, #32
+            add     x28, x1, x2
+            ldr     w1, [x28]
+            sub     w5, w1, #1
+            cbz     x25, G_M000_IG16
+
+G_M000_IG08:                ;; offset=0x0104
+            ldr     w6, [x24, #0x08]
+            str     w6, [fp, #0x28]
+            cmp     w6, w5
+            bhi     G_M000_IG13
+
+G_M000_IG09:                ;; offset=0x0114
+            ldr     w6, [fp, #0x28]
+
+G_M000_IG10:                ;; offset=0x0118
+            ldr     w23, [x19, #0x40]
+            cmp     w23, #0
+            ble     G_M000_IG23
+            ldr     w14, [x19, #0x3C]
+            sxtw    w25, w14
+            cmp     w14, w6
+            bhs     G_M000_IG35
+            ubfiz   x14, x14, #5, #32
+            add     x14, x14, #16
+            add     x14, x24, x14
+            ldr     w14, [x14, #0x0C]
+            neg     w14, w14
+            sub     w14, w14, #3
+            sub     w15, w23, #1
+            stp     w14, w15, [x19, #0x3C]
+            b       G_M000_IG25
+
+G_M000_IG11:                ;; offset=0x0158
+            ldr     w5, [x7, #0x0C]
+            sxtw    w2, w5
+            add     w27, w27, #1
+            ldr     w6, [fp, #0x28]
+            cmp     w6, w27
+            blo     G_M000_IG34
+            cmp     w6, w2
+            mov     w5, w2
+            bls     G_M000_IG10
+
+G_M000_IG12:                ;; offset=0x017C
+            str     w6, [fp, #0x28]
+
+G_M000_IG13:                ;; offset=0x0180
+            str     w5, [fp, #0x2C]
+            ubfiz   x1, x5, #5, #32
+            add     x1, x1, #16
+            add     x7, x24, x1
+            str     x7, [fp, #0x18]
+            ldr     w1, [x7, #0x08]
+            cmp     w1, w26
+            bne     G_M000_IG11
+
+G_M000_IG14:                ;; offset=0x01A0
+            ldp     x1, x2, [x7, #0x10]
+            mov     x3, x21
+            mov     x4, x20
+            mov     x0, x25
+            movz    x11, #344
+            movk    x11, #682 LSL #16
+            movk    x11, #1 LSL #32
+            ldr     xip0, [x11]
+            blr     xip0
+            ldr     x7, [fp, #0x18]
+            cbz     w0, G_M000_IG11
+
+G_M000_IG15:                ;; offset=0x01CC
+            uxtb    w25, w23
+            cmp     w25, #1
+            beq     G_M000_IG29
+            cmp     w25, #2
+            bne     G_M000_IG27
+            b       G_M000_IG33
+
+G_M000_IG16:                ;; offset=0x01E4
+            ldr     w6, [x24, #0x08]
+            str     w6, [fp, #0x28]
+            cmp     w6, w5
+            bhi     G_M000_IG21
+
+G_M000_IG17:                ;; offset=0x01F4
+            ldr     w6, [fp, #0x28]
+            b       G_M000_IG10
+
+G_M000_IG18:                ;; offset=0x01FC
+            ldr     x0, [fp, #0x20]
+            mov     x1, x20
+            mov     w2, #5
+            movz    x3, #0xD800
+            movk    x3, #0x45F LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            cbnz    w0, G_M000_IG26
+
+G_M000_IG19:                ;; offset=0x0220
+            ldr     w5, [x25, #0x0C]
+            sxtw    w25, w5
+            add     w27, w27, #1
+            ldr     w6, [fp, #0x28]
+            cmp     w6, w27
+            blo     G_M000_IG34
+            cmp     w6, w25
+            mov     w5, w25
+            bls     G_M000_IG10
+
+G_M000_IG20:                ;; offset=0x0244
+            str     w6, [fp, #0x28]
+
+G_M000_IG21:                ;; offset=0x0248
+            str     w5, [fp, #0x2C]
+            ubfiz   x0, x5, #5, #32
+            add     x0, x0, #16
+            add     x25, x24, x0
+            ldr     w0, [x25, #0x08]
+            cmp     w0, w26
+            bne     G_M000_IG19
+
+G_M000_IG22:                ;; offset=0x0264
+            mov     x0, x25
+            ldp     x1, x2, [x0, #0x10]
+            str     x2, [fp, #0x20]
+            mov     x0, x1
+            mov     x1, x21
+            movz    x3, #0xF960
+            movk    x3, #0x438 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            cbz     w0, G_M000_IG19
+            b       G_M000_IG18
+
+G_M000_IG23:                ;; offset=0x0294
+            ldr     w0, [x19, #0x38]
+            sxtw    w25, w0
+            cmp     w6, w25
+            bne     G_M000_IG24
+            movz    x1, #0x6DA8
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            sxtw    w1, w0
+            mov     x0, x19
+            mov     w2, wzr
+            movz    x3, #0xD818
+            movk    x3, #0x45F LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            ldr     x14, [x19, #0x08]
+            ldr     x15, [x19, #0x30]
+            mov     w12, w26
+            mul     x15, x15, x12
+            lsr     x15, x15, #32
+            add     x15, x15, #1
+            ldr     w12, [x14, #0x08]
+            mov     wip0, w12
+            mul     x15, x15, xip0
+            lsr     x15, x15, #32
+            cmp     w15, w12
+            bhs     G_M000_IG35
+            add     x14, x14, #16
+            ubfiz   x15, x15, #2, #32
+            add     x28, x14, x15
+
+G_M000_IG24:                ;; offset=0x0314
+            add     w14, w25, #1
+            str     w14, [x19, #0x38]
+            ldr     x24, [x19, #0x10]
+
+G_M000_IG25:                ;; offset=0x0320
+            ldr     w14, [x24, #0x08]
+            cmp     w25, w14
+            bhs     G_M000_IG35
+            ubfiz   x14, x25, #5, #32
+            add     x14, x14, #16
+            add     x0, x24, x14
+            str     w26, [x0, #0x08]
+            ldr     w14, [x28]
+            sub     w14, w14, #1
+            str     w14, [x0, #0x0C]
+            add     x14, x0, #16
+            mov     x15, x21
+            bl      CORINFO_HELP_ASSIGN_REF
+            add     x14, x0, #24
+            mov     x15, x20
+            bl      CORINFO_HELP_ASSIGN_REF
+            mov     x14, x0
+            mov     x15, x22
+            bl      CORINFO_HELP_ASSIGN_REF
+            add     w0, w25, #1
+            str     w0, [x28]
+            ldr     w0, [x19, #0x44]
+            add     w0, w0, #1
+            str     w0, [x19, #0x44]
+            b       G_M000_IG30
+
+G_M000_IG26:                ;; offset=0x0384
+            uxtb    w25, w23
+            cmp     w25, #1
+            beq     G_M000_IG29
+            cmp     w25, #2
+            beq     G_M000_IG33
+
+G_M000_IG27:                ;; offset=0x0398
+            mov     w0, wzr
+
+G_M000_IG28:                ;; offset=0x039C
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG29:                ;; offset=0x03B8
+            ldr     w5, [fp, #0x2C]
+            ubfiz   x14, x5, #5, #32
+            add     x14, x14, #16
+            add     x14, x24, x14
+            mov     x15, x22
+            bl      CORINFO_HELP_ASSIGN_REF
+
+G_M000_IG30:                ;; offset=0x03D0
+            mov     w0, #1
+
+G_M000_IG31:                ;; offset=0x03D4
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG32:                ;; offset=0x03F0
+            mov     w0, wzr
+            movz    x1, #0x6D78
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            brk     #0
+
+G_M000_IG33:                ;; offset=0x040C
+            mov     x0, x21
+            mov     x1, x20
+            movz    x2, #0xD788
+            movk    x2, #0x45F LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            brk     #0
+
+G_M000_IG34:                ;; offset=0x042C
+            movz    x0, #0x6D90
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG35:                ;; offset=0x0444
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 1100
+
+; Assembly listing for method System.Collections.Generic.Dictionary`2[System.__Canon,System.ValueTuple`2[System.__Canon,int]]:TryInsert(System.__Canon,System.ValueTuple`2[System.__Canon,int],byte):bool:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 5 single block inlinees; 0 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x80]!
+            stp     x19, x20, [sp, #0x30]
+            stp     x21, x22, [sp, #0x40]
+            stp     x23, x24, [sp, #0x50]
+            stp     x25, x26, [sp, #0x60]
+            stp     x27, x28, [sp, #0x70]
+            mov     fp, sp
+            str     x0, [fp, #0x28]
+            mov     x19, x0
+            mov     x20, x1
+            mov     x22, x2
+            mov     w23, w3
+            mov     w21, w4
+
+G_M000_IG02:                ;; offset=0x0034
+            cbz     x20, G_M000_IG22
+            ldr     x0, [x19, #0x08]
+            cbnz    x0, G_M000_IG04
+
+G_M000_IG03:                ;; offset=0x0040
+            mov     x0, x19
+            mov     w1, wzr
+            movz    x2, #0xDA88
+            movk    x2, #0x45F LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+
+G_M000_IG04:                ;; offset=0x005C
+            ldp     x24, x25, [x19, #0x10]
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x28]
+            cbz     x11, G_M000_IG16
+
+G_M000_IG05:                ;; offset=0x0074
+            mov     x0, x25
+            mov     x1, x20
+            ldr     x2, [x11]
+            blr     x2
+            sxtw    w26, w0
+            mov     w27, wzr
+            ldr     x0, [x19, #0x08]
+            ldr     x1, [x19, #0x30]
+            mov     w2, w26
+            mul     x1, x1, x2
+            lsr     x1, x1, #32
+            add     x1, x1, #1
+            ldr     w2, [x0, #0x08]
+            mov     w3, w2
+            mul     x1, x1, x3
+            lsr     x1, x1, #32
+            cmp     w1, w2
+            bhs     G_M000_IG27
+            add     x0, x0, #16
+            ubfiz   x1, x1, #2, #32
+            add     x28, x0, x1
+            ldr     w0, [x28]
+            sub     w2, w0, #1
+            ldr     w3, [x24, #0x08]
+            str     w3, [fp, #0x1C]
+            cmp     w3, w2
+            bhi     G_M000_IG10
+
+G_M000_IG06:                ;; offset=0x00E0
+            ldr     w3, [fp, #0x1C]
+
+G_M000_IG07:                ;; offset=0x00E4
+            ldr     w21, [x19, #0x40]
+            cmp     w21, #0
+            ble     G_M000_IG17
+            ldr     w14, [x19, #0x3C]
+            sxtw    w1, w14
+            cmp     w14, w3
+            bhs     G_M000_IG27
+            ubfiz   x14, x14, #5, #32
+            add     x14, x14, #16
+            add     x14, x24, x14
+            ldr     w14, [x14, #0x0C]
+            neg     w14, w14
+            sub     w14, w14, #3
+            sub     w15, w21, #1
+            stp     w14, w15, [x19, #0x3C]
+            b       G_M000_IG19
+
+G_M000_IG08:                ;; offset=0x0124
+            movz    x1, #0x4918
+            movk    x1, #0x466 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG12
+
+G_M000_IG09:                ;; offset=0x013C
+            ldr     x4, [fp, #0x10]
+            ldr     w2, [x4, #0x0C]
+            add     w27, w27, #1
+            ldr     w3, [fp, #0x1C]
+            cmp     w3, w27
+            blo     G_M000_IG26
+            cmp     w3, w2
+            bls     G_M000_IG07
+
+G_M000_IG10:                ;; offset=0x015C
+            ubfiz   x0, x2, #5, #32
+            add     x2, x0, #16
+            str     x2, [fp, #0x20]
+            add     x4, x24, x2
+            str     x4, [fp, #0x10]
+            ldr     w0, [x4, #0x08]
+            cmp     w0, w26
+            bne     G_M000_IG09
+
+G_M000_IG11:                ;; offset=0x017C
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x11, [x1, #0x30]
+            cbz     x11, G_M000_IG08
+
+G_M000_IG12:                ;; offset=0x0190
+            ldr     x2, [fp, #0x20]
+            ldr     x1, [x24, x2]
+            mov     x0, x25
+            mov     x2, x20
+            ldr     x5, [x11]
+            blr     x5
+            cbz     w0, G_M000_IG09
+
+G_M000_IG13:                ;; offset=0x01AC
+            uxtb    w0, w21
+            cmp     w0, #1
+            bne     G_M000_IG20
+            ldr     x4, [fp, #0x10]
+            add     x14, x4, #16
+            mov     x15, x22
+            bl      CORINFO_HELP_ASSIGN_REF
+            str     w23, [x4, #0x18]
+
+G_M000_IG14:                ;; offset=0x01CC
+            mov     w0, #1
+
+G_M000_IG15:                ;; offset=0x01D0
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG16:                ;; offset=0x01EC
+            movz    x1, #0x4900
+            movk    x1, #0x466 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+            mov     x11, x0
+            b       G_M000_IG05
+
+G_M000_IG17:                ;; offset=0x0204
+            ldr     w0, [x19, #0x38]
+            sxtw    w21, w0
+            cmp     w3, w21
+            bne     G_M000_IG18
+            movz    x1, #0x6DA8
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            sxtw    w1, w0
+            mov     x0, x19
+            mov     w2, wzr
+            movz    x3, #0x5C38
+            movk    x3, #0x467 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            ldr     x14, [x19, #0x08]
+            ldr     x15, [x19, #0x30]
+            mov     w12, w26
+            mul     x15, x15, x12
+            lsr     x15, x15, #32
+            add     x15, x15, #1
+            ldr     w12, [x14, #0x08]
+            mov     wip0, w12
+            mul     x15, x15, xip0
+            lsr     x15, x15, #32
+            cmp     w15, w12
+            bhs     G_M000_IG27
+            add     x14, x14, #16
+            ubfiz   x15, x15, #2, #32
+            add     x28, x14, x15
+
+G_M000_IG18:                ;; offset=0x0284
+            add     w14, w21, #1
+            str     w14, [x19, #0x38]
+            ldr     x24, [x19, #0x10]
+            mov     w1, w21
+
+G_M000_IG19:                ;; offset=0x0294
+            ldr     w14, [x24, #0x08]
+            cmp     w1, w14
+            bhs     G_M000_IG27
+            ubfiz   x14, x1, #5, #32
+            add     x14, x14, #16
+            add     x0, x24, x14
+            str     w26, [x0, #0x08]
+            ldr     w14, [x28]
+            sub     w14, w14, #1
+            str     w14, [x0, #0x0C]
+            mov     x14, x0
+            mov     x15, x20
+            bl      CORINFO_HELP_ASSIGN_REF
+            add     x14, x0, #16
+            mov     x15, x22
+            bl      CORINFO_HELP_ASSIGN_REF
+            str     w23, [x0, #0x18]
+            add     w1, w1, #1
+            str     w1, [x28]
+            ldr     w1, [x19, #0x44]
+            add     w1, w1, #1
+            str     w1, [x19, #0x44]
+            cmp     w27, #100
+            bls     G_M000_IG14
+            mov     x1, x25
+            movz    x0, #0x3FA8
+            movk    x0, #964 LSL #16
+            movk    x0, #1 LSL #32
+            bl      CORINFO_HELP_ISINSTANCEOFCLASS
+            cbz     x0, G_M000_IG14
+            ldr     w1, [x24, #0x08]
+            mov     x0, x19
+            mov     w2, #1
+            movz    x3, #0x5C38
+            movk    x3, #0x467 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            b       G_M000_IG14
+
+G_M000_IG20:                ;; offset=0x0330
+            uxtb    w0, w21
+            cmp     w0, #2
+            beq     G_M000_IG23
+            mov     w0, wzr
+
+G_M000_IG21:                ;; offset=0x0340
+            ldp     x27, x28, [sp, #0x70]
+            ldp     x25, x26, [sp, #0x60]
+            ldp     x23, x24, [sp, #0x50]
+            ldp     x21, x22, [sp, #0x40]
+            ldp     x19, x20, [sp, #0x30]
+            ldp     fp, lr, [sp], #0x80
+            ret     lr
+
+G_M000_IG22:                ;; offset=0x035C
+            mov     w0, #4
+            movz    x1, #0x6D78
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            brk     #0
+
+G_M000_IG23:                ;; offset=0x0378
+            ldr     x0, [x19]
+            ldr     x1, [x0, #0x30]
+            ldr     x1, [x1]
+            ldr     x2, [x1, #0x38]
+            cbz     x2, G_M000_IG24
+            mov     x0, x2
+            b       G_M000_IG25
+
+G_M000_IG24:                ;; offset=0x0394
+            movz    x1, #0x4930
+            movk    x1, #0x466 LSL #16
+            movk    x1, #1 LSL #32
+            bl      CORINFO_HELP_RUNTIMEHANDLE_CLASS
+
+G_M000_IG25:                ;; offset=0x03A4
+            mov     x1, x20
+            movz    x2, #0x6D30
+            movk    x2, #961 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            brk     #0
+
+G_M000_IG26:                ;; offset=0x03C0
+            movz    x0, #0x6D90
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG27:                ;; offset=0x03D8
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 992
+
+; Assembly listing for method System.Collections.Generic.Dictionary`2[System.Text.Json.Serialization.Metadata.JsonTypeInfo+ParameterLookupKey,System.__Canon]:FindValue(System.Text.Json.Serialization.Metadata.JsonTypeInfo+ParameterLookupKey):byref:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; fully interruptible
+; No PGO data
+; 0 inlinees with PGO data; 15 single block inlinees; 4 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x60]!
+            stp     x19, x20, [sp, #0x10]
+            stp     x21, x22, [sp, #0x20]
+            stp     x23, x24, [sp, #0x30]
+            stp     x25, x26, [sp, #0x40]
+            stp     x27, x28, [sp, #0x50]
+            mov     fp, sp
+            mov     x20, x0
+            mov     x21, x1
+            mov     x19, x2
+
+G_M000_IG02:                ;; offset=0x0028
+            ldr     x1, [x20, #0x08]
+            cbz     x1, G_M000_IG07
+
+G_M000_IG03:                ;; offset=0x0030
+            ldr     x22, [x20, #0x18]
+            cbz     x22, G_M000_IG08
+            mov     x1, x21
+            mov     x2, x19
+            mov     x0, x22
+            movz    x23, #440
+            movk    x23, #682 LSL #16
+            movk    x23, #1 LSL #32
+            mov     x11, x23
+            ldr     xip0, [x11]
+            blr     xip0
+            sxtw    w24, w0
+            ldr     x1, [x20, #0x08]
+            ldr     x2, [x20, #0x30]
+            mov     w3, w24
+            mul     x2, x2, x3
+            lsr     x2, x2, #32
+            add     x2, x2, #1
+            ldr     w3, [x1, #0x08]
+            mov     w4, w3
+            mul     x2, x2, x4
+            lsr     x2, x2, #32
+            cmp     w2, w3
+            bhs     G_M000_IG16
+            add     x1, x1, #16
+            ubfiz   x2, x2, #2, #32
+            add     x1, x1, x2
+            ldr     w25, [x1]
+            ldr     x20, [x20, #0x10]
+            mov     w26, wzr
+            sub     w25, w25, #1
+            ldr     w27, [x20, #0x08]
+            cmp     w27, w25
+            bls     G_M000_IG07
+
+G_M000_IG04:                ;; offset=0x00B8
+            ubfiz   x1, x25, #5, #32
+            add     x1, x1, #16
+            add     x28, x20, x1
+            ldr     w1, [x28, #0x08]
+            cmp     w1, w24
+            bne     G_M000_IG06
+
+G_M000_IG05:                ;; offset=0x00D0
+            ldp     x1, x2, [x28, #0x10]
+            mov     x3, x21
+            mov     x4, x19
+            mov     x0, x22
+            add     x11, x23, #8
+            ldr     xip0, [x11]
+            blr     xip0
+            cbnz    w0, G_M000_IG12
+
+G_M000_IG06:                ;; offset=0x00F0
+            ldr     w25, [x28, #0x0C]
+            add     w26, w26, #1
+            cmp     w27, w26
+            blo     G_M000_IG15
+            cmp     w27, w25
+            bhi     G_M000_IG04
+
+G_M000_IG07:                ;; offset=0x0108
+            mov     x28, xzr
+            b       G_M000_IG12
+
+G_M000_IG08:                ;; offset=0x0110
+            cbz     x19, G_M000_IG14
+            ldr     w1, [x19, #0x08]
+            add     x0, x19, #12
+            movz    w2, #0x5989
+            movk    w2, #0x2180 LSL #16
+            movz    w3, #0xD1A3
+            movk    w3, #0xFAF0 LSL #16
+            movz    x4, #0xD7E8
+            movk    x4, #0x45F LSL #16
+            movk    x4, #1 LSL #32
+            ldr     x4, [x4]
+            blr     x4
+            sxtw    w22, w0
+            ldr     x0, [x20, #0x08]
+            ldr     x1, [x20, #0x30]
+            mov     w2, w22
+            mul     x1, x1, x2
+            lsr     x1, x1, #32
+            add     x1, x1, #1
+            ldr     w2, [x0, #0x08]
+            mov     w3, w2
+            mul     x1, x1, x3
+            lsr     x1, x1, #32
+            cmp     w1, w2
+            bhs     G_M000_IG16
+            add     x0, x0, #16
+            ubfiz   x1, x1, #2, #32
+            add     x0, x0, x1
+            ldr     w23, [x0]
+            ldr     x20, [x20, #0x10]
+            mov     w24, wzr
+            sub     w23, w23, #1
+            ldr     w25, [x20, #0x08]
+            cmp     w25, w23
+            bhi     G_M000_IG10
+            b       G_M000_IG07
+
+G_M000_IG09:                ;; offset=0x01A0
+            ldr     w23, [x28, #0x0C]
+            add     w24, w24, #1
+            cmp     w25, w24
+            blo     G_M000_IG15
+            cmp     w25, w23
+            bls     G_M000_IG07
+
+G_M000_IG10:                ;; offset=0x01B8
+            ubfiz   x0, x23, #5, #32
+            add     x0, x0, #16
+            add     x28, x20, x0
+            ldr     w0, [x28, #0x08]
+            cmp     w0, w22
+            bne     G_M000_IG09
+
+G_M000_IG11:                ;; offset=0x01D0
+            ldp     x0, x23, [x28, #0x10]
+            mov     x1, x21
+            movz    x2, #0xF960
+            movk    x2, #0x438 LSL #16
+            movk    x2, #1 LSL #32
+            ldr     x2, [x2]
+            blr     x2
+            cbz     w0, G_M000_IG09
+            mov     x0, x23
+            mov     x1, x19
+            mov     w2, #5
+            movz    x3, #0xD800
+            movk    x3, #0x45F LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            cbz     w0, G_M000_IG09
+
+G_M000_IG12:                ;; offset=0x0214
+            mov     x0, x28
+
+G_M000_IG13:                ;; offset=0x0218
+            ldp     x27, x28, [sp, #0x50]
+            ldp     x25, x26, [sp, #0x40]
+            ldp     x23, x24, [sp, #0x30]
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x60
+            ret     lr
+
+G_M000_IG14:                ;; offset=0x0234
+            mov     w0, wzr
+            movz    x1, #0x6D78
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            brk     #0
+
+G_M000_IG15:                ;; offset=0x0250
+            movz    x0, #0x6D90
+            movk    x0, #961 LSL #16
+            movk    x0, #1 LSL #32
+            ldr     x0, [x0]
+            blr     x0
+            brk     #0
+
+G_M000_IG16:                ;; offset=0x0268
+            bl      CORINFO_HELP_RNGCHKFAIL
+            brk     #0
+
+; Total bytes of code 624
+
+; Assembly listing for method System.String:Substring(int):System.String:this (FullOpts)
+; Emitting BLENDED_CODE for generic ARM64 on Apple
+; FullOpts code
+; optimized code
+; fp based frame
+; partially interruptible
+; No PGO data
+; 0 inlinees with PGO data; 1 single block inlinees; 1 inlinees without PGO data
+
+G_M000_IG01:                ;; offset=0x0000
+            stp     fp, lr, [sp, #-0x30]!
+            stp     x19, x20, [sp, #0x10]
+            stp     x21, x22, [sp, #0x20]
+            mov     fp, sp
+            mov     x20, x0
+            mov     w19, w1
+
+G_M000_IG02:                ;; offset=0x0018
+            cbz     w19, G_M000_IG07
+
+G_M000_IG03:                ;; offset=0x001C
+            ldr     w0, [x20, #0x08]
+            sub     w2, w0, w19
+            cbz     w2, G_M000_IG05
+            cmp     w0, w19
+            blo     G_M000_IG09
+            mov     w21, w2
+            sxtw    x0, w2
+            movz    x1, #0x68B0
+            movk    x1, #961 LSL #16
+            movk    x1, #1 LSL #32
+            ldr     x1, [x1]
+            blr     x1
+            mov     x22, x0
+            add     x1, x20, #12
+            ubfiz   x0, x19, #1, #32
+            add     x1, x1, x0
+            ldrsb   wzr, [x22]
+            add     x0, x22, #12
+            lsl     x2, x21, #1
+            movz    x3, #0x68C8
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            mov     x0, x22
+
+G_M000_IG04:                ;; offset=0x0080
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x30
+            ret     lr
+
+G_M000_IG05:                ;; offset=0x0090
+            movz    x0, #8
+            movk    x0, #517 LSL #16
+            movk    x0, #1 LSL #32
+
+G_M000_IG06:                ;; offset=0x009C
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x30
+            ret     lr
+
+G_M000_IG07:                ;; offset=0x00AC
+            mov     x0, x20
+
+G_M000_IG08:                ;; offset=0x00B0
+            ldp     x21, x22, [sp, #0x20]
+            ldp     x19, x20, [sp, #0x10]
+            ldp     fp, lr, [sp], #0x30
+            ret     lr
+
+G_M000_IG09:                ;; offset=0x00C0
+            mov     x0, x20
+            mov     w1, w19
+            movz    x3, #0xE718
+            movk    x3, #961 LSL #16
+            movk    x3, #1 LSL #32
+            ldr     x3, [x3]
+            blr     x3
+            brk     #0
+
+; Total bytes of code 224

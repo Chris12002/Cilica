@@ -1,0 +1,19 @@
+{
+  "commands": [
+    [
+      "/tmp/cilica-il2cpp-inspection-tools/ilspycmd",
+      "-t",
+      "System.String",
+      "/Users/christian/.dotnet/shared/Microsoft.NETCore.App/10.0.11/System.Private.CoreLib.dll"
+    ],
+    [
+      "/tmp/cilica-il2cpp-inspection-tools/ilspycmd",
+      "-t",
+      "System.Collections.Generic.Dictionary`2",
+      "/Users/christian/.dotnet/shared/Microsoft.NETCore.App/10.0.11/System.Private.CoreLib.dll"
+    ]
+  ],
+  "runtime_corelib_sha256": "9ed74c2e2efeee87f1f2d7ffe1736b7e9164ce248516ea39402a725eedc87af6",
+  "tool": "ILSpy 9.1.0.7988",
+  "note": "Static decompilation of the actually installed runtime; not a matching source checkout."
+}

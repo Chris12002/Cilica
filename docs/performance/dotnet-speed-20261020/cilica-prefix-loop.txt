@@ -1,0 +1,150 @@
+10003df44:     	ldr	w9, [x19, #0x26c]
+10003df48:     	str	w9, [x19, #0x2a8]
+10003df4c:     	ldr	w10, [x20, #0x48]
+10003df50:     	cbnz	w10, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003df54:     	cmp	w8, w9
+10003df58:     	b.ge	0x10003e700 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xbd0>
+10003df5c:     	mov	w8, #0x3                ; =3
+10003df60:     	str	w8, [x19, #0x8c8]
+10003df64:     	ldr	w8, [x19, #0x270]
+10003df68:     	str	w8, [x19, #0x2ac]
+10003df6c:     	ldr	w9, [x19, #0x274]
+10003df70:     	str	w9, [x19, #0x2b0]
+10003df74:     	ldr	w10, [x20, #0x48]
+10003df78:     	cbnz	w10, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003df7c:     	cmp	w8, w9
+10003df80:     	b.ge	0x10003e700 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xbd0>
+10003df84:     	mov	w9, #0x4                ; =4
+10003df88:     	str	w9, [x19, #0x8c8]
+10003df8c:     	ldr	x8, [x19, #0x70]
+10003df90:     	str	x8, [x19, #0xa8]
+10003df94:     	cbz	x8, 0x10003eee0 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x13b0>
+10003df98:     	str	x8, [x19, #0x480]
+10003df9c:     	add	x1, x19, #0x478
+10003dfa0:     	mov	x0, x20
+10003dfa4:     	bl	0x100011850 <DiffPlex.Model.ModificationData.get_HashedPieces[0600004a](Context&, LocationArgument const*)>
+10003dfa8:     	str	x0, [x19, #0xb0]
+10003dfac:     	ldr	w8, [x20, #0x48]
+10003dfb0:     	cbnz	w8, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003dfb4:     	ldr	w2, [x19, #0x268]
+10003dfb8:     	str	w2, [x19, #0x2b4]
+10003dfbc:     	ldr	w8, [x20, #0x48]
+10003dfc0:     	cbnz	w8, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003dfc4:     	mov	x1, x0
+10003dfc8:     	add	x8, sp, #0x18
+10003dfcc:     	mov	x0, x20
+10003dfd0:     	bl	0x10003fdb8 <array_location(Context&, Object*, Descriptor const*, unsigned int, unsigned long, bool)>
+10003dfd4:     	ldur	q0, [sp, #0x18]
+10003dfd8:     	str	q0, [x27]
+10003dfdc:     	ldur	q0, [sp, #0x28]
+10003dfe0:     	str	q0, [x27, #0x10]
+10003dfe4:     	ldur	q0, [sp, #0x38]
+10003dfe8:     	str	q0, [x27, #0x20]
+10003dfec:     	ldur	q0, [sp, #0x48]
+10003dff0:     	str	q0, [x27, #0x30]
+10003dff4:     	ldr	w8, [x27]
+10003dff8:     	cbnz	w8, 0x10003eec4 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x1394>
+10003dffc:     	ldp	q0, q1, [x26]
+10003e000:     	stp	q0, q1, [x22]
+10003e004:     	ldr	q0, [x26, #0x20]
+10003e008:     	str	q0, [x22, #0x20]
+10003e00c:     	ldr	w8, [x26, #0x30]
+10003e010:     	str	w8, [x22, #0x30]
+10003e014:     	ldr	x8, [x19, #0x778]
+10003e018:     	str	x8, [x19, #0xb8]
+10003e01c:     	ldr	w8, [x20, #0x48]
+10003e020:     	cbnz	w8, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003e024:     	ldr	x8, [x19, #0x78]
+10003e028:     	str	x8, [x19, #0xc0]
+10003e02c:     	cbz	x8, 0x10003ef08 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x13d8>
+10003e030:     	str	x8, [x19, #0x480]
+10003e034:     	add	x1, x19, #0x478
+10003e038:     	mov	x0, x20
+10003e03c:     	bl	0x100011850 <DiffPlex.Model.ModificationData.get_HashedPieces[0600004a](Context&, LocationArgument const*)>
+10003e040:     	str	x0, [x19, #0xc8]
+10003e044:     	ldr	w8, [x20, #0x48]
+10003e048:     	cbnz	w8, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003e04c:     	ldr	w8, [x19, #0x270]
+10003e050:     	str	w8, [x19, #0x2b8]
+10003e054:     	ldr	w9, [x20, #0x48]
+10003e058:     	cbnz	w9, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003e05c:     	cbz	x0, 0x10003ef10 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x13e0>
+10003e060:     	ldr	x10, [x0]
+10003e064:     	adrp	x9, 0x10004d000 <t_99981b6fa6a9076564586ac4d8105e44de387e998263feb0dc716fcafda87eb4_02000099_descriptor+0x58>
+10003e068:     	add	x9, x9, #0x728
+10003e06c:     	cmp	x10, x9
+10003e070:     	b.ne	0x10003ef1c <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x13ec>
+10003e074:     	ldr	w9, [x0, #0x38]
+10003e078:     	cmp	w8, w9
+10003e07c:     	b.hs	0x10003ef48 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x1418>
+10003e080:     	ldr	x9, [x0, #0x40]
+10003e084:     	ldr	w2, [x9, x8, lsl #2]
+10003e088:     	str	w2, [x19, #0x2bc]
+10003e08c:     	ldr	w8, [x20, #0x48]
+10003e090:     	cbnz	w8, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003e094:     	mov	x0, x20
+10003e098:     	mov	x1, x22
+10003e09c:     	bl	0x10003ff98 <System.Int32.Equals[060002a7]_typed(Context&, Location const&, unsigned int)>
+10003e0a0:     	str	w0, [x19, #0x2c0]
+10003e0a4:     	ldr	w8, [x20, #0x48]
+10003e0a8:     	cbnz	w8, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003e0ac:     	cbz	w0, 0x10003e700 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xbd0>
+10003e0b0:     	mov	w9, #0x1                ; =1
+10003e0b4:     	str	w9, [x19, #0x8c8]
+10003e0b8:     	ldr	w8, [x19, #0x268]
+10003e0bc:     	str	w8, [x19, #0x28c]
+10003e0c0:     	str	w9, [x19, #0x290]
+10003e0c4:     	ldr	w9, [x20, #0x48]
+10003e0c8:     	cbnz	w9, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003e0cc:     	add	w24, w8, #0x1
+10003e0d0:     	str	w24, [x19, #0x294]
+10003e0d4:     	ldr	w8, [x20, #0x48]
+10003e0d8:     	cbnz	w8, 0x10003de58 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x328>
+10003e0dc:     	ldr	x8, [x20]
+10003e0e0:     	ldrb	w8, [x8, #0x10]
+10003e0e4:     	tbnz	w8, #0x0, 0x10003ef54 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x1424>
+10003e0e8:     	ldr	x8, [x19, #0x858]
+10003e0ec:     	cbz	x8, 0x10003e6b8 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xb88>
+10003e0f0:     	ldr	x9, [x20, #0x20]
+10003e0f4:     	cbz	x9, 0x10003e110 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x5e0>
+10003e0f8:     	and	x10, x8, #0x3f
+10003e0fc:     	ldr	x9, [x9, x10, lsl #3]
+10003e100:     	cbz	x9, 0x10003e110 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x5e0>
+10003e104:     	ldr	x10, [x9, #0x38]
+10003e108:     	cmp	x10, x8
+10003e10c:     	b.eq	0x10003e140 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x610>
+10003e110:     	ldr	x10, [x20, #0x18]
+10003e114:     	cbz	x10, 0x10003e6b8 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xb88>
+10003e118:     	mov	x9, #0x0                ; =0
+10003e11c:     	mov	w11, #0x41              ; =65
+10003e120:     	subs	x11, x11, #0x1
+10003e124:     	b.eq	0x10003e6b8 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xb88>
+10003e128:     	ldr	x12, [x10, #0x38]
+10003e12c:     	cmp	x12, x8
+10003e130:     	csel	x9, x10, x9, eq
+10003e134:     	ldr	x10, [x10]
+10003e138:     	cbnz	x10, 0x10003e120 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0x5f0>
+10003e13c:     	cbz	x9, 0x10003e6b8 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xb88>
+10003e140:     	ldr	x10, [x9, #0x8]
+10003e144:     	cbz	x10, 0x10003e6b8 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xb88>
+10003e148:     	ldr	x11, [x10, #0x8]
+10003e14c:     	ldr	x12, [x9, #0x10]
+10003e150:     	cmp	x11, x12
+10003e154:     	b.ne	0x10003e6b8 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xb88>
+10003e158:     	ldr	x10, [x10, #0x10]
+10003e15c:     	ldr	x11, [x9, #0x18]
+10003e160:     	cmp	x10, x11
+10003e164:     	b.ne	0x10003e6b8 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xb88>
+10003e168:     	ldr	x9, [x9, #0x30]
+10003e16c:     	cbz	x9, 0x10003e6b8 <DiffPlex.Differ.BuildModificationData[06000010](Context&, LocationArgument const*)+0xb88>
+10003e170:     	str	wzr, [x19, #0x860]
+10003e174:     	str	xzr, [x19, #0x868]
+10003e178:     	str	x8, [x19, #0x870]
+10003e17c:     	ldr	x8, [sp, #0x10]
+10003e180:     	stp	xzr, xzr, [x8]
+10003e184:     	str	w28, [x19, #0x888]
+10003e188:     	strb	wzr, [x19, #0x88c]
+10003e18c:     	str	xzr, [x19, #0x890]
+10003e190:     	str	wzr, [x19, #0x898]
+10003e194:     	ldp	q0, q1, [x26]
+10003e198:     	stp	q0, q1, [x21]

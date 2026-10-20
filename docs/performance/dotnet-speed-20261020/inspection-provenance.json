@@ -1,0 +1,14 @@
+{
+  "jit_listing_whitespace": "Committed text removes trailing whitespace; raw copies retained in artifacts.",
+  "files": {
+    "artifacts/dotnet-speed-20261020/jit-0.txt": "b9dc9472c0402cb8cc656801b5813fe31b785ac98243b6160a96e39a8a189758",
+    "artifacts/dotnet-speed-20261020/jit-1.txt": "0a6eec673920d243ed4071c4ed138a6d2637477072820d1413c6de835bdeae84",
+    "artifacts/dotnet-speed-20261020/cilica-full-asm.txt": "90294dd8cdaa90cf487db5d2252b52f914f5742e7f78ebeb6883ea7b504dfefe",
+    "artifacts/dotnet-speed-20261020/runtime-string.cs": "9c5640a1e916ec6d4eee3942b7b5afe00ed5aa7d41c47b879d3d3c2b8593f2ab",
+    "artifacts/dotnet-speed-20261020/runtime-dictionary.cs": "d4912c85cbf40f893ca6b323746c47ca3b2a7a2da83bfb60290902b569b5fdc9",
+    "artifacts/section-timing-20261020/plain": "974c62df0369ae825d8b6889045b4d84e2eeb8fccc4de3d67ad1eec04839bc66",
+    "artifacts/section-timing-20261020/plain.cpp": "1451904074b064cb4d28d9b7d3ac480d15b380fd55976132f171b1319b1c508b"
+  },
+  "runtime_source_reference": "library/provenance.json pins v10.0.11 at 79d0c463f1b55624c874a11585f7e47731e8d675; installed runtime reports e2f47b0110. Actual installed CoreLib decompilation and JIT dumps are used as stronger evidence.",
+  "abbreviation": "Readable native excerpts replace the closure namespace and hash/token method names with metadata-resolved names plus original tokens. Unmodified objdump output is retained."
+}
