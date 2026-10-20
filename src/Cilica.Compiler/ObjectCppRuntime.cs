@@ -57,9 +57,13 @@ internal static class ObjectCppRuntime
 #if defined(__OPTIMIZE__)
 #define CILICA_PRIMITIVE_READ [[maybe_unused, gnu::always_inline]]
 #define CILICA_ARRAY_STORAGE_CHECK [[maybe_unused, gnu::always_inline]]
+#define CILICA_ALLOCATION_HELPER [[maybe_unused, gnu::always_inline]]
+#define CILICA_ALLOCATION_SAFEPOINT [[maybe_unused, gnu::always_inline]]
 #else
 #define CILICA_PRIMITIVE_READ [[maybe_unused, gnu::noinline]]
 #define CILICA_ARRAY_STORAGE_CHECK [[maybe_unused]]
+#define CILICA_ALLOCATION_HELPER [[maybe_unused, gnu::noinline]]
+#define CILICA_ALLOCATION_SAFEPOINT [[maybe_unused]]
 #endif
 struct Object;
 struct Descriptor;
@@ -407,7 +411,7 @@ struct RootScope {
 // Compiler-published roots remain registered in every build. A full ownership
 // scan diagnoses runtime corruption; collection validates its own root walk.
 // Private observers retain validation before delivery, even in normal builds.
-[[maybe_unused]] static bool allocation_safepoint(Context& context) noexcept {
+CILICA_ALLOCATION_SAFEPOINT static bool allocation_safepoint(Context& context) noexcept {
     if ((CILICA_VERIFY_ALLOCATION_ROOTS || context.observe != nullptr) && !valid_roots(context)) {
         context.pending = 6u; return false;
     }
@@ -415,10 +419,10 @@ struct RootScope {
     return true;
 }
 [[maybe_unused]] static bool collect_for_allocation(Context&, bool&) noexcept;
-[[maybe_unused]] static bool allocation_room(Context&, std::size_t, bool&) noexcept;
+CILICA_ALLOCATION_HELPER static bool allocation_room(Context&, std::size_t, bool&) noexcept;
 // Buffers are filled before publication and exposed only through const units.
 // Callers validate the owned, exact String descriptors before reading operands.
-[[maybe_unused, gnu::noinline]] static Object* allocate_string(Context& context, const Descriptor& descriptor,
+CILICA_ALLOCATION_HELPER static Object* allocate_string(Context& context, const Descriptor& descriptor,
     const std::uint16_t* left, std::uint32_t first, const std::uint16_t* right, std::uint32_t second,
     const std::uint16_t* extra = nullptr, std::uint32_t third = 0, const std::uint16_t* tail = nullptr, std::uint32_t fourth = 0, const std::uint32_t* code_units = nullptr) noexcept {
     if (!allocation_safepoint(context)) return nullptr;
@@ -488,7 +492,7 @@ CILICA_PRIMITIVE_READ static std::uint32_t string_code_unit(Object* value, std::
     return allocate_string(context, descriptor, nullptr, array->length, nullptr, 0, nullptr, 0, nullptr, 0, array->integers);
 }
 // The UTF-16 value is native scalar storage and remains valid across collection.
-[[maybe_unused, gnu::noinline]] static Object* string_from_character(Context& context, const Descriptor& descriptor, std::uint32_t character) noexcept {
+CILICA_ALLOCATION_HELPER static Object* string_from_character(Context& context, const Descriptor& descriptor, std::uint32_t character) noexcept {
     const auto unit = static_cast<std::uint16_t>(character);
     return allocate_string(context, descriptor, &unit, 1, nullptr, 0);
 }

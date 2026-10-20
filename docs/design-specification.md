@@ -423,6 +423,10 @@ retaining all size/overflow/buffer checks and its O0 compiler-default policy.
 Typed entry still rejects invalid storage before replay; authenticating callers
 and diagnostic kernel checks remain. See
 [ADR 0218](decisions/0218-array-storage-check-inlining.md).
+Native v112 exposes the safepoint, allocation-room and character/string allocation
+helpers to optimized inlining. All quota, observer, collection and root checks
+remain; O0 helper policies and shared linkage are preserved. See
+[ADR 0219](decisions/0219-allocation-helper-inlining.md).
 Native v103 carries the validated IR's declared reference types through that
 closed kernel graph. Entry wrappers retain reference/borrow checks and validate
 incoming array storage. Normal kernels trust declared field/array result types

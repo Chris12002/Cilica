@@ -1084,3 +1084,7 @@ Native v111 requests optimized inlining of valid_array_storage, retaining its
 complete size/length/stride/buffer validation and O0 default policy. Authenticate
 references/descriptors before header access; reject malformed typed-entry storage
 before framed replay. Preserve diagnostic kernel checks. See ADR 0218.
+
+Native v112 inlines four allocation helpers in optimized builds only. Preserve
+all safepoint/root/observer/quota checks, pool fallback and O0 helper policies.
+Attribute macros must not add linkage keywords to the shared header. See ADR 0219.
