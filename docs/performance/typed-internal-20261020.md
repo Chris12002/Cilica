@@ -120,3 +120,6 @@ Review covered the structural/transitive effect proof, fault replay, alias and
 root lifetimes, signed arithmetic, block copies, native stack/call-depth limits,
 module declarations and exact measurement identity. No outstanding correctness
 finding remains in this bounded slice. No hosted jobs, pushes or services ran.
+
+Follow-up: [current v97 residual profile](v97-profile-20261020.md) measures the
+remaining descriptor, borrow and dictionary-wrapper costs after these changes.

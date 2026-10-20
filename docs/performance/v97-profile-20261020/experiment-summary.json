@@ -1,0 +1,51 @@
+{
+  "baseline": {
+    "median_ns": 140132.6484375,
+    "min_ns": 137634.9296875,
+    "max_ns": 147982.09765625,
+    "samples": 21,
+    "speedup": 1.0
+  },
+  "types": {
+    "median_ns": 124978.515625,
+    "min_ns": 119351.07421875,
+    "max_ns": 214669.43359375,
+    "samples": 21,
+    "speedup": 1.1212539030145807
+  },
+  "native_frames": {
+    "median_ns": 130659.50390625,
+    "min_ns": 126086.09765625,
+    "max_ns": 135497.71875,
+    "samples": 21,
+    "speedup": 1.0725025294604449
+  },
+  "types_native_frames": {
+    "median_ns": 114163.25,
+    "min_ns": 112044.43359375,
+    "max_ns": 115793.78125,
+    "samples": 21,
+    "speedup": 1.2274759910698056
+  },
+  "all_inline": {
+    "median_ns": 131054.52734375,
+    "min_ns": 128309.2421875,
+    "max_ns": 134303.7109375,
+    "samples": 21,
+    "speedup": 1.069269801492157
+  },
+  "types_inline": {
+    "median_ns": 116635.25390625,
+    "min_ns": 114199.21875,
+    "max_ns": 121700.35546875,
+    "samples": 21,
+    "speedup": 1.201460482523894
+  },
+  "cache_check_ablation": {
+    "median_ns": 136998.86328125,
+    "min_ns": 133209.1484375,
+    "max_ns": 143756.5078125,
+    "samples": 21,
+    "speedup": 1.0228745340011802
+  }
+}

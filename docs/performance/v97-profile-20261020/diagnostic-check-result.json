@@ -1,0 +1,24 @@
+{
+  "variant": "types_native_frames",
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O1",
+    "-g",
+    "-DCILICA_DIRECT_CONTROL_FLOW=1",
+    "-DCILICA_TYPED_INTERNALS=1",
+    "-DCILICA_VERIFY_INTERNAL_REFERENCES=1",
+    "-DCILICA_VERIFY_BORROW_LIFETIMES=1",
+    "-fno-exceptions",
+    "-fno-rtti",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/Users/christian/Cilica/artifacts/v97-profile-20261020/diagnostic-check.cpp",
+    "-o",
+    "/Users/christian/Cilica/artifacts/v97-profile-20261020/diagnostic-check"
+  ],
+  "forced_gc": true,
+  "all_523_values_match": true,
+  "sanitizer_diagnostics": "",
+  "scope": "DiffPlex only; no stack-budget/recursion or general semantics acceptance"
+}

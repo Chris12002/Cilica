@@ -1,0 +1,27 @@
+{
+  "scope": "256 diffs after 8 warmup diffs; not timed performance evidence",
+  "iterations": 256,
+  "totals": {
+    "steps": 0,
+    "frames": 798721,
+    "frame_bytes": 495514336,
+    "type_calls": 4774896,
+    "type_comparisons": 22897910,
+    "active_visits": 1764352,
+    "borrow_visits": 16128,
+    "arrays": 4352,
+    "strings": 65536
+  },
+  "per_diff": {
+    "steps": 0.0,
+    "frames": 3120.00390625,
+    "frame_bytes": 1935602.875,
+    "type_calls": 18651.9375,
+    "type_comparisons": 89444.9609375,
+    "active_visits": 6892.0,
+    "borrow_visits": 63.0,
+    "arrays": 17.0,
+    "strings": 256.0
+  },
+  "note": "frames are reused arena reservations, not live heap allocation; steps counter does not count native direct-flow blocks"
+}
