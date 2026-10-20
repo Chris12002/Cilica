@@ -1,0 +1,130 @@
+{
+  "compiler_revision": "813450f8164bb3b8ca1128b4960b69e6b806bb6c",
+  "commands": [
+    [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-collector-20261020/v115",
+      "measure",
+      "0",
+      "1024"
+    ],
+    [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/splitcache",
+      "measure",
+      "0",
+      "1024"
+    ],
+    [
+      "open",
+      "-W",
+      "-n",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Build/DiffPlex.app",
+      "--args",
+      "-batchmode",
+      "-nographics",
+      "-logFile",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/final-unity-0.player.log",
+      "--cilica-mode",
+      "steady",
+      "--cilica-iterations",
+      "4096",
+      "--cilica-result",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/final-unity-0.json"
+    ],
+    [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "measure",
+      "0",
+      "16384"
+    ],
+    [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-collector-20261020/v115",
+      "measure",
+      "0",
+      "1024"
+    ],
+    [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "measure",
+      "0",
+      "16384"
+    ],
+    [
+      "open",
+      "-W",
+      "-n",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Build/DiffPlex.app",
+      "--args",
+      "-batchmode",
+      "-nographics",
+      "-logFile",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/final-unity-1.player.log",
+      "--cilica-mode",
+      "steady",
+      "--cilica-iterations",
+      "4096",
+      "--cilica-result",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/final-unity-1.json"
+    ],
+    [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/splitcache",
+      "measure",
+      "0",
+      "1024"
+    ],
+    [
+      "open",
+      "-W",
+      "-n",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Build/DiffPlex.app",
+      "--args",
+      "-batchmode",
+      "-nographics",
+      "-logFile",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/final-unity-2.player.log",
+      "--cilica-mode",
+      "steady",
+      "--cilica-iterations",
+      "4096",
+      "--cilica-result",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/final-unity-2.json"
+    ],
+    [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "measure",
+      "0",
+      "16384"
+    ],
+    [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-collector-20261020/v115",
+      "measure",
+      "0",
+      "1024"
+    ],
+    [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/splitcache",
+      "measure",
+      "0",
+      "1024"
+    ]
+  ],
+  "files": {
+    "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-collector-20261020/v115.cpp": "2432fd151dd6c3f2e8479a92fe88e1557d25083702d48bb834b0d7c91e228ae3",
+    "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-collector-20261020/v115": "9eb394be4c3b4a7f37ea9bf8c4ad2fff9720780b52062874666eeed88e8c65b9",
+    "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/splitcache.cpp": "1451904074b064cb4d28d9b7d3ac480d15b380fd55976132f171b1319b1c508b",
+    "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/splitcache": "5d33b5b7527103bc40fe00d856419a065dfdf0921dee1f6a6e8728d111ca5c6b",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Build/DiffPlex.app.settings.json": "f52fd68ff265fbafb89e0583950e87433371a87bcccd1e2b160e738ee9395f13",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Build/DiffPlex_BackUpThisFolder_ButDontShipItWithYourGame/Managed/DiffPlex.Benchmark.dll": "04f32322af7e34087220aaa7f8cc8709a16cdada93be786b920eec2c55abf0ed",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Build/DiffPlex.app/Contents/MacOS/Cilica DiffPlex comparison": "da1beb874c248f20d09b6513d366568a917e038a1caa13972842af05c2cf162d",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Build/DiffPlex.app/Contents/Frameworks/GameAssembly.dylib": "cde0669b9e2d859c6f4bc4129e08cbabe021014b8a091ee60e3f8a14d368083c"
+  },
+  "dotnet_tiered_compilation": 0,
+  "dotnet_ready_to_run": 0,
+  "unity_rebuilt": false,
+  "unity_retimed": true
+}

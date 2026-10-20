@@ -4282,6 +4282,16 @@ Frozen discovery next reaches invariant Int64.TryParse with NumberStyles.None in
 RecordAnswers at 990,636 metadata units. Full engine/fingerprint/replay execution
 remains unfinished.
 
+The admitted String.Split(String[],StringSplitOptions) implementation now caches
+up to 64 separator positions and widths in a lazily allocated managed array,
+using at most 512 payload bytes plus one array header. Output construction uses
+that prefix and rescans only any uncached suffix. No-match searches allocate no
+cache; input/result bounds, precedence, trim/empty behavior and identities remain.
+The buffer is rooted and charged to existing heap quotas; tight heaps may fail
+earlier, with normal unwinding and recovery. The char overload, native v115,
+grants and profiles are unchanged. See [ADR 0223](decisions/0223-bounded-separator-cache.md)
+and [the accepted profiling/measurement record](performance/splitcache-20261020.md).
+
 ### Invariant Int64 parsing (AC5a.8)
 
 The exact Int64.TryParse(String,NumberStyles,IFormatProvider,out Int64) declaration

@@ -118,6 +118,54 @@ namespace Cilica.Fixtures.Execution
         public static StringSplitOptions Options(ref int order, int flags)
         { order = order * 10 + 3; return (StringSplitOptions)flags; }
 
+        public static string CacheText(int count, int mode)
+        {
+            string source = "";
+            for (int i = 0; i < count; ++i)
+            {
+                source = source + (mode == 2 || i % 5 == 0 ? " \t" : "x\ud800");
+                source = source + (mode == 3 ? " \t" : i % 3 == 0 ? "::" : i % 3 == 1 ? ":" : "\r\n");
+            }
+            return source + (mode == 2 ? " \t" : " tail ");
+        }
+        public static int SplitHash(string[] result, string source)
+        {
+            int hash = result.Length * 17 + (ReferenceEquals(result, Array.Empty<string>()) ? 1 : 2);
+            for (int i = 0; i < result.Length; ++i)
+            {
+                string value = result[i];
+                hash = unchecked(hash * 31 + value.Length);
+                hash = unchecked(hash * 31 + (ReferenceEquals(value, source) ? 3 : 5));
+                hash = unchecked(hash * 31 + (ReferenceEquals(value, string.Empty) ? 7 : 11));
+                for (int j = 0; j < value.Length; ++j) hash = unchecked(hash * 31 + value[j]);
+            }
+            return hash;
+        }
+        public static int CacheBoundary(int count, int packed)
+        {
+            int mode = packed >> 2;
+            string source = CacheText(count, mode);
+            string[] separators = mode == 3 ? null : mode == 1
+                ? new string[] { null, "", ":", "::", "\r\n" }
+                : new string[] { null, "", "::", ":", "\r\n" };
+            var result = source.Split(separators, (StringSplitOptions)(packed & 3));
+            var noise = new string[] { source };
+            return SplitHash(result, noise[0]);
+        }
+        public static string CachedText;
+        public static string[] CachedSeparators;
+        public static int CacheQuota(int phase, int unused)
+        {
+            if (phase == 0)
+            {
+                CachedText = CacheText(65, 0);
+                CachedSeparators = new[] { "::", ":", "\r\n" };
+                return 1;
+            }
+            if (phase < 0) { CachedText = null; CachedSeparators = null; return 0; }
+            return SplitHash(CachedText.Split(CachedSeparators, StringSplitOptions.None), CachedText);
+        }
+
         public static int UnsupportedCount(int a, int b) => "a::b".Split(new[] { "::" }, a, StringSplitOptions.None).Length;
         public static int UnsupportedSingle(int a, int b) => "a::b".Split("::", StringSplitOptions.None).Length;
     }

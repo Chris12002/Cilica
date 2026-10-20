@@ -1103,3 +1103,10 @@ new and reused headers. Successful sweep clears survivors and disarms its extra
 cleanup walk; every failed/report-only/stopped pass still cleans up. Preserve
 full inventory validation, index teardown, checked public handles and callback
 non-mutation. New allocation/marking exits must preserve this invariant. See ADR 0222.
+
+String-array Split caches at most 64 position/width pairs in one lazily allocated
+managed Int32 array (512 payload bytes plus its header). Preserve the exact cached
+prefix/suffix transition, separator precedence, whitespace/trim/empty identities,
+rooting and quota accounting. No-match input has no cache allocation; longer inputs
+rescan only the uncached suffix. Char Split is unchanged. Native v115 and grants
+are unchanged; see ADR 0223 and docs/performance/splitcache-20261020.md.

@@ -44,11 +44,21 @@ namespace System
             int flags = (int)options;
             if ((flags & ~3) != 0) throw new ArgumentException("Value of flags is invalid.", "options");
             int length = Length, start = 0, count = 0, matches = 0;
+            // Bound managed scratch independently of input length. Preserve the
+            // allocation-free search when no separator matches.
+            int[] positions = null;
+            int saved = 0;
             for (int end = 0; end < length;)
             {
                 int width = MatchStringSeparator(separator, end);
                 if (width == 0) { ++end; continue; }
                 ++matches;
+                if (positions == null) positions = new int[(length < 64 ? length : 64) * 2];
+                if (saved < positions.Length)
+                {
+                    positions[saved++] = end;
+                    positions[saved++] = width;
+                }
                 if (SplitEntryPresent(start, end, flags)) ++count;
                 start = end + width;
                 end = start;
@@ -59,17 +69,26 @@ namespace System
                 if (count == 0) return Array.Empty<string>();
                 return new string[] { SplitEntry(0, length, flags) };
             }
-            // Rescan within the single-threaded execution profile. There are no
-            // callbacks between scans; neither text nor separator entries change.
             var result = new string[count];
             start = 0; int output = 0;
-            for (int end = 0; end < length;)
+            for (int entry = 0; entry < saved; entry += 2)
             {
-                int width = MatchStringSeparator(separator, end);
-                if (width == 0) { ++end; continue; }
+                int end = positions[entry];
                 if (SplitEntryPresent(start, end, flags)) result[output++] = SplitEntry(start, end, flags);
-                start = end + width;
-                end = start;
+                start = end + positions[entry + 1];
+            }
+            // Rescan only the uncached suffix. The single-threaded profile has
+            // no managed callbacks that can mutate separator entries mid-call.
+            if (matches > saved / 2)
+            {
+                for (int end = start; end < length;)
+                {
+                    int width = MatchStringSeparator(separator, end);
+                    if (width == 0) { ++end; continue; }
+                    if (SplitEntryPresent(start, end, flags)) result[output++] = SplitEntry(start, end, flags);
+                    start = end + width;
+                    end = start;
+                }
             }
             if (SplitEntryPresent(start, length, flags)) result[output] = SplitEntry(start, length, flags);
             return result;

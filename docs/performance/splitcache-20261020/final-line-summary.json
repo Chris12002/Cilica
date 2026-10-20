@@ -1,0 +1,61 @@
+{
+  "commands": {
+    "baseline": [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-collector-20261020/v115",
+      "measure",
+      "1",
+      "1024"
+    ],
+    "splitcache": [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/splitcache-20261020/splitcache",
+      "measure",
+      "1",
+      "1024"
+    ],
+    "dotnet": [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "measure",
+      "1",
+      "8192"
+    ]
+  },
+  "results": {
+    "baseline": {
+      "median_ns": 65973.5107421875,
+      "min_ns": 65293.3759765625,
+      "max_ns": 69677.734375,
+      "samples": 21,
+      "process_medians": [
+        65940.591796875,
+        65869.7099609375,
+        66255.859375
+      ],
+      "reduction_percent": 0.0
+    },
+    "splitcache": {
+      "median_ns": 55508.8701171875,
+      "min_ns": 53507.12109375,
+      "max_ns": 58708.2109375,
+      "samples": 21,
+      "process_medians": [
+        55493.5302734375,
+        54518.798828125,
+        57864.9091796875
+      ],
+      "reduction_percent": 15.861882302874431
+    },
+    "dotnet": {
+      "median_ns": 6993.32275390625,
+      "min_ns": 6886.48681640625,
+      "max_ns": 7228.21044921875,
+      "samples": 21,
+      "process_medians": [
+        7052.38037109375,
+        6993.32275390625,
+        6898.9013671875
+      ],
+      "reduction_percent": 89.39980201866945
+    }
+  }
+}

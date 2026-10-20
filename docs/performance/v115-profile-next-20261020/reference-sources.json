@@ -1,0 +1,113 @@
+{
+  "files": {
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/run-20261008T141054068341Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/DiffPlex.Benchmark.cpp": {
+      "sha256": "48042b2faab63fd80d29282aceb3a69b476dbf66c05c07eba867456f918b28da"
+    },
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/run-20261008T141054068341Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__3.cpp": {
+      "sha256": "e0d1750f165f2694b395223a8618206ae2d751c2b1538807fe1105cb4420783b"
+    },
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/run-20261008T141054068341Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib.cpp": {
+      "sha256": "6da2f3624d4ce5a413b58e674671e9f7c46167b1fb3ed5afdab8a28280343a1e"
+    },
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/run-20261008T141054068341Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/mscorlib__1.cpp": {
+      "sha256": "5184de3111e9d1b37bf1d930c912994beda0b5f769ae7b1152e6704d3c91838e"
+    },
+    "/tmp/cilica-roslyn-inspection-20261019/src/Compilers/CSharp/Portable/CodeGen/EmitAddress.cs": {
+      "sha256": "8e9166c352d76ca7fe76a7c7b20e9a144b9ac2cf7fd4cc610eb34575ffaaa42e"
+    },
+    "/tmp/cilica-roslyn-inspection-20261019/src/Compilers/CSharp/Portable/CodeGen/EmitExpression.cs": {
+      "sha256": "15db5c6bdad280115ab5e88226d894b7d975cf164cd5d53594ca9bb1df39c2a1"
+    },
+    "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/codegen/il2cpp-codegen.h": {
+      "sha256": "23f523d44670bc1de773110c40bbbe75d247dffdc0b1fc49ff1c5a418cb7296f"
+    },
+    "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/vm/ClassInlines.h": {
+      "sha256": "fac2c6b04451ee08f364b1989d06e5f73a20d93bf4dc6a000c7ffc2be7bce018"
+    },
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs": {
+      "sha256": "2def38d1ef1896bfc830e4dd3c369cad11b0bedfafaef9b3c45dbe202901fefa"
+    },
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.Comparison.cs": {
+      "sha256": "332e2a21449ad65f2368d672a116246eadf3842dfcb45f35a713d912c51731c5"
+    },
+    "library/Cilica.Core/Dictionary.cs": {
+      "sha256": "7ff34a584f8c6e8a0fcc4635b36adb98f069b27c4a66efd9142aaa5fcf6ec824"
+    },
+    "library/Cilica.Core/StringKeyOperations.cs": {
+      "sha256": "a9a6c85451e47fdc59c2d3adee85b4a688e69679f14aa384384082d1a399bfc3"
+    },
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Char.cs": {
+      "sha256": "55ade7e035571a2e6287645d4cace388e03d5754fb2733e16a18daa5df22382d"
+    },
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.cs": {
+      "sha256": "12774ab3e250374dede05eb62f84c044d472296deea73509943984fc33a3d9ea"
+    },
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/Array.cs": {
+      "sha256": "3beb7a940a8ff7b4949141fa8934167c346c047b776a6b250426ba04fc34aae3"
+    },
+    "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/vm/String.cpp": {
+      "sha256": "0662d5013ee4f9adacc75a8afa19c0f392693daf1dbb8a84767a833279a5b62a"
+    },
+    "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/il2cpp-object-internals.h": {
+      "sha256": "0994ccabbf3bfa6177fdc4fdb58054cdb5e6d3a740459cf798b72ebe10c7cf47"
+    },
+    "library/Cilica.Core/CoreTypes.cs": {
+      "sha256": "870666c107d1c2d55e7c0b1f66bff2022056be0da6d2ad49bbcdb8f9e8a5cece"
+    },
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/evidence/run-20261008T141054068341Z/generated/Library/Bee/artifacts/MacStandalonePlayerBuildProgram/il2cppOutput/cpp/Generics__11.cpp": {
+      "sha256": "462f81fc6bd49e1b079e51023ab39db849031d53a23374082ae11233f97d9a0b"
+    },
+    "library/Cilica.Core/List.cs": {
+      "sha256": "0e61b34a58969ed7ed0af5fc5f0989400303f1862b5aa250995ccc0de13eaec3"
+    },
+    "/Applications/Unity/Hub/Editor/6000.3.2f1/Unity.app/Contents/Resources/Scripting/il2cpp/libil2cpp/il2cpp-config.h": {
+      "sha256": "ff94b7cba13508e13654a5f6e5b3df9788ee0969f824c770f5d4267bc9d8fbe7"
+    },
+    "/Users/christian/Cilica/artifacts/roslyn-il-investigation-20261019/DiffPlex.Benchmark.il": {
+      "sha256": "f8c040b5aeecbafc169290ec5f82190dd064909c752eaaf8bc479f36c00eeacc"
+    },
+    "src/Cilica.Compiler/ObjectCppLocations.cs": {
+      "sha256": "eb77b6fbc359dac527a31181b4dd1eefce6602942cf78a8ccb6f7144810eab33"
+    },
+    "src/Cilica.Compiler/ObjectCppMarking.cs": {
+      "sha256": "77460c1f3f681eb62bf2319c022dbbfb07bab644445f1876a4061d3b092d82d8"
+    },
+    "src/Cilica.Compiler/ObjectCppRuntime.cs": {
+      "sha256": "262d86bf5ce935087392d21a84cbfa1f94a3144a8047dcaa8b105d550e68f90f"
+    },
+    "/Users/christian/Cilica/docs/performance/runtime-costs-20261020/dotnet-arm64.txt": {
+      "sha256": "8c09309388489d713a7fb122afdaa84686c7285c4d4c45583018d43da518f93a"
+    },
+    "library/Cilica.Core/StringSplitting.cs": {
+      "sha256": "25687a2ae982f9b5c910a4854f486eb13e880402932efe1369b35b08c3c18a8c"
+    },
+    "library/Cilica.Core/StringSubstring.cs": {
+      "sha256": "426793e5a6d3a3c2e5c9665e18ce53441a39de18a7235e92a1da3e9f80bfa5de"
+    },
+    "library/upstream/dotnet-runtime/src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs": {
+      "sha256": "1956723302dabe05550580baaf682491569dc3f825502d330d38978864d4679d"
+    }
+  },
+  "roslyn_build_options": {
+    "version": "2",
+    "compiler-version": "5.9.0-1.26379.115+14fbf8d5271c98133561eb55185fdb05b286f578",
+    "language": "C#",
+    "source-file-count": "16",
+    "output-kind": "DynamicallyLinkedLibrary",
+    "optimization": "release",
+    "platform": "AnyCpu",
+    "runtime-version": "10.0.11-servicing.26373.116+e2f47b0110ed922f21a1522da67279133ce28f32",
+    "language-version": "14.0",
+    "define": "TRACE,RELEASE,NETSTANDARD,NETSTANDARD2_0,NETSTANDARD1_0_OR_GREATER,NETSTANDARD1_1_OR_GREATER,NETSTANDARD1_2_OR_GREATER,NETSTANDARD1_3_OR_GREATER,NETSTANDARD1_4_OR_GREATER,NETSTANDARD1_5_OR_GREATER,NETSTANDARD1_6_OR_GREATER,NETSTANDARD2_0_OR_GREATER"
+  },
+  "roslyn_source_revision": "e4e2833be7abbc54776788ca35d5c4d2697b0261",
+  "exact_roslyn_match": false,
+  "unity_editor": "6000.3.2f1",
+  "unity_retimed": false,
+  "rea": "Retained REA 6.7.0 bodies reused only after exact core hash verification",
+  "primary_web_references": [
+    "https://clang.llvm.org/docs/AttributeReference.html",
+    "https://unity.com/blog/engine-platform/il2cpp-internals-method-calls",
+    "https://unity.com/blog/engine-platform/il2cpp-optimizations-devirtualization"
+  ]
+}

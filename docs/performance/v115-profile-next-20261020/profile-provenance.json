@@ -1,0 +1,33 @@
+{
+  "revision": "813450f8164bb3b8ca1128b4960b69e6b806bb6c",
+  "fresh_cpp_matches_previous": true,
+  "commands": {
+    "baseline": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-profile-next-20261020/baseline.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-profile-next-20261020/baseline"
+    ],
+    "profile": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-g",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-profile-next-20261020/baseline.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-profile-next-20261020/profile"
+    ]
+  },
+  "core_sha256": "655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1",
+  "source_sha256": "2432fd151dd6c3f2e8479a92fe88e1557d25083702d48bb834b0d7c91e228ae3",
+  "host_sha256": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9",
+  "note": "Completed samples retained; repaired provenance-only missing host variable without repeating profiling."
+}
