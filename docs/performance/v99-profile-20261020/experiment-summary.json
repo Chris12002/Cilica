@@ -1,0 +1,51 @@
+{
+  "baseline": {
+    "median_ns": 71202.47265625,
+    "min_ns": 67711.5859375,
+    "max_ns": 73150.23046875,
+    "samples": 21,
+    "speedup": 1.0
+  },
+  "array_diagnostics": {
+    "median_ns": 68113.76953125,
+    "min_ns": 65836.1015625,
+    "max_ns": 71518.23046875,
+    "samples": 21,
+    "speedup": 1.0453462368366344
+  },
+  "short_strings": {
+    "median_ns": 62761.87890625,
+    "min_ns": 61011.0703125,
+    "max_ns": 66948.40625,
+    "samples": 21,
+    "speedup": 1.1344859952744255
+  },
+  "char_wrappers": {
+    "median_ns": 67049.15234375,
+    "min_ns": 64265.4609375,
+    "max_ns": 72129.55859375,
+    "samples": 21,
+    "speedup": 1.0619444119324075
+  },
+  "character_combined": {
+    "median_ns": 58993.0,
+    "min_ns": 57043.6171875,
+    "max_ns": 60524.73828125,
+    "samples": 21,
+    "speedup": 1.2069647696548742
+  },
+  "cache_check_ablation": {
+    "median_ns": 67077.80078125,
+    "min_ns": 65126.62890625,
+    "max_ns": 70238.76953125,
+    "samples": 21,
+    "speedup": 1.0614908632507367
+  },
+  "combined": {
+    "median_ns": 56069.49609375,
+    "min_ns": 53920.5703125,
+    "max_ns": 60855.95703125,
+    "samples": 21,
+    "speedup": 1.2698967819720937
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "revision": "29069040db25e1c1c3628789d43270ec95cd0a88",
+  "compiler_tree_clean": true,
+  "fresh_matches_accepted_v99": true,
+  "rea_version": "6.7.0",
+  "files": {
+    "/Users/christian/Cilica/artifacts/v99-profile-20261020/baseline.cpp": "e66a1ab85cc5cbf9da55a81f9f29486c80e33ad786d00da6e882265573cc09bd",
+    "/Users/christian/Cilica/artifacts/v99-profile-20261020/baseline": "99daa952fb19d54b8931dd90ae7650a8b8d33331c5b1f6f80a92c7ca5b4071b7",
+    "/Users/christian/Cilica/artifacts/v99-profile-20261020/profile": "30d8facb1d8c71dd4d1489926cfc28e90f4d12bdc8cb9cc04c0503c3bdc9355c",
+    "/Users/christian/Cilica/artifacts/v99-profile-20261020/baseline-core/Cilica.Core.dll": "655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1",
+    "/Users/christian/Cilica/artifacts/v99-profile-20261020/sample-0.txt": "d5557f3b47fa1a44fb5d75fb49c7c609e976cef8e052011bcb05b48bf0823a3f",
+    "/Users/christian/Cilica/artifacts/v99-profile-20261020/sample-1.txt": "e2dfb8034b8045bd0578b8b9a93ffcc7e78b5592dddcf84a135fe6115c5b564c",
+    "/Users/christian/Cilica/artifacts/v99-profile-20261020/rea-core.json": "458e7c5200891d8b570cea637a7161b285e68f54cc306fadc778b2731f6bf379",
+    "artifacts/roslyn-il-investigation-20261019/DiffPlex.Benchmark.il": "f8c040b5aeecbafc169290ec5f82190dd064909c752eaaf8bc479f36c00eeacc",
+    "docs/performance/runtime-costs-20261020/dotnet-arm64.txt": "8c09309388489d713a7fb122afdaa84686c7285c4d4c45583018d43da518f93a",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9"
+  }
+}
