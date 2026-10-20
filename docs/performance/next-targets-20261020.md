@@ -9,12 +9,19 @@ at `7cb76aa` and `b5ff3a5`. Work continues in `codex/profile-v107`.
    eliminating the temporary Int32 vector and per-character managed loop.
    Accepted: line diff 54.52 → 39.50 µs (27.5% less time); character unchanged.
    See [measurements](substring-20261020.md) and ADR 0224.
-2. **Compact dictionary entries — queued.** Replace separately allocated entry
+2. **Compact dictionary entries — investigated, deferred behind array lowering.** Replace separately allocated entry
    objects only after preserving mutable-key callbacks, reentrancy, lookup return
    semantics, resizing, removal/free slots and precise reference tracing.
-3. **Primitive-array loops and native locals — queued.** Extend structural
+   Inline entries regressed character diff about 5× through generic borrow
+   machinery. Compact columns preserved fast lookup but produced only a small
+   preliminary timing change and broke existing UInt64-key support.
+   Neither candidate is accepted; see [the retained experiments](dictionary-compact-20261020.md)
+   and ADR 0225. Preserve the captured-storage callback probes for a later attempt.
+3. **Primitive-array loops and native locals — next.** Extend structural
    execution proofs to remove generic location/frame machinery in diff loops.
    Keep bounds, exception order, aliasing and safepoint lifetime guarantees.
+   Include scalarized inline-array reads in the investigation, and inventory
+   generic array element support before changing collection representations.
 4. **Character-string construction loops — queued.** Reduce call/frame/store
    overhead around fresh one-character strings. Preserve NUL, isolated surrogates,
    independent identity, allocation faults and roots across collection.

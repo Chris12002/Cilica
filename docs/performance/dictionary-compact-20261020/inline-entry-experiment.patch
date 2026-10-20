@@ -1,0 +1,210 @@
+diff --git a/library/Cilica.Core/Dictionary.cs b/library/Cilica.Core/Dictionary.cs
+index e44fe91..cbe6130 100644
+--- a/library/Cilica.Core/Dictionary.cs
++++ b/library/Cilica.Core/Dictionary.cs
+@@ -1,11 +1,11 @@
+ // Licensed to the .NET Foundation under one or more agreements.
+ // The .NET Foundation licenses this file to you under the MIT license.
+ // Cilica bounded adaptation: retain prime capacities, hash/bucket chains and
+-// entry-slot order and free-slot reuse; private reference entries carry typed fields.
++// entry-slot order and free-slot reuse; inline entries carry precisely traced fields.
+ // See ../provenance.json for the pinned originals and deliberately omitted APIs.
+ namespace Cilica.Runtime
+ {
+-    public sealed class DictionaryEntry<TKey, TValue>
++    public struct DictionaryEntry<TKey, TValue>
+     {
+         public uint Hash;
+         public int Next;
+@@ -182,39 +182,43 @@ namespace System.Collections.Generic
+         }
+         private static void CheckKey(TKey key)
+         { if (Cilica.Runtime.KeyOperations<TKey>.IsNull(key)) throw new ArgumentNullException("key"); }
+-        private Cilica.Runtime.DictionaryEntry<TKey, TValue> Find(TKey key)
++        // The array and index together preserve FindValue's storage identity when
++        // an equality callback resizes the dictionary during the search.
++        private Cilica.Runtime.DictionaryEntry<TKey, TValue>[] Find(TKey key, out int found)
+         {
++            found = -1;
+             CheckKey(key);
+             if (buckets == null) return null;
+             uint hash = Hash(key);
+             int index = buckets[(int)(hash % (uint)buckets.Length)] - 1;
++            var captured = entries;
+             int collisions = 0;
+-            while ((uint)index < (uint)entries.Length)
++            while ((uint)index < (uint)captured.Length)
+             {
+-                var entry = entries[index];
+-                if (entry.Hash == hash && Equal(entry.Key, key)) return entry;
+-                index = entry.Next;
+-                if (++collisions > entries.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
++                if (captured[index].Hash == hash && Equal(captured[index].Key, key))
++                { found = index; return captured; }
++                index = captured[index].Next;
++                if (++collisions > captured.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
+             }
+             return null;
+         }
+         public bool TryGetValue(TKey key, out TValue value)
+         {
+-            var entry = Find(key);
+-            if (entry != null) { value = entry.Value; return true; }
++            var found = Find(key, out int index);
++            if (found != null) { value = found[index].Value; return true; }
+             value = default; return false;
+         }
+         public bool TryAdd(TKey key, TValue value) => Insert(ref key, value, false);
+         public TValue this[TKey key] {
+             get
+             {
+-                var entry = Find(key);
+-                if (entry != null) return entry.Value;
++                var found = Find(key, out int index);
++                if (found != null) return found[index].Value;
+                 throw new KeyNotFoundException(string.Concat("The given key '", string.Concat(Cilica.Runtime.DictionaryKeyText<TKey>.Render(key), "' was not present in the dictionary.")));
+             }
+             set { Insert(ref key, value, true); }
+         }
+-        public bool ContainsKey(TKey key) => Find(key) != null;
++        public bool ContainsKey(TKey key) => Find(key, out _) != null;
+         private static bool ValueEqual(TValue left, TValue right) => Cilica.Runtime.KeyOperations<TValue>.Equal(ref left, right);
+         public bool ContainsValue(TValue value)
+         {
+@@ -247,28 +251,29 @@ namespace System.Collections.Generic
+             {
+                 // Remove, like TryInsert, hashes its own key parameter before comparison.
+                 uint hash = HashKey(ref key);
+-                int bucket = (int)(hash % (uint)buckets.Length);
++                var bucketArray = buckets;
++                int bucket = (int)(hash % (uint)bucketArray.Length);
++                var captured = entries;
+                 int previous = -1;
+-                int index = buckets[bucket] - 1;
++                int index = bucketArray[bucket] - 1;
+                 int collisions = 0;
+-                while ((uint)index < (uint)entries.Length)
++                while (index >= 0)
+                 {
+-                    var entry = entries[index];
+-                    if (entry.Hash == hash && Equal(entry.Key, key))
++                    if (captured[index].Hash == hash && Equal(captured[index].Key, key))
+                     {
+-                        if (previous < 0) buckets[bucket] = entry.Next + 1;
+-                        else entries[previous].Next = entry.Next;
+-                        value = entry.Value;
+-                        entry.Next = -3 - freeList;
+-                        entry.Key = default;
+-                        entry.Value = default;
++                        if (previous < 0) bucketArray[bucket] = captured[index].Next + 1;
++                        else captured[previous].Next = captured[index].Next;
++                        value = captured[index].Value;
++                        captured[index].Next = -3 - freeList;
++                        if (Cilica.Runtime.KeyOperations<TKey>.ContainsReferences()) captured[index].Key = default;
++                        if (Cilica.Runtime.KeyOperations<TValue>.ContainsReferences()) captured[index].Value = default;
+                         freeList = index;
+                         freeCount++;
+                         return true;
+                     }
+                     previous = index;
+-                    index = entry.Next;
+-                    if (++collisions > entries.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
++                    index = captured[index].Next;
++                    if (++collisions > captured.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
+                 }
+             }
+             value = default;
+@@ -278,7 +283,7 @@ namespace System.Collections.Generic
+         {
+             if (count == 0) return;
+             for (int i = 0; i < buckets.Length; ++i) buckets[i] = 0;
+-            for (int i = 0; i < count; ++i) entries[i] = null;
++            for (int i = 0; i < count; ++i) entries[i] = default;
+             count = 0;
+             freeList = -1;
+             freeCount = 0;
+@@ -563,44 +568,45 @@ namespace System.Collections.Generic
+         {
+             CheckKey(key);
+             if (buckets == null) Initialize(0);
++            // TryInsert captures entries before hashing, and the bucket after it.
++            // Keep both arrays stable across equality callbacks, as upstream does.
++            var captured = entries;
+             uint hash = HashKey(ref key);
+-            int bucket = (int)(hash % (uint)buckets.Length);
+-            int index = buckets[bucket] - 1;
++            var bucketArray = buckets;
++            int bucket = (int)(hash % (uint)bucketArray.Length);
++            int index = bucketArray[bucket] - 1;
+             int collisions = 0;
+-            while ((uint)index < (uint)entries.Length)
++            while ((uint)index < (uint)captured.Length)
+             {
+-                var entry = entries[index];
+-                if (entry.Hash == hash && Equal(entry.Key, key))
++                if (captured[index].Hash == hash && Equal(captured[index].Key, key))
+                 {
+                     if (!overwrite) return false;
+-                    entry.Value = value; return true;
++                    captured[index].Value = value; return true;
+                 }
+-                index = entry.Next;
+-                if (++collisions > entries.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
++                index = captured[index].Next;
++                if (++collisions > captured.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
+             }
+             if (freeCount > 0)
+             {
+-                int slot = freeList;
+-                var reused = entries[slot];
+-                freeList = -3 - reused.Next;
++                index = freeList;
++                freeList = -3 - captured[index].Next;
+                 freeCount--;
+-                reused.Hash = hash;
+-                reused.Next = buckets[bucket] - 1;
+-                reused.Key = key;
+-                reused.Value = value;
+-                buckets[bucket] = slot + 1;
+-                version++;
+-                return true;
+             }
+-            if (count == entries.Length)
++            else
+             {
+-                Resize();
+-                bucket = (int)(hash % (uint)buckets.Length);
++                int oldCount = count;
++                if (oldCount == captured.Length)
++                {
++                    Resize(); bucketArray = buckets;
++                    bucket = (int)(hash % (uint)bucketArray.Length);
++                }
++                index = oldCount; count = oldCount + 1; captured = entries;
+             }
+-            var added = new Cilica.Runtime.DictionaryEntry<TKey, TValue>(hash, buckets[bucket] - 1, key, value);
+-            entries[count] = added;
+-            buckets[bucket] = count + 1;
+-            count++;
++            captured[index].Hash = hash;
++            captured[index].Next = bucketArray[bucket] - 1;
++            captured[index].Key = key;
++            captured[index].Value = value;
++            bucketArray[bucket] = index + 1;
+             version++;
+             return true;
+         }
+@@ -612,10 +618,9 @@ namespace System.Collections.Generic
+             for (int i = 0; i < count; ++i) newEntries[i] = entries[i];
+             for (int i = 0; i < count; ++i)
+             {
+-                var entry = newEntries[i];
+-                if (entry.Next < -1) continue;
+-                int bucket = (int)(entry.Hash % (uint)size);
+-                entry.Next = newBuckets[bucket] - 1;
++                if (newEntries[i].Next < -1) continue;
++                int bucket = (int)(newEntries[i].Hash % (uint)size);
++                newEntries[i].Next = newBuckets[bucket] - 1;
+                 newBuckets[bucket] = i + 1;
+             }
+             entries = newEntries; buckets = newBuckets;

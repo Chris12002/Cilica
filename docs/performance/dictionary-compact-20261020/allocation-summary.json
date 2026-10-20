@@ -1,0 +1,38 @@
+{
+  "before": [
+    {
+      "work": 0,
+      "checksum": 6146,
+      "allocated_bytes": 34216,
+      "allocated_objects": 312,
+      "retained_bytes": 5488,
+      "retained_objects": 8
+    },
+    {
+      "work": 1,
+      "checksum": 3122,
+      "allocated_bytes": 25192,
+      "allocated_objects": 188,
+      "retained_bytes": 5844,
+      "retained_objects": 12
+    }
+  ],
+  "columns": [
+    {
+      "work": 0,
+      "checksum": 6146,
+      "allocated_bytes": 34280,
+      "allocated_objects": 300,
+      "retained_bytes": 5488,
+      "retained_objects": 8
+    },
+    {
+      "work": 1,
+      "checksum": 3122,
+      "allocated_bytes": 25176,
+      "allocated_objects": 175,
+      "retained_bytes": 5844,
+      "retained_objects": 12
+    }
+  ]
+}

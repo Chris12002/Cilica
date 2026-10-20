@@ -1118,3 +1118,12 @@ bounds before pointer arithmetic, and canonical empty handling. It is allocating
 not a no-safepoint kernel. No shared string view or temporary array is introduced.
 Object IR v80 and integer-object CIL v127; public ABI/layout/quotas unchanged.
 See ADR 0224 and docs/performance/next-targets-20261020.md for the saved targets.
+
+Compact dictionary experiments after v116 are rejected, not implemented.
+Inline Entry arrays regressed through scalarized borrow lowering; column storage
+had no substantial demonstrated timing gain and broke existing UInt64-key
+dictionaries because UInt64 arrays remain unsupported. Reference-entry storage
+remains active. ADR 0225 and docs/performance/dictionary-compact-20261020.md retain
+the unapplied patch, callback probes and evidence. Work next on array/native-local
+lowering; do not revive the candidate without preserving all existing key/value
+types and obtaining a measured benefit.

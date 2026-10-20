@@ -1,0 +1,698 @@
+diff --git a/library/Cilica.Core/Dictionary.cs b/library/Cilica.Core/Dictionary.cs
+index e44fe91..d610783 100644
+--- a/library/Cilica.Core/Dictionary.cs
++++ b/library/Cilica.Core/Dictionary.cs
+@@ -1,18 +1,30 @@
+ // Licensed to the .NET Foundation under one or more agreements.
+ // The .NET Foundation licenses this file to you under the MIT license.
+ // Cilica bounded adaptation: retain prime capacities, hash/bucket chains and
+-// entry-slot order and free-slot reuse; private reference entries carry typed fields.
++// entry-slot order and free-slot reuse; compact column arrays carry precisely traced fields.
+ // See ../provenance.json for the pinned originals and deliberately omitted APIs.
+ namespace Cilica.Runtime
+ {
+-    public sealed class DictionaryEntry<TKey, TValue>
++    // Compact columns avoid per-entry objects and expose ordinary typed array
++    // reads to the existing compiler. One storage identity survives callbacks.
++    public sealed class DictionaryEntries<TKey, TValue>
+     {
+-        public uint Hash;
+-        public int Next;
+-        public TKey Key;
+-        public TValue Value;
+-        public DictionaryEntry(uint hash, int next, TKey key, TValue value)
+-        { Hash = hash; Next = next; Key = key; Value = value; }
++        public readonly int Length;
++        public readonly uint[] Hashes;
++        public readonly int[] Links;
++        public readonly TKey[] Keys;
++        public readonly TValue[] Values;
++        public DictionaryEntries(int length)
++        {
++            Length = length;
++            Hashes = new uint[length]; Links = new int[length];
++            Keys = new TKey[length]; Values = new TValue[length];
++        }
++        public void Clear(int count)
++        {
++            for (int i = 0; i < count; ++i)
++            { Hashes[i] = 0; Links[i] = 0; Keys[i] = default; Values[i] = default; }
++        }
+     }
+     internal static class DictionaryPrimes
+     {
+@@ -117,7 +129,7 @@ namespace System.Collections.Generic
+         Runtime.Serialization.ISerializable, Runtime.Serialization.IDeserializationCallback
+     {
+         private int[] buckets;
+-        private Cilica.Runtime.DictionaryEntry<TKey, TValue>[] entries;
++        private Cilica.Runtime.DictionaryEntries<TKey, TValue> entries;
+         private int count;
+         private int freeList;
+         private int freeCount;
+@@ -148,8 +160,8 @@ namespace System.Collections.Generic
+         {
+             int size = Cilica.Runtime.DictionaryPrimes.GetPrime(capacity);
+             var newBuckets = new int[size];
+-            var newEntries = new Cilica.Runtime.DictionaryEntry<TKey, TValue>[size];
+-            // Publish together after both allocations, including the lazy first insert.
++            var newEntries = new Cilica.Runtime.DictionaryEntries<TKey, TValue>(size);
++            // Publish together after all storage allocations, including the lazy first insert.
+             freeList = -1; buckets = newBuckets; entries = newEntries;
+         }
+         public int Count => count - freeCount;
+@@ -182,39 +194,43 @@ namespace System.Collections.Generic
+         }
+         private static void CheckKey(TKey key)
+         { if (Cilica.Runtime.KeyOperations<TKey>.IsNull(key)) throw new ArgumentNullException("key"); }
+-        private Cilica.Runtime.DictionaryEntry<TKey, TValue> Find(TKey key)
++        // The storage and index together preserve FindValue's storage identity when
++        // an equality callback resizes the dictionary during the search.
++        private Cilica.Runtime.DictionaryEntries<TKey, TValue> Find(TKey key, out int found)
+         {
++            found = -1;
+             CheckKey(key);
+             if (buckets == null) return null;
+             uint hash = Hash(key);
+             int index = buckets[(int)(hash % (uint)buckets.Length)] - 1;
++            var captured = entries;
+             int collisions = 0;
+-            while ((uint)index < (uint)entries.Length)
++            while ((uint)index < (uint)captured.Length)
+             {
+-                var entry = entries[index];
+-                if (entry.Hash == hash && Equal(entry.Key, key)) return entry;
+-                index = entry.Next;
+-                if (++collisions > entries.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
++                if (captured.Hashes[index] == hash && Equal(captured.Keys[index], key))
++                { found = index; return captured; }
++                index = captured.Links[index];
++                if (++collisions > captured.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
+             }
+             return null;
+         }
+         public bool TryGetValue(TKey key, out TValue value)
+         {
+-            var entry = Find(key);
+-            if (entry != null) { value = entry.Value; return true; }
++            var found = Find(key, out int index);
++            if (found != null) { value = found.Values[index]; return true; }
+             value = default; return false;
+         }
+         public bool TryAdd(TKey key, TValue value) => Insert(ref key, value, false);
+         public TValue this[TKey key] {
+             get
+             {
+-                var entry = Find(key);
+-                if (entry != null) return entry.Value;
++                var found = Find(key, out int index);
++                if (found != null) return found.Values[index];
+                 throw new KeyNotFoundException(string.Concat("The given key '", string.Concat(Cilica.Runtime.DictionaryKeyText<TKey>.Render(key), "' was not present in the dictionary.")));
+             }
+             set { Insert(ref key, value, true); }
+         }
+-        public bool ContainsKey(TKey key) => Find(key) != null;
++        public bool ContainsKey(TKey key) => Find(key, out _) != null;
+         private static bool ValueEqual(TValue left, TValue right) => Cilica.Runtime.KeyOperations<TValue>.Equal(ref left, right);
+         public bool ContainsValue(TValue value)
+         {
+@@ -222,12 +238,12 @@ namespace System.Collections.Generic
+             if (Cilica.Runtime.KeyOperations<TValue>.IsNull(value))
+             {
+                 for (int i = 0; i < count; ++i)
+-                    if (capturedEntries[i].Next >= -1 && Cilica.Runtime.KeyOperations<TValue>.IsNull(capturedEntries[i].Value)) return true;
++                    if (capturedEntries.Links[i] >= -1 && Cilica.Runtime.KeyOperations<TValue>.IsNull(capturedEntries.Values[i])) return true;
+             }
+             else
+             {
+                 for (int i = 0; i < count; ++i)
+-                    if (capturedEntries[i].Next >= -1 && ValueEqual(capturedEntries[i].Value, value)) return true;
++                    if (capturedEntries.Links[i] >= -1 && ValueEqual(capturedEntries.Values[i], value)) return true;
+             }
+             return false;
+         }
+@@ -247,28 +263,29 @@ namespace System.Collections.Generic
+             {
+                 // Remove, like TryInsert, hashes its own key parameter before comparison.
+                 uint hash = HashKey(ref key);
+-                int bucket = (int)(hash % (uint)buckets.Length);
++                var bucketArray = buckets;
++                int bucket = (int)(hash % (uint)bucketArray.Length);
++                var captured = entries;
+                 int previous = -1;
+-                int index = buckets[bucket] - 1;
++                int index = bucketArray[bucket] - 1;
+                 int collisions = 0;
+-                while ((uint)index < (uint)entries.Length)
++                while (index >= 0)
+                 {
+-                    var entry = entries[index];
+-                    if (entry.Hash == hash && Equal(entry.Key, key))
++                    if (captured.Hashes[index] == hash && Equal(captured.Keys[index], key))
+                     {
+-                        if (previous < 0) buckets[bucket] = entry.Next + 1;
+-                        else entries[previous].Next = entry.Next;
+-                        value = entry.Value;
+-                        entry.Next = -3 - freeList;
+-                        entry.Key = default;
+-                        entry.Value = default;
++                        if (previous < 0) bucketArray[bucket] = captured.Links[index] + 1;
++                        else captured.Links[previous] = captured.Links[index];
++                        value = captured.Values[index];
++                        captured.Links[index] = -3 - freeList;
++                        if (Cilica.Runtime.KeyOperations<TKey>.ContainsReferences()) captured.Keys[index] = default;
++                        if (Cilica.Runtime.KeyOperations<TValue>.ContainsReferences()) captured.Values[index] = default;
+                         freeList = index;
+                         freeCount++;
+                         return true;
+                     }
+                     previous = index;
+-                    index = entry.Next;
+-                    if (++collisions > entries.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
++                    index = captured.Links[index];
++                    if (++collisions > captured.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
+                 }
+             }
+             value = default;
+@@ -278,7 +295,7 @@ namespace System.Collections.Generic
+         {
+             if (count == 0) return;
+             for (int i = 0; i < buckets.Length; ++i) buckets[i] = 0;
+-            for (int i = 0; i < count; ++i) entries[i] = null;
++            entries.Clear(count);
+             count = 0;
+             freeList = -1;
+             freeCount = 0;
+@@ -304,8 +321,7 @@ namespace System.Collections.Generic
+             var copyEntries = entries;
+             for (int i = 0; i < copyCount; i++)
+             {
+-                var entry = copyEntries[i];
+-                if (entry.Next >= -1) array[arrayIndex++] = new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
++                if (copyEntries.Links[i] >= -1) array[arrayIndex++] = new KeyValuePair<TKey, TValue>(copyEntries.Keys[i], copyEntries.Values[i]);
+             }
+         }
+         internal static void ValidateCopyArray<TElement>(TElement[] array, int index)
+@@ -333,8 +349,7 @@ namespace System.Collections.Generic
+         void Collections.IDictionary.Remove(object key) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+         internal int EnumerationVersion => version;
+         internal int EnumerationCount => count;
+-        internal Cilica.Runtime.DictionaryEntry<TKey, TValue>[] CopyEntries => entries;
+-        internal Cilica.Runtime.DictionaryEntry<TKey, TValue> EnumerationEntry(int index) => entries[index];
++        internal Cilica.Runtime.DictionaryEntries<TKey, TValue> CopyEntries => entries;
+         public Enumerator GetEnumerator() => new Enumerator(this);
+         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, Collections.IDictionaryEnumerator
+         {
+@@ -355,10 +370,10 @@ namespace System.Collections.Generic
+                     throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                 while ((uint)index < (uint)dictionary.EnumerationCount)
+                 {
+-                    var entry = dictionary.EnumerationEntry(index++);
+-                    if (entry.Next >= -1)
++                    var storage = dictionary.CopyEntries; int slot = index++;
++                    if (storage.Links[slot] >= -1)
+                     {
+-                        var pair = new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
++                        var pair = new KeyValuePair<TKey, TValue>(storage.Keys[slot], storage.Values[slot]);
+                         current = pair;
+                         return true;
+                     }
+@@ -418,10 +433,10 @@ namespace System.Collections.Generic
+                         throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                     while ((uint)index < (uint)dictionary.EnumerationCount)
+                     {
+-                        var entry = dictionary.EnumerationEntry(index++);
+-                        if (entry.Next >= -1)
++                        var storage = dictionary.CopyEntries; int slot = index++;
++                        if (storage.Links[slot] >= -1)
+                         {
+-                            current = entry.Key;
++                            current = storage.Keys[slot];
+                             return true;
+                         }
+                     }
+@@ -465,8 +480,7 @@ namespace System.Collections.Generic
+                 var copyEntries = dictionary.CopyEntries;
+                 for (int i = 0; i < copyCount; i++)
+                 {
+-                    var entry = copyEntries[i];
+-                    if (entry.Next >= -1) array[index++] = entry.Key;
++                    if (copyEntries.Links[i] >= -1) array[index++] = copyEntries.Keys[i];
+                 }
+             }
+             void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+@@ -503,10 +517,10 @@ namespace System.Collections.Generic
+                         throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                     while ((uint)index < (uint)dictionary.EnumerationCount)
+                     {
+-                        var entry = dictionary.EnumerationEntry(index++);
+-                        if (entry.Next >= -1)
++                        var storage = dictionary.CopyEntries; int slot = index++;
++                        if (storage.Links[slot] >= -1)
+                         {
+-                            current = entry.Value;
++                            current = storage.Values[slot];
+                             return true;
+                         }
+                     }
+@@ -550,8 +564,7 @@ namespace System.Collections.Generic
+                 var copyEntries = dictionary.CopyEntries;
+                 for (int i = 0; i < copyCount; i++)
+                 {
+-                    var entry = copyEntries[i];
+-                    if (entry.Next >= -1) array[index++] = entry.Value;
++                    if (copyEntries.Links[i] >= -1) array[index++] = copyEntries.Values[i];
+                 }
+             }
+             void Collections.ICollection.CopyTo(Array array, int index) { Cilica.Runtime.UnsupportedLibraryMember<int>.Invoke(); }
+@@ -563,59 +576,63 @@ namespace System.Collections.Generic
+         {
+             CheckKey(key);
+             if (buckets == null) Initialize(0);
++            // TryInsert captures entries before hashing, and the bucket after it.
++            // Keep both arrays stable across equality callbacks, as upstream does.
++            var captured = entries;
+             uint hash = HashKey(ref key);
+-            int bucket = (int)(hash % (uint)buckets.Length);
+-            int index = buckets[bucket] - 1;
++            var bucketArray = buckets;
++            int bucket = (int)(hash % (uint)bucketArray.Length);
++            int index = bucketArray[bucket] - 1;
+             int collisions = 0;
+-            while ((uint)index < (uint)entries.Length)
++            while ((uint)index < (uint)captured.Length)
+             {
+-                var entry = entries[index];
+-                if (entry.Hash == hash && Equal(entry.Key, key))
++                if (captured.Hashes[index] == hash && Equal(captured.Keys[index], key))
+                 {
+                     if (!overwrite) return false;
+-                    entry.Value = value; return true;
++                    captured.Values[index] = value; return true;
+                 }
+-                index = entry.Next;
+-                if (++collisions > entries.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
++                index = captured.Links[index];
++                if (++collisions > captured.Length) throw new InvalidOperationException("Operations that change non-concurrent collections must have exclusive access. A concurrent update was performed on this collection and corrupted its state. The collection's state is no longer correct.");
+             }
+             if (freeCount > 0)
+             {
+-                int slot = freeList;
+-                var reused = entries[slot];
+-                freeList = -3 - reused.Next;
++                index = freeList;
++                freeList = -3 - captured.Links[index];
+                 freeCount--;
+-                reused.Hash = hash;
+-                reused.Next = buckets[bucket] - 1;
+-                reused.Key = key;
+-                reused.Value = value;
+-                buckets[bucket] = slot + 1;
+-                version++;
+-                return true;
+             }
+-            if (count == entries.Length)
++            else
+             {
+-                Resize();
+-                bucket = (int)(hash % (uint)buckets.Length);
++                int oldCount = count;
++                if (oldCount == captured.Length)
++                {
++                    Resize(); bucketArray = buckets;
++                    bucket = (int)(hash % (uint)bucketArray.Length);
++                }
++                index = oldCount; count = oldCount + 1; captured = entries;
+             }
+-            var added = new Cilica.Runtime.DictionaryEntry<TKey, TValue>(hash, buckets[bucket] - 1, key, value);
+-            entries[count] = added;
+-            buckets[bucket] = count + 1;
+-            count++;
++            captured.Hashes[index] = hash;
++            captured.Links[index] = bucketArray[bucket] - 1;
++            captured.Keys[index] = key;
++            captured.Values[index] = value;
++            bucketArray[bucket] = index + 1;
+             version++;
+             return true;
+         }
+         private void Resize()
+         {
+             int size = Cilica.Runtime.DictionaryPrimes.ExpandPrime(count);
+-            var newEntries = new Cilica.Runtime.DictionaryEntry<TKey, TValue>[size];
++            var newEntries = new Cilica.Runtime.DictionaryEntries<TKey, TValue>(size);
+             var newBuckets = new int[size];
+-            for (int i = 0; i < count; ++i) newEntries[i] = entries[i];
+             for (int i = 0; i < count; ++i)
+             {
+-                var entry = newEntries[i];
+-                if (entry.Next < -1) continue;
+-                int bucket = (int)(entry.Hash % (uint)size);
+-                entry.Next = newBuckets[bucket] - 1;
++                newEntries.Hashes[i] = entries.Hashes[i]; newEntries.Links[i] = entries.Links[i];
++                newEntries.Keys[i] = entries.Keys[i]; newEntries.Values[i] = entries.Values[i];
++            }
++            for (int i = 0; i < count; ++i)
++            {
++                if (newEntries.Links[i] < -1) continue;
++                int bucket = (int)(newEntries.Hashes[i] % (uint)size);
++                newEntries.Links[i] = newBuckets[bucket] - 1;
+                 newBuckets[bucket] = i + 1;
+             }
+             entries = newEntries; buckets = newBuckets;
+diff --git a/library/provenance.json b/library/provenance.json
+index fd613de..b34f07b 100644
+--- a/library/provenance.json
++++ b/library/provenance.json
+@@ -906,11 +906,11 @@
+       ],
+       "changes": [
+         "Map the bounded public System.Collections.Generic.Dictionary member subset with exact nominal interfaces and method flags.",
+-        "Replace inline entry arrays and unsafe/ref helpers with managed reference-entry vectors and checked indexing; entries remain internal to collection operations. AC3.29 views capture them through an assembly-visible owned accessor, matching the existing cursor helper boundary.",
++        "Replace inline Entry arrays and unsafe/ref helpers with one managed storage owner containing hash, link, key and value columns. Checked ordinary arrays remove per-entry allocation while retaining captured storage identity across callbacks. Views capture storage through an assembly-visible owned accessor. ADR 0225 records the representation and measured tradeoffs.",
+         "Use exact compiler-selected closed integer/value key operations instead of runtime reflection and EqualityComparer factory selection.",
+         "Retain distinct value-key hash receiver semantics in FindValue and TryInsert.",
+         "Compatibility batch 005 stores the supplied IEqualityComparer<TKey> and forwards hash/equality through ordinary managed dispatch. Null and exact owned value-default singleton comparers retain default KeyOperations receiver semantics; custom callbacks receive value copies. Remove the obsolete CreateOrdinal factories and their two construction grants.",
+-        "AC3.3 adds Remove with/without out value and Clear; clear key/value payloads and reuse private entry slots. AC3.16 adds the capacity constructor; compatibility batch 005 adds both comparer constructor overloads for admitted keys/comparers.",
++        "AC3.3 adds Remove with/without out value and Clear; ADR 0225 clears removed payloads only when their exact shapes contain references, preserving freed scalar values observable through callbacks. Clear resets every used column slot. AC3.16 adds the capacity constructor; compatibility batch 005 adds both comparer constructor overloads for admitted keys/comparers.",
+         "Preserve the public generic/nongeneric/serialization interface declarations; unimplemented members remain compile-time errors.",
+         "Preserve per-dictionary view identity and tracing cycles; constructors use ordinary validation helpers. ContainsValue captures the entries vector and compares copied value receivers through existing exact equality selection. Other unimplemented equality/copy/enumerator paths remain diagnostic.",
+         "AC4.3 adds the concrete nested Enumerator. Walk active slots with ordinary accessors, materialize the pair before storing current, reset current/end index, and update version only after successful new-key insertion (including free-slot reuse). Boxed interface factories/legacy members remain diagnostic.",
+diff --git a/tests/Cilica.Metadata.Tests/DictionaryMutationTests.cs b/tests/Cilica.Metadata.Tests/DictionaryMutationTests.cs
+index da3e87a..7be1bdb 100644
+--- a/tests/Cilica.Metadata.Tests/DictionaryMutationTests.cs
++++ b/tests/Cilica.Metadata.Tests/DictionaryMutationTests.cs
+@@ -53,10 +53,11 @@ public sealed class DictionaryMutationTests
+                 LocationArgument args[1]; args[0].reference = list;
+                 {{Symbol("RemoveTracked")}}(c, args);
+                 assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == before - 1);
++                // Entry columns stay allocated; only the two payload objects are released.
+                 {{Symbol("ClearTracked")}}(c, args);
+-                assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == before - 4);
++                assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == before - 2);
+                 {{Symbol("ClearTracked")}}(c, args);
+-                assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == before - 4);
++                assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == before - 2);
+                 list = nullptr; args[0].reference = nullptr;
+                 assert(collect(c).status == MarkStatus::complete && heap.count == 1 && heap.emergency_exception != nullptr);
+                 assert(c.used == 0 && c.borrows == nullptr);
+diff --git a/tests/Cilica.Metadata.Tests/DictionaryViewEnumerationTests.cs b/tests/Cilica.Metadata.Tests/DictionaryViewEnumerationTests.cs
+index 9df9fa8..6c41a52 100644
+--- a/tests/Cilica.Metadata.Tests/DictionaryViewEnumerationTests.cs
++++ b/tests/Cilica.Metadata.Tests/DictionaryViewEnumerationTests.cs
+@@ -40,12 +40,14 @@ public sealed class DictionaryViewEnumerationTests
+                 Object* holder = nullptr; Frame frame; RootScope roots(c, frame, &holder, 1);
+                 holder = {{Symbol(values ? "CreateValues" : "CreateKeys")}}(c, nullptr);
+                 assert(c.pending == 0 && holder != nullptr);
+-                assert(collect(c).status == MarkStatus::complete && heap.count == 8);
++                // Dictionary, bucket vector, storage owner, four entry columns,
++                // payload, cached view, holder and emergency exception.
++                assert(collect(c).status == MarkStatus::complete && heap.count == 11);
+                 LocationArgument args[1]; args[0].reference = holder;
+                 {{Symbol("Clear")}}(c, args);
+-                assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == {{(values ? 7 : 6)}});
++                assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == {{(values ? 11 : 10)}});
+                 {{Symbol(values ? "EndValues" : "EndKeys")}}(c, args);
+-                assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == 6);
++                assert(c.pending == 0 && collect(c).status == MarkStatus::complete && heap.count == 10);
+                 holder = nullptr; args[0].reference = nullptr;
+                 assert(collect(c).status == MarkStatus::complete && heap.count == 1);
+                 assert(heap.emergency_exception != nullptr && c.used == 0 && c.borrows == nullptr);
+diff --git a/tests/Cilica.Metadata.Tests/DictionaryViewTests.cs b/tests/Cilica.Metadata.Tests/DictionaryViewTests.cs
+index a8bb822..70ab523 100644
+--- a/tests/Cilica.Metadata.Tests/DictionaryViewTests.cs
++++ b/tests/Cilica.Metadata.Tests/DictionaryViewTests.cs
+@@ -52,8 +52,8 @@ public sealed class DictionaryViewTests
+                 Object* view = nullptr; Frame frame; RootScope roots(c, frame, &view, 1);
+                 view = {{symbol}}(c, nullptr);
+                 assert(c.pending == 0 && view != nullptr);
+-                assert(collect(c).status == MarkStatus::complete && heap.count == 7);
+-                // The view is the only explicit root: dictionary, entry, arrays
++                assert(collect(c).status == MarkStatus::complete && heap.count == 10);
++                // The view is the only explicit root: dictionary, storage owner, arrays
+                 // and value remain alive through it, including the cache cycle.
+                 view = nullptr;
+                 assert(collect(c).status == MarkStatus::complete && heap.count == 1);
+diff --git a/tests/Cilica.Metadata.Tests/CompactDictionaryTests.cs b/tests/Cilica.Metadata.Tests/CompactDictionaryTests.cs
+new file mode 100644
+index 0000000..1815a40
+--- /dev/null
++++ b/tests/Cilica.Metadata.Tests/CompactDictionaryTests.cs
+@@ -0,0 +1,158 @@
++using System;
++using System.Globalization;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using System.Text;
++using System.Threading.Tasks;
++using Cilica.Compiler;
++using Cilica.Fixtures.Execution;
++using Xunit;
++namespace Cilica.Metadata.Tests;
++public sealed class CompactDictionaryTests
++{
++    private static readonly Lazy<Task<ManagedExceptionIrProgram[]>> Programs = new(() =>
++        CoreLibraryBuildTests.TranslateFixtures(typeof(CompactDictionaryProbe), ["Reentry", "ReferenceReentry", "Packed", "Growth"]));
++
++    [Theory] [InlineData(false)] [InlineData(true)]
++    public async Task Captured_arrays_preserve_reentrant_callbacks_and_value_reads(bool optimized)
++    {
++        var programs = await Programs.Value;
++        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
++            [("Reentry", programs[0], CompactDictionaryProbe.Reentry)],
++            (from mode in Enumerable.Range(0, 12) from op in Enumerable.Range(0, 6) select (mode, op)).ToArray());
++        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
++            [("ReferenceReentry", programs[1], CompactDictionaryProbe.ReferenceReentry)],
++            Enumerable.Range(0, 4).Select(mode => (mode, 0)).ToArray());
++    }
++
++    [Theory] [InlineData(false)] [InlineData(true)]
++    public async Task Entries_need_no_per_insertion_allocation_with_spare_capacity(bool optimized)
++    {
++        var program = (await Programs.Value)[2]; var flow = program.Flow.Flow.Flow;
++        var artifact = ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(program));
++        string Symbol(string name) {
++            var method = flow.Methods.Single(m => m.Source.Name == "Cilica.Fixtures.Execution.CompactDictionaryProbe::" + name);
++            return "cilica_m_" + method.Source.ContentHash + "_" + method.Source.Token.ToString("x8", CultureInfo.InvariantCulture);
++        }
++        string source = artifact.Text + $$"""
++            #include <cassert>
++            using namespace {{artifact.EntryPoint[..^4]}}_closure;
++            static unsigned allocations;
++            static void observe(Context&) noexcept { ++allocations; }
++            int main() {
++                Instance heap; heap.collect_before_allocation = true; Context c(heap);
++                assert(prepare_exceptions(c) == 0);
++                Object* map = nullptr; Frame frame; RootScope roots(c, frame, &map, 1);
++                map = {{Symbol("CreatePacked")}}(c, nullptr);
++                assert(map && c.pending == 0 && collect(c).status == MarkStatus::complete);
++                const auto before = heap.count; const auto bytes = heap.bytes;
++                heap.object_limit = before; heap.limit = bytes; c.observe = observe;
++                LocationArgument args[1]{}; args[0].reference = map;
++                {{Symbol("FillPacked")}}(c, args);
++                assert(c.pending == 0 && allocations == 0 && heap.count == before && heap.bytes == bytes);
++                assert(c.depth == 1 && c.top == &frame && c.used == 0 && c.borrows == nullptr);
++                map = nullptr; args[0].reference = nullptr;
++                assert(collect(c).status == MarkStatus::complete && heap.count == 1);
++            }
++            """;
++        using var files = new ResolverFiles(); string dir = files.DirectoryPath("compact-dictionary");
++        string cpp = Path.Combine(dir, "probe.cpp"), exe = Path.Combine(dir, "probe");
++        File.WriteAllText(cpp, source);
++        var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
++            ["-std=c++20", optimized ? "-O2" : "-O0", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror",
++             "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", exe], dir);
++        Assert.True(build.ExitCode == 0, build.Stderr);
++        var run = await NativeProcess.Run(exe, [], dir); Assert.True(run.ExitCode == 0, run.Stdout + run.Stderr); Assert.Empty(run.Stderr);
++    }
++
++    [Theory] [InlineData(false)] [InlineData(true)]
++    public async Task Every_resize_allocation_failure_preserves_old_storage_and_recovers(bool optimized)
++    {
++        var program = (await Programs.Value)[3]; var flow = program.Flow.Flow.Flow;
++        var artifact = ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(program));
++        string Symbol(string name) {
++            var method = flow.Methods.Single(m => m.Source.Name == "Cilica.Fixtures.Execution.CompactDictionaryProbe::" + name);
++            return $"cilica_m_{method.Source.ContentHash}_{method.Source.Token:x8}";
++        }
++        string source = artifact.Text + $$"""
++            #include <cassert>
++            using namespace {{artifact.EntryPoint[..^4]}}_closure;
++            int main() {
++                // Resize needs the storage owner, four columns and a bucket vector.
++                for (std::size_t spare = 0; spare < 6; ++spare) {
++                    Instance heap; heap.collect_before_allocation = true; Context c(heap);
++                    assert(prepare_exceptions(c) == 0);
++                    Object* map = nullptr; Frame frame; RootScope roots(c, frame, &map, 1);
++                    map = {{Symbol("CreateFull")}}(c, nullptr);
++                    assert(map && c.pending == 0 && collect(c).status == MarkStatus::complete);
++                    const auto before = heap.count, bytes = heap.bytes;
++                    LocationArgument args[1]{}; args[0].reference = map;
++                    heap.object_limit = before + spare;
++                    {{Symbol("Grow")}}(c, args);
++                    assert(c.pending == 5 && c.depth == 1 && c.top == &frame && c.used == 0 && c.borrows == nullptr);
++                    c.pending = 0; c.exception = nullptr;
++                    assert(collect(c).status == MarkStatus::complete && heap.count == before && heap.bytes == bytes);
++                    assert({{Symbol("Inspect")}}(c, args) == 309 && c.pending == 0);
++                    heap.object_limit = 4096;
++                    {{Symbol("Grow")}}(c, args);
++                    assert(c.pending == 0 && {{Symbol("Inspect")}}(c, args) == 410 && c.pending == 0);
++                    assert(collect(c).status == MarkStatus::complete && heap.count == before);
++                    map = nullptr; args[0].reference = nullptr;
++                    assert(collect(c).status == MarkStatus::complete && heap.count == 1);
++                }
++            }
++            """;
++        using var files = new ResolverFiles(); string dir = files.DirectoryPath("compact-resize");
++        string cpp = Path.Combine(dir, "probe.cpp"), exe = Path.Combine(dir, "probe");
++        File.WriteAllText(cpp, source);
++        var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
++            ["-std=c++20", optimized ? "-O2" : "-O0", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror",
++             "-DCILICA_VERIFY_INTERNAL_REFERENCES=1", "-DCILICA_VERIFY_BORROW_LIFETIMES=1",
++             "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", exe], dir);
++        Assert.True(build.ExitCode == 0, build.Stderr);
++        var run = await NativeProcess.Run(exe, [], dir); Assert.True(run.ExitCode == 0, run.Stdout + run.Stderr); Assert.Empty(run.Stderr);
++    }
++
++    [Fact]
++    public async Task Reentrant_lookup_and_storage_roots_survive_shared_modules()
++    {
++        var module = ObjectCppEmitter.EmitExceptionModule(ValueScalarLowering.LowerExceptions((await Programs.Value)[0]), 16);
++        Assert.True(module.Sources.Length > 2);
++        using var files = new ResolverFiles(); string dir = files.DirectoryPath("compact-module");
++        foreach (var file in module.Sources.Prepend(module.Header)) File.WriteAllText(Path.Combine(dir, file.Name), file.Text);
++        string symbol = $"cilica_m_{module.Source.ContentHash}_{module.Source.Token:x8}";
++        var source = new StringBuilder($$"""
++            #include "{{module.Header.Name}}"
++            #include <cassert>
++            using namespace {{module.EntryPoint[..^4]}}_closure;
++            static void check(int mode, int operation, int expected) {
++                Instance heap; heap.collect_before_allocation = true; Context c(heap);
++                LocationArgument args[2]{}; args[0].bits = mode; args[1].bits = operation;
++                assert({{symbol}}(c, args) == expected && c.pending == 0 && c.exception == nullptr);
++                assert(c.top == nullptr && c.depth == 0 && c.used == 0 && c.borrows == nullptr);
++                assert(collect(c).status == MarkStatus::complete);
++            }
++            int main() {
++
++            """);
++        for (int mode = 0; mode < 12; ++mode)
++            for (int operation = 0; operation < 6; ++operation)
++                source.Append(CultureInfo.InvariantCulture, $"check({mode},{operation},{CompactDictionaryProbe.Reentry(mode, operation)});\n");
++        source.Append("}\n");
++        string main = Path.Combine(dir, "main.cpp"); File.WriteAllText(main, source.ToString());
++        var objects = new List<string>(); string compiler = Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++";
++        foreach (string cpp in module.Sources.Select(f => Path.Combine(dir, f.Name)).Append(main))
++        {
++            string obj = cpp + ".o";
++            var build = await NativeProcess.Run(compiler,
++                ["-std=c++20", "-O2", "-DCILICA_TYPED_INTERNALS=1", "-fno-exceptions", "-fno-rtti",
++                 "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", "-c", cpp, "-o", obj], dir);
++            Assert.True(build.ExitCode == 0, build.Stderr); objects.Add(obj);
++        }
++        string exe = Path.Combine(dir, "probe");
++        var link = await NativeProcess.Run(compiler, ["-fsanitize=address,undefined", .. objects, "-o", exe], dir);
++        Assert.True(link.ExitCode == 0, link.Stderr);
++        var run = await NativeProcess.Run(exe, [], dir); Assert.True(run.ExitCode == 0, run.Stdout + run.Stderr); Assert.Empty(run.Stderr);
++    }
++}
+diff --git a/tests/Fixtures/Cilica.Fixtures.Execution/CompactDictionaryProbe.cs b/tests/Fixtures/Cilica.Fixtures.Execution/CompactDictionaryProbe.cs
+new file mode 100644
+index 0000000..968ea3a
+--- /dev/null
++++ b/tests/Fixtures/Cilica.Fixtures.Execution/CompactDictionaryProbe.cs
+@@ -0,0 +1,93 @@
++using System;
++using System.Collections.Generic;
++namespace Cilica.Fixtures.Execution
++{
++    public sealed class CompactReentryComparer : IEqualityComparer<int>
++    {
++        public Dictionary<int, int> Owner;
++        public int Mode, Armed, OnHash, Calls;
++        public int GetHashCode(int value) { if (OnHash != 0) Change(); return value; }
++        public bool Equals(int left, int right) { if (OnHash == 0) Change(); return left == right; }
++        private void Change()
++        {
++            if (Armed == 0) return;
++            Armed = 0; Calls++;
++            if (Mode == 1) Owner[1] = 71;
++            if (Mode == 2) Owner.Remove(1);
++            if (Mode == 3) Owner.Clear();
++            if (Mode == 4) { for (int i = 4; i < 9; ++i) Owner.Add(i, i * 11); Owner[1] = 71; }
++            if (Mode == 5) throw new InvalidOperationException("callback");
++        }
++    }
++    public sealed class CompactReferenceComparer : IEqualityComparer<int>
++    {
++        public Dictionary<int, ValueVectorBox> Owner;
++        public int Mode, Armed;
++        public int GetHashCode(int value) => value;
++        public bool Equals(int left, int right)
++        {
++            if (Armed != 0)
++            {
++                Armed = 0;
++                if (Mode == 0) Owner.Remove(1);
++                if (Mode == 1) Owner.Clear();
++                if (Mode == 2) { for (int i = 4; i < 9; ++i) Owner.Add(i, new ValueVectorBox(i)); Owner[1] = new ValueVectorBox(71); }
++                if (Mode == 3) Owner[1] = new ValueVectorBox(71);
++            }
++            return left == right;
++        }
++    }
++    public static class CompactDictionaryProbe
++    {
++        public static int Reentry(int mode, int operation)
++        {
++            var comparer = new CompactReentryComparer();
++            var map = new Dictionary<int, int>(comparer); comparer.Owner = map;
++            for (int i = 1; i <= 3; ++i) map.Add(i, i * 11);
++            comparer.Mode = mode % 6; comparer.OnHash = mode / 6; comparer.Armed = 1;
++            int value = 37, found = 0;
++            try
++            {
++                if (operation == 0) found = map.TryGetValue(1, out value) ? 1 : 2;
++                if (operation == 1) found = map.ContainsKey(1) ? 3 : 4;
++                if (operation == 2) { value = map[1]; found = 5; }
++                if (operation == 3) { map[1] = 91; found = 6; }
++                if (operation == 4) found = map.TryAdd(1, 91) ? 7 : 8;
++                if (operation == 5) found = map.Remove(1, out value) ? 9 : 10;
++            }
++            catch (InvalidOperationException) { found = 11; }
++            catch (KeyNotFoundException) { found = 12; }
++            catch (IndexOutOfRangeException) { found = 13; }
++            comparer.Armed = 0;
++            bool present = map.TryGetValue(1, out int after);
++            return unchecked((((found * 101 + value) * 101 + after) * 31 + map.Count) * 7 + (present ? 1 : 0) + comparer.Calls * 3);
++        }
++        public static int ReferenceReentry(int mode, int unused)
++        {
++            var comparer = new CompactReferenceComparer();
++            var map = new Dictionary<int, ValueVectorBox>(comparer); comparer.Owner = map;
++            var original = new ValueVectorBox(11);
++            map.Add(1, original); map.Add(2, new ValueVectorBox(22)); map.Add(3, new ValueVectorBox(33));
++            comparer.Mode = mode; comparer.Armed = 1;
++            bool found = map.TryGetValue(1, out var result);
++            return (found ? 1000 : 2000) + (result == null ? 0 : result.Number) + (ReferenceEquals(result, original) ? 100 : 0) + map.Count * 10000;
++        }
++        public static Dictionary<int, int> CreatePacked() => new Dictionary<int, int>(7);
++        public static void FillPacked(Dictionary<int, int> map) { for (int i = 0; i < 7; ++i) map.Add(i, i * 3); }
++        public static int Packed(int a, int b) { var map = CreatePacked(); FillPacked(map); return map[6] + map.Count; }
++        public static Dictionary<int, int> CreateFull()
++        {
++            var map = new Dictionary<int, int>(3);
++            for (int i = 0; i < 3; ++i) map.Add(i, i * 3);
++            return map;
++        }
++        public static void Grow(Dictionary<int, int> map) => map.Add(3, 9);
++        public static int Inspect(Dictionary<int, int> map)
++        {
++            int sum = 0;
++            for (int i = 0; i < 3; ++i) sum += map[i];
++            return map.Count * 100 + sum + (map.ContainsKey(3) ? 1 : 0);
++        }
++        public static int Growth(int a, int b) { var map = CreateFull(); Grow(map); return Inspect(map); }
++    }
++}

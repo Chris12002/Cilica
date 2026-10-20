@@ -1,0 +1,9 @@
+{
+  "library/Cilica.Core/Dictionary.cs": "6a8e9bbfbf3c37066e961b782f868fd06b74175def2d1815fc9a38e926d7d75a",
+  "library/provenance.json": "38c4c9f467de4589f3b64a586f717cdeaccd7374b860cd97f31d2770c9b85ef9",
+  "tests/Cilica.Metadata.Tests/DictionaryMutationTests.cs": "5ba08cb7432923db958814d7985888c8b737674cf0d8e3e4c52de3edc0becf43",
+  "tests/Cilica.Metadata.Tests/DictionaryViewEnumerationTests.cs": "4e866ca3ccff5591c0b72e34f450ae83794e13f56c3a54dacced0fa88fcbda84",
+  "tests/Cilica.Metadata.Tests/DictionaryViewTests.cs": "c91e66cd820e11a0bc78bbfa1e70ff3ca63dc9eeb61de905ff22441c27021434",
+  "tests/Cilica.Metadata.Tests/CompactDictionaryTests.cs": "34795e8470030bad05d1091187c29285b6d2cedf30eb7e1df2cef850b32693f4",
+  "tests/Fixtures/Cilica.Fixtures.Execution/CompactDictionaryProbe.cs": "af6469c14abd516a4a7612878771d82d7d56a95a0589a5eb0edea9a6baaa58ee"
+}

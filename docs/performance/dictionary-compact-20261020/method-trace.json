@@ -1,0 +1,90 @@
+[
+  {
+    "token": "0600049d",
+    "type": "System.Collections.Generic.Dictionary`2",
+    "name": "Equal",
+    "rva": 68100,
+    "signature": "20020213001300",
+    "ilBytes": 31,
+    "maxStack": 8,
+    "localsInitialized": false,
+    "kernel_declaration_present": true
+  },
+  {
+    "token": "0600049e",
+    "type": "System.Collections.Generic.Dictionary`2",
+    "name": "Hash",
+    "rva": 68132,
+    "signature": "2001091300",
+    "ilBytes": 9,
+    "maxStack": 8,
+    "localsInitialized": false,
+    "kernel_declaration_present": true
+  },
+  {
+    "token": "060004a1",
+    "type": "System.Collections.Generic.Dictionary`2",
+    "name": "Find",
+    "rva": 68200,
+    "signature": "2002151250021300130113001008",
+    "ilBytes": 139,
+    "maxStack": 3,
+    "localsInitialized": true,
+    "kernel_declaration_present": true
+  },
+  {
+    "token": "060004a2",
+    "type": "System.Collections.Generic.Dictionary`2",
+    "name": "TryGetValue",
+    "rva": 68352,
+    "signature": "2002021300101301",
+    "ilBytes": 42,
+    "maxStack": 3,
+    "localsInitialized": true,
+    "kernel_declaration_present": true
+  },
+  {
+    "token": "060004aa",
+    "type": "System.Collections.Generic.Dictionary`2",
+    "name": "Remove",
+    "rva": 68708,
+    "signature": "2001021300",
+    "ilBytes": 10,
+    "maxStack": 3,
+    "localsInitialized": true,
+    "kernel_declaration_present": false
+  },
+  {
+    "token": "060004ab",
+    "type": "System.Collections.Generic.Dictionary`2",
+    "name": "Remove",
+    "rva": 68732,
+    "signature": "2002021300101301",
+    "ilBytes": 322,
+    "maxStack": 4,
+    "localsInitialized": true,
+    "kernel_declaration_present": false
+  },
+  {
+    "token": "060004cc",
+    "type": "System.Collections.Generic.Dictionary`2",
+    "name": "Insert",
+    "rva": 69544,
+    "signature": "200302101300130102",
+    "ilBytes": 362,
+    "maxStack": 4,
+    "localsInitialized": true,
+    "kernel_declaration_present": false
+  },
+  {
+    "token": "060004cd",
+    "type": "System.Collections.Generic.Dictionary`2",
+    "name": "Resize",
+    "rva": 69920,
+    "signature": "200001",
+    "ilBytes": 227,
+    "maxStack": 4,
+    "localsInitialized": true,
+    "kernel_declaration_present": false
+  }
+]

@@ -1406,6 +1406,12 @@ checks. Character diff remains effectively unchanged. The remaining approved
 work is recorded in [the four-target roadmap](performance/next-targets-20261020.md).
 Earlier profile reports retain their historical scope and measurements.
 
+The [compact dictionary investigation](performance/dictionary-compact-20261020.md)
+did not produce an accepted implementation. Inline entry arrays regressed through
+generic borrow lowering; the column candidate had only a small preliminary timing
+change and regressed existing UInt64-key support. Reference entries remain active.
+ADR 0225 moves compact storage behind the array-lowering prerequisites.
+
 Differential tests run the same program on .NET and Cilica and compare results,
 mutations, exception ordering/types, dispatch, generics and specified identity.
 Do not compare unspecified details such as raw addresses or assume universally

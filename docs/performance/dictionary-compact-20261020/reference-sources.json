@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/dotnet-speed-20261020/runtime-dictionary.cs",
+    "sha256": "d4912c85cbf40f893ca6b323746c47ca3b2a7a2da83bfb60290902b569b5fdc9",
+    "start_line": 1295,
+    "end_line": 1517
+  },
+  {
+    "path": "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/Build/Control_BackUpThisFolder_ButDontShipItWithYourGame/il2cppOutput/Generics__3.cpp",
+    "sha256": "e0d1750f165f2694b395223a8618206ae2d751c2b1538807fe1105cb4420783b",
+    "start_line": 5608,
+    "end_line": 5835
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "core_sha256": "05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe",
+  "compiler_library_tests_sources_match_b171fd7": true,
+  "restored_wide_tests_passed": 2,
+  "restored_cpp_sha256": "2d5bb7c06e4e2941fa4f25ca5d88221aef6465c7614bc6724f9b7c6c9062822a",
+  "accepted_v116_cpp_sha256": "2d5bb7c06e4e2941fa4f25ca5d88221aef6465c7614bc6724f9b7c6c9062822a"
+}

@@ -1,0 +1,127 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.DictionaryLibraryTests.Dictionary_growth_collisions_copies_and_mutating_key_callbacks_match_dotnet(optimized: False) [FAIL]
+      Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryProbe::WideKeys token 0x06000533 IL_003e -> System.Collections.Generic.Dictionary`2::TryAdd token 0x060004a3 specialization e10d78c72089cec22f498098006ae725a8bc70b2923086c671931f2b134931f7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization e10d78c72089cec22f498098006ae725a8bc70b2923086c671931f2b134931f7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/DictionaryLibraryTests.cs(37,0): at Cilica.Metadata.Tests.DictionaryLibraryTests.BuildPrograms()
+        tests/Cilica.Metadata.Tests/DictionaryLibraryTests.cs(107,0): at Cilica.Metadata.Tests.DictionaryLibraryTests.Dictionary_growth_collisions_copies_and_mutating_key_callbacks_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryLibraryTests.Dictionary_growth_collisions_copies_and_mutating_key_callbacks_match_dotnet(optimized: True) [FAIL]
+      Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryProbe::WideKeys token 0x06000533 IL_003e -> System.Collections.Generic.Dictionary`2::TryAdd token 0x060004a3 specialization e10d78c72089cec22f498098006ae725a8bc70b2923086c671931f2b134931f7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization e10d78c72089cec22f498098006ae725a8bc70b2923086c671931f2b134931f7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/DictionaryLibraryTests.cs(37,0): at Cilica.Metadata.Tests.DictionaryLibraryTests.BuildPrograms()
+        tests/Cilica.Metadata.Tests/DictionaryLibraryTests.cs(107,0): at Cilica.Metadata.Tests.DictionaryLibraryTests.Dictionary_growth_collisions_copies_and_mutating_key_callbacks_match_dotnet(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: False, group: 0) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: True, group: 0) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: False, group: 1) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: True, group: 1) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: False, group: 2) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: True, group: 2) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: False, group: 3) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: True, group: 3) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: False, group: 4) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: True, group: 4) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: False, group: 5) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(optimized: True, group: 5) [FAIL]
+      UInt64: Diagnostic { Id = CIL2001, Severity = Error, Message = Composed vector elements require Int32, an admitted nominal reference or a closed inline value; other integer and enum arrays require later lowering. Reachable via: Cilica.Fixtures.Execution.DictionaryAddReadProbe::UInt64 token 0x060004d8 IL_0012 -> System.Collections.Generic.Dictionary`2::Add token 0x060004a9 specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0005., Location = System.Collections.Generic.Dictionary`2::Insert token 0x060004cc specialization 47dca76dea6858739b956d0875550d4da043d39f7be52d30f6ad5f425ffe07d7 IL_0057 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(103,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.<>c__DisplayClass7_0.<TranslateFixtures>b__0(String name)
+           at System.Linq.Enumerable.ArraySelectIterator`2.ToArray()
+           at System.Linq.Enumerable.ToArray[TSource](IEnumerable`1 source)
+        tests/Cilica.Metadata.Tests/CoreLibraryBuildTests.cs(100,0): at Cilica.Metadata.Tests.CoreLibraryBuildTests.TranslateFixtures(Type fixture, String[] names)
+        tests/Cilica.Metadata.Tests/DictionaryAddReadTests.cs(25,0): at Cilica.Metadata.Tests.DictionaryAddReadTests.Checked_insertion_lookup_key_text_and_callback_order_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = 'ebfa90e8dbded546ca204c1a7a2bca3a0eefe3451eec720feef837e75c407c4a')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 106, Errors: 0, Failed: 14, Skipped: 0, Not Run: 0, Time: 356.047s
