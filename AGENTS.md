@@ -95,6 +95,67 @@ feedback before implementation. Explain consequential choices in plain language.
   correctness separately from release timing. Revisit prototype limits using
   measured target budgets rather than treating their original values as permanent.
 
+## Reference deconstruction with REA
+
+When optimizing or implementing support for a library, deconstruct its NativeAOT
+and Unity IL2CPP builds with REA (https://github.com/morluto/rea) before designing:
+
+- Use REA `inspect-managed-members` for Roslyn IL identity (tokens, IL offsets,
+  hashes, call sites) and `compare-managed-members` to prove inputs are unchanged.
+- Use `inspect-il2cpp-metadata` on the player's `global-metadata.dat` to name
+  IL2CPP types/methods. Analyse the unstripped arm64 `GameAssembly.dylib` from the
+  Unity build cache, not the stripped shipped copy, with REA's Ghidra provider.
+- Publish a minimal-host NativeAOT build with symbols; host-only dependencies such
+  as JSON change whole-program devirtualization. Analyse it with REA's Ghidra provider.
+- Compare the same hot methods across Cilica, IL2CPP and NativeAOT: instructions,
+  blocks, callees and indirect dispatch. Retain binary hashes and exact commands.
+- NativeAOT shows target machine code and runtime techniques; IL2CPP shows
+  feasible C++ encodings. Both are references, never substitute implementations.
+  Report NativeAOT timings separately from ordinary .NET.
+- REA's IL2CPP decoder may require a source build until released. Record the REA
+  revision, Ghidra version and Node runtime with the evidence.
+
+## Library workflows
+
+### Optimizing a supported library
+
+1. Baseline: confirm branch ancestry and compiler/library revisions, regenerate C++
+   from the current branch and match every output against the .NET oracle.
+2. Time paired release runs: Cilica, ordinary .NET (default and non-tiered) and
+   IL2CPP where available; NativeAOT separately. Same DLL, checksum and host load.
+3. Profile Cilica (sampling plus untimed counters). Separate library/source work
+   from generated-code and runtime overhead; rank costs by measured share.
+4. Deconstruct the hot methods with REA: Roslyn IL, IL2CPP, NativeAOT and Cilica.
+5. Size the opportunity with a diagnostic experiment on retained generated code;
+   it guides design but is not acceptance evidence.
+6. Present the design, expected gain and correctness risks to the user; record an
+   ADR for consequential choices before implementation.
+7. Implement one attributable slice: reduced regressions, O0/O2 .NET differential
+   runs, forced GC, ASan/UBSan and diagnostic modes on and off.
+8. Regenerate and remeasure paired before/after; repeat the REA comparison. Retain
+   evidence under docs/performance, update the specification, then commit.
+
+### Adding a library that needs paths outside the current specification
+
+1. Screen and pin through docs/compatibility-candidates (candidate_snapshot.py,
+   pinned reference_manifest, licence, .NET Standard 2.1 or earlier asset).
+   Never execute the input assemblies in the compiler process.
+2. Compile the selected roots with Cilica and collect its actionable diagnostics.
+   Inventory reachable unsupported semantics with REA call sites and opcodes.
+3. Build IL2CPP and NativeAOT references and deconstruct how each implements the
+   missing semantics, runtime helpers and data layouts.
+4. Classify each gap: owned-core library body, compiler lowering, runtime mechanism,
+   or outside the current profile (threads, unspecified floating point, reflection).
+5. For semantics the specification does not yet cover, draft the specification
+   change and ADR first and obtain user approval before implementing.
+6. Implement in small independently useful slices. Each adds reduced probes, .NET
+   differential O0/O2 runs, forced GC, sanitizers and malformed-IR negative checks,
+   and keeps remaining gaps as explicit diagnostics.
+7. Verify the library's selected roots differentially, then enter the optimization
+   workflow above for its performance baseline.
+8. Update the compatibility ledger, specification and ADRs. Never claim untested
+   support or describe planned paths as implemented.
+
 ## Internal reference verification
 
 Generated access and managed borrows trust live internal references by default.
