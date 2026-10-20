@@ -937,6 +937,14 @@ Object headers and public ABI are unchanged; native v91 records the additional
 private instance scratch fields. Standalone visitors remain allocation-free;
 marking now optionally allocates native scratch, with an allocation-free fallback.
 
+Native v115 relies on clean mark/link scratch outside collection: all allocation
+paths, including pooled header reuse, initialize it. Successful collection clears
+survivors during sweep and disarms the extra destructor cleanup walk. Failed,
+limited, stopped and report-only passes still clear the validated inventory on
+exit. Full inventory and edge validation, membership-index lifetime, atomic
+failure and the prohibition on runtime mutation during reporting remain intact.
+See [ADR 0222](decisions/0222-collector-cleanup-fusion.md).
+
 ## 9. Exceptions
 
 The primitive profile currently propagates division/remainder and checked-arithmetic faults

@@ -23,7 +23,7 @@ struct MarkState {
     const std::size_t edge_limit;
     Object* work = nullptr;
     std::size_t reachable = 0, edges = 0;
-    bool prepared = false;
+    bool cleanup_pending = false;
     MarkState(Instance& instance, std::size_t limit) noexcept : heap(instance), edge_limit(limit) { heap.marking = true; }
     MarkState(const MarkState&) = delete;
     MarkState& operator=(const MarkState&) = delete;
@@ -31,7 +31,7 @@ struct MarkState {
         heap.membership_size = 0;
         // Topology was validated before any scratch write, and cannot change
         // during the pass. Never retain a mark snapshot across managed execution.
-        if (prepared) for (Object* value = heap.head; value != nullptr; value = value->next) {
+        if (cleanup_pending) for (Object* value = heap.head; value != nullptr; value = value->next) {
             value->marked = false; value->mark_next = nullptr;
         }
         heap.marking = false;
@@ -92,10 +92,9 @@ struct MarkState {
     }
     if (count != heap.count || bytes != heap.bytes) return {MarkStatus::invalid};
     prepare_membership(heap);
-    state.prepared = true;
-    for (Object* value = heap.head; value != nullptr; value = value->next) {
-        value->marked = false; value->mark_next = nullptr;
-    }
+    // Allocation initializes scratch; every earlier marking exit clears it.
+    // Reporting callbacks may not mutate runtime state, including this scratch.
+    state.cleanup_pending = true;
     auto result = visit_roots(context, mark_edge, &state);
     if (result != TraceResult::complete) return {result == TraceResult::invalid ? MarkStatus::invalid : MarkStatus::limit};
     while (state.work != nullptr) {
@@ -127,11 +126,17 @@ struct MarkState {
     Object** link = &heap.head;
     while (*link != nullptr) {
         Object* value = *link;
-        if (value->marked) { link = &value->next; continue; }
+        if (value->marked) {
+            value->marked = false; value->mark_next = nullptr;
+            link = &value->next; continue;
+        }
         *link = value->next;
         heap.bytes -= value->allocation_bytes; --heap.count;
         value->type->destroy(value);
     }
+    // Survivors were cleared while sweeping; failed/report-only passes still
+    // use MarkState's complete cleanup walk before managed execution resumes.
+    state.cleanup_pending = false;
     return report;
 }
 [[gnu::noinline]] static bool collect_for_allocation(Context& context, bool& attempted) noexcept {

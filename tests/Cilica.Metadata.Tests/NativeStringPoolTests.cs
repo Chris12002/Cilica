@@ -33,7 +33,9 @@ public sealed class NativeStringPoolTests
             #include <cassert>
             using namespace {{artifact.EntryPoint[..^4]}}_closure;
             static Object* make(Context& c, std::uint32_t unit) {
-                return string_from_character(c, {{descriptor}}, unit);
+                auto* value = string_from_character(c, {{descriptor}}, unit);
+                assert(value == nullptr || (!value->marked && value->mark_next == nullptr));
+                return value;
             }
             int main() {
                 {

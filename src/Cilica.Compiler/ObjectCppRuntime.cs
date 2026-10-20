@@ -104,7 +104,8 @@ struct Object {
     Instance* owner = nullptr;
     Object* next = nullptr;
     std::uintptr_t synchronization = 0;
-    // Collector scratch is separate from identity/lock state and ownership links.
+    // Collector scratch is clean outside marking, including freshly reused headers.
+    // Keep it separate from identity/lock state and ownership links.
     Object* mark_next = nullptr;
     bool marked = false;
     std::size_t allocation_bytes = 0;

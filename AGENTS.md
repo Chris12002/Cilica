@@ -1097,3 +1097,9 @@ Native v114 consolidates optimized array-location construction checks only. Keep
 owner/storage/type/bounds order, invariant reference slots and exact component
 checks. No allocation/callback may separate those checks from carrier construction;
 later resolution remains checked. O0 keeps the original path. See ADR 0221.
+
+Native v115 requires clean marked/mark_next scratch outside marking, including
+new and reused headers. Successful sweep clears survivors and disarms its extra
+cleanup walk; every failed/report-only/stopped pass still cleans up. Preserve
+full inventory validation, index teardown, checked public handles and callback
+non-mutation. New allocation/marking exits must preserve this invariant. See ADR 0222.
