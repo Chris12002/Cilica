@@ -1,0 +1,8 @@
+{"warmIterations":4248,"warm_ms":300.558}
+{"sample":0,"iterations":1024,"ns":70427667,"checksum":3196928,"managed_heap_bytes_after":66548,"managed_objects_after":461,"frame_peak_bytes":12200}
+{"sample":1,"iterations":1024,"ns":69792541,"checksum":3196928,"managed_heap_bytes_after":45680,"managed_objects_after":327,"frame_peak_bytes":12200}
+{"sample":2,"iterations":1024,"ns":69885500,"checksum":3196928,"managed_heap_bytes_after":532808,"managed_objects_after":3805,"frame_peak_bytes":12200}
+{"sample":3,"iterations":1024,"ns":70634583,"checksum":3196928,"managed_heap_bytes_after":486056,"managed_objects_after":3473,"frame_peak_bytes":12200}
+{"sample":4,"iterations":1024,"ns":71263208,"checksum":3196928,"managed_heap_bytes_after":444920,"managed_objects_after":3177,"frame_peak_bytes":12200}
+{"sample":5,"iterations":1024,"ns":70201250,"checksum":3196928,"managed_heap_bytes_after":406748,"managed_objects_after":2900,"frame_peak_bytes":12200}
+{"sample":6,"iterations":1024,"ns":70305333,"checksum":3196928,"managed_heap_bytes_after":374156,"managed_objects_after":2659,"frame_peak_bytes":12200}

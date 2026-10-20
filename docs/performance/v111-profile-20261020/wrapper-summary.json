@@ -1,0 +1,62 @@
+{
+  "0": {
+    "baseline": {
+      "median_ns": 26802.734375,
+      "min_ns": 26512.4921875,
+      "max_ns": 28115.72265625,
+      "samples": 21,
+      "reduction_percent": 0.0
+    },
+    "combined": {
+      "median_ns": 23395.58984375,
+      "min_ns": 23116.984375,
+      "max_ns": 23928.22265625,
+      "samples": 21,
+      "reduction_percent": 12.711928878525104
+    },
+    "wrapper_inline": {
+      "median_ns": 26722.5751953125,
+      "min_ns": 26524.251953125,
+      "max_ns": 27570.2724609375,
+      "samples": 21,
+      "reduction_percent": 0.2990709028638072
+    },
+    "combined_wrapper": {
+      "median_ns": 23524.251953125,
+      "min_ns": 23302.693359375,
+      "max_ns": 23846.19140625,
+      "samples": 21,
+      "reduction_percent": 12.231895358157841
+    }
+  },
+  "1": {
+    "baseline": {
+      "median_ns": 70095.98828125,
+      "min_ns": 68801.47265625,
+      "max_ns": 71360.1484375,
+      "samples": 21,
+      "reduction_percent": 0.0
+    },
+    "combined": {
+      "median_ns": 66147.8271484375,
+      "min_ns": 65761.0673828125,
+      "max_ns": 68358.6015625,
+      "samples": 21,
+      "reduction_percent": 5.632506552259564
+    },
+    "wrapper_inline": {
+      "median_ns": 66118.7744140625,
+      "min_ns": 64642.8623046875,
+      "max_ns": 67405.0703125,
+      "samples": 21,
+      "reduction_percent": 5.673953623750205
+    },
+    "combined_wrapper": {
+      "median_ns": 64308.3896484375,
+      "min_ns": 63447.3466796875,
+      "max_ns": 66751.6279296875,
+      "samples": 21,
+      "reduction_percent": 8.256675987776363
+    }
+  }
+}

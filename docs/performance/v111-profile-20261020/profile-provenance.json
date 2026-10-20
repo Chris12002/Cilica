@@ -1,0 +1,32 @@
+{
+  "revision": "be9afab80f76051183576b8780954ad02b475752",
+  "fresh_cpp_matches_previous": true,
+  "commands": {
+    "baseline": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/baseline.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/baseline"
+    ],
+    "profile": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-g",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/baseline.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/profile"
+    ]
+  },
+  "core_sha256": "655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1",
+  "source_sha256": "08f228f3cc217cf5bbb67e6de22fd4777314cb393d00ceb17724bc69eb4926f6",
+  "host_sha256": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9"
+}

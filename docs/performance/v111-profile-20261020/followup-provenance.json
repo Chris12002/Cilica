@@ -1,0 +1,70 @@
+{
+  "array_once": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/array_once.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/array_once"
+    ],
+    "cpp_sha256": "813643a44a285b9c9368a9a22476e90a866efaab417cbfa06307ce4351782c9d",
+    "bytes": 568360,
+    "max_frame_bytes": 432
+  },
+  "allocation_inline": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/allocation_inline.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/allocation_inline"
+    ],
+    "cpp_sha256": "44ad82db7119523e4fc2f19ad9719686f8a1ff7bec55c1e47267ec176a89d90c",
+    "bytes": 568192,
+    "max_frame_bytes": 432
+  },
+  "string_allocation_inline": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/string_allocation_inline.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/string_allocation_inline"
+    ],
+    "cpp_sha256": "e694567faec16441b2ff93e11c21738609ba6e84a387a4b982757484ee0c1951",
+    "bytes": 584296,
+    "max_frame_bytes": 432
+  },
+  "combined": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/combined.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-profile-20261020/combined"
+    ],
+    "cpp_sha256": "e4979a7ee031c93d2091d67cde5a7d13bcb8f31998f53ad9596c73aa36e356e5",
+    "bytes": 599432,
+    "max_frame_bytes": 432
+  }
+}

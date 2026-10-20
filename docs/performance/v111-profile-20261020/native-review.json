@@ -1,0 +1,65 @@
+{
+  "baseline": {
+    "command": [
+      "xcrun",
+      "llvm-objdump",
+      "--disassemble",
+      "--demangle",
+      "artifacts/v111-profile-20261020/baseline"
+    ],
+    "executable_bytes": 568360,
+    "static_calls": {
+      "allocation_room": 21,
+      "allocation_safepoint": 19,
+      "allocate_string": 7,
+      "string_from_character": 2,
+      "find_borrow": 2,
+      "frame_location_storage": 0,
+      "location_storage": 12
+    },
+    "disassembly_sha256": "09104245d712675dc7e14f6609bb8e0dbf945e54a7f2a63314c9f24f43eb368e",
+    "count_scope": "Named direct bl call sites only; tail branches and folded aliases are not attributed."
+  },
+  "string_allocation_inline": {
+    "command": [
+      "xcrun",
+      "llvm-objdump",
+      "--disassemble",
+      "--demangle",
+      "artifacts/v111-profile-20261020/string_allocation_inline"
+    ],
+    "executable_bytes": 584296,
+    "static_calls": {
+      "allocation_room": 0,
+      "allocation_safepoint": 0,
+      "allocate_string": 0,
+      "string_from_character": 0,
+      "find_borrow": 2,
+      "frame_location_storage": 0,
+      "location_storage": 12
+    },
+    "disassembly_sha256": "b6b9dc788bfa84622f9e4f37e00f05ee093ab4163028a108e2be184a84cb3704",
+    "count_scope": "Named direct bl call sites only; tail branches and folded aliases are not attributed."
+  },
+  "combined": {
+    "command": [
+      "xcrun",
+      "llvm-objdump",
+      "--disassemble",
+      "--demangle",
+      "artifacts/v111-profile-20261020/combined"
+    ],
+    "executable_bytes": 599432,
+    "static_calls": {
+      "allocation_room": 0,
+      "allocation_safepoint": 0,
+      "allocate_string": 0,
+      "string_from_character": 0,
+      "find_borrow": 0,
+      "frame_location_storage": 0,
+      "location_storage": 0
+    },
+    "disassembly_sha256": "b02c1bd33f92f2ffaee2b962774ba0910f15daa978574d11a0593380ff04de28",
+    "count_scope": "Named direct bl call sites only; tail branches and folded aliases are not attributed."
+  }
+}

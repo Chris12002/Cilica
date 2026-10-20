@@ -1,0 +1,110 @@
+{
+  "all_samples": 4380,
+  "application_samples": 3849,
+  "disjoint_selected_categories": {
+    "dictionary": {
+      "samples": 850,
+      "percent_of_all": 19.40639269406393,
+      "members": {
+        "System.Collections.Generic.Dictionary`2.TryGetValue": 499,
+        "System.Collections.Generic.Dictionary`2.Insert": 152,
+        "System.Collections.Generic.Dictionary`2.set_Item": 69,
+        "Cilica.Runtime.DictionaryEntry`2..ctor": 66,
+        "System.Collections.Generic.Dictionary`2.Resize": 30,
+        "System.Collections.Generic.Dictionary`2.HashKey": 15,
+        "System.Collections.Generic.Dictionary`2.get_Count": 11,
+        "System.Collections.Generic.Dictionary`2.Initialize": 3,
+        "System.Collections.Generic.Dictionary`2.CheckKey": 2,
+        "System.Collections.Generic.Dictionary`2.NormalizeComparer": 2,
+        "System.Collections.Generic.Dictionary`2..ctor": 1
+      }
+    },
+    "borrow_location": {
+      "samples": 508,
+      "percent_of_all": 11.598173515981735,
+      "members": {
+        "frame_location_storage": 112,
+        "location_storage": 97,
+        "array_location_storage": 67,
+        "BorrowScope::BorrowScope": 52,
+        "find_borrow": 48,
+        "active_root_frame": 39,
+        "array_location": 30,
+        "frame_location": 20,
+        "store_location_integer": 18,
+        "load_location_reference": 10,
+        "location_reference": 10,
+        "valid_location_argument": 3,
+        "issue_borrow_token": 2
+      }
+    },
+    "collector": {
+      "samples": 517,
+      "percent_of_all": 11.80365296803653,
+      "members": {
+        "prepare_membership": 206,
+        "mark_graph": 182,
+        "collect": 79,
+        "visit_edge": 24,
+        "visit_object_references": 17,
+        "mark_edge": 9
+      }
+    },
+    "descriptor_predicates": {
+      "samples": 243,
+      "percent_of_all": 5.5479452054794525,
+      "members": {
+        "t_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_02000072_accepts": 225,
+        "t_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0200008a_accepts": 14,
+        "t_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_02000014_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_accepts": 4
+      }
+    },
+    "character_string_allocation": {
+      "samples": 359,
+      "percent_of_all": 8.19634703196347,
+      "members": {
+        "System.Char.ToString": 196,
+        "allocate_string": 147,
+        "string_from_character": 16
+      }
+    },
+    "native_allocator": {
+      "samples": 420,
+      "percent_of_all": 9.58904109589041,
+      "members": {
+        "tiny_malloc_from_free_list": 96,
+        "tiny_free_no_lock": 82,
+        "free_tiny": 60,
+        "_szone_free": 44,
+        "tiny_malloc_should_clear": 24,
+        "szone_malloc_should_clear": 17,
+        "_free": 14,
+        "DYLD-STUB$$malloc_type_malloc": 12,
+        "malloc_type_malloc": 11,
+        "get_tiny_previous_free_msize": 11,
+        "tiny_free_list_add_ptr": 7,
+        "free_small": 6,
+        "_tiny_check_and_zero_inline_meta_from_freelist": 6,
+        "small_malloc_from_free_list": 5,
+        "DYLD-STUB$$free": 5,
+        "operator new": 4,
+        "small_free_list_remove_ptr_no_clear": 4,
+        "DYLD-STUB$$operator new": 4,
+        "small_malloc_should_clear": 3,
+        "small_free_list_add_ptr": 2,
+        "operator new[]": 1,
+        "small_free_list_remove_ptr": 1,
+        "tiny_free_list_remove_ptr": 1
+      }
+    },
+    "native_zeroing": {
+      "samples": 107,
+      "percent_of_all": 2.442922374429224,
+      "members": {
+        "_platform_memset": 101,
+        "__bzero": 4,
+        "DYLD-STUB$$_platform_memset": 2
+      }
+    }
+  }
+}
