@@ -1,0 +1,41 @@
+{
+  "revision": "9eeb4032c1d92dbbe0866feb672e34afff5772ba",
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-DNDEBUG",
+    "-fno-exceptions",
+    "-fno-rtti",
+    "-fstack-usage",
+    "/Users/christian/Cilica/artifacts/local-character-performance-20261020/local.cpp",
+    "-o",
+    "/Users/christian/Cilica/artifacts/local-character-performance-20261020/local"
+  ],
+  "compiler_files": {
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppTypedMethods.cs": "7b27b3bc393a5328f1e32c178a9d6ee8de66e560cf71ea210356b7d6fba029a9",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppHandles.cs": "d736ff830fb01ad55e92558b6b9a69c4abdaa06089b0c7c3eb861041de7c73ae",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppTracing.cs": "7122cc23c5980a2b9fde2d88d3cd4ce73bca0e0068e1e6cf3a56d40e249e4041",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppBoxing.cs": "9188c25a71c5ccb28ed16c21344ced800c758d71960e5355a5f2f9dd549d7a90",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppLocalCharacterCalls.cs": "6dbccefca915492e9f161df6439ec65009b5597bbeff4c5519d73c38950a40ab",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppEnumEntries.cs": "c2fbd44329a4980639ad28ec4a6a9d239d59c966e9388a5d8db3f62a095c1b5e",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppExceptionFlow.cs": "a513c2d7b6b1810b6e3ee050a3ba84c26791e063ecc16192409fa34b758ea9b7",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppRuntime.cs": "1fbd8ab71b02e817e098b9cbd0e538973755ee2c2047e5daf9ed83b904dd3620",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppLocations.cs": "f9401c29b5bb32fafef25c762256b72daf2e450eac41c050c9719c87046544ab",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppDescriptorLookup.cs": "7c88ddf2194ab89fa849694150a6d47211872dcfb787ea95c1b55352157049a8",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppModule.cs": "88f8b298220edbb5d14cd7a371aa0bb76f36a5bbdd621f30482e84ff1d9296b5",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppExceptions.cs": "de1d054ad7149ea60b19423a67b41803dcf81f758372de1333e3ca28dc788ed8",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppControlFlow.cs": "5fbce7862e161d3c077fbfa8c6fdfacb510912338b07227ec70ae71206f86943",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppInitialization.cs": "f50866d00dde449b7ee6f5362ecdc1c466203c3ea6abb15eba2ad3bbba86970b",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppEnums.cs": "fb8fad16fb3abb420e231de9799d06e50d1064dda3ac853248de14b4eb2855de",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppDelegates.cs": "34dfbb966cd5e988e47a0818db7d69b8a7beb4e860bfafb8bf536fa58e513bc4",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppLeafMethods.cs": "d00ba940e5806a78b7e44aa94a1e4d6e18c3d2e133b55a6faa21afe22d1e3699",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppEmitter.cs": "a5d77a78e9aa1b4afad097191062da9108427f2032d2c58f35965ec068ca5e1d",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppBoxedDispatch.cs": "dc0cf3a8f57fc773e6bb22f0785d39afe92b45733f04fa7e8d2f9247ad8c4161",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppMarking.cs": "a9f0afecc4302b741bb5375aebb31c103aae1bd4eb3b86cc7139465f95858ab7",
+    "/Users/christian/Cilica/src/Cilica.Compiler/ObjectCppCharacterMethods.cs": "806145534204114cbf7d5dcdfde1d8c19467e54fa1f12732785242a6ab1785ff"
+  },
+  "cpp_sha256": "fd0d4229903be9515b7603bc2a6a6c48bd021f9824e34bae6309882395a78d96",
+  "core_sha256": "655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1",
+  "max_native_frame_bytes": 432
+}

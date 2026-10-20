@@ -147,6 +147,11 @@ dispatch remain. Internal-reference diagnostics restore repeated internal checks
 Invalid array storage faults before replay. Extending kernel eligibility must
 preserve the no-safepoint/no-external-reference-write proof; see ADR 0210.
 
+Native v104 passes a local UInt16 value directly to a structurally proven readonly
+character helper only for an adjacent, single-use address/call pair. Both real GC
+frames remain. Borrow diagnostics and depth/fault/marking boundaries restore the
+original carrier path; reused/escaping addresses stay conservative. See ADR 0211.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.

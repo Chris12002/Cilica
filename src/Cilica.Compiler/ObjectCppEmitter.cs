@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v103";
+    public const string Profile = "object-frames-native-v104";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -377,7 +377,12 @@ public static class ObjectCppEmitter
             }
             Header(method); text.Append(";\n");
             if (typedMethods.ContainsKey(IrMethodId.From(method.Source))) ObjectCppTypedMethods.Declare(text, method, module is not null);
+            if (characterMethods.TryGetValue(IrMethodId.From(method.Source), out var character) && character.Target is not null)
+            {
+                ObjectCppCharacterMethods.LocalHeader(text, method, module is not null); text.Append(";\n");
+            }
         }
+        if (characterMethods.Values.Any(p => p.Target is not null)) text.Append(ObjectCppCharacterMethods.LocalRuntime);
         if (initializers.Count != 0) {
             text.Append(ObjectCppInitialization.Text.Replace("$ARGUMENT", argumentType, StringComparison.Ordinal));
             foreach (var initializer in initializers.Values)
@@ -452,6 +457,7 @@ public static class ObjectCppEmitter
             var layout = layouts[IrMethodId.From(method.Source)];
             var leafField = ObjectCppLeafMethods.FieldGetter(method);
             bool typed = typedMethods.ContainsKey(IrMethodId.From(method.Source));
+            var localCharacters = ObjectCppLocalCharacterCalls.Analyze(method, characterMethods);
             int currentBlock = 0;
 
             var output = text;
@@ -524,6 +530,10 @@ public static class ObjectCppEmitter
             }
             string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false, int offset = 0)
             {
+                if (!dispatch && receiver is null && args.Length == 1
+                    && localCharacters.TryGetValue((currentBlock, args[0]), out var localCharacter) && localCharacter.Target == target)
+                    return CppEmitter.Symbol(target) + "_local_character(context, "
+                        + layout.Storage(ObjectRootKind.Local, localCharacter.Local) + ", " + Value(args[0]) + ")";
                 if (!dispatch && receiver is null && typedMethods.ContainsKey(target))
                     return CppEmitter.Symbol(target) + "_typed(context" + (args.IsEmpty ? "" : ", " + string.Join(", ", args.Select(Value))) + ")";
                 var parameters = signatures[target].Parameters;
@@ -624,6 +634,8 @@ public static class ObjectCppEmitter
                         case IrStatement.Define define:
                         {
                             var value = define.Value; string expression;
+                            bool directLocalAddress = localCharacters.ContainsKey((block.Id, value.Id));
+                            if (directLocalAddress) code.Append("    if (!direct_character_local(context)) {\n");
                             code.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                             switch (value.Expression)
                             {
@@ -854,6 +866,7 @@ public static class ObjectCppEmitter
                                 Flush(); Check(Value(value.Id), value.Type.Class!, false, value.ILOffset);
                             }
                             else if (value.Expression is IrExpression.Call or IrExpression.CallDelegate or IrExpression.IntegerTextFind or IrExpression.RuntimeTypeHash or IrExpression.ObjectIdentityHash or IrExpression.EnumEntry or IrExpression.EnumQuery) Pending();
+                            if (directLocalAddress) code.Append("    }\n");
                             break;
                         }
                         case IrStatement.StoreLocal store:
@@ -980,6 +993,8 @@ public static class ObjectCppEmitter
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
             if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate, typedMethods, program.Flow.Types, native, TypeSymbol);
+            if (characterMethods.TryGetValue(IrMethodId.From(method.Source), out var localPlan) && localPlan.Target is not null)
+                ObjectCppCharacterMethods.AppendLocal(code, method, localPlan, module is not null);
             if (leafField is { } selectedField)
             {
                 Header(method); code.Append(" {\n    // Proven leaf getter: no allocation, managed call or escaping borrow.\n")

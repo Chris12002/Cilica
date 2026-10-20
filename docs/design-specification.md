@@ -418,6 +418,14 @@ allocate. Their direct paths retain real GC frames, borrowed-owner roots and
 managed depth; faults preserve their original origins without replaying allocation.
 They do not extend the no-safepoint kernel proof. See
 [ADR 0208](decisions/0208-rooted-character-helpers.md).
+Native v104 recognizes adjacent, single-use local UInt16 addresses passed to those
+proven readonly character helpers. Healthy nested calls pass the local value
+without a location carrier, retaining both real GC frames and original allocation
+fault origins. Reused/escaping addresses and intervening work stay conservative.
+Borrow-lifetime diagnostics, disabled typed internals, marking and depth/fault
+boundaries retain original carrier construction and dispatch. Caller registration,
+storage layout and public checks are unchanged. See
+[ADR 0211](decisions/0211-proven-local-character-reads.md).
 
 The object boundary now uses a fixed-size native signature with an Int32 input
 pointer and exact element count, including for wide managed entry methods

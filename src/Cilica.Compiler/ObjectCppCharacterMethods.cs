@@ -9,6 +9,16 @@ namespace Cilica.Compiler;
 /// <summary>Small allocating paths, separate from the no-safepoint typed kernels.</summary>
 internal static class ObjectCppCharacterMethods
 {
+    internal const string LocalRuntime = """
+// Only adjacent, nonescaping compiler-proven local reads may use this entry.
+// Diagnostic builds retain the full carrier/lifetime path.
+[[maybe_unused]] static bool direct_character_local(const Context& context) noexcept {
+    return CILICA_TYPED_INTERNALS && !CILICA_VERIFY_BORROW_LIFETIMES
+        && context.depth != 0u && context.depth < 63u
+        && context.pending == 0u && context.exception == nullptr && !context.instance.marking;
+}
+""";
+
     internal sealed record Plan(int AllocationOffset, IrMethodId? Target = null);
 
     internal static Dictionary<IrMethodId, Plan> Analyze(ObjectIrProgram program)
@@ -58,6 +68,23 @@ internal static class ObjectCppCharacterMethods
     private static bool Narrow(IrValue value, int operand) => value.Type == IrType.Int32
         && value.Expression is IrExpression.IntegerCast
         { Target: IntegerCastTarget.UInt16, Checked: false, UnsignedSource: false } cast && cast.Operand == operand;
+
+    internal static void LocalHeader(StringBuilder code, IrMethod method, bool module) =>
+        code.Append(module ? "[[maybe_unused]] " : "[[maybe_unused]] static ")
+            .Append("Object* ").Append(CppEmitter.Symbol(IrMethodId.From(method.Source)))
+            .Append("_local_character(Context& context, std::uint32_t character, const Location& fallback) noexcept");
+
+    internal static void AppendLocal(StringBuilder code, IrMethod method, Plan plan, bool module)
+    {
+        LocalHeader(code, method, module);
+        code.Append(" {\n    if (direct_character_local(context)) {\n")
+            .Append("        // The caller owns the local; no owner root or location can escape.\n")
+            .Append("        Frame frame; RootScope roots(context, frame, nullptr, 0);\n")
+            .Append("        LocationArgument next{}; next.bits = character & 0xffffu;\n")
+            .Append("        return ").Append(CppEmitter.Symbol(plan.Target!)).Append("(context, &next);\n")
+            .Append("    }\n    LocationArgument argument{}; argument.location = fallback;\n")
+            .Append("    return ").Append(CppEmitter.Symbol(IrMethodId.From(method.Source))).Append("(context, &argument);\n}\n");
+    }
 
     internal static void Append(StringBuilder code, IrMethod method, Plan plan, string descriptor, bool handlers)
     {

@@ -17,6 +17,134 @@ public sealed class NativeCharacterHelperTests
     private static string Symbol(IrMethod method) => "cilica_m_" + method.Source.ContentHash + "_" + method.Source.Token.ToString("x8", CultureInfo.InvariantCulture);
 
     [Theory]
+    [InlineData(false, 0)] [InlineData(false, 1)] [InlineData(true, 0)] [InlineData(true, 1)]
+    public async Task Local_call_sites_preserve_utf16_and_identity_in_dispatcher_and_direct_execution(bool optimized, int verify)
+    {
+        int[] units = [int.MinValue, -1, 0, 1, 0xd7ff, 0xd800, 0xdbff, 0xdc00, 0xdfff, 0xffff, 0x10000, int.MaxValue];
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("Identity", (await Programs.Value)[0], CharacterConstructionProbe.Identity)],
+            units.Select(a => (a, 0)).ToArray(),
+            nativeFlags: ["-DCILICA_TYPED_INTERNALS=1", "-DCILICA_VERIFY_BORROW_LIFETIMES=" + verify, "-Wframe-larger-than=16384"]);
+    }
+
+    [Theory]
+    [InlineData("reuse")] [InlineData("escape")] [InlineData("intervening")] [InlineData("parameter")]
+    public async Task Local_read_proof_rejects_reuse_escape_intervening_work_and_parameter_addresses(string mutation)
+    {
+        var scalar = ValueScalarLowering.LowerExceptions((await Programs.Value)[0]);
+        var flow = scalar.Flow.Flow.Flow.Flow.Flow;
+        var method = flow.Methods.Single(m => m.Source.Token == typeof(CharacterConstructionProbe).GetMethod("Identity")!.MetadataToken
+            && m.Source.ContentHash == flow.Entry.ContentHash);
+        var block = method.Blocks.Single(b => b.Statements.Any(s => s is IrStatement.Define { Value.Expression: IrExpression.AddressLocal }));
+        int index = Enumerable.Range(0, block.Statements.Length).Single(i =>
+            block.Statements[i] is IrStatement.Define { Value.Expression: IrExpression.AddressLocal });
+        var address = ((IrStatement.Define)block.Statements[index]).Value;
+        var call = ((IrStatement.Define)block.Statements[index + 1]).Value;
+        Assert.IsType<IrExpression.Call>(call.Expression);
+        Assert.Contains("_local_character(context,", ObjectCppEmitter.EmitExceptions(scalar).Text, StringComparison.Ordinal);
+        var statements = block.Statements;
+        var locals = method.Locals;
+        if (mutation == "reuse")
+            statements = statements.Insert(index + 2, new IrStatement.InitializeLocation(call.ILOffset, address.Id));
+        else if (mutation == "escape")
+        {
+            statements = statements.Insert(index + 2, new IrStatement.StoreLocal(call.ILOffset, locals.Length, address.Id));
+            locals = locals.Add(address.Type);
+        }
+        else if (mutation == "intervening")
+        {
+            int earlier = block.Values.First(v => v.Id < address.Id && v.Type == IrType.Int32).Id;
+            statements = statements.Insert(index + 1, new IrStatement.StoreLocal(call.ILOffset, ((IrExpression.AddressLocal)address.Expression).Index, earlier));
+        }
+        else
+            statements = statements.SetItem(index, ((IrStatement.Define)statements[index]) with {
+                Value = address with { Expression = new IrExpression.AddressParameter(0) } });
+        var changed = method with { Locals = locals, Blocks = method.Blocks.Replace(block, block with { Statements = statements }) };
+        var objects = scalar.Flow.Flow.Flow.Flow with { Flow = flow with { Methods = flow.Methods.Replace(method, changed) } };
+        var locations = scalar.Flow.Flow.Flow with { Flow = objects };
+        var boxes = scalar.Flow.Flow with { Flow = locations };
+        var delegates = scalar.Flow with { Flow = boxes };
+        var artifact = ObjectCppEmitter.EmitExceptions(scalar with { Flow = delegates });
+        Assert.DoesNotContain("_local_character(context,", artifact.Text, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(false, false)] [InlineData(false, true)]
+    [InlineData(true, false)] [InlineData(true, true)]
+    public async Task Proven_local_values_keep_gc_frames_diagnostics_depth_and_allocation_faults(bool optimized, bool verify)
+    {
+        var scalar = ValueScalarLowering.LowerExceptions((await Programs.Value)[0]);
+        var flow = scalar.Flow.Flow.Flow.Flow.Flow;
+        var factory = flow.Methods.Single(m => m.Blocks.Any(b => b.Values.Any(v => v.Expression is IrExpression.StringFromCharacter)));
+        var borrowed = flow.Methods.Single(m => m.Parameters.Length == 1 && m.Parameters[0].Kind == IrTypeKind.ManagedLocation
+            && m.Blocks.Any(b => b.Values.Any(v => v.Expression is IrExpression.Call call && call.Target == IrMethodId.From(factory.Source))));
+        int offset = factory.Blocks.SelectMany(b => b.Values).Single(v => v.Expression is IrExpression.StringFromCharacter).ILOffset;
+        var artifact = ObjectCppEmitter.EmitExceptions(scalar);
+        string source = artifact.Text + $$"""
+            #include <cassert>
+            using namespace {{artifact.EntryPoint[..^4]}}_closure;
+            static unsigned observations = 0;
+            static void observe(Context& c) noexcept {
+                ++observations; assert(c.depth == 3 && c.used == 0 && valid_roots(c));
+            }
+            static void clear_fault(Context& c) {
+                c.pending = 0; c.exception = nullptr; c.image = nullptr; c.method = 0; c.il = 0;
+            }
+            [[gnu::noinline]] static void depth(Context& c, std::size_t target, const Location& location) {
+                if (c.depth < target) { Frame f; RootScope r(c,f,nullptr,0); depth(c,target,location); return; }
+                auto* result = {{Symbol(borrowed)}}_local_character(c,65,location);
+                if (target == 62) assert(result && c.pending == 0);
+                else {
+                    assert(result == nullptr && c.pending == 8);
+                    assert(c.method == (target == 63 ? {{factory.Source.Token}}u : {{borrowed.Source.Token}}u));
+                }
+                assert(c.depth == target && c.used == 0);
+            }
+            int main() {
+                Instance heap; Context c(heap); heap.collect_before_allocation = true;
+                assert(prepare_exceptions(c) == 0);
+                Frame f; Object* retained[2]{}; RootScope roots(c,f,retained,2); std::uint32_t unit=65;
+                ReferencePredicate accepts[2]{known_type,known_type};
+                BorrowScope borrow(c,f,&unit,1,accepts); assert(borrow.status == LocationStatus::complete);
+                auto location=frame_location(c,borrow.frame.token,LocationOrigin::frame_integer,0,true,LocationNarrow::UInt16).value;
+                c.observe=observe;
+                for (std::uint32_t bits : {0u,1u,0xd7ffu,0xd800u,0xdc00u,0xffffu,0x10000u,0xffffffffu}) {
+                    retained[0]={{Symbol(borrowed)}}_local_character(c,bits,location);
+                    const auto expected=CILICA_VERIFY_BORROW_LIFETIMES ? unit : bits & 0xffffu;
+                    assert(retained[0] && string_length(retained[0]) == 1 && string_code_unit(retained[0],0) == expected);
+                    retained[1]={{Symbol(borrowed)}}_local_character(c,bits,location);
+                    assert(retained[1] && retained[1] != retained[0]);
+                    assert(string_code_unit(retained[0],0) == expected && c.pending == 0 && c.used == 0);
+                }
+                assert(observations == 16); retained[0]=nullptr; retained[1]=nullptr; c.observe=nullptr;
+                heap.marking=true;
+                assert(!direct_character_local(c));
+                assert({{Symbol(borrowed)}}_local_character(c,65,location) == nullptr && c.pending == 6);
+                heap.marking=false; clear_fault(c);
+                c.pending=2; c.method=123; c.il=456;
+                assert({{Symbol(borrowed)}}_local_character(c,65,location) == nullptr && c.pending == 2 && c.method == 123 && c.il == 456);
+                clear_fault(c);
+                depth(c,62,location); depth(c,63,location); clear_fault(c); depth(c,64,location); clear_fault(c);
+                heap.object_limit=1; observations=0; c.observe=observe;
+                assert({{Symbol(borrowed)}}_local_character(c,65,location) == nullptr && c.pending == 5);
+                assert(c.method == {{factory.Source.Token}}u && c.il == {{offset}}u && c.exception != nullptr && observations == 1);
+                c.observe=nullptr; clear_fault(c); heap.object_limit=4096;
+                assert({{Symbol(borrowed)}}_local_character(c,65,location) != nullptr && c.pending == 0);
+                assert(c.depth == 1 && c.top == &f && c.used == 0);
+            }
+            """;
+        using var files = new ResolverFiles();
+        string dir=files.DirectoryPath("local-character"),cpp=Path.Combine(dir,"probe.cpp"),exe=Path.Combine(dir,"probe");
+        File.WriteAllText(cpp,source);
+        var build=await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX")??"clang++",
+            ["-std=c++20",optimized?"-O2":"-O0","-DCILICA_TYPED_INTERNALS=1","-DCILICA_VERIFY_BORROW_LIFETIMES="+(verify?"1":"0"),
+             "-DCILICA_VERIFY_INTERNAL_REFERENCES=1","-DCILICA_VERIFY_ALLOCATION_ROOTS=1","-Wframe-larger-than=16384",
+             "-fno-exceptions","-fno-rtti","-Wall","-Wextra","-Werror","-fsanitize=address,undefined","-fno-sanitize-recover=all",cpp,"-o",exe],dir);
+        Assert.True(build.ExitCode==0,build.Stderr);
+        var run=await NativeProcess.Run(exe,[],dir);Assert.True(run.ExitCode==0,run.Stderr);Assert.Empty(run.Stderr);
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task Allocating_helpers_keep_roots_borrow_checks_depth_and_fault_origins(bool optimized)
