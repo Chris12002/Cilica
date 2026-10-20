@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v108";
+    public const string Profile = "object-frames-native-v109";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -431,7 +431,15 @@ public static class ObjectCppEmitter
                 .Append(boxedMap ? "boxed = entry.boxed ? entry.type : nullptr; payload = entry.payload; " : "")
                 .Append("return entry.body; }\n    return nullptr;\n}\n");
         }
-        if (module is not null) { module.Begin(text.ToString(), scope, symbol); text.Clear(); }
+        if (module is not null)
+        {
+            // Cross-unit forced inlining requires definitions in the shared header.
+            // Only proven, bounded kernels move here; framed fallbacks stay partitioned.
+            foreach (var method in methods.Values.Where(m => typedMethods.ContainsKey(IrMethodId.From(m.Source)))
+                .OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
+                AppendKernel(text, method);
+            module.Begin(text.ToString(), scope, symbol); text.Clear();
+        }
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
             if (module is not null) text.Append(module.TakeFrame(IrMethodId.From(method.Source)));
@@ -463,6 +471,9 @@ public static class ObjectCppEmitter
         }
 
         string FrameType(IrMethod method) => CppEmitter.Symbol(IrMethodId.From(method.Source)) + "_storage";
+
+        void AppendKernel(StringBuilder output, IrMethod method) => ObjectCppTypedMethods.AppendKernel(output, method,
+            program.Flow.Types.ObjectBase, Predicate, typedMethods, program.Flow.Types, native, TypeSymbol, fieldAccess, FieldSymbol);
 
         void AppendMethod(IrMethod method)
         {
@@ -1021,7 +1032,8 @@ public static class ObjectCppEmitter
                     IrTypeKind.Int64 => "return std::bit_cast<std::int64_t>(f->result.wide_bits);",
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
-            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate, typedMethods, program.Flow.Types, native, TypeSymbol, fieldAccess, FieldSymbol);
+            if (typed && module is null) AppendKernel(code, method);
+            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate, typedMethods);
             if (typed) ObjectCppLocalOutputCalls.Append(code, method, module is not null, program.Flow.Types.ObjectBase, Predicate);
             if (characterMethods.TryGetValue(IrMethodId.From(method.Source), out var localPlan) && localPlan.Target is not null)
                 ObjectCppCharacterMethods.AppendLocal(code, method, localPlan, module is not null);

@@ -27,6 +27,12 @@ internal static class ObjectCppTypedMethods
 #if CILICA_TYPED_INTERNALS != 0 && CILICA_TYPED_INTERNALS != 1
 #error CILICA_TYPED_INTERNALS must be 0 or 1
 #endif
+// The existing acyclic depth/expansion proof bounds forced native inlining.
+#if defined(__OPTIMIZE__)
+#define CILICA_TYPED_KERNEL [[maybe_unused, gnu::always_inline]]
+#else
+#define CILICA_TYPED_KERNEL [[maybe_unused]]
+#endif
 struct TypedCallDepth {
     std::size_t& depth;
     explicit TypedCallDepth(Context& context) noexcept : depth(context.depth) { ++depth; }
@@ -161,7 +167,9 @@ struct TypedCallDepth {
     };
     private static void Header(StringBuilder text, IrMethod method, bool kernel, bool module)
     {
-        text.Append(module ? "[[maybe_unused]] " : "[[maybe_unused]] static ")
+        // Kernel prototypes and bodies belong to shared storage. The module builder
+        // promotes static to inline, so every unit sees a body with one identity.
+        text.Append(kernel ? "CILICA_TYPED_KERNEL static " : module ? "[[maybe_unused]] " : "[[maybe_unused]] static ")
             .Append(kernel ? "bool" : Signed(method.ReturnType)).Append(' ').Append(Symbol(method)).Append(kernel ? "_kernel" : "_typed")
             .Append("([[maybe_unused]] Context& context");
         for (int i = 0; i < method.Parameters.Length; i++)
@@ -175,11 +183,11 @@ struct TypedCallDepth {
         Header(text, method, false, module); text.Append(";\n");
     }
 
-    internal static void Append(StringBuilder text, IrMethod method, string argumentType, bool module, ObjectTypeId objectBase, Func<ObjectTypeId, string> predicate, Plan plan, ObjectTypeCatalog catalog, ObjectNativeLayout native, Func<ObjectTypeId, string> typeSymbol, Dictionary<ObjectFieldId, ObjectTypeId[]> fieldAccess, Func<ObjectFieldId, string> fieldSymbol)
+    internal static void AppendKernel(StringBuilder text, IrMethod method, ObjectTypeId objectBase, Func<ObjectTypeId, string> predicate, Plan plan, ObjectTypeCatalog catalog, ObjectNativeLayout native, Func<ObjectTypeId, string> typeSymbol, Dictionary<ObjectFieldId, ObjectTypeId[]> fieldAccess, Func<ObjectFieldId, string> fieldSymbol)
     {
         var id = IrMethodId.From(method.Source);
         var fields = catalog.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
-        Header(text, method, true, module);
+        Header(text, method, true, module: false);
         text.Append(" {\n    // Proven typed kernel: no safepoint or external write; scalar frame writes are staged.\n")
             .Append("    if (context.depth >= 64u) return false;\n    TypedCallDepth depth(context);\n");
         for (int i = 0; i < method.Locals.Length; i++)
@@ -271,6 +279,58 @@ struct TypedCallDepth {
             text.Append("    }\n");
         }
         text.Append("}\n");
+
+        void Check(string value, ObjectTypeId type, bool nonnull)
+        {
+            if (nonnull) text.Append("    if (").Append(value).Append(" == nullptr) return false;\n");
+            // The IR validator proves field/array/call compatibility. Inputs are
+            // checked at the wrapper and managed storage preserves declared types.
+            // Retain corruption diagnostics without re-proving every native read.
+            text.Append("#if CILICA_VERIFY_INTERNAL_REFERENCES\n")
+                .Append("    if (!internal_reference_owned(context.instance, ").Append(value).Append(") || (").Append(value).Append(" != nullptr && !")
+                .Append(predicate(type)).Append('(').Append(value).Append("->type))) return false;\n#endif\n");
+        }
+        void CheckArray(string value, ObjectTypeId? type, string? index)
+        {
+            Check(value, type ?? objectBase, true);
+            text.Append("#if CILICA_VERIFY_INTERNAL_REFERENCES\n")
+                .Append("    if (!valid_array_storage(").Append(value).Append(")) { context.pending = 6u; return false; }\n#endif\n");
+            if (index is not null)
+                text.Append("    if (").Append(index).Append(" >= array_length(").Append(value).Append(")) return false;\n");
+        }
+        void Call(CallSite call, string result)
+        {
+            if (call.NullCheck || call.Virtual) text.Append("    if (v").Append(N(call.Arguments[0])).Append(" == nullptr) return false;\n");
+            if (!call.Virtual) Invoke(call.Target);
+            else
+            {
+                var targets = plan.Dispatch[(id, call.Target)];
+                for (int i = 0; i < targets.Length; i++)
+                {
+                    text.Append(i == 0 ? "    if (" : "    else if (").Append("v").Append(N(call.Arguments[0])).Append("->type == &")
+                        .Append(typeSymbol(targets[i].Receiver)).Append("_descriptor) {\n");
+                    Invoke(targets[i].Implementation); text.Append("    }\n");
+                }
+                text.Append("    else return false;\n");
+            }
+            void Invoke(IrMethodId target)
+            {
+                text.Append("    if (!").Append(CppEmitter.Symbol(target)).Append("_kernel(context");
+                foreach (int arg in call.Arguments) text.Append(", v").Append(N(arg));
+                text.Append(", ").Append(result).Append(")) return false;\n");
+            }
+        }
+        void Edge(IrEdge edge)
+        {
+            for (int i = 0; i < edge.Arguments.Length; i++)
+                text.Append("        s").Append(N(edge.Target)).Append('_').Append(N(i)).Append(" = v").Append(N(edge.Arguments[i])).Append(";\n");
+            text.Append("        goto b").Append(N(edge.Target)).Append(";\n");
+        }
+    }
+    internal static void Append(StringBuilder text, IrMethod method, string argumentType, bool module,
+        ObjectTypeId objectBase, Func<ObjectTypeId, string> predicate, Plan plan)
+    {
+        var id = IrMethodId.From(method.Source);
         Header(text, method, false, module); text.Append(" {\n#if CILICA_TYPED_INTERNALS\n")
             .Append("    if (context.depth != 0u && context.depth < 64u && context.pending == 0u && context.exception == nullptr) {\n");
         for (int i = 0; i < method.Parameters.Length; i++)
@@ -324,24 +384,6 @@ struct TypedCallDepth {
             .Append("(Context& context, [[maybe_unused]] const ").Append(argumentType).Append("* arguments) noexcept {\n    return ").Append(Symbol(method)).Append("_typed(context");
         for (int i = 0; i < method.Parameters.Length; i++) text.Append(", arguments[").Append(N(i)).Append("].").Append(Member(method.Parameters[i]));
         text.Append(");\n}\n");
-        void Check(string value, ObjectTypeId type, bool nonnull)
-        {
-            if (nonnull) text.Append("    if (").Append(value).Append(" == nullptr) return false;\n");
-            // The IR validator proves field/array/call compatibility. Inputs are
-            // checked at the wrapper and managed storage preserves declared types.
-            // Retain corruption diagnostics without re-proving every native read.
-            text.Append("#if CILICA_VERIFY_INTERNAL_REFERENCES\n")
-                .Append("    if (!internal_reference_owned(context.instance, ").Append(value).Append(") || (").Append(value).Append(" != nullptr && !")
-                .Append(predicate(type)).Append('(').Append(value).Append("->type))) return false;\n#endif\n");
-        }
-        void CheckArray(string value, ObjectTypeId? type, string? index)
-        {
-            Check(value, type ?? objectBase, true);
-            text.Append("#if CILICA_VERIFY_INTERNAL_REFERENCES\n")
-                .Append("    if (!valid_array_storage(").Append(value).Append(")) { context.pending = 6u; return false; }\n#endif\n");
-            if (index is not null)
-                text.Append("    if (").Append(index).Append(" >= array_length(").Append(value).Append(")) return false;\n");
-        }
         void CheckInputArray(string value, IrType type)
         {
             if (type.Class?.ArrayElement is not null)
@@ -349,34 +391,6 @@ struct TypedCallDepth {
                 // ordinary framed array reads also trust the backing allocation.
                 text.Append("        if (").Append(value).Append(" != nullptr && !valid_array_storage(").Append(value)
                     .Append(")) { context.pending = 6u; goto typed_fallback; }\n");
-        }
-        void Call(CallSite call, string result)
-        {
-            if (call.NullCheck || call.Virtual) text.Append("    if (v").Append(N(call.Arguments[0])).Append(" == nullptr) return false;\n");
-            if (!call.Virtual) Invoke(call.Target);
-            else
-            {
-                var targets = plan.Dispatch[(id, call.Target)];
-                for (int i = 0; i < targets.Length; i++)
-                {
-                    text.Append(i == 0 ? "    if (" : "    else if (").Append("v").Append(N(call.Arguments[0])).Append("->type == &")
-                        .Append(typeSymbol(targets[i].Receiver)).Append("_descriptor) {\n");
-                    Invoke(targets[i].Implementation); text.Append("    }\n");
-                }
-                text.Append("    else return false;\n");
-            }
-            void Invoke(IrMethodId target)
-            {
-                text.Append("    if (!").Append(CppEmitter.Symbol(target)).Append("_kernel(context");
-                foreach (int arg in call.Arguments) text.Append(", v").Append(N(arg));
-                text.Append(", ").Append(result).Append(")) return false;\n");
-            }
-        }
-        void Edge(IrEdge edge)
-        {
-            for (int i = 0; i < edge.Arguments.Length; i++)
-                text.Append("        s").Append(N(edge.Target)).Append('_').Append(N(i)).Append(" = v").Append(N(edge.Arguments[i])).Append(";\n");
-            text.Append("        goto b").Append(N(edge.Target)).Append(";\n");
         }
     }
 }

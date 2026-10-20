@@ -1,0 +1,17 @@
+{
+  "v108": {
+    "materialized_kernel_symbols": 4,
+    "symbols": [
+      "0000000100020b2c t __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closureL156cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049b_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_kernelERNS_7ContextEPNS_6ObjectES3_S3_Rj",
+      "0000000100020c6c t __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closureL156cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049d_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_kernelERNS_7ContextEPNS_6ObjectEPS3_Rj",
+      "00000001000207ac t __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closureL156cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600049f_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_kernelERNS_7ContextEPNS_6ObjectES3_RS3_",
+      "0000000100020de8 t __ZN105cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_objects_packed_closureL89cilica_m_655cc45158b2bd8ad5b06bfecbe8d76f25174b0cf92b86048ea7219bed4d37b1_0600024e_kernelERNS_7ContextEPPNS_6ObjectERj"
+    ],
+    "binary_bytes": 570600
+  },
+  "v109": {
+    "materialized_kernel_symbols": 0,
+    "symbols": [],
+    "binary_bytes": 569336
+  }
+}

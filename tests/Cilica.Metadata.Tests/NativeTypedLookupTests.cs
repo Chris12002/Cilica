@@ -91,27 +91,51 @@ public sealed class NativeTypedLookupTests
         Assert.True(build.ExitCode==0,build.Stderr);
         var run=await NativeProcess.Run(exe,[],dir);Assert.True(run.ExitCode==0,run.Stdout+run.Stderr);Assert.Empty(run.Stderr);
     }
-    [Fact]
-    public async Task Lookup_kernels_link_and_execute_across_translation_units()
+    [Theory]
+    [InlineData(false,1,0,false)] [InlineData(true,1,0,false)] [InlineData(true,1,1,false)]
+    [InlineData(true,0,0,false)] [InlineData(true,1,0,true)] [InlineData(true,1,1,true)]
+    public async Task Lookup_kernels_link_and_execute_across_translation_units(bool optimized,int enabled,int verify,bool fault)
     {
-        var translated=IntegerObjectTranslationTests.Translate(nameof(TypedLookupProbe.Run),fixture:typeof(TypedLookupProbe));
+        string method = fault ? nameof(TypedLookupProbe.Fault) : nameof(TypedLookupProbe.Run);
+        var translated=IntegerObjectTranslationTests.Translate(method,fixture:typeof(TypedLookupProbe));
         Assert.True(translated.Success,string.Join("; ",translated.Diagnostics));
         var module=ObjectCppEmitter.EmitExceptionModule(ValueScalarLowering.LowerExceptions(translated.Program!),1);
+        Assert.Contains("// Proven typed kernel:",module.Header.Text,StringComparison.Ordinal);
+        foreach(var file in module.Sources) Assert.DoesNotContain("// Proven typed kernel:",file.Text,StringComparison.Ordinal);
         using var files=new ResolverFiles();string dir=files.DirectoryPath("typed-module");
         foreach(var f in module.Sources.Prepend(module.Header))File.WriteAllText(Path.Combine(dir,f.Name),f.Text);
-        string main=Path.Combine(dir,"main.cpp"),entry="cilica_m_"+module.Source.ContentHash+"_"+module.Source.Token.ToString("x8",CultureInfo.InvariantCulture);
-        File.WriteAllText(main,$$"""
+        string main=Path.Combine(dir,"main.cpp"),peer=Path.Combine(dir,"peer.cpp");
+        string entry="cilica_m_"+module.Source.ContentHash+"_"+module.Source.Token.ToString("x8",CultureInfo.InvariantCulture);
+        string kernel=Symbol(module.Source.ContentHash,fault ? nameof(TypedLookupProbe.WriteThenFault) : nameof(TypedLookupProbe.Find))+"_kernel";
+        var text=new System.Text.StringBuilder($$"""
             #include "{{module.Header.Name}}"
             #include <cassert>
             using namespace {{module.EntryPoint[..^4]}}_closure;
-            int main(){Instance heap;heap.collect_before_allocation=true;Context c(heap);LocationArgument args[2]{};
-            args[0].bits=17;args[1].bits=3;assert({{entry}}(c,args)=={{TypedLookupProbe.Run(17,3)}} && c.pending==0);
-            assert(c.depth==0 && c.used==0 && c.top==nullptr && c.borrows==nullptr);}
+            extern decltype(&{{kernel}}) peer_kernel();
+            [[gnu::noinline]] static void check(int a,int b,int expected) {
+                Instance heap;heap.collect_before_allocation=true;Context c(heap);LocationArgument args[2]{};
+                args[0].bits=std::bit_cast<std::uint32_t>(a);args[1].bits=std::bit_cast<std::uint32_t>(b);
+                assert({{entry}}(c,args)==expected && c.pending==0 && c.exception==nullptr);
+                assert(c.depth==0 && c.used==0 && c.top==nullptr && c.borrows==nullptr);
+            }
+            int main(){assert(peer_kernel()==&{{kernel}});
+            """);
+        foreach(int a in new[]{0,1,-1,127,32768,int.MinValue,int.MaxValue})
+            foreach(int b in new[]{0,1,2,3,-1,int.MinValue,int.MaxValue})
+                text.Append(CultureInfo.InvariantCulture,$"check({a},{b},{(fault ? TypedLookupProbe.Fault(a,b) : TypedLookupProbe.Run(a,b))});\n");
+        text.Append("}\n");File.WriteAllText(main,text.ToString());
+        File.WriteAllText(peer,$$"""
+            #include "{{module.Header.Name}}"
+            using namespace {{module.EntryPoint[..^4]}}_closure;
+            decltype(&{{kernel}}) peer_kernel(){return &{{kernel}};}
             """);
         string compiler=Environment.GetEnvironmentVariable("CILICA_CXX")??"clang++";var objects=new List<string>();
-        foreach(string cpp in module.Sources.Select(f=>Path.Combine(dir,f.Name)).Append(main))
+        foreach(string cpp in module.Sources.Select(f=>Path.Combine(dir,f.Name)).Append(main).Append(peer))
         {
-            string obj=cpp+".o";var build=await NativeProcess.Run(compiler,["-std=c++20","-O2","-DCILICA_TYPED_INTERNALS=1","-fno-exceptions","-fno-rtti","-Wall","-Wextra","-Werror","-fsanitize=address,undefined","-fno-sanitize-recover=all","-c",cpp,"-o",obj],dir);
+            string obj=cpp+".o";var build=await NativeProcess.Run(compiler,["-std=c++20",optimized?"-O2":"-O0",
+                "-DCILICA_TYPED_INTERNALS="+enabled,"-DCILICA_VERIFY_INTERNAL_REFERENCES="+verify,"-DCILICA_VERIFY_BORROW_LIFETIMES="+verify,
+                "-fno-exceptions","-fno-rtti","-Wall","-Wextra","-Werror","-Wframe-larger-than=16384",
+                "-fsanitize=address,undefined","-fno-sanitize-recover=all","-c",cpp,"-o",obj],dir);
             Assert.True(build.ExitCode==0,build.Stderr);objects.Add(obj);
         }
         string exe=Path.Combine(dir,"probe");var link=await NativeProcess.Run(compiler,["-fsanitize=address,undefined",..objects,"-o",exe],dir);Assert.True(link.ExitCode==0,link.Stderr);

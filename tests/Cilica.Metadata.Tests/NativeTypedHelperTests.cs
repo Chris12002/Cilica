@@ -10,6 +10,25 @@ namespace Cilica.Metadata.Tests;
 public sealed class NativeTypedHelperTests
 {
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Inlining_stays_within_acyclic_depth_and_expansion_bounds(bool optimized)
+    {
+        var translated = IntegerObjectTranslationTests.Translate(nameof(TypedInliningProbe.Run), fixture: typeof(TypedInliningProbe));
+        Assert.True(translated.Success, string.Join("; ", translated.Diagnostics));
+        var artifact = ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(translated.Program!));
+        string Kernel(string method) => "cilica_m_" + artifact.Source.ContentHash + "_"
+            + typeof(TypedInliningProbe).GetMethod(method)!.MetadataToken.ToString("x8", CultureInfo.InvariantCulture) + "_kernel";
+        Assert.Contains(Kernel(nameof(TypedInliningProbe.Depth8)), artifact.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain(Kernel(nameof(TypedInliningProbe.Depth9)), artifact.Text, StringComparison.Ordinal);
+        Assert.Contains(Kernel(nameof(TypedInliningProbe.Fan5)), artifact.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain(Kernel(nameof(TypedInliningProbe.Fan6)), artifact.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain(Kernel(nameof(TypedInliningProbe.Recursive)), artifact.Text, StringComparison.Ordinal);
+        await IntegerObjectTranslationTests.VerifyTranslated(optimized,
+            [("BoundedInlining", translated.Program!, TypedInliningProbe.Run)],
+            nativeFlags: ["-DCILICA_TYPED_INTERNALS=1", "-Wframe-larger-than=16384"]);
+    }
+
+    [Theory]
     [InlineData(false, 0)] [InlineData(false, 1)] [InlineData(true, 0)] [InlineData(true, 1)]
     public async Task Scalar_kernels_preserve_bits_loops_and_caught_faults(bool optimized, int enabled)
     {

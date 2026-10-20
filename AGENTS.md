@@ -1068,3 +1068,9 @@ Native v108 inlines exact descriptor predicates with fewer than eight entries on
 in optimized native builds. O0 retains noinline; broad sets retain checked address
 tables. Use the same membership plan for declarations and definitions and preserve
 shared-module identity. See ADR 0215.
+
+Native v109 requests optimized inlining only inside the existing bounded typed
+kernel proof. Shared modules expose kernel definitions in their common header;
+framed methods/wrappers stay partitioned. Retain the depth-eight/512-statement
+proof, staged writes, input checks and fault replay. O0 kernel policy is unchanged.
+See ADR 0216.

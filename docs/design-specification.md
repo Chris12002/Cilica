@@ -408,6 +408,12 @@ Own reference locals/parameters can change without changing caller state. Kernel
 chains retain depth accounting and caller roots, with an acyclic depth-eight,
 512-expanded-statement proof budget. See
 [ADR 0206](decisions/0206-typed-dictionary-lookup.md).
+Native v109 requests optimized inlining of these bounded kernels. Shared modules
+place their definitions in the common header, after all declarations; framed
+fallbacks and wrappers remain partitioned. The depth/expansion proof, staged writes,
+managed depth accounting and O0 kernel policy are unchanged; the existing 64 MiB
+shared-source cap includes these bodies. See
+[ADR 0216](decisions/0216-bounded-typed-helper-inlining.md).
 Native v103 carries the validated IR's declared reference types through that
 closed kernel graph. Entry wrappers retain reference/borrow checks and validate
 incoming array storage. Normal kernels trust declared field/array result types
