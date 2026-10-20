@@ -427,6 +427,10 @@ Native v112 exposes the safepoint, allocation-room and character/string allocati
 helpers to optimized inlining. All quota, observer, collection and root checks
 remain; O0 helper policies and shared linkage are preserved. See
 [ADR 0219](decisions/0219-allocation-helper-inlining.md).
+Native v113 inlines eight checked frame-borrow access helpers under optimization.
+Token/lifetime/type/extent/readonly validation, staged outputs and O0 noinline
+policy remain. Array/heap/static subhelpers retain their existing policies. See
+[ADR 0220](decisions/0220-frame-borrow-helper-inlining.md).
 Native v103 carries the validated IR's declared reference types through that
 closed kernel graph. Entry wrappers retain reference/borrow checks and validate
 incoming array storage. Normal kernels trust declared field/array result types

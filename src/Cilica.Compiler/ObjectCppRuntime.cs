@@ -59,11 +59,13 @@ internal static class ObjectCppRuntime
 #define CILICA_ARRAY_STORAGE_CHECK [[maybe_unused, gnu::always_inline]]
 #define CILICA_ALLOCATION_HELPER [[maybe_unused, gnu::always_inline]]
 #define CILICA_ALLOCATION_SAFEPOINT [[maybe_unused, gnu::always_inline]]
+#define CILICA_FRAME_BORROW_HELPER [[maybe_unused, gnu::always_inline]]
 #else
 #define CILICA_PRIMITIVE_READ [[maybe_unused, gnu::noinline]]
 #define CILICA_ARRAY_STORAGE_CHECK [[maybe_unused]]
 #define CILICA_ALLOCATION_HELPER [[maybe_unused, gnu::noinline]]
 #define CILICA_ALLOCATION_SAFEPOINT [[maybe_unused]]
+#define CILICA_FRAME_BORROW_HELPER [[maybe_unused, gnu::noinline]]
 #endif
 struct Object;
 struct Descriptor;

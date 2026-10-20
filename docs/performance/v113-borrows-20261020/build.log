@@ -1,0 +1,9 @@
+/Users/christian/.codex/worktrees/profile-v107/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/Users/christian/.codex/worktrees/profile-v107/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+
+Build succeeded.
+
+/Users/christian/.codex/worktrees/profile-v107/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/CandidateNativeIndexProbe.cs(8,51): warning CS0108: 'CandidateHashAlgorithmOwner.State' hides inherited member 'HashAlgorithm.State'. Use the new keyword if hiding was intended. [/Users/christian/.codex/worktrees/profile-v107/Cilica/tests/Fixtures/Cilica.Fixtures.Execution/Cilica.Fixtures.Execution.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:08.45

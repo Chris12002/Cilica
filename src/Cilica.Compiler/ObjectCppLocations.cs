@@ -104,7 +104,7 @@ static void retire_borrows(Context& context, const Frame& roots) noexcept {
     for (BorrowFrame* frame = context.borrows; frame != nullptr && count++ < 64; frame = frame->previous)
         if (frame->roots == &roots) frame->roots = nullptr;
 }
-[[gnu::noinline]] static const BorrowFrame* find_borrow(const Context& context, std::uint64_t token) noexcept {
+CILICA_FRAME_BORROW_HELPER static const BorrowFrame* find_borrow(const Context& context, std::uint64_t token) noexcept {
     if (token == 0) return nullptr;
     const BorrowFrame* found = context.borrow_cache == nullptr ? nullptr : context.borrow_cache[token % 64];
     // The cache is only an accelerator. Full tokens authenticate a context's
@@ -131,7 +131,7 @@ struct LocationStorage {
     void* address = nullptr;
     ReferencePredicate accepts = nullptr;
 };
-[[gnu::noinline]] static LocationStorage frame_location_storage(Context& context, const Location& location) noexcept {
+CILICA_FRAME_BORROW_HELPER static LocationStorage frame_location_storage(Context& context, const Location& location) noexcept {
     if (location.owner != nullptr || location.declaring != nullptr || location.element != 0) return {LocationStatus::invalid};
     const BorrowFrame* frame = find_borrow(context, location.frame);
     if (frame == nullptr) return {LocationStatus::invalid};
@@ -202,7 +202,7 @@ static const FieldStorage* static_location_field(std::size_t slot) noexcept;
     if (field->kind == StorageKind::wide_integer) return {LocationStatus::complete, field->kind, &slot.wide};
     return {LocationStatus::complete, field->kind, &slot.reference, field->accepts};
 }
-[[gnu::noinline]] static LocationStorage location_storage(Context& context, const Location& location, bool write) noexcept {
+CILICA_FRAME_BORROW_HELPER static LocationStorage location_storage(Context& context, const Location& location, bool write) noexcept {
     if (context.instance.marking) return {LocationStatus::busy};
     if (location.narrow != LocationNarrow::none && (location.origin != LocationOrigin::frame_integer
         || (location.narrow != LocationNarrow::Int8 && location.narrow != LocationNarrow::UInt8
@@ -214,7 +214,7 @@ static const FieldStorage* static_location_field(std::size_t slot) noexcept;
     if (location.origin == LocationOrigin::array_slot) return array_location_storage(context, location);
     return heap_location_storage(context, location, write);
 }
-[[maybe_unused, gnu::noinline]] static LocationResult frame_location(Context& context, std::uint64_t token,
+CILICA_FRAME_BORROW_HELPER static LocationResult frame_location(Context& context, std::uint64_t token,
     LocationOrigin origin, std::size_t slot, bool read_only = false, LocationNarrow narrow = LocationNarrow::none) noexcept {
     Location value{nullptr, token, slot, nullptr, origin, read_only, 0, narrow};
     if (origin != LocationOrigin::frame_integer && origin != LocationOrigin::frame_reference && origin != LocationOrigin::frame_wide_integer) return {LocationStatus::invalid};
@@ -229,7 +229,7 @@ static const FieldStorage* static_location_field(std::size_t slot) noexcept;
     value.read_only |= static_location_field(slot)->read_only;
     return {LocationStatus::complete, value};
 }
-[[maybe_unused, gnu::noinline]] static bool valid_location_argument(Context& context, const Location& location,
+CILICA_FRAME_BORROW_HELPER static bool valid_location_argument(Context& context, const Location& location,
     StorageKind kind, ReferencePredicate accepts, bool read_only, LocationNarrow narrow = LocationNarrow::none) noexcept {
     const auto storage = location_storage(context, location, !read_only);
     return storage.status == LocationStatus::complete && storage.kind == kind && storage.accepts == accepts && location.narrow == narrow;
@@ -269,13 +269,13 @@ static std::uint32_t normalize_location_integer(std::uint32_t value, LocationNar
         default: return value;
     }
 }
-[[maybe_unused, gnu::noinline]] static LocationStatus load_location_integer(Context& context, const Location& location, std::uint32_t& result) noexcept {
+CILICA_FRAME_BORROW_HELPER static LocationStatus load_location_integer(Context& context, const Location& location, std::uint32_t& result) noexcept {
     const auto storage = location_storage(context, location, false);
     if (storage.status != LocationStatus::complete) return storage.status;
     if (storage.kind != StorageKind::integer) return LocationStatus::invalid;
     result = normalize_location_integer(*static_cast<const std::uint32_t*>(storage.address), location.narrow); return LocationStatus::complete;
 }
-[[maybe_unused, gnu::noinline]] static LocationStatus store_location_integer(Context& context, const Location& location, std::uint32_t value) noexcept {
+CILICA_FRAME_BORROW_HELPER static LocationStatus store_location_integer(Context& context, const Location& location, std::uint32_t value) noexcept {
     const auto storage = location_storage(context, location, true);
     if (storage.status != LocationStatus::complete) return storage.status;
     if (storage.kind != StorageKind::integer) return LocationStatus::invalid;
@@ -296,7 +296,7 @@ static std::uint32_t normalize_location_integer(std::uint32_t value, LocationNar
 [[gnu::noinline]] static bool location_reference(const Instance& heap, ReferencePredicate accepts, Object* value) noexcept {
     return accepts != nullptr && managed_reference(heap, value) && (value == nullptr || accepts(value->type));
 }
-[[maybe_unused, gnu::noinline]] static LocationStatus load_location_reference(Context& context, const Location& location, Object*& result) noexcept {
+CILICA_FRAME_BORROW_HELPER static LocationStatus load_location_reference(Context& context, const Location& location, Object*& result) noexcept {
     const auto storage = location_storage(context, location, false);
     if (storage.status != LocationStatus::complete) return storage.status;
     if (storage.kind != StorageKind::reference) return LocationStatus::invalid;

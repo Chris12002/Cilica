@@ -1088,3 +1088,7 @@ before framed replay. Preserve diagnostic kernel checks. See ADR 0218.
 Native v112 inlines four allocation helpers in optimized builds only. Preserve
 all safepoint/root/observer/quota checks, pool fallback and O0 helper policies.
 Attribute macros must not add linkage keywords to the shared header. See ADR 0219.
+
+Native v113 exposes eight checked frame-borrow helpers to optimized inlining.
+Keep exact tokens, retirement, collision fallback, narrow/readonly/type checks and
+O0 noinline; this does not expand the no-safepoint kernel proof. See ADR 0220.
