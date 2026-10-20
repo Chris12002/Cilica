@@ -385,7 +385,11 @@ the original framed path and fault ordering.
 Native v96 additionally emits typed scalar kernels with native locals for bounded
 side-effect-free methods. Direct calls avoid packets; depth remains counted and
 cold/fault paths replay through the original frame. See
-[ADR 0203](decisions/0203-typed-scalar-kernels.md). A valid leaf read can now succeed
+[ADR 0203](decisions/0203-typed-scalar-kernels.md).
+Native v97 extends that proof to stable parameter-borrow snapshots, read-only
+string operations and bounded acyclic kernel calls. It retains exact carrier
+validation and caller roots; kernels cannot allocate, mutate or call callbacks.
+See [ADR 0204](decisions/0204-proven-borrow-kernels.md). A valid leaf read can now succeed
 without spare arena capacity; the existing depth boundary remains checked.
 
 The object boundary now uses a fixed-size native signature with an Int32 input

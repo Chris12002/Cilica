@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v96";
+    public const string Profile = "object-frames-native-v97";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -966,7 +966,7 @@ public static class ObjectCppEmitter
                     IrTypeKind.Int64 => "return std::bit_cast<std::int64_t>(f->result.wide_bits);",
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
-            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null);
+            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate);
             if (leafField is { } selectedField)
             {
                 Header(method); code.Append(" {\n    // Proven leaf getter: no allocation, managed call or escaping borrow.\n")
