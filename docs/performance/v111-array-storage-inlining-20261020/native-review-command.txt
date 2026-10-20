@@ -1,0 +1,2 @@
+xcrun llvm-objdump --disassemble --demangle <executable>
+Static bl instructions naming the six primitive helpers or valid_array_storage were counted. Identical-code folding can give array_length the string_length label; both names are included. Full disassembly is retained in this artifacts folder.

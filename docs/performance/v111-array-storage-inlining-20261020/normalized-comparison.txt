@@ -1,0 +1,1 @@
+Fresh v111 emission is byte-identical to v110 after normalizing only the array-storage attribute macro and the native profile label. Every validator condition and caller is unchanged.

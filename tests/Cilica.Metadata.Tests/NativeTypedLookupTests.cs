@@ -70,6 +70,46 @@ public sealed class NativeTypedLookupTests
                     assert(!{{read}}_kernel(c,slots[2],0,result) && c.pending==6); c.pending=0;
                 }
                 array->references=saved;
+                // Every malformed shape must fail at entry, before a trusted
+                // kernel or framed replay can read backing storage.
+                auto rejected_storage = [&]() {
+                    (void){{read}}_typed(c,slots[2],0); assert(c.pending==6); c.pending=0;
+                    if (CILICA_VERIFY_INTERNAL_REFERENCES) {
+                        std::uint32_t result=0x12345678u;
+                        assert(!{{read}}_kernel(c,slots[2],0,result) && c.pending==6);
+                        assert(result==0x12345678u); c.pending=0;
+                    }
+                    assert(c.depth==1 && c.used==0 && c.borrows==nullptr);
+                };
+                const auto bytes=slots[2]->allocation_bytes;
+                for (auto invalid : {sizeof(ArrayObject)-1,bytes-1,bytes+1}) {
+                    slots[2]->allocation_bytes=invalid; rejected_storage();
+                }
+                slots[2]->allocation_bytes=bytes;
+                for (auto invalid : {0u,2u,0x80000000u,0xffffffffu}) {
+                    array->length=invalid; rejected_storage();
+                }
+                array->length=1;
+                std::uint32_t surplus_integer=0; std::uint64_t surplus_wide=0;
+                array->integers=&surplus_integer; rejected_storage(); array->integers=nullptr;
+                array->wide_integers=&surplus_wide; rejected_storage(); array->wide_integers=nullptr;
+                assert(array->references[0]==slots[0]);
+                assert({{read}}_typed(c,slots[2],0)==1 && c.pending==0);
+                // Use a real empty allocation: bounds-fault replay may allocate
+                // a managed exception and validate the whole heap during GC.
+                {
+                    Instance empty_heap; empty_heap.collect_before_allocation=true; Context empty_context(empty_heap);
+                    Object* empty=allocate_array(empty_context,{{descriptor}}_descriptor,0);
+                    assert(empty!=nullptr && empty_context.pending==0);
+                    Frame empty_frame; RootScope empty_root(empty_context,empty_frame,&empty,1);
+                    auto* empty_array=reinterpret_cast<ArrayObject*>(empty);
+                    // A stray pointer is invalid storage even at length zero.
+                    empty_array->references=saved;
+                    (void){{read}}_typed(empty_context,empty,0); assert(empty_context.pending==6);
+                    empty_context.pending=0; empty_array->references=nullptr;
+                    (void){{read}}_typed(empty_context,empty,0); assert(empty_context.pending==10);
+                    assert(empty_context.depth==1 && empty_context.used==0 && empty_context.borrows==nullptr);
+                }
                 // Private storage corruption is diagnostic; do not execute the
                 // trusted kernel with corrupted elements in the normal mode.
                 if (CILICA_VERIFY_INTERNAL_REFERENCES) {

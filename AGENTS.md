@@ -1079,3 +1079,8 @@ Native v110 requests optimized inlining for six primitive array/string read
 helpers. Preserve caller null/bounds/type checks and O0 noinline treatment.
 The attribute macro must not add a linkage keyword; shared modules supply inline.
 See ADR 0217.
+
+Native v111 requests optimized inlining of valid_array_storage, retaining its
+complete size/length/stride/buffer validation and O0 default policy. Authenticate
+references/descriptors before header access; reject malformed typed-entry storage
+before framed replay. Preserve diagnostic kernel checks. See ADR 0218.

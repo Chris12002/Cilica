@@ -418,6 +418,11 @@ Native v110 exposes the six primitive array/string read helpers to optimized
 native inlining. O0 retains their noinline frames; checked callers, helper bodies,
 roots and shared-module identity are unchanged. See
 [ADR 0217](decisions/0217-primitive-read-inlining.md).
+Native v111 also inlines the full array-storage validator in optimized builds,
+retaining all size/overflow/buffer checks and its O0 compiler-default policy.
+Typed entry still rejects invalid storage before replay; authenticating callers
+and diagnostic kernel checks remain. See
+[ADR 0218](decisions/0218-array-storage-check-inlining.md).
 Native v103 carries the validated IR's declared reference types through that
 closed kernel graph. Entry wrappers retain reference/borrow checks and validate
 incoming array storage. Normal kernels trust declared field/array result types

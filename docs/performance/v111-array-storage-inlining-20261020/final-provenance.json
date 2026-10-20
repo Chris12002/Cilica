@@ -1,0 +1,38 @@
+{
+  "commands": {
+    "v109": [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v109-profile-20261020/baseline",
+      "measure",
+      "0",
+      "1024"
+    ],
+    "v110": [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v110-primitive-reads-20261020/v110",
+      "measure",
+      "0",
+      "1024"
+    ],
+    "v111": [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v111-array-storage-inlining-20261020/v111",
+      "measure",
+      "0",
+      "1024"
+    ],
+    "dotnet": [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "measure",
+      "0",
+      "16384"
+    ]
+  },
+  "host_sha256": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9",
+  "native_sha256": {
+    "v109": "fe1a8ff08c4282ce496447aabfe29a34156d8553f2a2261805ac9da8ca38b5aa",
+    "v110": "c3e5114c48d169cc4f964efb4a560d36415ed539b0f216af021cef9719254a5b",
+    "v111": "20f99456740dc137059b704f7b6c5974c4e135cc7919d3a69c711eb6d2072be0"
+  },
+  "tiered_compilation": 0,
+  "ready_to_run": 0,
+  "candidate_cpp_sha256": "08f228f3cc217cf5bbb67e6de22fd4777314cb393d00ceb17724bc69eb4926f6"
+}

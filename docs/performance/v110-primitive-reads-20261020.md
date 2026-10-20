@@ -15,7 +15,7 @@ All 54 selected checks pass: NativeArray, NativeString, NativeInteger64,
 NativeTypedLookup, NativeTypedBorrow, NativeTypedHelper, NativeLocalOutput and
 NativeModule. Shared modules compile independently without LTO and include
 294 success/fault observations against .NET in six lookup configurations.
-Existing tests exercise UTF-16 including unpaired surrogates, all 64-bit patterns,
+Existing tests exercise UTF-16 including unpaired surrogates, wide integer bit patterns,
 null/bounds order, roots, descriptor rejection, alias staging and depth limits.
 
 All 523 DiffPlex observations match release and both O1 ASan/UBSan forced-GC

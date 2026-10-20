@@ -56,8 +56,10 @@ internal static class ObjectCppRuntime
 // Keep checked callers visible to the optimizer without changing O0 helper frames.
 #if defined(__OPTIMIZE__)
 #define CILICA_PRIMITIVE_READ [[maybe_unused, gnu::always_inline]]
+#define CILICA_ARRAY_STORAGE_CHECK [[maybe_unused, gnu::always_inline]]
 #else
 #define CILICA_PRIMITIVE_READ [[maybe_unused, gnu::noinline]]
+#define CILICA_ARRAY_STORAGE_CHECK [[maybe_unused]]
 #endif
 struct Object;
 struct Descriptor;
@@ -132,7 +134,7 @@ static_assert(std::is_standard_layout_v<ArrayObject> && offsetof(ArrayObject, he
     return array_int32_count(type) * sizeof(std::uint32_t) + type.array_int64_count * sizeof(std::uint64_t)
         + array_reference_slots(type) * sizeof(Object*);
 }
-[[maybe_unused]] static bool valid_array_storage(Object* value) noexcept {
+CILICA_ARRAY_STORAGE_CHECK static bool valid_array_storage(Object* value) noexcept {
     if (value->allocation_bytes < sizeof(ArrayObject)) return false;
     const auto& type = *value->type;
     const auto* array = reinterpret_cast<ArrayObject*>(value);

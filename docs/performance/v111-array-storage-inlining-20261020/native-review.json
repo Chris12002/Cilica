@@ -1,0 +1,20 @@
+{
+  "v109": {
+    "executable_bytes": 569336,
+    "static_primitive_read_calls": 393,
+    "static_array_storage_calls": 9,
+    "disassembly_sha256": "91e7d4be20a24b116cfe968b7316b5e876709e5d2d2bbfbeb1fe726552f03d00"
+  },
+  "v110": {
+    "executable_bytes": 568536,
+    "static_primitive_read_calls": 0,
+    "static_array_storage_calls": 9,
+    "disassembly_sha256": "77637ae7fbe7ac97fc4ebdc4a406045ede63a4eec92263b154eaa54dcb255693"
+  },
+  "v111": {
+    "executable_bytes": 568360,
+    "static_primitive_read_calls": 0,
+    "static_array_storage_calls": 0,
+    "disassembly_sha256": "779f167827b6a25162619e8b8bc88bfeda9fe53c3bcb5c584b232762c8bcc962"
+  }
+}
