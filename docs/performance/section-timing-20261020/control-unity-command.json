@@ -1,0 +1,23 @@
+{
+  "command": [
+    "unity",
+    "run",
+    "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/UnitySections",
+    "--editor-version",
+    "6000.3.2f1",
+    "--timeout",
+    "300",
+    "--log-file",
+    "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/control-unity-build.log",
+    "--no-tail",
+    "--format",
+    "json",
+    "--",
+    "-nographics",
+    "-executeMethod",
+    "BenchmarkBuild.Build",
+    "--cilica-output",
+    "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/Build/Control.app"
+  ],
+  "input_sha256": "ad412e7552d1178d9915615f4c99a38edde7425f15f4c8335a199e4cc40bfd2a"
+}

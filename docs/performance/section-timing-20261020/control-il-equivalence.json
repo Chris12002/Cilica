@@ -1,0 +1,20 @@
+{
+  "same_selected_instructions_and_resolved_operands": true,
+  "outputs": {
+    "original": {
+      "full_il_sha256": "a3094b8240a9166a0c6eda27457f0f81ca268b9d3421f074aca07248117d4d4f",
+      "methods": 5
+    },
+    "control": {
+      "full_il_sha256": "561d830d22df9e3a5786346e9716d5daef9a1d13162a5b9d5c1ded51ece93959",
+      "methods": 5
+    }
+  },
+  "methods": [
+    "Differ::BuildModificationData",
+    "Differ::BuildPieceHashes",
+    "CharacterChunker::Chunk",
+    "LineChunker::Chunk",
+    "BenchProbe::Diff"
+  ]
+}

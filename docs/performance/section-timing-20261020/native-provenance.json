@@ -1,0 +1,87 @@
+{
+  "revision": "142aecdcc0167269d6315c82bfdf83dffccddaad",
+  "commands": [
+    [
+      "dotnet",
+      "tests/Cilica.Metadata.Tests/bin/Debug/net10.0/Cilica.Metadata.Tests.dll",
+      "-explicit",
+      "only",
+      "-method",
+      "Cilica.Metadata.Tests.ApprovedDiffPlexBenchmarkEmissionTests.Emit_approved_benchmark",
+      "-culture",
+      "invariant",
+      "-noColor"
+    ],
+    [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/plain.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/plain"
+    ],
+    [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/sections.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/sections"
+    ]
+  ],
+  "environment": {
+    "CILICA_APPROVED_DIFFPLEX_PIN": "f500e73f28e28813f942f1f16dec5a34b40e48e3",
+    "CILICA_DIFFPLEX_ASSEMBLY": "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll",
+    "CILICA_BENCH_TEMPLATE": "/Users/christian/.codex/worktrees/profile-v107/Cilica/tools/CompatibilityCandidates/diffplex-benchmark/native-host.cpp.template",
+    "CILICA_BENCH_CPP": "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/plain.cpp",
+    "CILICA_BENCH_CORE_CAPTURE": "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/core"
+  },
+  "files": {
+    "plain.cpp": "1451904074b064cb4d28d9b7d3ac480d15b380fd55976132f171b1319b1c508b",
+    "sections.cpp": "1ece46b2ee0237477ae2289321c5083c2d35ed9d91f6395fd04e15725a1be6cd",
+    "plain": "974c62df0369ae825d8b6889045b4d84e2eeb8fccc4de3d67ad1eec04839bc66",
+    "sections": "ea76c5e84dced017ec96726e324d9718971eda7e1ad0c2174d8c40e9734ac5bf",
+    "core/Cilica.Core.dll": "99981b6fa6a9076564586ac4d8105e44de387e998263feb0dc716fcafda87eb4"
+  },
+  "fresh_emission_matches_committed_baseline": true,
+  "boundaries": [
+    {
+      "method": "private static DiffResult Diff(int work)",
+      "section": 0,
+      "original_token": "06000053"
+    },
+    {
+      "method": "private static void BuildPieceHashes(",
+      "section": 2,
+      "original_token": "06000011"
+    },
+    {
+      "method": "protected static void BuildModificationData(ModificationData A, ModificationData B)",
+      "section": 3,
+      "original_token": "0600000f"
+    },
+    {
+      "method": "public IReadOnlyList<string> Chunk(string text)",
+      "section": 1,
+      "original_token": "06000021"
+    },
+    {
+      "method": "public IReadOnlyList<string> Chunk(string text)",
+      "section": 1,
+      "original_token": "06000029"
+    }
+  ],
+  "instrumentation": "Diagnostic generated C++ copies only; compiler and runtime source unchanged"
+}

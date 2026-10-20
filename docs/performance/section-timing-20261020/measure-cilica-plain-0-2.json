@@ -1,0 +1,165 @@
+{
+  "samples": [
+    {
+      "sample": 0,
+      "iterations": 1024,
+      "ns": 24231500,
+      "checksum": 6293504,
+      "managed_heap_bytes_after": 133328,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12200,
+      "elapsedTicks": 24231500,
+      "frequency": 1000000000,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 1,
+      "iterations": 1024,
+      "ns": 24137958,
+      "checksum": 6293504,
+      "managed_heap_bytes_after": 270192,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12200,
+      "elapsedTicks": 24137958,
+      "frequency": 1000000000,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 2,
+      "iterations": 1024,
+      "ns": 24204791,
+      "checksum": 6293504,
+      "managed_heap_bytes_after": 407056,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12200,
+      "elapsedTicks": 24204791,
+      "frequency": 1000000000,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 3,
+      "iterations": 1024,
+      "ns": 24201459,
+      "checksum": 6293504,
+      "managed_heap_bytes_after": 133328,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12200,
+      "elapsedTicks": 24201459,
+      "frequency": 1000000000,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 4,
+      "iterations": 1024,
+      "ns": 24246208,
+      "checksum": 6293504,
+      "managed_heap_bytes_after": 270192,
+      "managed_objects_after": 2455,
+      "frame_peak_bytes": 12200,
+      "elapsedTicks": 24246208,
+      "frequency": 1000000000,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 5,
+      "iterations": 1024,
+      "ns": 24267625,
+      "checksum": 6293504,
+      "managed_heap_bytes_after": 407056,
+      "managed_objects_after": 3703,
+      "frame_peak_bytes": 12200,
+      "elapsedTicks": 24267625,
+      "frequency": 1000000000,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 6,
+      "iterations": 1024,
+      "ns": 24712375,
+      "checksum": 6293504,
+      "managed_heap_bytes_after": 133328,
+      "managed_objects_after": 1207,
+      "frame_peak_bytes": 12200,
+      "elapsedTicks": 24712375,
+      "frequency": 1000000000,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

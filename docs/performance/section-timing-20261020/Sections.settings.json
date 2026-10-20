@@ -1,0 +1,11 @@
+{
+    "unity": "6000.3.2f1",
+    "target": "mac",
+    "backend": "IL2CPP",
+    "optimization": "Release/OptimizeSpeed",
+    "stripping": "Minimal",
+    "architecture": 1,
+    "incrementalGC": true,
+    "development": false,
+    "result": "Succeeded"
+}

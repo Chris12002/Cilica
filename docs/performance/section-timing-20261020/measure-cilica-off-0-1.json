@@ -1,0 +1,144 @@
+{
+  "samples": [
+    {
+      "sample": 0,
+      "iterations": 1024,
+      "work": 0,
+      "elapsedTicks": 24254375,
+      "frequency": 1000000000,
+      "checksum": 6293504,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 1,
+      "iterations": 1024,
+      "work": 0,
+      "elapsedTicks": 23984084,
+      "frequency": 1000000000,
+      "checksum": 6293504,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 2,
+      "iterations": 1024,
+      "work": 0,
+      "elapsedTicks": 24208833,
+      "frequency": 1000000000,
+      "checksum": 6293504,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 3,
+      "iterations": 1024,
+      "work": 0,
+      "elapsedTicks": 24049375,
+      "frequency": 1000000000,
+      "checksum": 6293504,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 4,
+      "iterations": 1024,
+      "work": 0,
+      "elapsedTicks": 24076750,
+      "frequency": 1000000000,
+      "checksum": 6293504,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 5,
+      "iterations": 1024,
+      "work": 0,
+      "elapsedTicks": 24075791,
+      "frequency": 1000000000,
+      "checksum": 6293504,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "sample": 6,
+      "iterations": 1024,
+      "work": 0,
+      "elapsedTicks": 24183334,
+      "frequency": 1000000000,
+      "checksum": 6293504,
+      "sectionTicks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "calls": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

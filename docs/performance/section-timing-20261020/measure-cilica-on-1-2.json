@@ -1,0 +1,144 @@
+{
+  "samples": [
+    {
+      "sample": 0,
+      "iterations": 1024,
+      "work": 1,
+      "elapsedTicks": 55912416,
+      "frequency": 1000000000,
+      "checksum": 3196928,
+      "sectionTicks": [
+        969375,
+        43102137,
+        9455465,
+        2348613
+      ],
+      "calls": [
+        1024,
+        2048,
+        2048,
+        1024
+      ]
+    },
+    {
+      "sample": 1,
+      "iterations": 1024,
+      "work": 1,
+      "elapsedTicks": 55849583,
+      "frequency": 1000000000,
+      "checksum": 3196928,
+      "sectionTicks": [
+        964981,
+        42905862,
+        9563192,
+        2384917
+      ],
+      "calls": [
+        1024,
+        2048,
+        2048,
+        1024
+      ]
+    },
+    {
+      "sample": 2,
+      "iterations": 1024,
+      "work": 1,
+      "elapsedTicks": 57525333,
+      "frequency": 1000000000,
+      "checksum": 3196928,
+      "sectionTicks": [
+        978159,
+        44578704,
+        9544390,
+        2389710
+      ],
+      "calls": [
+        1024,
+        2048,
+        2048,
+        1024
+      ]
+    },
+    {
+      "sample": 3,
+      "iterations": 1024,
+      "work": 1,
+      "elapsedTicks": 57151334,
+      "frequency": 1000000000,
+      "checksum": 3196928,
+      "sectionTicks": [
+        995500,
+        44120370,
+        9601138,
+        2397535
+      ],
+      "calls": [
+        1024,
+        2048,
+        2048,
+        1024
+      ]
+    },
+    {
+      "sample": 4,
+      "iterations": 1024,
+      "work": 1,
+      "elapsedTicks": 56743500,
+      "frequency": 1000000000,
+      "checksum": 3196928,
+      "sectionTicks": [
+        966524,
+        43664834,
+        9700703,
+        2380794
+      ],
+      "calls": [
+        1024,
+        2048,
+        2048,
+        1024
+      ]
+    },
+    {
+      "sample": 5,
+      "iterations": 1024,
+      "work": 1,
+      "elapsedTicks": 56288625,
+      "frequency": 1000000000,
+      "checksum": 3196928,
+      "sectionTicks": [
+        985082,
+        43263705,
+        9625869,
+        2381041
+      ],
+      "calls": [
+        1024,
+        2048,
+        2048,
+        1024
+      ]
+    },
+    {
+      "sample": 6,
+      "iterations": 1024,
+      "work": 1,
+      "elapsedTicks": 56111458,
+      "frequency": 1000000000,
+      "checksum": 3196928,
+      "sectionTicks": [
+        973524,
+        43133494,
+        9591211,
+        2376567
+      ],
+      "calls": [
+        1024,
+        2048,
+        2048,
+        1024
+      ]
+    }
+  ]
+}

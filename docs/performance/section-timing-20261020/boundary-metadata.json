@@ -1,0 +1,167 @@
+{
+  "original": {
+    "sha256": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "methods": [
+      {
+        "token": "0600000f",
+        "type": "DiffPlex.Differ",
+        "name": "BuildModificationData",
+        "rva": 9520,
+        "signature": "00020112481248",
+        "ilBytes": 54,
+        "maxStack": 8,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000011",
+        "type": "DiffPlex.Differ",
+        "name": "BuildPieceHashes",
+        "rva": 10072,
+        "signature": "000401151235020E081248021218",
+        "ilBytes": 186,
+        "maxStack": 3,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000021",
+        "type": "DiffPlex.Chunkers.CharacterChunker",
+        "name": "Chunk",
+        "rva": 10304,
+        "signature": "2001151239010E0E",
+        "ilBytes": 49,
+        "maxStack": 4,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000029",
+        "type": "DiffPlex.Chunkers.LineChunker",
+        "name": "Chunk",
+        "rva": 10719,
+        "signature": "2001151239010E0E",
+        "ilBytes": 14,
+        "maxStack": 8,
+        "localsInitialized": false
+      },
+      {
+        "token": "06000053",
+        "type": "Cilica.CandidateBenchmark.BenchProbe",
+        "name": "Diff",
+        "rva": 11560,
+        "signature": "0001123C08",
+        "ilBytes": 53,
+        "maxStack": 4,
+        "localsInitialized": true
+      }
+    ]
+  },
+  "instrumented": {
+    "sha256": "87e254ab0822c3d4737f81bf8c7e9642cfd1bc77453fab73a437f5add1bace10",
+    "methods": [
+      {
+        "token": "0600000f",
+        "type": "DiffPlex.Differ",
+        "name": "BuildModificationData",
+        "rva": 9520,
+        "signature": "00020112481248",
+        "ilBytes": 80,
+        "maxStack": 8,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000011",
+        "type": "DiffPlex.Differ",
+        "name": "BuildPieceHashes",
+        "rva": 10112,
+        "signature": "000401151235020E081248021218",
+        "ilBytes": 215,
+        "maxStack": 3,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000021",
+        "type": "DiffPlex.Chunkers.CharacterChunker",
+        "name": "Chunk",
+        "rva": 10388,
+        "signature": "2001151239010E0E",
+        "ilBytes": 77,
+        "maxStack": 4,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000029",
+        "type": "DiffPlex.Chunkers.LineChunker",
+        "name": "Chunk",
+        "rva": 10852,
+        "signature": "2001151239010E0E",
+        "ilBytes": 40,
+        "maxStack": 3,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000058",
+        "type": "Cilica.CandidateBenchmark.BenchProbe",
+        "name": "Diff",
+        "rva": 12404,
+        "signature": "0001123C08",
+        "ilBytes": 80,
+        "maxStack": 4,
+        "localsInitialized": true
+      }
+    ]
+  },
+  "control": {
+    "sha256": "ad412e7552d1178d9915615f4c99a38edde7425f15f4c8335a199e4cc40bfd2a",
+    "methods": [
+      {
+        "token": "0600000f",
+        "type": "DiffPlex.Differ",
+        "name": "BuildModificationData",
+        "rva": 9520,
+        "signature": "00020112481248",
+        "ilBytes": 54,
+        "maxStack": 8,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000011",
+        "type": "DiffPlex.Differ",
+        "name": "BuildPieceHashes",
+        "rva": 10072,
+        "signature": "000401151235020E081248021218",
+        "ilBytes": 186,
+        "maxStack": 3,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000021",
+        "type": "DiffPlex.Chunkers.CharacterChunker",
+        "name": "Chunk",
+        "rva": 10304,
+        "signature": "2001151239010E0E",
+        "ilBytes": 49,
+        "maxStack": 4,
+        "localsInitialized": true
+      },
+      {
+        "token": "06000029",
+        "type": "DiffPlex.Chunkers.LineChunker",
+        "name": "Chunk",
+        "rva": 10719,
+        "signature": "2001151239010E0E",
+        "ilBytes": 14,
+        "maxStack": 8,
+        "localsInitialized": false
+      },
+      {
+        "token": "06000058",
+        "type": "Cilica.CandidateBenchmark.BenchProbe",
+        "name": "Diff",
+        "rva": 12220,
+        "signature": "0001123C08",
+        "ilBytes": 53,
+        "maxStack": 4,
+        "localsInitialized": true
+      }
+    ]
+  }
+}

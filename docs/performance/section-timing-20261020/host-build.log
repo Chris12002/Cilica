@@ -1,0 +1,11 @@
+/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Program.cs(8,72): warning CA1305: The behavior of 'int.Parse(string)' could vary based on the current user's locale settings. Replace this call in 'Program.Main(string[])' with a call to 'int.Parse(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Host.csproj]
+/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Program.cs(9,13): warning CA1305: The behavior of 'int.Parse(string)' could vary based on the current user's locale settings. Replace this call in 'Program.Main(string[])' with a call to 'int.Parse(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Host.csproj]
+
+Build succeeded.
+
+/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Program.cs(8,72): warning CA1305: The behavior of 'int.Parse(string)' could vary based on the current user's locale settings. Replace this call in 'Program.Main(string[])' with a call to 'int.Parse(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Host.csproj]
+/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Program.cs(9,13): warning CA1305: The behavior of 'int.Parse(string)' could vary based on the current user's locale settings. Replace this call in 'Program.Main(string[])' with a call to 'int.Parse(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Host.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.89

@@ -1,0 +1,28 @@
+{
+  "revision": "142aecdcc0167269d6315c82bfdf83dffccddaad",
+  "files": {
+    "plain": "974c62df0369ae825d8b6889045b4d84e2eeb8fccc4de3d67ad1eec04839bc66",
+    "sections": "ea76c5e84dced017ec96726e324d9718971eda7e1ad0c2174d8c40e9734ac5bf",
+    "dll/DiffPlex.Benchmark.dll": "87e254ab0822c3d4737f81bf8c7e9642cfd1bc77453fab73a437f5add1bace10",
+    "control-dll/DiffPlex.Benchmark.dll": "ad412e7552d1178d9915615f4c99a38edde7425f15f4c8335a199e4cc40bfd2a",
+    "host/Host.dll": "d47e5a215daf86e1a274275c2cfd7e083c41a55691f526ce839230f9b0de1e2b",
+    "control-host/Host.dll": "d47e5a215daf86e1a274275c2cfd7e083c41a55691f526ce839230f9b0de1e2b",
+    "Build/Control.app/Contents/MacOS/Cilica DiffPlex comparison": "5caa771af5cf3fdfe358a4c9200be83532d4d13feb47a1327f4cb167aeb9ce09",
+    "Build/Control.app/Contents/Frameworks/GameAssembly.dylib": "3fb53e74a85f44a0ef385656bdcfd8ebcd47c1aa811b4084af0eaa2fd660c988",
+    "Build/Control.app.settings.json": "f52fd68ff265fbafb89e0583950e87433371a87bcccd1e2b160e738ee9395f13",
+    "Build/Sections.app/Contents/MacOS/Cilica DiffPlex comparison": "397f41b408675f2d585e34996054535ac00a7dfe8b4996e69d96ccbd33bc791c",
+    "Build/Sections.app/Contents/Frameworks/GameAssembly.dylib": "8391ea956f8dd31c5ef55e48abbd438ba76d8757581786bde85afd85e43bd598",
+    "Build/Sections.app.settings.json": "f52fd68ff265fbafb89e0583950e87433371a87bcccd1e2b160e738ee9395f13"
+  },
+  "dotnet": ".NET SDK:\n Version:           10.0.400\n Commit:            14fbf8d527\n Workload version:  10.0.400-manifests.330ea142\n MSBuild version:   18.9.6+14fbf8d52\n\nRuntime Environment:\n OS Name:     Mac OS X\n OS Version:  15.7\n OS Platform: Darwin\n RID:         osx-arm64\n Base Path:   /Users/christian/.dotnet/sdk/10.0.400/\n\n.NET workloads installed:\nThere are no installed workloads to display.\nConfigured to use workload sets when installing new manifests.\nNo workload sets are installed. Run \"dotnet workload restore\" to install a workload set.\n\nHost:\n  Version:      10.0.11\n  Architecture: arm64\n  Commit:       e2f47b0110\n\n.NET SDKs installed:\n  9.0.306 [/Users/christian/.dotnet/sdk]\n  10.0.400 [/Users/christian/.dotnet/sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  DOTNET_ROOT                              [/Users/christian/.dotnet]\n\nglobal.json file:\n  /Users/christian/.codex/worktrees/profile-v107/Cilica/global.json\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download\n",
+  "machine": "Darwin Christians-MacBook-Pro.local 24.6.0 Darwin Kernel Version 24.6.0: Wed Nov  5 21:30:44 PST 2025; root:xnu-11417.140.69.705.2~1/RELEASE_ARM64_T6041 arm64\n",
+  "dotnet_tiering": false,
+  "dotnet_readytorun": false,
+  "sequential": true,
+  "section_order": [
+    "setup_results",
+    "chunking",
+    "hash_preparation",
+    "diff_algorithm"
+  ]
+}

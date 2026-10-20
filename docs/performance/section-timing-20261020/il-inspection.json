@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/tmp/cilica-il2cpp-inspection-tools/ilspycmd",
+    "-il",
+    "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/dll/DiffPlex.Benchmark.dll"
+  ],
+  "DOTNET_ROLL_FORWARD": "Major",
+  "full_sha256": "f825a76b780e6dd944df009d31af09703cb89d3365dc4c656bc08572f4fe30f0",
+  "selected_methods": 5,
+  "unity_excerpts": 6
+}

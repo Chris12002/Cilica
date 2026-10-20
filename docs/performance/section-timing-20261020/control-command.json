@@ -1,0 +1,13 @@
+[
+  "dotnet",
+  "build",
+  "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/control-managed/SelectedRoots.csproj",
+  "-c",
+  "Release",
+  "-o",
+  "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/control-dll",
+  "-p:CandidateSource=/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/candidate",
+  "--source",
+  "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/feed",
+  "-v:q"
+]

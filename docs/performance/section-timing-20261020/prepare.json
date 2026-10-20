@@ -1,0 +1,74 @@
+{
+  "revision": "142aecdcc0167269d6315c82bfdf83dffccddaad",
+  "commands": [
+    [
+      "dotnet",
+      "build",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/managed/SelectedRoots.csproj",
+      "-c",
+      "Release",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/dll",
+      "-p:CandidateSource=/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/candidate",
+      "--source",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/feed",
+      "-v:q"
+    ],
+    [
+      "dotnet",
+      "build",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host-source/Host.csproj",
+      "-c",
+      "Release",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/section-timing-20261020/host",
+      "-v:q"
+    ]
+  ],
+  "original_sources": {
+    "managed/BenchProbe.cs": "50e48757f2b8b613abb41ef50e6c510c4a730e1380449d6fb6c7ae8b61d32683",
+    "candidate/DiffPlex/Differ.cs": "eb8095402c52ae3d969babb258332539adadbd4df4318c9b7fe72b6f585bfa18",
+    "candidate/DiffPlex/Chunkers/CharacterChunker.cs": "8206b982d01b079953e4dc5888ce6cdd889f7a9d1ae6c5a5640cb524b23d79a3",
+    "candidate/DiffPlex/Chunkers/LineChunker.cs": "c6998537cbc3f109751e00e4675973ae13d3996d4860411ccbac10b88da41c44"
+  },
+  "instrumented_sources": {
+    "managed/BenchProbe.cs": "06bbbbabb45588f4be6ddd29ee79dc25e1eee9a92e9b2c96f64f95600a16d4a7",
+    "candidate/DiffPlex/Differ.cs": "5586a95acdfe9b83273ae0ca3fc62f79dcdc6cbb6da4d6174c7d635aa1fc732b",
+    "candidate/DiffPlex/Chunkers/CharacterChunker.cs": "fe61ca88f197716471338f5d25af7efce4055db9e835b759e33f7a9e8534e4d6",
+    "candidate/DiffPlex/Chunkers/LineChunker.cs": "574269b625156e769f4a4012490f3cc99e1eff7bbc722f84caf4f0cf7be135f4"
+  },
+  "boundaries": [
+    {
+      "method": "private static DiffResult Diff(int work)",
+      "section": 0,
+      "original_token": "06000053"
+    },
+    {
+      "method": "private static void BuildPieceHashes(",
+      "section": 2,
+      "original_token": "06000011"
+    },
+    {
+      "method": "protected static void BuildModificationData(ModificationData A, ModificationData B)",
+      "section": 3,
+      "original_token": "0600000f"
+    },
+    {
+      "method": "public IReadOnlyList<string> Chunk(string text)",
+      "section": 1,
+      "original_token": "06000021"
+    },
+    {
+      "method": "public IReadOnlyList<string> Chunk(string text)",
+      "section": 1,
+      "original_token": "06000029"
+    }
+  ],
+  "section_names": [
+    "setup_results",
+    "chunking",
+    "hash_preparation",
+    "diff_algorithm"
+  ],
+  "assembly_sha256": "87e254ab0822c3d4737f81bf8c7e9642cfd1bc77453fab73a437f5add1bace10"
+}
