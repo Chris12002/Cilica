@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v100";
+    public const string Profile = "object-frames-native-v101";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -93,6 +93,7 @@ public static class ObjectCppEmitter
         var exceptionRules = handlers ? new ManagedExceptionRules(exceptions!, program.Flow.Types) : null;
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
         var typedMethods = ObjectCppTypedMethods.Analyze(program);
+        var characterMethods = ObjectCppCharacterMethods.Analyze(program);
         var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
         if (program.InterfaceDispatch is { } interfacePlan)
             foreach (var declaration in interfacePlan.Declarations)
@@ -949,6 +950,8 @@ public static class ObjectCppEmitter
             code.Append("}\n");
             inStep = false;
             Header(method, leafField is null && !typed ? "" : "_framed"); code.Append(" {\n");
+            if (characterMethods.TryGetValue(IrMethodId.From(method.Source), out var characterPlan))
+                ObjectCppCharacterMethods.Append(code, method, characterPlan, TypeSymbol(program.Flow.Types.String!) + "_descriptor", handlers);
             if (handlers)
             {
                 code.Append("    if (context.pending != 0u) ").Append(Exit()).Append('\n');

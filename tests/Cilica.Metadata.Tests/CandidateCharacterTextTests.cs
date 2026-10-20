@@ -54,7 +54,7 @@ public sealed class CandidateCharacterTextTests
         var program = (await Programs.Value)[1]; var flow = program.Flow.Flow.Flow;
         var binding = program.Flow.Bindings.Single(b => b.Primitive?.Code == PrimitiveTypeCode.Char);
         var method = flow.Methods.Single(m => IrMethodId.From(m.Source) == binding.Method);
-        Assert.Equal(IrType.Location(IrType.Int32, narrow: IntegerCastTarget.UInt16), method.Parameters[0]);
+        Assert.Equal(IrType.Location(IrType.Int32, readOnly: true, narrow: IntegerCastTarget.UInt16), method.Parameters[0]);
         var changed = corruption switch {
             "missing" => binding with { Primitive = null },
             "name" => binding with { Primitive = binding.Primitive! with { Source = binding.Primitive.Source with { Name = "User.Char" } } },
@@ -63,7 +63,7 @@ public sealed class CandidateCharacterTextTests
             _ => binding
         };
         if (corruption is "width" or "signed") flow = flow with { Methods = flow.Methods.Replace(method, method with {
-            Parameters = [IrType.Location(IrType.Int32, narrow: corruption == "signed" ? IntegerCastTarget.Int16 : null)] }) };
+            Parameters = [IrType.Location(IrType.Int32, readOnly: true, narrow: corruption == "signed" ? IntegerCastTarget.Int16 : null)] }) };
         if (corruption == "profile") flow = flow with { Types = flow.Types with { References = flow.Types.References with { Integer64 = false } } };
         var invalid = program with { Flow = program.Flow with { Bindings = program.Flow.Bindings.Replace(binding, changed), Flow = new(flow) } };
         Assert.Throws<ArgumentException>(() => ManagedExceptionIrValidator.Validate(invalid));

@@ -1,0 +1,56 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(corruption: "missing") [FAIL]
+      Assert.Equal() Failure: Values differ
+      Expected: IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = False, Narrow = UInt16 }
+      Actual:   IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = True, Narrow = UInt16 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CandidateCharacterTextTests.cs(57,0): at Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(String corruption)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(corruption: "width") [FAIL]
+      Assert.Equal() Failure: Values differ
+      Expected: IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = False, Narrow = UInt16 }
+      Actual:   IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = True, Narrow = UInt16 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CandidateCharacterTextTests.cs(57,0): at Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(String corruption)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(corruption: "signed") [FAIL]
+      Assert.Equal() Failure: Values differ
+      Expected: IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = False, Narrow = UInt16 }
+      Actual:   IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = True, Narrow = UInt16 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CandidateCharacterTextTests.cs(57,0): at Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(String corruption)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(corruption: "name") [FAIL]
+      Assert.Equal() Failure: Values differ
+      Expected: IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = False, Narrow = UInt16 }
+      Actual:   IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = True, Narrow = UInt16 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CandidateCharacterTextTests.cs(57,0): at Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(String corruption)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(corruption: "provider") [FAIL]
+      Assert.Equal() Failure: Values differ
+      Expected: IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = False, Narrow = UInt16 }
+      Actual:   IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = True, Narrow = UInt16 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CandidateCharacterTextTests.cs(57,0): at Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(String corruption)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(corruption: "flags") [FAIL]
+      Assert.Equal() Failure: Values differ
+      Expected: IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = False, Narrow = UInt16 }
+      Actual:   IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = True, Narrow = UInt16 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CandidateCharacterTextTests.cs(57,0): at Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(String corruption)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(corruption: "profile") [FAIL]
+      Assert.Equal() Failure: Values differ
+      Expected: IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = False, Narrow = UInt16 }
+      Actual:   IrType { Kind = ManagedLocation, Class = , Element = IrType { Kind = Int32, Class = , Element = , ReadOnly = False, Narrow =  }, ReadOnly = True, Narrow = UInt16 }
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/CandidateCharacterTextTests.cs(57,0): at Cilica.Metadata.Tests.CandidateCharacterTextTests.Detached_character_receiver_evidence_is_checked(String corruption)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '4e58f81b8725ee07fbc48ca23ad01bdd6fd1fd0402542b2f4a4dbe678a6ceeb2')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 30, Errors: 0, Failed: 7, Skipped: 0, Not Run: 0, Time: 14.348s

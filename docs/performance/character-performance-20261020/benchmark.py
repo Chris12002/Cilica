@@ -11,7 +11,7 @@ r=subprocess.run(cmd,text=True,capture_output=True,timeout=240);(out/(name+'-bui
 raw=subprocess.check_output([str(out/name),'verify','0'],text=True,timeout=120);assert json.loads(raw)==json.loads(Path('artifacts/remaining-gap-20261020/baseline-verify.json').read_text());(out/(name+'-verify.json')).write_text(raw)
 provenance={'revision':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'command':cmd,'compiler_files':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/'src/Cilica.Compiler').glob('ObjectCpp*.cs')},'cpp_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'core_sha256':hashlib.sha256((core/'Cilica.Core.dll').read_bytes()).hexdigest(),'max_native_frame_bytes':max(int(l.split('\t')[-2]) for l in (out/(name+'.su')).read_text().splitlines())}
 (out/(name+'-provenance.json')).write_text(json.dumps(provenance,indent=2))
-names=[baseline,name] if baseline else [name];results={n:[] for n in names}
+names=[*baseline.split(","),name] if baseline else [name];results={n:[] for n in names}
 for repeat in range(3):
  for n in (names if repeat!=1 else names[::-1]):
   raw=subprocess.check_output([str(out/n),'measure','0','256'],text=True,timeout=60);(out/f'{name}-timing-{n}-{repeat}.jsonl').write_text(raw)

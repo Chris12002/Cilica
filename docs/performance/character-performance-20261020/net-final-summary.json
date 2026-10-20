@@ -1,0 +1,10 @@
+{
+  "median_ns": 5491.39404296875,
+  "min_ns": 5299.18212890625,
+  "max_ns": 5639.801025390625,
+  "samples": 21,
+  "environment": {
+    "DOTNET_TieredCompilation": "0",
+    "DOTNET_ReadyToRun": "0"
+  }
+}

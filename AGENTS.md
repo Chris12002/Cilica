@@ -129,6 +129,13 @@ allocating/mutating targets and faults use framed replay; never expose speculati
 writes or allow reference borrow writes. Keep the acyclic depth-eight/512-statement
 proof and constrained-stack validation (ADR 0206).
 
+Native v100 stores one-character UTF-16 payloads inside StringObject; charge that
+payload once and never delete its embedded member as a buffer (ADR 0207).
+Native v101 has separate structural paths for allocating character helpers.
+They retain real GC frames, borrowed-owner roots and depth checks, and never
+replay after allocation starts. Do not fold them into the no-safepoint kernel
+proof (ADR 0208). Cold, invalid-borrow and depth-boundary calls stay framed.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.

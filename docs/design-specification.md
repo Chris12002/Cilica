@@ -404,6 +404,11 @@ Own reference locals/parameters can change without changing caller state. Kernel
 chains retain depth accounting and caller roots, with an acyclic depth-eight,
 512-expanded-statement proof budget. See
 [ADR 0206](decisions/0206-typed-dictionary-lookup.md).
+Native v101 separately recognizes bounded character-construction helpers that do
+allocate. Their direct paths retain real GC frames, borrowed-owner roots and
+managed depth; faults preserve their original origins without replaying allocation.
+They do not extend the no-safepoint kernel proof. See
+[ADR 0208](decisions/0208-rooted-character-helpers.md).
 
 The object boundary now uses a fixed-size native signature with an Int32 input
 pointer and exact element count, including for wide managed entry methods
