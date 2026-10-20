@@ -11,6 +11,10 @@ internal sealed class ObjectFrameLayout
     private readonly Dictionary<(ObjectRootKind Kind, int Block, int Index), string> _owners = [];
     internal int IntegerCount { get; }
     internal int WideIntegerCount { get; }
+    // Address-taken scalars occupy the leading slots; managed locations reach them by index.
+    // Later scalars use CILICA_I/CILICA_W, which only the direct rendering maps to native locals.
+    internal int FrameIntegerCount { get; }
+    internal int FrameWideIntegerCount { get; }
     internal int RootCount { get; }
     internal int CallArgumentCount { get; }
     internal bool HasBoxedDispatch { get; }
@@ -39,7 +43,19 @@ internal sealed class ObjectFrameLayout
             };
             RootTypes.Add(type);
         }
-        int integers = 0, wideIntegers = 0, arguments = 0, locations = 0;
+        var addressed = method.Blocks.SelectMany(b => b.Values).Select(v => v.Expression switch
+        {
+            IrExpression.AddressParameter p => (Kind: ObjectRootKind.Parameter, p.Index),
+            IrExpression.AddressLocal l => (Kind: ObjectRootKind.Local, l.Index),
+            _ => (Kind: ObjectRootKind.Value, Index: -1),
+        }).Where(p => p.Index >= 0).ToHashSet();
+        bool Framed(ObjectRootKind kind, int index, IrTypeKind type) => addressed.Contains((kind, index)) && type is IrTypeKind.Int32 or IrTypeKind.Int64;
+        FrameIntegerCount = method.Parameters.Select((t, i) => Framed(ObjectRootKind.Parameter, i, t.Kind) && t.Kind == IrTypeKind.Int32)
+            .Concat(method.Locals.Select((t, i) => Framed(ObjectRootKind.Local, i, t.Kind) && t.Kind == IrTypeKind.Int32)).Count(x => x);
+        FrameWideIntegerCount = method.Parameters.Select((t, i) => Framed(ObjectRootKind.Parameter, i, t.Kind) && t.Kind == IrTypeKind.Int64)
+            .Concat(method.Locals.Select((t, i) => Framed(ObjectRootKind.Local, i, t.Kind) && t.Kind == IrTypeKind.Int64)).Count(x => x);
+        int frameIntegers = 0, frameWideIntegers = 0;
+        int integers = FrameIntegerCount, wideIntegers = FrameWideIntegerCount, arguments = 0, locations = 0;
         int CallWidth(IrMethodId target, int count, bool dispatch)
         {
             if (dispatch && boxedDispatchArguments?.TryGetValue(target, out int expanded) == true)
@@ -51,15 +67,18 @@ internal sealed class ObjectFrameLayout
             || b.Statements.OfType<IrStatement.Invoke>().Any(c => c.VirtualDispatch && boxedDispatchArguments?.ContainsKey(c.Target) == true));
         void Add(ObjectRootKind kind, int index, IrType type, int block = -1)
         {
+            bool framed = Framed(kind, index, type.Kind);
             if (type.Kind == IrTypeKind.Int32)
             {
-                _indices.Add((kind, block, index), integers);
-                _storage.Add((kind, block, index), "f->integers[" + Number(integers++) + "]");
+                int slot = framed ? frameIntegers++ : integers++;
+                _indices.Add((kind, block, index), slot);
+                _storage.Add((kind, block, index), (framed ? "f->integers[" : "CILICA_I(") + Number(slot) + (framed ? "]" : ")"));
             }
             else if (type.Kind == IrTypeKind.Int64)
             {
-                _indices.Add((kind, block, index), wideIntegers);
-                _storage.Add((kind, block, index), "f->wide_integers[" + Number(wideIntegers++) + "]");
+                int slot = framed ? frameWideIntegers++ : wideIntegers++;
+                _indices.Add((kind, block, index), slot);
+                _storage.Add((kind, block, index), (framed ? "f->wide_integers[" : "CILICA_W(") + Number(slot) + (framed ? "]" : ")"));
             }
             else if (type.Kind == IrTypeKind.ManagedLocation)
             {
@@ -94,6 +113,8 @@ internal sealed class ObjectFrameLayout
                 if (call.VirtualDispatch) DispatchKinds.Add(IrTypeKind.Void);
             }
         }
+        if (frameIntegers != FrameIntegerCount || frameWideIntegers != FrameWideIntegerCount)
+            throw new System.InvalidOperationException("Address-taken scalar frame slots were not assigned exactly once.");
         IntegerCount = integers; WideIntegerCount = wideIntegers; CallArgumentCount = arguments; LocationCount = locations;
         BorrowsFrame = method.Blocks.SelectMany(b => b.Values).Any(v => v.Expression is IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.AddressStatic);
     }

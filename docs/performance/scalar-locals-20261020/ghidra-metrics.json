@@ -1,0 +1,56 @@
+{
+ "0600000e CalculateEditLength": {
+  "v116": {
+   "evidence_id": "ev_542e0b381941c4dbc8cbcd9ce6fa7213b294bed30c49d187108e83efa6178230",
+   "binary_sha256": "0b73e178b48f31285b193224bff8fd36339d51ad307ece971b5c0a322076886e",
+   "instructions": 1880,
+   "basic_blocks": 441,
+   "loads_stores": 892,
+   "calls": 35
+  },
+  "v117": {
+   "evidence_id": "ev_1d8b4d66cb876c774fa8e6afcd3ee471c8c7a7e60592a8b8a39ea155dba57ebf",
+   "binary_sha256": "df9267112557946865c057fb5a5c22f43c844a35f4f114711e66fb8e1df334f8",
+   "instructions": 1252,
+   "basic_blocks": 286,
+   "loads_stores": 440,
+   "calls": 34
+  }
+ },
+ "06000010 BuildModificationData (recursive)": {
+  "v116": {
+   "evidence_id": "ev_86ad4409a39b27f6f713bc017d3ebbf3b0b305da2a122f945ea2f05c1c4b9221",
+   "binary_sha256": "0b73e178b48f31285b193224bff8fd36339d51ad307ece971b5c0a322076886e",
+   "instructions": 2184,
+   "basic_blocks": 571,
+   "loads_stores": 977,
+   "calls": 65
+  },
+  "v117": {
+   "evidence_id": "ev_175ccb013bfd599dedfd6105a61bb8b5cdcda4217750031cb5825cbb158e8bcc",
+   "binary_sha256": "df9267112557946865c057fb5a5c22f43c844a35f4f114711e66fb8e1df334f8",
+   "instructions": 1897,
+   "basic_blocks": 503,
+   "loads_stores": 766,
+   "calls": 65
+  }
+ },
+ "06000011 BuildPieceHashes": {
+  "v116": {
+   "evidence_id": "ev_c214ac4c53ea10ed10236e21d0f4c54234f43bfec96c5e66a86b9a02b478ce83",
+   "binary_sha256": "0b73e178b48f31285b193224bff8fd36339d51ad307ece971b5c0a322076886e",
+   "instructions": 994,
+   "basic_blocks": 220,
+   "loads_stores": 385,
+   "calls": 42
+  },
+  "v117": {
+   "evidence_id": "ev_6f62f5905f2bed11a92a31d7f4d34dde902fd604196d02dd8ab235e71bc253e3",
+   "binary_sha256": "df9267112557946865c057fb5a5c22f43c844a35f4f114711e66fb8e1df334f8",
+   "instructions": 965,
+   "basic_blocks": 211,
+   "loads_stores": 374,
+   "calls": 42
+  }
+ }
+}

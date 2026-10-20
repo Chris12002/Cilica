@@ -23,7 +23,6 @@ internal sealed class ObjectCppModuleBuilder
     private const int MaximumUnitBytes = 8 * 1024 * 1024;
     private const int MaximumUnits = 1024;
     private readonly int _methodsPerUnit;
-    private readonly Dictionary<IrMethodId, string> _frames = [];
     private readonly ImmutableArray<CppModuleFile>.Builder _sources = ImmutableArray.CreateBuilder<CppModuleFile>();
     private readonly StringBuilder _unit = new();
     private CppModuleFile _header = null!;
@@ -35,11 +34,6 @@ internal sealed class ObjectCppModuleBuilder
         if (methodsPerUnit is < 1 or > 256)
             throw new ArgumentOutOfRangeException(nameof(methodsPerUnit), "A native source unit admits 1 through 256 complete methods.");
         _methodsPerUnit = methodsPerUnit;
-    }
-    internal void AddFrame(IrMethodId method, string text) => _frames.Add(method, text);
-    internal string TakeFrame(IrMethodId method)
-    {
-        string frame = _frames[method]; _frames.Remove(method); return frame;
     }
     internal void Begin(string shared, string scope, string symbol)
     {
@@ -77,7 +71,6 @@ internal sealed class ObjectCppModuleBuilder
     }
     internal CppModuleArtifact Complete(CppArtifact boundary)
     {
-        if (_frames.Count != 0) throw new InvalidOperationException("A native module has unconsumed method frames.");
         return new(boundary.Source, boundary.EntryPoint, _header, _sources.ToImmutable());
     }
 

@@ -17,7 +17,10 @@ at `7cb76aa` and `b5ff3a5`. Work continues in `codex/profile-v107`.
    preliminary timing change and broke existing UInt64-key support.
    Neither candidate is accepted; see [the retained experiments](dictionary-compact-20261020.md)
    and ADR 0225. Preserve the captured-storage callback probes for a later attempt.
-3. **Primitive-array loops and native locals — next.** Extend structural
+3. **Primitive-array loops and native locals — native scalar locals complete (v117).**
+   Unborrowed Int32/Int64 storage now uses native locals in direct bodies:
+   character 22.48 → 20.83 µs, line 36.34 → 32.88 µs; see
+   [measurements](scalar-locals-20261020.md) and ADR 0226. Remaining: extend structural
    execution proofs to remove generic location/frame machinery in diff loops.
    Keep bounds, exception order, aliasing and safepoint lifetime guarantees.
    Include scalarized inline-array reads in the investigation, and inventory

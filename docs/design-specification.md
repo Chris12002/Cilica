@@ -1404,6 +1404,8 @@ The [v116 substring slice](performance/substring-20261020.md) reduces measured
 line-diff execution by 27.5%, preserving full outputs and existing semantic
 checks. Character diff remains effectively unchanged. The remaining approved
 work is recorded in [the four-target roadmap](performance/next-targets-20261020.md).
+[Native scalar locals](performance/scalar-locals-20261020.md) (v117) then reduce
+character time 7.35% and line time 9.51% against v116 in one paired batch.
 Earlier profile reports retain their historical scope and measurements.
 
 The [compact dictionary investigation](performance/dictionary-compact-20261020.md)
@@ -5516,3 +5518,10 @@ validate all operands and fault edges; native null/type/range checks precede
 pointer arithmetic. The ordinary source frame survives the non-moving collector's
 allocation/retry. Integer-object CIL v127 records the intrinsic; ABI and object
 layout are unchanged. See [ADR 0224](decisions/0224-direct-substring-construction.md).
+
+Native v117 keeps unborrowed Int32/Int64 storage of optimized direct bodies in
+native locals. Address-taken parameters/locals keep leading frame slots for
+locations, carriers and borrow registration. `CILICA_NATIVE_SCALARS` defaults to
+optimized direct builds; 0 restores frame-resident scalars. References, roots,
+dispatcher methods, kernels and ABI are unchanged; arena frames shrink and the
+largest native frame stays 432 bytes. See [ADR 0226](decisions/0226-native-scalar-locals.md).

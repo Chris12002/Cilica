@@ -5277,6 +5277,15 @@ UTF-16 units, roots, identity and managed allocation failures are preserved.
 Integer-object CIL v126 records the intrinsic; public layouts/ABI are unchanged.
 See [ADR 0201](decisions/0201-direct-character-string-allocation.md).
 
+### Native scalar locals (native v117)
+
+Optimized direct method bodies keep Int32/Int64 values, parameters, locals and
+block inputs in native locals unless their address is taken. No managed semantics,
+API admission, ABI or layout changes. Seven new O0/O2 differential checks, all 217
+`Native*` checks and full DiffPlex outputs pass; see
+[ADR 0226](decisions/0226-native-scalar-locals.md) and
+[measurements](performance/scalar-locals-20261020.md).
+
 ### Direct substring construction (native v116)
 
 Owned Substring now copies directly into final rooted UTF-16 storage using the

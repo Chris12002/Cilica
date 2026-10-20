@@ -14,7 +14,8 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v116";
+    public const string Profile = "object-frames-native-v117";
+    private const string ScalarFramePlaceholder = "\u0001scalar-frame\u0001";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -155,6 +156,7 @@ public static class ObjectCppEmitter
             .Where(m => m.Targets.Any(t => boxedTargets.ContainsKey(t.Implementation)))
             .ToDictionary(m => m.Declaration, m => m.Targets.Max(t => methods[t.Implementation].Parameters.Length)) ?? [];
         var layouts = methods.ToDictionary(p => p.Key, p => new ObjectFrameLayout(p.Value, plans[p.Key], exceptions?.Base, boxedDispatchArguments));
+        var frames = new Dictionary<IrMethodId, string>();
         var entry = methods[program.Flow.Entry];
         string symbol = CppEmitter.Symbol(program.Flow.Entry) + "_objects_packed", scope = symbol + "_closure";
         var text = new StringBuilder();
@@ -357,8 +359,7 @@ public static class ObjectCppEmitter
             var layout = layouts[IrMethodId.From(method.Source)];
             text.Append("struct ").Append(FrameType(method)).Append(" {\n    Frame header;\n    const ").Append(argumentType).Append("* incoming = nullptr; ").Append(argumentType).Append(" result;\n")
                 .Append("    std::array<Object*, ").Append(N(layout.RootCount)).Append("> roots{};\n")
-                .Append("    std::array<std::uint32_t, ").Append(N(layout.IntegerCount)).Append("> integers{};\n")
-                .Append("    std::array<std::uint64_t, ").Append(N(layout.WideIntegerCount)).Append("> wide_integers{};\n")
+                .Append(ScalarFramePlaceholder)
                 .Append("    std::array<").Append(argumentType).Append(", ").Append(N(layout.CallArgumentCount)).Append("> arguments{};\n")
                 .Append("    std::int64_t signed_scratch = 0; std::uint64_t unsigned_scratch = 0;\n");
             if (locations) text.Append("    std::array<Location, ").Append(N(layout.LocationCount)).Append("> locations{};\n")
@@ -377,11 +378,10 @@ public static class ObjectCppEmitter
             if (layout.BorrowsFrame) text.Append("static constexpr std::array<ReferencePredicate, ").Append(N(layout.RootCount)).Append("> ")
                 .Append(FrameType(method)).Append("_root_types = {")
                 .Append(string.Join(", ", layout.RootTypes.Select(t => Predicate(t.Kind == IrTypeKind.Reference ? t.Class! : program.Flow.Types.ObjectBase)))).Append("};\n");
-            if (module is not null)
-            {
-                module.AddFrame(IrMethodId.From(method.Source), text.ToString(frameStart, text.Length - frameStart));
-                text.Length = frameStart;
-            }
+            // Scalar frame storage depends on the rendering chosen after step generation;
+            // the frame is emitted with its method, which is its only user.
+            frames.Add(IrMethodId.From(method.Source), text.ToString(frameStart, text.Length - frameStart));
+            text.Length = frameStart;
             Header(method); text.Append(";\n");
             if (typedMethods.ContainsKey(IrMethodId.From(method.Source)))
             {
@@ -442,10 +442,10 @@ public static class ObjectCppEmitter
         }
         foreach (var method in methods.Values.OrderBy(m => m.Source.ContentHash, StringComparer.Ordinal).ThenBy(m => m.Source.Token))
         {
-            if (module is not null) text.Append(module.TakeFrame(IrMethodId.From(method.Source)));
             AppendMethod(method);
             if (module is not null) { module.AddMethod(text.ToString(), method.Source); text.Clear(); }
         }
+        if (frames.Count != 0) throw new InvalidOperationException("Native method frames were left unconsumed.");
         text.Append("}\n// Private experimental boundary; valid disjoint outputs, references remain internal.\n")
             .Append("// Parameters must point to count readable Int32 values; exact arity required, null allowed only for zero arity.\n")
             .Append("// 0 success, 1 divide-by-zero, 2 overflow, 3 invalid boundary arguments, 4 null, 5 allocation, 6 ownership/type, 7 invalid cast, 8 call-depth, 9 execution storage, 10 index bounds, 11 array type mismatch.\n")
@@ -1000,11 +1000,15 @@ public static class ObjectCppEmitter
                 }
             }
             code = output;
+            bool direct = ObjectCppControlFlow.Eligible(method, steps.Count);
+            if (!frames.Remove(IrMethodId.From(method.Source), out var frame))
+                throw new InvalidOperationException("A native method frame was not prepared exactly once.");
+            code.Append(frame.Replace(ScalarFramePlaceholder,
+                ObjectCppControlFlow.ScalarFrame(layout, direct), StringComparison.Ordinal));
             string stepScope = CppEmitter.Symbol(IrMethodId.From(method.Source)) + "_steps";
             code.Append("namespace ").Append(stepScope).Append(" {\n");
             foreach (var label in labels) code.Append("[[maybe_unused]] static constexpr std::uint32_t ").Append(label.Key).Append(" = ").Append(N(label.Value)).Append("u;\n");
             if (handlers) ObjectCppExceptionFlow.Append(code, method, layout, FrameType(method), TypeSymbol);
-            bool direct = ObjectCppControlFlow.Eligible(method, steps.Count);
             ObjectCppControlFlow.AppendHelpers(code, steps, FrameType(method), direct);
             code.Append("}\n");
             inStep = false;
@@ -1030,7 +1034,7 @@ public static class ObjectCppEmitter
                 Guard("borrowed.status != LocationStatus::complete", "borrowed.status == LocationStatus::limit ? 9u : 6u", method.Blocks[0].ILOffset);
                 code.Append("    f->borrow_token = borrowed.frame.token;\n");
             }
-            ObjectCppControlFlow.AppendDriver(code, steps, labels, stepScope, handlers, direct);
+            ObjectCppControlFlow.AppendDriver(code, steps, labels, stepScope, handlers, direct, layout);
             code.Append("    ").Append(method.ReturnType.Kind switch
                 {
                     IrTypeKind.Void => "return;",

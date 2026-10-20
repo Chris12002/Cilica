@@ -1188,3 +1188,9 @@ remains active. ADR 0225 and docs/performance/dictionary-compact-20261020.md ret
 the unapplied patch, callback probes and evidence. Work next on array/native-local
 lowering; do not revive the candidate without preserving all existing key/value
 types and obtaining a measured benefit.
+
+Native v117 keeps unborrowed Int32/Int64 storage of optimized direct bodies in
+native locals (`CILICA_I`/`CILICA_W`). Address-taken parameters/locals must keep
+leading frame slots; never give a location, carrier or borrow registration an
+index into native scalars. `CILICA_NATIVE_SCALARS=0` restores frame scalars; O0
+and dispatcher methods keep frames. References stay in roots. See ADR 0226.

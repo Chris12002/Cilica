@@ -34,6 +34,21 @@ internal static class ObjectCppRuntime
 #if CILICA_DIRECT_CONTROL_FLOW != 0 && CILICA_DIRECT_CONTROL_FLOW != 1
 #error CILICA_DIRECT_CONTROL_FLOW must be 0 or 1
 #endif
+// Optimized direct bodies keep unborrowed Int32/Int64 storage in native locals
+// (ADR 0226). Unoptimized builds keep frame slots to bound native stack frames.
+#ifndef CILICA_NATIVE_SCALARS
+#if CILICA_DIRECT_CONTROL_FLOW && defined(__OPTIMIZE__)
+#define CILICA_NATIVE_SCALARS 1
+#else
+#define CILICA_NATIVE_SCALARS 0
+#endif
+#endif
+#if CILICA_NATIVE_SCALARS != 0 && CILICA_NATIVE_SCALARS != 1
+#error CILICA_NATIVE_SCALARS must be 0 or 1
+#endif
+#if CILICA_NATIVE_SCALARS && !CILICA_DIRECT_CONTROL_FLOW
+#error CILICA_NATIVE_SCALARS requires CILICA_DIRECT_CONTROL_FLOW
+#endif
 #ifndef CILICA_ARENA_ASAN
 #if defined(__SANITIZE_ADDRESS__)
 #define CILICA_ARENA_ASAN 1
