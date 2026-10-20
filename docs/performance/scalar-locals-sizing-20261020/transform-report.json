@@ -1,0 +1,956 @@
+{
+ "regions": 144,
+ "converted": [
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600001a_storage",
+   "narrow": 2,
+   "wide": 1,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600001b_storage",
+   "narrow": 2,
+   "wide": 1,
+   "pinned": []
+  },
+  {
+   "method": "0x0600001c",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600001c_storage",
+   "narrow": 2,
+   "wide": 7,
+   "pinned": []
+  },
+  {
+   "method": "0x0600001d",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600001d_storage",
+   "narrow": 7,
+   "wide": 12,
+   "pinned": [
+    "wide_integers[0]"
+   ]
+  },
+  {
+   "method": "0x0600001e",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600001e_storage",
+   "narrow": 7,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600001f",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600001f_storage",
+   "narrow": 18,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600002d_storage",
+   "narrow": 7,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000031",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000031_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600004b",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600004b_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 6,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600004c_storage",
+   "narrow": 12,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600004d",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600004d_storage",
+   "narrow": 237,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600004e",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600004e_storage",
+   "narrow": 23,
+   "wide": 4,
+   "pinned": []
+  },
+  {
+   "method": "0x0600007b",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600007b_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600007b",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600007b_g_a7a6c94acd37c881044cf7eecbfdb30496bf7bc50c876dc07ef88d4fbfdd5e04_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600007b",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600007b_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600007c",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600007c_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600007c",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600007c_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000238",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000238_storage",
+   "narrow": 2,
+   "wide": 4,
+   "pinned": []
+  },
+  {
+   "method": "0x06000239",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000239_storage",
+   "narrow": 18,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600024c",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600024c_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600024d_storage",
+   "narrow": 8,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600024e",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600024e_storage",
+   "narrow": 25,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600024f",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600024f_storage",
+   "narrow": 47,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000270",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000270_storage",
+   "narrow": 33,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000271",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000271_storage",
+   "narrow": 10,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000272",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000272_storage",
+   "narrow": 55,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000273",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000273_storage",
+   "narrow": 46,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000274_storage",
+   "narrow": 35,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000275_storage",
+   "narrow": 246,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000276_storage",
+   "narrow": 235,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000277_storage",
+   "narrow": 193,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000278_storage",
+   "narrow": 210,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000279_storage",
+   "narrow": 238,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600027a_storage",
+   "narrow": 236,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600027b_storage",
+   "narrow": 225,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600027c_storage",
+   "narrow": 281,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600027d_storage",
+   "narrow": 109,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "?",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000288_storage",
+   "narrow": 31,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002a3",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002a3_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002a4",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002a4_storage",
+   "narrow": 3,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002a8",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002a8_storage",
+   "narrow": 5,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002d2",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002d2_storage",
+   "narrow": 14,
+   "wide": 5,
+   "pinned": []
+  },
+  {
+   "method": "0x060002d3",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002d3_storage",
+   "narrow": 18,
+   "wide": 7,
+   "pinned": []
+  },
+  {
+   "method": "0x060002d6",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002d6_storage",
+   "narrow": 15,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002d7",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002d7_storage",
+   "narrow": 10,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002d8",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002d8_storage",
+   "narrow": 3,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002d9",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002d9_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002e4",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002e4_storage",
+   "narrow": 140,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002e5",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002e5_storage",
+   "narrow": 44,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002e6",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002e6_storage",
+   "narrow": 22,
+   "wide": 0,
+   "pinned": [
+    "integers[0]"
+   ]
+  },
+  {
+   "method": "0x060002e7",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002e7_storage",
+   "narrow": 26,
+   "wide": 0,
+   "pinned": [
+    "integers[0]",
+    "integers[1]"
+   ]
+  },
+  {
+   "method": "0x060002ea",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002ea_storage",
+   "narrow": 14,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002ec",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002ec_storage",
+   "narrow": 6,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002ee",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002ee_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002f7",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002f7_storage",
+   "narrow": 31,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060002fb",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060002fb_storage",
+   "narrow": 9,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060003e0",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060003e0_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060003e1",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060003e1_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060003e6",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060003e6_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060003e7",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060003e7_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000494",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000494_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000496",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000496_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000498",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000498_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000499",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000499_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 3,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600049c",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600049c_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600049d",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600049d_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600049e",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600049e_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600049f",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600049f_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060004a0",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060004a0_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 22,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060004a1",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060004a1_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 5,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060004a4",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060004a4_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060004cc",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060004cc_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 84,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060004cd",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060004cd_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 36,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000560",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000560_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000560",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000560_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000561",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000561_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000561",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000561_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000562",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000562_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_storage",
+   "narrow": 17,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000562",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000562_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_storage",
+   "narrow": 16,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000563",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000563_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_storage",
+   "narrow": 5,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000563",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000563_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000565",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000565_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_storage",
+   "narrow": 16,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000565",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000565_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_storage",
+   "narrow": 14,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000567",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000567_g_52ea2f8d3ea825deee70979c0980dcbfc5e06834b082ccdfa6908aae3b13c8f9_storage",
+   "narrow": 18,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000567",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_06000567_g_91142872beb3e2f767fb278c181215ebb8d18fc32c922bda4433b1417723e9bb_storage",
+   "narrow": 18,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600059d",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_0600059d_g_aeba4f1b200f60a7b325d4ac29788cc13edbfc2cb82661b5329872c0cc374f47_storage",
+   "narrow": 3,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x060005c5",
+   "struct": "cilica_m_05c15eedddf2ed6e1a54d2b081a47b93d1308a7ccbc27578ec231765327a01fe_060005c5_g_11a92e1f79aac0ad51161d12c4d589413c1a856820041502db8214b5ceb0caa3_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000004",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000004_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000006",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000006_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600000c",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000c_storage",
+   "narrow": 68,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600000e",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000e_storage",
+   "narrow": 287,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600000f",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600000f_storage",
+   "narrow": 17,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000010",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000010_storage",
+   "narrow": 125,
+   "wide": 0,
+   "pinned": [
+    "integers[0]",
+    "integers[1]",
+    "integers[2]",
+    "integers[3]"
+   ]
+  },
+  {
+   "method": "0x06000011",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000011_storage",
+   "narrow": 20,
+   "wide": 0,
+   "pinned": [
+    "integers[2]",
+    "wide_integers[2]"
+   ]
+  },
+  {
+   "method": "0x06000021",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000021_storage",
+   "narrow": 12,
+   "wide": 0,
+   "pinned": [
+    "integers[1]"
+   ]
+  },
+  {
+   "method": "0x06000029",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000029_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600002a",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600002a_storage",
+   "narrow": 4,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000034",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000034_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000035",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000035_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000036",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000036_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000037",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000037_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000038",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000038_storage",
+   "narrow": 8,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600003d",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003d_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600003e",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003e_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x0600003f",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_0600003f_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000040",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000040_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000041",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000041_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000042",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000042_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000043",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000043_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000044",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000044_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000045",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000045_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000046",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000046_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000047",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000047_storage",
+   "narrow": 1,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000048",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000048_storage",
+   "narrow": 2,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000052",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000052_storage",
+   "narrow": 68,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000053",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000053_storage",
+   "narrow": 8,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000054",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000054_storage",
+   "narrow": 48,
+   "wide": 0,
+   "pinned": []
+  },
+  {
+   "method": "0x06000055",
+   "struct": "cilica_m_652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8_06000055_storage",
+   "narrow": 33,
+   "wide": 0,
+   "pinned": []
+  }
+ ],
+ "skipped": [
+  {
+   "method": "0x0600026e",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600026f",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600028a",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x060003d5",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x060003d6",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x060003d7",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x060003de",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x060003e4",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600055a",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600055a",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x06000012",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x06000022",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x06000039",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600003a",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600003b",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600003c",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x06000049",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600004a",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600004b",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600004c",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600004d",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600004e",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x0600004f",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x06000050",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x06000051",
+   "reason": "no convertible scalar slots"
+  },
+  {
+   "method": "0x06000056",
+   "reason": "no convertible scalar slots"
+  }
+ ],
+ "converted_count": 118,
+ "skipped_count": 26
+}

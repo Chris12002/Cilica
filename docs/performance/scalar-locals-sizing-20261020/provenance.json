@@ -1,0 +1,101 @@
+{
+ "repository_revision": "cb888a0b6fe10be7e8a3053f8db2df149e1486e5",
+ "baseline_source": {
+  "path": "artifacts/substring-20261020/substring.cpp (codex/profile-v107 worktree, accepted v116)",
+  "sha256": "2d5bb7c06e4e2941fa4f25ca5d88221aef6465c7614bc6724f9b7c6c9062822a"
+ },
+ "variant_sources": {
+  "variant_a": "c6e54386bfb18ee28fdf4fb2080beff4cfb900abc37dc00747d50c11311750ac",
+  "variant_b": "3a6b795185bdb0b08c7f7eb72a99afb08fb0c637c3b6044ebe105c59e9e232d3"
+ },
+ "binaries": {
+  "baseline": "b8fd2adbfaa1e7009c5083d349c921b6dd974da34116478413e88ea7d2fcf346",
+  "variant_a": "ce26f01a06a944353be4de71a5ee2975e436fe46fc56b803adfc36777b46192e",
+  "variant_b": "d31554e1fad6ff13a014e4dcec1741e4a2e01c2f3078d8beae532795063fbcbc"
+ },
+ "build_command": [
+  "clang++",
+  "-std=c++20",
+  "-O2",
+  "-DNDEBUG",
+  "-fno-exceptions",
+  "-fno-rtti",
+  "-fstack-usage",
+  "<variant>.cpp",
+  "-o",
+  "<variant>"
+ ],
+ "clang": "Apple clang version 17.0.0 (clang-1700.4.4.1)",
+ "inputs": {
+  "DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8",
+  "DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8"
+ },
+ "verification_oracles": {
+  "character": "e469d96b5323ac9c7d5bae395f45b6b8ff6af617dc5b88f896d1102a3700ef08",
+  "line": "9904446a2e8d38e596fd2d7b78595be9cc2865dfc6ecba5c3c20405e58de1d3e"
+ },
+ "verification": {
+  "baseline_work0": true,
+  "baseline_work1": true,
+  "variant_a_work0": true,
+  "variant_a_work1": true,
+  "variant_b_work0": true,
+  "variant_b_work1": true
+ },
+ "native_frame_bytes": {
+  "baseline": {
+   "06000011": 240,
+   "0600000f": 96,
+   "06000021": 208,
+   "06000029": 48,
+   "06000010": 304,
+   "0600000e": 112,
+   "max": 432
+  },
+  "variant_a": {
+   "06000011": 272,
+   "0600000f": 96,
+   "06000021": 224,
+   "06000029": 64,
+   "06000010": 304,
+   "0600000e": 176,
+   "max": 432
+  },
+  "variant_b": {
+   "06000011": 272,
+   "0600000f": 96,
+   "06000021": 224,
+   "06000029": 64,
+   "06000010": 304,
+   "0600000e": 192,
+   "max": 432
+  }
+ },
+ "ghidra_CalculateEditLength_0600000e": {
+  "baseline": {
+   "evidence_id": "ev_11d1109558450a01ca01293f5ef5fdc3abd2db2385c00c6b05bba816e8cd293d",
+   "instructions": 1880,
+   "basic_blocks": 441,
+   "loads_stores": 892,
+   "calls": 35
+  },
+  "variant_b": {
+   "evidence_id": "ev_23fe2d88928dea854a6de17223174013bbef963efbc4fc850ba61cadd3fb654a",
+   "instructions": 1252,
+   "basic_blocks": 286,
+   "loads_stores": 440,
+   "calls": 34
+  }
+ },
+ "tools": {
+  "rea": "morluto/rea ee12d517a25d34853d40e31fc039c7d1576c60e1 (source build, 6.7.0)",
+  "ghidra": "12.1.4 (Homebrew)",
+  "node": "24.22.0 (nodejs.org, private)",
+  "java": "openjdk@21 21.0.12.1"
+ },
+ "host": {
+  "machine": "Apple M4 Pro, macOS ARM64",
+  "load_average_at_batch3_start": "9.95 9.38 9.29",
+  "batch2_note": "overlapped Ghidra analysis; indicative only"
+ }
+}

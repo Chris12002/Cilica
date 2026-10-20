@@ -1,0 +1,88 @@
+{
+ "0": {
+  "baseline": {
+   "median_ns": 22412.759765625,
+   "min_ns": 22333.1708984375,
+   "max_ns": 22874.4306640625,
+   "samples": 21,
+   "process_medians": [
+    22716.9189453125,
+    22387.8173828125,
+    22436.1572265625
+   ],
+   "reduction_percent": 0.0
+  },
+  "variant_a": {
+   "median_ns": 21144.6533203125,
+   "min_ns": 21077.189453125,
+   "max_ns": 21507.283203125,
+   "samples": 21,
+   "process_medians": [
+    21274.5361328125,
+    21092.1630859375,
+    21144.6533203125
+   ],
+   "reduction_percent": 5.657966526984448
+  },
+  "variant_b": {
+   "median_ns": 20830.7705078125,
+   "min_ns": 20644.6123046875,
+   "max_ns": 21081.4208984375,
+   "samples": 21,
+   "process_medians": [
+    20906.576171875,
+    20775.7568359375,
+    20999.796875
+   ],
+   "reduction_percent": 7.05843133266808
+  }
+ },
+ "1": {
+  "baseline": {
+   "median_ns": 36605.3466796875,
+   "min_ns": 35792.9287109375,
+   "max_ns": 38074.21875,
+   "samples": 21,
+   "process_medians": [
+    35891.5205078125,
+    36877.7265625,
+    36605.3466796875
+   ],
+   "reduction_percent": 0.0
+  },
+  "variant_a": {
+   "median_ns": 33300.537109375,
+   "min_ns": 33028.1572265625,
+   "max_ns": 34353.59765625,
+   "samples": 21,
+   "process_medians": [
+    33122.6806640625,
+    33546.4677734375,
+    34050.822265625
+   ],
+   "reduction_percent": 9.028215465983703
+  },
+  "variant_b": {
+   "median_ns": 33672.5263671875,
+   "min_ns": 33084.3505859375,
+   "max_ns": 34814.9814453125,
+   "samples": 21,
+   "process_medians": [
+    33834.67578125,
+    33271.0361328125,
+    33543.3759765625
+   ],
+   "reduction_percent": 8.011999826592097
+  }
+ },
+ "binaries": {
+  "baseline": "b8fd2adbfaa1e7009c5083d349c921b6dd974da34116478413e88ea7d2fcf346",
+  "variant_a": "ce26f01a06a944353be4de71a5ee2975e436fe46fc56b803adfc36777b46192e",
+  "variant_b": "d31554e1fad6ff13a014e4dcec1741e4a2e01c2f3078d8beae532795063fbcbc"
+ },
+ "sources": {
+  "baseline": "2d5bb7c06e4e2941fa4f25ca5d88221aef6465c7614bc6724f9b7c6c9062822a",
+  "variant_a": "c6e54386bfb18ee28fdf4fb2080beff4cfb900abc37dc00747d50c11311750ac",
+  "variant_b": "3a6b795185bdb0b08c7f7eb72a99afb08fb0c637c3b6044ebe105c59e9e232d3"
+ }
+}

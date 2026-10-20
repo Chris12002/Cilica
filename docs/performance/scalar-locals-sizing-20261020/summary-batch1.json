@@ -1,0 +1,88 @@
+{
+ "0": {
+  "baseline": {
+   "median_ns": 22562.01171875,
+   "min_ns": 22216.796875,
+   "max_ns": 51199.9921875,
+   "samples": 21,
+   "process_medians": [
+    22514.689453125,
+    22710.978515625,
+    22562.01171875
+   ],
+   "reduction_percent": 0.0
+  },
+  "variant_a": {
+   "median_ns": 21180.58203125,
+   "min_ns": 21000.48828125,
+   "max_ns": 21823.2021484375,
+   "samples": 21,
+   "process_medians": [
+    21180.908203125,
+    21040.8525390625,
+    21147.6650390625
+   ],
+   "reduction_percent": 6.122812560867397
+  },
+  "variant_b": {
+   "median_ns": 20894.53125,
+   "min_ns": 20699.259765625,
+   "max_ns": 21391.51953125,
+   "samples": 21,
+   "process_medians": [
+    20750.3662109375,
+    21301.9619140625,
+    20894.53125
+   ],
+   "reduction_percent": 7.3906550955482935
+  }
+ },
+ "1": {
+  "baseline": {
+   "median_ns": 36168.0498046875,
+   "min_ns": 35833.984375,
+   "max_ns": 36941.2841796875,
+   "samples": 21,
+   "process_medians": [
+    36062.1337890625,
+    36861.2060546875,
+    36093.3427734375
+   ],
+   "reduction_percent": 0.0
+  },
+  "variant_a": {
+   "median_ns": 33987.833984375,
+   "min_ns": 33060.546875,
+   "max_ns": 34689.4130859375,
+   "samples": 21,
+   "process_medians": [
+    33149.6171875,
+    34021.2001953125,
+    34466.2275390625
+   ],
+   "reduction_percent": 6.028015975663514
+  },
+  "variant_b": {
+   "median_ns": 34068.15625,
+   "min_ns": 33065.185546875,
+   "max_ns": 34648.4375,
+   "samples": 21,
+   "process_medians": [
+    33888.142578125,
+    34226.400390625,
+    33315.591796875
+   ],
+   "reduction_percent": 5.805935255086236
+  }
+ },
+ "binaries": {
+  "baseline": "b8fd2adbfaa1e7009c5083d349c921b6dd974da34116478413e88ea7d2fcf346",
+  "variant_a": "ce26f01a06a944353be4de71a5ee2975e436fe46fc56b803adfc36777b46192e",
+  "variant_b": "d31554e1fad6ff13a014e4dcec1741e4a2e01c2f3078d8beae532795063fbcbc"
+ },
+ "sources": {
+  "baseline": "2d5bb7c06e4e2941fa4f25ca5d88221aef6465c7614bc6724f9b7c6c9062822a",
+  "variant_a": "c6e54386bfb18ee28fdf4fb2080beff4cfb900abc37dc00747d50c11311750ac",
+  "variant_b": "3a6b795185bdb0b08c7f7eb72a99afb08fb0c637c3b6044ebe105c59e9e232d3"
+ }
+}
