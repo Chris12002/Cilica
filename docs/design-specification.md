@@ -580,6 +580,10 @@ its actual framework interfaces fail until that ancestry is modeled. Unrelated
 user-interface dispatch with String signatures remains supported. The literal
 cache is retained until teardown; its roots must join future collection tracing.
 O0/O2 local sanitizer conformance is not evidence of collection or other platforms.
+Native v100 embeds a single UTF-16 code unit in the string header, eliminating its
+separate buffer allocation while preserving fresh identity and rooting. Heap
+charging includes the embedded payload once; longer strings retain separate
+buffers. See [ADR 0207](decisions/0207-inline-character-strings.md).
 The detached array foundation is implemented
 ([ADR 0043](decisions/0043-detached-array-contracts.md)): zero-based one-dimensional
 Int32/reference vector identities retain their element type separately from nominal

@@ -38,10 +38,12 @@ public sealed class NativeStringTests(ITestOutputHelper output)
                 using namespace {{Scope(0)}};
                 const std::uint16_t units[] = {65u, 0u, 0xd800u};
                 for (std::uint32_t length : {0u, 1u, 3u}) {
-                    Instance heap; heap.limit = sizeof(StringObject) + length * sizeof(std::uint16_t); Context c(heap);
+                    Instance heap; heap.limit = sizeof(StringObject) + (length > 1 ? length * sizeof(std::uint16_t) : 0); Context c(heap);
                     Object* value = string_literal(c, {{Descriptor(0)}}, 1, units, length);
                     assert(value != nullptr && heap.bytes == heap.limit && heap.count == 1);
                     assert(string_length(value) == length);
+                    auto* text = reinterpret_cast<StringObject*>(value);
+                    assert((text->units == &text->inline_unit) == (length == 1));
                     for (std::uint32_t i = 0; i < length; ++i) assert(string_code_unit(value, i) == units[i]);
                     heap.object_limit = 0;
                     assert(string_literal(c, {{Descriptor(0)}}, 1, units, length) == value && heap.count == 1);

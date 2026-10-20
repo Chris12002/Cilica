@@ -163,6 +163,7 @@ static_assert(std::is_standard_layout_v<ArrayObject> && offsetof(ArrayObject, he
 struct StringObject {
     Object header;
     std::uint32_t length = 0;
+    std::uint16_t inline_unit = 0;
     const std::uint16_t* units = nullptr;
     StringObject* literal_next = nullptr;
     std::size_t literal_id = 0;
@@ -170,7 +171,8 @@ struct StringObject {
 static_assert(std::is_standard_layout_v<StringObject> && offsetof(StringObject, header) == 0);
 [[maybe_unused]] static void destroy_string(Object* value) noexcept {
     auto* text = reinterpret_cast<StringObject*>(value);
-    delete[] text->units; delete text;
+    if (text->units != &text->inline_unit) delete[] text->units;
+    delete text;
 }
 struct Handle { std::uint64_t token = 0; };
 struct HandleSlot { Object* value = nullptr; std::uint64_t token = 0; };
@@ -366,13 +368,13 @@ struct RootScope {
     if (third > 0x7fffffffu - first - second || fourth > 0x7fffffffu - first - second - third) return nullptr;
     const std::uint32_t length = first + second + third + fourth;
     if (std::size_t{length} > (std::numeric_limits<std::size_t>::max() - sizeof(StringObject)) / sizeof(std::uint16_t)) return nullptr;
-    const std::size_t charged = sizeof(StringObject) + std::size_t{length} * sizeof(std::uint16_t);
+    const std::size_t charged = sizeof(StringObject) + (length > 1 ? std::size_t{length} * sizeof(std::uint16_t) : 0);
     bool attempted = false;
     for (;;) {
         if (!allocation_room(context, charged, attempted)) return nullptr;
         auto* value = new (std::nothrow) StringObject{};
         if (value == nullptr) { if (collect_for_allocation(context, attempted)) continue; return nullptr; }
-        auto* units = length == 0 ? nullptr : new (std::nothrow) std::uint16_t[length];
+        auto* units = length == 0 ? nullptr : length == 1 ? &value->inline_unit : new (std::nothrow) std::uint16_t[length];
         if (length != 0 && units == nullptr) { delete value; if (collect_for_allocation(context, attempted)) continue; return nullptr; }
         for (std::uint32_t i = 0; i < first; ++i) units[i] = code_units == nullptr ? left[i] : static_cast<std::uint16_t>(code_units[i]);
         for (std::uint32_t i = 0; i < second; ++i) units[first + i] = right[i];
