@@ -114,6 +114,13 @@ valid nested calls. The path cannot allocate or call managed code; caller roots
 retain its references. Cold/fault paths stay framed. Preserve this structural
 proof when extending the optimization; see ADR 0198.
 
+Native v97 adds bounded typed scalar kernels, stable parameter-borrow snapshots
+and acyclic proven helper calls. No allocation, callback, nonlocal write or
+escaping address is allowed; retain carrier checks, caller roots, depth accounting
+and framed fault replay. See ADRs 0203–0204. ADR 0202 separates a 4 KiB release
+frame review threshold and 512–576 KiB constrained-stack check from the older
+diagnostic baseline; individual frame size never replaces whole-call-chain tests.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.

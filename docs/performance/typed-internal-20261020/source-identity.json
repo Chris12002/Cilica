@@ -1,0 +1,16 @@
+{
+  "helpers": {
+    "matching_commit": "42ba47b74e83e959dd5c9d033473955fc83c5c44",
+    "all_recorded_compiler_source_hashes_match": true,
+    "cpp_sha256": "9aa644f774114fcfd9c7cfdfe28a1022b658587d9e3cc7929f95e7848ca47fc3"
+  },
+  "final": {
+    "matching_commit": "788760a44713feaa69cf5a50bcaf82a1316cd01f",
+    "all_recorded_compiler_source_hashes_match": true,
+    "cpp_sha256": "20c186d15788437cca3848f4d9238e5c7f97e815ec40d016c7957bef90bba0c2",
+    "cpp_identical_to_original_borrow_measurement": true
+  },
+  "input_sha256": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+  "input_pdb_sha256": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8",
+  "note": "The initial borrow provenance recorded an overwritten emitter; final committed regeneration and matching C++ establish its identity instead."
+}

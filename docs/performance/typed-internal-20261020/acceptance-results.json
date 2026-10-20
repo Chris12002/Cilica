@@ -1,0 +1,55 @@
+{
+  "release": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-pthread",
+      "-DCILICA_TYPED_INTERNALS=1",
+      "-DCILICA_DIRECT_CONTROL_FLOW=1",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-O2",
+      "-Wframe-larger-than=4096",
+      "/Users/christian/Cilica/artifacts/typed-internal-20261020/release-acceptance.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/typed-internal-20261020/release-acceptance"
+    ],
+    "matches_all_values": true,
+    "forced_gc": false,
+    "cpp_sha256": "655edbc586a3d978cb658ec5d372dfaa498080d2f6552425b87ab813f2c37a8c",
+    "max_stack_usage": 400
+  },
+  "sanitized": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-pthread",
+      "-DCILICA_TYPED_INTERNALS=1",
+      "-DCILICA_DIRECT_CONTROL_FLOW=1",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-O1",
+      "-Wframe-larger-than=16384",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-DCILICA_VERIFY_INTERNAL_REFERENCES=1",
+      "-DCILICA_VERIFY_BORROW_LIFETIMES=1",
+      "/Users/christian/Cilica/artifacts/typed-internal-20261020/sanitized-acceptance.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/typed-internal-20261020/sanitized-acceptance"
+    ],
+    "matches_all_values": true,
+    "forced_gc": true,
+    "cpp_sha256": "d826078a69ab91fbc4521dbcfe9524c68aafcd44e593a77f5e323e114335dd15",
+    "max_stack_usage": 320
+  }
+}
