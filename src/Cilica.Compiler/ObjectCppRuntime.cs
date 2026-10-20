@@ -53,6 +53,12 @@ internal static class ObjectCppRuntime
 """;
 
     internal const string Text = """
+// Keep checked callers visible to the optimizer without changing O0 helper frames.
+#if defined(__OPTIMIZE__)
+#define CILICA_PRIMITIVE_READ [[maybe_unused, gnu::always_inline]]
+#else
+#define CILICA_PRIMITIVE_READ [[maybe_unused, gnu::noinline]]
+#endif
 struct Object;
 struct Descriptor;
 using ReferencePredicate = bool (*)(const Descriptor*) noexcept;
@@ -448,10 +454,10 @@ struct RootScope {
     value->literal_id = id; value->literal_next = context.instance.literals; context.instance.literals = value;
     return result;
 }
-[[maybe_unused, gnu::noinline]] static std::uint32_t string_length(Object* value) noexcept {
+CILICA_PRIMITIVE_READ static std::uint32_t string_length(Object* value) noexcept {
     return reinterpret_cast<StringObject*>(value)->length;
 }
-[[maybe_unused, gnu::noinline]] static std::uint32_t string_code_unit(Object* value, std::uint32_t index) noexcept {
+CILICA_PRIMITIVE_READ static std::uint32_t string_code_unit(Object* value, std::uint32_t index) noexcept {
     return reinterpret_cast<StringObject*>(value)->units[index];
 }
 [[maybe_unused, gnu::noinline]] static std::uint32_t string_equals(Object* left, Object* right) noexcept {
@@ -653,19 +659,19 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
 }
 // Receivers have passed exact descriptor membership before these helpers run.
 // Keep pointer arithmetic on actual new[] elements, never a fabricated flexible member.
-[[maybe_unused, gnu::noinline]] static std::uint32_t array_length(Object* value) noexcept {
+CILICA_PRIMITIVE_READ static std::uint32_t array_length(Object* value) noexcept {
     return reinterpret_cast<ArrayObject*>(value)->length;
 }
-[[maybe_unused, gnu::noinline]] static std::uint32_t load_integer_element(Object* value, std::uint32_t index) noexcept {
+CILICA_PRIMITIVE_READ static std::uint32_t load_integer_element(Object* value, std::uint32_t index) noexcept {
     return reinterpret_cast<ArrayObject*>(value)->integers[index];
 }
-[[maybe_unused, gnu::noinline]] static std::uint64_t load_wide_element(Object* value, std::uint32_t index) noexcept {
+CILICA_PRIMITIVE_READ static std::uint64_t load_wide_element(Object* value, std::uint32_t index) noexcept {
     return reinterpret_cast<ArrayObject*>(value)->wide_integers[index];
 }
 [[maybe_unused, gnu::noinline]] static void store_wide_element(Object* value, std::uint32_t index, std::uint64_t element) noexcept {
     reinterpret_cast<ArrayObject*>(value)->wide_integers[index] = element;
 }
-[[maybe_unused, gnu::noinline]] static Object* load_reference_element(Object* value, std::uint32_t index) noexcept {
+CILICA_PRIMITIVE_READ static Object* load_reference_element(Object* value, std::uint32_t index) noexcept {
     return reinterpret_cast<ArrayObject*>(value)->references[index];
 }
 [[maybe_unused, gnu::noinline]] static void store_integer_element(Object* value, std::uint32_t index, std::uint32_t element) noexcept {

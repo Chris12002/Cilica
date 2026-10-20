@@ -1074,3 +1074,8 @@ kernel proof. Shared modules expose kernel definitions in their common header;
 framed methods/wrappers stay partitioned. Retain the depth-eight/512-statement
 proof, staged writes, input checks and fault replay. O0 kernel policy is unchanged.
 See ADR 0216.
+
+Native v110 requests optimized inlining for six primitive array/string read
+helpers. Preserve caller null/bounds/type checks and O0 noinline treatment.
+The attribute macro must not add a linkage keyword; shared modules supply inline.
+See ADR 0217.

@@ -414,6 +414,10 @@ fallbacks and wrappers remain partitioned. The depth/expansion proof, staged wri
 managed depth accounting and O0 kernel policy are unchanged; the existing 64 MiB
 shared-source cap includes these bodies. See
 [ADR 0216](decisions/0216-bounded-typed-helper-inlining.md).
+Native v110 exposes the six primitive array/string read helpers to optimized
+native inlining. O0 retains their noinline frames; checked callers, helper bodies,
+roots and shared-module identity are unchanged. See
+[ADR 0217](decisions/0217-primitive-read-inlining.md).
 Native v103 carries the validated IR's declared reference types through that
 closed kernel graph. Entry wrappers retain reference/borrow checks and validate
 incoming array storage. Normal kernels trust declared field/array result types

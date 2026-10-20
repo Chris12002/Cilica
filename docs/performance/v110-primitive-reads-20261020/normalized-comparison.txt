@@ -1,0 +1,1 @@
+Fresh v110 emission is byte-identical to v109 after normalizing only the primitive-read macro, its six attributes and the native profile label.
