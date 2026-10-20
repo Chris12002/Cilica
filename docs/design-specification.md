@@ -391,6 +391,10 @@ string operations and bounded acyclic kernel calls. It retains exact carrier
 validation and caller roots; kernels cannot allocate, mutate or call callbacks.
 See [ADR 0204](decisions/0204-proven-borrow-kernels.md). A valid leaf read can now succeed
 without spare arena capacity; the existing depth boundary remains checked.
+Native v98 uses collision-checked fixed address tables for broad descriptor sets,
+retaining exact membership without candidate dereferences or heap allocation.
+Small sets retain linear comparisons; GC and public boundaries remain checked.
+See [ADR 0205](decisions/0205-checked-descriptor-lookup.md).
 
 The object boundary now uses a fixed-size native signature with an Int32 input
 pointer and exact element count, including for wide managed entry methods

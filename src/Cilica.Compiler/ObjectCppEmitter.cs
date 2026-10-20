@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v97";
+    public const string Profile = "object-frames-native-v98";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -156,6 +156,7 @@ public static class ObjectCppEmitter
                 .Where(message => !message.StartsWith("Exception of type '", StringComparison.Ordinal)).Distinct(StringComparer.Ordinal).Count()).ToString(CultureInfo.InvariantCulture))
             .Append(";\nstatic constexpr std::size_t runtime_type_count = ").Append(N(runtimeIdentities.Count)).Append(";\nstatic constexpr std::size_t static_field_count = ").Append(N(statics.Count)).Append(";\nstatic constexpr std::size_t type_initializer_count = ").Append(N(initializers.Count)).Append(";\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
         text.Append(ObjectCppTypedMethods.Runtime);
+        text.Append(ObjectCppDescriptorLookup.Text);
         if (exceptions is not null) ObjectCppExceptions.AppendStorage(text);
         if (handlers) text.Append(ObjectCppExceptionFlow.Storage);
         if (program.Flow.Types.Integer64) text.Append(Int64CppLowering.Runtime);
@@ -301,8 +302,17 @@ public static class ObjectCppEmitter
                     .Select(p => "&" + ObjectCppBoxing.Symbol(p.Type) + "_descriptor")).ToArray();
             text.Append("static constexpr std::array<const Descriptor*, ").Append(N(descriptors.Length)).Append("> ")
                 .Append(name).Append("_types = {").Append(string.Join(", ", descriptors)).Append("};\n")
-                .Append("[[maybe_unused, gnu::noinline]] static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n")
-                .Append("    for (const auto* receiver : ").Append(name).Append("_types) if (receiver == type) return true;\n    return false;\n}\n");
+                .Append("[[maybe_unused, gnu::noinline]] static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n");
+            if (descriptors.Length < 8)
+                text.Append("    for (const auto* receiver : ").Append(name).Append("_types) if (receiver == type) return true;\n    return false;\n");
+            else
+            {
+                int capacity = 1;
+                while (capacity < descriptors.Length * 2) capacity = checked(capacity * 2);
+                text.Append("    static const DescriptorLookup<").Append(N(descriptors.Length)).Append(", ").Append(N(capacity))
+                    .Append("> lookup(").Append(name).Append("_types);\n    return lookup.contains(type);\n");
+            }
+            text.Append("}\n");
         }
         // Use the same reduced-type relation as array casts, but admit only Int32 borrow views.
         text.Append("[[maybe_unused]] static bool integer_array_location_type(const Descriptor* actual, const Descriptor* view) noexcept {\n");
