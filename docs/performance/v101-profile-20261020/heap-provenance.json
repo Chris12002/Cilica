@@ -1,0 +1,30 @@
+{
+  "heap4x": {
+    "cpp_sha256": "899cf63b19668f9e48a9e51aa48ef0a0529ded2b4dcf96cd2f3d634af727df19",
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "/Users/christian/Cilica/artifacts/v101-profile-20261020/heap4x.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/v101-profile-20261020/heap4x"
+    ]
+  },
+  "cache_heap4x": {
+    "cpp_sha256": "0e600a0bcabe869064d20a4cd41050456aa04f5e2a14148064bd8f955d1fde35",
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "/Users/christian/Cilica/artifacts/v101-profile-20261020/cache_heap4x.cpp",
+      "-o",
+      "/Users/christian/Cilica/artifacts/v101-profile-20261020/cache_heap4x"
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "iterations": 256,
+  "warmup_diffs": 8,
+  "totals": {
+    "array_validations": 657534,
+    "objects": 9984,
+    "hash_type_calls": 676848,
+    "hash_type_probes": 1327894,
+    "steps": 0,
+    "frames": 36609,
+    "frame_bytes": 36195040,
+    "type_calls": 4200960,
+    "type_comparisons": 4531200,
+    "active_visits": 57856,
+    "borrow_visits": 0,
+    "arrays": 4352,
+    "strings": 65536
+  },
+  "per_diff": {
+    "array_validations": 2568.4921875,
+    "objects": 39.0,
+    "hash_type_calls": 2643.9375,
+    "hash_type_probes": 5187.0859375,
+    "steps": 0.0,
+    "frames": 143.00390625,
+    "frame_bytes": 141386.875,
+    "type_calls": 16410.0,
+    "type_comparisons": 17700.0,
+    "active_visits": 226.0,
+    "borrow_visits": 0.0,
+    "arrays": 17.0,
+    "strings": 256.0
+  },
+  "notes": [
+    "Untimed instrumentation.",
+    "Kernel/typed/packet method counters are separate and must not be summed as managed calls.",
+    "Frame bytes are cumulative reused arena reservations.",
+    "Heap-byte peaks exclude native allocator metadata and execution storage."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "baseline": {
+    "median_ns": 59825.84765625,
+    "min_ns": 57854.00390625,
+    "max_ns": 64479.328125,
+    "samples": 21,
+    "time_reduction": 0.0
+  },
+  "array_diagnostics": {
+    "median_ns": 57574.21875,
+    "min_ns": 55324.21875,
+    "max_ns": 58671.875,
+    "samples": 21,
+    "time_reduction": 0.0376363895282773
+  },
+  "empty_cache": {
+    "median_ns": 55955.56640625,
+    "min_ns": 54588.21875,
+    "max_ns": 62667.96875,
+    "samples": 21,
+    "time_reduction": 0.06469245989188543
+  },
+  "char_resolve_once": {
+    "median_ns": 59055.828125,
+    "min_ns": 56063.640625,
+    "max_ns": 62739.421875,
+    "samples": 21,
+    "time_reduction": 0.012871017485191594
+  },
+  "char_value_bridge": {
+    "median_ns": 56565.58984375,
+    "min_ns": 54837.73046875,
+    "max_ns": 58032.38671875,
+    "samples": 21,
+    "time_reduction": 0.05449580641519591
+  },
+  "kernel_type_ablation": {
+    "median_ns": 54106.60546875,
+    "min_ns": 52834.30859375,
+    "max_ns": 58670.08203125,
+    "samples": 21,
+    "time_reduction": 0.09559818057843283
+  },
+  "checked_candidates": {
+    "median_ns": 49466.9609375,
+    "min_ns": 47819.17578125,
+    "max_ns": 51864.2578125,
+    "samples": 21,
+    "time_reduction": 0.173150688616575
+  },
+  "all_diagnostic": {
+    "median_ns": 43645.34375,
+    "min_ns": 42346.6796875,
+    "max_ns": 46421.875,
+    "samples": 21,
+    "time_reduction": 0.27046008606882854
+  }
+}

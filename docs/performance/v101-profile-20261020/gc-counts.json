@@ -1,0 +1,16 @@
+{
+  "baseline": {
+    "calls": 21,
+    "live": 7329,
+    "dead": 78687,
+    "peak_objects": 4096,
+    "peak_bytes": 473136
+  },
+  "heap4x": {
+    "calls": 5,
+    "live": 2291,
+    "dead": 79629,
+    "peak_objects": 16384,
+    "peak_bytes": 1819180
+  }
+}

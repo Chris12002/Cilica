@@ -1,0 +1,26 @@
+{
+  "baseline": {
+    "median_ns": 60287.76171875,
+    "min_ns": 58248.2109375,
+    "max_ns": 61302.08203125,
+    "samples": 21
+  },
+  "heap4x": {
+    "median_ns": 69449.21875,
+    "min_ns": 66607.58203125,
+    "max_ns": 71906.578125,
+    "samples": 21
+  },
+  "empty_cache": {
+    "median_ns": 55428.7109375,
+    "min_ns": 54726.890625,
+    "max_ns": 56720.05078125,
+    "samples": 21
+  },
+  "cache_heap4x": {
+    "median_ns": 56965.33203125,
+    "min_ns": 53859.86328125,
+    "max_ns": 60477.5390625,
+    "samples": 21
+  }
+}
