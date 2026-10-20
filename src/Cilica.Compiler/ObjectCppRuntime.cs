@@ -583,12 +583,14 @@ template<class T> static Object* invariant_culture(Context& context, const Descr
 }
 // Exact descriptors preserve different closed generic cache identities even
 // when reference arrays admit covariant assignments. Cache publication cannot GC.
+// Published cache links are live internal references. Collection still checks
+// their heap membership independently in visit_empty_arrays.
 [[maybe_unused, gnu::noinline]] static Object* empty_array(Context& context, const Descriptor& descriptor) noexcept {
     if (context.instance.marking) { context.pending = 6; return nullptr; }
     std::size_t count = 0;
     for (auto* entry = context.instance.empty_arrays; entry != nullptr; entry = entry->empty_next) {
         auto* value = reinterpret_cast<Object*>(entry);
-        if (++count > context.instance.count || !traceable_reference(context.instance, value)
+        if (++count > context.instance.count || !managed_reference(context.instance, value)
             || value->type->array_kind == 0 || entry->length != 0) { context.pending = 6; return nullptr; }
         if (value->type == &descriptor) return value;
     }

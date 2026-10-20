@@ -54,8 +54,9 @@ public sealed class EmptyArrayLibraryTests
     }
 
     [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task Cache_is_instance_owned_traced_and_bounded_under_corruption(bool optimized)
+    [InlineData(false, false)] [InlineData(false, true)]
+    [InlineData(true, false)] [InlineData(true, true)]
+    public async Task Cache_is_instance_owned_traced_and_bounded_under_corruption(bool optimized, bool verify)
     {
         var program = (await Programs.Value)[0];
         var artifact = ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(program));
@@ -73,6 +74,21 @@ public sealed class EmptyArrayLibraryTests
                 assert(first != nullptr && heap.count == 1);
                 assert(collect(c).status == MarkStatus::complete && heap.count == 1);
                 assert(empty_array(c, {{descriptor}}) == first && heap.count == 1);
+                // Readable detached storage distinguishes diagnostic membership
+                // checking from normal trusted cache access. Never allocate while detached.
+                auto* saved_head = heap.head; heap.head = nullptr;
+                if (CILICA_VERIFY_INTERNAL_REFERENCES) {
+                    assert(empty_array(c, {{descriptor}}) == nullptr && c.pending == 6);
+                } else {
+                    assert(empty_array(c, {{descriptor}}) == first && c.pending == 0);
+                }
+                heap.head = saved_head; c.pending = 0;
+                // Header ownership and descriptor identity remain checked in both modes.
+                const auto* saved_type = first->type;
+                Descriptor cloned_type = *saved_type; first->type = &cloned_type;
+                assert(empty_array(c, {{descriptor}}) == nullptr && c.pending == 6);
+                assert(collect(c).status == MarkStatus::invalid);
+                first->type = saved_type; c.pending = 0;
                 Instance other; Context d(other);
                 auto* second = empty_array(d, {{descriptor}});
                 assert(second != nullptr && second != first);
@@ -89,7 +105,10 @@ public sealed class EmptyArrayLibraryTests
                 assert(collect(c).status == MarkStatus::invalid);
                 entry->length = 0; c.pending = 0;
                 heap.empty_arrays = reinterpret_cast<ArrayObject*>(std::uintptr_t{1});
-                assert(empty_array(c, {{descriptor}}) == nullptr && c.pending == 6);
+                // Arbitrary private pointers require diagnostic execution, whereas
+                // collection must reject them even in normal builds.
+                if (CILICA_VERIFY_INTERNAL_REFERENCES)
+                    assert(empty_array(c, {{descriptor}}) == nullptr && c.pending == 6);
                 assert(collect(c).status == MarkStatus::invalid);
                 heap.empty_arrays = entry; heap.marking = true; c.pending = 0;
                 assert(empty_array(c, {{descriptor}}) == nullptr && c.pending == 6);
@@ -102,6 +121,7 @@ public sealed class EmptyArrayLibraryTests
         File.WriteAllText(cpp, source);
         var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
             ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
+                "-DCILICA_VERIFY_INTERNAL_REFERENCES=" + (verify ? "1" : "0"),
                 "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", exe], directory);
         Assert.True(build.ExitCode == 0, build.Stderr);
         var run = await NativeProcess.Run(exe, [], directory);

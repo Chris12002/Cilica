@@ -136,6 +136,11 @@ They retain real GC frames, borrowed-owner roots and depth checks, and never
 replay after allocation starts. Do not fold them into the no-safepoint kernel
 proof (ADR 0208). Cold, invalid-borrow and depth-boundary calls stay framed.
 
+Native v102 trusts live internal empty-array cache links during lookup, retaining
+owner/descriptor/shape checks and exact per-type, per-instance identity.
+Internal-reference diagnostic mode restores heap scans. GC cache traversal and
+public handles remain checked in both modes; see ADR 0209.
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.

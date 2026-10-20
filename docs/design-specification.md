@@ -848,6 +848,13 @@ membership independently of either diagnostic flag. Private raw-pointer calls
 are not an embedding API; forged internal pointer detection requires verification.
 No runtime layout, ABI or semantic profile version changes.
 
+Native v102 applies the same internal-reference contract to empty-array cache
+lookup ([ADR 0209](decisions/0209-trusted-empty-array-cache.md)). Published entries
+remain cache roots, and lookup retains owner, known descriptor, array-kind,
+zero-length, traversal bound and exact closed-type identity checks. Diagnostic
+mode restores heap membership checks; collector cache traversal remains checked
+in both modes. Increasing the heap quota is not required for this improvement.
+
 Collector membership now uses a scoped address index after full inventory
 validation ([ADR 0197](decisions/0197-scoped-collector-membership-index.md)).
 The index accelerates checked tracing without changing reference admission. It
