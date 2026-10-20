@@ -440,6 +440,13 @@ structure, preserving C++ pointer provenance. Larger sets and O0 retain the orig
 accessor. Receiver checks and managed semantics remain unchanged. See
 [ADR 0213](decisions/0213-proven-native-field-access.md).
 
+Native v107 passes adjacent single-use integer local outputs directly to proven
+non-allocating kernels, with staged writes and ordinary carrier/framed fault replay.
+Exact receiver and dispatch guards cover bounded interface targets. Diagnostics,
+heap/reference/narrow/multiple outputs and escaping addresses remain conservative;
+caller roots and borrow lifetimes stay registered. See
+[ADR 0214](decisions/0214-proven-local-output-borrows.md).
+
 The object boundary now uses a fixed-size native signature with an Int32 input
 pointer and exact element count, including for wide managed entry methods
 ([ADR 0028](decisions/0028-packed-boundaries-and-arena-diagnostics.md)). Its

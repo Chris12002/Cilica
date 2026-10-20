@@ -1,0 +1,13 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.NativeLocalOutputTests.Local_output_entries_link_across_units_and_depth_boundaries_keep_framed_behavior [FAIL]
+      Assertion failed: (cilica_m_def4a9de48628f96574b966eac1eda3ede8d87ff0703b9e561ffcaf8e63b5e32_06000e4b_local_output(c,3,value,token,0)==0 && c.pending==9 && *value==10), function nested, file main.cpp, line 9.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/NativeLocalOutputTests.cs(95,0): at Cilica.Metadata.Tests.NativeLocalOutputTests.Local_output_entries_link_across_units_and_depth_boundaries_keep_framed_behavior()
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = '4e58f81b8725ee07fbc48ca23ad01bdd6fd1fd0402542b2f4a4dbe678a6ceeb2')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 37, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 18.461s

@@ -1,0 +1,35 @@
+{
+  "commands": {
+    "v104": [
+      "/Users/christian/Cilica/artifacts/string-pool-performance-20261020/baseline",
+      "measure",
+      "0",
+      "256"
+    ],
+    "v107": [
+      "/Users/christian/Cilica/artifacts/local-output-performance-20261020/outputs",
+      "measure",
+      "0",
+      "256"
+    ],
+    "dotnet": [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "measure",
+      "0",
+      "16384"
+    ]
+  },
+  "dotnet_env": {
+    "DOTNET_TieredCompilation": "0",
+    "DOTNET_ReadyToRun": "0"
+  },
+  "sha256": {
+    "/Users/christian/Cilica/artifacts/string-pool-performance-20261020/baseline": "cc159a8fead4e33704eb8e1bd49240832e31c6b21e511f5020e6775f038de097",
+    "/Users/christian/Cilica/artifacts/local-output-performance-20261020/outputs": "6377794e27ddf2cd476387fc120ed156d37ee3068365bc39d8362d41c90dd13d",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.dll": "652ab88f876736bf50d11bdcbadf4ba411a3c4bc91fb6b09ee038f1709ce60f8",
+    "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/dll/DiffPlex.Benchmark.pdb": "4eac2d8ae6c2e7efaade8bca707bcbbe5673dc317cf141176fd4ce7b6ee285b8"
+  },
+  "revision": "88bd156bd00c048ddf4aa3349b916673d1f36e42"
+}

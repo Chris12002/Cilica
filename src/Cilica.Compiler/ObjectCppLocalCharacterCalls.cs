@@ -38,7 +38,7 @@ internal static class ObjectCppLocalCharacterCalls
     // Validated IR forbids managed locations as scalar/reference operands. Enumerate
     // every admitted location consumer, reject aliases/escapes and fail closed for
     // unknown operations. No cross-block or general borrow-lifetime inference.
-    private static bool SingleUse(IrBlock block, int address, int callIndex)
+    internal static bool SingleUse(IrBlock block, int address, int callIndex)
     {
         bool Absent(IEnumerable<int> operands) => !operands.Contains(address);
         for (int i = 0; i < block.Statements.Length; i++)

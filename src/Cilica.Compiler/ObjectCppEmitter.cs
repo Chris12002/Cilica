@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v106";
+    public const string Profile = "object-frames-native-v107";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -157,7 +157,7 @@ public static class ObjectCppEmitter
             .Append((exceptions is null ? 0 : ManagedExceptionMessages.Build(exceptions, program.Flow.Types).Values
                 .Where(message => !message.StartsWith("Exception of type '", StringComparison.Ordinal)).Distinct(StringComparer.Ordinal).Count()).ToString(CultureInfo.InvariantCulture))
             .Append(";\nstatic constexpr std::size_t runtime_type_count = ").Append(N(runtimeIdentities.Count)).Append(";\nstatic constexpr std::size_t static_field_count = ").Append(N(statics.Count)).Append(";\nstatic constexpr std::size_t type_initializer_count = ").Append(N(initializers.Count)).Append(";\n").Append(ObjectCppRuntime.Text).Append('\n').Append(ObjectCppTracing.Text).Append('\n').Append(ObjectCppMarking.Text).Append('\n').Append(ObjectCppHandles.Text).Append('\n').Append(ObjectCppLocations.Text).Append('\n');
-        text.Append(ObjectCppTypedMethods.Runtime);
+        text.Append(ObjectCppTypedMethods.Runtime).Append(ObjectCppLocalOutputCalls.Runtime);
         text.Append(ObjectCppDescriptorLookup.Text);
         if (exceptions is not null) ObjectCppExceptions.AppendStorage(text);
         if (handlers) text.Append(ObjectCppExceptionFlow.Storage);
@@ -378,7 +378,12 @@ public static class ObjectCppEmitter
                 text.Length = frameStart;
             }
             Header(method); text.Append(";\n");
-            if (typedMethods.ContainsKey(IrMethodId.From(method.Source))) ObjectCppTypedMethods.Declare(text, method, module is not null);
+            if (typedMethods.ContainsKey(IrMethodId.From(method.Source)))
+            {
+                ObjectCppTypedMethods.Declare(text, method, module is not null);
+                if (ObjectCppLocalOutputCalls.BorrowIndex(method) >= 0)
+                { ObjectCppLocalOutputCalls.Header(text, method, module is not null); text.Append(";\n"); }
+            }
             if (characterMethods.TryGetValue(IrMethodId.From(method.Source), out var character) && character.Target is not null)
             {
                 ObjectCppCharacterMethods.LocalHeader(text, method, module is not null); text.Append(";\n");
@@ -460,6 +465,7 @@ public static class ObjectCppEmitter
             var leafField = ObjectCppLeafMethods.FieldGetter(method);
             bool typed = typedMethods.ContainsKey(IrMethodId.From(method.Source));
             var localCharacters = ObjectCppLocalCharacterCalls.Analyze(method, characterMethods);
+            var localOutputs = ObjectCppLocalOutputCalls.Analyze(method, typedMethods, dispatch, boxedTargets.Keys.ToHashSet());
             int currentBlock = 0;
 
             var output = text;
@@ -530,12 +536,21 @@ public static class ObjectCppEmitter
                     Flush();
                 }
             }
+            string OutputGuard(ObjectCppLocalOutputCalls.Site site) => "direct_local_output(context)" + (site.Targets.Length == 0 ? ""
+                : " && " + Value(site.Arguments[0]) + " != nullptr && (" + string.Join(" || ", site.Targets.Select(t =>
+                    Value(site.Arguments[0]) + "->type == &" + TypeSymbol(t.Receiver) + "_descriptor")) + ")");
+            string OutputCall(ObjectCppLocalOutputCalls.Site site, IrMethodId target) => CppEmitter.Symbol(target) + "_local_output(context, "
+                + string.Join(", ", site.Arguments.Select((a, i) => i == site.Argument ? "&" + layout.Storage(ObjectRootKind.Local, site.Local) : Value(a)))
+                + ", f->borrow_token, " + N(layout.Index(ObjectRootKind.Local, site.Local)) + ")";
             string Call(IrMethodId target, ImmutableArray<int> args, string? receiver = null, bool dispatch = false, int offset = 0)
             {
                 if (!dispatch && receiver is null && args.Length == 1
                     && localCharacters.TryGetValue((currentBlock, args[0]), out var localCharacter) && localCharacter.Target == target)
                     return CppEmitter.Symbol(target) + "_local_character(context, "
                         + layout.Storage(ObjectRootKind.Local, localCharacter.Local) + ", " + Value(args[0]) + ")";
+                var localOutput = receiver is null ? args.Select(a => localOutputs.GetValueOrDefault((currentBlock, a)))
+                    .FirstOrDefault(s => s?.Declaration == target) : null;
+                if (localOutput is not null && !dispatch) return OutputCall(localOutput, target);
                 if (!dispatch && receiver is null && typedMethods.ContainsKey(target))
                     return CppEmitter.Symbol(target) + "_typed(context" + (args.IsEmpty ? "" : ", " + string.Join(", ", args.Select(Value))) + ")";
                 var parameters = signatures[target].Parameters;
@@ -554,7 +569,12 @@ public static class ObjectCppEmitter
                         .Append(", f->arguments.size(), f->dispatch_box_type, f->dispatch_payload);\n");
                     Guard("f->unsigned_scratch != 0u", "static_cast<std::uint32_t>(f->unsigned_scratch)", offset); Flush();
                 }
-                return (dispatch ? DispatchPointer(signatures[target].ReturnType.Kind) : CppEmitter.Symbol(target)) + "(context, f->arguments.data())";
+                string ordinary = (dispatch ? DispatchPointer(signatures[target].ReturnType.Kind) : CppEmitter.Symbol(target)) + "(context, f->arguments.data())";
+                if (localOutput is not null && dispatch)
+                    foreach (var selected in localOutput.Targets.Select(t => t.Implementation).Distinct().Reverse())
+                        ordinary = "(direct_local_output(context) && " + DispatchPointer(signatures[target].ReturnType.Kind) + " == &" + CppEmitter.Symbol(selected)
+                            + " ? " + OutputCall(localOutput, selected) + " : " + ordinary + ")";
+                return ordinary;
             }
             string DelegateCall(ObjectTypeId type, int receiver, ImmutableArray<int> arguments, int offset)
             {
@@ -636,8 +656,10 @@ public static class ObjectCppEmitter
                         case IrStatement.Define define:
                         {
                             var value = define.Value; string expression;
-                            bool directLocalAddress = localCharacters.ContainsKey((block.Id, value.Id));
-                            if (directLocalAddress) code.Append("    if (!direct_character_local(context)) {\n");
+                            bool directCharacterAddress = localCharacters.ContainsKey((block.Id, value.Id));
+                            bool directOutputAddress = localOutputs.TryGetValue((block.Id, value.Id), out var outputSite);
+                            bool directLocalAddress = directCharacterAddress || directOutputAddress;
+                            if (directLocalAddress) code.Append("    if (!(" + (directCharacterAddress ? "direct_character_local(context)" : OutputGuard(outputSite!)) + ")) {\n");
                             code.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                             switch (value.Expression)
                             {
@@ -995,6 +1017,7 @@ public static class ObjectCppEmitter
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
             if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate, typedMethods, program.Flow.Types, native, TypeSymbol, fieldAccess, FieldSymbol);
+            if (typed) ObjectCppLocalOutputCalls.Append(code, method, module is not null, program.Flow.Types.ObjectBase, Predicate);
             if (characterMethods.TryGetValue(IrMethodId.From(method.Source), out var localPlan) && localPlan.Target is not null)
                 ObjectCppCharacterMethods.AppendLocal(code, method, localPlan, module is not null);
             if (leafField is { } selectedField)
