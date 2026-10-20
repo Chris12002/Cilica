@@ -102,7 +102,9 @@ The already-built v97 compiler continued running, so that first filesystem-sourc
 snapshot was not accepted as build provenance. After restoring and committing the
 intended emitter, a fresh build/regeneration reproduced the measured C++ byte for
 byte. All recorded v96 and final v97 compiler source hashes match their respective
-commits. Final source is clean. The writer's cause remains unknown.
+commits. A later check caught another overwrite of the same two emitter lines;
+they were restored again from the verified commit. The writer's cause remains
+unknown, so reconciliation is not a claim that future overwrites are prevented.
 
 Large generated sources, binaries, core captures and full native logs remain in
 `artifacts/typed-internal-20261020`. Compact scripts/results are retained under
