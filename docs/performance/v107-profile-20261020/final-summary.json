@@ -1,0 +1,30 @@
+{
+  "baseline": {
+    "median_ns": 34921.916015625,
+    "min_ns": 34163.818359375,
+    "max_ns": 37541.7880859375,
+    "samples": 21,
+    "reduction_percent": 0.0
+  },
+  "small_only": {
+    "median_ns": 32148.03125,
+    "min_ns": 31268.2705078125,
+    "max_ns": 40688.8427734375,
+    "samples": 21,
+    "reduction_percent": 7.943105883376756
+  },
+  "bounded_combined": {
+    "median_ns": 30643.513671875,
+    "min_ns": 30201.66015625,
+    "max_ns": 33276.3271484375,
+    "samples": 21,
+    "reduction_percent": 12.251339078404888
+  },
+  "dotnet": {
+    "median_ns": 5504.925537109375,
+    "min_ns": 5413.83056640625,
+    "max_ns": 5643.39599609375,
+    "samples": 21,
+    "reduction_percent": 84.23647335201676
+  }
+}

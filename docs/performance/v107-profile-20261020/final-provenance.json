@@ -1,0 +1,33 @@
+{
+  "commands": {
+    "baseline": [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/baseline",
+      "measure",
+      "0",
+      "1024"
+    ],
+    "small_only": [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/small_only",
+      "measure",
+      "0",
+      "1024"
+    ],
+    "bounded_combined": [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/bounded_combined",
+      "measure",
+      "0",
+      "1024"
+    ],
+    "dotnet": [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "measure",
+      "0",
+      "16384"
+    ]
+  },
+  "host_sha256": "737f799650a75610b592c11c6cd96fcb68ff5fc22ff1df21e4ef0ba9553184d9",
+  "tiered_compilation": 0,
+  "ready_to_run": 0,
+  "candidate_cpp_sha256": "e06b040b1ca935471342a9ecaa0c15a78eb79d651b57bd464ca951f4c0da349f"
+}

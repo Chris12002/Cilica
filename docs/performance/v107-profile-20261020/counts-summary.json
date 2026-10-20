@@ -1,0 +1,33 @@
+{
+  "iterations": 256,
+  "totals": {
+    "array_validations": 184702,
+    "objects": 9984,
+    "hash_type_calls": 311024,
+    "hash_type_probes": 596246,
+    "steps": 0,
+    "frames": 36609,
+    "frame_bytes": 36195040,
+    "type_calls": 1663488,
+    "type_comparisons": 1732096,
+    "active_visits": 57856,
+    "borrow_visits": 0,
+    "arrays": 4352,
+    "strings": 65536
+  },
+  "per_diff": {
+    "array_validations": 721.4921875,
+    "objects": 39.0,
+    "hash_type_calls": 1214.9375,
+    "hash_type_probes": 2329.0859375,
+    "steps": 0.0,
+    "frames": 143.00390625,
+    "frame_bytes": 141386.875,
+    "type_calls": 6498.0,
+    "type_comparisons": 6766.0,
+    "active_visits": 226.0,
+    "borrow_visits": 0.0,
+    "arrays": 17.0,
+    "strings": 256.0
+  }
+}

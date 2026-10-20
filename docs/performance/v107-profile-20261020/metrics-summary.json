@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "gc_calls": 21,
+    "gc_live": 7329,
+    "gc_dead": 78687,
+    "peak_objects": 4096,
+    "peak_bytes": 473136,
+    "pool_reserved_bytes": 344176,
+    "pool_limit_bytes": 393344
+  },
+  "larger_heap": {
+    "gc_calls": 5,
+    "gc_live": 2291,
+    "gc_dead": 79629,
+    "peak_objects": 16384,
+    "peak_bytes": 1819180,
+    "pool_reserved_bytes": 1302952,
+    "pool_limit_bytes": 1573376
+  }
+}

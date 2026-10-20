@@ -1,0 +1,46 @@
+{
+  "baseline": {
+    "instruction_count": 68315,
+    "instruction_bytes": 273260,
+    "static_predicate_call_sites": 602,
+    "static_kernel_call_sites": 12,
+    "materialized_kernels": 4,
+    "executable_bytes": 590568,
+    "TryGetValue_local_output": {
+      "bytes": 424,
+      "call_sites": 6
+    },
+    "Find_kernel": {
+      "bytes": 896,
+      "call_sites": 18
+    }
+  },
+  "small_only": {
+    "instruction_count": 65987,
+    "instruction_bytes": 263948,
+    "static_predicate_call_sites": 21,
+    "static_kernel_call_sites": 12,
+    "materialized_kernels": 4,
+    "executable_bytes": 570600,
+    "TryGetValue_local_output": {
+      "bytes": 408,
+      "call_sites": 4
+    },
+    "Find_kernel": {
+      "bytes": 896,
+      "call_sites": 18
+    }
+  },
+  "bounded_combined": {
+    "instruction_count": 67952,
+    "instruction_bytes": 271808,
+    "static_predicate_call_sites": 21,
+    "static_kernel_call_sites": 0,
+    "materialized_kernels": 0,
+    "executable_bytes": 569344,
+    "TryGetValue_local_output": {
+      "bytes": 2336,
+      "call_sites": 44
+    }
+  }
+}

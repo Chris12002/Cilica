@@ -1,0 +1,44 @@
+{
+  "baseline": {
+    "median_ns": 37634.6015625,
+    "min_ns": 35774.08984375,
+    "max_ns": 40058.91796875,
+    "samples": 21,
+    "reduction_percent": 0.0
+  },
+  "kernels": {
+    "median_ns": 34199.21875,
+    "min_ns": 32812.66015625,
+    "max_ns": 46809.5703125,
+    "samples": 21,
+    "reduction_percent": 9.128256099097632
+  },
+  "predicates": {
+    "median_ns": 33809.08203125,
+    "min_ns": 31475.421875,
+    "max_ns": 41534.9921875,
+    "samples": 21,
+    "reduction_percent": 10.164899779520553
+  },
+  "array_direct": {
+    "median_ns": 37017.90234375,
+    "min_ns": 34644.53125,
+    "max_ns": 40432.6171875,
+    "samples": 21,
+    "reduction_percent": 1.6386495223706388
+  },
+  "short_string": {
+    "median_ns": 37166.34375,
+    "min_ns": 35259.44140625,
+    "max_ns": 39643.5546875,
+    "samples": 21,
+    "reduction_percent": 1.2442215223731345
+  },
+  "kernels_array": {
+    "median_ns": 36704.26171875,
+    "min_ns": 34472.8203125,
+    "max_ns": 47630.53515625,
+    "samples": 21,
+    "reduction_percent": 2.472033195847656
+  }
+}

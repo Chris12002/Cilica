@@ -1,0 +1,93 @@
+{
+  "variants": {
+    "kernels": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/kernels.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/kernels"
+      ],
+      "cpp_sha256": "bf05706e8f9528e72dbf1300661f573402031988e146f1af6fd9fdd5f166e114",
+      "bytes": 589304,
+      "max_frame_bytes": 432
+    },
+    "predicates": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/predicates.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/predicates"
+      ],
+      "cpp_sha256": "72382d3c4cade510bd4efa28416fd7716078996a320ecfd205a5d468465697d4",
+      "bytes": 570472,
+      "max_frame_bytes": 432
+    },
+    "array_direct": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/array_direct.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/array_direct"
+      ],
+      "cpp_sha256": "a1fcd5cd0bd4b8238acf954aff3724891c39090508da7517763aa42413751e14",
+      "bytes": 591200,
+      "max_frame_bytes": 432
+    },
+    "short_string": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/short_string.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/short_string"
+      ],
+      "cpp_sha256": "37b42bc172b69ba269f2d95794a5739423b65152273b8abf1148294a6542a21f",
+      "bytes": 590320,
+      "max_frame_bytes": 432
+    },
+    "kernels_array": {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-fstack-usage",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/kernels_array.cpp",
+        "-o",
+        "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/kernels_array"
+      ],
+      "cpp_sha256": "eb2743526eb2daa2993cecd3494a22d0655022fcb11b1d073d3a1292a8be54ec",
+      "bytes": 589952,
+      "max_frame_bytes": 432
+    }
+  },
+  "edits": {
+    "kernels": 78,
+    "predicates": 152
+  }
+}

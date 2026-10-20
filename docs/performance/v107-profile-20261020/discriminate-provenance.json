@@ -1,0 +1,53 @@
+{
+  "small_only": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/small_only.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/small_only"
+    ],
+    "cpp_sha256": "c85156d87eedc1f0beb5c114e0b6c76d7b90cfb6036daeb8268c088cf979cd22",
+    "bytes": 570600,
+    "max_frame_bytes": 432
+  },
+  "broad_only": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/broad_only.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/broad_only"
+    ],
+    "cpp_sha256": "8caa2b7f95b2722faad6318ec715f3ef8eb21f48d4725233fe1ecebae9865326",
+    "bytes": 590408,
+    "max_frame_bytes": 432
+  },
+  "larger_heap": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fstack-usage",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/larger_heap.cpp",
+      "-o",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v107-profile-20261020/larger_heap"
+    ],
+    "cpp_sha256": "9c17e0a4ef74b6a4a2c1362004d4b694a3bdb30ef69014f1a55a7357fb1a413f",
+    "bytes": 590568,
+    "max_frame_bytes": 432
+  }
+}
