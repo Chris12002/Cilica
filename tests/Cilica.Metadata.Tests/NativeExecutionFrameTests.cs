@@ -20,10 +20,12 @@ public sealed class NativeExecutionFrameTests(ITestOutputHelper output)
     private const int LocalCount = 2048;
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Wide_finite_and_mutual_recursion_obey_memory_depth_and_native_stack_bounds(bool optimized)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Wide_finite_and_mutual_recursion_obey_memory_depth_and_native_stack_bounds(bool optimized, bool releaseBudget)
     {
+        int stackKiB = releaseBudget ? 512 : 256, frameReviewBytes = releaseBudget ? 4096 : 2048;
         using var files = new ResolverFiles();
         string directory = files.DirectoryPath("execution-frames"), cpp = Path.Combine(directory, "frames.cpp"), executable = Path.Combine(directory, "frames");
         var source = new StringBuilder(); var checks = new StringBuilder();
@@ -75,18 +77,19 @@ public sealed class NativeExecutionFrameTests(ITestOutputHelper output)
             .Append("#if defined(__APPLE__)\nconst auto stack_size = pthread_get_stacksize_np(pthread_self());\n")
             // macOS may enlarge the requested stack even without sanitizers.
             // Check the actual upper bound, rather than assume exact rounding.
-            .Append("assert(stack_size >= 256u * 1024u && stack_size <= 320u * 1024u);\n")
+            .Append(CultureInfo.InvariantCulture, $"assert(stack_size >= {stackKiB}u * 1024u && stack_size <= {stackKiB + 64}u * 1024u);\n")
             .Append("std::printf(\"thread_stack_bytes=%zu\\n\", stack_size);\n#endif\n")
             .Append(checks).Append("return nullptr; }\nint main() { pthread_attr_t attributes; pthread_t thread;\n")
-            .Append("assert(pthread_attr_init(&attributes) == 0); assert(pthread_attr_setstacksize(&attributes, 256u * 1024u) == 0);\n")
+            .Append(CultureInfo.InvariantCulture, $"assert(pthread_attr_init(&attributes) == 0); assert(pthread_attr_setstacksize(&attributes, {stackKiB}u * 1024u) == 0);\n")
             .Append("assert(pthread_create(&thread, &attributes, execute, nullptr) == 0); assert(pthread_attr_destroy(&attributes) == 0);\n")
             .Append("assert(pthread_join(thread, nullptr) == 0); }\n");
         File.WriteAllText(cpp, source.ToString(), new UTF8Encoding(false));
         string compiler = Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++";
         // A targeted local target check, including instrumentation overhead. .su
         // evidence is inspected, so a silently ignored warning is not sufficient.
+        string[] instrumentation = releaseBudget ? [] : ["-fsanitize=address,undefined", "-fno-sanitize-recover=all"];
         string[] flags = ["-std=c++20", "-pthread", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
-            "-fstack-usage", "-Wframe-larger-than=2048", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", executable];
+            "-fstack-usage", "-Wframe-larger-than=" + frameReviewBytes, .. instrumentation, cpp, "-o", executable];
         var build = await NativeProcess.Run(compiler, flags, directory, timeout: TimeSpan.FromSeconds(60));
         Assert.True(build.ExitCode == 0, build.Stdout + build.Stderr);
         // ASan's fake-stack/realignment paths can be labelled dynamic even for
@@ -94,15 +97,15 @@ public sealed class NativeExecutionFrameTests(ITestOutputHelper output)
         // retain the same frame warning for the instrumented execution above.
         string measuredObject = Path.Combine(directory, "measured.o");
         var measured = await NativeProcess.Run(compiler, ["-std=c++20", "-pthread", "-fno-exceptions", "-fno-rtti", optimized ? "-O2" : "-O0",
-            "-fstack-usage", "-Werror", "-Wframe-larger-than=2048", "-c", cpp, "-o", measuredObject], directory);
+            "-fstack-usage", "-Werror", "-Wframe-larger-than=" + frameReviewBytes, "-c", cpp, "-o", measuredObject], directory);
         Assert.True(measured.ExitCode == 0, measured.Stderr);
         var usageFiles = Directory.GetFiles(directory, "measured.su"); Assert.NotEmpty(usageFiles);
         var rows = usageFiles.SelectMany(File.ReadAllLines).Select(line => line.Split('\t')).Where(parts => parts.Length >= 3).ToArray();
         Assert.NotEmpty(rows);
-        Assert.All(rows, row => { Assert.Equal("static", row[^1]); Assert.InRange(int.Parse(row[^2], CultureInfo.InvariantCulture), 0, 2048); });
+        Assert.All(rows, row => { Assert.Equal("static", row[^1]); Assert.InRange(int.Parse(row[^2], CultureInfo.InvariantCulture), 0, frameReviewBytes); });
         output.WriteLine($"{(optimized ? "O2" : "O0")}: {rows.Length} measured native functions, maximum {rows.Max(row => int.Parse(row[^2], CultureInfo.InvariantCulture))} stack bytes; {Width} checked additions per invocation.");
         var run = await NativeProcess.Run(executable, [], directory); Assert.True(run.ExitCode == 0, run.Stderr); Assert.Empty(run.Stderr);
-        output.WriteLine("Instrumented: " + run.Stdout.Trim());
+        output.WriteLine((releaseBudget ? "Release budget: " : "Instrumented: ") + run.Stdout.Trim());
         string measuredExecutable = Path.Combine(directory, "measured");
         var link = await NativeProcess.Run(compiler, ["-pthread", measuredObject, "-o", measuredExecutable], directory);
         Assert.True(link.ExitCode == 0, link.Stderr);

@@ -519,6 +519,10 @@ Helper batching remains deferred until representative workloads justify it.
 The current 2 KiB warning is a tested baseline, not a permanent production
 requirement. Revisit it using speed measurements and complete native call-chain
 budgets for each target, with sanitizer overhead considered separately.
+[ADR 0202](decisions/0202-release-stack-budgets.md) adds an independent O2
+512–576 KiB constrained-stack check and a 4 KiB review threshold; the existing
+O0/O2 256–320 KiB arena-fallback checks remain. Whole-call-chain execution, not
+this individual-frame threshold, supplies the target-specific evidence.
 
 Managed objects contain a runtime header and fields. The header reserves a
 synchronization word for identity hash codes and lock state. Type descriptors
