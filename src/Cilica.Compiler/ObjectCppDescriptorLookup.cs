@@ -4,6 +4,12 @@ namespace Cilica.Compiler;
 internal static class ObjectCppDescriptorLookup
 {
     internal const string Text = """
+// Short exact sets expose comparisons to the optimizer; O0 keeps the diagnostic stack boundary.
+#if defined(__OPTIMIZE__)
+#define CILICA_SMALL_PREDICATE [[maybe_unused, gnu::always_inline]]
+#else
+#define CILICA_SMALL_PREDICATE [[maybe_unused, gnu::noinline]]
+#endif
 template<std::size_t Count, std::size_t Capacity> class DescriptorLookup {
     static_assert(Capacity >= Count * 2 && (Capacity & (Capacity - 1)) == 0);
     std::array<const Descriptor*, Capacity> slots{};

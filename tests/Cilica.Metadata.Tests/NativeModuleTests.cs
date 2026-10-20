@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cilica.Compiler;
 using Cilica.Fixtures.Execution;
@@ -34,6 +35,7 @@ public sealed class NativeModuleTests
             #include <cstdio>
             using namespace {{scope}};
             extern const Descriptor* peer_type();
+            extern bool peer_accepts(const Descriptor*);
             extern std::uint64_t peer_handle_token();
             extern std::uint64_t peer_borrow_token();
             [[gnu::noinline]] static void check(int a, int b, int expected) {
@@ -53,11 +55,24 @@ public sealed class NativeModuleTests
                     assert(short_frame.pending==9 && short_frame.top==nullptr && short_frame.borrows==nullptr && short_frame.used==0);
                 }
             }
+            template<std::size_t N> [[gnu::noinline]] static void check_set(bool(*accepts)(const Descriptor*) noexcept, const std::array<const Descriptor*, N>& types) {
+                for(auto* type : types) { assert(accepts(type)); assert(peer_accepts(type)); }
+                assert(!accepts(nullptr) && !accepts(reinterpret_cast<const Descriptor*>(1)));
+            }
             int main() {
                 assert(peer_type()==runtime_exception(4));
                 auto h=issue_handle_token(); assert(peer_handle_token()==h+1 && issue_handle_token()==h+2);
                 auto b=issue_borrow_token(); assert(peer_borrow_token()==b+1 && issue_borrow_token()==b+2);
             """);
+        // Exercise exact predicates through pointers as well as direct cross-unit calls.
+        var predicates = Regex.Matches(module.Header.Text, @"inline constexpr std::array<const Descriptor\*, \d+> (\w+)_types =");
+        Assert.NotEmpty(predicates);
+        foreach (Match predicate in predicates)
+        {
+            string name = predicate.Groups[1].Value;
+            text.Append(CultureInfo.InvariantCulture, $"check_set({name}, {name}_types);\n");
+        }
+        text.Append("assert(!peer_accepts(nullptr) && !peer_accepts(reinterpret_cast<const Descriptor*>(1)));\n");
         foreach (int a in new[] { 0, 1, -1, 127, 32768, int.MinValue, int.MaxValue })
             foreach (int b in new[] { 0, 1, 2, 3, -1, int.MinValue, int.MaxValue })
                 text.Append(CultureInfo.InvariantCulture, $"check({a},{b},{(integers ? NativeModuleProbe.Run(a,b) : NativeModuleProbe.Legacy(a,b))});\n");
@@ -68,6 +83,7 @@ public sealed class NativeModuleTests
             #include "{{module.Header.Name}}"
             using namespace {{scope}};
             const Descriptor* peer_type() { return runtime_exception(4); }
+            bool peer_accepts(const Descriptor* type) { return known_type(type); }
             std::uint64_t peer_handle_token() { return issue_handle_token(); }
             std::uint64_t peer_borrow_token() { return issue_borrow_token(); }
             """, TestContext.Current.CancellationToken);

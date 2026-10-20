@@ -395,6 +395,10 @@ Native v98 uses collision-checked fixed address tables for broad descriptor sets
 retaining exact membership without candidate dereferences or heap allocation.
 Small sets retain linear comparisons; GC and public boundaries remain checked.
 See [ADR 0205](decisions/0205-checked-descriptor-lookup.md).
+Native v108 exposes exact sets with fewer than eight descriptors to optimized
+native builds through always_inline; O0 retains noinline. Declarations and bodies
+share one membership plan. Broad checked tables and shared-module descriptor
+identity remain unchanged. See [ADR 0215](decisions/0215-small-predicate-inlining.md).
 Native v99 extends typed kernels through checked field/array reads, reference
 results, void helpers and exact proven virtual/interface targets. Scalar frame
 outputs are staged with alias preservation, then committed only after success;

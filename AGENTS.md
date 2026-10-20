@@ -1063,3 +1063,8 @@ Owned Char.ToString now creates one fresh string without temporary arrays; all
 UTF-16 units, roots, identity and managed allocation failures are preserved.
 Integer-object CIL v126 records the intrinsic; public layouts/ABI are unchanged.
 See [ADR 0201](docs/decisions/0201-direct-character-string-allocation.md).
+
+Native v108 inlines exact descriptor predicates with fewer than eight entries only
+in optimized native builds. O0 retains noinline; broad sets retain checked address
+tables. Use the same membership plan for declarations and definitions and preserve
+shared-module identity. See ADR 0215.

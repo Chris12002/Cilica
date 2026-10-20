@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v107";
+    public const string Profile = "object-frames-native-v108";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -131,6 +131,15 @@ public static class ObjectCppEmitter
         foreach (var name in defaultNames.Values) literals.TryAdd(name, [.. name.Select(c => (ushort)c)]);
         var literalIds = literals.Keys.Select((key, index) => (key, index)).ToDictionary(p => p.key, p => p.index, StringComparer.Ordinal);
         var referenceTypes = concrete.Concat(contracts).ToArray();
+        var boxedRelations = valueLayouts.IsDefault ? null : new BoxedTypeRelations(program.Flow.Types, valueLayouts);
+        // One membership plan drives both declarations and definitions, including their inlining policy.
+        var predicateDescriptors = referenceTypes.ToDictionary(expected => expected, expected =>
+            concrete.Where(t => typeRules.Assignable(IrType.Reference(t), IrType.Reference(expected)))
+                .Select(t => "&" + TypeSymbol(t) + "_descriptor").Concat(
+                    boxedPayloads.Where(p => expected == program.Flow.Types.ObjectBase || boxedRelations?.Accepts(p.Type, expected) == true)
+                        .Select(p => "&" + ObjectCppBoxing.Symbol(p.Type) + "_descriptor")).ToArray());
+        string PredicateAttribute(ObjectTypeId type) => predicateDescriptors[type].Length < 8
+            ? "CILICA_SMALL_PREDICATE" : "[[maybe_unused, gnu::noinline]]";
         var runtimeOperations = methods.Values.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Select(v => v.Expression).ToArray();
         var runtimeImplementation = runtimeOperations.Select(e => e switch {
             IrExpression.RuntimeTypeLiteral t => t.Implementation, IrExpression.ObjectGetType t => t.Implementation,
@@ -164,7 +173,7 @@ public static class ObjectCppEmitter
         if (program.Flow.Types.Integer64) text.Append(Int64CppLowering.Runtime);
         if (locations) text.Append("struct LocationArgument { std::uint32_t bits = 0; Object* reference = nullptr; Location location; std::uint64_t wide_bits = 0; };\n");
         foreach (var type in referenceTypes)
-            text.Append("[[maybe_unused, gnu::noinline]] static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
+            text.Append(PredicateAttribute(type)).Append(" static bool ").Append(Predicate(type)).Append("(const Descriptor*) noexcept;\n");
         text.Append("static constexpr std::array<FieldStorage, ").Append(N(statics.Count)).Append("> static_location_fields = {{")
             .Append(string.Join(", ", program.Flow.Types.Statics.Select(field => "{StorageKind::" + LocationKind(field.Type)
                 + ", " + ((field.Attributes & System.Reflection.FieldAttributes.InitOnly) != 0 ? "true" : "false")
@@ -293,19 +302,15 @@ public static class ObjectCppEmitter
             ObjectCppBoxing.Append(text, boxedPayloads, TypeSymbol(program.Flow.Types.ObjectBase), Predicate);
         if (exceptions is not null) ObjectCppExceptions.AppendHelpers(text, exceptions, program.Flow.Types, TypeSymbol,
             ManagedExceptionCastMessages.Build(program.Flow.Methods, program.Flow.Types, valueLayouts.IsDefault ? [] : valueLayouts), valueLayouts, program.Flow.Methods.SelectMany(m => m.Blocks).SelectMany(b => b.Values).Any(v => v.Expression is IrExpression.ArrayCopyCompatible));
-        var boxedRelations = valueLayouts.IsDefault ? null : new BoxedTypeRelations(program.Flow.Types, valueLayouts);
         // Exact membership compares untrusted descriptor addresses without dereferencing them.
         // This covers nominal/interface ancestry, vector covariance and widening to Object.
         foreach (var expected in referenceTypes)
         {
             string name = Predicate(expected);
-            var receivers = concrete.Where(t => typeRules.Assignable(IrType.Reference(t), IrType.Reference(expected))).ToArray();
-            var descriptors = receivers.Select(t => "&" + TypeSymbol(t) + "_descriptor").Concat(
-                boxedPayloads.Where(p => expected == program.Flow.Types.ObjectBase || boxedRelations?.Accepts(p.Type, expected) == true)
-                    .Select(p => "&" + ObjectCppBoxing.Symbol(p.Type) + "_descriptor")).ToArray();
+            var descriptors = predicateDescriptors[expected];
             text.Append("static constexpr std::array<const Descriptor*, ").Append(N(descriptors.Length)).Append("> ")
                 .Append(name).Append("_types = {").Append(string.Join(", ", descriptors)).Append("};\n")
-                .Append("[[maybe_unused, gnu::noinline]] static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n");
+                .Append(PredicateAttribute(expected)).Append(" static bool ").Append(name).Append("(const Descriptor* type) noexcept {\n");
             if (descriptors.Length < 8)
                 text.Append("    for (const auto* receiver : ").Append(name).Append("_types) if (receiver == type) return true;\n    return false;\n");
             else

@@ -1,0 +1,16 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.NativeModuleTests.Shared_runtime_identity_and_managed_calls_survive_separate_translation_units(optimized: False, integers: True) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-ecdc56b6de4e4b44a08b4f3a10386cf1/native-module/main.cpp:26:5: error: stack frame size (2224) exceeds limit (2048) in 'main' [-Werror,-Wframe-larger-than]
+         26 | int main() {
+            |     ^
+      1 error generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/NativeModuleTests.cs(92,0): at Cilica.Metadata.Tests.NativeModuleTests.Shared_runtime_identity_and_managed_calls_survive_separate_translation_units(Boolean optimized, Boolean integers)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = 'ebfa90e8dbded546ca204c1a7a2bca3a0eefe3451eec720feef837e75c407c4a')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 12, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 17.492s
