@@ -60,6 +60,19 @@ public sealed class ReferenceArrayBorrowSafetyTests
                 assert(array_location(c,nullptr,&{{vector}}_descriptor,0xffffffffu,0).status==LocationStatus::null_reference);
                 assert(array_location(c,owner,&{{vector}}_descriptor,0xffffffffu,0).status==LocationStatus::index_bounds);
                 assert(array_location(c,owner,&{{vector}}_descriptor,0,1).status==LocationStatus::invalid);
+                assert(array_location(c,owner,&{{vector}}_descriptor,2,1).status==LocationStatus::index_bounds);
+                const auto frozen=array_location(c,owner,&{{vector}}_descriptor,1,0,true);
+                assert(frozen.status==LocationStatus::complete && frozen.value.read_only);
+                assert(store_location_reference(c,frozen.value,nullptr)==LocationStatus::read_only);
+                auto* array=reinterpret_cast<ArrayObject*>(owner);
+                auto** buffer=array->references; array->references=nullptr;
+                assert(array_location(c,owner,&{{vector}}_descriptor,2,1).status==LocationStatus::invalid);
+                array->references=buffer;
+                c.instance.marking=true;
+                assert(array_location(c,nullptr,&{{vector}}_descriptor,0,0).status==LocationStatus::busy);
+                c.instance.marking=false;
+                auto* empty=allocate_array(c,{{vector}}_descriptor,0);
+                assert(empty && array_location(c,empty,&{{vector}}_descriptor,0,1).status==LocationStatus::index_bounds);
             }
             [[gnu::noinline]] static void foreign(Location slot) {
                 Instance heap;Context other(heap);Object* value=nullptr;

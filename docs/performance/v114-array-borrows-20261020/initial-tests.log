@@ -1,0 +1,97 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.11)
+  Discovering: Cilica.Metadata.Tests
+  Discovered:  Cilica.Metadata.Tests
+  Starting:    Cilica.Metadata.Tests
+    Cilica.Metadata.Tests.ValueVectorBorrowTests.Scalar_array_borrows_preserve_fields_owner_lifetime_and_ordered_faults(optimized: False) [FAIL]
+      Assertion failed: (array_location(c, owner, &t_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_02000002_vector_value_t_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_02000003_descriptor, 1, 3).status == LocationStatus::invalid), function carriers, file probe.cpp, line 1779.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ValueVectorBorrowTests.cs(134,0): at Cilica.Metadata.Tests.ValueVectorBorrowTests.Scalar_array_borrows_preserve_fields_owner_lifetime_and_ordered_faults(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ReferenceArrayBorrowSafetyTests.Native_carriers_check_owners_slots_readonly_payloads_and_stale_arrays(optimized: False) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-b2367bc7fd314c8781a801b3a866411f/reference-array-borrows/borrow.cpp:1310:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c5_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c5_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c5_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c5_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       1310 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      1 error generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ReferenceArrayBorrowSafetyTests.cs(102,0): at Cilica.Metadata.Tests.ReferenceArrayBorrowSafetyTests.Native_carriers_check_owners_slots_readonly_payloads_and_stale_arrays(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ReferenceArrayBorrowTests.Array_slot_aliases_roots_generics_and_covariance_faults_match_dotnet(optimized: False, group: 0) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-732dc49adb9440d995149ddc62648da7/wide-cil/wide.cpp:1310:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c5_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c5_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c5_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c5_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       1310 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-732dc49adb9440d995149ddc62648da7/wide-cil/wide.cpp:5154:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c6_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c6_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c6_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c6_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       5154 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      2 errors generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(112,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots, String[] nativeFlags)
+        tests/Cilica.Metadata.Tests/ReferenceArrayBorrowTests.cs(20,0): at Cilica.Metadata.Tests.ReferenceArrayBorrowTests.Array_slot_aliases_roots_generics_and_covariance_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ValueVectorBorrowTests.Scalar_array_borrows_preserve_fields_owner_lifetime_and_ordered_faults(optimized: True) [FAIL]
+      Assertion failed: (array_location(c, owner, &t_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_02000002_vector_value_t_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_02000003_descriptor, 1, 3).status == LocationStatus::invalid), function carriers, file probe.cpp, line 1779.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/ValueVectorBorrowTests.cs(134,0): at Cilica.Metadata.Tests.ValueVectorBorrowTests.Scalar_array_borrows_preserve_fields_owner_lifetime_and_ordered_faults(Boolean optimized)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.NativeArrayTests.Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(optimized: False, verify: False) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-8acc57189d5c4d738fcaeaafef61b58f/native-arrays/arrays.cpp:1310:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060000a2_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060000a2_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060000a2_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060000a2_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       1310 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      1 error generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/NativeArrayTests.cs(181,0): at Cilica.Metadata.Tests.NativeArrayTests.Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(Boolean optimized, Boolean verify)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ReferenceArrayBorrowTests.Array_slot_aliases_roots_generics_and_covariance_faults_match_dotnet(optimized: False, group: 1) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-88abd53d6a9b47a684607bbb8777dcb2/wide-cil/wide.cpp:1310:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c8_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c8_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c8_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c8_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       1310 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-88abd53d6a9b47a684607bbb8777dcb2/wide-cil/wide.cpp:5301:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c9_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c9_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c9_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011c9_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       5301 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      2 errors generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(112,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots, String[] nativeFlags)
+        tests/Cilica.Metadata.Tests/ReferenceArrayBorrowTests.cs(20,0): at Cilica.Metadata.Tests.ReferenceArrayBorrowTests.Array_slot_aliases_roots_generics_and_covariance_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.NativeArrayTests.Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(optimized: False, verify: True) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-234604357697410fbb4c5f200dd4fedf/native-arrays/arrays.cpp:1310:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060000a2_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060000a2_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060000a2_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060000a2_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       1310 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      1 error generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/NativeArrayTests.cs(181,0): at Cilica.Metadata.Tests.NativeArrayTests.Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(Boolean optimized, Boolean verify)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.ReferenceArrayBorrowTests.Array_slot_aliases_roots_generics_and_covariance_faults_match_dotnet(optimized: False, group: 2) [FAIL]
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-e731c580c6b74e5b933e28085c117404/wide-cil/wide.cpp:1310:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011cb_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011cb_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011cb_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011cb_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       1310 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      /var/folders/sx/60f_ys8n5cn6mhg4q6s56smc0000gn/T/cilica-resolver-e731c580c6b74e5b933e28085c117404/wide-cil/wide.cpp:5243:55: error: stack frame size (2176) exceeds limit (2048) in 'cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011cd_objects_packed_closure::array_location(cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011cd_objects_packed_closure::Context&, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011cd_objects_packed_closure::Object*, cilica_m_63c6120efa08ed0a5c084c4bbbc81f5beb9aea1a4dc289e2e8b35629750b9498_060011cd_objects_packed_closure::Descriptor const*, unsigned int, unsigned long, bool)' [-Werror,-Wframe-larger-than]
+       5243 | [[maybe_unused, gnu::noinline]] static LocationResult array_location(Context& context, Object* owner,
+            |                                                       ^
+      2 errors generated.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/IntegerObjectTranslationTests.cs(112,0): at Cilica.Metadata.Tests.IntegerObjectTranslationTests.VerifyTranslated(Boolean optimized, ValueTuple`3[] probes, ValueTuple`2[] pairs, Boolean persistentRoots, Int32 expectedStaticRoots, String[] nativeFlags)
+        tests/Cilica.Metadata.Tests/ReferenceArrayBorrowTests.cs(20,0): at Cilica.Metadata.Tests.ReferenceArrayBorrowTests.Array_slot_aliases_roots_generics_and_covariance_faults_match_dotnet(Boolean optimized, Int32 group)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.NativeArrayTests.Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(optimized: True, verify: False) [FAIL]
+      Assertion failed: (array_location(c, value, &t_9ed74c2e2efeee87f1f2d7ffe1736b7e9164ce248516ea39402a725eedc87af6_0200006d_vector_i4_descriptor, static_cast<std::uint32_t>(length), 1).status == LocationStatus::index_bounds), function allocation_budgets, file arrays.cpp, line 35404.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/NativeArrayTests.cs(216,0): at Cilica.Metadata.Tests.NativeArrayTests.Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(Boolean optimized, Boolean verify)
+        --- End of stack trace from previous location ---
+    Cilica.Metadata.Tests.NativeArrayTests.Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(optimized: True, verify: True) [FAIL]
+      Assertion failed: (array_location(c, value, &t_9ed74c2e2efeee87f1f2d7ffe1736b7e9164ce248516ea39402a725eedc87af6_0200006d_vector_i4_descriptor, static_cast<std::uint32_t>(length), 1).status == LocationStatus::index_bounds), function allocation_budgets, file arrays.cpp, line 35404.
+      
+      Stack Trace:
+        tests/Cilica.Metadata.Tests/NativeArrayTests.cs(216,0): at Cilica.Metadata.Tests.NativeArrayTests.Arrays_match_dotnet_with_ordered_faults_roots_budgets_and_owned_storage(Boolean optimized, Boolean verify)
+        --- End of stack trace from previous location ---
+  Finished:    Cilica.Metadata.Tests (ID = 'ebfa90e8dbded546ca204c1a7a2bca3a0eefe3451eec720feef837e75c407c4a')
+=== TEST EXECUTION SUMMARY ===
+   Cilica.Metadata.Tests  Total: 42, Errors: 0, Failed: 10, Skipped: 0, Not Run: 0, Time: 48.932s

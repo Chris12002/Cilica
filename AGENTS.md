@@ -1092,3 +1092,8 @@ Attribute macros must not add linkage keywords to the shared header. See ADR 021
 Native v113 exposes eight checked frame-borrow helpers to optimized inlining.
 Keep exact tokens, retirement, collision fallback, narrow/readonly/type checks and
 O0 noinline; this does not expand the no-safepoint kernel proof. See ADR 0220.
+
+Native v114 consolidates optimized array-location construction checks only. Keep
+owner/storage/type/bounds order, invariant reference slots and exact component
+checks. No allocation/callback may separate those checks from carrier construction;
+later resolution remains checked. O0 keeps the original path. See ADR 0221.

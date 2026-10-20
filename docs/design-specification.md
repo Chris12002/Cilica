@@ -431,6 +431,11 @@ Native v113 inlines eight checked frame-borrow access helpers under optimization
 Token/lifetime/type/extent/readonly validation, staged outputs and O0 noinline
 policy remain. Array/heap/static subhelpers retain their existing policies. See
 [ADR 0220](decisions/0220-frame-borrow-helper-inlining.md).
+Native v114 avoids re-authenticating a newly constructed array borrow in optimized
+builds. Owner, descriptor, backing storage, bounds and invariant array view are
+checked once, followed by the exact slot/component check. Later accesses retain
+full carrier resolution; O0 retains its original path. See
+[ADR 0221](decisions/0221-array-borrow-construction.md).
 Native v103 carries the validated IR's declared reference types through that
 closed kernel graph. Entry wrappers retain reference/borrow checks and validate
 incoming array storage. Normal kernels trust declared field/array result types

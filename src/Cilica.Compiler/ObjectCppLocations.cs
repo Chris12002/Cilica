@@ -246,9 +246,23 @@ CILICA_FRAME_BORROW_HELPER static bool valid_location_argument(Context& context,
     if (index >= reinterpret_cast<ArrayObject*>(owner)->length) return {LocationStatus::index_bounds};
     // A writable reference slot is invariant even when its array view is covariant.
     if (!integer && owner->type != declaring) return {declaring->array_kind == 2 ? LocationStatus::array_type_mismatch : LocationStatus::invalid};
+#if defined(__OPTIMIZE__)
+    // The checks above already authenticate this new carrier. Validate only its
+    // slot shape here; later accesses still resolve and validate the full carrier.
+    if (integer || declaring->array_kind == 2) {
+        if (slot != 0 || (!integer && declaring->accepts_element == nullptr)) return {LocationStatus::invalid};
+    } else {
+        const auto storage = array_component_location_storage(
+            reinterpret_cast<ArrayObject*>(owner), *declaring, index, slot);
+        if (storage.status != LocationStatus::complete) return {storage.status};
+    }
+    return {LocationStatus::complete, {owner, 0, slot, declaring, LocationOrigin::array_slot, read_only, index}};
+#else
+    // Preserve the diagnostic O0 frame budget and the original checked path.
     Location value{owner, 0, slot, declaring, LocationOrigin::array_slot, read_only, index};
     const auto storage = location_storage(context, value, false);
     return storage.status == LocationStatus::complete ? LocationResult{storage.status, value} : LocationResult{storage.status};
+#endif
 }
 [[maybe_unused, gnu::noinline]] static LocationResult heap_location(Context& context, Object* owner,
     const Descriptor* declaring, std::size_t slot, bool read_only = false) noexcept {

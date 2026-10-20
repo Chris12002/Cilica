@@ -57,6 +57,58 @@ public sealed class ValueVectorBorrowTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    public async Task Integer_array_carrier_construction_preserves_shape_fault_order_and_readonly(bool optimized)
+    {
+        var original = Program();
+        var vector = ObjectTypeId.Vector(original.Flow.Flow.Types.ObjectBase, ObjectArrayElement.Int32);
+        var catalog = original.Flow.Flow.Types with
+        { Arrays = [.. original.Flow.Flow.Types.Arrays, vector], Roots = [.. original.Flow.Flow.Types.Roots, vector] };
+        var entry = original.Flow.Flow.Methods[0];
+        entry = entry with { Blocks = [entry.Blocks[0] with
+        { Statements = entry.Blocks[0].Statements.Add(Def(7, IrType.Reference(vector), new IrExpression.NewArray(vector, 0), true)) }] };
+        var program = original with { Flow = original.Flow with { Flow = original.Flow.Flow with { Types = catalog, Methods = [entry] } } };
+        var artifact = ObjectCppEmitter.EmitLocations(program);
+        string symbol = "t_" + catalog.ObjectBase.ContentHash + "_" + catalog.ObjectBase.Token.ToString("x8", System.Globalization.CultureInfo.InvariantCulture) + "_vector_i4";
+        string source = artifact.Text + $$"""
+            #include <cassert>
+            using namespace {{artifact.EntryPoint[..^4]}}_closure;
+            int main() {
+                for (std::uint32_t length : {0u, 1u, 7u}) {
+                    Instance heap; Context c(heap);
+                    Object* owner = allocate_array(c, {{symbol}}_descriptor, length);
+                    assert(owner);
+                    assert(array_location(c, owner, &{{symbol}}_descriptor, length, 1).status == LocationStatus::index_bounds);
+                    if (length == 0) continue;
+                    assert(array_location(c, owner, &{{symbol}}_descriptor, 0, 1).status == LocationStatus::invalid);
+                    auto frozen = array_location(c, owner, &{{symbol}}_descriptor, 0, 0, true);
+                    assert(frozen.status == LocationStatus::complete && frozen.value.read_only);
+                    assert(store_location_integer(c, frozen.value, 17) == LocationStatus::read_only);
+                    std::uint32_t value = 99;
+                    assert(load_location_integer(c, frozen.value, value) == LocationStatus::complete && value == 0);
+                    auto* array = reinterpret_cast<ArrayObject*>(owner);
+                    auto* buffer = array->integers; array->integers = nullptr;
+                    assert(array_location(c, owner, &{{symbol}}_descriptor, length, 1).status == LocationStatus::invalid);
+                    array->integers = buffer;
+                    auto good = array_location(c, owner, &{{symbol}}_descriptor, length - 1, 0);
+                    assert(good.status == LocationStatus::complete);
+                    assert(store_location_integer(c, good.value, 23) == LocationStatus::complete);
+                    assert(load_location_integer(c, good.value, value) == LocationStatus::complete && value == 23);
+                }
+            }
+            """;
+        using var files = new ResolverFiles(); string directory = files.DirectoryPath("integer-array-carriers");
+        string cpp = Path.Combine(directory, "probe.cpp"), executable = Path.Combine(directory, "probe");
+        File.WriteAllText(cpp, source, new UTF8Encoding(false));
+        var build = await NativeProcess.Run(Environment.GetEnvironmentVariable("CILICA_CXX") ?? "clang++",
+            ["-std=c++20", "-DCILICA_VERIFY_INTERNAL_REFERENCES=1", "-fno-exceptions", "-fno-rtti", "-Wall", "-Wextra", "-Werror", optimized ? "-O2" : "-O0",
+                "-fsanitize=address,undefined", "-fno-sanitize-recover=all", cpp, "-o", executable], directory);
+        Assert.True(build.ExitCode == 0, build.Stderr);
+        var run = await NativeProcess.Run(executable, [], directory); Assert.True(run.ExitCode == 0, run.Stderr);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task Scalar_array_borrows_preserve_fields_owner_lifetime_and_ordered_faults(bool optimized)
     {
         var program = Program(); var artifact = ObjectCppEmitter.EmitLocations(program);
@@ -100,6 +152,12 @@ public sealed class ValueVectorBorrowTests
                 assert(load_location_integer(c, w.value, integer) == LocationStatus::invalid);
                 assert(array_location(c, nullptr, &{{vector}}_descriptor, 0xffffffffu, 0).status == LocationStatus::null_reference);
                 assert(array_location(c, owner, &{{vector}}_descriptor, 0xffffffffu, 0).status == LocationStatus::index_bounds);
+                assert(array_location(c, owner, &{{vector}}_descriptor, 1, 5).status == LocationStatus::invalid);
+                assert(array_location(c, owner, &{{vector}}_descriptor, 2, 5).status == LocationStatus::index_bounds);
+                const auto frozen = array_location(c, owner, &{{vector}}_descriptor, 1, 2, true);
+                assert(frozen.status == LocationStatus::complete && frozen.value.read_only);
+                assert(store_location_wide_integer(c, frozen.value, 17) == LocationStatus::read_only);
+                assert(load_location_wide_integer(c, w.value, wide) == LocationStatus::complete && wide == 0x8000000000000001ull);
                 Instance foreign; Context other(foreign);
                 assert(load_location_integer(other, i.value, integer) == LocationStatus::invalid);
                 Object* foreign_object = allocate<{{type}}>(other, {{type}}_descriptor);
