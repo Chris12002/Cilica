@@ -1,0 +1,6 @@
+{
+  "revision": "5440f23c476c610d9ccb16291480ab9dc24217cb",
+  "cpp_sha256": "efa98008bcfd4a89c17622128bef9f5fd7eff10fb5c9e86a440f165b50cf5740",
+  "matches_measured_source": true,
+  "compiler_clean_before_and_after": true
+}

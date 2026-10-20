@@ -34,7 +34,7 @@ That earlier pair and the final three-version series are distinct measurements.
 - [ADR 0207](../decisions/0207-inline-character-strings.md), commit `2a8407c`:
   embed one UTF-16 code unit in StringObject. Charge its storage once and skip
   separate buffer allocation/deletion; preserve fresh identity.
-- [ADR 0208](../decisions/0208-rooted-character-helpers.md): recognize two exact
+- [ADR 0208](../decisions/0208-rooted-character-helpers.md), commit `5440f23`: recognize two exact
   operation shapes, retain real GC frames and the borrowed owner, avoid general
   execution-arena frames on valid nested calls. No replay after allocation.
 
@@ -62,8 +62,10 @@ not arbitrary-depth stack safety on other platforms.
 ## Provenance and comparator evidence
 
 Baseline compiler `12dab27`, implementation `8f951a5`, v99. The inline slice is
-`2a8407c`; wrapper emission records that parent plus complete compiler-file hashes.
-Subsequent committed regeneration must reproduce the measured C++ byte for byte.
+`2a8407c`; the wrapper slice is `5440f23`. Pre-commit wrapper emission records its
+parent plus complete compiler-file hashes. Regeneration from each implementation
+commit reproduced its measured C++ byte for byte. The final compiler was clean
+before and after regeneration; see committed-reproduction.json.
 
 | Artifact | SHA256 |
 | --- | --- |
