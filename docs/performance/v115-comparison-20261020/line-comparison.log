@@ -1,0 +1,23 @@
+{
+  "baseline": {
+    "median_ns": 70406.1279296875,
+    "min_ns": 69246.541015625,
+    "max_ns": 75070.515625,
+    "samples": 21,
+    "reduction_percent": 0.0
+  },
+  "v115": {
+    "median_ns": 66274.5361328125,
+    "min_ns": 65667.765625,
+    "max_ns": 69270.8740234375,
+    "samples": 21,
+    "reduction_percent": 5.868227551160176
+  },
+  "dotnet": {
+    "median_ns": 6953.72314453125,
+    "min_ns": 6918.9453125,
+    "max_ns": 7201.72119140625,
+    "samples": 21,
+    "reduction_percent": 90.12341205374094
+  }
+}

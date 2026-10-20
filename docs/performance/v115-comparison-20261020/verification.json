@@ -1,0 +1,48 @@
+{
+  "compiler_revision": "66287c45cd5183862a5951199a4b832ea1b30226",
+  "commands": [
+    [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "verify",
+      "0"
+    ],
+    [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-collector-20261020/v115",
+      "verify",
+      "0"
+    ],
+    [
+      "open",
+      "-W",
+      "-n",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/CilicaDiffPlex/Build/DiffPlex.app",
+      "--args",
+      "-batchmode",
+      "-nographics",
+      "-logFile",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-comparison-20261020/verify-unity.player.log",
+      "--cilica-mode",
+      "verify",
+      "--cilica-result",
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-comparison-20261020/verify-unity.json"
+    ],
+    [
+      "dotnet",
+      "/Users/christian/Documents/Codex/2026-10-08/task-2/unity-testing/inputs/host/DotNetHost.dll",
+      "verify",
+      "1"
+    ],
+    [
+      "/Users/christian/.codex/worktrees/profile-v107/Cilica/artifacts/v115-collector-20261020/v115",
+      "verify",
+      "1"
+    ]
+  ],
+  "matches_both_workloads_dotnet": true,
+  "matches_character_workload_unity": true,
+  "retained_comparator_hashes_unchanged": true,
+  "compiler_sources_match_accepted_slice": true,
+  "clang": "Apple clang version 17.0.0 (clang-1700.4.4.1)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "dotnet": ".NET SDK:\n Version:           10.0.400\n Commit:            14fbf8d527\n Workload version:  10.0.400-manifests.330ea142\n MSBuild version:   18.9.6+14fbf8d52\n\nRuntime Environment:\n OS Name:     Mac OS X\n OS Version:  15.7\n OS Platform: Darwin\n RID:         osx-arm64\n Base Path:   /Users/christian/.dotnet/sdk/10.0.400/\n\n.NET workloads installed:\nThere are no installed workloads to display.\nConfigured to use workload sets when installing new manifests.\nNo workload sets are installed. Run \"dotnet workload restore\" to install a workload set.\n\nHost:\n  Version:      10.0.11\n  Architecture: arm64\n  Commit:       e2f47b0110\n\n.NET SDKs installed:\n  9.0.306 [/Users/christian/.dotnet/sdk]\n  10.0.400 [/Users/christian/.dotnet/sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 9.0.10 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.11 [/Users/christian/.dotnet/shared/Microsoft.NETCore.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  DOTNET_ROOT                              [/Users/christian/.dotnet]\n\nglobal.json file:\n  /Users/christian/.codex/worktrees/profile-v107/Cilica/global.json\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download\n"
+}
