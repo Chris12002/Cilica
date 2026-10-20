@@ -395,6 +395,15 @@ Native v98 uses collision-checked fixed address tables for broad descriptor sets
 retaining exact membership without candidate dereferences or heap allocation.
 Small sets retain linear comparisons; GC and public boundaries remain checked.
 See [ADR 0205](decisions/0205-checked-descriptor-lookup.md).
+Native v99 extends typed kernels through checked field/array reads, reference
+results, void helpers and exact proven virtual/interface targets. Scalar frame
+outputs are staged with alias preservation, then committed only after success;
+heap outputs and unproven targets replay through the framed implementation.
+Reference borrow writes, allocation and external mutation remain outside kernels.
+Own reference locals/parameters can change without changing caller state. Kernel
+chains retain depth accounting and caller roots, with an acyclic depth-eight,
+512-expanded-statement proof budget. See
+[ADR 0206](decisions/0206-typed-dictionary-lookup.md).
 
 The object boundary now uses a fixed-size native signature with an Int32 input
 pointer and exact element count, including for wide managed entry methods

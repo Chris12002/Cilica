@@ -121,6 +121,14 @@ and framed fault replay. See ADRs 0203–0204. ADR 0202 separates a 4 KiB releas
 frame review threshold and 512–576 KiB constrained-stack check from the older
 diagnostic baseline; individual frame size never replaces whole-call-chain tests.
 
+Native v98 keeps exact broad descriptor membership using fixed address tables
+(ADR 0205). Native v99 extends typed execution through checked field/array reads,
+reference returns and exact proven dispatch targets. Scalar frame outputs are
+staged with alias preservation and committed only on success. Heap outputs,
+allocating/mutating targets and faults use framed replay; never expose speculative
+writes or allow reference borrow writes. Keep the acyclic depth-eight/512-statement
+proof and constrained-stack validation (ADR 0206).
+
 ## Correctness and review
 
 - Preserve managed arithmetic, exception order, object identity and ownership.

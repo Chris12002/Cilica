@@ -30,11 +30,30 @@ struct TypedCallDepth {
 };
 """;
 
-    internal static Dictionary<IrMethodId, IrMethod> Analyze(IEnumerable<IrMethod> methods)
+    internal sealed class Plan : Dictionary<IrMethodId, IrMethod>
     {
-        var candidates = methods.Where(Eligible).ToArray();
-        var result = new Dictionary<IrMethodId, IrMethod>();
+        internal readonly Dictionary<(IrMethodId Method, IrMethodId Declaration), ObjectVirtualTarget[]> Dispatch = [];
+        internal readonly HashSet<IrMethodId> Writes = [];
+    }
+    private sealed record CallSite(IrMethodId Target, ImmutableArray<int> Arguments, bool Virtual, bool NullCheck);
+    private static IEnumerable<CallSite> Calls(IrMethod method) => method.Blocks.SelectMany(b => b.Statements).Select(s => s switch
+    {
+        IrStatement.Invoke i => new CallSite(i.Target, i.Arguments, i.VirtualDispatch, i.NullCheckReceiver),
+        IrStatement.Define { Value.Expression: IrExpression.Call c } => new CallSite(c.Target, c.Arguments, c.VirtualDispatch, c.NullCheckReceiver),
+        _ => null,
+    }).OfType<CallSite>();
+
+    internal static Plan Analyze(ObjectIrProgram program)
+    {
+        var candidates = program.Flow.Methods.Where(Eligible).ToArray();
+        var result = new Plan();
         var costs = new Dictionary<IrMethodId, (int Depth, int Size)>();
+        var boxed = program.InterfaceDispatch?.Methods.Where(m => m.BoxedDeclaration is not null).Select(m => m.Binding.Method).ToHashSet() ?? [];
+        var dispatch = program.Dispatch.ToDictionary(d => d.Declaration, d => d.Targets.ToArray());
+        if (program.InterfaceDispatch is { } interfaces)
+            foreach (var d in interfaces.Dispatch)
+                dispatch.Add(d.Declaration, d.Targets.Where(t => !boxed.Contains(t.Implementation))
+                    .Select(t => new ObjectVirtualTarget(t.Receiver, t.Implementation)).ToArray());
         bool changed;
         do
         {
@@ -43,15 +62,32 @@ struct TypedCallDepth {
             {
                 var id = IrMethodId.From(method.Source);
                 if (result.ContainsKey(id)) continue;
-                var calls = method.Blocks.SelectMany(b => b.Values).Select(v => v.Expression).OfType<IrExpression.Call>().ToArray();
-                // Cycles and indirect calls never acquire a proof. Borrow arguments
-                // remain local to their entry kernel; no byref forwarding in this slice.
-                if (calls.Any(c => !result.TryGetValue(c.Target, out var target)
-                    || target.Parameters.Any(t => t.Kind == IrTypeKind.ManagedLocation))) continue;
-                int depth = 1 + calls.Select(c => costs[c.Target].Depth).DefaultIfEmpty().Max();
-                int size = method.Blocks.Sum(b => b.Statements.Length + b.Inputs.Length) + calls.Sum(c => costs[c.Target].Size);
-                if (depth > 8 || size > 256) continue;
+                var callees = new List<IrMethodId>();
+                var selected = new Dictionary<IrMethodId, ObjectVirtualTarget[]>();
+                bool ready = true;
+                foreach (var call in Calls(method))
+                {
+                    if (!call.Virtual)
+                    {
+                        if (!result.ContainsKey(call.Target)) { ready = false; break; }
+                        callees.Add(call.Target);
+                    }
+                    else
+                    {
+                        var targets = dispatch.GetValueOrDefault(call.Target, []).Where(t => result.ContainsKey(t.Implementation)).ToArray();
+                        if (targets.Length is 0 or > 16) { ready = false; break; }
+                        selected[call.Target] = targets;
+                        callees.AddRange(targets.Select(t => t.Implementation));
+                    }
+                }
+                if (!ready) continue;
+                int depth = 1 + callees.Select(c => costs[c].Depth).DefaultIfEmpty().Max();
+                int size = method.Blocks.Sum(b => b.Statements.Length + b.Inputs.Length) + callees.Sum(c => costs[c].Size);
+                if (depth > 8 || size > 512) continue;
                 result.Add(id, method); costs.Add(id, (depth, size)); changed = true;
+                foreach (var pair in selected) result.Dispatch.Add((id, pair.Key), pair.Value);
+                if (method.Blocks.SelectMany(b => b.Statements).Any(s => s is IrStatement.StoreLocation or IrStatement.InitializeLocation)
+                    || callees.Any(result.Writes.Contains)) result.Writes.Add(id);
             }
         } while (changed);
         return result;
@@ -63,46 +99,56 @@ struct TypedCallDepth {
         && type.Narrow is null && type.Element is { } element && Plain(element);
     private static bool Eligible(IrMethod method)
     {
-        if (!Scalar(method.ReturnType) || method.Parameters.Length > 4 || method.Locals.Length > 8
+        if (!(Plain(method.ReturnType) || method.ReturnType.Kind == IrTypeKind.Void) || ObjectCppLeafMethods.FieldGetter(method) is not null
+            || method.Parameters.Length > 4 || method.Locals.Length > 8
             || !method.Parameters.All(Parameter) || !method.Locals.All(Plain) || !method.ExceptionRegions.IsEmpty
             || method.Blocks.Length > 16 || method.Blocks.Sum(b => b.Statements.Length + b.Inputs.Length) > 96)
             return false;
         foreach (var block in method.Blocks)
         {
-            if (!block.Inputs.All(Plain) || block.Terminator is not (IrReturn or IrJump or IrBranch)) return false;
+            if (!block.Inputs.All(Plain) || block.Terminator is not (IrReturn or IrVoidReturn or IrThrow or IrJump or IrBranch)) return false;
             var values = block.Values.ToDictionary(v => v.Id);
             foreach (var statement in block.Statements)
             {
-                if (statement is IrStatement.StoreLocal) continue;
-                if (statement is not IrStatement.Define { Value: var value }) return false;
-                if (value.Type.Kind == IrTypeKind.ManagedLocation && value.Expression is not IrExpression.Parameter) return false;
-                if (!Plain(value.Type) && value.Type.Kind != IrTypeKind.ManagedLocation) return false;
-                if (value.Expression is IrExpression.LoadLocation load)
+                if (statement is IrStatement.StoreLocal or IrStatement.Invoke) continue;
+                if (statement is IrStatement.StoreLocation or IrStatement.InitializeLocation)
                 {
-                    if (values[load.Location].Expression is not IrExpression.Parameter) return false;
+                    int location = statement is IrStatement.StoreLocation store ? store.Location : ((IrStatement.InitializeLocation)statement).Location;
+                    // Reference writes are limited to this kernel's own by-value parameters/locals.
+                    // Incoming reference borrows are snapshots and must never be mutated.
+                    bool ownReference = values[location].Type.Element!.Kind == IrTypeKind.Reference
+                        && values[location].Expression is IrExpression.AddressLocal or IrExpression.AddressParameter;
+                    if ((!Scalar(values[location].Type.Element!) && !ownReference) || values[location].Type.ReadOnly) return false;
+                    continue;
                 }
-                else if (value.Expression is IrExpression.Call call)
+                if (statement is not IrStatement.Define { Value: var value }) return false;
+                if (!Parameter(value.Type)) return false;
+                if (value.Type.Kind == IrTypeKind.ManagedLocation && value.Expression is not
+                    (IrExpression.Parameter or IrExpression.AddressLocal or IrExpression.AddressParameter or IrExpression.ReadOnlyLocation)) return false;
+                if (value.Expression is IrExpression.Call call)
                 {
-                    if (call.VirtualDispatch || call.ValueKeyContract is not null) return false;
+                    if (call.ValueKeyContract is not null) return false;
                 }
                 else if (value.Expression is not (IrExpression.Constant or IrExpression.Constant64 or IrExpression.Parameter
                     or IrExpression.Local or IrExpression.StackInput or IrExpression.Binary or IrExpression.Binary64
                     or IrExpression.Unary or IrExpression.Not64 or IrExpression.ConvertInteger or IrExpression.IntegerCast
                     or IrExpression.Compare or IrExpression.Null or IrExpression.StringLength or IrExpression.StringCodeUnit
-                    or IrExpression.StringEquals)) return false;
+                    or IrExpression.StringEquals or IrExpression.LoadLocation or IrExpression.AddressLocal or IrExpression.AddressParameter
+                    or IrExpression.ReadOnlyLocation or IrExpression.LoadField or IrExpression.ArrayLength or IrExpression.LoadElement
+                    or IrExpression.StringLiteral or IrExpression.NewException)) return false;
             }
         }
         return true;
     }
 
     private static IrType Resolved(IrType type) => type.Kind == IrTypeKind.ManagedLocation ? type.Element! : type;
-    internal static string Type(IrType type) => Resolved(type).Kind switch
+    internal static string Type(IrType type) => type.Kind == IrTypeKind.ManagedLocation ? Type(type.Element!) + "*" : type.Kind switch
     {
         IrTypeKind.Int64 => "std::uint64_t", IrTypeKind.Reference or IrTypeKind.NullReference => "Object*", _ => "std::uint32_t",
     };
     internal static string Symbol(IrMethod method) => CppEmitter.Symbol(IrMethodId.From(method.Source));
     private static string N(int value) => value.ToString(CultureInfo.InvariantCulture);
-    private static string Signed(IrType type) => type.Kind == IrTypeKind.Int64 ? "std::int64_t" : "std::int32_t";
+    private static string Signed(IrType type) => type.Kind switch { IrTypeKind.Int64 => "std::int64_t", IrTypeKind.Reference => "Object*", IrTypeKind.Void => "void", _ => "std::int32_t" };
     private static string Member(IrType type) => type.Kind switch
     {
         IrTypeKind.Int64 => "wide_bits", IrTypeKind.ManagedLocation => "location", IrTypeKind.Reference => "reference", _ => "bits",
@@ -123,10 +169,12 @@ struct TypedCallDepth {
         Header(text, method, false, module); text.Append(";\n");
     }
 
-    internal static void Append(StringBuilder text, IrMethod method, string argumentType, bool module, ObjectTypeId objectBase, Func<ObjectTypeId, string> predicate)
+    internal static void Append(StringBuilder text, IrMethod method, string argumentType, bool module, ObjectTypeId objectBase, Func<ObjectTypeId, string> predicate, Plan plan, ObjectTypeCatalog catalog, ObjectNativeLayout native, Func<ObjectTypeId, string> typeSymbol)
     {
+        var id = IrMethodId.From(method.Source);
+        var fields = catalog.Types.SelectMany(t => t.Fields).ToDictionary(f => f.Id);
         Header(text, method, true, module);
-        text.Append(" {\n    // Proven typed kernel: no allocation, callback, write or escaping address.\n")
+        text.Append(" {\n    // Proven typed kernel: no safepoint or external write; scalar frame writes are staged.\n")
             .Append("    if (context.depth >= 64u) return false;\n    TypedCallDepth depth(context);\n");
         for (int i = 0; i < method.Locals.Length; i++)
             text.Append("    [[maybe_unused]] ").Append(Type(method.Locals[i])).Append(" l").Append(N(i)).Append(" = 0;\n");
@@ -134,6 +182,7 @@ struct TypedCallDepth {
             for (int i = 0; i < block.Inputs.Length; i++)
                 text.Append("    [[maybe_unused]] ").Append(Type(block.Inputs[i])).Append(" s").Append(N(block.Id)).Append('_').Append(N(i)).Append(" = 0;\n");
         text.Append("    goto b0;\n");
+        int invocation = 0;
         foreach (var block in method.Blocks)
         {
             var types = block.Values.ToDictionary(v => v.Id, v => v.Type);
@@ -144,6 +193,16 @@ struct TypedCallDepth {
                 {
                     text.Append("    l").Append(N(store.Local)).Append(" = v").Append(N(store.Value)).Append(";\n"); continue;
                 }
+                if (statement is IrStatement.Invoke invoke)
+                {
+                    int callIndex = invocation++;
+                    text.Append("    [[maybe_unused]] std::uint32_t ignored").Append(N(callIndex)).Append(" = 0;\n");
+                    Call(new(invoke.Target, invoke.Arguments, invoke.VirtualDispatch, invoke.NullCheckReceiver), "ignored" + N(callIndex)); continue;
+                }
+                if (statement is IrStatement.StoreLocation write)
+                { text.Append("    *v").Append(N(write.Location)).Append(" = v").Append(N(write.Value)).Append(";\n"); continue; }
+                if (statement is IrStatement.InitializeLocation zero)
+                { text.Append("    *v").Append(N(zero.Location)).Append(" = 0;\n"); continue; }
                 var value = ((IrStatement.Define)statement).Value;
                 text.Append("    // IL_").Append(value.ILOffset.ToString("x4", CultureInfo.InvariantCulture)).Append('\n');
                 string expression;
@@ -151,7 +210,24 @@ struct TypedCallDepth {
                 {
                     case IrExpression.Parameter parameter: expression = "p" + N(parameter.Index); break;
                     case IrExpression.Null: expression = "nullptr"; break;
-                    case IrExpression.LoadLocation load: expression = "v" + N(load.Location); break;
+                    case IrExpression.LoadLocation load: expression = "*v" + N(load.Location); break;
+                    case IrExpression.AddressLocal address: expression = "&l" + N(address.Index); break;
+                    case IrExpression.AddressParameter address: expression = "&p" + N(address.Index); break;
+                    case IrExpression.ReadOnlyLocation read: expression = "v" + N(read.Location); break;
+                    case IrExpression.StringLiteral or IrExpression.NewException:
+                        // Cold allocation/throw work is replayed by the framed method.
+                        text.Append("    return false;\n"); expression = "nullptr"; break;
+                    case IrExpression.LoadField field:
+                        Check("v" + N(field.Receiver), field.Field.Owner, true);
+                        string storage = fields[field.Field].Storage switch { ObjectStorage.Int32 => "std::uint32_t", ObjectStorage.Int64 => "std::uint64_t", _ => "Object*" };
+                        expression = "*static_cast<" + storage + "*>(field_address(v" + N(field.Receiver) + ", " + N(native.Indices[field.Field]) + "))"; break;
+                    case IrExpression.ArrayLength length:
+                        CheckArray("v" + N(length.Array), null, null);
+                        expression = "array_length(v" + N(length.Array) + ")"; break;
+                    case IrExpression.LoadElement element:
+                        CheckArray("v" + N(element.Array), element.ArrayType, "v" + N(element.Index));
+                        expression = (value.Type.Kind == IrTypeKind.Int32 ? "load_integer_element" : value.Type.Kind == IrTypeKind.Int64 ? "load_wide_element" : "load_reference_element")
+                            + "(v" + N(element.Array) + ", v" + N(element.Index) + ")"; break;
                     case IrExpression.StringLength length:
                         text.Append("    if (v").Append(N(length.Operand)).Append(" == nullptr) return false;\n");
                         expression = "string_length(v" + N(length.Operand) + ")"; break;
@@ -165,21 +241,22 @@ struct TypedCallDepth {
                             reference: types[compare.Left].Kind is IrTypeKind.Reference or IrTypeKind.NullReference,
                             wide: types[compare.Left] == IrType.Int64) + " ? 1u : 0u)"; break;
                     case IrExpression.Call call:
-                        if (call.NullCheckReceiver) text.Append("    if (v").Append(N(call.Arguments[0])).Append(" == nullptr) return false;\n");
-                        text.Append("    ").Append(Type(value.Type)).Append(" v").Append(N(value.Id)).Append(" = 0;\n    if (!")
-                            .Append(CppEmitter.Symbol(call.Target)).Append("_kernel(context");
-                        foreach (int arg in call.Arguments) text.Append(", v").Append(N(arg));
-                        text.Append(", v").Append(N(value.Id)).Append(")) return false;\n");
+                        text.Append("    ").Append(Type(value.Type)).Append(" v").Append(N(value.Id)).Append(" = 0;\n");
+                        Call(new(call.Target, call.Arguments, call.VirtualDispatch, call.NullCheckReceiver), "v" + N(value.Id));
                         continue;
                     default:
                         expression = CppEmitter.AppendValuePreparation(text, value, block.Id,
                             (_, _) => text.Append("        return false;\n"), operandType: id => types[id]); break;
                 }
                 text.Append("    [[maybe_unused]] ").Append(Type(value.Type)).Append(" const v").Append(N(value.Id)).Append(" = ").Append(expression).Append(";\n");
+                if (value.Type.Kind == IrTypeKind.Reference && value.Expression is IrExpression.LoadField or IrExpression.LoadElement or IrExpression.LoadLocation)
+                    Check("v" + N(value.Id), value.Type.Class!, false);
             }
             switch (block.Terminator)
             {
                 case IrReturn returned: text.Append("    result = v").Append(N(returned.Value)).Append("; return true;\n"); break;
+                case IrVoidReturn: text.Append("    result = 0; return true;\n"); break;
+                case IrThrow: text.Append("    return false;\n"); break;
                 case IrJump jump: Edge(jump.Edge); break;
                 case IrBranch branch:
                     text.Append("    if (").Append(CppEmitter.Comparison(branch.Comparison, branch.Left, branch.Right, reference: types[branch.Left].Kind is IrTypeKind.Reference or IrTypeKind.NullReference, wide: types[branch.Left] == IrType.Int64)).Append(") {\n");
@@ -197,11 +274,19 @@ struct TypedCallDepth {
             {
                 string kind = type.Element!.Kind switch { IrTypeKind.Int64 => "wide_integer", IrTypeKind.Reference => "reference", _ => "integer" };
                 string accepts = type.Element.Kind == IrTypeKind.Reference ? predicate(type.Element.Class!) : "nullptr";
-                text.Append("        if (!valid_location_argument(context, ").Append(argument).Append(", StorageKind::").Append(kind)
-                    .Append(", ").Append(accepts).Append(", ").Append(type.ReadOnly ? "true" : "false").Append(")) goto typed_fallback;\n")
-                    .Append("        ").Append(Type(type)).Append(" resolved").Append(N(i)).Append(" = 0;\n")
-                    .Append("        if (load_location_").Append(kind).Append("(context, ").Append(argument).Append(", resolved").Append(N(i))
-                    .Append(") != LocationStatus::complete) goto typed_fallback;\n");
+                text.Append("        const auto storage").Append(N(i)).Append(" = location_storage(context, ").Append(argument).Append(", ")
+                    .Append(type.ReadOnly ? "false" : "true").Append(");\n")
+                    .Append("        if (storage").Append(N(i)).Append(".status != LocationStatus::complete || storage").Append(N(i)).Append(".kind != StorageKind::").Append(kind)
+                    .Append(" || storage").Append(N(i)).Append(".accepts != ").Append(accepts).Append(" || ").Append(argument).Append(".narrow != LocationNarrow::none) goto typed_fallback;\n");
+                if (plan.Writes.Contains(id) && Scalar(type.Element))
+                    text.Append("        if (").Append(argument).Append(".origin != LocationOrigin::frame_").Append(kind).Append(") goto typed_fallback;\n");
+                text.Append("        ").Append(Type(type.Element)).Append(" resolved").Append(N(i)).Append(" = *static_cast<").Append(Type(type)).Append(">(storage").Append(N(i)).Append(".address);\n");
+                if (type.Element.Kind == IrTypeKind.Reference)
+                    text.Append("        if (!location_reference(context.instance, ").Append(accepts).Append(", resolved").Append(N(i)).Append(")) goto typed_fallback;\n");
+                text.Append("        ").Append(Type(type)).Append(" borrow").Append(N(i)).Append(" = &resolved").Append(N(i)).Append(";\n");
+                for (int j = 0; j < i; j++)
+                    if (method.Parameters[j].Kind == IrTypeKind.ManagedLocation && method.Parameters[j].Element == type.Element)
+                        text.Append("        if (storage").Append(N(i)).Append(".address == storage").Append(N(j)).Append(".address) borrow").Append(N(i)).Append(" = borrow").Append(N(j)).Append(";\n");
             }
             else if (type.Kind == IrTypeKind.Reference)
             {
@@ -211,8 +296,16 @@ struct TypedCallDepth {
             }
         }
         text.Append("        ").Append(Type(method.ReturnType)).Append(" result = 0;\n        if (").Append(Symbol(method)).Append("_kernel(context");
-        for (int i = 0; i < method.Parameters.Length; i++) text.Append(method.Parameters[i].Kind == IrTypeKind.ManagedLocation ? ", resolved" : ", p").Append(N(i));
-        text.Append(", result)) return std::bit_cast<").Append(Signed(method.ReturnType)).Append(">(result);\n    }\n    [[maybe_unused]] typed_fallback:;\n#endif\n")
+        for (int i = 0; i < method.Parameters.Length; i++) text.Append(method.Parameters[i].Kind == IrTypeKind.ManagedLocation ? ", borrow" : ", p").Append(N(i));
+        text.Append(", result)) {\n");
+        if (plan.Writes.Contains(id))
+            for (int i = 0; i < method.Parameters.Length; i++)
+                if (method.Parameters[i].Kind == IrTypeKind.ManagedLocation && Scalar(method.Parameters[i].Element!) && !method.Parameters[i].ReadOnly)
+                    text.Append("            *static_cast<").Append(Type(method.Parameters[i])).Append(">(storage").Append(N(i)).Append(".address) = *borrow").Append(N(i)).Append(";\n");
+        text.Append("            return");
+        if (method.ReturnType.Kind == IrTypeKind.Reference) text.Append(" result");
+        else if (Scalar(method.ReturnType)) text.Append(" std::bit_cast<").Append(Signed(method.ReturnType)).Append(">(result)");
+        text.Append(";\n        }\n    }\n    [[maybe_unused]] typed_fallback:;\n#endif\n")
             .Append("    ").Append(argumentType).Append(" arguments[").Append(N(Math.Max(1, method.Parameters.Length))).Append("]{};\n");
         for (int i = 0; i < method.Parameters.Length; i++)
             text.Append("    arguments[").Append(N(i)).Append("].").Append(Member(method.Parameters[i])).Append(" = p").Append(N(i)).Append(";\n");
@@ -221,6 +314,42 @@ struct TypedCallDepth {
             .Append("(Context& context, [[maybe_unused]] const ").Append(argumentType).Append("* arguments) noexcept {\n    return ").Append(Symbol(method)).Append("_typed(context");
         for (int i = 0; i < method.Parameters.Length; i++) text.Append(", arguments[").Append(N(i)).Append("].").Append(Member(method.Parameters[i]));
         text.Append(");\n}\n");
+        void Check(string value, ObjectTypeId type, bool nonnull)
+        {
+            text.Append("    if (");
+            if (nonnull) text.Append(value).Append(" == nullptr || ");
+            text.Append("!internal_reference_owned(context.instance, ").Append(value).Append(") || (").Append(value).Append(" != nullptr && !")
+                .Append(predicate(type)).Append('(').Append(value).Append("->type))) return false;\n");
+        }
+        void CheckArray(string value, ObjectTypeId? type, string? index)
+        {
+            Check(value, type ?? objectBase, true);
+            text.Append("    if (!valid_array_storage(").Append(value).Append(")");
+            if (index is not null) text.Append(" || ").Append(index).Append(" >= array_length(").Append(value).Append(')');
+            text.Append(") return false;\n");
+        }
+        void Call(CallSite call, string result)
+        {
+            if (call.NullCheck || call.Virtual) text.Append("    if (v").Append(N(call.Arguments[0])).Append(" == nullptr) return false;\n");
+            if (!call.Virtual) Invoke(call.Target);
+            else
+            {
+                var targets = plan.Dispatch[(id, call.Target)];
+                for (int i = 0; i < targets.Length; i++)
+                {
+                    text.Append(i == 0 ? "    if (" : "    else if (").Append("v").Append(N(call.Arguments[0])).Append("->type == &")
+                        .Append(typeSymbol(targets[i].Receiver)).Append("_descriptor) {\n");
+                    Invoke(targets[i].Implementation); text.Append("    }\n");
+                }
+                text.Append("    else return false;\n");
+            }
+            void Invoke(IrMethodId target)
+            {
+                text.Append("    if (!").Append(CppEmitter.Symbol(target)).Append("_kernel(context");
+                foreach (int arg in call.Arguments) text.Append(", v").Append(N(arg));
+                text.Append(", ").Append(result).Append(")) return false;\n");
+            }
+        }
         void Edge(IrEdge edge)
         {
             for (int i = 0; i < edge.Arguments.Length; i++)

@@ -14,7 +14,7 @@ public static class ObjectCppEmitter
     // instrumentation. Inlining them would undo that bound; measure per target.
     private const int StatementsPerStep = 2;
     private const int CopiesPerStep = 4;
-    public const string Profile = "object-frames-native-v98";
+    public const string Profile = "object-frames-native-v99";
 
     public static CppArtifact EmitProgram(ObjectIrProgram program)
     {
@@ -92,7 +92,7 @@ public static class ObjectCppEmitter
         // Catalog facts are immutable and shared by every method in this closure.
         var exceptionRules = handlers ? new ManagedExceptionRules(exceptions!, program.Flow.Types) : null;
         var methods = program.Flow.Methods.ToDictionary(m => IrMethodId.From(m.Source));
-        var typedMethods = ObjectCppTypedMethods.Analyze(methods.Values);
+        var typedMethods = ObjectCppTypedMethods.Analyze(program);
         var signatures = methods.ToDictionary(p => p.Key, p => (p.Value.Parameters, p.Value.ReturnType));
         if (program.InterfaceDispatch is { } interfacePlan)
             foreach (var declaration in interfacePlan.Declarations)
@@ -976,7 +976,7 @@ public static class ObjectCppEmitter
                     IrTypeKind.Int64 => "return std::bit_cast<std::int64_t>(f->result.wide_bits);",
                     _ => "return f->result.reference;",
                 }).Append("\n}\n");
-            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate);
+            if (typed) ObjectCppTypedMethods.Append(code, method, argumentType, module is not null, program.Flow.Types.ObjectBase, Predicate, typedMethods, program.Flow.Types, native, TypeSymbol);
             if (leafField is { } selectedField)
             {
                 Header(method); code.Append(" {\n    // Proven leaf getter: no allocation, managed call or escaping borrow.\n")

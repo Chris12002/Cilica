@@ -19,7 +19,7 @@ public sealed class NativeTypedBorrowTests
         Assert.True(run.Success, string.Join("; ",run.Diagnostics)); Assert.True(fault.Success,string.Join("; ",fault.Diagnostics));
         var source=ObjectCppEmitter.EmitExceptions(ValueScalarLowering.LowerExceptions(run.Program!));
         Assert.Contains(Symbol(source.Source.ContentHash,nameof(TypedBorrowProbe.Snapshot))+"_kernel",source.Text,StringComparison.Ordinal);
-        Assert.DoesNotContain(Symbol(source.Source.ContentHash,nameof(TypedBorrowProbe.Mutate))+"_kernel",source.Text,StringComparison.Ordinal);
+        Assert.Contains(Symbol(source.Source.ContentHash,nameof(TypedBorrowProbe.Mutate))+"_kernel",source.Text,StringComparison.Ordinal);
         Assert.DoesNotContain(Symbol(source.Source.ContentHash,nameof(TypedBorrowProbe.Change))+"_kernel",source.Text,StringComparison.Ordinal);
         await IntegerObjectTranslationTests.VerifyTranslated(optimized,
             [("BorrowRun",run.Program!,TypedBorrowProbe.Run),("BorrowFault",fault.Program!,TypedBorrowProbe.Fault)],
